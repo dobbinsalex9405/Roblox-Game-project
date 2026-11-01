@@ -167,6 +167,9 @@ function TestPanel.start(deps: Deps): boolean
 		if decision == "PurchaseGranted" and not fresh then
 			return `Replayed purchase {purchaseId}: Roblox would be told "granted" and nothing was given twice. Exactly-once works.`
 		end
+		if decision == "NotProcessedYet" and not fresh then
+			return `Replayed purchase {purchaseId}: nothing was given twice, but the save is still failing. Press Replay again.`
+		end
 		return `PROBLEM: replaying {purchaseId} gave {decision}, granted again = {tostring(fresh)}.`
 	end
 
