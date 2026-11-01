@@ -47,6 +47,17 @@ return function(Schema: any, Odds: any)
 			costGrowth = Schema.number({ min = 1 }),
 			incomeBonusPerRebirth = positive,
 		}),
+		conveyor = Schema.record({
+			spawnSeconds = Schema.number({ min = 0.5, max = 60 }),
+			travelSeconds = Schema.number({ min = 2, max = 120 }),
+			weights = Schema.map(id, Schema.integer({ min = 1 })),
+		}),
+		creaturePads = Schema.integer({ min = 1, max = 100 }),
+		storage = Schema.record({
+			slots = Schema.integer({ min = 0, max = 200 }),
+			sellSeconds = Schema.number({ min = 0, max = 3600 }),
+		}),
+		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
 		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
 		offline = Schema.record({
 			rate = Schema.number({ min = 0, max = 1 }),
@@ -61,6 +72,7 @@ return function(Schema: any, Odds: any)
 				Schema.record({
 					rarity = Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
 					coinsPerSecond = Schema.number({ min = 0 }),
+					mountSpeed = Schema.number({ min = 16, max = 60 }),
 				}),
 				{ maxEntries = 500 }
 			),
@@ -159,6 +171,25 @@ return function(Schema: any, Odds: any)
 			if not ok then
 				table.insert(problems, `eggs.{egg.id}: {err}`)
 			end
+		end
+
+		local onBelt = 0
+		for eggId in config.economy.conveyor.weights do
+			onBelt += 1
+			local egg = nil
+			for _, e in config.eggs do
+				if e.id == eggId then
+					egg = e
+				end
+			end
+			if egg == nil then
+				table.insert(problems, `economy.conveyor.weights: unknown egg {eggId}`)
+			elseif egg.priceCoins == nil then
+				table.insert(problems, `economy.conveyor.weights: {eggId} is not a coin egg`)
+			end
+		end
+		if onBelt == 0 then
+			table.insert(problems, "economy.conveyor.weights: at least one egg must ride the belt")
 		end
 
 		for boostId, boost in config.monetization.boosts do

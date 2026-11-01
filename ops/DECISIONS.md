@@ -2,6 +2,38 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Hatchery Heist first playable (milestone M2)
+
+- **The conveyor is a schedule, not physics.** Egg n appears at
+  n × `spawnSeconds` and its kind is a fixed hash of n and the base. Clients
+  draw every belt from the server clock and the server checks a purchase
+  against the same schedule (1.5 s latency allowance), so the belt costs no
+  network traffic and cannot be spoofed.
+- **The hatch result is decided at purchase.** Payment and the paid roll (or
+  the fixed order) happen in the same atomic save, and the incubator stores
+  the outcome. Waiting for a better roll or re-rolling is impossible.
+- **Fixed order for restricted players.** Where PolicyService restricts paid
+  random items, eggs hatch their outcomes in listed order and the odds card
+  shows that order with the next one marked. Verify this reading against the
+  Creator Hub policy before M5, as the Wave 1 plan asks.
+- **Buy stays off until the odds arrive** from the server, so no egg can be
+  bought without its odds on screen.
+- **Income is a pile, collected in batches.** Online income accrues every
+  10 s and before any change to what earns; banking happens at the collect
+  pad or every 30 s with Auto-Collect, so there is one economy event per
+  collect, not one per second.
+- **Storage is capped (30)** and the weakest stored creature sells for 60 s of
+  its income when it overflows. Without a cap a 30-minute simulated session
+  stored nearly 200 creatures, and saves would grow without limit.
+- **Rebirth keeps eggs in incubators and bought slots.** The plan says it
+  resets coins and creatures; eggs were paid for, so they stay.
+- **Game rules run in Lune.** `src/shared/Actions.luau` is the server's whole
+  action layer with Roblox effects passed in, so the tests drive the real code
+  through the real core services. It lives in Shared to load the same way in
+  Roblox and Lune; it holds no secrets and does nothing without server services.
+- **Mounts are basic in M2.** A welded shape and walk speed from the
+  species; the Movement check that rejects speed hacks comes with raids (M4).
+
 ## 2026-11-01: Framework scaffold (milestone M1)
 
 - **Repo name.** The plan suggested `roblox-studio`; Alex created
@@ -47,7 +79,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   key to `apis.roblox.com` (or 127.0.0.1 for its own smoke test).
 - **Third-party action.** `CompeyDev/setup-rokit@v0.2.1` installs Rokit on CI.
   Pinned by tag; pin to a commit SHA if supply-chain rules tighten.
-- **Not yet applied from the Wave 1 build plans:** the Mounts module and the
-  `mountUid`/`decoys` save fields wait for Alex's approval of mounts. Adding
-  top-level save fields later needs no migration (new keys are filled from the
+- **Wave 1 build plans:** Alex approved mounts on 2026-11-01; the Mounts
+  module and the `mountUid`/`decoys` save fields arrived in M2. Adding
+  top-level save fields needs no migration (new keys are filled from the
   template on load).

@@ -1,0 +1,104 @@
+--!strict
+-- Each base's egg conveyor, as a pure schedule over server time.
+--
+-- Egg number n appears at the start of the belt at n * spawnSeconds and rides
+-- to the end over travelSeconds. Which egg it is comes from a fixed hash of n
+-- and the base, so the server and every client agree on the whole belt
+-- without sending a single message, and the server can check any purchase
+-- ("egg 591 on base 3") against the clock.
+--
+-- The egg kind is shown before purchase (it is the egg you click), so this
+-- choice is not a paid random item; the hatch result is, and is handled by
+-- the odds tables.
+
+export type ConveyorConfig = {
+	spawnSeconds: number,
+	travelSeconds: number,
+	weights: { [string]: number },
+}
+
+export type BeltEgg = {
+	index: number,
+	eggId: string,
+	progress: number, -- 0 at the start of the belt, 1 at the end
+}
+
+local Conveyor = {}
+
+-- How much clock difference and latency a purchase may have, in seconds.
+Conveyor.TOLERANCE = 1.5
+
+-- (a * b) mod 2^32 without losing precision: a double holds 53 bits exactly,
+-- so multiply by the low and high 16 bits of `a` separately.
+local function mul32(a: number, b: number): number
+	local lo = bit32.band(a, 0xffff)
+	local hi = bit32.rshift(a, 16)
+	return (lo * b + ((hi * b) % 65536) * 65536) % 4294967296
+end
+
+-- A 32-bit integer hash ("lowbias32"): nearby n give unrelated results.
+local function mix(n: number): number
+	local x = n % 4294967296
+	x = bit32.bxor(x, bit32.rshift(x, 16))
+	x = mul32(x, 0x7feb352d)
+	x = bit32.bxor(x, bit32.rshift(x, 15))
+	x = mul32(x, 0x846ca68b)
+	x = bit32.bxor(x, bit32.rshift(x, 16))
+	return x
+end
+Conveyor.mix = mix
+
+-- Egg ids with their weights, in a fixed order (map order is not stable).
+local function sortedWeights(weights: { [string]: number }): ({ string }, number)
+	local ids = {}
+	local total = 0
+	for id, weight in weights do
+		table.insert(ids, id)
+		total += weight
+	end
+	table.sort(ids)
+	return ids, total
+end
+
+-- The egg kind of egg number `index` on base `plot`.
+function Conveyor.eggAt(index: number, plot: number, config: ConveyorConfig): string
+	local ids, total = sortedWeights(config.weights)
+	local pick = mix(index * 31 + plot * 7919) % total
+	for _, id in ids do
+		pick -= config.weights[id]
+		if pick < 0 then
+			return id
+		end
+	end
+	return ids[#ids]
+end
+
+function Conveyor.spawnTime(index: number, config: ConveyorConfig): number
+	return index * config.spawnSeconds
+end
+
+-- Every egg on the belt at `now`, oldest (furthest along) first.
+function Conveyor.onBelt(now: number, plot: number, config: ConveyorConfig): { BeltEgg }
+	local first = math.ceil((now - config.travelSeconds) / config.spawnSeconds)
+	local last = math.floor(now / config.spawnSeconds)
+	local eggs = {}
+	for index = first, last do
+		local progress = (now - Conveyor.spawnTime(index, config)) / config.travelSeconds
+		if progress >= 0 and progress <= 1 then
+			table.insert(eggs, {
+				index = index,
+				eggId = Conveyor.eggAt(index, plot, config),
+				progress = progress,
+			})
+		end
+	end
+	return eggs
+end
+
+-- Whether egg number `index` can be bought at `now`, allowing for latency.
+function Conveyor.canBuy(index: number, now: number, config: ConveyorConfig): boolean
+	local appears = Conveyor.spawnTime(index, config)
+	return now >= appears - Conveyor.TOLERANCE and now <= appears + config.travelSeconds + Conveyor.TOLERANCE
+end
+
+return Conveyor

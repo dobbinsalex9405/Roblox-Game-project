@@ -1,0 +1,254 @@
+--!strict
+-- The minimal M2 interface, phone first: coins, income, the uncollected pile,
+-- rebirths, a Get off button while riding, short notices, a welcome-back
+-- message, hatch reveals, the odds card shown before buying an egg, and the
+-- odds board at the conveyor. Built from code; art comes after the gate.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage.Shared
+local Hatchery = require(Shared.Hatchery)
+local Layout = require(Shared.Layout)
+
+local Context = require(script.Parent.Context)
+local OddsView = require(script.Parent.OddsView)
+
+local Hud = {}
+
+local function label(parent: Instance, name: string, size: UDim2, position: UDim2?): TextLabel
+	local l = Instance.new("TextLabel")
+	l.Name = name
+	l.Size = size
+	l.Position = position or UDim2.new()
+	l.BackgroundTransparency = 1
+	l.Font = Enum.Font.GothamBold
+	l.TextScaled = true
+	l.TextColor3 = Color3.new(1, 1, 1)
+	l.TextStrokeTransparency = 0.5
+	l.Text = ""
+	l.Parent = parent
+	return l
+end
+
+local function panel(parent: Instance, name: string, size: UDim2, position: UDim2, anchor: Vector2): Frame
+	local f = Instance.new("Frame")
+	f.Name = name
+	f.Size = size
+	f.Position = position
+	f.AnchorPoint = anchor
+	f.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+	f.BackgroundTransparency = 0.2
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 10)
+	corner.Parent = f
+	f.Parent = parent
+	return f
+end
+
+local function listLayout(parent: Instance, padding: number)
+	local layout = Instance.new("UIListLayout")
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0, 2)
+	layout.Parent = parent
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, padding)
+	pad.PaddingBottom = UDim.new(0, padding)
+	pad.PaddingLeft = UDim.new(0, padding)
+	pad.PaddingRight = UDim.new(0, padding)
+	pad.Parent = parent
+end
+
+function Hud.start(ctx: Context.Context)
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "HatcheryHud"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = false
+	gui.Parent = ctx.player:WaitForChild("PlayerGui")
+
+	-- Top bar: coins, income, uncollected, rebirths.
+	local bar = panel(gui, "Bar", UDim2.fromOffset(360, 64), UDim2.new(0.5, 0, 0, 8), Vector2.new(0.5, 0))
+	local coins = label(bar, "Coins", UDim2.new(0.55, -8, 0.6, 0), UDim2.fromOffset(8, 2))
+	coins.TextXAlignment = Enum.TextXAlignment.Left
+	coins.TextColor3 = Color3.fromRGB(255, 220, 90)
+	local income = label(bar, "Income", UDim2.new(0.45, -8, 0.6, 0), UDim2.new(0.55, 0, 0, 2))
+	income.TextXAlignment = Enum.TextXAlignment.Right
+	local pending = label(bar, "Pending", UDim2.new(0.65, -8, 0.38, 0), UDim2.new(0, 8, 0.6, 0))
+	pending.TextXAlignment = Enum.TextXAlignment.Left
+	pending.Font = Enum.Font.Gotham
+	local rebirths = label(bar, "Rebirths", UDim2.new(0.35, -8, 0.38, 0), UDim2.fromScale(0.65, 0.6))
+	rebirths.TextXAlignment = Enum.TextXAlignment.Right
+	rebirths.Font = Enum.Font.Gotham
+
+	-- Get off button while riding.
+	local getOff = Instance.new("TextButton")
+	getOff.Name = "GetOff"
+	getOff.Size = UDim2.fromOffset(140, 48)
+	getOff.Position = UDim2.new(1, -16, 1, -150)
+	getOff.AnchorPoint = Vector2.new(1, 1)
+	getOff.BackgroundColor3 = Color3.fromRGB(220, 90, 70)
+	getOff.Font = Enum.Font.GothamBold
+	getOff.TextScaled = true
+	getOff.TextColor3 = Color3.new(1, 1, 1)
+	getOff.Text = "Get off"
+	getOff.Visible = false
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 10)
+	corner.Parent = getOff
+	getOff.Parent = gui
+	getOff.Activated:Connect(function()
+		ctx.fire(ctx.remotes["HH:Dismount"])
+	end)
+
+	-- Notices: one line at a time under the bar.
+	local notice =
+		panel(gui, "Notice", UDim2.fromOffset(360, 36), UDim2.new(0.5, 0, 0, 80), Vector2.new(0.5, 0))
+	notice.Visible = false
+	local noticeText = label(notice, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
+	local noticeId = 0
+	local function show(text: string, seconds: number?)
+		noticeId += 1
+		local id = noticeId
+		noticeText.Text = text
+		notice.Visible = true
+		task.delay(seconds or 3, function()
+			if noticeId == id then
+				notice.Visible = false
+			end
+		end)
+	end
+
+	ctx.on(ctx.remotes["HH:Notice"], function(text: string)
+		show(text)
+	end)
+	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string)
+		local species = ctx.config.creatures.species[speciesId]
+		local rarity = if species then species.rarity else "Common"
+		show(`You hatched a {rarity} {Layout.displayName(speciesId)}!`, 4)
+	end)
+	ctx.on(ctx.remotes["HH:WelcomeBack"], function(earned: number, readyEggs: number)
+		local parts = {}
+		if earned > 0 then
+			table.insert(parts, `you earned {Layout.shortNumber(earned)} coins`)
+		end
+		if readyEggs > 0 then
+			table.insert(parts, `{readyEggs} egg{if readyEggs == 1 then "" else "s"} finished hatching`)
+		end
+		show(`Welcome back! While you were away, {table.concat(parts, " and ")}.`, 8)
+	end)
+
+	-- Odds card, shown while an egg's Buy prompt is up.
+	local card =
+		panel(gui, "OddsCard", UDim2.fromOffset(280, 0), UDim2.new(0, 16, 0.5, 0), Vector2.new(0, 0.5))
+	card.AutomaticSize = Enum.AutomaticSize.Y
+	card.Visible = false
+	listLayout(card, 8)
+	local cardEgg: string? = nil
+
+	-- Odds board over the player's own belt: every egg the belt carries.
+	local boardGui: SurfaceGui? = nil
+	local function renderBoard()
+		local model = ctx.plot()
+		if model == nil then
+			return
+		end
+		local board = model:FindFirstChild("OddsBoard")
+		if board == nil then
+			return
+		end
+		if boardGui == nil or boardGui.Parent ~= board then
+			local sg = Instance.new("SurfaceGui")
+			sg.Name = "Odds"
+			sg.Face = Enum.NormalId.Front
+			sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			sg.PixelsPerStud = 25
+			sg.Adornee = board
+			local holder = Instance.new("Frame")
+			holder.Name = "Holder"
+			holder.Size = UDim2.fromScale(1, 1)
+			holder.BackgroundTransparency = 1
+			local layout = Instance.new("UIListLayout")
+			layout.FillDirection = Enum.FillDirection.Horizontal
+			layout.SortOrder = Enum.SortOrder.Name
+			layout.Padding = UDim.new(0, 12)
+			layout.Parent = holder
+			holder.Parent = sg
+			sg.Parent = ctx.player:WaitForChild("PlayerGui")
+			boardGui = sg
+		end
+		local holder = (boardGui :: SurfaceGui):FindFirstChild("Holder") :: Frame
+		local ids = {}
+		for eggId in ctx.config.economy.conveyor.weights do
+			table.insert(ids, eggId)
+		end
+		table.sort(ids)
+		for _, eggId in ids do
+			local column = holder:FindFirstChild(eggId) :: Frame?
+			if column == nil then
+				local c = Instance.new("Frame")
+				c.Name = eggId
+				c.BackgroundTransparency = 1
+				c.Size = UDim2.new(1 / #ids, -12, 1, 0)
+				listLayout(c, 10)
+				c.Parent = holder
+				column = c
+			end
+			OddsView.render(column :: Frame, eggId)
+		end
+	end
+
+	local function renderCard()
+		if cardEgg then
+			OddsView.render(card, cardEgg)
+		end
+	end
+
+	OddsView.onChanged(function()
+		renderBoard()
+		renderCard()
+	end)
+
+	local function onData(d: { [string]: any })
+		rebirths.Text = `Rebirths: {d.rebirths}`
+		getOff.Visible = d.mountUid ~= ""
+		-- The fixed-order list moves on after each purchase.
+		if ctx.restricted() then
+			renderBoard()
+			renderCard()
+		end
+	end
+	ctx.onData(onData)
+
+	-- Numbers that move every frame: coins, income and the uncollected pile.
+	task.spawn(function()
+		while true do
+			local d = ctx.data()
+			if d then
+				local perSecond = Hatchery.incomePerSecond(d, ctx.config, ctx.perks())
+				coins.Text = `{Layout.shortNumber(d.coins)} coins`
+				income.Text = `+{Layout.shortNumber(perSecond)}/s`
+				local pile = Hatchery.pendingAt(d, ctx.serverNow(), perSecond)
+				pending.Text = if ctx.autoCollect()
+					then `Auto-collecting {Layout.shortNumber(pile)}`
+					else `Uncollected: {Layout.shortNumber(pile)}`
+			end
+			if boardGui == nil then
+				renderBoard()
+			end
+			task.wait(0.2)
+		end
+	end)
+
+	return {
+		showOdds = function(eggId: string)
+			cardEgg = eggId
+			renderCard()
+			card.Visible = true
+		end,
+		hideOdds = function()
+			cardEgg = nil
+			card.Visible = false
+		end,
+	}
+end
+
+return Hud

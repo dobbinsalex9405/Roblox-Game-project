@@ -10,7 +10,8 @@ work; the publish workflows skip any game whose environment is not set up yet.
 2. Create the group (100 Robux) and add the account that should receive payouts.
 3. Under the group, create three experiences for Hatchery Heist: **Dev**,
    **Staging** and **Production**. Keep Staging and Production private until launch.
-4. On all three: Avatar Settings → **R15 Only**; Place Copying **off**.
+4. On all three: Avatar Settings → **R15 Only**; Place Copying **off**;
+   Places → Server Size **8** (the map has 8 bases).
    On Dev only: turn on **Studio access to API services** (so DataStores work in Studio).
 5. Copy each experience's **universe id** and **start place id** into
    `ops/environments.json` (or paste them in the project thread and Claude
@@ -61,6 +62,23 @@ and install the Rojo Studio plugin. During a session:
 rokit install && wally install
 rojo serve games/hatchery-heist/default.project.json
 ```
+
+## Playing the latest build in Studio (any time)
+
+On a computer with Roblox Studio and the tools above:
+
+```sh
+git pull
+rokit install && wally install
+rojo serve games/hatchery-heist/default.project.json
+```
+
+Open a new Baseplate in Studio, connect the Rojo plugin, and press Play. To
+build a file instead: `tools/build.sh hatchery-heist`, then open
+`build/hatchery-heist.rbxl`. Saving progress in Studio needs the Dev
+experience's **Studio access to API services** (step 1.4) and the place
+published to it; without that, play works but nothing is kept between runs.
+Passes and products stay off until their ids are set (M5).
 
 ## 6. Payout check (M0)
 
