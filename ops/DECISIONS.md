@@ -21,6 +21,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   pre-publish gate and the post-publish checks (version read-back, live join,
   error-queue sweep, first-24-hours rule) and the promotion rule to Production.
 - `playtests/` is now formatted and linted like the rest of the repo.
+
 ## 2026-11-01: Our own metrics and the studio scoreboard
 
 - **Games count their own players and Robux** (`Metrics` in the core,
