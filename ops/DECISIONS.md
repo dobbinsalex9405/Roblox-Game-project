@@ -2,6 +2,26 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Shared shop and Studio test panel
+
+- **One shop and one test panel in core** (`ops/SHOP.md`), so purchase rules
+  (odds before random items, PolicyService, exactly-once grants) live in one
+  place for all four games.
+- **The test panel is Studio-only twice over.** Its server half starts only
+  when `RunService:IsStudio()`, and in Studio it accepts only Studio test
+  players (user id <= 0), the place's creator or the owning group's owner.
+- **Test purchases go through the real receipt path.** `receipts:grant` runs
+  the same code as `ProcessReceipt`, including the saved purchase id, and
+  "Replay" re-sends an id to prove a retried receipt grants nothing.
+- **Products register even with id 0** (known by key only, never by a
+  receipt) so they can be tested before they exist on Roblox. The shop never
+  prompts an id-0 item.
+- **Ids per experience.** Staging and Production have separate products, so
+  ids live under `environments` in each `monetization.luau`, and
+  `tools/build.sh` stamps `BUILD_ENVIRONMENT` into `Build.luau`.
+- **Random items need fresh odds.** The server refuses to prompt a paid random
+  item unless that player was sent its odds in the last 10 minutes.
+
 ## 2026-11-01: Tidecatch Cove first playable (milestone M2)
 
 - **One odds table per spot and bait; the rod is a boost.** Bait multiplies

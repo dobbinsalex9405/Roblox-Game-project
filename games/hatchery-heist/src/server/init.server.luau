@@ -12,6 +12,7 @@ local Config = require(Core.Config)
 local Log = require(Core.Log)
 local Net = require(Core.Net)
 local Odds = require(Core.Odds)
+local Monetization = require(Core.Monetization)
 local Schema = require(Core.Schema)
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 
@@ -84,6 +85,9 @@ for key in monetization.products do
 		sellsCurrency = true
 	end
 end
+
+-- Pass and product ids for the experience this build is for.
+local ids = Monetization.resolve(monetization, Build.environment)
 
 World.build()
 Mounts.start()
@@ -182,7 +186,7 @@ services = CoreServer.start({
 	template = DataTemplate.template,
 	migrations = DataTemplate.migrations,
 	currencies = { coins = { field = "coins", max = economy.coinsMax } },
-	passes = monetization.passes,
+	passes = ids.passes,
 	oddsTables = Eggs.oddsTables(config.eggs, sellsCurrency),
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
@@ -291,7 +295,7 @@ net:on(Remotes["HH:Dismount"], function(player: Player)
 	ready:dismount(player)
 end)
 
-require(script.Shop).register(services, Config)
+require(script.Shop).register(services, Config, ids)
 
 -- Income tick: adds earnings to each player's pending pile, runs Auto-Collect
 -- and redraws bases (a pass bought mid-session can unlock incubators, a

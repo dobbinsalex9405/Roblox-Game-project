@@ -125,15 +125,59 @@ describe("Receipts", function()
 		expect((data:get(p) :: any).receipts).toEqual({ "2", "3", "4" })
 	end)
 
-	it("refuses unconfigured product ids and duplicates", function()
+	it("refuses bad product ids and duplicates", function()
 		local receipts = setup(function()
 			return true
 		end)
 		expect(function()
-			receipts:register("Unset", 0, function() end)
-		end).toThrow("real product id")
+			receipts:register("Negative", -1, function() end)
+		end).toThrow("whole-number id")
 		expect(function()
 			receipts:register("Again", PRODUCT, function() end)
 		end).toThrow("twice")
+		expect(function()
+			receipts:register("CoinPack", 2222, function() end)
+		end).toThrow("twice")
+	end)
+
+	it("knows a product not created on Roblox yet by key only", function()
+		local receipts, data, p, players = setup(function()
+			return true
+		end)
+		receipts:register("Later", 0, function(_player, d)
+			d.coins += 5
+		end)
+		receipts:register("AlsoLater", 0, function() end) -- several id-0 products are fine
+		expect(receipts:productId("Later")).toBe(0)
+		expect(receipts:productId("CoinPack")).toBe(PRODUCT)
+		expect(receipts:productId("Nope")).toBeNil()
+		expect(receipts:keys()).toEqual({ "AlsoLater", "CoinPack", "Later" })
+		-- A receipt can never name it.
+		expect(receipts:process({ PlayerId = 7, ProductId = 0, PurchaseId = "x" })).toBe("NotProcessedYet")
+		local decision, fresh = receipts:grant(p, "Later", "studio-1")
+		expect(decision).toBe("PurchaseGranted")
+		expect(fresh).toBe(true)
+		expect((data:get(p) :: any).coins).toBe(5)
+		local _ = players
+	end)
+
+	it("a test grant takes the receipt path: replaying its id grants nothing", function()
+		local receipts, data, p, _, granted = setup(function()
+			return true
+		end)
+		local first, fresh = receipts:grant(p, "CoinPack", "studio-7-1")
+		expect(first).toBe("PurchaseGranted")
+		expect(fresh).toBe(true)
+		local again, freshAgain = receipts:grant(p, "CoinPack", "studio-7-1")
+		expect(again).toBe("PurchaseGranted")
+		expect(freshAgain).toBe(false)
+		expect((data:get(p) :: any).coins).toBe(1000)
+		expect(#granted).toBe(1)
+		-- A real receipt with the same purchase id is a repeat too.
+		expect(receipts:process({ PlayerId = 7, ProductId = PRODUCT, PurchaseId = "studio-7-1" })).toBe(
+			"PurchaseGranted"
+		)
+		expect((data:get(p) :: any).coins).toBe(1000)
+		expect((receipts:grant(p, "Unknown", "studio-7-2"))).toBe("NotProcessedYet")
 	end)
 end)

@@ -71,6 +71,8 @@ jobs:
       - name: Build
         if: steps.check.outputs.configured == 'true'
         run: tools/build.sh ${{ matrix.game.name }}
+        env:
+          BUILD_ENVIRONMENT: staging
 
       - name: Publish to Staging
         id: publish

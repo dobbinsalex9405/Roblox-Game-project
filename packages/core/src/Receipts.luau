@@ -41,9 +41,23 @@ export type Options = {
 }
 
 export type Receipts = {
+	-- `productId` may be 0 while the product does not exist on Roblox yet:
+	-- it is then known by key only (Studio test grants), never by a receipt.
 	register: (self: Receipts, productKey: string, productId: number, grant: Grant) -> (),
 	process: (self: Receipts, receipt: ReceiptInfo) -> Decision,
+	-- Runs a purchase of `productKey` through exactly the same path as a real
+	-- receipt (same exactly-once bookkeeping). Used by the Studio test panel.
+	-- Also returns whether this call granted anything (false for a repeat).
+	grant: (
+		self: Receipts,
+		player: any,
+		productKey: string,
+		purchaseId: string,
+		robux: number?
+	) -> (Decision, boolean),
 	productKey: (self: Receipts, productId: number) -> string?,
+	productId: (self: Receipts, productKey: string) -> number?,
+	keys: (self: Receipts) -> { string },
 }
 
 local log = Log.new("Receipts")
@@ -53,17 +67,38 @@ local Receipts = {}
 function Receipts.new(options: Options): Receipts
 	local field = options.receiptsField or "receipts"
 	local maxStored = options.maxStored or 100
-	local byId: { [number]: { key: string, grant: Grant } } = {}
-	local keys: { [string]: boolean } = {}
+	type Product = { key: string, id: number, grant: Grant }
+	local byId: { [number]: Product } = {}
+	local byKey: { [string]: Product } = {}
 
 	local receipts = {}
 
 	function receipts.register(_self: Receipts, productKey: string, productId: number, grant: Grant)
-		assert(type(productId) == "number" and productId > 0, `product {productKey} needs a real product id`)
-		assert(byId[productId] == nil, `product id {productId} registered twice`)
-		assert(not keys[productKey], `product key {productKey} registered twice`)
-		byId[productId] = { key = productKey, grant = grant }
-		keys[productKey] = true
+		assert(
+			type(productId) == "number" and productId >= 0 and productId // 1 == productId,
+			`product {productKey} needs a whole-number id (0 = not created yet)`
+		)
+		assert(productId == 0 or byId[productId] == nil, `product id {productId} registered twice`)
+		assert(byKey[productKey] == nil, `product key {productKey} registered twice`)
+		local product = { key = productKey, id = productId, grant = grant }
+		byKey[productKey] = product
+		if productId > 0 then
+			byId[productId] = product
+		end
+	end
+
+	function receipts.productId(_self: Receipts, productKey: string): number?
+		local product = byKey[productKey]
+		return product and product.id
+	end
+
+	function receipts.keys(_self: Receipts): { string }
+		local out = {}
+		for key in byKey do
+			table.insert(out, key)
+		end
+		table.sort(out)
+		return out
 	end
 
 	function receipts.productKey(_self: Receipts, productId: number): string?
@@ -78,32 +113,26 @@ function Receipts.new(options: Options): Receipts
 		return table.find(list, id) ~= nil
 	end
 
-	function receipts.process(_self: Receipts, receipt: ReceiptInfo): Decision
-		local product = byId[receipt.ProductId]
-		if product == nil then
-			log:error(
-				"receipt for an unknown product",
-				{ productId = receipt.ProductId, purchaseId = receipt.PurchaseId }
-			)
-			return "NotProcessedYet"
-		end
-
-		local player = options.findPlayer(receipt.PlayerId)
-		if player == nil then
-			return "NotProcessedYet" -- Roblox retries when the player is next in a server.
-		end
-
+	-- Returns the decision and whether this call granted the product.
+	local function run(
+		product: Product,
+		player: any,
+		purchaseId: string,
+		robux: number,
+		userId: number
+	): (Decision, boolean)
+		local receipt = { PurchaseId = purchaseId, PlayerId = userId }
 		local data = options.data:get(player)
 		if data == nil then
-			return "NotProcessedYet"
+			return "NotProcessedYet", false
 		end
 
 		if contains(data[field], receipt.PurchaseId) then
 			-- Granted earlier. Only report success once that grant is saved.
 			if options.persist(player, receipt.PurchaseId) then
-				return "PurchaseGranted"
+				return "PurchaseGranted", false
 			end
-			return "NotProcessedYet"
+			return "NotProcessedYet", false
 		end
 
 		local ledger: Economy.Ledger? = nil
@@ -123,7 +152,7 @@ function Receipts.new(options: Options): Receipts
 		end)
 		if not ok then
 			log:error("grant failed", { product = product.key, purchaseId = receipt.PurchaseId, err = err })
-			return "NotProcessedYet"
+			return "NotProcessedYet", false
 		end
 		if ledger then
 			options.economy:commit(ledger)
@@ -134,7 +163,8 @@ function Receipts.new(options: Options): Receipts
 				"granted but not yet saved; Roblox will retry",
 				{ product = product.key, purchaseId = receipt.PurchaseId }
 			)
-			return "NotProcessedYet"
+			-- Granted in memory; the retry will find the id and not grant again.
+			return "NotProcessedYet", true
 		end
 
 		log:info(
@@ -142,12 +172,43 @@ function Receipts.new(options: Options): Receipts
 			{ product = product.key, purchaseId = receipt.PurchaseId, userId = receipt.PlayerId }
 		)
 		if options.onGranted then
-			local fine, problem = Util.try(options.onGranted, player, product.key, receipt.CurrencySpent or 0)
+			local fine, problem = Util.try(options.onGranted, player, product.key, robux)
 			if not fine then
 				log:error("onGranted failed", { err = problem })
 			end
 		end
-		return "PurchaseGranted"
+		return "PurchaseGranted", true
+	end
+
+	function receipts.process(_self: Receipts, receipt: ReceiptInfo): Decision
+		local product = byId[receipt.ProductId]
+		if product == nil then
+			log:error(
+				"receipt for an unknown product",
+				{ productId = receipt.ProductId, purchaseId = receipt.PurchaseId }
+			)
+			return "NotProcessedYet"
+		end
+		local player = options.findPlayer(receipt.PlayerId)
+		if player == nil then
+			return "NotProcessedYet" -- Roblox retries when the player is next in a server.
+		end
+		return (run(product, player, receipt.PurchaseId, receipt.CurrencySpent or 0, receipt.PlayerId))
+	end
+
+	function receipts.grant(
+		_self: Receipts,
+		player: any,
+		productKey: string,
+		purchaseId: string,
+		robux: number?
+	): (Decision, boolean)
+		local product = byKey[productKey]
+		if product == nil then
+			log:error("test grant for an unknown product", { product = productKey })
+			return "NotProcessedYet", false
+		end
+		return run(product, player, purchaseId, robux or 0, (player :: any).UserId or 0)
 	end
 
 	return (receipts :: any) :: Receipts
