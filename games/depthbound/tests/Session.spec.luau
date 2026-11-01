@@ -568,3 +568,20 @@ describe("Depthbound sessions", function()
 		expect(h.grid.exposedCount).toBe(mine.width * mine.length)
 	end)
 end)
+
+describe("Depthbound's first minute", function()
+	it("a new player sells within the first dive and can afford an upgrade soon after", function()
+		-- The bot plays faster than a new player, so the bars are tight: the
+		-- first sale inside 45 s and the first upgrade inside 75 s, on any mine.
+		for seed = 1, 12 do
+			local h = Harness.new({ seed = seed * 97 })
+			local p = Fakes.player(1)
+			h.join(p)
+			local start = math.floor(h.clock.now())
+			play(h, p, 90, (seed % mine.width) + 1)
+			local firsts = h.get(p).firsts
+			expect(firsts.FirstSale ~= nil and firsts.FirstSale - start <= 45).toBe(true)
+			expect(firsts.FirstUpgrade ~= nil and firsts.FirstUpgrade - start <= 75).toBe(true)
+		end
+	end)
+end)
