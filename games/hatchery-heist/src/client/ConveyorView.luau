@@ -105,11 +105,11 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 			local seen: { [number]: boolean } = {}
 			for _, beltEgg in Conveyor.onBelt(now, plot, belt) do
 				seen[beltEgg.index] = true
-				local egg = current[beltEgg.index]
-				if egg == nil then
-					egg = makeEgg(beltEgg.index, beltEgg.eggId, plot == ownPlot)
-					current[beltEgg.index] = egg
-				end
+				local existing: Part? = current[beltEgg.index]
+				local egg: Part = if existing
+					then existing
+					else makeEgg(beltEgg.index, beltEgg.eggId, plot == ownPlot)
+				current[beltEgg.index] = egg
 				local spin = CFrame.Angles(0, beltEgg.progress * math.pi * 4, 0)
 				egg.CFrame = frame * CFrame.new(Layout.beltPoint(beltEgg.progress)) * spin
 			end
