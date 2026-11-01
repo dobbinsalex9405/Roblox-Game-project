@@ -6,7 +6,7 @@ local DataTemplate = {}
 
 DataTemplate.template = {
 	version = 1,
-	coins = 50, -- matches config/economy.startingCoins; checked by tests
+	coins = 200, -- matches config/economy.startingCoins; checked by tests
 	pendingCoins = 0, -- earned but not collected yet (may hold a fraction)
 	lastIncomeAt = 0, -- unix seconds income was last added to pendingCoins
 	rebirths = 0,

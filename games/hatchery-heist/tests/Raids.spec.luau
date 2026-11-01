@@ -7,6 +7,7 @@ local Movement = require("@core/Movement")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
+local economyConfig = require("../config/economy")
 local raidsConfig = require("../config/raids")
 
 -- Two players on one server: an owner with creatures on pads 1-3 and a
@@ -173,7 +174,7 @@ describe("Raids", function()
 		local h, owner, raider = setup()
 		h.economy:add(owner, "coins", 10000, "Admin:Test")
 		assert(h.raids:buyDecoy(owner, 1))
-		expect(h.get(owner).coins).toBe(50 + 10000 - raidsConfig.decoy.price)
+		expect(h.get(owner).coins).toBe(economyConfig.startingCoins + 10000 - raidsConfig.decoy.price)
 		assert(h.raids:enter(raider, owner))
 		expect(h.raids:stealDecoy(raider, 1, 2)).toBe(true)
 		expect(h.stuns[#h.stuns].seconds).toBe(raidsConfig.decoy.stunSeconds)

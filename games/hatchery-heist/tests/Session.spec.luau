@@ -101,7 +101,7 @@ describe("Hatchery Heist sessions", function()
 		local player = Fakes.player(2)
 		h.join(player)
 		play(h, player, 120)
-		expect(h.actions:buyEgg(player, h.findOnBelt("BasicEgg") or -1)).toBeFalsy() -- incubators may be full
+		h.actions:buyEgg(player, h.findOnBelt("BasicEgg") or -1) -- fill an incubator if one is free
 		h.actions:collect(player)
 		local d = h.get(player)
 		local perSecond = Hatchery.incomePerSecond(d, config, NO_PERKS)
@@ -183,7 +183,10 @@ describe("Hatchery Heist sessions", function()
 			table.insert(steps, args[2])
 		end
 		expect(steps).toEqual({ "Joined", "FirstEggBought", "FirstHatch", "FirstRide", "FirstCollect" })
-		expect(#h2.eventsOf("onboarding")).toBe(0)
+		-- The second session may reach new steps, but never repeats one.
+		for _, args in h2.eventsOf("onboarding") do
+			expect(table.find(steps, args[2])).toBeNil()
+		end
 	end)
 
 	it("gives restricted players the shown fixed order instead of a roll", function()

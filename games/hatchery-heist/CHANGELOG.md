@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Economy tuned from the playtest (Alex approved the playtest set): 200
+  starting coins, Basic Egg hatches in 10 s, storage auto-sale pays 20 s of
+  income (spam-buying Basic eggs no longer makes coins), first rebirth
+  costs 120K and each next one 3×. In the 3-hour bot run the first rebirth
+  moved from 106 to 36 minutes; Basic-egg spam now loses about 7 coins/s.
 - Playtest fixes:
   - A refused egg purchase no longer leaves an invisible egg on the belt. The
     egg dims until the server answers (`HH:EggResult`).

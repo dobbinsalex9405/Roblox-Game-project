@@ -2,6 +2,20 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Windows checkouts and Hatchery Heist balance
+
+- **Wally lives in `deps/`.** `wally install` clears its `Packages/` folder;
+  on case-insensitive disks (Windows, macOS) that is our `packages/` and it
+  deleted the shared core. Moving `wally.toml` to `deps/` (packages install
+  to `deps/ServerPackages`) fixes it with one path per game, where renaming
+  `packages/` would have touched every require in every game.
+- **`.gitattributes` forces LF** so Windows checkouts pass StyLua.
+- **Hatchery Heist economy set from the playtest** (Alex chose "apply the
+  playtest set"): startingCoins 200, Basic hatch 10 s, storage sellSeconds
+  20, rebirth baseCost 120K with costGrowth 3. Bots: first rebirth at 36 min
+  (was 106), idle time in 15-minute sessions 9-48% (was ~56%), and the
+  storage-overflow loop now loses coins.
+
 ## 2026-11-01: Hatchery Heist raids and defenses (milestone M4)
 
 - **The movement check is a leaky budget, in the shared core.** Each sample

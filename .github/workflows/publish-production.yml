@@ -63,6 +63,7 @@ jobs:
 
       - name: Install packages
         run: wally install
+        working-directory: deps
 
       - name: Tests
         run: lune run tools/test/run
