@@ -946,6 +946,100 @@ do
 end
 
 -- ---------------------------------------------------------------------------
+section("First-minute guide (PR #18)")
+do
+	-- The guide's goals must never go backwards, its dock must always be one
+	-- the player can fish right now (never low-tide-only), and the bait it
+	-- picks on join must be coin bait the player owns.
+	local hasGuide, Guide = pcall(require, "../../games/tidecatch-cove/src/shared/Guide")
+	if not hasGuide then
+		note("no Guide module in this build; skipping")
+	else
+		local ORDER = { Cast = 1, Reel = 2, Place = 3, Grow = 4 }
+		local fishing = config.fishing
+		local function spotById(id: string): any
+			for _, spot in fishing.spots do
+				if spot.id == id then
+					return spot
+				end
+			end
+			return nil
+		end
+		do
+			local h, p = fresh()
+			local d = h.get(p)
+			local starting = Guide.startingBait(d, fishing)
+			local bait = nil
+			for _, b in fishing.bait do
+				if b.id == starting then
+					bait = b
+				end
+			end
+			check(
+				bait ~= nil and not bait.robux and (d.bait[starting] or 0) > 0,
+				`a new player's starting bait is coin bait they own ({starting} x{d.bait[starting]})`,
+				`starting bait {starting}`
+			)
+			local first = Guide.step(d)
+			check(
+				first ~= nil and first.id == "Cast" and first.arrowToDock,
+				"a new player's first goal is Cast, with the arrow"
+			)
+		end
+		local styleNames = {}
+		for name in Bot.STYLES do
+			table.insert(styleNames, name)
+		end
+		table.sort(styleNames)
+		for _, styleName in styleNames do
+			local style = Bot.STYLES[styleName]
+			local h, p = fresh()
+			local b = Bot.new(h, p, style)
+			local last, backwards, badDock, seen = 0, 0, {}, {}
+			local function look()
+				local d = h.get(p)
+				local step = Guide.step(d)
+				if step then
+					local rank = ORDER[step.id] or 0
+					if rank < last then
+						backwards += 1
+					else
+						if rank > last then
+							table.insert(seen, step.id)
+						end
+						last = rank
+					end
+				end
+				local dockId = Guide.dockFor(d, fishing)
+				local spot = dockId and spotById(dockId)
+				if spot == nil or spot.lowTideOnly or d.rodTier < spot.minRod then
+					table.insert(badDock, tostring(dockId))
+				end
+			end
+			look()
+			Bot.play(b, 15 * 60, function()
+				look()
+			end)
+			look()
+			check(
+				backwards == 0,
+				`{styleName}: guide goals never go backwards ({table.concat(seen, " > ")})`,
+				`{styleName}: went backwards {backwards} times`
+			)
+			check(
+				#badDock == 0,
+				`{styleName}: the guide's dock is always fishable now and never low-tide-only`,
+				`{styleName}: bad dock {badDock[1]}`
+			)
+			if Guide.step(h.get(p)) == nil then
+				note(`{styleName}: finished the guide inside 15 minutes`)
+			else
+				note(`{styleName}: still on "{seen[#seen]}" after 15 minutes`)
+			end
+		end
+	end
+end
+
 section("Numbers worth a look")
 do
 	local h, p = fresh()
