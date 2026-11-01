@@ -6,6 +6,8 @@ return function(Net: any, Schema: any)
 	local slot = Schema.integer({ min = 1, max = 50 })
 	local uid = Schema.string({ maxLength = 12, pattern = "^%d+$" })
 	local text = Schema.string({ maxLength = 200 })
+	local plot = Schema.integer({ min = 1, max = 8 })
+	local spot = Schema.integer({ min = 1, max = 8 })
 	return {
 		-- Buy egg number `index` off the player's own conveyor (see Conveyor.luau).
 		["HH:BuyEgg"] = Net.toServer(
@@ -19,6 +21,19 @@ return function(Net: any, Schema: any)
 		["HH:Rebirth"] = Net.toServer("HH:Rebirth", {}, { count = 1, window = 2 }),
 		["HH:Ride"] = Net.toServer("HH:Ride", { uid }, { count = 2, window = 1 }),
 		["HH:Dismount"] = Net.toServer("HH:Dismount", {}, { count = 2, window = 1 }),
+
+		-- Raids: steal from base `plot` (the server measures the distance).
+		["HH:Steal"] = Net.toServer("HH:Steal", { plot, slot }, { count = 4, window = 1 }),
+		["HH:StealDecoy"] = Net.toServer("HH:StealDecoy", { plot, spot }, { count = 4, window = 1 }),
+		-- Defenses on the player's own base.
+		["HH:Shield"] = Net.toServer("HH:Shield", {}, { count = 1, window = 1 }),
+		["HH:BuyTrap"] = Net.toServer(
+			"HH:BuyTrap",
+			{ spot, Schema.oneOf({ "Snare", "Slime" }) },
+			{ count = 2, window = 1 }
+		),
+		["HH:BuyDecoy"] = Net.toServer("HH:BuyDecoy", { spot }, { count = 2, window = 1 }),
+		["HH:Guard"] = Net.toServer("HH:Guard", { uid }, { count = 2, window = 1 }),
 
 		-- A short message for the player (a refusal, a reward).
 		["HH:Notice"] = Net.toClient("HH:Notice", { text }),

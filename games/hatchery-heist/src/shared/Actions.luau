@@ -50,6 +50,14 @@ export type Actions = {
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
+	-- For the raid layer (Raids.luau): one atomic update with income brought
+	-- up to date; `fn` returns a refusal or nil.
+	change: (
+		self: Actions,
+		player: any,
+		fn: (d: Hatchery.Data, ledger: any) -> string?
+	) -> (boolean, string?),
+	onboarding: (self: Actions, player: any, step: number?) -> (),
 }
 
 local Actions = {}
@@ -107,6 +115,18 @@ function Actions.new(options: Options): Actions
 	end
 
 	local actions = {}
+
+	function actions.change(
+		_self: Actions,
+		player: any,
+		fn: (d: Hatchery.Data, ledger: any) -> string?
+	): (boolean, string?)
+		return change(player, fn)
+	end
+
+	function actions.onboarding(_self: Actions, player: any, step: number?)
+		onboarding(player, step)
+	end
 
 	-- Call once the player's data has loaded (the core's onPlayerReady).
 	function actions.join(_self: Actions, player: any)

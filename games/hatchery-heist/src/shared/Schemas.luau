@@ -100,15 +100,40 @@ return function(Schema: any, Odds: any)
 		{ minLength = 1 }
 	)
 
+	local seconds = Schema.number({ min = 0, max = 3600 })
 	Schemas.raids = Schema.record({
 		newPlayerProtectionSeconds = count,
 		perOwnerCooldownSeconds = count,
 		pickupReach = Schema.number({ min = 1, max = 50 }),
 		carryWalkSpeed = Schema.number({ min = 1, max = 32 }),
+		carryMountFactor = Schema.number({ min = 0.1, max = 1 }),
 		carrySpeedTolerance = Schema.number({ min = 1, max = 3 }),
 		maxCarried = Schema.integer({ min = 1, max = 1 }),
-		shieldSeconds = count,
+		maxCarrySeconds = Schema.integer({ min = 5, max = 600 }),
+		ownerCatchReach = Schema.number({ min = 1, max = 30 }),
+		guardCatchReach = Schema.number({ min = 1, max = 30 }),
+		guardSightRange = Schema.number({ min = 1, max = 100 }),
+		guardSpeedFactor = Schema.number({ min = 0.1, max = 2 }),
+		freeShieldSeconds = count,
 		shieldCooldownSeconds = count,
+		shieldSeconds = count,
+		traps = Schema.record({
+			Snare = Schema.record({
+				price = Schema.integer({ min = 1 }),
+				stunSeconds = seconds,
+				rearmSeconds = seconds,
+			}),
+			Slime = Schema.record({
+				price = Schema.integer({ min = 1 }),
+				slowFactor = Schema.number({ min = 0.05, max = 1 }),
+				slowSeconds = seconds,
+				rearmSeconds = seconds,
+			}),
+		}),
+		decoy = Schema.record({
+			price = Schema.integer({ min = 1 }),
+			stunSeconds = seconds,
+		}),
 	})
 
 	Schemas.monetization = Schema.record({

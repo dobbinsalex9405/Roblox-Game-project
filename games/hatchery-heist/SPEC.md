@@ -41,20 +41,47 @@ Eight bases sit in a ring around a shared yard; each player gets one.
 Ride any creature you own from its pad. Its species' `mountSpeed` sets your
 walk speed (16 on foot; rarer is faster). The ridden creature keeps earning,
 is saved (`mountUid`) and comes back after a respawn or rejoin. The server
-checks ride speed from M4 (Movement check).
+checks ride speed with the movement check (see Raids).
 
-## Raids (M4)
+## Raids and defenses (M4)
 
-Server-checked at every step; limits in `config/raids.luau`.
+Server-checked at every step; limits in `config/raids.luau`. The server
+measures every distance from the characters' positions; the client only asks.
 
-1. Raider enters a rival base: refused while the base has a shield, during the
-   owner's new-player protection, or while the raider is on cooldown for that owner.
-2. The owner's alarm sounds and guard creatures patrol.
-3. Raider picks up one creature: must be within `pickupReach` and carrying nothing.
-4. While carrying, speed is capped at `carryWalkSpeed`; moving faster than
-   `carrySpeedTolerance` × that drops the creature back home.
-5. Touched by a guard, trap or the owner: the creature goes home. Reaches own
-   base: the creature changes owner.
+1. **Entering a rival base** is refused (the raider is pushed back out) while
+   the base has a shield, during the owner's first 5 minutes of play
+   (new-player protection, once ever), or for 2 minutes after the raider last
+   raided that owner. The owner gets a notice and a red alarm banner while
+   raiders are on their base.
+2. **Picking up** one creature at a time from a pad within `pickupReach`. The
+   ridden creature and the guard cannot be taken. The creature stays in the
+   owner's save while carried; only a delivery moves it.
+3. **Carrying** caps speed at `carryWalkSpeed` on foot, or the mount's speed ×
+   `carryMountFactor`, so the owner on a fast mount can catch up. The raider
+   sees a banner with the time left (`maxCarrySeconds`).
+4. **The creature goes home** if the owner or the guard reaches the raider, a
+   snare fires, the raider takes too long, moves impossibly fast, dies or resets,
+   leaves the game, or the owner leaves. **Reaching their own base** gives the
+   raider the creature (raids won / lost are counted).
+5. **Movement check** (core `Movement`): every player's position is sampled 4
+   times a second against the speed the server allows (walk, mount, carry,
+   trap effects) with 35% tolerance and a 2-second burst budget for lag. A
+   speed hack or teleport is pulled back to the last good spot and drops a
+   carried creature.
+
+Defenses, bought and placed on the owner's own base:
+
+- **Shield**: free at the base pylon, 90 s, recharges 5 minutes after it ends.
+  Raiders already carrying may leave; everyone else is pushed out. A Shield
+  Refill (Robux, M5) adds `shieldSeconds`. Never permanent.
+- **Traps** on 4 trap spots, for coins: Snare (stuns and returns the creature)
+  and Slime (slows to half). Each fires once on a raider, then re-arms. Every
+  trap spot looks the same to raiders; only the owner sees which is which.
+- **Decoy eggs** on 3 spots, for coins: look like a creature to raiders;
+  picking one up stuns the raider, alerts the owner and uses it up.
+- **One guard**: any creature on a pad can guard (not while ridden). It chases
+  raiders it can see on the base at a share of its mount speed and takes the
+  creature back on contact.
 
 Only players online in the server can be raided. Permanent raid immunity is
 never sold.
@@ -89,6 +116,8 @@ nothing is ever removed.
 - Done (M2): conveyor, incubators, hatching, collecting, slots, rebirth,
   offline earnings, Auto-Collect, basic riding, grey-box bases built from code,
   minimal HUD, odds card and board, onboarding analytics.
-- Next (M3): first Staging publish and the first Studio session (lay out the
-  map, first playtest). Then M4 raids and defenses; M5 the shop (Premium Egg,
-  Instant Hatch, Luck Boost, prices).
+- Done (M4): raids, carrying, delivery, the movement check, shield, traps,
+  decoy eggs, the guard, new-player protection, raid banners and prompts.
+- Next (M3, waiting on Alex's setup): first Staging publish and the first
+  Studio session (lay out the map, first playtest, tune raid numbers). Then M5
+  the shop (Premium Egg, Instant Hatch, Luck Boost, prices).

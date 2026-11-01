@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- Raids and defenses (M4): steal one creature at a time from a rival base and
+  carry it home at carry speed; the owner, the guard or a snare takes it back.
+  Shield pylon (free, 90 s, 5-minute recharge), Snare and Slime traps, decoy
+  eggs, one guard creature that patrols and chases, 5 minutes of new-player
+  protection and a 2-minute cooldown per raided owner.
+- Movement check from the shared core: speed hacks and teleports are pulled
+  back, and drop anything carried. One module sets walk speed (walk, mount,
+  carry, stun, slow).
+- Dying or resetting while carrying sends the creature home.
+- HUD: carrying banner with time left, red alarm while raiders are on your
+  base. Prompts: Steal on rival bases; Make guard, Raise shield, Set snare or
+  slime and Place decoy egg on your own.
+- Save data v1 gains `guardUid` and `shieldReadyAt`. No live data yet, so no
+  migration.
+- Analytics: `Raid:Entered`, `Raid:PickedUp`, `Raid:Stolen`, `Raid:Defended`
+  and the FirstRaidTried and FirstRaidDefended onboarding steps.
 - First playable (M2): an egg conveyor per base on a shared server-time
   schedule, incubators with saved hatch times, hatching onto 20 creature pads
   with storage, coins per second into an uncollected pile, the collect pad,

@@ -40,7 +40,14 @@ export type PickOutcome = (egg: any, boughtBefore: number) -> string?
 
 -- First-time moments, in the order the onboarding funnel reports them.
 -- New steps are added at the end so earlier step numbers never change.
-local ONBOARDING = { "Joined", "FirstEggBought", "FirstHatch", "FirstRide" }
+local ONBOARDING = {
+	"Joined",
+	"FirstEggBought",
+	"FirstHatch",
+	"FirstRide",
+	"FirstRaidTried",
+	"FirstRaidDefended",
+}
 
 local Hatchery = {}
 Hatchery.ONBOARDING = table.freeze(ONBOARDING)
@@ -207,7 +214,7 @@ end
 -- Places a new creature: the first free pad, or, when every pad is full, the
 -- pad of the weakest placed creature if the new one earns more (the weaker
 -- one moves to storage). Otherwise the new creature goes to storage. The
--- creature being ridden keeps its pad.
+-- creature being ridden and the guard keep their pads.
 local function place(d: Data, creature: any, creatureConfig: any, creaturePads: number)
 	local usedPads: { [number]: boolean } = {}
 	local weakest: any = nil
@@ -217,6 +224,7 @@ local function place(d: Data, creature: any, creatureConfig: any, creaturePads: 
 			local income = Hatchery.creatureIncome(other, creatureConfig)
 			if
 				other.uid ~= d.mountUid
+				and other.uid ~= d.guardUid
 				and (weakest == nil or income < Hatchery.creatureIncome(weakest, creatureConfig))
 			then
 				weakest = other
@@ -259,6 +267,7 @@ local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy
 				stored += 1
 				if
 					c.uid ~= d.mountUid
+					and c.uid ~= d.guardUid
 					and (
 						weakestIndex == nil
 						or Hatchery.creatureIncome(c, creatureConfig)
@@ -315,6 +324,44 @@ function Hatchery.hatch(
 	return creature, nil, sold
 end
 
+-- Removes a creature for a raid that succeeded. The creature being ridden and
+-- the guard cannot be taken. Returns the creature, or nil if it is gone.
+function Hatchery.takeCreature(d: Data, uid: string): any?
+	if uid == d.mountUid or uid == d.guardUid then
+		return nil
+	end
+	for index, c in d.creatures do
+		if c.uid == uid then
+			return table.remove(d.creatures, index)
+		end
+	end
+	return nil
+end
+
+-- Gives a player a creature from elsewhere (a raid). It gets a new uid in
+-- their save and is placed like a fresh hatch. Returns it and any stored
+-- creatures sold to make room.
+function Hatchery.receive(
+	d: Data,
+	ledger: Ledger,
+	from: any,
+	creatureConfig: any,
+	economy: any
+): (any, { any })
+	local creature = {
+		uid = tostring(d.nextUid),
+		speciesId = from.speciesId,
+		mutation = from.mutation,
+		slot = nil :: number?,
+		eggId = from.eggId,
+		hatchedAt = from.hatchedAt,
+	}
+	d.nextUid += 1
+	place(d, creature, creatureConfig, economy.creaturePads)
+	table.insert(d.creatures, creature)
+	return creature, trimStorage(d, ledger, creatureConfig, economy)
+end
+
 function Hatchery.nextSlotCost(d: Data, economy: any): number?
 	local index = d.slots - economy.incubators.startingSlots + 1
 	return economy.incubators.slotCosts[index]
@@ -337,6 +384,9 @@ function Hatchery.ride(d: Data, uid: string, creatureConfig: any): (number?, str
 	local creature = Hatchery.creatureByUid(d, uid)
 	if creature == nil then
 		return nil, "You do not own that creature."
+	end
+	if uid == d.guardUid then
+		return nil, "That creature is guarding your base."
 	end
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then
@@ -374,6 +424,7 @@ function Hatchery.rebirth(d: Data, ledger: Ledger, economy: any): (boolean, stri
 	d.creatures = {}
 	d.pendingCoins = 0
 	d.mountUid = ""
+	d.guardUid = ""
 	d.rebirths += 1
 	return true, nil
 end

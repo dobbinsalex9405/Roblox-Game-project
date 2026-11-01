@@ -20,12 +20,16 @@ local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
 local DataTemplate = require(Shared.DataTemplate)
 local Eggs = require(Shared.Eggs)
+local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Raids = require(Shared.Raids)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
 
 local Mounts = require(script.Mounts)
+local RaidService = require(script.RaidService)
+local Speed = require(script.Speed)
 local World = require(script.World)
 
 local TICK_SECONDS = 10 -- income is added to the pending pile this often
@@ -49,12 +53,29 @@ Config.load(Schemas.sections(raw))
 
 local economy = Config.get("economy")
 local monetization = Config.get("monetization")
-local config = { economy = economy, creatures = Config.get("creatures"), eggs = Config.get("eggs") }
+local config = {
+	economy = economy,
+	creatures = Config.get("creatures"),
+	eggs = Config.get("eggs"),
+	raids = Config.get("raids"),
+}
 assert(
 	economy.incubators.maxSlots + economy.incubators.passBonusSlots <= Layout.INCUBATOR_POSITIONS,
 	"the map has fewer incubators than maxSlots + passBonusSlots"
 )
 assert(economy.creaturePads <= 20, "the map has 20 creature pads")
+-- Raid geometry (plain numbers) must match the map (CFrames) exactly.
+for index = 1, Layout.PLOTS do
+	local frame = Layout.plotCFrame(index)
+	for _, probe in { Vector3.new(10, 0, -20), Vector3.new(-25, 0, 15) } do
+		local world = frame * probe
+		local lx, lz = Geometry.toLocal(index, world.X, world.Z)
+		assert(
+			math.abs(lx - probe.X) < 1e-3 and math.abs(lz - probe.Z) < 1e-3,
+			"Geometry and Layout disagree"
+		)
+	end
+end
 
 -- Coin packs make coins Robux-bought currency, so coin eggs count as paid random items.
 local sellsCurrency = false
@@ -69,6 +90,7 @@ Mounts.start()
 
 local services: CoreServer.Services
 local actions: Actions.Actions? = nil
+local raids: Raids.Raids? = nil
 
 local function perks(player: Player): Actions.Perks
 	return {
@@ -91,9 +113,18 @@ local function syncBase(player: Player)
 		local d = services.data:get(player)
 		if index and d then
 			local p = perks(player)
-			World.sync(index, d, config, Hatchery.slotCount(d, economy, p))
+			local carried = if raids then raids:carriedFrom(player) else {}
+			World.sync(index, d, config, Hatchery.slotCount(d, economy, p), carried, os.time())
 		end
 	end)
+end
+
+local function syncAll()
+	for _, player in Players:GetPlayers() do
+		if World.plotOf(player) then
+			syncBase(player)
+		end
+	end
 end
 
 local function rideFor(player: Player, speed: number?): Mounts.Ride?
@@ -133,6 +164,9 @@ local function onPlayerReady(player: Player)
 end
 
 local function onPlayerLeaving(player: Player)
+	if raids then
+		raids:leave(player)
+	end
 	if actions then
 		actions:leave(player)
 	end
@@ -190,6 +224,45 @@ local ready: Actions.Actions = Actions.new({
 })
 actions = ready
 
+local notify = function(player: Player, text: string)
+	fire(Remotes["HH:Notice"], player, text)
+end
+
+local raidRules: Raids.Raids = Raids.new({
+	actions = ready,
+	data = services.data,
+	analytics = services.analytics,
+	config = config,
+	now = os.time,
+	notify = notify,
+	name = function(player: Player)
+		return player.DisplayName
+	end,
+	userId = function(player: Player)
+		return player.UserId
+	end,
+	stun = function(player: Player, seconds: number)
+		Speed.stun(player, seconds)
+	end,
+	slow = function(player: Player, factor: number, seconds: number)
+		Speed.slow(player, factor, seconds)
+	end,
+	changed = function(raider: Player)
+		RaidService.changed(raider)
+	end,
+})
+raids = raidRules
+
+RaidService.start({
+	raids = raidRules,
+	data = services.data,
+	config = config,
+	net = services.net,
+	remotes = Remotes,
+	notify = notify,
+	syncAll = syncAll,
+})
+
 services.data:onChanged(function(player: Player)
 	syncBase(player)
 end)
@@ -220,7 +293,8 @@ end)
 require(script.Shop).register(services, Config)
 
 -- Income tick: adds earnings to each player's pending pile, runs Auto-Collect
--- and redraws bases (a pass bought mid-session can unlock incubators).
+-- and redraws bases (a pass bought mid-session can unlock incubators, a
+-- shield can run out).
 task.spawn(function()
 	while true do
 		task.wait(TICK_SECONDS)

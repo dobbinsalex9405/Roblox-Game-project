@@ -2,6 +2,34 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Hatchery Heist raids and defenses (milestone M4)
+
+- **The movement check is a leaky budget, in the shared core.** Each sample
+  earns allowed speed × 1.35 × time, capped at 2 s worth, and spends the
+  distance moved; going 4 studs over is a violation. The cap forgives lag
+  bursts, and leftover budget makes slowing down (picking up, slime) never a
+  violation. All three games can use it (`packages/core/src/Movement.luau`).
+- **A violation pulls the player back and drops what they carry,** for every
+  player, not only raiders, since mounts already change speed. No kicks or
+  bans: a false positive costs a short rubber-band, not a player.
+- **The carried creature never leaves the owner's save until delivery.**
+  Raid state is in memory; delivery takes it from the owner and gives it to
+  the raider in two saves, giving it back if the second fails. A crash,
+  leave, death or reset mid-carry therefore loses and duplicates nothing.
+- **Dying or resetting while carrying drops the creature,** because respawn
+  puts the raider at home and would otherwise count as a delivery.
+- **Shield values:** free 90 s with a 5-minute recharge after it ends, so a
+  base can never be kept shielded for free. The Robux Shield Refill (M5) adds
+  10 minutes. These and every raid number need tuning in the first playtest.
+- **Traps are hidden from raiders.** Every trap spot looks the same to other
+  players; only the owner's client colors and labels them. (A cheater could
+  read the attribute; that only spoils a surprise, not the rules.)
+- **One guard, chosen from the pads.** It patrols the owner's base only, at
+  85% of its mount speed: every guard outruns a raider carrying on foot
+  (speed 10), and a raider on a fast mount can still escape a slow guard.
+- **New-player protection is the first 5 minutes ever,** counted from the
+  saved Joined step, not from each session.
+
 ## 2026-11-01: Hatchery Heist first playable (milestone M2)
 
 - **The conveyor is a schedule, not physics.** Egg n appears at
@@ -32,7 +60,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   through the real core services. It lives in Shared to load the same way in
   Roblox and Lune; it holds no secrets and does nothing without server services.
 - **Mounts are basic in M2.** A welded shape and walk speed from the
-  species; the Movement check that rejects speed hacks comes with raids (M4).
+  species; the movement check that rejects speed hacks came with raids (M4).
 
 ## 2026-11-01: Framework scaffold (milestone M1)
 
