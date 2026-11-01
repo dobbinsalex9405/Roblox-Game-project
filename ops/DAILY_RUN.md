@@ -49,14 +49,22 @@ another Claude.
    `triaged`, oldest first. Usually there is one (yesterday's), or none.
 2. Each digest starts with a **Needs triage** section written by the plain
    code prefilter in the feedback workflow (dedupes reports, tags keywords,
-   caps per game and per reporter, and leans towards escalating). Items carry
-   a suggested severity and a fingerprint `fp:<hex>`. A machine-readable copy
-   is in the `<!-- loop-lab-triage v1 ... -->` block. If the prefilter
-   failed, the issue says so: triage every bug in the digest by hand.
+   caps per game and per reporter, and leans towards escalating). Each item
+   has a priority (`sev1`, `sev2`, `perf` or `check`), a fingerprint
+   `fp:<8 hex>` (stable across days), counts, tags and report ids that match
+   the `· id <reportId>` at the end of each digest line. A machine-readable
+   copy without player text is in the `<!-- loop-lab-triage v1 ... -->`
+   block; `overflowGroups` above 0 means the caps cut groups, so also read
+   the full digest below. If the prefilter failed, the list says "Prefilter
+   failed" and the block has `"failed": true`: triage every bug by hand.
+   `ops/FEEDBACK.md` documents the format.
 3. For each Needs-triage item, decide per `ops/FEEDBACK.md`:
    - **sev1** (lost progress, broken purchase, exploit, crash),
      **sev2** (blocks play or onboarding), **sev3** (cosmetic, rare),
      **can't reproduce**, **idea**, or **noise**.
+   - `perf` items are sev2 when one device type or frame rate dominates,
+     sev3 otherwise. `check` items (low rating, unclear text) get read and
+     decided like any other.
    - The prefilter's severity is a suggestion. Raise it freely; lower it only
      with a reason in the comment. When unsure, pick the higher one.
    - Search open **and closed** issues for the item's `fp:<hex>`. If a
