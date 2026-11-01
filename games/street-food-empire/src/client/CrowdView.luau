@@ -73,11 +73,13 @@ local function show(folder: Folder, prefix: string, count: number, frame: CFrame
 		-- Everyone faces the plot (toward local +Z).
 		place(model :: Model, CFrame.lookAt(at, at + frame.LookVector * -1))
 	end
-	for _, child in folder:GetChildren() do
-		local index = tonumber(string.match(child.Name, `^{prefix}(%d+)$`))
-		if index and index > count then
-			child:Destroy()
-		end
+	-- Figures are always numbered 1..N, so the extras run on from count + 1.
+	local extra = count + 1
+	local child = folder:FindFirstChild(`{prefix}{extra}`)
+	while child do
+		child:Destroy()
+		extra += 1
+		child = folder:FindFirstChild(`{prefix}{extra}`)
 	end
 end
 
