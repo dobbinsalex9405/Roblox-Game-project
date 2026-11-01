@@ -2,6 +2,46 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: In-game feedback in every game
+
+- **The core owns it, so every game gets it.** `CoreClient.start` mounts the
+  Feedback button and form, `CoreServer.start` runs the server side; a game
+  only adds a `feedbackContext` hook (`src/shared/FeedbackContext.luau`) with
+  a few numbers that help reproduce a bug. A game could opt out with
+  `CoreClient.start({ feedback = false })`; none should.
+- **The button lives in the Roblox top bar**, right-aligned in
+  `GuiService.TopbarInset`, so it never covers a game's HUD on any screen.
+  The left end of the free top-bar area is kept for the shop button.
+- **Bug / Idea / Other, up to 500 characters, optional 1-5 fun rating.** Text
+  is required (a bare rating says too little to act on). The rating also
+  becomes a `Feedback:Rating` analytics event, a cheap weekly fun score.
+- **Only filtered text is stored.** Reports are not shown to other players,
+  but players type names and numbers; Roblox's filter (non-chat broadcast
+  mode) removes personal information. If the filter fails, the report is
+  refused with "try again", never stored raw. A report the filter blanks out
+  entirely is refused too.
+- **Limits:** one report per player per minute, ten per UTC day per server,
+  repeats refused, at most 200 held per server between writes (a failed write
+  keeps them for the next try). The remote itself allows 3 calls a minute.
+- **Its own DataStore (`Feedback`), not the error queue.** Feedback moved out
+  of ErrorReporter: different readers, different retention, and reports carry
+  much more context. Each report still links to the error queue through the
+  signatures of the player's last client errors (up to 5, from the last 10
+  minutes).
+- **Dated keys, one write per server per minute.** Keys start with the UTC
+  date (`YYYYMMDD-HHMMSS-<server>-<n>`), so the reader lists one day with a
+  prefix and the daily run reads each batch exactly once. Writes stay far
+  under the DataStore budget.
+- **Read outside the game through Open Cloud, from GitHub Actions.** The
+  cloud sandbox cannot reach apis.roblox.com, so the daily workflow pulls with
+  a read-only repository secret and opens one `player-feedback` issue per day
+  with reports. The issue escapes player text (no mentions, links or
+  formatting) and shows reporter tags, not user ids; full reports stay in a
+  90-day run artifact. The repo is private.
+- **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
+  test first, verified by the playtest thread, auto-merged, production by
+  Alex's click.
+
 ## 2026-11-01: Tidecatch Cove first playable (milestone M2)
 
 - **One odds table per spot and bait; the rod is a boost.** Bait multiplies

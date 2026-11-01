@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (rod, bait, bucket, pools, species caught and casts) to help reproduce bugs.
 - First playable (M2): cast from four docks, a server-rolled bite, a
   touch-first reel minigame, keep or sell into a 12-slot bucket, 2 to 8 tide
   pools where creatures grow through five stages by the saved clock, feeding,

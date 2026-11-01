@@ -21,6 +21,7 @@ local Build = require(Shared.Build)
 local Catch = require(Shared.Catch)
 local Cove = require(Shared.Cove)
 local DataTemplate = require(Shared.DataTemplate)
+local FeedbackContext = require(Shared.FeedbackContext)
 local Layout = require(Shared.Layout)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
@@ -147,6 +148,10 @@ services = CoreServer.start({
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
 	onPlayerLeaving = onPlayerLeaving,
+	feedbackContext = function(player: Player)
+		local data = services.data:get(player)
+		return if data then FeedbackContext.from(data, os.time()) else {}
+	end,
 })
 
 local function fire(remote: any, player: Player, ...: any)

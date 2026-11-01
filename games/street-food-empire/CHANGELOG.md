@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (cash, register, queue, districts, stations and cooks) to help reproduce bugs.
 - First playable (M2): a counter queue fed by each district's foot traffic,
   serving customers by hand for the whole menu, 12 stations (4 per district)
   with 3 levels each, build and upgrade timers, moving stations, 3 cook tiers

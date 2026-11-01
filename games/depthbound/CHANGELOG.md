@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (gear tiers, pack contents, deepest row, dives and lamp-outs) to help reproduce bugs.
 - First playable (M2): a shared three-layer mine built per server from a
   seed, with only blocks that touch air drawn as Parts and old tunnels growing
   back; pickaxe mining with server checks for reach, swing speed, exposure

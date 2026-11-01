@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (creatures, placed, incubating, mounted, guard, traps, shield) to help reproduce bugs.
 - Economy tuned from the playtest (Alex approved the playtest set): 200
   starting coins, Basic Egg hatches in 10 s, storage auto-sale pays 20 s of
   income (spam-buying Basic eggs no longer makes coins), first rebirth

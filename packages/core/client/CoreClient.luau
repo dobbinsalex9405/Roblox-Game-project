@@ -1,13 +1,14 @@
 --!strict
 -- Starts the core on the client: forwards client errors to the server's error
--- queue, keeps the latest copy of the player's own data and passes, and
--- exposes the feedback button and odds screen requests.
+-- queue, keeps the latest copy of the player's own data and passes, mounts
+-- the Feedback button every game gets, and exposes odds screen requests.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ScriptContext = game:GetService("ScriptContext")
 
 local CoreRemotes = require(ReplicatedStorage.Core.CoreRemotes)
 local ClientNet = require(script.Parent.ClientNet)
+local FeedbackUi = require(script.Parent.FeedbackUi)
 
 -- Client-side throttle so a render-loop error does not spam the remote
 -- (the server rate-limits as well).
@@ -23,7 +24,12 @@ local dataListeners: { Listener<{ [string]: any }> } = {}
 local oddsListeners: { Listener<any> } = {}
 local started = false
 
-function CoreClient.start()
+export type Options = {
+	-- The top-bar Feedback button and form. On by default in every game.
+	feedback: boolean?,
+}
+
+function CoreClient.start(options: Options?)
 	assert(not started, "CoreClient.start called twice")
 	started = true
 
@@ -58,6 +64,10 @@ function CoreClient.start()
 			task.spawn(listener, display)
 		end
 	end)
+
+	if options == nil or options.feedback ~= false then
+		task.spawn(FeedbackUi.start)
+	end
 end
 
 -- The latest copy of this player's data (read-only; the server owns it).
@@ -86,8 +96,10 @@ function CoreClient.onOdds(listener: Listener<any>)
 	table.insert(oddsListeners, listener)
 end
 
-function CoreClient.submitFeedback(text: string)
-	ClientNet.fire(CoreRemotes["Core:Feedback"], string.sub(text, 1, 2000))
+-- Opens the Feedback form, e.g. from a game's own menu or after a failure
+-- ("Something went wrong? Tell us"). `category` may be "bug", "idea" or "other".
+function CoreClient.openFeedback(category: string?)
+	FeedbackUi.open(category)
 end
 
 return CoreClient
