@@ -27,6 +27,7 @@ local Economy = require(Core.Economy)
 local ErrorReporter = require(Core.ErrorReporter)
 local Feedback = require(Core.Feedback)
 local Log = require(Core.Log)
+local Metrics = require(Core.Metrics)
 local Net = require(Core.Net)
 local Odds = require(Core.Odds)
 local Passes = require(Core.Passes)
@@ -35,6 +36,7 @@ local Receipts = require(Core.Receipts)
 local ShopRemotes = require(Core.ShopRemotes)
 local Util = require(Core.Util)
 
+local MetricsStore = require(script.Parent.MetricsStore)
 local ProfileStoreAdapter = require(script.Parent.ProfileStoreAdapter)
 local Purchases = require(script.Parent.Purchases)
 local RobloxSinks = require(script.Parent.RobloxSinks)
@@ -43,6 +45,8 @@ local TestPanel = require(script.Parent.TestPanel)
 
 local RECEIPTS_FIELD = "receipts"
 local FLUSH_EVERY = 5 -- seconds between ErrorReporter/Feedback flush checks (each writes at most once a minute)
+local METRICS_EVERY = 60 -- seconds between Metrics writes (one UpdateAsync per server per day touched)
+local DAY = 86400
 
 export type Options = {
 	game: string, -- folder name, e.g. "hatchery-heist"
@@ -128,6 +132,41 @@ function CoreServer.start(options: Options): Services
 
 	local analytics = Analytics.new(RobloxSinks.analytics())
 
+	-- Daily counters for the studio scoreboard (ops/METRICS.md). Counted
+	-- everywhere, written only from live servers, so Studio never reaches it.
+	local metrics = Metrics.new()
+	if not RunService:IsStudio() then
+		local writeMetrics = MetricsStore.writer()
+		local function flushMetrics()
+			if not metrics:pending() then
+				return
+			end
+			local failed = {}
+			for _, delta in metrics:take() do
+				if not writeMetrics(delta) then
+					table.insert(failed, delta)
+				end
+			end
+			if #failed > 0 then
+				metrics:restore(failed)
+			end
+		end
+		task.spawn(function()
+			while true do
+				task.wait(METRICS_EVERY)
+				flushMetrics()
+			end
+		end)
+		game:BindToClose(function()
+			-- Let the last players' sessions end first, so their play time counts.
+			local deadline = os.clock() + 5
+			while #Players:GetPlayers() > 0 and os.clock() < deadline do
+				task.wait(0.25)
+			end
+			flushMetrics()
+		end)
+	end
+
 	local data: DataService.DataService
 	local store = ProfileStoreAdapter.store(options.dataStoreName, function(player: Player)
 		-- Another server took this player's session: stop using stale data. Sessions
@@ -142,6 +181,27 @@ function CoreServer.start(options: Options): Services
 		template = options.template,
 		migrations = options.migrations,
 	})
+
+	-- Counts a payment once the purchase is granted. The player's first payment
+	-- of the UTC day is remembered in their data, so "payers" counts each
+	-- player once a day across servers.
+	local function countPayment(player: Player, kind: "product" | "pass", key: string, robux: number)
+		local now = os.time()
+		local firstToday = false
+		local current = if data:isLoaded(player) then data:get(player) else nil
+		if current then
+			local meta = current.meta
+			firstToday =
+				Metrics.isFirstPaymentToday(if type(meta) == "table" then meta.lastPaidDay else nil, now)
+			if firstToday then
+				data:update(player, function(d)
+					d.meta = d.meta or {}
+					d.meta.lastPaidDay = now // DAY
+				end)
+			end
+		end
+		metrics:purchase(kind, key, robux, firstToday, now)
+	end
 
 	local economy = Economy.new({
 		data = data,
@@ -163,6 +223,7 @@ function CoreServer.start(options: Options): Services
 		end,
 		onGranted = function(player: Player, productKey: string, robux: number)
 			analytics:purchase(player, productKey, robux)
+			countPayment(player, "product", productKey, robux)
 		end,
 	})
 	MarketplaceService.ProcessReceipt = function(info)
@@ -198,9 +259,29 @@ function CoreServer.start(options: Options): Services
 			end
 		end,
 	})
+	-- Pass prices for the scoreboard, looked up once per pass.
+	local passPrices: { [number]: number } = {}
+	local function passPrice(passId: number): number
+		if passPrices[passId] == nil then
+			local ok, info = pcall(function()
+				return MarketplaceService:GetProductInfo(passId, Enum.InfoType.GamePass)
+			end)
+			if not ok or type(info) ~= "table" then
+				return 0 -- try again next time
+			end
+			passPrices[passId] = tonumber((info :: any).PriceInRobux) or 0
+		end
+		return passPrices[passId]
+	end
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(
 		function(player: Player, passId: number, purchased: boolean)
 			passes:onPurchaseFinished(player, passId, purchased)
+			local key = if purchased then passes:keyFor(passId) else nil
+			if key then
+				task.spawn(function()
+					countPayment(player, "pass", key, passPrice(passId))
+				end)
+			end
 		end
 	)
 
@@ -380,6 +461,8 @@ function CoreServer.start(options: Options): Services
 			return
 		end
 		analytics:sessionStart(player, info, now)
+		metrics:join(info, now)
+		metrics:serverPlayers(#Players:GetPlayers(), now)
 		sendPasses(player)
 		net:fire(CoreRemotes["Core:Data"], player, snapshot(data:get(player) :: any))
 
@@ -398,7 +481,10 @@ function CoreServer.start(options: Options): Services
 				log:error("onPlayerLeaving failed", { userId = player.UserId, err = err })
 			end
 		end
-		analytics:sessionEnd(player, os.time())
+		local sessionSeconds = analytics:sessionEnd(player, os.time())
+		if sessionSeconds then
+			metrics:leave(sessionSeconds, os.time())
+		end
 		odds:forget(player)
 		theShop:forget(player)
 		passes:release(player)

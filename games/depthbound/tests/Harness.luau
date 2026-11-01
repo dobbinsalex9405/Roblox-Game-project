@@ -19,6 +19,7 @@ local config = {
 	gear = require("../config/gear"),
 	dive = require("../config/dive"),
 	economy = require("../config/economy"),
+	monetization = require("../config/monetization"),
 }
 
 local Harness = {}
@@ -40,7 +41,16 @@ function Harness.new(options: Options?)
 	h.grid = MineGrid.new(mine, config.blocks, opts.seed or 12345)
 	h.positions = {} :: { [any]: Layout.Point? }
 	h.notices = {} :: { string }
-	h.dives = {} :: { { phase: string, oil: number, rate: number, capacity: number, climbEndsAt: number } }
+	h.dives = {} :: {
+		{
+			phase: string,
+			oil: number,
+			rate: number,
+			capacity: number,
+			climbEndsAt: number,
+			refilled: boolean,
+		}
+	}
 	h.ores = {} :: { string }
 	h.lampOuts = {} :: { { kept: number, dropped: number, row: number } }
 	h.sales = {} :: { { coins: number, pieces: number } }
@@ -93,13 +103,14 @@ function Harness.new(options: Options?)
 		notify = function(_player: any, text: string)
 			table.insert(h.notices, text)
 		end,
-		dive = function(_player: any, phase, meter, capacity: number, climbEndsAt: number)
+		dive = function(_player: any, phase, meter, capacity: number, climbEndsAt: number, refilled: boolean)
 			table.insert(h.dives, {
 				phase = phase,
 				oil = meter.oil,
 				rate = meter.rate,
 				capacity = capacity,
 				climbEndsAt = climbEndsAt,
+				refilled = refilled,
 			})
 		end,
 		ore = function(_player: any, blockId: string)

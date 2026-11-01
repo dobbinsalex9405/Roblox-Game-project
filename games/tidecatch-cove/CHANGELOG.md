@@ -5,6 +5,22 @@
 - Feedback button in the top bar (shared core): players send a Bug, Idea or
   Other report with an optional fun rating. Reports carry this game's
   progress snapshot (rod, bait, bucket, pools, species caught and casts) to help reproduce bugs.
+- Robux prices and Roblox listings for every pass and product, on the
+  studio price ladder (ops/PRICING.md). The Storm Lure Pack is now 4 lures
+  (was 5), so at the same 25 Robux Mystery Bait is never the worse deal.
+- The first-minute guide retires after 8 catches for a player who never
+  pools one, instead of asking them to pool forever, and its update loop
+  stops once the guide is done.
+- First-minute guide: a goal banner (cast, reel, pool, grow), a glowing
+  beam to the nearest dock until the first catch, and starting Worms picked
+  for a new player.
+
+- Robux shop wired into the core's shared shop and Studio test panel: Bait
+  Pack, Mystery Bait (odds shown first, policy-checked), Growth Boost,
+  Restock Skip, and the Auto-reel, Extra Pools and Sell Multiplier passes.
+  New Robux-only baits (Storm Lure, Pearl Lure), whose casts are paid rolls.
+  Ids stay 0 until prices are approved.
+
 - First playable (M2): cast from four docks, a server-rolled bite, a
   touch-first reel minigame, keep or sell into a 12-slot bucket, 2 to 8 tide
   pools where creatures grow through five stages by the saved clock, feeding,

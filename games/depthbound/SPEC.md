@@ -61,9 +61,20 @@ until Alex says otherwise.
 ## Money
 
 All prices need Alex's approval (M5). Pass and product ids stay 0 in
-`config/monetization.luau` until created on Roblox; id 0 is never sold.
-Depthbound sells no coin packs, so nothing bought with coins is a paid random
-item.
+`config/monetization.luau` until created on Roblox; id 0 is never sold. Each
+experience's ids go under `environments` (see ops/SHOP.md). Depthbound sells
+no coin packs, so nothing bought with coins is a paid random item.
+
+Wired into the shared shop now (testable in Studio with the Test panel):
+
+- **Oil Refill** (product): a saved item. One pours per dive; bought mid-dive
+  it pours at once, otherwise (at camp, after this dive's refill, or with the
+  lamp over 90% full) it waits for a later dive. The HUD button pours one
+  from stock or buys one.
+- **Ore Boost** (product): ore sells for 2x for 15 minutes; more adds time.
+- **Bigger Pack, Better Lamp, Auto-Sell** (passes).
+- **Geode Crate**: not listed until M5 (paid random: odds table, odds screen,
+  policy check).
 
 ## Save data
 

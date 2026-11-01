@@ -10,6 +10,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Core = ReplicatedStorage.Core
 local Config = require(Core.Config)
 local Log = require(Core.Log)
+local Monetization = require(Core.Monetization)
 local Net = require(Core.Net)
 local Schema = require(Core.Schema)
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
@@ -56,7 +57,8 @@ assert(#config.districts <= Layout.ZONES, "the map has 3 district zones")
 for _, district in config.districts do
 	assert(district.spots <= Layout.SPOTS_PER_ZONE, "the map has 4 station spots per district")
 end
-assert(config.economy.customers.queueMax <= 20, "keep the counter queue short enough to draw on phones")
+-- Pass and product ids for the experience this build is for (ops/SHOP.md).
+local ids = Monetization.resolve(raw.monetization, Build.environment)
 
 World.build()
 
@@ -124,7 +126,7 @@ services = CoreServer.start({
 	template = DataTemplate.template,
 	migrations = DataTemplate.migrations,
 	currencies = { cash = { field = "cash", max = config.economy.cashMax } },
-	passes = config.monetization.passes,
+	passes = ids.passes,
 	oddsTables = {}, -- nothing in this game is random
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
@@ -190,7 +192,7 @@ net:on(Remotes["SFE:Rebirth"], function(player: Player)
 	ready:rebirth(player)
 end)
 
-require(script.Shop).register(services, Config)
+require(script.Shop).register(services, Config, ids, ready)
 
 -- Tick: brings each restaurant up to date (the register, the queue), runs
 -- Auto-Collect and redraws plots (a station may have finished building).

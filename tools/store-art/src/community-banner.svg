@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 456" width="1440" height="456">
+  <style>/*FONTS*/
+    .word{font-family:'Lilita One';letter-spacing:2px}
+    .tag{font-family:'Fredoka';font-weight:600}
+  </style>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="70%">
+      <stop offset="0" stop-color="#2E3380"/>
+      <stop offset="0.6" stop-color="#1A1D4D"/>
+      <stop offset="1" stop-color="#0D1020"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#5B63FF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#5B63FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="90" y1="400" x2="420" y2="110">
+      <stop offset="0" stop-color="#FF8A3D"/>
+      <stop offset="1" stop-color="#FFD23F"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE066"/>
+      <stop offset="1" stop-color="#FF8A3D"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9AF4FF"/>
+      <stop offset="1" stop-color="#1FB5E8"/>
+    </linearGradient>
+    <linearGradient id="liquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7CF0FF"/>
+      <stop offset="1" stop-color="#1FB5E8"/>
+    </linearGradient>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="14" r="1.6" fill="#8C93FF" fill-opacity="0.22"/>
+    </pattern>
+    <clipPath id="flaskClip">
+      <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"/>
+    </clipPath>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#05061A" flood-opacity="0.6"/>
+    </filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+
+    <!-- The emblem's ring + flask, without its square background -->
+    <g id="emblemMark">
+      <circle cx="256" cy="256" r="170" fill="none" stroke="url(#ring)" stroke-width="40"
+              stroke-linecap="round" stroke-dasharray="880 188" transform="rotate(-60 256 256)"/>
+      <polygon points="183.2,146.0 141.4,82.6 209.0,83.4" fill="url(#ring)" stroke="url(#ring)" stroke-width="10" stroke-linejoin="round"/>
+      <g transform="translate(256 264) scale(1.28) translate(-256 -264)">
+        <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z" fill="#EAF2FF" fill-opacity="0.16"/>
+        <g clip-path="url(#flaskClip)"><rect x="180" y="288" width="160" height="60" fill="url(#liquid)"/></g>
+        <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"
+              fill="none" stroke="#EAF2FF" stroke-width="9" stroke-linejoin="round"/>
+        <rect x="226" y="194" width="60" height="14" rx="7" fill="#EAF2FF"/>
+        <circle cx="250" cy="308" r="8" fill="#EAF2FF" fill-opacity="0.85"/>
+        <circle cx="274" cy="318" r="5.5" fill="#EAF2FF" fill-opacity="0.85"/>
+        <circle cx="262" cy="270" r="5" fill="#EAF2FF" fill-opacity="0.7"/>
+      </g>
+    </g>
+
+    <!-- Game motif tiles, 160x160, centred on 0,0 -->
+    <g id="tileBase">
+      <rect x="-80" y="-80" width="160" height="160" rx="36" fill="#0D1020" fill-opacity="0.35" transform="translate(0 8)"/>
+      <rect x="-80" y="-80" width="160" height="160" rx="36" stroke="#EAF2FF" stroke-opacity="0.9" stroke-width="5"/>
+    </g>
+    <g id="egg">
+      <path d="M0 -58 C34 -58 50 -10 50 16 C50 46 28 62 0 62 C-28 62 -50 46 -50 16 C-50 -10 -34 -58 0 -58 Z" fill="#FFF4D6" stroke="#2A1B4A" stroke-width="6"/>
+      <circle cx="-22" cy="34" r="9" fill="#FFB547"/><circle cx="26" cy="40" r="6" fill="#FFB547"/><circle cx="20" cy="-34" r="7" fill="#FFB547"/>
+      <path d="M-50 -6 Q0 -22 50 -6 L50 14 Q0 -2 -50 14 Z" fill="#2A1B4A"/>
+      <ellipse cx="-18" cy="2" rx="9" ry="6" fill="#FFF4D6"/><ellipse cx="18" cy="2" rx="9" ry="6" fill="#FFF4D6"/>
+      <circle cx="-16" cy="3" r="3.5" fill="#2A1B4A"/><circle cx="20" cy="3" r="3.5" fill="#2A1B4A"/>
+      <path d="M-50 -2 L-66 -14 M-50 6 L-68 6" stroke="#2A1B4A" stroke-width="6" stroke-linecap="round"/>
+    </g>
+    <g id="fish">
+      <path d="M38 0 L66 -26 L62 0 L66 26 Z" fill="#1FB5E8" stroke="#0B2E4A" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-58 0 C-40 -40 20 -40 44 0 C20 40 -40 40 -58 0 Z" fill="#46D9F2" stroke="#0B2E4A" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-10 -30 Q4 -50 22 -24" fill="#1FB5E8" stroke="#0B2E4A" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-56 4 C-36 30 10 32 40 6" fill="none" stroke="#B8F6FF" stroke-width="5" stroke-linecap="round" opacity="0.8"/>
+      <circle cx="-30" cy="-8" r="10" fill="#fff" stroke="#0B2E4A" stroke-width="4"/><circle cx="-28" cy="-8" r="5" fill="#0B2E4A"/>
+      <path d="M8 -12 Q14 0 8 12" stroke="#0B2E4A" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="hotdog">
+      <path d="M-60 6 C-60 -14 -44 -22 0 -22 C44 -22 60 -14 60 6 C60 30 40 34 0 34 C-40 34 -60 30 -60 6 Z" fill="#F2A65A" stroke="#4A1F0B" stroke-width="6"/>
+      <rect x="-66" y="-16" width="132" height="28" rx="14" fill="#D9452B" stroke="#4A1F0B" stroke-width="6"/>
+      <path d="M-50 -2 l10 -8 l10 8 l10 -8 l10 8 l10 -8 l10 8 l10 -8 l10 8 l10 -8 l10 8" fill="none" stroke="#FFD23F" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M-56 14 C-50 40 50 40 56 14" fill="#E89547" stroke="#4A1F0B" stroke-width="6"/>
+      <path d="M-40 -46 q6 -10 0 -20 M0 -50 q6 -10 0 -20 M40 -46 q6 -10 0 -20" stroke="#EAF2FF" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>
+    </g>
+    <g id="lantern">
+      <circle cx="0" cy="8" r="56" fill="#FFB547" opacity="0.35" filter="url(#soft)"/>
+      <path d="M-18 -56 Q0 -76 18 -56" fill="none" stroke="#2A1B0B" stroke-width="7" stroke-linecap="round"/>
+      <rect x="-28" y="-56" width="56" height="14" rx="5" fill="#8A5A2B" stroke="#2A1B0B" stroke-width="5"/>
+      <path d="M-26 -42 H26 L32 34 H-32 Z" fill="#FFE8A3" fill-opacity="0.9" stroke="#2A1B0B" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="0" cy="2" r="22" fill="#FFD23F" opacity="0.55"/>
+      <path d="M0 -30 C20 -8 20 12 0 24 C-20 12 -20 -8 0 -30 Z" fill="#FF8A3D"/>
+      <path d="M0 -10 C9 0 9 10 0 17 C-9 10 -9 0 0 -10 Z" fill="#FFF4D6"/>
+      <rect x="-36" y="34" width="72" height="16" rx="6" fill="#8A5A2B" stroke="#2A1B0B" stroke-width="5"/>
+      
+    </g>
+    <g id="spark">
+      <path d="M0 -12 Q2 -2 12 0 Q2 2 0 12 Q-2 2 -12 0 Q-2 -2 0 -12 Z"/>
+    </g>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1440" height="456" fill="url(#bg)"/>
+  <rect width="1440" height="456" fill="url(#dots)"/>
+  <ellipse cx="560" cy="228" rx="420" ry="260" fill="url(#glow)"/>
+  <!-- Big faint loop arcs echoing the emblem -->
+  <g fill="none" stroke-linecap="round">
+    <circle cx="470" cy="228" r="300" stroke="#FFB547" stroke-opacity="0.10" stroke-width="18" stroke-dasharray="1500 385" transform="rotate(-60 470 228)"/>
+    <circle cx="470" cy="228" r="420" stroke="#7CF0FF" stroke-opacity="0.07" stroke-width="12" stroke-dasharray="2200 440" transform="rotate(120 470 228)"/>
+    <circle cx="1290" cy="420" r="260" stroke="#FFB547" stroke-opacity="0.07" stroke-width="14"/>
+  </g>
+  <!-- Bubbles and sparkles -->
+  <g fill="#EAF2FF">
+    <circle cx="660" cy="70" r="6" fill-opacity="0.35"/><circle cx="690" cy="104" r="3.5" fill-opacity="0.3"/>
+    <circle cx="1140" cy="80" r="5" fill-opacity="0.3"/><circle cx="300" cy="400" r="5" fill-opacity="0.3"/>
+    <circle cx="1010" cy="400" r="7" fill-opacity="0.25"/><circle cx="1040" cy="380" r="3.5" fill-opacity="0.3"/>
+    <use href="#spark" x="760" y="96" fill="#FFD23F" opacity="0.9"/>
+    <use href="#spark" x="1150" y="230" fill="#7CF0FF" opacity="0.8" transform="translate(1150 230) scale(0.8) translate(-1150 -230)"/>
+    <use href="#spark" x="260" y="70" fill="#7CF0FF" opacity="0.7"/>
+    <use href="#spark" x="1360" y="70" fill="#FFD23F" opacity="0.7" transform="translate(1360 70) scale(0.7) translate(-1360 -70)"/>
+  </g>
+
+  <!-- Game motif tiles -->
+  <g filter="url(#shadow)">
+    <g transform="translate(140 150) rotate(-10)"><use href="#tileBase" fill="#7B4DFF"/><use href="#egg" transform="scale(0.95)"/></g>
+    <g transform="translate(185 325) rotate(8) scale(0.84)"><use href="#tileBase" fill="#14A3C7"/><use href="#fish" transform="scale(0.9)"/></g>
+    <g transform="translate(1300 140) rotate(9) scale(0.8)"><use href="#tileBase" fill="#E8503A"/><use href="#hotdog" transform="translate(0 8) scale(0.9)"/></g>
+    <g transform="translate(1270 320) rotate(-8)"><use href="#tileBase" fill="#1E2547"/><use href="#lantern" transform="translate(0 4) scale(1.1)"/></g>
+  </g>
+
+  <!-- Emblem + wordmark lockup -->
+  <g filter="url(#shadow)">
+    <use href="#emblemMark" transform="translate(330 98) scale(0.51)"/>
+  </g>
+  <g filter="url(#shadow)">
+    <text x="620" y="222" class="word" font-size="132" fill="url(#gold)" stroke="#2A1B4A" stroke-width="10" paint-order="stroke" stroke-linejoin="round">LOOP LAB</text>
+    <text x="624" y="312" class="word" font-size="84" fill="url(#cyan)" stroke="#0B1E3A" stroke-width="9" paint-order="stroke" stroke-linejoin="round" letter-spacing="14">GAMES</text>
+  </g>
+  <text x="626" y="364" class="tag" font-size="30" fill="#EAF2FF" fill-opacity="0.92">Built, played and improved on a loop.</text>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <style>/*FONTS*/</style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:hatchery-heist/parts.svg-->
+    <radialGradient id="bg" cx="50%" cy="45%" r="75%">
+      <stop offset="0" stop-color="#8A4DFF"/><stop offset="0.55" stop-color="#4A2AA8"/><stop offset="1" stop-color="#1A1048"/>
+    </radialGradient>
+    <radialGradient id="burst" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE873" stop-opacity="0.7"/><stop offset="1" stop-color="#FFE873" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g fill="#FFFFFF" opacity="0.09">
+    <path d="M256 280 L180 -20 L260 -20 Z"/><path d="M256 280 L340 -20 L420 -20 Z"/><path d="M256 280 L540 60 L540 150 Z"/>
+    <path d="M256 280 L-30 60 L-30 150 Z"/><path d="M256 280 L540 330 L540 420 Z"/><path d="M256 280 L-30 330 L-30 420 Z"/>
+  </g>
+  <circle cx="256" cy="240" r="210" fill="url(#burst)"/>
+  <!-- coins flying -->
+  <g filter="url(#dropShadow)">
+    <use href="#coin" transform="translate(74 158) rotate(-16) scale(1.05)"/>
+    <use href="#coin" transform="translate(446 140) rotate(14) scale(0.95)"/>
+  </g>
+  <g filter="url(#dropShadow)">
+    <use href="#dragonling" transform="translate(256 300) scale(0.9)"/>
+    <use href="#eggBottom" transform="translate(256 352) scale(1.0)"/>
+  </g>
+  <!-- shell cap knocked aside -->
+  <use href="#eggTop" transform="translate(420 300) rotate(34) scale(0.42)"/>
+  <g fill="#FFF2A8">
+    <use href="#spark" transform="translate(110 290) scale(1.5)"/>
+    <use href="#spark" transform="translate(400 60) scale(1.2)"/>
+    <use href="#spark" transform="translate(120 64) scale(0.9)"/>
+  </g>
+</svg>

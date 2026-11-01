@@ -3,7 +3,6 @@
 -- new player: hatch what is ready, collect often, buy the best egg it can,
 -- unlock incubators, ride, rebirth when it can. Prints a timeline and metrics.
 local Sim = require("./Sim")
-local Fakes = require("../../packages/core/tests/Fakes")
 local Hatchery = require("../../games/hatchery-heist/src/shared/Hatchery")
 local Creatures = require("../../games/hatchery-heist/src/shared/Creatures")
 
@@ -27,7 +26,14 @@ end
 local function bestCreature(d)
 	local best = nil
 	for _, c in d.creatures do
-		if c.slot and (best == nil or Hatchery.creatureIncome(c, config.creatures) > Hatchery.creatureIncome(best, config.creatures)) then
+		if
+			c.slot
+			and (
+				best == nil
+				or Hatchery.creatureIncome(c, config.creatures)
+					> Hatchery.creatureIncome(best, config.creatures)
+			)
+		then
 			best = c
 		end
 	end
@@ -63,9 +69,15 @@ local function play(h, player, seconds, strategy, log)
 					mark("first hatch")
 					local sp = config.creatures.species[inc.outcome]
 					rarities[sp.rarity] = (rarities[sp.rarity] or 0) + 1
-					if sp.rarity == "Rare" then mark("first Rare") end
-					if sp.rarity == "Epic" then mark("first Epic") end
-					if sp.rarity == "Uncommon" then mark("first Uncommon") end
+					if sp.rarity == "Rare" then
+						mark("first Rare")
+					end
+					if sp.rarity == "Epic" then
+						mark("first Epic")
+					end
+					if sp.rarity == "Uncommon" then
+						mark("first Uncommon")
+					end
 				end
 			end
 		end
@@ -129,7 +141,9 @@ local function play(h, player, seconds, strategy, log)
 				bought += 1
 				acted = true
 				mark("first egg bought")
-				if eggId == "MeadowEgg" then mark("first Meadow egg") end
+				if eggId == "MeadowEgg" then
+					mark("first Meadow egg")
+				end
 			else
 				break
 			end
@@ -139,7 +153,9 @@ local function play(h, player, seconds, strategy, log)
 		local hasFree = Hatchery.freeSlot(d, d.slots) ~= nil
 		local anyReady = false
 		for _, inc in d.incubators do
-			if inc.readyAt <= now + 1 then anyReady = true end
+			if inc.readyAt <= now + 1 then
+				anyReady = true
+			end
 		end
 		if not acted and not anyReady and (not hasFree or d.coins < 50) then
 			idle += 1
@@ -147,9 +163,16 @@ local function play(h, player, seconds, strategy, log)
 		-- pads / storage
 		local onPads, stored = 0, 0
 		for _, c in d.creatures do
-			if c.slot then onPads += 1 else stored += 1 end
+			if c.slot then
+				onPads += 1
+			else
+				stored += 1
+			end
 		end
-		if onPads >= economy.creaturePads and padsFullAt == nil then padsFullAt = now - t0; mark("all 20 pads full") end
+		if onPads >= economy.creaturePads and padsFullAt == nil then
+			padsFullAt = now - t0
+			mark("all 20 pads full")
+		end
 		for i = lastNotices + 1, #h.notices do
 			if h.notices[i].player == player then
 				refusals += 1
@@ -161,8 +184,20 @@ local function play(h, player, seconds, strategy, log)
 		end
 		lastNotices = #h.notices
 		if elapsed % 60 == 0 or elapsed == seconds - 1 then
-			table.insert(timeline, string.format("  %5s | coins %8s | +%6s/s | pads %2d | store %2d | slots %2d | busy %2d | rb %d",
-				mmss(elapsed), fmt(d.coins), fmt(perSecond), onPads, stored, d.slots, #d.incubators, d.rebirths))
+			table.insert(
+				timeline,
+				string.format(
+					"  %5s | coins %8s | +%6s/s | pads %2d | store %2d | slots %2d | busy %2d | rb %d",
+					mmss(elapsed),
+					fmt(d.coins),
+					fmt(perSecond),
+					onPads,
+					stored,
+					d.slots,
+					#d.incubators,
+					d.rebirths
+				)
+			)
 		end
 		h.wait(1)
 		sinceCollect += 1
@@ -180,22 +215,57 @@ local function play(h, player, seconds, strategy, log)
 	if log then
 		print(table.concat(timeline, "\n"))
 		local names = {}
-		for name in milestones do table.insert(names, name) end
-		table.sort(names, function(a, b) return milestones[a] < milestones[b] end)
+		for name in milestones do
+			table.insert(names, name)
+		end
+		table.sort(names, function(a, b)
+			return milestones[a] < milestones[b]
+		end)
 		for _, name in names do
 			print(string.format("  milestone %-24s at %s", name, mmss(milestones[name])))
 		end
 		local r = {}
-		for k, v in rarities do table.insert(r, `{k}={v}`) end
+		for k, v in rarities do
+			table.insert(r, `{k}={v}`)
+		end
 		table.sort(r)
 		print(`  hatched by rarity: {table.concat(r, " ")}`)
-		print(string.format("  idle seconds (nothing to do): %d of %d (%.0f%%); refusal notices: %d", idle, seconds, idle / seconds * 100, refusals))
-		print(string.format("  end: coins %s, income %s/s, creatures %d, slots %d, rebirths %d, eggs bought %s",
-			fmt(d.coins), fmt(result.perSecond), #d.creatures, d.slots, d.rebirths,
-			(function() local s = {} for k, v in d.eggsBought do table.insert(s, `{k}={v}`) end table.sort(s) return table.concat(s, ",") end)()))
+		print(
+			string.format(
+				"  idle seconds (nothing to do): %d of %d (%.0f%%); refusal notices: %d",
+				idle,
+				seconds,
+				idle / seconds * 100,
+				refusals
+			)
+		)
+		print(
+			string.format(
+				"  end: coins %s, income %s/s, creatures %d, slots %d, rebirths %d, eggs bought %s",
+				fmt(d.coins),
+				fmt(result.perSecond),
+				#d.creatures,
+				d.slots,
+				d.rebirths,
+				(function()
+					local s = {}
+					for k, v in d.eggsBought do
+						table.insert(s, `{k}={v}`)
+					end
+					table.sort(s)
+					return table.concat(s, ",")
+				end)()
+			)
+		)
 		local rb = Creatures.rebirthCost(d.rebirths, economy)
 		if d.rebirths == 0 and result.perSecond > 0 then
-			print(string.format("  rebirth costs %s; at the final income it is %s away (plus hatching)", fmt(rb), mmss(math.floor((rb - d.coins) / result.perSecond))))
+			print(
+				string.format(
+					"  rebirth costs %s; at the final income it is %s away (plus hatching)",
+					fmt(rb),
+					mmss(math.floor((rb - d.coins) / result.perSecond))
+				)
+			)
 		end
 	end
 	return result

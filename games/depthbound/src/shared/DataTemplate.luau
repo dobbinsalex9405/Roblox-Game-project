@@ -13,7 +13,9 @@ DataTemplate.template = {
 	deepestRow = 0, -- deepest row this player has broken a block in, ever
 	layersReached = 0, -- deepest layer reached (1, 2, 3)
 	geodes = {}, -- unopened geodes: { [geodeId] = count } (M5)
-	boosts = {}, -- { [boostId] = expiresAt } (M5)
+	boosts = {}, -- { [boostId] = ends at, server Unix seconds } (see Boosts.luau)
+	oilRefills = 0, -- bought oil refills not poured yet (one pours per dive)
+	dailyHaulDay = 0, -- UTC day (see Daily.luau) the daily first-haul bonus was last paid
 	receipts = {}, -- recent purchase ids, capped (core Receipts)
 	firsts = {}, -- { [moment] = unix seconds } for the onboarding funnel
 	stats = {

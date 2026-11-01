@@ -102,9 +102,9 @@ function Hud.start(ctx: Context.Context): Hud
 	rebirths.Font = Enum.Font.Gotham
 	rebirths.Visible = false
 
-	-- Notices: one line at a time under the bar.
+	-- Notices: one line at a time under the bar and the guide's goal line.
 	local notice =
-		panel(gui, "Notice", UDim2.fromOffset(360, 36), UDim2.new(0.5, 0, 0, 100), Vector2.new(0.5, 0))
+		panel(gui, "Notice", UDim2.fromOffset(360, 36), UDim2.new(0.5, 0, 0, 144), Vector2.new(0.5, 0))
 	notice.Visible = false
 	local noticeText = label(notice, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
 	local noticeId = 0

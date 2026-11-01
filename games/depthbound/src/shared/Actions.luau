@@ -13,6 +13,8 @@
 -- every call needs the server's services. Roblox-specific effects (moving the
 -- character, drawing the mine, messages) come in as callbacks.
 
+local Boosts = require("./Boosts")
+local Daily = require("./Daily")
 local Gear = require("./Gear")
 local Lamp = require("./Lamp")
 local Layout = require("./Layout")
@@ -32,13 +34,20 @@ export type Options = {
 	economy: any,
 	analytics: any,
 	grid: MineGrid.Grid,
-	config: { mine: any, blocks: { [string]: any }, gear: any, dive: any },
+	config: { mine: any, blocks: { [string]: any }, gear: any, dive: any, monetization: any },
 	perks: (player: any) -> Perks,
 	now: () -> number, -- server time in seconds (fractions allowed)
 	position: (player: any) -> Point?, -- the character's root, nil when it has none
 	-- Effects.
 	notify: (player: any, text: string) -> (),
-	dive: (player: any, phase: Phase, meter: Lamp.Meter, capacity: number, climbEndsAt: number) -> (),
+	dive: (
+		player: any,
+		phase: Phase,
+		meter: Lamp.Meter,
+		capacity: number,
+		climbEndsAt: number,
+		refilled: boolean
+	) -> (),
 	ore: (player: any, blockId: string) -> (),
 	lampOut: (player: any, kept: number, dropped: number, row: number) -> (),
 	sold: (player: any, coins: number, pieces: number) -> (),
@@ -57,6 +66,7 @@ export type Session = {
 	lastSwing: number,
 	joinedAt: number,
 	diveDeepest: number,
+	refilled: boolean, -- an oil refill was poured this dive
 	lastNotice: string,
 	lastNoticeAt: number,
 }
@@ -70,6 +80,12 @@ export type Actions = {
 	sell: (self: Actions, player: any) -> (boolean, string?),
 	upgrade: (self: Actions, player: any, kind: Gear.Kind) -> (boolean, string?),
 	died: (self: Actions, player: any) -> (),
+	-- Pours one of the player's oil refills into the lamp (one per dive).
+	-- `bought` is set when a purchase just landed: outside a dive, or when
+	-- one was already poured, the refill is kept for later instead.
+	refill: (self: Actions, player: any, bought: boolean?) -> (boolean, string?),
+	-- A short message for the player (from the shop's grants).
+	notice: (self: Actions, player: any, text: string) -> (),
 	regrowMine: (self: Actions) -> (),
 	session: (self: Actions, player: any) -> Session?,
 }
@@ -83,6 +99,7 @@ export type Actions = {
 local ONBOARDING = { "Joined", "FirstBlockMined", "FirstSale", "FirstUpgrade" }
 
 local NOTICE_REPEAT_SECONDS = 2 -- the same refusal is shown at most this often
+local REFILL_FULL_FRACTION = 0.9 -- a lamp fuller than this is not refilled (it would waste the oil)
 local CAMP_HEIGHT = -1 -- a root above this, outside the shaft, is standing at camp
 
 local Actions = {}
@@ -91,6 +108,7 @@ Actions.ONBOARDING = table.freeze(ONBOARDING)
 function Actions.new(options: Options): Actions
 	local config = options.config
 	local mine, blocks, gear, dive = config.mine, config.blocks, config.gear, config.dive
+	local boosts = config.monetization and config.monetization.boosts
 	local grid = options.grid
 	local data = options.data
 	local economy = options.economy
@@ -127,7 +145,7 @@ function Actions.new(options: Options): Actions
 	end
 
 	local function sendDive(player: any, s: Session)
-		options.dive(player, s.phase, s.meter, s.capacity, s.climbEndsAt)
+		options.dive(player, s.phase, s.meter, s.capacity, s.climbEndsAt, s.refilled)
 	end
 
 	-- Runs `fn(d, ledger)` in one atomic update. `fn` returns a refusal
@@ -162,17 +180,31 @@ function Actions.new(options: Options): Actions
 		return { oil = capacity, rate = 0, at = now }
 	end
 
-	-- Sells the whole pack inside an update. Returns coins and pieces.
-	local function sellInto(d: { [string]: any }, ledger: any): (number, number)
+	-- Sells the whole pack inside an update (an Ore Boost and the day's first
+	-- haul multiply the price). Returns coins, pieces and whether this sale
+	-- took the daily bonus.
+	local function sellInto(d: { [string]: any }, ledger: any, now: number): (number, number, boolean)
 		local pieces = Pack.count(d.pack)
-		local coins = Pack.value(d.pack, blocks)
+		local daily, isDaily = Daily.claim(d, dive.dailyHaul, pieces, now)
+		local coins = math.floor(Pack.value(d.pack, blocks) * Boosts.sellMultiplier(d, boosts, now) * daily)
 		if coins > 0 then
 			ledger:add("coins", coins, "Sell:Ore")
 		end
 		table.clear(d.pack)
 		d.stats.oreSold += pieces
 		d.stats.coinsEarned += coins
-		return coins, pieces
+		return coins, pieces, isDaily
+	end
+
+	-- After a sale lands: the daily bonus message and event.
+	local function dailyPaid(player: any, s: Session?, coins: number, now: number)
+		notify(
+			player,
+			s,
+			`Today's first haul paid {dive.dailyHaul.multiplier}x! Come back tomorrow for another.`,
+			now
+		)
+		analytics:custom(player, "Daily:FirstHaul", coins)
 	end
 
 	local function startDive(player: any, s: Session, now: number, row: number)
@@ -182,6 +214,7 @@ function Actions.new(options: Options): Actions
 		s.phase = "Diving"
 		s.climbEndsAt = 0
 		s.diveDeepest = 0
+		s.refilled = false
 		sendDive(player, s)
 		analytics:custom(player, "Dive:Start", 1)
 	end
@@ -193,6 +226,7 @@ function Actions.new(options: Options): Actions
 		s.meter = fullMeter(s.capacity, now)
 		s.climbEndsAt = 0
 		s.row = 0
+		s.refilled = false
 		if wasClimbing then
 			options.climbing(player, false)
 		end
@@ -202,6 +236,7 @@ function Actions.new(options: Options): Actions
 	local function endDive(player: any, s: Session, now: number, ending: Ending)
 		local autoSell = options.perks(player).autoSell
 		local coins, pieces = 0, 0
+		local daily = false
 		local step: number? = nil
 		-- Walking across the top face without mining is not a dive.
 		local mined = s.diveDeepest > 0
@@ -210,7 +245,7 @@ function Actions.new(options: Options): Actions
 				d.stats.dives += 1
 			end
 			if autoSell and Pack.count(d.pack) > 0 then
-				coins, pieces = sellInto(d, ledger)
+				coins, pieces, daily = sellInto(d, ledger, now)
 				step = markFirst(d, "FirstSale", now)
 			end
 			return nil
@@ -220,6 +255,9 @@ function Actions.new(options: Options): Actions
 		backToCamp(player, s, now)
 		analytics:custom(player, "Dive:End", deepest, { ending })
 		if leaving then
+			if daily then
+				analytics:custom(player, "Daily:FirstHaul", coins)
+			end
 			return
 		end
 		if ending == "ClimbedOut" then
@@ -229,6 +267,9 @@ function Actions.new(options: Options): Actions
 		onboarding(player, step)
 		if pieces > 0 then
 			options.sold(player, coins, pieces)
+		end
+		if daily then
+			dailyPaid(player, s, coins, now)
 		end
 	end
 
@@ -285,6 +326,7 @@ function Actions.new(options: Options): Actions
 			lastSwing = -math.huge,
 			joinedAt = now,
 			diveDeepest = 0,
+			refilled = false,
 			lastNotice = "",
 			lastNoticeAt = -math.huge,
 		}
@@ -516,12 +558,13 @@ function Actions.new(options: Options): Actions
 			return false, "not at camp"
 		end
 		local coins, pieces = 0, 0
+		local daily = false
 		local step: number? = nil
 		local ok, refusal = change(player, function(d, ledger)
 			if Pack.count(d.pack) == 0 then
 				return "Your pack is empty. Go mining!"
 			end
-			coins, pieces = sellInto(d, ledger)
+			coins, pieces, daily = sellInto(d, ledger, now)
 			step = markFirst(d, "FirstSale", now)
 			return nil
 		end)
@@ -531,6 +574,9 @@ function Actions.new(options: Options): Actions
 		end
 		onboarding(player, step)
 		options.sold(player, coins, pieces)
+		if daily then
+			dailyPaid(player, s, coins, now)
+		end
 		return true, nil
 	end
 
@@ -580,6 +626,64 @@ function Actions.new(options: Options): Actions
 		if s and s.phase ~= "Camp" then
 			lampOut(player, s, options.now(), "Fainted")
 		end
+	end
+
+	function actions.refill(_self: Actions, player: any, bought: boolean?): (boolean, string?)
+		local s = sessions[player]
+		if s == nil then
+			return false, "not joined"
+		end
+		local now = options.now()
+		local d = data:get(player)
+		if d == nil then
+			return false, "no data"
+		end
+		local stock = d.oilRefills or 0
+		local saved = `Oil refill saved for a later dive. You have {stock}.`
+		if s.phase == "Camp" then
+			notify(player, s, if bought then saved else "Oil refills pour during a dive.", now)
+			return false, "not diving"
+		end
+		if s.refilled then
+			notify(player, s, if bought then `{saved} One refill per dive.` else "One refill per dive.", now)
+			return false, "one per dive"
+		end
+		local oil = Lamp.oilAt(s.meter, now)
+		if oil <= 0 then
+			-- Too late: the next step turns this into a lamp-out, and a bought
+			-- refill stays in stock.
+			return false, "lamp out"
+		end
+		if oil > s.capacity * REFILL_FULL_FRACTION then
+			notify(
+				player,
+				s,
+				if bought then saved else "Your lamp is nearly full. Keep the refill for later.",
+				now
+			)
+			return false, "lamp nearly full"
+		end
+		local ok, refusal = change(player, function(dd)
+			if (dd.oilRefills or 0) < 1 then
+				return "You have no oil refills."
+			end
+			dd.oilRefills -= 1
+			return nil
+		end)
+		if not ok then
+			notify(player, s, refusal or "Could not refill.", now)
+			return false, refusal
+		end
+		s.refilled = true
+		s.meter = { oil = s.capacity, rate = s.meter.rate, at = now }
+		sendDive(player, s)
+		analytics:custom(player, "Dive:Refill", s.row, { if bought then "Bought" else "Stock" })
+		notify(player, s, "Lamp refilled! That's your one refill this dive.", now)
+		return true, nil
+	end
+
+	function actions.notice(_self: Actions, player: any, text: string)
+		notify(player, sessions[player], text, options.now())
 	end
 
 	-- Grows back old mined-out blocks nobody is standing near.

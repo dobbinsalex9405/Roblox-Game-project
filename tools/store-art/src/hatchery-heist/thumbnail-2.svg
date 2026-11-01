@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:3px}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:parts/avatar.svg-->
+<!--INCLUDE:hatchery-heist/parts.svg-->
+    <radialGradient id="bg" cx="38%" cy="55%" r="80%">
+      <stop offset="0" stop-color="#9A5CFF"/><stop offset="0.55" stop-color="#4A2AA8"/><stop offset="1" stop-color="#1A1048"/>
+    </radialGradient>
+    <radialGradient id="burst" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFF3B0" stop-opacity="1"/><stop offset="0.4" stop-color="#FFC93C" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC93C" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="belt" width="80" height="60" patternUnits="userSpaceOnUse">
+      <rect width="80" height="60" fill="#3A3550"/><rect width="8" height="60" fill="#1B1238" opacity="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <!-- rays from the golden egg -->
+  <g fill="#FFE873" opacity="0.14">
+    <path d="M700 640 L420 -20 L620 -20 Z"/><path d="M700 640 L860 -20 L1060 -20 Z"/><path d="M700 640 L1300 -20 L1500 80 Z"/>
+    <path d="M700 640 L-20 160 L-20 360 Z"/><path d="M700 640 L1500 700 L1500 880 Z"/><path d="M700 640 L-20 760 L-20 940 Z"/>
+  </g>
+  <!-- conveyor -->
+  <g>
+    <rect x="-20" y="880" width="1960" height="70" fill="url(#belt)" stroke="#1B1238" stroke-width="8"/>
+    <rect x="-20" y="946" width="1960" height="140" fill="#2A2050"/>
+    <g fill="#9AA4C8" stroke="#1B1238" stroke-width="6"><circle cx="120" cy="990" r="30"/><circle cx="520" cy="990" r="30"/><circle cx="920" cy="990" r="30"/><circle cx="1320" cy="990" r="30"/></g>
+  </g>
+  <use href="#eggWhole" transform="translate(150 800) scale(0.8)" style="--egg:#FFFBEA;--spot:#5AC85A"/>
+  <use href="#eggWhole" transform="translate(360 800) scale(0.8)" style="--egg:#E8F0FF;--spot:#468CFF"/>
+  <use href="#eggWhole" transform="translate(1060 800) scale(0.8)" style="--egg:#F3E8FF;--spot:#AA55FF"/>
+
+  <!-- the golden egg cracking open -->
+  <circle cx="700" cy="620" r="360" fill="url(#burst)"/>
+  <g filter="url(#dropShadow)">
+    <use href="#phoenix" transform="translate(700 560) scale(1.15)"/>
+    <g style="--x:0">
+      <path d="M-150 -10 L-110 -50 L-70 -10 L-30 -54 L10 -12 L50 -52 L90 -10 L130 -46 L152 -14 C160 60 120 150 0 150 C-120 150 -160 60 -150 -10 Z" transform="translate(700 700) scale(0.95)" fill="url(#goldEgg)" stroke="#1B1238" stroke-width="10" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <g transform="translate(700 300) rotate(-3)" class="big" text-anchor="middle" filter="url(#dropShadow)">
+    <rect x="-180" y="-46" width="360" height="84" rx="42" fill="#FFAA28" stroke="#1B1238" stroke-width="8"/>
+    <text y="16" font-size="56" fill="#1B1238">LEGENDARY</text>
+  </g>
+  <g fill="#FFF2A8"><use href="#spark" transform="translate(420 400) scale(2)"/><use href="#spark" transform="translate(980 360) scale(1.6)"/><use href="#spark" transform="translate(960 640) scale(1.1)"/></g>
+
+  <!-- riding the Dragonling -->
+  <g stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.7">
+    <path d="M1280 560 h-140"/><path d="M1270 640 h-190"/><path d="M1290 720 h-120"/>
+  </g>
+  <ellipse cx="1560" cy="878" rx="200" ry="22" fill="#1B1238" opacity="0.35"/>
+  <g transform="translate(1530 560) rotate(-8) scale(1.05)" style="--shirt:#FF7A3D;--pants:#2B3A67">
+    <use href="#avatarArm" transform="translate(-42 -94) rotate(150)"/>
+    <use href="#avatarTorso"/>
+    <use href="#avatarHead" transform="translate(0 -102)"/>
+    <use href="#avatarArm" transform="translate(42 -94) rotate(-150)"/>
+  </g>
+  <g transform="translate(1560 870) rotate(-8)">
+    <use href="#dragonlingPlain" transform="translate(0 -130) scale(1.0)"/>
+  </g>
+
+  <!-- headline -->
+  <g class="big" filter="url(#dropShadow)">
+    <text x="60" y="190" font-size="170" fill="url(#titleGold)" stroke="#3A1A0B" stroke-width="18" paint-order="stroke" stroke-linejoin="round" transform="rotate(-2 60 190)">HATCH IT.</text>
+    <text x="1880" y="250" text-anchor="end" font-size="170" fill="url(#titleCyan)" stroke="#0B1E3A" stroke-width="18" paint-order="stroke" stroke-linejoin="round" transform="rotate(-2 1880 250)">RIDE IT.</text>
+  </g>
+  <use href="#studioBadge" transform="translate(1508 970)"/>
+</svg>

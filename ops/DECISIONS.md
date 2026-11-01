@@ -41,6 +41,172 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
   test first, verified by the playtest thread, auto-merged, production by
   Alex's click.
+## 2026-11-01: Boot check and key flows gate every merge and publish
+
+- **Why.** PR #5 merged with a start-up assert in Street Food Empire's
+  `init.server` (`queueMax <= 20`, while the config said 30). CI was green: the
+  unit tests and the headless playtests exercise pure modules, and nothing ran
+  the real server entry point. The game would not have started on Staging.
+- **Boot check** (`tools/boot/`): the built `.rbxl` is loaded under Lune with a
+  thin Roblox shim and its server Scripts, a player join, the client
+  LocalScripts and the leave all run for real. Errors anywhere fail the check.
+  The shim answers only what the games use; an unknown member raises Roblox's
+  own error and the fix is to teach the shim, never to loosen the game.
+- **Key flows** (`tools/keyflows.sh`): `playtests/<game>/checks.luau` now exits
+  non-zero on a bug and runs in CI. A new game cannot be published without one.
+- **Where they run.** CI on every PR (every game, `--built` on the CI build);
+  both publish workflows on the exact file about to be uploaded, after the
+  build and before the upload. `ops/PUBLISH_CHECKS.md` defines the whole
+  pre-publish gate and the post-publish checks (version read-back, live join,
+  error-queue sweep, first-24-hours rule) and the promotion rule to Production.
+- `playtests/` is now formatted and linted like the rest of the repo.
+
+## 2026-11-01: One Robux price ladder for every game
+
+- **Six prices: 25, 49, 99, 149, 199, 399.** Small packs, skips and refills
+  at 25; 15-minute boosts, protection and one paid random roll at 49; medium
+  packs and convenience passes at 99; capacity passes (and Auto-reel, which
+  plays the core action) at 149; earnings multipliers at 199; large packs at
+  399, the ceiling while the games are new. Full table and reasons:
+  `ops/PRICING.md`.
+- **Low end of the usual simulator ranges on purpose.** New games have no
+  reviews or social proof, so conversion matters more than price per sale;
+  passes can rise a rung later without hurting early buyers. Prices are
+  revisited after each game's first 7 live days.
+- **Prices live in the game configs** (`listings`: name, Robux, description),
+  not only on Roblox, so the laptop creates exactly what the repo says and a
+  test (`tools/tests/Pricing.spec.luau`) holds every game to the ladder, the
+  shop's names and `ops/PRICING.md`.
+- **Tidecatch's draft (Mystery 39, packs 49, Extra Pools 199, Sell 299) was
+  folded in**, keeping its rule that the paid random item is never the worse
+  deal: Mystery Bait and the Storm Lure Pack are both 25, with the pack cut
+  from 5 lures to 4.
+- **No Starter Pack yet.** It is usually the best first purchase in a
+  simulator, but each game needs a grant and a once-only check, so it is a
+  separate change.
+
+## 2026-11-01: Tidecatch Cove keeps the HUD Pools panel
+
+- **Feed, Sell and Unlock work from anywhere** through the HUD Pools panel,
+  as Place already did from the Bucket. In the playtest a bot spent about a
+  quarter of its time walking between dock and cove (about 13 s a round
+  trip), which is dead time on a phone. The cove still matters: it is where
+  the creatures are seen growing, and the welcome-back message points there.
+  Decided by Claude under the standing rule that design calls do not go to
+  Alex; revisit if session data shows players never visit their cove.
+
+## 2026-11-01: Depthbound's daily return reward
+
+- **The first real haul sold each UTC day pays double** (at least 5 ore, so
+  a stray coal does not use it up). It stacks with an Ore Boost and works at
+  the sell pad and with Auto-Sell. The day it was last paid is saved
+  (`dailyHaulDay`), so it is once a day across servers. This is the Wave 1
+  plan's "reward the first dive of each day" lever for day-1 retention, with
+  numbers in `config/dive.luau` (`dailyHaul`).
+- **Picked without waiting for Alex** (AI-managed project rule): of the
+  playtest tuning card, the lamp-out floor and doubled tier-5 costs shipped
+  in PR #4, the first-dive guide in PR #12, and this is the last of the four.
+  The late-game gear cliff and zero-risk top-row mining stay as they are
+  until real play data: both matter after the first session, and the launch
+  gate measures day-1 return and session length first.
+- **The goal line advertises it** after the first upgrade, until it is taken.
+  An event `Daily:FirstHaul` (coins paid) shows whether it brings players back.
+
+## 2026-11-01: Our own metrics and the studio scoreboard
+
+- **Games count their own players and Robux** (`Metrics` in the core,
+  `ops/METRICS.md`) because Roblox's dashboards and group revenue pages need
+  a signed-in account and a DataStore only needs the read-only key.
+- **8 shard keys per day,** fixed per server by a hash of its JobId, merged
+  with `UpdateAsync` once a minute. One key per day would queue writes on
+  busy days; one key per server would make the reader list thousands of keys.
+- **Products count at grant, passes at in-game purchase.** Receipts already
+  grant exactly once, so a retried receipt is never counted twice. Website
+  pass sales and Premium payouts are invisible to the game and left out; the
+  scoreboard says so.
+- **Payers are counted once per player per day across servers** by saving
+  the day of their last payment in their data (`meta.lastPaidDay`).
+- **Studio never writes,** so test-panel purchases cannot inflate the score.
+- **Earnings are shown as 70% of Robux paid,** labelled an estimate.
+- **The scoreboard is one issue rewritten daily,** not one per day, so the
+  daily run and Alex always find it in the same place; the raw numbers stay in
+  the DataStore and in a 90-day run artifact.
+
+## 2026-11-01: The daily run and CLAUDE.md
+
+- **One daily Claude run, not several jobs** (`ops/DAILY_RUN.md`), at 07:13
+  UTC, an hour after the feedback workflow opens its digest. It wakes the
+  project thread "Set up the daily scheduled run" rather than a fresh
+  session, so it can read the pause switch and message the other threads.
+- **It decides and routes; it never writes game code or merges.** Fixes go
+  through the feedback thread and fixer threads, so every change still gets
+  the verifier and CI. This keeps the run cheap and its blast radius small.
+- **A publish hold also holds merges of game code.** A merge to `main`
+  publishes to Staging and GitHub Actions cannot read the switch, so the only
+  way to honour "publish nothing" is to not merge.
+- **An unreadable switch counts as a publish hold,** not as "running".
+- **Severity leans high.** The prefilter's suggestion can be raised freely
+  and lowered only with a reason; a fixed bug that comes back is sev1 or sev2.
+  Missing a broken purchase costs far more than an extra fix.
+- **Revenue is read only from the studio's own counters.** The group revenue
+  pages need Alex's signed-in session, which Claude never uses, so metrics
+  wait for a `daily-metrics` issue from the games' own DataStore counters.
+- **Alex gets a reminder at most every 3 days** about setup steps only Alex can
+  do, because nothing earns Robux until the experiences and keys exist.
+- **`CLAUDE.md` holds the standing rules** (switch, never-touch-credentials,
+  merge and thread rules) so every session in this repo starts with them.
+
+## 2026-11-01: Tidecatch Cove Robux shop (milestone M5 code, prices pending)
+
+- **Robux bait is its own bait.** Bait Pack and Mystery Bait give Storm Lures
+  and Pearl Lures, which coins never buy. A cast is a paid random roll exactly
+  when its bait came from Robux, so the policy check and the "paid" odds
+  label follow the bait id alone, with no per-unit bookkeeping. Coin bait
+  stays a free roll (coins are never sold here).
+- **Auto-reel is decided on the server.** With the pass, the server lands the
+  fish at a fixed per-rarity rate a little slower than the fastest human reel,
+  and ignores the client's report, so the pass cannot be used to claim a
+  perfect reel.
+- **Mystery Bait never grants nothing.** The shop refuses restricted players
+  before Roblox's prompt; if the policy flips after paying, the grant gives
+  the smallest bundle rather than keep the Robux for nothing.
+
+## 2026-11-01: Depthbound's first minute
+
+- **The pickaxe is put in the player's hand on every spawn.** Before, a new
+  player had to find the hotbar before their first swing, and a pickaxe that
+  arrived in the backpack after the character could be missed entirely.
+- **A goal line under the top bar** walks a new player through dig, climb out
+  and sell, then the cheapest upgrade with coins / cost, and disappears after
+  the first upgrade (Shared/Guide.luau, from the saved `firsts`).
+- **The Rucksack costs 40, not 100,** so one full first dive (about 30-60
+  coins) buys the first upgrade. A test bot on 12 mines now sells within
+  30 s and upgrades within 60 s (it took 55-107 s at 100); the test holds
+  45 s and 75 s as the bars.
+
+## 2026-11-01: Depthbound in the shared shop
+
+- **Two products and three passes are listed; the Geode Crate is not.** It is
+  a paid random item and geodes do not exist yet, so it stays out of the
+  catalog (and unregistered) until M5 brings geodes, its odds table, the odds
+  screen and the policy check. A Geode Crate id set before then is logged as
+  an error, since Roblox would charge for a product nobody can deliver.
+- **An Oil Refill is a saved item, poured at most once per dive** (the plan's
+  recommendation; Alex approves the limit with prices at M5). A grant cannot
+  refuse a purchase, so a refill bought at camp, after this dive's refill, or
+  with the lamp over 90% full is kept for a later dive instead of wasted.
+  Bought mid-dive it pours straight away; the HUD's refill button pours one
+  from stock or opens the purchase. A lamp already dry is a lamp-out first.
+- **An Ore Boost doubles sale prices for 15 minutes** (a config number), and
+  buying more adds time. Its end is saved as a server Unix time, so it runs
+  across servers and rejoins. Auto-Sell gets the boosted price too. Prices
+  and the multiplier are Alex's call at M5.
+- **Grants live in Shared/Products**, so the Lune tests run them through the
+  core's real receipt path (Buy, then Replay grants nothing twice). Anything
+  that touches the live dive runs right after the save, never inside it.
+- **The config checks resolve every experience's ids** (dev, staging,
+  production): an override for an unknown key, or one id used twice in one
+  experience, fails CI.
 
 ## 2026-11-01: Shared shop and Studio test panel
 

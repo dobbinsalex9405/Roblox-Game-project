@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local Core = ReplicatedStorage.Core
 local Config = require(Core.Config)
 local Log = require(Core.Log)
+local Monetization = require(Core.Monetization)
 local Net = require(Core.Net)
 local Odds = require(Core.Odds)
 local Schema = require(Core.Schema)
@@ -59,7 +60,11 @@ local config = {
 	blocks = Config.get("blocks"),
 	gear = Config.get("gear"),
 	dive = Config.get("dive"),
+	monetization = monetization,
 }
+
+-- Pass and product ids for the experience this build is for.
+local ids = Monetization.resolve(monetization, Build.environment)
 
 -- A fresh mine for this server. The seed is logged so a bug report can rebuild it.
 local seed = Random.new():NextInteger(1, 2 ^ 31 - 2)
@@ -156,7 +161,7 @@ services = CoreServer.start({
 	template = DataTemplate.template,
 	migrations = DataTemplate.migrations,
 	currencies = { coins = { field = "coins", max = economy.coinsMax } },
-	passes = monetization.passes,
+	passes = ids.passes,
 	oddsTables = Schemas.oddsTables(mine),
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
@@ -194,8 +199,18 @@ local ready: Actions.Actions = Actions.new({
 	notify = function(player: Player, text: string)
 		fire(Remotes["DB:Notice"], player, text)
 	end,
-	dive = function(player: Player, phase, meter, capacity: number, climbEndsAt: number)
-		fire(Remotes["DB:Dive"], player, phase, meter.oil, meter.rate, meter.at, capacity, climbEndsAt)
+	dive = function(player: Player, phase, meter, capacity: number, climbEndsAt: number, refilled: boolean)
+		fire(
+			Remotes["DB:Dive"],
+			player,
+			phase,
+			meter.oil,
+			meter.rate,
+			meter.at,
+			capacity,
+			climbEndsAt,
+			refilled
+		)
 	end,
 	ore = function(player: Player, blockId: string)
 		fire(Remotes["DB:Ore"], player, blockId)
@@ -232,8 +247,11 @@ end)
 net:on(Remotes["DB:Climb"], function(player: Player)
 	ready:climb(player)
 end)
+net:on(Remotes["DB:Refill"], function(player: Player)
+	ready:refill(player)
+end)
 
-require(script.Shop).register(services, Config)
+require(script.Shop).register(services, Config, ids, ready)
 
 -- The dive step: oil, depth, lamp-outs and dive endings for everyone.
 task.spawn(function()

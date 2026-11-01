@@ -84,8 +84,8 @@ return function(Schema: any, Odds: any)
 		bait = Schema.array(
 			Schema.record({
 				id = id,
-				priceCoins = Schema.integer({ min = 1 }),
-				stock = Schema.integer({ min = 1, max = 50 }),
+				priceCoins = count, -- 0 for Robux-only bait (crossCheck)
+				stock = Schema.integer({ min = 0, max = 50 }),
 				robux = Schema.boolean(),
 				rarityMultipliers = byRarity,
 			}),
@@ -123,6 +123,8 @@ return function(Schema: any, Odds: any)
 				drain = Schema.number({ min = 0, max = 5 }),
 				fishSpeed = Schema.number({ min = 0, max = 5 }),
 			})),
+			autoSeconds = Schema.number({ min = 0, max = 30 }),
+			autoSuccess = perRarity(Schema.number({ min = 0, max = 1 })),
 		}),
 		bucketSlots = Schema.integer({ min = 1, max = 100 }),
 	})
@@ -172,13 +174,55 @@ return function(Schema: any, Odds: any)
 		restockSeconds = Schema.integer({ min = 60, max = 24 * 60 * 60 }),
 	})
 
+	-- Name, Robux price and description of each pass and product on Roblox
+	-- (Roblox's limits: names 50 characters, descriptions 1,000). Which items
+	-- need one, and the price ladder, are checked by tools/tests/Pricing.spec.
+	local listing = Schema.record({
+		name = Schema.string({ minLength = 1, maxLength = 50 }),
+		robux = Schema.integer({ min = 1 }),
+		description = Schema.string({ minLength = 1, maxLength = 1000 }),
+	})
+	local listings = Schema.record({
+		passes = Schema.map(id, listing),
+		products = Schema.map(id, listing),
+	})
+
 	Schemas.monetization = Schema.record({
+		listings = listings,
 		passes = Schema.record({
 			AutoReel = productId,
 			ExtraPools = productId,
 			SellMultiplier = productId,
 		}),
-		products = Schema.map(id, Schema.record({ id = productId })),
+		products = Schema.record({
+			GrowthBoost = Schema.record({ id = productId, stages = Schema.integer({ min = 1, max = 4 }) }),
+			RestockSkip = Schema.record({ id = productId }),
+			BaitPack = Schema.record({
+				id = productId,
+				bait = id,
+				count = Schema.integer({ min = 1, max = 100 }),
+			}),
+			MysteryBait = Schema.record({ id = productId }),
+		}),
+		-- Ids per experience (see packages/core/src/Monetization.luau).
+		environments = Schema.optional(
+			Schema.map(
+				Schema.oneOf({ "dev", "staging", "production" }),
+				Schema.record({
+					passes = Schema.optional(Schema.map(id, productId)),
+					products = Schema.optional(Schema.map(id, productId)),
+				})
+			)
+		),
+		mysteryBait = Schema.array(
+			Schema.record({
+				id = id,
+				bait = id,
+				count = Schema.integer({ min = 1, max = 100 }),
+				weight = Schema.integer({ min = 1 }),
+			}),
+			{ minLength = 1, maxLength = 12 }
+		),
 		sellMultiplier = Schema.number({ min = 1, max = 10 }),
 	})
 
@@ -224,6 +268,15 @@ return function(Schema: any, Odds: any)
 				)
 			end
 			baitIds[bait.id] = true
+			-- Robux bait is never sold for coins; coin bait always is.
+			if bait.robux and (bait.priceCoins ~= 0 or bait.stock ~= 0) then
+				table.insert(problems, `fishing.bait.{bait.id}: Robux bait needs priceCoins 0 and stock 0`)
+			elseif not bait.robux and (bait.priceCoins < 1 or bait.stock < 1) then
+				table.insert(
+					problems,
+					`fishing.bait.{bait.id}: coin bait needs a price and stock of at least 1`
+				)
+			end
 		end
 		for baitId in config.economy.startingBait do
 			if not baitIds[baitId] or baitId == "None" then
@@ -242,6 +295,34 @@ return function(Schema: any, Odds: any)
 			if previous and rod.priceCoins < previous.priceCoins then
 				table.insert(problems, `fishing.rods.{rod.id}: costs less than the rod before it`)
 			end
+		end
+
+		-- Robux products only ever give Robux-only bait, so a coin-bait cast
+		-- is never a paid roll and a Robux-bait cast always is.
+		local function robuxBait(baitId: string, where: string)
+			for _, bait in fishing.bait do
+				if bait.id == baitId then
+					if not bait.robux then
+						table.insert(
+							problems,
+							`{where}: {baitId} is coin bait; products give Robux-only bait`
+						)
+					end
+					return
+				end
+			end
+			table.insert(problems, `{where}: unknown bait {baitId}`)
+		end
+		local monetization = config.monetization
+		robuxBait(monetization.products.BaitPack.bait, "monetization.products.BaitPack")
+		local mystery = { id = "MysteryBait", paid = true, outcomes = {} }
+		for _, outcome in monetization.mysteryBait do
+			robuxBait(outcome.bait, `monetization.mysteryBait.{outcome.id}`)
+			table.insert(mystery.outcomes, { id = outcome.id, weight = outcome.weight })
+		end
+		local okMystery, mysteryProblem = pcall(Odds.validate, mystery)
+		if not okMystery then
+			table.insert(problems, `monetization.mysteryBait: {mysteryProblem}`)
 		end
 
 		local usedIds: { [number]: string } = {}

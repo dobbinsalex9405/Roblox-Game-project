@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Core = ReplicatedStorage.Core
 local Config = require(Core.Config)
 local Log = require(Core.Log)
+local Monetization = require(Core.Monetization)
 local Net = require(Core.Net)
 local Odds = require(Core.Odds)
 local Schema = require(Core.Schema)
@@ -69,6 +70,13 @@ for key in monetization.products do
 		sellsCurrency = true
 	end
 end
+
+-- Pass and product ids for the experience this build is for.
+local ids = Monetization.resolve(monetization, Build.environment)
+
+-- Every catch table (spot x bait), plus Mystery Bait's (a paid random item).
+local oddsTables = Catch.oddsTables(config.fishing, config.species.species, Odds.normalize, sellsCurrency)
+table.insert(oddsTables, Catch.mysteryTable(monetization))
 
 local spotIndex: { [string]: number } = {}
 for index, spot in config.fishing.spots do
@@ -143,8 +151,8 @@ services = CoreServer.start({
 	template = DataTemplate.template,
 	migrations = DataTemplate.migrations,
 	currencies = { coins = { field = "coins", max = config.economy.coinsMax } },
-	passes = monetization.passes,
-	oddsTables = Catch.oddsTables(config.fishing, config.species.species, Odds.normalize, sellsCurrency),
+	passes = ids.passes,
+	oddsTables = oddsTables,
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
 	onPlayerLeaving = onPlayerLeaving,
@@ -194,8 +202,8 @@ local ready: Actions.Actions = Actions.new({
 	castStarted = function(player: Player, castId: number, spotId: string)
 		fire(Remotes["TC:CastStarted"], player, castId, spotId)
 	end,
-	bite = function(player: Player, castId: number, rarity: string)
-		fire(Remotes["TC:Bite"], player, castId, rarity)
+	bite = function(player: Player, castId: number, rarity: string, auto: boolean)
+		fire(Remotes["TC:Bite"], player, castId, rarity, auto)
 	end,
 	caught = function(player: Player, caught: Actions.Caught)
 		fire(
@@ -254,7 +262,9 @@ net:on(Remotes["TC:BuyBait"], function(player: Player, baitId: string, count: nu
 	ready:buyBait(player, baitId, count)
 end)
 
-require(script.Shop).register(services, Config)
+require(script.Shop).register(services, config, ids, function(player: Player, text: string)
+	fire(Remotes["TC:Notice"], player, text)
+end)
 
 -- Tick: play time, the first-growth moment, forgotten lines, and pool redraws
 -- (creatures grow a stage on the clock, with no data change to trigger one).

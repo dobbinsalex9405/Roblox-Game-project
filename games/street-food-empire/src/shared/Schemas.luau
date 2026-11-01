@@ -108,7 +108,21 @@ return function(Schema: any)
 		),
 	})
 
+	-- Name, Robux price and description of each pass and product on Roblox
+	-- (Roblox's limits: names 50 characters, descriptions 1,000). Which items
+	-- need one, and the price ladder, are checked by tools/tests/Pricing.spec.
+	local listing = Schema.record({
+		name = Schema.string({ minLength = 1, maxLength = 50 }),
+		robux = Schema.integer({ min = 1 }),
+		description = Schema.string({ minLength = 1, maxLength = 1000 }),
+	})
+	local listings = Schema.record({
+		passes = Schema.map(id, listing),
+		products = Schema.map(id, listing),
+	})
+
 	Schemas.monetization = Schema.record({
+		listings = listings,
 		passes = Schema.record({
 			DoubleCash = productId,
 			AutoCollect = productId,
@@ -120,6 +134,16 @@ return function(Schema: any)
 				id = productId,
 				cash = Schema.optional(Schema.integer({ min = 1 })),
 			})
+		),
+		-- Ids per experience (see packages/core/src/Monetization.luau).
+		environments = Schema.optional(
+			Schema.map(
+				Schema.oneOf({ "dev", "staging", "production" }),
+				Schema.record({
+					passes = Schema.optional(Schema.map(id, productId)),
+					products = Schema.optional(Schema.map(id, productId)),
+				})
+			)
 		),
 		boosts = Schema.record({
 			SpeedBoost = Schema.record({

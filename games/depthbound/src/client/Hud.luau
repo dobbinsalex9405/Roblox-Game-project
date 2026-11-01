@@ -1,14 +1,18 @@
 --!strict
 -- The minimal M2 interface, phone first: coins, the pack, depth, the oil
 -- meter with a marker for the oil a climb from here needs, the Climb out
--- button, short notices, ore pickups, lamp-out and sale messages. Built from
--- code; art comes after the gate.
+-- button, the oil refill button, the Ore Boost timer, short notices, ore
+-- pickups, lamp-out and sale messages. Built from code; art comes after the
+-- gate. The shop itself is the core's (top bar).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 local Shared = ReplicatedStorage.Shared
+local Boosts = require(Shared.Boosts)
 local Gear = require(Shared.Gear)
+local Guide = require(Shared.Guide)
 local Lamp = require(Shared.Lamp)
 local Layout = require(Shared.Layout)
 local Pack = require(Shared.Pack)
@@ -21,6 +25,7 @@ local GOLD = Color3.fromRGB(255, 215, 90)
 local OIL_OK = Color3.fromRGB(255, 190, 70)
 local OIL_LOW = Color3.fromRGB(255, 120, 40)
 local OIL_DRY = Color3.fromRGB(230, 50, 50)
+local SHOP_NOTICE_SECONDS = 5 -- shop answers to the HUD's Buy button show here for this long
 
 local function label(parent: Instance, name: string, size: UDim2, position: UDim2?): TextLabel
 	local l = Instance.new("TextLabel")
@@ -115,9 +120,41 @@ function Hud.start(ctx: Context.Context)
 		ctx.fire(ctx.remotes["DB:Climb"])
 	end)
 
-	-- Notices: one line at a time under the bar.
+	-- Oil refill, above Climb out: pours one the player owns, or buys one.
+	local refill = climb:Clone()
+	refill.Name = "Refill"
+	refill.Position = UDim2.new(1, -16, 1, -210)
+	refill.BackgroundColor3 = Color3.fromRGB(200, 140, 40)
+	refill.Text = "Oil refill"
+	refill.Parent = gui
+	local boughtAt = -math.huge
+	refill.Activated:Connect(function()
+		local d = ctx.data()
+		if d and (d.oilRefills or 0) > 0 then
+			ctx.fire(ctx.remotes["DB:Refill"])
+		else
+			boughtAt = os.clock()
+			ctx.fire(ShopRemotes["Shop:Buy"], "product", "OilRefill")
+		end
+	end)
+
+	-- Ore Boost timer, just above the oil meter.
+	local boost = label(gui, "Boost", UDim2.fromOffset(320, 24), UDim2.new(0.5, 0, 1, -72))
+	boost.AnchorPoint = Vector2.new(0.5, 1)
+	boost.TextColor3 = GOLD
+	boost.Visible = false
+
+	-- Goal line, just under the bar: the first-session steps, then today's
+	-- first-haul bonus while it is waiting.
+	local goal = panel(gui, "Goal", UDim2.fromOffset(380, 30), UDim2.new(0.5, 0, 0, 76), Vector2.new(0.5, 0))
+	goal.BackgroundColor3 = Color3.fromRGB(45, 50, 110)
+	goal.Visible = false
+	local goalText = label(goal, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
+	goalText.TextColor3 = GOLD
+
+	-- Notices: one line at a time under the bar (and the goal line).
 	local notice =
-		panel(gui, "Notice", UDim2.fromOffset(380, 36), UDim2.new(0.5, 0, 0, 80), Vector2.new(0.5, 0))
+		panel(gui, "Notice", UDim2.fromOffset(380, 36), UDim2.new(0.5, 0, 0, 112), Vector2.new(0.5, 0))
 	notice.Visible = false
 	local noticeText = label(notice, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
 	local noticeId = 0
@@ -150,6 +187,12 @@ function Hud.start(ctx: Context.Context)
 	ctx.on(ctx.remotes["DB:Notice"], function(text: string)
 		show(text)
 	end)
+	-- The shop's answer to the HUD's own Buy button (the shop window may be closed).
+	ctx.on(ShopRemotes["Shop:Notice"], function(text: string)
+		if os.clock() - boughtAt < SHOP_NOTICE_SECONDS then
+			show(text, 5)
+		end
+	end)
 	ctx.on(ctx.remotes["DB:Ore"], function(blockId: string)
 		local block = config.blocks[blockId]
 		pickupOrder += 1
@@ -171,15 +214,28 @@ function Hud.start(ctx: Context.Context)
 		show(`Sold {pieces} ore for {Layout.shortNumber(earned)} coins.`, 4)
 	end)
 
-	local function onData(d: { [string]: any })
+	-- Coins and the pack, with the pack's worth at today's price (an Ore
+	-- Boost can start or end at any time, so this runs every frame too).
+	local function showData(d: { [string]: any }, now: number)
 		coins.Text = `{Layout.shortNumber(d.coins)} coins`
 		local capacity = Gear.packCapacity(d, config.gear, ctx.perks())
 		local count = Pack.count(d.pack)
-		local worth = Pack.value(d.pack, config.blocks)
+		local multiplier = Boosts.sellMultiplier(d, config.monetization.boosts, now)
+		local worth = math.floor(Pack.value(d.pack, config.blocks) * multiplier)
 		pack.Text = `Pack {count}/{capacity} · {Layout.shortNumber(worth)}`
 		pack.TextColor3 = if count >= capacity then OIL_LOW else Color3.new(1, 1, 1)
+		local objective = Guide.objective(d, config.gear, ctx.dive().phase, config.dive.dailyHaul, now)
+		goal.Visible = objective ~= nil
+		goalText.Text = objective or ""
+		local left = Boosts.left(d, "OreBoost", now)
+		boost.Visible = left > 0
+		if left > 0 then
+			boost.Text = `Ore Boost {multiplier}x · {Boosts.clock(left)}`
+		end
 	end
-	ctx.onData(onData)
+	ctx.onData(function(d: { [string]: any })
+		showData(d, ctx.serverNow())
+	end)
 
 	-- The own lamp dims as oil runs low (everyone else sees it at full).
 	local function lampLight(): PointLight?
@@ -196,6 +252,13 @@ function Hud.start(ctx: Context.Context)
 	RunService.Heartbeat:Connect(function()
 		local dive = ctx.dive()
 		local now = ctx.serverNow()
+		local d = ctx.data()
+		if d then
+			showData(d, now)
+		end
+		local stock = if d then d.oilRefills or 0 else 0
+		refill.Visible = dive.phase ~= "Camp" and not dive.refilled
+		refill.Text = if stock > 0 then `Pour oil refill ({stock})` else "Buy oil refill"
 		local pos = ctx.position()
 		local row = if pos then math.max(0, Layout.rowAt(config.mine, pos.y)) else 0
 		local oil = Lamp.oilAt(dive.meter, now)

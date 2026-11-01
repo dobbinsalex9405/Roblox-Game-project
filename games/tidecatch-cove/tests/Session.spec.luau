@@ -449,6 +449,48 @@ describe("Tidecatch Cove messages", function()
 	end)
 end)
 
+describe("Tidecatch Cove Auto-reel pass", function()
+	it("reels on the server at the set rate, and ignores the client's report", function()
+		local h = Harness.new({ perks = { autoReel = true, extraPools = false, sellMultiplier = false } })
+		local player = Fakes.player(15)
+		h.join(player)
+		local bite = h.castAndWait(player, "Shallows", Catch.NO_BAIT) :: any
+		expect(bite.auto).toBe(true)
+		-- A client claiming a catch changes nothing: the pass decides.
+		expect(h.actions:reel(player, bite.id, true)).toBeFalsy()
+		expect(h.actions:line(player) ~= nil).toBe(true)
+		h.wait(Reel.minSeconds(bite.rarity, fishing) + fishing.reel.autoSeconds + 0.5)
+		expect(h.actions:line(player)).toBeNil()
+		expect(#h.caught + #h.escaped).toBe(1)
+
+		-- Over many casts, it lands about the configured share.
+		local landed, total = 0, 0
+		for _ = 1, 150 do
+			h.wait(fishing.castCooldownSeconds)
+			local b = h.castAndWait(player, "Shallows", Catch.NO_BAIT) :: any
+			local before = #h.caught
+			h.wait(Reel.minSeconds(b.rarity, fishing) + fishing.reel.autoSeconds + 0.5)
+			if b.rarity == "Common" then
+				total += 1
+				if #h.caught > before then
+					landed += 1
+				end
+			end
+			h.actions:sellBucket(player)
+		end
+		local rate = landed / total
+		expect(math.abs(rate - fishing.reel.autoSuccess.Common) < 0.12).toBe(true)
+	end)
+
+	it("without the pass, the client reels as usual", function()
+		local h = Harness.new()
+		local player = Fakes.player(16)
+		h.join(player)
+		local bite = h.castAndWait(player, "Shallows", Catch.NO_BAIT) :: any
+		expect(bite.auto).toBe(false)
+	end)
+end)
+
 describe("Tidecatch Cove paid bait", function()
 	-- A bait sold for Robux (milestone M5) makes its casts paid random rolls.
 	local function robuxFishing()

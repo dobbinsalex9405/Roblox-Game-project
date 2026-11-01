@@ -101,15 +101,49 @@ return function(Schema: any, Odds: any)
 			keepFraction = Schema.number({ min = 0, max = 1 }),
 			minKeep = Schema.integer({ min = 0, max = 1000 }),
 		}),
+		dailyHaul = Schema.record({
+			multiplier = Schema.number({ min = 1, max = 10 }),
+			minPieces = Schema.integer({ min = 1, max = 1000 }),
+		}),
+	})
+
+	-- Name, Robux price and description of each pass and product on Roblox
+	-- (Roblox's limits: names 50 characters, descriptions 1,000). Which items
+	-- need one, and the price ladder, are checked by tools/tests/Pricing.spec.
+	local listing = Schema.record({
+		name = Schema.string({ minLength = 1, maxLength = 50 }),
+		robux = Schema.integer({ min = 1 }),
+		description = Schema.string({ minLength = 1, maxLength = 1000 }),
+	})
+	local listings = Schema.record({
+		passes = Schema.map(id, listing),
+		products = Schema.map(id, listing),
 	})
 
 	Schemas.monetization = Schema.record({
+		listings = listings,
 		passes = Schema.record({
 			BiggerPack = productId,
 			BetterLamp = productId,
 			AutoSell = productId,
 		}),
 		products = Schema.map(id, Schema.record({ id = productId })),
+		-- Ids per experience (see packages/core/src/Monetization.luau).
+		environments = Schema.optional(
+			Schema.map(
+				Schema.oneOf({ "dev", "staging", "production" }),
+				Schema.record({
+					passes = Schema.optional(Schema.map(id, productId)),
+					products = Schema.optional(Schema.map(id, productId)),
+				})
+			)
+		),
+		boosts = Schema.record({
+			OreBoost = Schema.record({
+				durationSeconds = Schema.integer({ min = 60, max = 24 * 60 * 60 }),
+				sellMultiplier = Schema.number({ min = 1, max = 10 }),
+			}),
+		}),
 	})
 
 	-- The odds tables the mine rolls from: one per layer, free (finding ore costs nothing).
@@ -185,22 +219,61 @@ return function(Schema: any, Odds: any)
 			table.insert(problems, "dive.reach: must be at least 1.5 blocks so the next block is in reach")
 		end
 
-		local usedIds: { [number]: string } = {}
-		local function claim(key: string, value: number)
-			if value > 0 then
-				if usedIds[value] then
-					table.insert(problems, `monetization: id {value} used by {usedIds[value]} and {key}`)
-				end
-				usedIds[value] = key
-			end
-		end
-		for key, value in config.monetization.passes do
-			claim(`passes.{key}`, value)
-		end
-		for key, product in config.monetization.products do
-			claim(`products.{key}`, product.id)
+		-- Ids as each experience sees them: the defaults, then its overrides.
+		-- Every key named must exist, and no id may be used twice in one experience.
+		local monetization = config.monetization
+		for key in monetization.products do
 			if string.match(key, "^CoinPack") then
 				table.insert(problems, `monetization.products.{key}: Depthbound sells no coin packs`)
+			end
+		end
+		for boostId in monetization.boosts or {} do
+			if monetization.products[boostId] == nil then
+				table.insert(problems, `monetization.boosts.{boostId} has no matching product`)
+			end
+		end
+		local environments = monetization.environments or {}
+		for _, envName in { "dev", "staging", "production" } do
+			local overrides = environments[envName] or {}
+			local passIds: { [string]: number } = table.clone(monetization.passes)
+			local productIds: { [string]: number } = {}
+			for key, product in monetization.products do
+				productIds[key] = product.id
+			end
+			for key, value in overrides.passes or {} do
+				if passIds[key] == nil then
+					table.insert(problems, `monetization.environments.{envName}.passes.{key} is not a pass`)
+				end
+				passIds[key] = value
+			end
+			for key, value in overrides.products or {} do
+				if productIds[key] == nil then
+					table.insert(
+						problems,
+						`monetization.environments.{envName}.products.{key} is not a product`
+					)
+				end
+				productIds[key] = value
+			end
+			-- Pass ids and product ids are separate on Roblox, but the same
+			-- number in both is still a copy-paste slip.
+			local usedIds: { [number]: string } = {}
+			local function claim(key: string, value: number)
+				if value > 0 then
+					if usedIds[value] then
+						table.insert(
+							problems,
+							`monetization ({envName}): id {value} used by {usedIds[value]} and {key}`
+						)
+					end
+					usedIds[value] = key
+				end
+			end
+			for key, value in passIds do
+				claim(`passes.{key}`, value)
+			end
+			for key, value in productIds do
+				claim(`products.{key}`, value)
 			end
 		end
 		return problems

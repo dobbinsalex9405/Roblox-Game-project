@@ -18,8 +18,9 @@ relative path (`require("./Log")`); everything else requires them by instance
 | 8 | `Policy` | PolicyService per player, read once, fails closed. | `Policy.spec` |
 | – | `Timers` | Progress from a saved start time with an optional offline cap; shared restock windows. | `Timers.spec` |
 | 11 | `Analytics` | One naming scheme over AnalyticsService; session length and D1/D7/D30 return markers for the launch gate. | `Analytics.spec` |
+| 14 | `Metrics` | Daily counters per game (players, new, D1/D7 returns, play time, Robux by product and pass, payers), merged into the `Metrics` DataStore once a minute from live servers only; read by the scoreboard (`ops/METRICS.md`). | `Metrics.spec` |
 | 12 | `ErrorReporter` | Errors grouped by signature, at most one queue write per server per minute. | `ErrorReporter.spec` |
-| 14 | `Feedback` (+ `client/FeedbackUi`) | Every game gets a top-bar Feedback button: Bug / Idea / Other, text, optional fun rating. Server checks, rate-limits and filters it, stores only filtered text, tags it with build, device, session, game context and recent client errors, and writes at most once per server per minute to the `Feedback` DataStore. See `ops/FEEDBACK.md`. | `Feedback.spec`, `tools/tests/FeedbackTool.spec`, each game's `FeedbackContext.spec` |
+| 15 | `Feedback` (+ `client/FeedbackUi`) | Every game gets a top-bar Feedback button: Bug / Idea / Other, text, optional fun rating. Server checks, rate-limits and filters it, stores only filtered text, tags it with build, device, session, game context and recent client errors, and writes at most once per server per minute to the `Feedback` DataStore. See `ops/FEEDBACK.md`. | `Feedback.spec`, `tools/tests/FeedbackTool.spec`, each game's `FeedbackContext.spec` |
 
 Still to come, per the plan: 9 Plots (with Hatchery Heist M2), 10 Events,
 13 UI kit and AgeCheck (with M5), plus movement checks (M4).
