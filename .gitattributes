@@ -1,0 +1,20 @@
+# Keep every text file LF on every computer. On Windows, Git would otherwise
+# check files out with CRLF line endings and StyLua's check would fail.
+* text=auto eol=lf
+
+*.lua text eol=lf
+*.luau text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+
+# Binary files: never touch.
+*.rbxl binary
+*.rbxm binary
+*.png binary
+*.jpg binary
+*.ogg binary
+*.mp3 binary

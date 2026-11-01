@@ -19,9 +19,10 @@ local GameConfig = ReplicatedStorage.GameConfig
 
 export type Context = {
 	player: Player,
-	config: { economy: any, creatures: any, eggs: { any } },
+	config: { economy: any, creatures: any, eggs: { any }, raids: any },
 	remotes: { [string]: Net.Remote },
 	plot: () -> (Model?, number?), -- the player's own base, once assigned
+	plotIndexOf: (model: Instance) -> number?,
 	data: () -> { [string]: any }?,
 	onData: (listener: (data: { [string]: any }) -> ()) -> (),
 	serverNow: () -> number,
@@ -53,9 +54,14 @@ function Context.new(): Context
 			economy = require(GameConfig.economy) :: any,
 			creatures = require(GameConfig.creatures) :: any,
 			eggs = require(GameConfig.eggs) :: any,
+			raids = require(GameConfig.raids) :: any,
 		},
 		remotes = Remotes,
 		plot = plot,
+		plotIndexOf = function(model: Instance): number?
+			local index = model:GetAttribute("PlotIndex")
+			return if type(index) == "number" then index else nil
+		end,
 		data = CoreClient.data,
 		onData = CoreClient.onData,
 		serverNow = function()

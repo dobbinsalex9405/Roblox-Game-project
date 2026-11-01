@@ -40,7 +40,18 @@ export type PickOutcome = (egg: any, boughtBefore: number) -> string?
 
 -- First-time moments, in the order the onboarding funnel reports them.
 -- New steps are added at the end so earlier step numbers never change.
-local ONBOARDING = { "Joined", "FirstEggBought", "FirstHatch", "FirstRide" }
+local ONBOARDING = {
+	"Joined",
+	"FirstEggBought",
+	"FirstHatch",
+	"FirstRide",
+	"FirstRaidTried",
+	"FirstRaidDefended",
+	"FirstCollect",
+	"FirstSlot",
+	"PadsFull",
+	"FirstRebirth",
+}
 
 local Hatchery = {}
 Hatchery.ONBOARDING = table.freeze(ONBOARDING)
@@ -196,18 +207,75 @@ function Hatchery.buyEgg(
 	return incubator, nil
 end
 
--- The alternative for players who may not receive paid random items: the
--- egg's outcomes in their listed order, one after another. The next result is
--- shown before purchase, so nothing about it is random.
-function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
+local function gcd(a: number, b: number): number
+	while b ~= 0 do
+		a, b = b, a % b
+	end
+	return a
+end
+
+-- The alternative for players who may not receive paid random items: a fixed
+-- cycle with each outcome exactly as often as its odds say (smooth weighted
+-- round robin), so a restricted player gets the expected mix, no more and no
+-- less. The next results are shown before purchase, so nothing about them is
+-- random. A cycle is 10,000 / (the weights' greatest common divisor) eggs at
+-- most, computed once per egg.
+local cycles: { [any]: { string } } = setmetatable({}, { __mode = "k" }) :: any
+
+function Hatchery.fixedOrderCycle(egg: any): { string }
+	local cached = cycles[egg]
+	if cached then
+		return cached
+	end
 	local outcomes = egg.outcomes
-	return outcomes[(boughtBefore % #outcomes) + 1].id
+	local divisor = 0
+	for _, o in outcomes do
+		divisor = gcd(divisor, o.weight)
+	end
+	local weights = {}
+	local total = 0
+	for i, o in outcomes do
+		weights[i] = o.weight // divisor
+		total += weights[i]
+	end
+	local current = table.create(#outcomes, 0)
+	local cycle = table.create(total)
+	for _ = 1, total do
+		local pick = 1
+		for i, w in weights do
+			current[i] += w
+			if current[i] > current[pick] then
+				pick = i
+			end
+		end
+		current[pick] -= total
+		table.insert(cycle, outcomes[pick].id)
+	end
+	cycles[egg] = cycle
+	return cycle
+end
+
+-- The outcome of a restricted player's next egg of this kind.
+function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
+	local cycle = Hatchery.fixedOrderCycle(egg)
+	return cycle[(boughtBefore % #cycle) + 1]
+end
+
+-- How many more eggs of this kind until `outcomeId` hatches (0 = the next one).
+function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: string): number?
+	local cycle = Hatchery.fixedOrderCycle(egg)
+	for ahead = 0, #cycle - 1 do
+		if cycle[((boughtBefore + ahead) % #cycle) + 1] == outcomeId then
+			return ahead
+		end
+	end
+	return nil
 end
 
 -- Places a new creature: the first free pad, or, when every pad is full, the
 -- pad of the weakest placed creature if the new one earns more (the weaker
 -- one moves to storage). Otherwise the new creature goes to storage. The
--- creature being ridden keeps its pad.
+-- creature being ridden and the guard keep their pads.
 local function place(d: Data, creature: any, creatureConfig: any, creaturePads: number)
 	local usedPads: { [number]: boolean } = {}
 	local weakest: any = nil
@@ -217,6 +285,7 @@ local function place(d: Data, creature: any, creatureConfig: any, creaturePads: 
 			local income = Hatchery.creatureIncome(other, creatureConfig)
 			if
 				other.uid ~= d.mountUid
+				and other.uid ~= d.guardUid
 				and (weakest == nil or income < Hatchery.creatureIncome(weakest, creatureConfig))
 			then
 				weakest = other
@@ -239,6 +308,17 @@ local function place(d: Data, creature: any, creatureConfig: any, creaturePads: 
 	end
 end
 
+-- Whether every creature pad holds a creature.
+function Hatchery.padsFull(d: Data, creaturePads: number): boolean
+	local used = 0
+	for _, c in d.creatures do
+		if c.slot then
+			used += 1
+		end
+	end
+	return used >= creaturePads
+end
+
 -- Coins a stored creature sells for when storage overflows.
 function Hatchery.sellValue(creature: any, creatureConfig: any, economy: any): number
 	return math.max(
@@ -259,6 +339,7 @@ local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy
 				stored += 1
 				if
 					c.uid ~= d.mountUid
+					and c.uid ~= d.guardUid
 					and (
 						weakestIndex == nil
 						or Hatchery.creatureIncome(c, creatureConfig)
@@ -315,6 +396,44 @@ function Hatchery.hatch(
 	return creature, nil, sold
 end
 
+-- Removes a creature for a raid that succeeded. The creature being ridden and
+-- the guard cannot be taken. Returns the creature, or nil if it is gone.
+function Hatchery.takeCreature(d: Data, uid: string): any?
+	if uid == d.mountUid or uid == d.guardUid then
+		return nil
+	end
+	for index, c in d.creatures do
+		if c.uid == uid then
+			return table.remove(d.creatures, index)
+		end
+	end
+	return nil
+end
+
+-- Gives a player a creature from elsewhere (a raid). It gets a new uid in
+-- their save and is placed like a fresh hatch. Returns it and any stored
+-- creatures sold to make room.
+function Hatchery.receive(
+	d: Data,
+	ledger: Ledger,
+	from: any,
+	creatureConfig: any,
+	economy: any
+): (any, { any })
+	local creature = {
+		uid = tostring(d.nextUid),
+		speciesId = from.speciesId,
+		mutation = from.mutation,
+		slot = nil :: number?,
+		eggId = from.eggId,
+		hatchedAt = from.hatchedAt,
+	}
+	d.nextUid += 1
+	place(d, creature, creatureConfig, economy.creaturePads)
+	table.insert(d.creatures, creature)
+	return creature, trimStorage(d, ledger, creatureConfig, economy)
+end
+
 function Hatchery.nextSlotCost(d: Data, economy: any): number?
 	local index = d.slots - economy.incubators.startingSlots + 1
 	return economy.incubators.slotCosts[index]
@@ -337,6 +456,12 @@ function Hatchery.ride(d: Data, uid: string, creatureConfig: any): (number?, str
 	local creature = Hatchery.creatureByUid(d, uid)
 	if creature == nil then
 		return nil, "You do not own that creature."
+	end
+	if uid == d.guardUid then
+		return nil, "That creature is guarding your base."
+	end
+	if creature.slot == nil then
+		return nil, "Only a creature on a pad can be ridden."
 	end
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then
@@ -374,6 +499,7 @@ function Hatchery.rebirth(d: Data, ledger: Ledger, economy: any): (boolean, stri
 	d.creatures = {}
 	d.pendingCoins = 0
 	d.mountUid = ""
+	d.guardUid = ""
 	d.rebirths += 1
 	return true, nil
 end

@@ -12,12 +12,14 @@ local Actions = require("../src/shared/Actions")
 local Conveyor = require("../src/shared/Conveyor")
 local DataTemplate = require("../src/shared/DataTemplate")
 local Eggs = require("../src/shared/Eggs")
+local Raids = require("../src/shared/Raids")
 local Fakes = require("../../../packages/core/tests/Fakes")
 
 local config = {
 	economy = require("../config/economy"),
 	creatures = require("../config/creatures"),
 	eggs = require("../config/eggs"),
+	raids = require("../config/raids"),
 }
 
 local Harness = {}
@@ -37,6 +39,9 @@ function Harness.new(options: Options?)
 	h.clock = Fakes.clock(opts.start or 1_800_000_000)
 	h.store = opts.store or Fakes.store()
 	h.notices = {} :: { string }
+	h.noticesFor = {} :: { { player: any, text: string } }
+	h.stuns = {} :: { { player: any, seconds: number } }
+	h.slows = {} :: { { player: any, factor: number } }
 	h.hatched = {} :: { string }
 	h.welcomes = {} :: { { coins: number, ready: number } }
 	h.mounts = {} :: { number | false }
@@ -101,8 +106,9 @@ function Harness.new(options: Options?)
 		plotOf = function()
 			return 1
 		end,
-		notify = function(_player: any, text: string)
+		notify = function(player: any, text: string)
 			table.insert(h.notices, text)
+			table.insert(h.noticesFor, { player = player, text = text })
 		end,
 		hatched = function(_player: any, speciesId: string)
 			table.insert(h.hatched, speciesId)
@@ -115,6 +121,41 @@ function Harness.new(options: Options?)
 		end,
 	})
 
+	h.raids = Raids.new({
+		actions = h.actions,
+		data = h.data,
+		analytics = h.analytics,
+		config = config,
+		now = h.clock.now,
+		notify = function(player: any, text: string)
+			table.insert(h.notices, text)
+			table.insert(h.noticesFor, { player = player, text = text })
+		end,
+		name = function(player: any)
+			return player.Name
+		end,
+		userId = function(player: any)
+			return player.UserId
+		end,
+		stun = function(player: any, seconds: number)
+			table.insert(h.stuns, { player = player, seconds = seconds })
+		end,
+		slow = function(player: any, factor: number, _seconds: number)
+			table.insert(h.slows, { player = player, factor = factor })
+		end,
+		changed = function() end,
+	})
+
+	-- The last notice a player got.
+	function h.lastNotice(player: any): string?
+		for i = #h.noticesFor, 1, -1 do
+			if h.noticesFor[i].player == player then
+				return h.noticesFor[i].text
+			end
+		end
+		return nil
+	end
+
 	-- What CoreServer does on join, then the game's onPlayerReady.
 	function h.join(player: any)
 		local result = h.data:load(player, player.UserId)
@@ -124,8 +165,9 @@ function Harness.new(options: Options?)
 		h.actions:join(player)
 	end
 
-	-- What CoreServer does on leave.
+	-- What CoreServer does on leave (the game's onPlayerLeaving first).
 	function h.leave(player: any)
+		h.raids:leave(player)
 		h.actions:leave(player)
 		h.analytics:sessionEnd(player, h.clock.now())
 		h.odds:forget(player)
