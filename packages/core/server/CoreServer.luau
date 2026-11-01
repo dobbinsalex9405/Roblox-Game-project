@@ -1,6 +1,8 @@
 --!strict
 -- Starts every core service on the server and runs the player lifecycle:
 --
+-- It also runs the Feedback button's server side: every game gets it.
+--
 --   join:  load data (kick with a clear message if it cannot load) -> record
 --          join times -> read policy -> check passes -> start analytics session
 --          -> send the client its data and passes -> run the game's onPlayerReady
@@ -23,6 +25,7 @@ local CoreRemotes = require(Core.CoreRemotes)
 local DataService = require(Core.DataService)
 local Economy = require(Core.Economy)
 local ErrorReporter = require(Core.ErrorReporter)
+local Feedback = require(Core.Feedback)
 local Log = require(Core.Log)
 local Metrics = require(Core.Metrics)
 local Net = require(Core.Net)
@@ -41,7 +44,7 @@ local ServerNet = require(script.Parent.ServerNet)
 local TestPanel = require(script.Parent.TestPanel)
 
 local RECEIPTS_FIELD = "receipts"
-local FLUSH_EVERY = 5 -- seconds between ErrorReporter flush checks (it writes at most once a minute)
+local FLUSH_EVERY = 5 -- seconds between ErrorReporter/Feedback flush checks (each writes at most once a minute)
 local METRICS_EVERY = 60 -- seconds between Metrics writes (one UpdateAsync per server per day touched)
 local DAY = 86400
 
@@ -57,6 +60,10 @@ export type Options = {
 	remotes: { [string]: Net.Remote },
 	onPlayerReady: ((player: Player) -> ())?,
 	onPlayerLeaving: ((player: Player) -> ())?,
+	-- A few values that help reproduce a bug report (area, level, what the
+	-- player is holding). Called when the player sends feedback; at most 12
+	-- keys of numbers, booleans or short strings are kept.
+	feedbackContext: ((player: Player) -> { [string]: any })?,
 }
 
 export type Services = {
@@ -68,6 +75,7 @@ export type Services = {
 	policy: Policy.Policy,
 	analytics: Analytics.Analytics,
 	errors: ErrorReporter.Reporter,
+	feedback: Feedback.Feedback,
 	net: ServerNet.ServerNet,
 	-- The shared shop: call shop:setCatalog after registering products.
 	shop: Purchases.Shop,
@@ -100,14 +108,26 @@ function CoreServer.start(options: Options): Services
 	ScriptContext.Error:Connect(function(message: string, trace: string)
 		errors:record("server", message, trace, os.time())
 	end)
+
+	local feedback = Feedback.new({
+		game = options.game,
+		build = options.build,
+		placeVersion = game.PlaceVersion,
+		server = game.JobId,
+		write = RobloxSinks.feedbackStore(),
+		filter = RobloxSinks.textFilter(),
+	})
+
 	task.spawn(function()
 		while true do
 			task.wait(FLUSH_EVERY)
 			errors:flush(os.time())
+			feedback:flush(os.time())
 		end
 	end)
 	game:BindToClose(function()
 		errors:flush(os.time(), true)
+		feedback:flush(os.time(), true)
 	end)
 
 	local analytics = Analytics.new(RobloxSinks.analytics())
@@ -316,12 +336,70 @@ function CoreServer.start(options: Options): Services
 
 	-- Core remotes.
 	net:on(CoreRemotes["Core:ClientError"], function(player: Player, message: string, trace: string)
-		errors:record("client", message, trace, os.time())
+		local now = os.time()
+		local signature = errors:record("client", message, trace, now)
+		feedback:noteError(player.UserId, signature, message, now)
 		log:info("client error", { userId = player.UserId })
 	end)
-	net:on(CoreRemotes["Core:Feedback"], function(player: Player, text: string)
-		errors:submitFeedback(player.UserId, text, os.time())
-	end)
+
+	local joinedAt: { [Player]: number } = {}
+	local function feedbackInfo(player: Player, now: number): Feedback.PlayerInfo
+		local position = ""
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then
+			local p = root.Position
+			position = `{math.round(p.X)},{math.round(p.Y)},{math.round(p.Z)}`
+		end
+		local pingOk, ping = pcall(function(): number
+			return player:GetNetworkPing()
+		end)
+		local context: { [string]: any }? = nil
+		if options.feedbackContext then
+			local ok, result = pcall(options.feedbackContext, player)
+			if ok then
+				context = result
+			else
+				log:warn("feedbackContext failed", { userId = player.UserId, err = tostring(result) })
+			end
+		end
+		return {
+			userId = player.UserId,
+			accountAgeDays = player.AccountAge,
+			locale = player.LocaleId,
+			sessionSeconds = now - (joinedAt[player] or now),
+			pingMs = if pingOk then ping * 1000 else 0,
+			position = position,
+			context = context,
+		}
+	end
+	net:on(
+		CoreRemotes["Core:Feedback"],
+		function(
+			player: Player,
+			category: Feedback.Category,
+			text: string,
+			rating: number,
+			client: Feedback.ClientInfo
+		)
+			local now = os.time()
+			local sent, message = feedback:submit(feedbackInfo(player, now), {
+				category = category,
+				text = text,
+				rating = rating,
+				client = client,
+			}, now)
+			if player.Parent == Players then
+				net:fire(CoreRemotes["Core:FeedbackResult"], player, sent, message)
+			end
+			if sent then
+				analytics:custom(player, "Feedback:Sent", 1, { category :: string })
+				if rating > 0 then
+					analytics:custom(player, "Feedback:Rating", rating)
+				end
+			end
+		end
+	)
 	net:on(CoreRemotes["Core:RequestOdds"], function(player: Player, tableId: string)
 		if odds:has(tableId) then
 			sendOdds(player, tableId)
@@ -345,6 +423,7 @@ function CoreServer.start(options: Options): Services
 	end)
 
 	local function onPlayerAdded(player: Player)
+		joinedAt[player] = os.time()
 		local result, reason = data:load(player, player.UserId)
 		if player.Parent ~= Players then
 			data:release(player)
@@ -411,6 +490,8 @@ function CoreServer.start(options: Options): Services
 		passes:release(player)
 		policy:release(player)
 		pendingSnapshot[player] = nil
+		feedback:forget(player.UserId)
+		joinedAt[player] = nil
 		data:release(player)
 	end
 
@@ -431,6 +512,7 @@ function CoreServer.start(options: Options): Services
 		policy = policy,
 		analytics = analytics,
 		errors = errors,
+		feedback = feedback,
 		net = net,
 		shop = theShop,
 	}

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (creatures, placed, incubating, mounted, guard, traps, shield) to help reproduce bugs.
 - Robux prices and Roblox listings (name, price, description) for every
   pass and product, on the studio price ladder (ops/PRICING.md). The shop's
   catalog moved to `src/shared/Products.luau` so tests check its names.

@@ -20,6 +20,7 @@ local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
 local DataTemplate = require(Shared.DataTemplate)
+local FeedbackContext = require(Shared.FeedbackContext)
 local Eggs = require(Shared.Eggs)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
@@ -191,6 +192,10 @@ services = CoreServer.start({
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
 	onPlayerLeaving = onPlayerLeaving,
+	feedbackContext = function(player: Player)
+		local data = services.data:get(player)
+		return if data then FeedbackContext.from(data, os.time()) else {}
+	end,
 })
 
 local function fire(remote: any, player: Player, ...: any)

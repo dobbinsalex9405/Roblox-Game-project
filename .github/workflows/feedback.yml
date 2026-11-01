@@ -1,0 +1,78 @@
+name: Player feedback
+
+# Once a day, reads yesterday's in-game feedback from every configured game
+# (Open Cloud, read-only key) and opens one GitHub issue labelled
+# `player-feedback` with the digest. The triage thread works from those
+# issues; see ops/FEEDBACK.md. Skips quietly until the key and experience ids
+# exist (ops/SETUP.md step 2b).
+on:
+  schedule:
+    - cron: "17 6 * * *" # 06:17 UTC, after the UTC day it reports on has closed
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "First UTC day (YYYY-MM-DD). Empty = yesterday."
+        required: false
+      to:
+        description: "Last UTC day (YYYY-MM-DD). Empty = same as from."
+        required: false
+      env:
+        description: "Which experiences to read"
+        type: choice
+        options: [all, production, staging]
+        default: all
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: player-feedback
+  cancel-in-progress: false
+
+jobs:
+  pull:
+    name: Pull feedback and open the digest issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned tools (rokit.toml)
+        uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Pull feedback
+        id: pull
+        env:
+          ROBLOX_READ_API_KEY: ${{ secrets.ROBLOX_READ_API_KEY }}
+          FROM: ${{ inputs.from }}
+          TO: ${{ inputs.to }}
+          ENV_FILTER: ${{ inputs.env || 'all' }}
+        run: |
+          args=(--env "$ENV_FILTER" --out feedback-out)
+          if [[ -n "$FROM" ]]; then args+=(--from "$FROM"); fi
+          if [[ -n "$TO" ]]; then args+=(--to "$TO"); fi
+          lune run tools/feedback/pull "${args[@]}"
+
+      - name: Keep the full reports
+        if: steps.pull.outputs.configured == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: feedback-${{ github.run_id }}
+          path: feedback-out/
+          retention-days: 90
+
+      - name: Open the digest issue
+        if: steps.pull.outputs.configured == 'true' && (steps.pull.outputs.total != '0' || steps.pull.outputs.problems != '0')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ steps.pull.outputs.title }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create player-feedback --color 1d76db \
+            --description "Daily in-game feedback digest (ops/FEEDBACK.md)" 2>/dev/null || true
+          printf '\n---\nFull reports (with user ids, 90 days): [run artifact](%s)\n' "$RUN_URL" >> feedback-out/digest.md
+          gh issue create --title "$TITLE" --label player-feedback --body-file feedback-out/digest.md

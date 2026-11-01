@@ -37,6 +37,21 @@ Paste each key **directly into GitHub**, never into chat:
 
 Each future game gets its own pair, named `ROBLOX_API_KEY_<GAME_NAME>`.
 
+### 2b. One read-only key for player feedback
+
+Every game has a Feedback button; the daily **Player feedback** workflow
+reads what players sent and opens a digest issue (see `ops/FEEDBACK.md`). It
+needs one more **group-owned** key that can only read:
+
+| Key | Permissions | Experiences |
+|-----|-------------|-------------|
+| Feedback reader | DataStore: **List entry keys** and **Read entry** (`universe-datastores.objects:list`, `universe-datastores.objects:read`). Nothing else. | Every game's **Staging** and **Production** (add each new game when it is created) |
+
+Paste it into GitHub as a **repository** secret (not an environment one, so
+the daily run never waits for an approval): Repo → Settings → Secrets and
+variables → Actions → **New repository secret** named `ROBLOX_READ_API_KEY`.
+It cannot change anything in a game. Until it exists, the workflow skips.
+
 ## 3. Your approval gate on production
 
 Repo → Settings → Environments → `production`:

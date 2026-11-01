@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (cash, register, queue, districts, stations and cooks) to help reproduce bugs.
 - Robux prices and Roblox listings (name, price, description) for every
   pass and product, on the studio price ladder (ops/PRICING.md).
 

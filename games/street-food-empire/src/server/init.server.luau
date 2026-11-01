@@ -19,6 +19,7 @@ local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
 local DataTemplate = require(Shared.DataTemplate)
+local FeedbackContext = require(Shared.FeedbackContext)
 local Layout = require(Shared.Layout)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Restaurant = require(Shared.Restaurant)
@@ -130,6 +131,10 @@ services = CoreServer.start({
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
 	onPlayerLeaving = onPlayerLeaving,
+	feedbackContext = function(player: Player)
+		local data = services.data:get(player)
+		return if data then FeedbackContext.from(data, os.time()) else {}
+	end,
 })
 
 local function fire(remote: any, player: Player, ...: any)

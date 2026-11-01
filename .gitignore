@@ -20,3 +20,4 @@ roblox.yml
 .idea/
 *.log
 .playtest/
+/feedback-out/

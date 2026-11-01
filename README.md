@@ -25,11 +25,12 @@ games/hatchery-heist/
   src/server  src/client  src/shared
   tests/                  config, save data and gameplay-math tests
   SPEC.md  CHANGELOG.md
-tools/                    test runner, build, type check, boot check, key flows, publish
+tools/                    test runner, build, type check, boot check, key flows, publish, feedback reader
 playtests/                headless playtests per game: system checks (CI) and bot sessions
 ops/
   environments.json       universe and place ids per game (no keys, ever)
   SETUP.md                the steps only Alex can do (accounts, keys)
+  FEEDBACK.md             how player feedback becomes fixes
   PUBLISH_CHECKS.md       what runs before a publish is allowed and what is verified after
   DECISIONS.md            why things are the way they are
   DAILY_RUN.md            what the daily scheduled Claude run does
@@ -82,4 +83,7 @@ GitHub environment secrets. See `ops/SETUP.md`.
 - Developer product purchases are granted exactly once.
 - Paid random items show exact odds (totalling exactly 100%) before purchase,
   and the server rolls from the same table, after a PolicyService check.
-- Errors and feedback reach the error queue with deduplication and write caps.
+- Errors reach the error queue with deduplication and write caps.
+- Every game has a Feedback button; reports are filtered, rate-limited, tagged
+  with the build and device, and land in a daily `player-feedback` issue
+  (`ops/FEEDBACK.md`).

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (rod, bait, bucket, pools, species caught and casts) to help reproduce bugs.
 - Robux prices and Roblox listings for every pass and product, on the
   studio price ladder (ops/PRICING.md). The Storm Lure Pack is now 4 lures
   (was 5), so at the same 25 Robux Mystery Bait is never the worse deal.
