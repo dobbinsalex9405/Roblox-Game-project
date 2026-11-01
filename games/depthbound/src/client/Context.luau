@@ -24,11 +24,12 @@ export type Dive = {
 	meter: Lamp.Meter,
 	capacity: number,
 	climbEndsAt: number,
+	refilled: boolean, -- this dive's oil refill has been poured
 }
 
 export type Context = {
 	player: Player,
-	config: { mine: any, blocks: { [string]: any }, gear: any, dive: any },
+	config: { mine: any, blocks: { [string]: any }, gear: any, dive: any, monetization: any },
 	remotes: { [string]: Net.Remote },
 	data: () -> { [string]: any }?,
 	onData: (listener: (data: { [string]: any }) -> ()) -> (),
@@ -49,22 +50,33 @@ function Context.new(): Context
 		blocks = require(GameConfig.blocks) :: any,
 		gear = require(GameConfig.gear) :: any,
 		dive = require(GameConfig.dive) :: any,
+		monetization = require(GameConfig.monetization) :: any,
 	}
 	local current: Dive = {
 		phase = "Camp",
 		meter = { oil = config.gear.lamp[1].oilSeconds, rate = 0, at = 0 },
 		capacity = config.gear.lamp[1].oilSeconds,
 		climbEndsAt = 0,
+		refilled = false,
 	}
 
 	ClientNet.on(
 		Remotes["DB:Dive"],
-		function(phase: string, oil: number, rate: number, at: number, capacity: number, climbEndsAt: number)
+		function(
+			phase: string,
+			oil: number,
+			rate: number,
+			at: number,
+			capacity: number,
+			climbEndsAt: number,
+			refilled: boolean
+		)
 			current = {
 				phase = phase,
 				meter = { oil = oil, rate = rate, at = at },
 				capacity = capacity,
 				climbEndsAt = climbEndsAt,
+				refilled = refilled,
 			}
 		end
 	)

@@ -85,15 +85,29 @@ function Mining.start(ctx: Context.Context)
 		end)
 	end
 
+	-- Each spawn gets a fresh pickaxe from StarterPack. It is put in the
+	-- player's hand straight away: a new player should never have to find
+	-- the hotbar before their first swing.
 	local function onCharacter(character: Model)
 		equipped = nil
 		holding = false
-		local backpack = ctx.player:WaitForChild("Backpack")
-		for _, container in { backpack, character } do
-			local tool = container:FindFirstChild("Pickaxe")
-			if tool and tool:IsA("Tool") then
-				watch(tool)
-			end
+		local tool = character:FindFirstChild("Pickaxe")
+		if tool == nil then
+			local backpack = ctx.player:WaitForChild("Backpack")
+			tool = backpack:FindFirstChild("Pickaxe") or backpack:WaitForChild("Pickaxe", 10)
+		end
+		if tool == nil or not tool:IsA("Tool") or character.Parent == nil then
+			return
+		end
+		local pickaxe = tool :: Tool
+		watch(pickaxe)
+		if pickaxe.Parent == character then
+			equipped = pickaxe -- already in hand: Equipped fired before we listened
+			return
+		end
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Health > 0 then
+			humanoid:EquipTool(pickaxe)
 		end
 	end
 	ctx.player.CharacterAdded:Connect(onCharacter)
