@@ -46,7 +46,9 @@ another Claude.
    digest has an **Errors** section (yesterday's `ErrorQueue` records, by
    game, environment, build and signature), and a publish since the last run
    should also have an `error-sweep` issue from the 1-hour sweep. List open
-   issues labelled `error-sweep`, and read the digest's Errors section:
+   issues labelled `error-sweep`, and read the digest's Errors section.
+   Any issue labelled `stop` (digest or sweep) is handled first, before
+   anything else in the run:
    - a group marked **STOP** (any server error, or a client error seen 10+
      times) on Staging blocks promoting that build: open a `bug`, `<game>`,
      `sev1` tracking issue with the signature and route it like a bug
