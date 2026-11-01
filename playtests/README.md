@@ -46,3 +46,22 @@ in how often they come back to the counter (`attentive`, `batcher` 60 s,
 `casual` 180 s, `idle` 600 s), in what they buy (`attentiveRoi` picks by
 payback time) and whether they hire at all (`handOnly`). Customers who find
 the line full are counted as lost.
+
+## Tidecatch Cove (PR #7 branch)
+
+These scripts require `games/tidecatch-cove` (the PR #7 branch, or main once
+it merges). The game's own `tests/Harness.luau` is the server.
+
+```sh
+lune run playtests/tidecatch-cove/checks.luau       # system checks (PASS / BUG / NOTE), incl. odds, reel and pool numbers
+lune run playtests/tidecatch-cove/run_session.luau  # 15-minute bots (6 styles), seeds 1-5, 2-hour curves, a 3-hour return
+```
+
+`bot.luau` is the player: it casts at the best dock its rod allows, plays the
+reel with 0.2 s of reaction lag, keeps or sells from the catch card, tends its
+pools (feed, sell at a target stage, swap a weak pool for a better catch) and
+shops, with walking time charged for every trip between the dock, the cove
+and the island shop. Styles differ in what they keep (`keeper`, `grower`,
+`rareOnly`, `seller`), how soon they sell a pool (`flipper`) and whether they
+buy bait (`baitless`; the others buy only bait whose expected value beats its
+price).
