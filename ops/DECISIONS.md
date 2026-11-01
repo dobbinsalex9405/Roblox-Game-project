@@ -2,6 +2,39 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Depthbound first playable (milestone M2)
+
+- **Only blocks that touch air are Parts.** The grid stores just what players
+  changed (mined, damage, regrowth); what a block is made of is a hash of the
+  seed, its position and its regrowth count, picked through the layer weights.
+  A fresh 16 x 16 x 36 mine is 256 Parts, and StreamingEnabled sends each
+  client only the Parts near it. This replaces the plan's "chunks": the part
+  count tracks tunnels dug, not mine size. The phone test (M2 session) checks it.
+- **Old tunnels grow back** after 5 minutes when nobody is within 24 studs, as
+  a fresh roll, so a long-running server's mine never empties and no one is
+  sealed in.
+- **The server owns the oil meter** as a settled value plus a burn rate, re-settled
+  when the layer changes; the client draws the same numbers. Lamp-outs during a
+  climb are judged at the moment the climb finished, so a late server step can
+  never turn a safe climb into a lamp-out.
+- **Climbing out is a timed rope, not a walk.** The push-or-cash-out choice
+  needs a clear cost: the meter marks the oil a climb from here needs. Walking
+  out by hand works too.
+- **Nothing beats the lamp.** Dying in the mine is a lamp-out (a reset would
+  otherwise rescue a full pack); leaving mid-dive keeps the pack only if the
+  oil left could have climbed out from there. The pack is saved, so a crash
+  never loses a haul.
+- **Lamp-outs keep 25% in proportion across stacks** (largest remainder, ties
+  to the more valuable ore), so a rare gem is at the same risk as coal. The
+  plan's retention watch ("quit right after the first lamp-out") is reported
+  as `Dive:LampOut` with First/Repeat.
+- **Hits are re-checked on the server:** in bounds, touching air, within reach
+  (13 studs), swing interval x 0.8, pick tier for the layer. Selling and
+  upgrading are server-side ProximityPrompts, so they need no remotes.
+- **No coin packs, no paid randomness in M2.** Finding ore is free; its exact
+  chances are shown at camp anyway (layers are registered as free odds tables).
+  The Geode Crate (M5) gets the odds screen and policy check.
+
 ## 2026-11-01: Hatchery Heist first playable (milestone M2)
 
 - **The conveyor is a schedule, not physics.** Egg n appears at
