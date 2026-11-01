@@ -12,6 +12,7 @@ local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 local Shared = ReplicatedStorage.Shared
 local Boosts = require(Shared.Boosts)
 local Gear = require(Shared.Gear)
+local Guide = require(Shared.Guide)
 local Lamp = require(Shared.Lamp)
 local Layout = require(Shared.Layout)
 local Pack = require(Shared.Pack)
@@ -143,9 +144,16 @@ function Hud.start(ctx: Context.Context)
 	boost.TextColor3 = GOLD
 	boost.Visible = false
 
-	-- Notices: one line at a time under the bar.
+	-- First-session goal line, just under the bar (gone after the first upgrade).
+	local goal = panel(gui, "Goal", UDim2.fromOffset(380, 30), UDim2.new(0.5, 0, 0, 76), Vector2.new(0.5, 0))
+	goal.BackgroundColor3 = Color3.fromRGB(45, 50, 110)
+	goal.Visible = false
+	local goalText = label(goal, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
+	goalText.TextColor3 = GOLD
+
+	-- Notices: one line at a time under the bar (and the goal line).
 	local notice =
-		panel(gui, "Notice", UDim2.fromOffset(380, 36), UDim2.new(0.5, 0, 0, 80), Vector2.new(0.5, 0))
+		panel(gui, "Notice", UDim2.fromOffset(380, 36), UDim2.new(0.5, 0, 0, 112), Vector2.new(0.5, 0))
 	notice.Visible = false
 	local noticeText = label(notice, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
 	local noticeId = 0
@@ -215,6 +223,9 @@ function Hud.start(ctx: Context.Context)
 		local worth = math.floor(Pack.value(d.pack, config.blocks) * multiplier)
 		pack.Text = `Pack {count}/{capacity} · {Layout.shortNumber(worth)}`
 		pack.TextColor3 = if count >= capacity then OIL_LOW else Color3.new(1, 1, 1)
+		local objective = Guide.objective(d, config.gear, ctx.dive().phase)
+		goal.Visible = objective ~= nil
+		goalText.Text = objective or ""
 		local left = Boosts.left(d, "OreBoost", now)
 		boost.Visible = left > 0
 		if left > 0 then

@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Depthbound's first minute
+
+- **The pickaxe is put in the player's hand on every spawn.** Before, a new
+  player had to find the hotbar before their first swing, and a pickaxe that
+  arrived in the backpack after the character could be missed entirely.
+- **A goal line under the top bar** walks a new player through dig, climb out
+  and sell, then the cheapest upgrade with coins / cost, and disappears after
+  the first upgrade (Shared/Guide.luau, from the saved `firsts`).
+- **The Rucksack costs 40, not 100,** so one full first dive (about 30-60
+  coins) buys the first upgrade. A test bot on 12 mines now sells within
+  30 s and upgrades within 60 s (it took 55-107 s at 100); the test holds
+  45 s and 75 s as the bars.
+
 ## 2026-11-01: Depthbound in the shared shop
 
 - **Two products and three passes are listed; the Geode Crate is not.** It is
