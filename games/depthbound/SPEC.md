@@ -31,7 +31,8 @@ until Alex says otherwise.
    burns `climb.oilPerSecond` all the way up. Arriving at camp with oil left
    keeps the whole pack.
 5. **Lamp-out.** If the oil runs dry (on the rope too), the player keeps
-   `lampOut.keepFraction` of the pack (spread across stacks in proportion,
+   `lampOut.keepFraction` of the pack, at least `lampOut.minKeep` pieces
+   (spread across stacks in proportion,
    so a rare find is as much at risk as the rest), drops the rest where they
    fell, and wakes up at camp. Dying in the mine (a reset, for example)
    counts as a lamp-out. Leaving the game mid-dive keeps the pack only if the

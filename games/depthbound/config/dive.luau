@@ -22,5 +22,6 @@ return {
 	-- rest is dropped where they fell) and wakes up at camp.
 	lampOut = {
 		keepFraction = 0.25,
+		minKeep = 1, -- never come back empty-handed from a small haul
 	},
 }

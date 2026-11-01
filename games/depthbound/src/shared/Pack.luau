@@ -34,13 +34,19 @@ function Pack.add(pack: Pack, blockId: string, capacity: number): boolean
 	return true
 end
 
--- Splits a pack on lamp-out: keeps floor(total x keepFraction) pieces, spread
+-- Splits a pack on lamp-out: keeps floor(total x keepFraction) pieces (at
+-- least `minKeep`, so a small pack never comes back empty), spread
 -- across stacks in proportion to their size (largest remainder first, ties to
 -- the more valuable ore), so a lucky gem is as much at risk as the rest.
 -- Returns the kept and dropped packs; the input is not changed.
-function Pack.split(pack: Pack, keepFraction: number, blocks: { [string]: any }): (Pack, Pack)
+function Pack.split(
+	pack: Pack,
+	keepFraction: number,
+	blocks: { [string]: any },
+	minKeep: number?
+): (Pack, Pack)
 	local total = Pack.count(pack)
-	local budget = math.floor(total * keepFraction + 1e-9)
+	local budget = math.min(total, math.max(minKeep or 0, math.floor(total * keepFraction + 1e-9)))
 	local kept: Pack = {}
 	local dropped: Pack = {}
 	local rows: { { id: string, count: number, remainder: number, value: number } } = {}

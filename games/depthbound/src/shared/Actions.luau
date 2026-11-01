@@ -239,7 +239,7 @@ function Actions.new(options: Options): Actions
 		local kept, dropped = 0, 0
 		local first = false
 		change(player, function(d)
-			local keep, drop = Pack.split(d.pack, dive.lampOut.keepFraction, blocks)
+			local keep, drop = Pack.split(d.pack, dive.lampOut.keepFraction, blocks, dive.lampOut.minKeep)
 			kept, dropped = Pack.count(keep), Pack.count(drop)
 			table.clear(d.pack)
 			for id, count in keep do

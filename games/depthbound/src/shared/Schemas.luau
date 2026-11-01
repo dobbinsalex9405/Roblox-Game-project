@@ -99,6 +99,7 @@ return function(Schema: any, Odds: any)
 		}),
 		lampOut = Schema.record({
 			keepFraction = Schema.number({ min = 0, max = 1 }),
+			minKeep = Schema.integer({ min = 0, max = 1000 }),
 		}),
 	})
 

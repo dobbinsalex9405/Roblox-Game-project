@@ -8,7 +8,7 @@ return {
 		{ name = "Iron Pick", power = 2, cost = 150 },
 		{ name = "Steel Pick", power = 4, cost = 900 },
 		{ name = "Cobalt Pick", power = 7, cost = 4000 },
-		{ name = "Ember Pick", power = 12, cost = 15000 },
+		{ name = "Ember Pick", power = 12, cost = 30000 },
 	},
 	-- capacity: pieces of ore the pack holds.
 	pack = {
@@ -16,7 +16,7 @@ return {
 		{ name = "Rucksack", capacity = 30, cost = 100 },
 		{ name = "Miner's Pack", capacity = 50, cost = 600 },
 		{ name = "Hauler's Frame", capacity = 80, cost = 2500 },
-		{ name = "Deep Pack", capacity = 120, cost = 9000 },
+		{ name = "Deep Pack", capacity = 120, cost = 18000 },
 	},
 	-- oilSeconds: oil a full lamp holds, in seconds of burning at 1 oil per second.
 	lamp = {
@@ -24,7 +24,7 @@ return {
 		{ name = "Oil Lantern", oilSeconds = 90, cost = 120 },
 		{ name = "Brass Lantern", oilSeconds = 130, cost = 700 },
 		{ name = "Miner's Lamp", oilSeconds = 180, cost = 3000 },
-		{ name = "Carbide Lamp", oilSeconds = 240, cost = 11000 },
+		{ name = "Carbide Lamp", oilSeconds = 240, cost = 22000 },
 	},
 	-- What the passes add on top of the player's tier.
 	passes = {

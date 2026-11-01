@@ -252,7 +252,12 @@ describe("Depthbound dives", function()
 		local carried = Pack.count(h.get(p).pack)
 		h.leave(p) -- too little oil: same as a lamp-out
 		h.join(p)
-		expect(Pack.count(h.get(p).pack)).toBe(math.floor(carried * dive.lampOut.keepFraction + 1e-9))
+		expect(Pack.count(h.get(p).pack)).toBe(
+			math.min(
+				carried,
+				math.max(dive.lampOut.minKeep, math.floor(carried * dive.lampOut.keepFraction + 1e-9))
+			)
+		)
 		expect(h.get(p).stats.lampOuts).toBe(1)
 	end)
 end)
