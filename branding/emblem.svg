@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0" stop-color="#2E3380"/>
+      <stop offset="1" stop-color="#0D1020"/>
+    </radialGradient>
+    <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="90" y1="400" x2="420" y2="110">
+      <stop offset="0" stop-color="#FF8A3D"/>
+      <stop offset="1" stop-color="#FFD23F"/>
+    </linearGradient>
+    <linearGradient id="liquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7CF0FF"/>
+      <stop offset="1" stop-color="#1FB5E8"/>
+    </linearGradient>
+    <clipPath id="flaskClip">
+      <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"/>
+    </clipPath>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#ring)" stroke-width="40"
+          stroke-linecap="round" stroke-dasharray="880 188" transform="rotate(-60 256 256)"/>
+  <polygon points="183.2,146.0 141.4,82.6 209.0,83.4" fill="url(#ring)" stroke="url(#ring)" stroke-width="10" stroke-linejoin="round"/>
+  <g transform="translate(256 264) scale(1.28) translate(-256 -264)">
+    <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"
+          fill="#EAF2FF" fill-opacity="0.16"/>
+    <g clip-path="url(#flaskClip)">
+      <rect x="180" y="288" width="160" height="60" fill="url(#liquid)"/>
+    </g>
+    <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"
+          fill="none" stroke="#EAF2FF" stroke-width="9" stroke-linejoin="round"/>
+    <rect x="226" y="194" width="60" height="14" rx="7" fill="#EAF2FF"/>
+    <circle cx="250" cy="308" r="8" fill="#EAF2FF" fill-opacity="0.85"/>
+    <circle cx="274" cy="318" r="5.5" fill="#EAF2FF" fill-opacity="0.85"/>
+    <circle cx="262" cy="270" r="5" fill="#EAF2FF" fill-opacity="0.7"/>
+  </g>
+</svg>
