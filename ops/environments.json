@@ -14,5 +14,10 @@
     "dev": { "universeId": 0, "placeId": 0 },
     "staging": { "universeId": 0, "placeId": 0 },
     "production": { "universeId": 0, "placeId": 0 }
+  },
+  "street-food-empire": {
+    "dev": { "universeId": 0, "placeId": 0 },
+    "staging": { "universeId": 0, "placeId": 0 },
+    "production": { "universeId": 0, "placeId": 0 }
   }
 }
