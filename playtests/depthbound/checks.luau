@@ -588,12 +588,15 @@ do
 	local h, p = fresh()
 	give(h, p, { Coal = 4, Copper = 2, Quartz = 1 })
 	local worth = 4 * 2 + 2 * 5 + 20
+	-- Since PR #17 the day's first sale of enough ore pays a multiple.
+	local firstHaul = dive.dailyHaul and 7 >= dive.dailyHaul.minPieces and dive.dailyHaul.multiplier or 1
+	worth *= firstHaul
 	check(
 		h.actions:sell(p) == true
 			and h.get(p).coins == worth
 			and h.sales[1].coins == worth
 			and h.sales[1].pieces == 7,
-		`selling 4 Coal + 2 Copper + 1 Quartz pays {worth}`
+		`selling 4 Coal + 2 Copper + 1 Quartz pays {worth} ({firstHaul}x first haul of the day)`
 	)
 	check(
 		h.get(p).stats.oreSold == 7 and h.get(p).stats.coinsEarned == worth,
@@ -662,6 +665,115 @@ do
 end
 
 -- ---------------------------------------------------------------------------
+section("Daily first haul (PR #17)")
+if dive.dailyHaul == nil then
+	note("no dailyHaul config in this build; skipping")
+else
+	local rule = dive.dailyHaul
+	local DAY = 86400
+	local MORNING = 20_000 * DAY + 10 * 3600
+	local function sellNow(h: any, p: any, items: { [string]: number }): number
+		give(h, p, items)
+		local before = h.get(p).coins
+		local ok = h.actions:sell(p)
+		return if ok then h.get(p).coins - before else -1
+	end
+	local haul = { Coal = rule.minPieces }
+	local base = Pack.value(haul, blocks)
+	local small = { Coal = rule.minPieces - 1 }
+
+	local store = Fakes.store()
+	local h = Harness.new({ store = store, start = MORNING })
+	local p = Fakes.player(1)
+	h.join(p)
+	check(
+		sellNow(h, p, small) == Pack.value(small, blocks) and h.get(p).dailyHaulDay == 0,
+		`a sale of {rule.minPieces - 1} ore pays 1x and leaves the bonus waiting`
+	)
+	check(
+		sellNow(h, p, haul) == base * rule.multiplier,
+		`the first sale of {rule.minPieces} ore pays {rule.multiplier}x`
+	)
+	check(
+		string.find(lastNotice(h), "first haul") ~= nil,
+		"the bonus comes with a notice",
+		`notice: {lastNotice(h)}`
+	)
+	check(sellNow(h, p, haul) == base, "the second sale the same day pays 1x")
+	-- Another server, same day.
+	h.leave(p)
+	local h2 = Harness.new({ store = store, start = h.clock.now() + 60 })
+	h2.join(p)
+	check(sellNow(h2, p, haul) == base, "a new server the same day still pays 1x (saved day)")
+	-- 23:59:59 then 00:00:01: two days, two bonuses, by design.
+	local h3 = Harness.new({ store = Fakes.store(), start = 20_001 * DAY - 1 })
+	local p3 = Fakes.player(3)
+	h3.join(p3)
+	local late = sellNow(h3, p3, haul)
+	h3.clock.advance(2)
+	local early = sellNow(h3, p3, haul)
+	check(
+		late == base * rule.multiplier and early == base * rule.multiplier,
+		"a haul at 23:59:59 and one at 00:00:01 are different days, so both pay the bonus"
+	)
+	note(
+		"the daily bonus turns over at UTC midnight for everyone; two bonuses two seconds apart are possible once a day"
+	)
+	check(sellNow(h3, p3, haul) == base, "and the third, a second later, pays 1x")
+	-- Auto-Sell while leaving mid-dive (the LeftSafe path) takes the bonus and marks the day.
+	local store4 = Fakes.store()
+	local h4 = Harness.new({ store = store4, start = MORNING, seed = 4 })
+	h4.perks.autoSell = true
+	local p4 = Fakes.player(4)
+	h4.join(p4)
+	check((digDown(h4, p4, 5, 5, 2)), "dug 2 rows with Auto-Sell")
+	h4.data:update(p4, function(d)
+		table.clear(d.pack)
+		d.pack.Coal = rule.minPieces
+	end)
+	local coinsBefore = h4.get(p4).coins
+	h4.leave(p4)
+	local saved4 = store4.saved["Player_4"]
+	check(
+		saved4 ~= nil
+			and saved4.coins - coinsBefore == base * rule.multiplier
+			and saved4.dailyHaulDay == 20_000
+			and Pack.count(saved4.pack) == 0,
+		"leaving mid-dive with Auto-Sell pays the first-haul bonus and marks the day",
+		`saved coins +{saved4 and saved4.coins - coinsBefore}, day {saved4 and saved4.dailyHaulDay}`
+	)
+	h4.join(p4)
+	check(sellNow(h4, p4, haul) == base, "back on the same day: 1x")
+	-- Stacks with an Ore Boost.
+	local h5 = Harness.new({ store = Fakes.store(), start = MORNING })
+	local p5 = Fakes.player(5)
+	h5.join(p5)
+	local boostCfg = config.monetization.boosts and config.monetization.boosts.OreBoost
+	if boostCfg then
+		h5.data:update(p5, function(d)
+			d.boosts.OreBoost = h5.clock.now() + boostCfg.durationSeconds
+		end)
+		check(
+			sellNow(h5, p5, haul) == math.floor(base * boostCfg.sellMultiplier * rule.multiplier),
+			`the bonus stacks with an Ore Boost ({boostCfg.sellMultiplier}x · {rule.multiplier}x)`
+		)
+	end
+	-- A lamp-out loses the pack, so it never takes the bonus.
+	local h6 = Harness.new({ store = Fakes.store(), start = MORNING, seed = 6 })
+	local p6 = Fakes.player(6)
+	h6.join(p6)
+	check((digDown(h6, p6, 5, 5, 2)), "dug 2 rows")
+	h6.data:update(p6, function(d)
+		d.pack.Coal = (d.pack.Coal or 0) + rule.minPieces
+	end)
+	h6.wait(p6, gear.lamp[1].oilSeconds + 5)
+	check(
+		h6.get(p6).dailyHaulDay == 0,
+		"a lamp-out does not spend the bonus",
+		`day {h6.get(p6).dailyHaulDay}`
+	)
+end
+
 section("Onboarding and analytics")
 do
 	local h, p = fresh({ seed = 31 })
