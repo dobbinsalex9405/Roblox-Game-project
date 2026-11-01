@@ -48,8 +48,6 @@ export type Grid = {
 
 local MineGrid = {}
 
-local MODULUS = 2147483647 -- 2^31 - 1: Park-Miller steps stay exact in a double
-local MULTIPLIER = 48271
 local NEIGHBOURS = {
 	{ 1, 0, 0 },
 	{ -1, 0, 0 },
@@ -59,15 +57,35 @@ local NEIGHBOURS = {
 	{ 0, 0, -1 },
 }
 
--- A well-mixed whole number in [1, 2^31 - 2] from the seed and a few small
--- whole numbers. Every intermediate value stays below 2^53, so Roblox and
--- Lune compute the same mine from the same seed.
+local TWO_32 = 4294967296
+local GOLDEN = 0x9E3779B9
+
+-- (a * b) mod 2^32 for whole numbers below 2^32, exact in a double: split a
+-- into 16-bit halves so no product passes 2^49.
+local function mul32(a: number, b: number): number
+	local hi = a // 65536
+	local lo = a % 65536
+	return ((hi * b) % TWO_32 * 65536 + lo * b) % TWO_32
+end
+
+-- MurmurHash3's finalizer: every input bit flips about half the output bits.
+local function fmix32(h: number): number
+	h = bit32.bxor(h, bit32.rshift(h, 16))
+	h = mul32(h, 0x85EBCA6B)
+	h = bit32.bxor(h, bit32.rshift(h, 13))
+	h = mul32(h, 0xC2B2AE35)
+	return bit32.bxor(h, bit32.rshift(h, 16))
+end
+
+-- A well-mixed whole number in [0, 2^32) from the seed and four small whole
+-- numbers. Each one is mixed non-linearly before the next goes in, so
+-- neighbouring blocks, other seeds and regrown generations are unrelated
+-- rolls (an affine mix would give every server the same ore pattern,
+-- shifted). Exact in a double, so Roblox and Lune build the same mine.
 function MineGrid.hash(seed: number, a: number, b: number, c: number, d: number): number
-	local h = seed % (MODULUS - 1) + 1
-	for _, v in { a, b, c, d } do
-		h = (h + v * 7919 + 104729) % (MODULUS - 1) + 1
-		h = (h * MULTIPLIER) % MODULUS
-		h = (h * MULTIPLIER) % MODULUS
+	local h = fmix32(seed % TWO_32)
+	for i, v in { a, b, c, d } do
+		h = fmix32(bit32.bxor(h, fmix32((v + i * GOLDEN) % TWO_32)))
 	end
 	return h
 end

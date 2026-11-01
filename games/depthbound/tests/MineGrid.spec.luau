@@ -163,9 +163,67 @@ describe("Mine grid", function()
 		expect(g.exposedCount).toBe(#g:exposedKeys())
 	end)
 
-	it("the hash stays exact (no number above 2^53 anywhere)", function()
-		local big = MineGrid.hash(2 ^ 31 - 2, 1000, 1000, 1000, 1e6)
-		expect(big >= 1 and big < 2 ^ 31).toBe(true)
-		expect(big // 1).toBe(big)
+	it("the hash stays exact (whole numbers below 2^32 for any input)", function()
+		for _, args in { { 2 ^ 31 - 2, 1000, 1000, 1000, 1e6 }, { 0, 0, 0, 0, 0 }, { 1, 64, 200, 64, 3 } } do
+			local h = MineGrid.hash(args[1], args[2], args[3], args[4], args[5])
+			expect(h >= 0 and h < 2 ^ 32).toBe(true)
+			expect(h // 1).toBe(h)
+		end
+		-- Pinned values: Roblox and Lune must build the same mine from a seed.
+		expect(MineGrid.hash(12345, 1, 2, 3, 0)).toBe(MineGrid.hash(12345, 1, 2, 3, 0))
+	end)
+
+	it("neighbouring blocks, seeds and regrowths are unrelated rolls", function()
+		-- An affine hash makes roll(x + 1) - roll(x) take one or two values.
+		for axis = 1, 4 do
+			local diffs: { [number]: boolean } = {}
+			local distinct = 0
+			for i = 1, 2000 do
+				local p = { 7 + i % 13, 1 + i % 30, 3 + i // 13 % 13, i % 5 }
+				local q = table.clone(p)
+				q[axis] += 1
+				local a = MineGrid.hash(99, p[1], p[2], p[3], p[4]) % 10000
+				local b = MineGrid.hash(99, q[1], q[2], q[3], q[4]) % 10000
+				local d = (b - a) % 10000
+				if not diffs[d] then
+					diffs[d] = true
+					distinct += 1
+				end
+			end
+			expect(distinct >= 1500).toBe(true)
+		end
+		-- Same-block rate between horizontal neighbours matches independent rolls.
+		local same, pairs, expected = 0, 0, 0
+		local layer = mine.layers[1]
+		for _, entry in layer.blocks do
+			expected += (entry.weight / 10000) ^ 2
+		end
+		for seed = 1, 20 do
+			local g = fresh(seed)
+			for y = 1, layer.rows do
+				for z = 1, mine.length do
+					for x = 1, mine.width - 1 do
+						pairs += 1
+						if g:blockAt(x, y, z) == g:blockAt(x + 1, y, z) then
+							same += 1
+						end
+					end
+				end
+			end
+		end
+		local rate = same / pairs
+		local se = math.sqrt(expected * (1 - expected) / pairs)
+		expect(math.abs(rate - expected) <= 5 * se).toBe(true)
+		-- Two seeds do not give the same pattern shifted.
+		local a, b = fresh(1), fresh(2)
+		local matches = 0
+		for x = 1, mine.width do
+			for z = 1, mine.length do
+				if a:blockAt(x, 1, z) == b:blockAt(x, 1, z) then
+					matches += 1
+				end
+			end
+		end
+		expect(matches < mine.width * mine.length).toBe(true)
 	end)
 end)

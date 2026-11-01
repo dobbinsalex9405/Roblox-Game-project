@@ -20,6 +20,7 @@
 - Save data v1: coins, gear tiers, pack, deepest row, layers reached, geodes
   (M5), boosts (M5), receipts, firsts, stats.
 - Analytics: onboarding steps Joined, FirstBlockMined, FirstSale,
-  FirstUpgrade, FirstLampOut, Layer2Reached; `Dive:Start`, `Dive:End` (deepest
+  FirstUpgrade (first lamp-out and layer 2 are saved in `firsts` and reported
+  as their own events, since they can come in any order); `Dive:Start`, `Dive:End` (deepest
   row, how it ended), `Dive:LampOut` (pieces dropped, cause, layer, first or
   repeat), `Gear:Upgrade`, Layer progression, and every coin change.

@@ -143,6 +143,58 @@ describe("Depthbound dives", function()
 		expect(h.get(p).stats.dives).toBe(1)
 	end)
 
+	it("a climb with exactly the oil it needs is safe", function()
+		local h = Harness.new()
+		local p = Fakes.player(1)
+		h.join(p)
+		expect((digDown(h, p, 6, 2, 5))).toBe(true)
+		local need = Lamp.climbOil(dive, 5)
+		h.clock.advance((h.oil(p) - need) / mine.layers[1].oilPerSecond)
+		h.actions:step(p)
+		expect(h.actions:climb(p)).toBe(true)
+		h.wait(p, Lamp.climbSeconds(dive, 5) + 0.4)
+		expect(#h.lampOuts).toBe(0)
+		expect(h.get(p).stats.dives).toBe(1)
+	end)
+
+	it("crossing the top face without mining is not a dive", function()
+		local h = Harness.new()
+		local p = Fakes.player(1)
+		h.join(p)
+		h.standOn(p, 4, 4)
+		h.wait(p, 1)
+		h.toCamp(p)
+		h.wait(p, 0.2)
+		expect(phase(h, p)).toBe("Camp")
+		expect(h.get(p).stats.dives).toBe(0)
+	end)
+
+	it("a first lamp-out after reaching layer 2 is still reported as the first", function()
+		local h = Harness.new()
+		local p = Fakes.player(1)
+		h.join(p)
+		h.data:update(p, function(d)
+			d.gear.pick = mine.layers[2].minPickTier
+		end)
+		local bottom = mine.layers[1].rows
+		expect((digDown(h, p, 7, 7, bottom + 1))).toBe(true)
+		expect(h.get(p).firsts.Layer2Reached ~= nil).toBe(true)
+		h.wait(p, gear.lamp[1].oilSeconds + 1)
+		expect(#h.lampOuts).toBe(1)
+		expect(h.get(p).firsts.FirstLampOut ~= nil).toBe(true)
+		local firsts = 0
+		for _, e in h.eventsOf("custom") do
+			if e[1] == "Dive:LampOut" and e[3][3] == "First" then
+				firsts += 1
+			end
+		end
+		expect(firsts).toBe(1)
+		-- The onboarding funnel only holds steps every player meets in order.
+		for _, e in h.eventsOf("onboarding") do
+			expect(e[2] ~= "FirstLampOut" and e[2] ~= "Layer2Reached").toBe(true)
+		end
+	end)
+
 	it("walking out ends the dive safely; Auto-Sell sells on the way", function()
 		local h = Harness.new({ perks = { biggerPack = false, betterLamp = false, autoSell = true } })
 		local p = Fakes.player(1)
@@ -256,26 +308,42 @@ describe("Depthbound swing checks", function()
 		local h = Harness.new()
 		local p = Fakes.player(1)
 		h.join(p)
-		h.standOn(p, 1, 1)
-		h.wait(p, 0.2)
-		give(h, p, { Coal = gear.pack[1].capacity })
-		local oreAt, rockAt = nil, nil
-		for x = 1, 3 do
-			for z = 1, 3 do
-				local value = blocks[h.grid:blockAt(x, 1, z)].value
-				if value > 0 and oreAt == nil then
-					oreAt = { x, z }
-				elseif value == 0 and rockAt == nil then
-					rockAt = { x, z }
+		-- Find a spot on the top face with ore and rock right next to it.
+		local function kind(x: number, z: number): string?
+			if not h.grid:inBounds(x, 1, z) then
+				return nil
+			end
+			return if blocks[h.grid:blockAt(x, 1, z)].value > 0 then "ore" else "rock"
+		end
+		local spot: { number }? = nil
+		for x = 2, mine.width - 1 do
+			for z = 2, mine.length - 1 do
+				local near = { kind(x + 1, z), kind(x - 1, z), kind(x, z + 1), kind(x, z - 1) }
+				if spot == nil and table.find(near, "ore") and table.find(near, "rock") then
+					spot = { x, z }
 				end
 			end
 		end
-		if oreAt then
-			expect(select(2, h.actions:hit(p, oreAt[1], 1, oreAt[2]))).toBe("pack full")
+		local at = spot :: { number }
+		expect(at ~= nil).toBe(true)
+		h.standOn(p, at[1], at[2])
+		h.wait(p, 0.2)
+		give(h, p, { Coal = gear.pack[1].capacity })
+		for _, n in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+			local x, z = at[1] + n[1], at[2] + n[2]
+			if kind(x, z) == "ore" then
+				expect(select(2, h.actions:hit(p, x, 1, z))).toBe("pack full")
+				break
+			end
 		end
-		expect(rockAt ~= nil).toBe(true)
-		local rock = rockAt :: { number }
-		expect((h.mine(p, rock[1], 1, rock[2]))).toBe(true)
+		for _, n in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+			local x, z = at[1] + n[1], at[2] + n[2]
+			if kind(x, z) == "rock" then
+				h.clock.advance(dive.swingSeconds)
+				expect((h.mine(p, x, 1, z))).toBe(true)
+				break
+			end
+		end
 	end)
 
 	it("selling and upgrading only work at camp", function()
@@ -466,6 +534,18 @@ describe("Depthbound sessions", function()
 		for _, name in names do
 			expect(seen[name]).toBeNil()
 			seen[name] = true
+		end
+	end)
+
+	it("the way up never grows back above a player still in the mine", function()
+		local h = Harness.new()
+		local p = Fakes.player(1)
+		h.join(p)
+		expect((digDown(h, p, 9, 9, 8))).toBe(true)
+		h.clock.advance(mine.regrowSeconds)
+		h.actions:regrowMine()
+		for y = 1, 8 do
+			expect(h.grid:isSolid(9, y, 9)).toBe(false)
 		end
 	end)
 

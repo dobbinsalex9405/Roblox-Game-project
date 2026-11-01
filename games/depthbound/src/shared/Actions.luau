@@ -74,11 +74,13 @@ export type Actions = {
 	session: (self: Actions, player: any) -> Session?,
 }
 
--- First-time moments, in the order the onboarding funnel reports them (Wave 1
--- plan). New steps go at the end so earlier step numbers never change; the
--- haul, party and purchase steps arrive with M4 and M5.
-local ONBOARDING =
-	{ "Joined", "FirstBlockMined", "FirstSale", "FirstUpgrade", "FirstLampOut", "Layer2Reached" }
+-- The onboarding funnel: first-time moments every player meets in this order
+-- (you must sell before you can afford an upgrade). Roblox drops a step
+-- reported after a later one, so moments that can come in any order
+-- (FirstLampOut, Layer2Reached) are saved in `firsts` and reported as their
+-- own events (`Dive:LampOut` First/Repeat, Layer progression) instead. New
+-- steps go at the end so earlier step numbers never change.
+local ONBOARDING = { "Joined", "FirstBlockMined", "FirstSale", "FirstUpgrade" }
 
 local NOTICE_REPEAT_SECONDS = 2 -- the same refusal is shown at most this often
 local CAMP_HEIGHT = -1 -- a root above this, outside the shaft, is standing at camp
@@ -97,6 +99,8 @@ function Actions.new(options: Options): Actions
 
 	local sessions: { [any]: Session } = {}
 
+	-- Saves a first-time moment. Returns its onboarding step when it is new
+	-- and in the funnel, else nil.
 	local function markFirst(d: { [string]: any }, moment: string, now: number): number?
 		if d.firsts[moment] then
 			return nil
@@ -199,8 +203,12 @@ function Actions.new(options: Options): Actions
 		local autoSell = options.perks(player).autoSell
 		local coins, pieces = 0, 0
 		local step: number? = nil
+		-- Walking across the top face without mining is not a dive.
+		local mined = s.diveDeepest > 0
 		change(player, function(d, ledger)
-			d.stats.dives += 1
+			if mined then
+				d.stats.dives += 1
+			end
 			if autoSell and Pack.count(d.pack) > 0 then
 				coins, pieces = sellInto(d, ledger)
 				step = markFirst(d, "FirstSale", now)
@@ -229,7 +237,6 @@ function Actions.new(options: Options): Actions
 	local function lampOut(player: any, s: Session, now: number, ending: Ending)
 		local row = s.row
 		local kept, dropped = 0, 0
-		local step: number? = nil
 		local first = false
 		change(player, function(d)
 			local keep, drop = Pack.split(d.pack, dive.lampOut.keepFraction, blocks)
@@ -239,8 +246,8 @@ function Actions.new(options: Options): Actions
 				d.pack[id] = count
 			end
 			d.stats.lampOuts += 1
-			step = markFirst(d, "FirstLampOut", now)
-			first = step ~= nil
+			first = d.firsts.FirstLampOut == nil
+			markFirst(d, "FirstLampOut", now)
 			return nil
 		end)
 		-- M4: the dropped haul stays where the player fell for anyone to find.
@@ -256,7 +263,6 @@ function Actions.new(options: Options): Actions
 		end
 		options.rescue(player)
 		sendDive(player, s)
-		onboarding(player, step)
 		options.lampOut(player, kept, dropped, row)
 	end
 
@@ -311,7 +317,8 @@ function Actions.new(options: Options): Actions
 		if s.phase == "Climbing" then
 			-- Judge the climb at the moment it finished, not at this step's time.
 			local at = math.min(now, s.climbEndsAt)
-			if Lamp.oilAt(s.meter, at) <= 0 then
+			-- Arriving with exactly enough oil is a safe climb.
+			if s.meter.oil - s.meter.rate * (at - s.meter.at) < 0 then
 				lampOut(player, s, now, "LampOut")
 			elseif now >= s.climbEndsAt then
 				endDive(player, s, now, "ClimbedOut")
@@ -358,7 +365,7 @@ function Actions.new(options: Options): Actions
 			local need = if s.phase == "Climbing"
 				then math.max(0, s.climbEndsAt - now) * dive.climb.oilPerSecond
 				else Lamp.climbOil(dive, s.row)
-			if oil > need then
+			if oil >= need then
 				endDive(player, s, now, "LeftSafe")
 			else
 				lampOut(player, s, now, "LeftInDark")
@@ -408,7 +415,7 @@ function Actions.new(options: Options): Actions
 		local block = blocks[blockId]
 		if Gear.tier(d, "Pick") < layer.minPickTier then
 			local needed = gear.pick[layer.minPickTier].name
-			notify(player, s, `{layer.name} needs a {needed} or better. Upgrade at camp.`, now)
+			notify(player, s, `{layer.name} needs the {needed} or better. Upgrade at camp.`, now)
 			return false, "pick too weak"
 		end
 
@@ -452,7 +459,7 @@ function Actions.new(options: Options): Actions
 				dd.layersReached = layerIndex
 				newLayer = layerIndex
 				if layerIndex == 2 then
-					table.insert(steps, markFirst(dd, "Layer2Reached", now) or 0)
+					markFirst(dd, "Layer2Reached", now)
 				end
 			end
 			return nil
@@ -589,6 +596,11 @@ function Actions.new(options: Options): Actions
 			local center = Layout.blockCenter(mine, x, y, z)
 			for _, pos in positions do
 				if Layout.distance(pos, center) <= clearance then
+					return true
+				end
+				-- Never seal the way up above someone in the mine.
+				local dx, dz = pos.x - center.x, pos.z - center.z
+				if center.y > pos.y and math.sqrt(dx * dx + dz * dz) <= clearance then
 					return true
 				end
 			end

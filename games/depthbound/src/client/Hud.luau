@@ -220,14 +220,17 @@ function Hud.start(ctx: Context.Context)
 			local layer = config.mine.layers[Layout.layerOf(config.mine, math.max(1, row))]
 			depth.Text = if row == 0 then `On the mine · {layer.name}` else `Row {row} · {layer.name}`
 			local need = Lamp.climbOil(config.dive, row)
+			-- The marker sits one second of climbing above the bare need, to
+			-- cover the tap reaching the server.
+			local mark = need + config.dive.climb.oilPerSecond
 			local seconds = if dive.meter.rate > 0 then oil / dive.meter.rate else oil
 			marker.Visible = true
-			marker.Position = UDim2.fromScale(math.clamp(need / math.max(dive.capacity, 1), 0, 1), 0.5)
+			marker.Position = UDim2.fromScale(math.clamp(mark / math.max(dive.capacity, 1), 0, 1), 0.5)
 			local climbSeconds = math.ceil(Lamp.climbSeconds(config.dive, row))
 			if oil < need then
 				fill.BackgroundColor3 = OIL_DRY
 				oilText.Text = `Too little oil to climb out! {math.floor(seconds)}s left`
-			elseif oil < need * 1.3 then
+			elseif oil < mark * 1.3 then
 				fill.BackgroundColor3 = OIL_LOW
 				oilText.Text = `Climb now! {math.floor(seconds)}s of oil left`
 			else
@@ -235,7 +238,8 @@ function Hud.start(ctx: Context.Context)
 				oilText.Text = `{math.floor(seconds)}s of oil · climbing out takes {climbSeconds}s`
 			end
 			climb.Text = `Climb out ({climbSeconds}s)`
-			climb.Visible = true
+			-- On the top face, walking off is quicker than the rope.
+			climb.Visible = row > 0
 		end
 
 		local light = lampLight()
