@@ -83,9 +83,11 @@ function GuideView.start(ctx: Context.Context)
 	local NEAR_DOCK = config.fishing.castReach
 
 	local pickedStartingBait = false
+	-- Set once the guide has nothing more to say; it never comes back.
+	local finished = false
 	local function render()
 		local d = ctx.data()
-		if d == nil then
+		if d == nil or finished then
 			return
 		end
 		if not pickedStartingBait then
@@ -95,10 +97,16 @@ function GuideView.start(ctx: Context.Context)
 			end
 		end
 		local step = Guide.step(d)
-		banner.Visible = step ~= nil and not oddsCard.Visible
-		text.Text = if step then step.text else ""
+		if step == nil then
+			finished = true
+			banner.Visible = false
+			clearArrow()
+			return
+		end
+		banner.Visible = not oddsCard.Visible
+		text.Text = step.text
 		local spotId = Guide.dockFor(d, config.fishing)
-		local wantArrow = step ~= nil and step.arrowToDock and spotId ~= nil
+		local wantArrow = step.arrowToDock and spotId ~= nil
 		if wantArrow then
 			local character = ctx.player.Character
 			local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -122,7 +130,7 @@ function GuideView.start(ctx: Context.Context)
 	oddsCard:GetPropertyChangedSignal("Visible"):Connect(render)
 	-- Walking changes whether the arrow is needed; respawns need a new one.
 	task.spawn(function()
-		while Players.LocalPlayer.Parent do
+		while Players.LocalPlayer.Parent and not finished do
 			render()
 			task.wait(0.5)
 		end

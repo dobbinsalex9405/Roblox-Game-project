@@ -63,7 +63,9 @@ pool, watch it grow. Until the first catch, a glowing beam runs from the
 player to the nearest dock their rod can fish, and their starting Worms are
 picked so the first casts show off rarer fish. At a dock the banner steps
 aside for the odds card, the Cast prompt and the reel panel, which explain
-themselves. A first catch lands about 20 seconds after joining.
+themselves. A first catch lands about 20 seconds after joining. A player who
+has caught 8 without ever pooling one prefers selling, so the guide retires
+for them (`Guide.RETIRE_AFTER_CATCHES`); the Pools panel is still there.
 
 ## Odds
 
