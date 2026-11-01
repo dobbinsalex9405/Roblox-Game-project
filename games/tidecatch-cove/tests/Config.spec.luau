@@ -30,7 +30,7 @@ describe("Tidecatch Cove config", function()
 		expect(table.concat(Schemas.crossCheck(load()), "\n")).toBe("")
 	end)
 
-	it("has about 25 species in 5 rarities, 3 rods, 4 baits and 4 spots (build plan)", function()
+	it("has about 25 species in 5 rarities, 3 rods, 4 coin baits and 4 spots (build plan)", function()
 		local config = load()
 		local count = 0
 		local rarities: { [string]: boolean } = {}
@@ -41,7 +41,13 @@ describe("Tidecatch Cove config", function()
 		expect(count).toBe(25)
 		expect(#Util.keys(rarities)).toBe(5)
 		expect(#config.fishing.rods).toBe(3)
-		expect(#config.fishing.bait).toBe(4)
+		local coinBait = 0
+		for _, bait in config.fishing.bait do
+			if not bait.robux then
+				coinBait += 1
+			end
+		end
+		expect(coinBait).toBe(4)
 		expect(#config.fishing.spots).toBe(4)
 		local lowTide = 0
 		for _, spot in config.fishing.spots do
@@ -57,9 +63,15 @@ describe("Tidecatch Cove config", function()
 		local odds = Odds.new()
 		local tables = Catch.oddsTables(config.fishing, config.species.species, Odds.normalize, false)
 		expect(#tables).toBe(#config.fishing.spots * (#config.fishing.bait + 1))
+		local robux: { [string]: boolean } = {}
+		for _, bait in config.fishing.bait do
+			robux[bait.id] = bait.robux
+		end
 		for _, def in tables do
 			odds:define(def)
-			expect(def.paid).toBe(false) -- no bait is sold for Robux yet, and coins never are
+			-- Paid exactly when the bait only comes from Robux (coins are never sold).
+			local baitId = string.match(def.id, "_(%w+)$") :: string
+			expect(def.paid).toBe(robux[baitId] == true)
 			local total = 0
 			for _, row in odds:display(def.id, {}).rows do
 				total += row.weight
@@ -145,9 +157,23 @@ describe("Tidecatch Cove config", function()
 		for key, id in monetization.passes do
 			expect(key .. "=" .. id).toBe(key .. "=0")
 		end
-		for _, bait in load().fishing.bait do
-			expect(bait.robux).toBe(false)
-		end
+	end)
+
+	it("Robux products give only Robux-only bait, and Mystery Bait is a valid paid table", function()
+		local config = load()
+		local mystery = Catch.mysteryTable(config.monetization)
+		expect(mystery.paid).toBe(true)
+		Odds.validate(mystery)
+		local bad = Util.deepCopy(config)
+		bad.monetization.products.BaitPack.bait = "Worm"
+		bad.monetization.mysteryBait[1].bait = "Dynamite"
+		bad.monetization.mysteryBait[2].weight += 1
+		bad.fishing.bait[5].priceCoins = 50
+		local text = table.concat(Schemas.crossCheck(bad), "\n")
+		expect(text).toContain("BaitPack: Worm is coin bait")
+		expect(text).toContain("unknown bait Dynamite")
+		expect(text).toContain("monetization.mysteryBait")
+		expect(text).toContain("Robux bait needs priceCoins 0")
 	end)
 
 	it("catches broken configs", function()

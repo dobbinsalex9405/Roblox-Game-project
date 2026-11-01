@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Tidecatch Cove Robux shop (milestone M5 code, prices pending)
+
+- **Robux bait is its own bait.** Bait Pack and Mystery Bait give Storm Lures
+  and Pearl Lures, which coins never buy. A cast is a paid random roll exactly
+  when its bait came from Robux, so the policy check and the "paid" odds
+  label follow the bait id alone, with no per-unit bookkeeping. Coin bait
+  stays a free roll (coins are never sold here).
+- **Auto-reel is decided on the server.** With the pass, the server lands the
+  fish at a fixed per-rarity rate a little slower than the fastest human reel,
+  and ignores the client's report, so the pass cannot be used to claim a
+  perfect reel.
+- **Mystery Bait never grants nothing.** The shop refuses restricted players
+  before Roblox's prompt; if the policy flips after paying, the grant gives
+  the smallest bundle rather than keep the Robux for nothing.
+
 ## 2026-11-01: Depthbound's first minute
 
 - **The pickaxe is put in the player's hand on every spawn.** Before, a new
