@@ -56,6 +56,15 @@ each client draws them: the counter queue on every plot and one walk-up
 customer at each station with a working cook. This keeps the server light with
 8 busy restaurants.
 
+## First session
+
+`src/shared/Guide.luau` gives a new player one goal at a time, shown as a
+line under the cash bar with a gold arrow and beam to the place to go: serve
+the first customer, build a second station, upgrade, hire a cook, then the
+cheapest next station, upgrade or cook until Market Row opens. It points at
+the register when the register holds enough to matter. See `STORE.md` for the
+first-minute timeline.
+
 ## Pacing
 
 Tuned to lean idle: cooks earn a real share, so a player who only looks in
@@ -74,7 +83,14 @@ customers. These are starting numbers for the M4 playtests.
 ## Money
 
 All prices need Alex's approval (M5). Product and pass ids stay 0 in
-`config/monetization.luau` until created on Roblox; id 0 is never sold.
+`config/monetization.luau` until created on Roblox; id 0 is never prompted.
+Staging and Production ids go under `environments` there (ops/SHOP.md).
+
+The core's shop lists what `src/shared/Products.luau` registers: the three
+cash packs, Speed Boost, 2x Cash and Auto-Collect. Every one of them runs
+through the real receipt path in the Studio test panel, even with id 0, and
+`tests/Products.spec.luau` runs Buy and Replay for each product. A Speed Boost
+only speeds up what comes after the purchase; buying another adds time.
 
 - Passes: 2x Cash, Auto-Collect, Festival cosmetics bundle (M4).
 - Products: three cash packs, Instant Build (finishes every build and upgrade

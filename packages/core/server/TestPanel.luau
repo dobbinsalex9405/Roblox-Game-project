@@ -142,12 +142,17 @@ function TestPanel.start(deps: Deps): boolean
 		counter += 1
 		local purchaseId = `studio-{player.UserId}-{os.time()}-{counter}`
 		local decision, fresh = deps.receipts:grant(player, key, purchaseId)
-		if decision ~= "PurchaseGranted" then
+		if decision ~= "PurchaseGranted" and not fresh then
 			return `{key}: not granted ({decision}). Check the output log.`
 		end
 		local last = lastPurchase[player] or {}
 		lastPurchase[player] = last
 		last[key] = purchaseId
+		if decision ~= "PurchaseGranted" then
+			-- Granted in memory, but the save failed: Roblox would retry, so
+			-- Replay retries the save without granting again.
+			return `{key} granted (purchase {purchaseId}), but the save failed, so Roblox would retry. Press Replay to retry the save.`
+		end
 		return if fresh
 			then `{key} granted through the receipt path (purchase {purchaseId}).`
 			else `{key}: purchase {purchaseId} was already granted.`
@@ -161,6 +166,9 @@ function TestPanel.start(deps: Deps): boolean
 		local decision, fresh = deps.receipts:grant(player, key, purchaseId)
 		if decision == "PurchaseGranted" and not fresh then
 			return `Replayed purchase {purchaseId}: Roblox would be told "granted" and nothing was given twice. Exactly-once works.`
+		end
+		if decision == "NotProcessedYet" and not fresh then
+			return `Replayed purchase {purchaseId}: nothing was given twice, but the save is still failing. Press Replay again.`
 		end
 		return `PROBLEM: replaying {purchaseId} gave {decision}, granted again = {tostring(fresh)}.`
 	end

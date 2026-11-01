@@ -1,43 +1,31 @@
 --!strict
--- Registers developer products with the core's receipt handler. A product
--- whose id is still 0 has not been created on Roblox yet and is skipped.
--- Instant Build and Speed Boost (Restaurant.finishBuilds, Restaurant.startBoost)
--- are registered with the M5 shop, once Alex approves prices and the shop
--- screen can offer them only when they do something, so nothing can be sold
--- that the game cannot deliver.
+-- Wires Street Food Empire's products and passes (src/shared/Products.luau)
+-- into the core's receipt handler and shop.
 
-local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
-local Log = require(ReplicatedStorage.Core.Log)
-
-local log = Log.new("Shop")
+local Monetization = require(ReplicatedStorage.Core.Monetization)
+local Actions = require(ReplicatedStorage.Shared.Actions)
+local Products = require(ReplicatedStorage.Shared.Products)
 
 local Shop = {}
 
-function Shop.register(services: CoreServer.Services, Config: any)
-	local products = Config.get("monetization").products
-
-	for _, key in { "CashPackSmall", "CashPackMedium", "CashPackLarge" } do
-		local product = products[key]
-		if product.id > 0 then
-			services.receipts:register(key, product.id, function(_player, _data, ledger)
-				ledger:add("cash", product.cash, `IAP:{key}`)
-			end)
-		end
-	end
-
-	local skipped = {}
-	for key, product in products do
-		if product.id == 0 then
-			table.insert(skipped, key)
-		end
-	end
-	table.sort(skipped)
-	if #skipped > 0 then
-		log:info("products not created on Roblox yet", { products = table.concat(skipped, ",") })
-	end
+function Shop.register(
+	services: CoreServer.Services,
+	Config: any,
+	ids: Monetization.Resolved,
+	actions: Actions.Actions
+)
+	local catalog = Products.register(
+		services.receipts,
+		ids.products,
+		Config.get("monetization"),
+		Config.get("economy"),
+		actions
+	)
+	services.shop:setCatalog(catalog :: any)
 end
 
 return Shop
