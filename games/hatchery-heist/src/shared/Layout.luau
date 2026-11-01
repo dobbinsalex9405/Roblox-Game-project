@@ -90,10 +90,15 @@ end
 
 -- 1234567 -> "1.23M"
 function Layout.shortNumber(n: number): string
-	local units = { { 1e12, "T" }, { 1e9, "B" }, { 1e6, "M" }, { 1e3, "K" } }
+	local units: { { size: number, suffix: string } } = {
+		{ size = 1e12, suffix = "T" },
+		{ size = 1e9, suffix = "B" },
+		{ size = 1e6, suffix = "M" },
+		{ size = 1e3, suffix = "K" },
+	}
 	for _, unit in units do
-		if math.abs(n) >= unit[1] then
-			return string.format("%.2f%s", n / unit[1], unit[2])
+		if math.abs(n) >= unit.size then
+			return string.format("%.2f%s", n / unit.size, unit.suffix)
 		end
 	end
 	return tostring(math.floor(n))

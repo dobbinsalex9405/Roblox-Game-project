@@ -87,7 +87,7 @@ function Actions.new(options: Options): Actions
 		local ledger: any = nil
 		local refusal: string? = nil
 		local now = options.now()
-		local ok, err = data:update(player, function(d)
+		local ok, err = data:update(player, function(d: Hatchery.Data)
 			if d.lastIncomeAt > 0 and now > d.lastIncomeAt then
 				d.stats.playSeconds += now - d.lastIncomeAt
 			end
@@ -115,7 +115,7 @@ function Actions.new(options: Options): Actions
 		local ready: number = 0
 		local step: number? = nil
 		local mountSpeed: number? = nil
-		local ok = data:update(player, function(d)
+		local ok = data:update(player, function(d: Hatchery.Data)
 			earned = Hatchery.welcomeBack(d, now, perSecond(d, player), economyConfig)
 			for _, incubator in d.incubators do
 				if incubator.readyAt <= now then
@@ -180,7 +180,7 @@ function Actions.new(options: Options): Actions
 			options.notify(player, "That egg has left the conveyor.")
 			return false, "egg not on the belt"
 		end
-		local bought = boughtOnBelt[player] or {}
+		local bought: { [number]: boolean } = boughtOnBelt[player] or {}
 		boughtOnBelt[player] = bought
 		if bought[index] then
 			return false, "egg already bought"

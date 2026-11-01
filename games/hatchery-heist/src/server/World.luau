@@ -20,7 +20,7 @@ local World = {}
 
 local plotsFolder: Folder
 local plots: { Model } = {}
-local owners: { [number]: Player } = {}
+local owners: { [number]: Player? } = {}
 
 local function part(props: { [string]: any }): Part
 	local p = Instance.new("Part")
@@ -337,7 +337,7 @@ end
 
 -- Draws a base from saved data (nil data = an empty base).
 function World.sync(index: number, d: { [string]: any }?, config: any?, slotCount: number)
-	local model = plots[index]
+	local model: Model? = plots[index]
 	if model == nil then
 		return
 	end

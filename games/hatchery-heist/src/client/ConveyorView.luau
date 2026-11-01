@@ -100,7 +100,7 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 		local _, ownPlot = ctx.plot()
 		for plot = 1, Layout.PLOTS do
 			local frame = Layout.plotCFrame(plot)
-			local current = shown[plot] or {}
+			local current: { [number]: Part } = shown[plot] or {}
 			shown[plot] = current
 			local seen: { [number]: boolean } = {}
 			for _, beltEgg in Conveyor.onBelt(now, plot, belt) do

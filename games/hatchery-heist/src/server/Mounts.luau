@@ -14,7 +14,7 @@ local Mounts = {}
 
 export type Ride = { speed: number, speciesId: string, rarity: string }
 
-local rides: { [Player]: Ride } = {}
+local rides: { [Player]: Ride? } = {}
 
 local function clearCharacter(character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
