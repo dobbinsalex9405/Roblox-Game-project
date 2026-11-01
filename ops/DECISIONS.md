@@ -2,6 +2,23 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Depthbound's daily return reward
+
+- **The first real haul sold each UTC day pays double** (at least 5 ore, so
+  a stray coal does not use it up). It stacks with an Ore Boost and works at
+  the sell pad and with Auto-Sell. The day it was last paid is saved
+  (`dailyHaulDay`), so it is once a day across servers. This is the Wave 1
+  plan's "reward the first dive of each day" lever for day-1 retention, with
+  numbers in `config/dive.luau` (`dailyHaul`).
+- **Picked without waiting for Alex** (AI-managed project rule): of the
+  playtest tuning card, the lamp-out floor and doubled tier-5 costs shipped
+  in PR #4, the first-dive guide in PR #12, and this is the last of the four.
+  The late-game gear cliff and zero-risk top-row mining stay as they are
+  until real play data: both matter after the first session, and the launch
+  gate measures day-1 return and session length first.
+- **The goal line advertises it** after the first upgrade, until it is taken.
+  An event `Daily:FirstHaul` (coins paid) shows whether it brings players back.
+
 ## 2026-11-01: Our own metrics and the studio scoreboard
 
 - **Games count their own players and Robux** (`Metrics` in the core,

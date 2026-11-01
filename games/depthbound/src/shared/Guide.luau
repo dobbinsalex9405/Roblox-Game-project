@@ -1,9 +1,11 @@
 --!strict
 -- The first-session goal line under the HUD's top bar: one short instruction
 -- for the step a new player is on (dig, climb out and sell, upgrade), taken
--- from the saved `firsts`. It disappears after the first upgrade. Pure, so
--- the client and the tests share it.
+-- from the saved `firsts`. After the first upgrade it only shows today's
+-- first-haul bonus while it is still waiting. Pure, so the client and the
+-- tests share it.
 
+local Daily = require("./Daily")
 local Gear = require("./Gear")
 local Layout = require("./Layout")
 local Pack = require("./Pack")
@@ -26,7 +28,14 @@ function Guide.cheapestUpgrade(d: { [string]: any }, gear: any): (any?, Gear.Kin
 end
 
 -- The goal line for this moment, or nil once the player knows the loop.
-function Guide.objective(d: { [string]: any }, gear: any, phase: string): string?
+-- `dailyHaul` is config/dive.dailyHaul; `now` is server time.
+function Guide.objective(
+	d: { [string]: any },
+	gear: any,
+	phase: string,
+	dailyHaul: any?,
+	now: number?
+): string?
 	local firsts = d.firsts or {}
 	local atCamp = phase == "Camp"
 	if firsts.FirstBlockMined == nil then
@@ -53,6 +62,9 @@ function Guide.objective(d: { [string]: any }, gear: any, phase: string): string
 				else `Goal: climb out and buy the {upgrade.name}`
 		end
 		return `Next: {upgrade.name} · {Layout.shortNumber(d.coins)}/{Layout.shortNumber(upgrade.cost)} coins`
+	end
+	if dailyHaul and now and Daily.available(d, now) then
+		return `Today: your first haul of {dailyHaul.minPieces}+ ore sells for {dailyHaul.multiplier}x`
 	end
 	return nil
 end

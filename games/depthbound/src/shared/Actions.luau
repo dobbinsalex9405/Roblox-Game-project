@@ -14,6 +14,7 @@
 -- character, drawing the mine, messages) come in as callbacks.
 
 local Boosts = require("./Boosts")
+local Daily = require("./Daily")
 local Gear = require("./Gear")
 local Lamp = require("./Lamp")
 local Layout = require("./Layout")
@@ -179,18 +180,31 @@ function Actions.new(options: Options): Actions
 		return { oil = capacity, rate = 0, at = now }
 	end
 
-	-- Sells the whole pack inside an update (an Ore Boost multiplies the
-	-- price). Returns coins and pieces.
-	local function sellInto(d: { [string]: any }, ledger: any, now: number): (number, number)
+	-- Sells the whole pack inside an update (an Ore Boost and the day's first
+	-- haul multiply the price). Returns coins, pieces and whether this sale
+	-- took the daily bonus.
+	local function sellInto(d: { [string]: any }, ledger: any, now: number): (number, number, boolean)
 		local pieces = Pack.count(d.pack)
-		local coins = math.floor(Pack.value(d.pack, blocks) * Boosts.sellMultiplier(d, boosts, now))
+		local daily, isDaily = Daily.claim(d, dive.dailyHaul, pieces, now)
+		local coins = math.floor(Pack.value(d.pack, blocks) * Boosts.sellMultiplier(d, boosts, now) * daily)
 		if coins > 0 then
 			ledger:add("coins", coins, "Sell:Ore")
 		end
 		table.clear(d.pack)
 		d.stats.oreSold += pieces
 		d.stats.coinsEarned += coins
-		return coins, pieces
+		return coins, pieces, isDaily
+	end
+
+	-- After a sale lands: the daily bonus message and event.
+	local function dailyPaid(player: any, s: Session?, coins: number, now: number)
+		notify(
+			player,
+			s,
+			`Today's first haul paid {dive.dailyHaul.multiplier}x! Come back tomorrow for another.`,
+			now
+		)
+		analytics:custom(player, "Daily:FirstHaul", coins)
 	end
 
 	local function startDive(player: any, s: Session, now: number, row: number)
@@ -222,6 +236,7 @@ function Actions.new(options: Options): Actions
 	local function endDive(player: any, s: Session, now: number, ending: Ending)
 		local autoSell = options.perks(player).autoSell
 		local coins, pieces = 0, 0
+		local daily = false
 		local step: number? = nil
 		-- Walking across the top face without mining is not a dive.
 		local mined = s.diveDeepest > 0
@@ -230,7 +245,7 @@ function Actions.new(options: Options): Actions
 				d.stats.dives += 1
 			end
 			if autoSell and Pack.count(d.pack) > 0 then
-				coins, pieces = sellInto(d, ledger, now)
+				coins, pieces, daily = sellInto(d, ledger, now)
 				step = markFirst(d, "FirstSale", now)
 			end
 			return nil
@@ -240,6 +255,9 @@ function Actions.new(options: Options): Actions
 		backToCamp(player, s, now)
 		analytics:custom(player, "Dive:End", deepest, { ending })
 		if leaving then
+			if daily then
+				analytics:custom(player, "Daily:FirstHaul", coins)
+			end
 			return
 		end
 		if ending == "ClimbedOut" then
@@ -249,6 +267,9 @@ function Actions.new(options: Options): Actions
 		onboarding(player, step)
 		if pieces > 0 then
 			options.sold(player, coins, pieces)
+		end
+		if daily then
+			dailyPaid(player, s, coins, now)
 		end
 	end
 
@@ -537,12 +558,13 @@ function Actions.new(options: Options): Actions
 			return false, "not at camp"
 		end
 		local coins, pieces = 0, 0
+		local daily = false
 		local step: number? = nil
 		local ok, refusal = change(player, function(d, ledger)
 			if Pack.count(d.pack) == 0 then
 				return "Your pack is empty. Go mining!"
 			end
-			coins, pieces = sellInto(d, ledger, now)
+			coins, pieces, daily = sellInto(d, ledger, now)
 			step = markFirst(d, "FirstSale", now)
 			return nil
 		end)
@@ -552,6 +574,9 @@ function Actions.new(options: Options): Actions
 		end
 		onboarding(player, step)
 		options.sold(player, coins, pieces)
+		if daily then
+			dailyPaid(player, s, coins, now)
+		end
 		return true, nil
 	end
 

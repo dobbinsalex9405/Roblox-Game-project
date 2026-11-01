@@ -15,6 +15,7 @@ DataTemplate.template = {
 	geodes = {}, -- unopened geodes: { [geodeId] = count } (M5)
 	boosts = {}, -- { [boostId] = ends at, server Unix seconds } (see Boosts.luau)
 	oilRefills = 0, -- bought oil refills not poured yet (one pours per dive)
+	dailyHaulDay = 0, -- UTC day (see Daily.luau) the daily first-haul bonus was last paid
 	receipts = {}, -- recent purchase ids, capped (core Receipts)
 	firsts = {}, -- { [moment] = unix seconds } for the onboarding funnel
 	stats = {
