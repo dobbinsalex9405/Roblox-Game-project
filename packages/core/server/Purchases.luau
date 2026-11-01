@@ -35,6 +35,9 @@ export type CatalogItem = {
 	-- with random results must set this and `paidRandom`.
 	oddsTable: string?,
 	paidRandom: boolean?, -- refused for players PolicyService restricts
+	-- Player-facing names for the odds table's outcome ids (the shop shows
+	-- the raw id for any outcome left out).
+	oddsLabels: { [string]: string }?,
 }
 
 -- One item as the client receives it.
@@ -48,6 +51,7 @@ export type CatalogEntry = {
 	owned: boolean, -- passes only
 	blocked: boolean, -- paid random item this player may not buy
 	oddsTable: string?,
+	oddsLabels: { [string]: string }?,
 }
 
 export type Deps = {
@@ -109,6 +113,10 @@ function Purchases.start(deps: Deps): Shop
 				not item.paidRandom or item.oddsTable ~= nil,
 				`{item.key} has random results, so it needs an oddsTable to show before purchase`
 			)
+			assert(
+				item.oddsLabels == nil or item.oddsTable ~= nil,
+				`{item.key} has oddsLabels but no oddsTable`
+			)
 		end
 		items = table.clone(list)
 		byKey = {}
@@ -135,6 +143,7 @@ function Purchases.start(deps: Deps): Shop
 				owned = item.kind == "pass" and deps.passes:owns(player, item.key),
 				blocked = item.paidRandom == true and restricted,
 				oddsTable = item.oddsTable,
+				oddsLabels = item.oddsLabels,
 			})
 		end
 		return out

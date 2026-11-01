@@ -25,6 +25,7 @@ type Entry = {
 	owned: boolean,
 	blocked: boolean,
 	oddsTable: string?,
+	oddsLabels: { [string]: string }?,
 }
 
 export type Hooks = {
@@ -110,8 +111,9 @@ function ShopUi.start(hooks: Hooks)
 			local display = entry.oddsTable and oddsShown[entry.oddsTable]
 			if display then
 				UiKit.label(card, "Odds:", 18, true)
+				local labels = entry.oddsLabels or {}
 				for _, row in display.rows do
-					UiKit.label(card, `{row.id}: {row.percent}`, 16)
+					UiKit.label(card, `{labels[row.id] or row.id}: {row.percent}`, 16)
 				end
 			end
 

@@ -57,7 +57,9 @@ services.shop:setCatalog({
 	{ key = "CashPackSmall", kind = "product", name = "5K Cash", description = "Adds 5,000 cash." },
 	{ key = "DoubleCash", kind = "pass", name = "Double Cash", description = "Every sale pays double." },
 	{ key = "MysteryBait", kind = "product", name = "Mystery Bait", description = "...",
-		oddsTable = "MysteryBait", paidRandom = true },
+		oddsTable = "MysteryBait", paidRandom = true,
+		-- Optional: names to show for outcome ids (the raw id shows otherwise).
+		oddsLabels = { StormLurex3 = "3 Storm Lures" } },
 })
 ```
 
