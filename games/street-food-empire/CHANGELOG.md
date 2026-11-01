@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Shop: the shared Robux shop lists the three cash packs, Speed Boost, 2x
+  Cash and Auto-Collect, and the Studio test panel can buy and replay each
+  product. Per-experience ids go in `config/monetization.luau` under
+  `environments`. Instant Build waits for the M5 shop, which can offer it
+  only while something is being built.
+- Fixed: the server refused to start with a counter line longer than 20
+  (the line is 30 since the idle rebalance). The client draws 12 at most.
+
 - First playable (M2): a counter queue fed by each district's foot traffic,
   serving customers by hand for the whole menu, 12 stations (4 per district)
   with 3 levels each, build and upgrade timers, moving stations, 3 cook tiers
