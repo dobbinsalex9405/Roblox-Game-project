@@ -39,7 +39,14 @@ another Claude.
    touched it).
 3. A publish that failed twice in a row, or a feedback pull that failed
    twice in a row, gets the same treatment.
-4. **Trip the switch yourself** (see "Tripping the switch") if a publish is
+4. **After a publish** since the last run, follow the post-publish checks in
+   `ops/PUBLISH_CHECKS.md`: confirm the version read-back in the run
+   summary, and check that the live-join list was done for it (ask the
+   thread that published if not). The error-queue sweep needs a reader for
+   the `ErrorQueue` DataStore, which does not exist yet; until it does, use
+   the client errors attached to that day's feedback digest and say "error
+   queue not swept" in the heartbeat.
+5. **Trip the switch yourself** (see "Tripping the switch") if a publish is
    failing in a loop, CI on `main` has been red for 3 runs in a row, or a
    release that reached players cannot be rolled back.
 

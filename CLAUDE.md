@@ -45,7 +45,8 @@ cannot read it; only Claude runs can. How to trip it yourself is in
 ## How work flows
 
 1. Work on a branch, open a **draft PR**. CI must be green: format, lint,
-   tests, build, strict types (see "Commands").
+   tests, build, boot check, key flows, strict types (see "Commands"). Run
+   them locally before pushing.
 2. The **verifier** (the project thread "Playtest the games for bugs and
    gaps", Fable 5.1 at high effort) re-verifies the PR's final head with the
    playtest harnesses in `playtests/`.
@@ -64,9 +65,11 @@ every game" is the standing feedback-triage and bug-fix thread. The daily run
 ```sh
 rokit install && (cd deps && wally install)   # tools and packages
 lune run tools/test/run [filter]               # tests
-stylua packages games tools                    # format (CI runs --check)
-selene packages games tools                    # lint
+stylua packages games tools playtests          # format (CI runs --check)
+selene packages games tools playtests          # lint
 tools/build.sh all                             # build every game
+lune run tools/boot/run all --built            # boot every built game: server, join, client UI, leave
+tools/keyflows.sh all                          # play every game's main loop headless (playtests/)
 tools/typecheck.sh                             # strict types
 ```
 
@@ -94,6 +97,7 @@ tools/typecheck.sh                             # strict types
 - `ops/DAILY_RUN.md`: the daily scheduled run.
 - `ops/METRICS.md`: the games' daily counters and the studio scoreboard.
 - `ops/SHOP.md`: the shared shop and Studio test panel.
+- `ops/PUBLISH_CHECKS.md`: the gate before every publish and the checks after.
 - `games/<game>/SPEC.md`: what each game is.
 
 **Launch gate for the next wave of games:** 14 days after a launch, D1
