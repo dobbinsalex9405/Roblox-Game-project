@@ -26,6 +26,16 @@ Non-obvious choices, newest first, so a later session can trust them.
   simulator, but each game needs a grant and a once-only check, so it is a
   separate change.
 
+## 2026-11-01: Tidecatch Cove keeps the HUD Pools panel
+
+- **Feed, Sell and Unlock work from anywhere** through the HUD Pools panel,
+  as Place already did from the Bucket. In the playtest a bot spent about a
+  quarter of its time walking between dock and cove (about 13 s a round
+  trip), which is dead time on a phone. The cove still matters: it is where
+  the creatures are seen growing, and the welcome-back message points there.
+  Decided by Claude under the standing rule that design calls do not go to
+  Alex; revisit if session data shows players never visit their cove.
+
 ## 2026-11-01: Depthbound's daily return reward
 
 - **The first real haul sold each UTC day pays double** (at least 5 ore, so
