@@ -154,7 +154,9 @@ do
 	local worm = Catch.bait(fishing, "Worm")
 	local gainWorm = ev("Shallows", "Worm") - ev("Shallows", NONE)
 	if gainWorm < worm.priceCoins then
-		note(string.format("a Worm (10 coins) raises the Shallows expected value by only %.1f coins when the catch is sold Tiny: every coin bait loses money for a player who sells catches. Bait only pays when the catch goes into a pool and grows (x8 at Giant) or for journal hunting. The shop should say what the bait is for", gainWorm))
+		note(string.format("a Worm (%d coins) raises the Shallows expected value by only %.1f coins when the catch is sold Tiny: bait loses money for a player who sells catches", worm.priceCoins, gainWorm))
+	else
+		pass(string.format("a Worm (%d coins) raises the Shallows expected value by %.1f coins at Tiny prices: it pays for itself", worm.priceCoins, gainWorm))
 	end
 	-- Pool income per minute per rarity: Giant value over growth time.
 	local parts = {}
@@ -202,14 +204,13 @@ section("Casting rules")
 do
 	local h, p = fresh()
 	check(not h.actions:cast(p, "Reef", NONE), "Reef needs the Reef Rod")
-	check(string.find(lastNotice(h), "ReefRod") ~= nil, "the refusal names the rod", lastNotice(h))
-	note(`the rod refusal reads '{lastNotice(h)}' (the id, not 'Reef Rod'); same for 'You bought the ReefRod!'. Layout.displayName exists; use it in every notice`)
+	check(lastNotice(h) == "You need a Reef Rod or better to fish here.", "the refusal names the rod by its display name", lastNotice(h))
 	check(not h.actions:cast(p, "TideFlats", NONE) and lastNotice(h) == "This spot opens at low tide.", "Tide Flats closed until M4")
 	h.reachable = false
 	check(not h.actions:cast(p, "Shallows", NONE) and lastNotice(h) == "Walk onto the dock to cast here.", "must stand on the dock")
 	h.reachable = true
 	check(not h.actions:cast(p, "Shallows", "GoldenLure"), "cannot cast bait you do not own")
-	check(string.find(lastNotice(h), "out of GoldenLure") ~= nil, "the bait refusal says which bait", lastNotice(h))
+	check(string.find(lastNotice(h), "out of Golden Lure") ~= nil, "the bait refusal says which bait, by display name", lastNotice(h))
 	local ok, why = h.actions:cast(p, "Shallows", "Dynamite")
 	check(not ok and why == "unknown bait" and #h.notices == 4, "unknown bait is refused quietly")
 	check(h.actions:cast(p, "Shallows", "Worm") == true, "a Worm cast is accepted")
@@ -218,14 +219,12 @@ do
 	check(not ok and why == "casting too fast", "1 s cast cooldown")
 	h.wait(1)
 	local worms = h.get(p).bait.Worm
-	check(h.actions:cast(p, "Shallows", "Worm") == true, "recasting before the bite is allowed by the server")
-	if h.get(p).bait.Worm == worms - 1 then
-		note("recasting before the bite replaces the line and uses a second Worm; the first is wasted. The client hides the Cast prompt while a line is out, so only lag or a modified client can do it, but the server could refuse 'Your line is already out' and keep the bait")
-	end
+	ok, why = h.actions:cast(p, "Shallows", "Worm")
+	check(not ok and why == "your line is already out" and h.get(p).bait.Worm == worms, "recasting before the bite is refused and keeps the Worm (fixed in bb323f3)")
 	h.wait(fishing.biteSeconds.max + 1)
-	check(#h.bites == 1 and h.bites[1].id == 2, "only the second line bites")
+	check(#h.bites == 1 and h.bites[1].id == 1, "the first line bites")
 	ok, why = h.actions:cast(p, "Shallows", NONE)
-	check(not ok and why == "a fish is on the line", "no new cast with a fish on")
+	check(not ok and (why == "a fish is on the line" or why == "your line is already out"), "no new cast with a fish on", why)
 	-- Bite delay range.
 	local h2, p2 = fresh({ seed = 5 })
 	local minDelay, maxDelay = math.huge, 0
@@ -440,11 +439,20 @@ do
 		landed = Cove.land(d, ledger, { speciesId = "PearlWhale", kg = 950, mutation = "None", spotId = "Shallows" }, math.floor(h.time), config, NO_PERKS)
 		h.economy:commit(ledger)
 	end)
-	check(landed ~= nil and (landed :: any).soldFor == 4612, "a catch with a full bucket sells at once at the Tiny price")
-	note("a full bucket auto-sells the next catch, whatever it is: a Pearl Whale that could be 36,000 as a Giant goes for 4,612 with no choice. Offer 'swap for your cheapest bucket creature', or never auto-sell Rare and up (hold the catch card until a slot is freed)")
-	check(#h.get(p).bucket == fishing.bucketSlots, "bucket stays at 12")
+	local l = landed :: any
+	check(l ~= nil and l.soldFor == 0 and l.madeRoom ~= nil and l.madeRoom.speciesId == "SandShrimp", "a full bucket sells the cheapest bucket creature to make room for a better catch (fixed in bb323f3)")
+	local whaleKept = Cove.bucketIndex(h.get(p), l.uid) ~= nil
+	check(whaleKept and #h.get(p).bucket == fishing.bucketSlots, "the Pearl Whale is in the bucket and the bucket stays at 12")
+	-- A worse catch than everything in the bucket still sells at once.
+	local landed2 = nil
+	h.data:update(p, function(d: any)
+		local ledger = h.economy:ledger(p, d)
+		landed2 = Cove.land(d, ledger, { speciesId = "SandShrimp", kg = 0.1, mutation = "None", spotId = "Shallows" }, math.floor(h.time), config, NO_PERKS)
+		h.economy:commit(ledger)
+	end)
+	check(landed2 ~= nil and (landed2 :: any).soldFor > 0 and (landed2 :: any).madeRoom == nil, "a catch worth less than everything in the full bucket sells itself")
 	local caught, total = Cove.journalCount(h.get(p), config.species)
-	check(total == 25 and caught == 2, "journal count 2 of 25 (the injected creatures skip the journal; the landed Pearl Whale is in)")
+	check(total == 25 and caught == 3, "journal count 3 of 25 (the injected creatures skip the journal; the two landed catches are in)")
 end
 
 -- ---------------------------------------------------------------------------
@@ -495,8 +503,7 @@ do
 	check(giant == math.floor(tiny * 8) or giant == math.floor(4 * 8 * (0.8 + 0.45 * 0.5)), `Giant sells for 8x Tiny ({tiny} -> {giant})`)
 	local coins = h.get(p).coins
 	check(h.actions:sellPool(p, 1) == true and h.get(p).coins == coins + giant, "sold from the pool at Giant")
-	check(string.find(lastNotice(h), "Sold a Giant creature for") ~= nil, "pool sale notice", lastNotice(h))
-	note(`the pool sale notice says 'Sold a Giant creature for {giant} coins.' and not which creature; say 'Sold a Giant Sand Shrimp'`)
+	check(string.find(lastNotice(h), "Sold your Giant Sand Shrimp for") ~= nil, "pool sale notice names the creature", lastNotice(h))
 	local sold = h.customEvents("Pool:Sold")
 	check(#sold == 1 and sold[1][3][1] == "SandShrimp" and sold[1][3][2] == "Giant", "Pool:Sold event with species and stage")
 	check(not h.actions:sellPool(p, 1) and lastNotice(h) == "That pool is empty.", "selling an empty pool is refused")
@@ -591,7 +598,7 @@ do
 	check(not h.actions:buyRod(p, 2) and lastNotice(h) == "Not enough coins.", "Reef Rod at 100 coins is refused")
 	give(h, p, 1500)
 	check(h.actions:buyRod(p, 2) == true and h.get(p).coins == 100 and h.get(p).rodTier == 2, "Reef Rod costs 1,500")
-	check(lastNotice(h) == "You bought the ReefRod!", "rod notice", lastNotice(h))
+	check(lastNotice(h) == "You bought the Reef Rod!", "rod notice", lastNotice(h))
 	check(not h.actions:buyRod(p, 2) and lastNotice(h) == "You already have a rod at least this good.", "no second Reef Rod")
 	check(not h.actions:buyRod(p, 1), "cannot buy a worse rod")
 	local prog = h.eventsOf("progression")
@@ -620,8 +627,13 @@ do
 	-- Affordability message.
 	local h4, p4 = fresh()
 	check(not h4.actions:buyBait(p4, "GoldenLure", 1) and lastNotice(h4) == "Not enough coins.", "Golden Lure at 100 coins is refused")
-	check(h4.actions:buyBait(p4, "Worm", 10) == true and h4.get(p4).coins == 0, "10 Worms for the whole starting wallet")
-	note("Worm 10 coins, Krill 40, Glow Bait 200, Golden Lure 1,000; a new player can buy 10 worms with the 100 starting coins but earns about 6 a catch, so bait is not an early purchase. Starting worms (10) run out in minute 2 and the bots never bought more: bait needs a visible reason (journal hunting, pool value) or a lower price")
+	local wormPrice = Catch.bait(fishing, "Worm").priceCoins
+	check(h4.actions:buyBait(p4, "Worm", 10) == true and h4.get(p4).coins == 100 - 10 * wormPrice, `10 Worms cost {10 * wormPrice} of the 100 starting coins`)
+	local priceList = {}
+	for _, bt in fishing.bait do
+		table.insert(priceList, `{bt.id} {bt.priceCoins}`)
+	end
+	note("bait prices: " .. table.concat(priceList, ", ") .. "; the expected-value table above says whether each pays back at Tiny prices on the spot it suits")
 end
 
 -- ---------------------------------------------------------------------------

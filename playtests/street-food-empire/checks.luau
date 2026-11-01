@@ -37,6 +37,19 @@ Log.setSink(function() end)
 local config = Harness.config
 local economy = config.economy
 local NO_PERKS = { doubleCash = false }
+local QMAX = economy.customers.queueMax
+local function cookPerMinute(tier: string): number
+	for _, c in config.cooks.tiers do
+		if c.id == tier then
+			return c.servesPerMinute
+		end
+	end
+	error("unknown cook " .. tier)
+end
+local TR = cookPerMinute("Trainee") -- Trainee serves a minute
+local LC = cookPerMinute("LineCook")
+local TR_CART = TR * 5 / 60 -- Trainee on the level-1 cart, cash a second
+local TR_LEMON = TR * 4 / 60
 
 local counts = { pass = 0, bug = 0, note = 0 }
 local function pass(msg: string)
@@ -96,7 +109,7 @@ do
 	for _, d in config.districts do
 		traffic += d.customersPerMinute
 	end
-	note(`foot traffic 12 / 20 / 30 a minute with 1 / 2 / 3 districts; the queue (max {economy.customers.queueMax}) holds 60 s / 36 s / 24 s of arrivals`)
+	note(`foot traffic 12 / 20 / 30 a minute with 1 / 2 / 3 districts; the queue (max {QMAX}) holds {QMAX * 5} s / {QMAX * 3} s / {QMAX * 2} s of arrivals`)
 	local chefs = 0
 	for n = 0, 11 do
 		chefs += math.floor(500000 * 1.5 ^ n)
@@ -122,12 +135,12 @@ do
 	check(#econ == 1 and econ[1][1] == "Source" and econ[1][5] == "Gameplay" and econ[1][6] == "Serve", "economy event Gameplay:Serve")
 	-- Queue cap.
 	h.wait(p, 180)
-	check(Restaurant.waiting(h.get(p).queue) == economy.customers.queueMax, "after 3 minutes away the line holds 12, the rest walked on by")
-	for _ = 1, 12 do
+	check(Restaurant.waiting(h.get(p).queue) == math.min(QMAX, 36), `after 3 minutes away the line holds {math.min(QMAX, 36)} (queue max {QMAX}), the rest walked on by`)
+	for _ = 1, math.min(QMAX, 36) do
 		h.actions:serve(p)
 	end
-	check(not h.actions:serve(p), "12 serves clear the line")
-	note("the Serve prompt is one press per customer. A player who steps away for 60 s at district 1 (or 24 s with three districts) starts losing customers; nothing on screen says how many walked away")
+	check(not h.actions:serve(p), `{math.min(QMAX, 36)} serves clear the line`)
+	note(`the Serve prompt is one press per customer. A player who steps away for {QMAX * 5} s at district 1 (or {QMAX * 2} s with three districts) starts losing customers; nothing on screen says how many walked away`)
 	-- Spam.
 	local before = #h.notices
 	for _ = 1, 5 do
@@ -149,10 +162,7 @@ do
 	ok, err = h.actions:build(p, "LemonadeStand", 3)
 	check(not ok and err == "You already have that station.", "a second copy is refused")
 	ok, err = h.actions:build(p, "TacoTruck", 3)
-	check(not ok and err ~= nil and string.find(err, "Unlock") ~= nil, "a Market Row station is refused before the district: " .. tostring(err))
-	if err == "Unlock MarketRow first." then
-		note("the refusal says 'Unlock MarketRow first.' (the id, not the display name 'Market Row'); the client menu already greys those out, so only a modified client sees it")
-	end
+	check(not ok and err == "Open Market Row first.", "a Market Row station is refused before the district, by display name: " .. tostring(err))
 	ok, err = h.actions:build(p, "PretzelOven", 5)
 	check(not ok and err == "That spot is not open yet.", "spot 5 is closed with one district")
 	ok, err = h.actions:build(p, "PretzelOven", 1)
@@ -166,8 +176,7 @@ do
 	ok = h.actions:upgrade(p, 1)
 	check(ok == true and h.get(p).stations[1].level == 2 and rates(h, p).meal == 9, "upgrading the cart keeps it serving at level 1 for 10 s")
 	ok, err = h.actions:upgrade(p, 1)
-	check(not ok and err == "That station is still being built.", "a second upgrade during the first is refused: " .. tostring(err))
-	note("an upgrade in progress is refused with 'That station is still being built.'; say 'still being upgraded'")
+	check(not ok and err == "That station is still being upgraded.", "a second upgrade during the first is refused: " .. tostring(err))
 	h.wait(p, 10)
 	check(rates(h, p).meal == 14, "level 2 cart: meal 10 + 4")
 	h.actions:upgrade(p, 1)
@@ -204,11 +213,11 @@ do
 	h.give(p, 1000)
 	local ok, err = h.actions:hireCook(p, "Trainee", 1)
 	check(ok == true and h.get(p).cash == 950, "a Trainee costs 100")
-	check(math.abs(rates(h, p).registerPerSecond - 0.5) < 1e-9, "a Trainee on the cart earns 6 x 5 / 60 = 0.5 a second into the register")
+	check(math.abs(rates(h, p).registerPerSecond - TR_CART) < 1e-9, `a Trainee on the cart earns {TR} x 5 / 60 = {TR_CART} a second into the register`)
 	h.wait(p, 60)
-	check(math.abs(h.get(p).pendingCash - 30) < 1e-6, "60 s later the register holds 30")
+	check(math.abs(h.get(p).pendingCash - TR_CART * 60) < 1e-6, `60 s later the register holds {TR_CART * 60}`)
 	ok = h.actions:collect(p)
-	check(ok == true and h.get(p).cash == 980 and h.get(p).pendingCash < 1, "collect moves whole cash to the wallet")
+	check(ok == true and h.get(p).cash == 950 + math.floor(TR_CART * 60) and h.get(p).pendingCash < 1, "collect moves whole cash to the wallet")
 	local econ = h.eventsOf("economy")
 	check(econ[#econ][6] == "Collect", "economy event Gameplay:Collect")
 	ok = h.actions:collect(p)
@@ -220,9 +229,9 @@ do
 	assert(h.actions:build(p, "LemonadeStand", 2))
 	check(Restaurant.hireCost(h.get(p), config, "Trainee") == 150, "the second Trainee costs 150 (x1.5)")
 	ok = h.actions:hireCook(p, "Trainee", 2)
-	check(ok == true and rates(h, p).registerPerSecond == 0.5, "a cook on a station still being built waits (no extra income yet)")
+	check(ok == true and math.abs(rates(h, p).registerPerSecond - TR_CART) < 1e-9, "a cook on a station still being built waits (no extra income yet)")
 	h.wait(p, 5)
-	check(math.abs(rates(h, p).registerPerSecond - 0.9) < 1e-9, "once built, the Lemonade Trainee adds 6 x 4 / 60 = 0.4 a second")
+	check(math.abs(rates(h, p).registerPerSecond - (TR_CART + TR_LEMON)) < 1e-9, `once built, the Lemonade Trainee adds {TR} x 4 / 60 = {TR_LEMON} a second`)
 	check(Restaurant.hireCost(h.get(p), config, "Trainee") == 225, "the third Trainee would cost 225")
 	-- Replace with a LineCook: the Trainee leaves, no refund, next Trainee cheaper again.
 	h.give(p, 10_000)
@@ -231,14 +240,14 @@ do
 	check(ok == true and cashBefore - h.get(p).cash == 8000 and #h.get(p).cooks == 2, "a Line Cook (8,000) replaces the cart's Trainee")
 	check(Restaurant.hireCost(h.get(p), config, "Trainee") == 150, "with one Trainee left, the next costs 150 again")
 	note("replacing a cook refunds nothing and the replaced cook simply vanishes; with Trainee 100 -> Line Cook 8,000 -> Chef 500,000 that is fine, but the hire menu should say 'replaces your Trainee (no refund)'")
-	check(math.abs(rates(h, p).registerPerSecond - (12 * 5 / 60 + 0.4)) < 1e-9, "the Line Cook sells 12 a minute")
+	check(math.abs(rates(h, p).registerPerSecond - (LC * 5 / 60 + TR_LEMON)) < 1e-9, `the Line Cook sells {LC} a minute`)
 	ok, err = h.actions:hireCook(p, "Trainee", 1)
 	check(not ok, "a worse cook cannot replace a better one")
 	-- Cook during an upgrade sells at the old price.
 	h.actions:upgrade(p, 1)
-	check(math.abs(rates(h, p).registerPerSecond - (12 * 5 / 60 + 0.4)) < 1e-9, "during the cart's upgrade the Line Cook still sells at 5")
+	check(math.abs(rates(h, p).registerPerSecond - (LC * 5 / 60 + TR_LEMON)) < 1e-9, "during the cart's upgrade the Line Cook still sells at 5")
 	h.wait(p, 10)
-	check(math.abs(rates(h, p).registerPerSecond - (12 * 10 / 60 + 0.4)) < 1e-9, "after the upgrade the Line Cook sells at 10")
+	check(math.abs(rates(h, p).registerPerSecond - (LC * 10 / 60 + TR_LEMON)) < 1e-9, "after the upgrade the Line Cook sells at 10")
 	-- Auto-collect perk.
 	local h2, p2 = fresh({ perks = { doubleCash = false, autoCollect = true } })
 	h2.give(p2, 1000)
@@ -328,17 +337,17 @@ do
 	local h2 = Harness.new({ store = store, start = leftAt + 3600 })
 	h2.join(p)
 	local d = h2.get(p)
-	-- Cart Trainee: 0.5/s for 3600 s; Pretzel Trainee: 10 x 6 / 60 = 1/s from 15 s on. All at 50%.
-	local expected = (0.5 * 3600 + 1.0 * (3600 - 15)) * 0.5
+	-- Cart Trainee for 3600 s; Pretzel Trainee (10 a meal) from 15 s on. All at 50%.
+	local expected = (TR_CART * 3600 + (TR * 10 / 60) * (3600 - 15)) * 0.5
 	check(math.abs(d.pendingCash - expected) < 1e-6, string.format("an hour away pays the cooks 50%%, with the Pretzel Oven finishing 15 s in (%.1f)", expected))
-	check(#h2.welcomes == 1 and h2.welcomes[1].cash == math.floor(expected) and h2.welcomes[1].waiting == 12, "the welcome-back message says the cash and 12 waiting")
+	check(#h2.welcomes == 1 and h2.welcomes[1].cash == math.floor(expected) and h2.welcomes[1].waiting == QMAX, `the welcome-back message says the cash and {QMAX} waiting`)
 	check(d.stats.playSeconds == playBefore, "offline time does not count as play time")
 	check(d.cash == snapshot.cash and #d.stations == 2 and #d.cooks == 2, "cash, stations and cooks survive the rejoin")
 	h2.leave(p)
 	-- Away ten hours: capped at 2 h of pay.
 	local h3 = Harness.new({ store = store, start = h2.clock.now() + 10 * 3600 })
 	h3.join(p)
-	local rate = 1.5
+	local rate = TR_CART + TR * 10 / 60
 	check(math.abs(h3.get(p).pendingCash - (d.pendingCash + rate * 7200 * 0.5)) < 1e-6, "ten hours away pays for two")
 	note("offline pay is 50% of the cooks' rate for 2 h. For an attentive player the cooks are about a quarter of income, so a full offline cap is worth roughly 15 minutes of active play; a return hook, but a modest one")
 	-- A short hop between servers.
@@ -362,13 +371,16 @@ do
 	assert(h.actions:serve(p))
 	assert(h.actions:build(p, "LemonadeStand", 2))
 	h.give(p, 100_000)
+	if table.find(Restaurant.ONBOARDING, "FirstUpgrade") then
+		assert(h.actions:upgrade(p, 1))
+	end
 	assert(h.actions:hireCook(p, "Trainee", 1))
 	assert(h.actions:unlockDistrict(p))
 	local names = {}
 	for _, e in h.eventsOf("onboarding") do
 		table.insert(names, e[2])
 	end
-	check(table.concat(names, ",") == table.concat(Restaurant.ONBOARDING, ","), "serve, build, hire, unlock reports every step in order")
+	check(table.concat(names, ",") == table.concat(Restaurant.ONBOARDING, ","), "played in the listed order, every step is reported: " .. table.concat(Restaurant.ONBOARDING, ","), table.concat(names, ","))
 	-- Cook before station: a real option with 100 cash after 9 serves.
 	local h2, p2 = fresh()
 	h2.give(p2, 100)
@@ -411,7 +423,7 @@ do
 	check(h.served[1] == math.floor(5 * 1.25 * 2), "2x Cash doubles a hand serve (12)")
 	h.give(p, 1000)
 	assert(h.actions:hireCook(p, "Trainee", 1))
-	check(math.abs(rates(h, p).registerPerSecond - 1.0) < 1e-9, "2x Cash doubles the register")
+	check(math.abs(rates(h, p).registerPerSecond - 2 * TR_CART) < 1e-9, "2x Cash doubles the register")
 	note("2x Cash is a straight x2 on everything, including the rebirth climb: it roughly halves the 6 hours. Price it with that in mind at M5")
 end
 

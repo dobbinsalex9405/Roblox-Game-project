@@ -385,12 +385,13 @@ do
 	check(Pack.count(k) == 1 and (k.Gold or 0) == 1, "1 Emberite + 3 Gold keeps 1 Gold (largest remainder first): the gem is as much at risk as the rest, as the spec says")
 	-- Analytics fields.
 	local found = false
+	local expectedDropped = 3 - h.lampOuts[1].kept
 	for _, e in h.eventsOf("custom") do
 		if e[1] == "Dive:LampOut" then
-			found = e[2] == 3 and e[3][1] == "LampOut" and e[3][2] == "Layer1" and e[3][3] == "First"
+			found = e[2] == expectedDropped and e[3][1] == "LampOut" and e[3][2] == "Layer1" and e[3][3] == "First"
 		end
 	end
-	check(found, "Dive:LampOut reports dropped=3, LampOut, Layer1, First")
+	check(found, `Dive:LampOut reports dropped={expectedDropped}, LampOut, Layer1, First`)
 	check(h.get(p).firsts.FirstLampOut ~= nil, "FirstLampOut recorded")
 	-- Died.
 	h.standOn(p, 8, 8)

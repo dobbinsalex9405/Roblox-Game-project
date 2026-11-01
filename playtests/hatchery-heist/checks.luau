@@ -63,8 +63,28 @@ do
 		h2.wait(15)
 		for _, inc in table.clone(d.incubators) do h2.actions:hatch(r, inc.slot) end
 	end
-	check(table.concat(seq, ",") == "Chick,Duckling,Gosling,Turtle,Chick,Duckling", "odds/restricted", `restricted player got the listed order: {table.concat(seq, ",")}`)
-	note("odds/restricted", "a restricted player is guaranteed a Turtle (8/s) every 4th Basic egg = 200 coins per Turtle; a rolling player gets one 2% of the time. Restricted players progress ~2x faster early (fixed order is a better deal than the odds).")
+	-- Since PR #3 (43e0068) the fixed order is a cycle whose frequencies match
+	-- the odds exactly (Hatchery.fixedOrderCycle); the first eggs are the most
+	-- common outcomes.
+	local Hatchery = require("../../games/hatchery-heist/src/shared/Hatchery")
+	local egg = nil
+	for _, e in config.eggs do
+		if e.id == "BasicEgg" then egg = e end
+	end
+	local cycle = Hatchery.fixedOrderCycle(egg)
+	local counts = {}
+	for _, id in cycle do counts[id] = (counts[id] or 0) + 1 end
+	local matches = true
+	local parts = {}
+	for _, o in egg.outcomes do
+		local share = (counts[o.id] or 0) / #cycle
+		table.insert(parts, string.format("%s %d/%d", o.id, counts[o.id] or 0, #cycle))
+		if math.abs(share - o.weight / 10000) > 1e-9 then matches = false end
+	end
+	local expectedSeq = {}
+	for i = 1, 6 do table.insert(expectedSeq, cycle[i]) end
+	check(matches and table.concat(seq, ",") == table.concat(expectedSeq, ","), "odds/restricted", `restricted player got {table.concat(seq, ",")}; the cycle is {table.concat(parts, ", ")}`)
+	note("odds/restricted", `a restricted player's fixed order now matches the odds over a cycle of {#cycle} eggs (a Turtle once in {#cycle // math.max(1, counts.Turtle or 1)}); the odds card shows the wait for each creature. The old 'Turtle every 4th egg' advantage is gone`)
 end
 
 ---------------------------------------------------------------- 2. Incubators + eggs
@@ -77,7 +97,7 @@ do
 	local ok, err = h.buy(p, "BasicEgg")
 	check(not ok, "incubators", `4th egg refused with notice "{h.noticesOf(p)[#h.noticesOf(p)]}"`)
 	local d = h.get(p)
-	check(d.coins == 10000 + 50 - 150, "incubators", `coins after 3 Basic eggs = {d.coins} (expected 9900)`)
+	check(d.coins == 10000 + economy.startingCoins - 150, "incubators", `coins after 3 Basic eggs = {d.coins} (expected {10000 + economy.startingCoins - 150})`)
 	-- hatch early
 	local hok = h.actions:hatch(p, 1)
 	check(not hok, "incubators", `hatching early refused: "{h.noticesOf(p)[#h.noticesOf(p)]}"`)
@@ -188,11 +208,11 @@ do
 	local coinsBefore = h.get(p).coins
 	check(h.actions:rebirth(p), "rebirth", `rebirth with {coinsBefore} coins succeeds`)
 	d = h.get(p)
-	check(d.coins == 50 and d.rebirths == 1 and #d.creatures == 0 and #d.incubators == 1 and d.mountUid == "", "rebirth",
+	check(d.coins == economy.startingCoins and d.rebirths == 1 and #d.creatures == 0 and #d.incubators == 1 and d.mountUid == "", "rebirth",
 		`after rebirth: coins {d.coins}, rebirths {d.rebirths}, creatures {#d.creatures}, incubators kept {#d.incubators}, mount cleared`)
 	check(h.mounts[#h.mounts].speed == false, "rebirth", "player is dismounted on rebirth")
 	check(#d.rebirthArchive == 1 and #d.rebirthArchive[1].creatures == 3, "rebirth", "old creatures archived")
-	note("rebirth/balance", `rebirth 1 costs 1,000,000 and ALL leftover coins (wallet reset to 50): a player with 1.9M loses 900K extra. Cost 2: {Creatures.rebirthCost(1, economy)}, cost 3: {Creatures.rebirthCost(2, economy)}, cost 5: {Creatures.rebirthCost(4, economy)}; each gives only +25% income.`)
+	note("rebirth/balance", `rebirth 1 costs {Creatures.rebirthCost(0, economy)} and ALL leftover coins (wallet reset to {economy.startingCoins}): a player with twice that loses the rest. Cost 2: {Creatures.rebirthCost(1, economy)}, cost 3: {Creatures.rebirthCost(2, economy)}, cost 5: {Creatures.rebirthCost(4, economy)}; each gives only +25% income.`)
 	-- the egg left in the incubator still hatches after rebirth
 	h.wait(60)
 	check(h.actions:hatch(p, h.get(p).incubators[1].slot), "rebirth", "egg bought before rebirth hatches after it")
@@ -268,7 +288,7 @@ do
 		d2.creatures = { { uid = "1", speciesId = "Turtle", mutation = "None", slot = 1, eggId = "BasicEgg", hatchedAt = 0 } }
 	end)
 	h2.wait(120)
-	check(h2.get(q).coins == 50 and h2.get(q).pendingCoins == 8 * 120, "auto-collect", "without the pass the pile only grows (960 after 120s)")
+	check(h2.get(q).coins == economy.startingCoins and h2.get(q).pendingCoins == 8 * 120, "auto-collect", "without the pass the pile only grows (960 after 120s)")
 	-- Double Coins
 	h2.perksOf[q] = { doubleCoins = true, extraIncubators = false, autoCollect = false }
 	h2.wait(10)
