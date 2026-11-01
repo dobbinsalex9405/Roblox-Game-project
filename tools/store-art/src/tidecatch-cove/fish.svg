@@ -126,3 +126,17 @@
       <rect x="-56" y="12" width="102" height="12" rx="6" fill="#E9D38A" stroke="#1B1238" stroke-width="5"/>
       <circle cx="56" cy="-6" r="5" fill="#1B1238"/><path d="M52 6 q6 4 12 0" stroke="#1B1238" stroke-width="3" fill="none"/>
     </g>
+    <!-- Glow Squid (Epic): pointed mantle, two top fins, glowing tentacles -->
+    <g id="crSquid">
+      <circle cx="0" cy="26" r="40" fill="#E0B8FF" opacity="0.45"/>
+      <g stroke-linecap="round" fill="none">
+        <path d="M-22 18 q-10 20 -2 38 M-8 22 q-4 22 2 38 M8 22 q4 22 -2 38 M22 18 q10 20 2 38" stroke="#7A2FD0" stroke-width="10"/>
+        <path d="M-22 18 q-10 20 -2 38 M-8 22 q-4 22 2 38 M8 22 q4 22 -2 38 M22 18 q10 20 2 38" stroke="#F0D8FF" stroke-width="4"/>
+      </g>
+      <path d="M-20 -40 L-44 -50 L-26 -24 Z M20 -40 L44 -50 L26 -24 Z" fill="#9A45F0" stroke="#1B1238" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M0 -60 C24 -36 30 0 26 18 C10 26 -10 26 -26 18 C-30 0 -24 -36 0 -60 Z" fill="#B56BFF" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-8 -40 C-14 -26 -16 -10 -14 0" stroke="#E7C6FF" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="-10" cy="4" r="7" fill="#fff" stroke="#1B1238" stroke-width="3"/><circle cx="10" cy="4" r="7" fill="#fff" stroke="#1B1238" stroke-width="3"/>
+      <circle cx="-9" cy="5" r="3.5" fill="#1B1238"/><circle cx="11" cy="5" r="3.5" fill="#1B1238"/>
+      <circle cx="-24" cy="-20" r="3" fill="#F0D8FF"/><circle cx="20" cy="-8" r="3" fill="#F0D8FF"/>
+    </g>

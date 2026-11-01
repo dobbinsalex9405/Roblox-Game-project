@@ -78,7 +78,7 @@
     <g transform="translate(160 885)" style="--rar:#C8C8C8"><use href="#cardBase"/><use href="#crCrab" transform="translate(0 -6) scale(0.9)"/><text y="78" fill="#1B1238">COMMON</text></g>
     <g transform="translate(330 885) rotate(3)" style="--rar:#5AC85A"><use href="#cardBase"/><use href="#crStar" transform="translate(0 -10) scale(0.95)"/><text y="77" fill="#1B1238" font-size="21">UNCOMMON</text></g>
     <g transform="translate(500 885)" style="--rar:#468CFF"><use href="#cardBase"/><use href="#crTurtle" transform="translate(-4 -8) scale(0.9)"/><text y="78" fill="#FFFFFF">RARE</text></g>
-    <g transform="translate(670 885) rotate(-3)" style="--rar:#AA55FF"><use href="#cardBase"/><use href="#crOcto" transform="translate(0 -18) scale(0.95)"/><text y="78" fill="#FFFFFF">EPIC</text></g>
+    <g transform="translate(670 885) rotate(-3)" style="--rar:#AA55FF"><use href="#cardBase"/><use href="#crSquid" transform="translate(0 -8) scale(0.92)"/><text y="78" fill="#FFFFFF">EPIC</text></g>
     <g transform="translate(840 885) rotate(2)" style="--rar:#FFAA28"><use href="#cardBase"/><text y="22" font-size="96" fill="#1B1238" opacity="0.8">?</text><text y="78" fill="#1B1238" font-size="20">LEGENDARY</text></g>
   </g>
   <use href="#studioBadge" transform="translate(1510 970)"/>
