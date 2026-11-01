@@ -24,7 +24,19 @@ return {
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
 	environments = {
-		staging = { passes = {}, products = {} },
+		staging = {
+			passes = {
+				AutoCollect = 2064038784,
+				ExtraIncubators = 2063927014,
+				DoubleCoins = 2063914971,
+			},
+			products = {
+				CoinPackSmall = 3726412639,
+				ShieldRefill = 3726413289,
+				CoinPackMedium = 3726413675,
+				CoinPackLarge = 3726413903,
+			},
+		},
 		production = { passes = {}, products = {} },
 	},
 	-- Paid odds boosts. While one runs, the odds screen shows the boosted table.
