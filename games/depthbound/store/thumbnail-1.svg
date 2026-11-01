@@ -573,7 +573,11 @@
   <!-- surface and camp -->
   <rect y="240" width="1920" height="26" fill="#6A8A4A" stroke="#120C1E" stroke-width="6"/>
   <g stroke="#120C1E" stroke-width="7" stroke-linejoin="round">
-    <path d="M1600 240 L1690 130 L1780 240 Z" fill="#FF8A3A"/><path d="M1690 130 L1660 240 H1720 Z" fill="#7A3A1A"/>
+    <rect x="1540" y="150" width="14" height="90" fill="#8A5A2B"/><rect x="1660" y="150" width="14" height="90" fill="#8A5A2B"/>
+    <rect x="1520" y="110" width="174" height="80" rx="10" fill="#E8C48A"/>
+    <path d="M1540 132 H1674 M1540 152 H1650 M1540 172 H1660" stroke="#8A5A2B" stroke-width="6" stroke-linecap="round"/>
+    <rect x="1720" y="170" width="120" height="70" rx="8" fill="#FF8A3A"/><path d="M1710 170 H1850 L1836 146 H1724 Z" fill="#FFCB45"/>
+    <ellipse cx="1488" cy="240" rx="34" ry="9" fill="#41C27A"/>
     <path d="M1320 240 V140 H1440 V240 M1310 140 H1450" fill="none" stroke="#8A5A2B" stroke-width="16"/>
     <path d="M1320 240 V140 H1440 V240 M1310 140 H1450" fill="none" stroke="#120C1E" stroke-width="4" opacity="0.5"/>
     <circle cx="1380" cy="150" r="16" fill="#B9C3D6"/>

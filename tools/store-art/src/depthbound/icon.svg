@@ -22,7 +22,7 @@
     </g>
     <g style="--blk:#5D626D">
       <use href="#oreBlock" transform="translate(46 462)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
-      <use href="#oreBlock" transform="translate(136 462)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+      <use href="#oreBlock" transform="translate(136 462)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
       <use href="#oreBlock" transform="translate(376 462)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
       <use href="#oreBlock" transform="translate(466 462)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
     </g>
