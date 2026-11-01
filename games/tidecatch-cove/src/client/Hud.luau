@@ -2,6 +2,7 @@
 -- The minimal M2 interface, phone first: coins, rod and journal progress, a
 -- bait picker, short notices, the welcome-back message, the catch card (keep
 -- or sell), the bucket, and the odds card shown while standing at a dock.
+-- The Pools panel is PoolsView.
 -- Built from code; art comes after the gate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -25,6 +26,8 @@ export type Api = {
 	showOdds: (spotId: string) -> (),
 	hideOdds: () -> (),
 	toggleBucket: () -> (),
+	hideBucket: () -> (),
+	onBucketOpened: (fn: () -> ()) -> (), -- so other panels in the middle close
 }
 
 function Hud.start(ctx: Context.Context): Api
@@ -252,10 +255,17 @@ function Hud.start(ctx: Context.Context): Api
 			empty.Text = "Empty. Go fishing at a dock!"
 		end
 	end
-	bucketButton.Activated:Connect(function()
+	local bucketOpened: { () -> () } = {}
+	local function toggleBucket()
 		bucket.Visible = not bucket.Visible
+		if bucket.Visible then
+			for _, fn in bucketOpened do
+				fn()
+			end
+		end
 		renderBucket()
-	end)
+	end
+	bucketButton.Activated:Connect(toggleBucket)
 
 	ctx.on(ctx.remotes["TC:Notice"], function(text: string)
 		show(text)
@@ -344,9 +354,14 @@ function Hud.start(ctx: Context.Context): Api
 		card.Visible = false
 	end
 
-	function api.toggleBucket()
-		bucket.Visible = not bucket.Visible
-		renderBucket()
+	api.toggleBucket = toggleBucket
+
+	function api.hideBucket()
+		bucket.Visible = false
+	end
+
+	function api.onBucketOpened(fn: () -> ())
+		table.insert(bucketOpened, fn)
 	end
 
 	renderPicker()

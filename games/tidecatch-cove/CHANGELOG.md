@@ -15,6 +15,8 @@
   better rod helps; the welcome-back message ignores a restock after a server
   hop; bait retuned so it always pays (Worm 6c, Krill 30c, Glow Bait 150c,
   Golden Lure 600c, with stronger rare multipliers).
+- Pools panel: feed, sell and unlock pools from anywhere, like placing from
+  the bucket, so tending pools no longer means walking back to the cove.
 - 25 sea creatures in 5 rarities with sizes; value grows with size and stage.
 - Exact odds on every dock's board and on the Cast prompt's card, from the
   same table the server rolls (bait and rod included).

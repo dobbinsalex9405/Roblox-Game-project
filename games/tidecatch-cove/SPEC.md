@@ -37,7 +37,9 @@ is a see-through slab players wade through. Everything is built from code
    coins, +2 with the Extra Pool pass). It grows Tiny, Young, Grown, Large,
    Giant, one stage every `stageSeconds` for its rarity, and sells for more at
    each (`config/pools.luau`). Feeding adds a quarter stage at once, once every
-   `feed.cooldownSeconds` per pool. Sell from the pool at any stage.
+   `feed.cooldownSeconds` per pool. Sell from the pool at any stage. Placing
+   (from the bucket) and feeding, selling and unlocking (from the Pools
+   panel) work from anywhere; the cove's prompts do the same up close.
 6. **Away.** Pools grow by the saved clock. On rejoin, time away counts up to
    `offline.maxSeconds`; a welcome-back message says how many creatures grew
    and whether the shop restocked. A restock alone is not news after an
