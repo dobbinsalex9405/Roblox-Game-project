@@ -73,6 +73,14 @@ jobs:
         env:
           BUILD_ENVIRONMENT: production
 
+      # Pre-publish gate (ops/PUBLISH_CHECKS.md): the game must start and play through
+      # its key flows on this exact commit before anything is uploaded.
+      - name: Boot check (server start, player join, client UI)
+        run: lune run tools/boot/run --built "${{ inputs.game }}"
+
+      - name: Key flows (headless playtest)
+        run: tools/keyflows.sh "${{ inputs.game }}"
+
       - name: Publish to Production
         id: publish
         env:

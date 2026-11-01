@@ -2,6 +2,26 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Boot check and key flows gate every merge and publish
+
+- **Why.** PR #5 merged with a start-up assert in Street Food Empire's
+  `init.server` (`queueMax <= 20`, while the config said 30). CI was green: the
+  unit tests and the headless playtests exercise pure modules, and nothing ran
+  the real server entry point. The game would not have started on Staging.
+- **Boot check** (`tools/boot/`): the built `.rbxl` is loaded under Lune with a
+  thin Roblox shim and its server Scripts, a player join, the client
+  LocalScripts and the leave all run for real. Errors anywhere fail the check.
+  The shim answers only what the games use; an unknown member raises Roblox's
+  own error and the fix is to teach the shim, never to loosen the game.
+- **Key flows** (`tools/keyflows.sh`): `playtests/<game>/checks.luau` now exits
+  non-zero on a bug and runs in CI. A new game cannot be published without one.
+- **Where they run.** CI on every PR (every game, `--built` on the CI build);
+  both publish workflows on the exact file about to be uploaded, after the
+  build and before the upload. `ops/PUBLISH_CHECKS.md` defines the whole
+  pre-publish gate and the post-publish checks (version read-back, live join,
+  error-queue sweep, first-24-hours rule) and the promotion rule to Production.
+- `playtests/` is now formatted and linted like the rest of the repo.
+
 ## 2026-11-01: Shared shop and Studio test panel
 
 - **One shop and one test panel in core** (`ops/SHOP.md`), so purchase rules

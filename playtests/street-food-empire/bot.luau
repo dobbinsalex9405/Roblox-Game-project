@@ -114,7 +114,10 @@ local function roiPurchase(h: any, b: Bot): { cost: number, run: () -> any, what
 	local candidates = {}
 	local function consider(cost: number, gain: number, run: () -> any, what: string)
 		if cost <= d.cash and gain > 0 then
-			table.insert(candidates, { cost = cost, gain = gain, payback = cost / gain, run = run, what = what })
+			table.insert(
+				candidates,
+				{ cost = cost, gain = gain, payback = cost / gain, run = run, what = what }
+			)
 		end
 	end
 	local spots = Restaurant.spotCount(d.districts, config)
@@ -187,7 +190,10 @@ local function roiPurchase(h: any, b: Bot): { cost: number, run: () -> any, what
 		-- Plus the cheapest station it opens, as if it were built next.
 		local cheapest: any = nil
 		for _, station in config.stations do
-			if station.district == d.districts + 1 and (cheapest == nil or station.levels[1].cost < cheapest.levels[1].cost) then
+			if
+				station.district == d.districts + 1
+				and (cheapest == nil or station.levels[1].cost < cheapest.levels[1].cost)
+			then
 				cheapest = station
 			end
 		end

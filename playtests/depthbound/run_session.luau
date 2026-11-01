@@ -111,7 +111,9 @@ local function single(strategyName: string, seed: number, seconds: number, verbo
 			print(string.format("  refused x%d: %s", n, err))
 		end
 		print(`  exhausted rows: {b.exhausted or 0}; open-cell walks: {b.walkedOpen or 0}`)
-		print(`  climbed because: oil low {b.climbs.oil}, pack full {b.climbs.full}, nothing left {b.climbs.done} (hops out {b.climbs.hop})`)
+		print(
+			`  climbed because: oil low {b.climbs.oil}, pack full {b.climbs.full}, nothing left {b.climbs.done} (hops out {b.climbs.hop})`
+		)
 		local notices: { [string]: number } = {}
 		for _, n in h.notices do
 			notices[n] = (notices[n] or 0) + 1
@@ -124,25 +126,39 @@ local function single(strategyName: string, seed: number, seconds: number, verbo
 end
 
 print("Depthbound headless sessions")
-print(string.format("Config: lamp tiers %s s; pack tiers %s; pick cost %s", table.concat((function()
-	local t = {}
-	for _, l in gear.lamp do
-		table.insert(t, tostring(l.oilSeconds))
-	end
-	return t
-end)(), "/"), table.concat((function()
-	local t = {}
-	for _, l in gear.pack do
-		table.insert(t, tostring(l.capacity))
-	end
-	return t
-end)(), "/"), table.concat((function()
-	local t = {}
-	for _, l in gear.pick do
-		table.insert(t, tostring(l.cost))
-	end
-	return t
-end)(), "/")))
+print(string.format(
+	"Config: lamp tiers %s s; pack tiers %s; pick cost %s",
+	table.concat(
+		(function()
+			local t = {}
+			for _, l in gear.lamp do
+				table.insert(t, tostring(l.oilSeconds))
+			end
+			return t
+		end)(),
+		"/"
+	),
+	table.concat(
+		(function()
+			local t = {}
+			for _, l in gear.pack do
+				table.insert(t, tostring(l.capacity))
+			end
+			return t
+		end)(),
+		"/"
+	),
+	table.concat(
+		(function()
+			local t = {}
+			for _, l in gear.pick do
+				table.insert(t, tostring(l.cost))
+			end
+			return t
+		end)(),
+		"/"
+	)
+))
 
 -- One verbose run per strategy.
 local verboseSeeds = { greedy = 2026, cautious = 2026, fresh = 2026, hopper = 2026 }
@@ -157,7 +173,8 @@ for _, m in MILESTONES do
 	header ..= string.format(" %-13s", m)
 end
 print(header)
-local totals: { [string]: { n: number, earned: number, lampOuts: number, deepest: number, layer3: number, idle: number } } = {}
+local totals: { [string]: { n: number, earned: number, lampOuts: number, deepest: number, layer3: number, idle: number } } =
+	{}
 for _, name in { "greedy", "cautious", "fresh", "hopper" } do
 	totals[name] = { n = 0, earned = 0, lampOuts = 0, deepest = 0, layer3 = 0, idle = 0 }
 	for _, seed in { 1, 2, 3, 4, 5 } do

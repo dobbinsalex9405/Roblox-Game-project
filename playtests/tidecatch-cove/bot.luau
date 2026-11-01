@@ -50,17 +50,65 @@ export type Style = {
 
 Bot.STYLES = {
 	-- Pools the best of every catch, sells the rest, feeds, sells at Giant.
-	keeper = { name = "keeper", keep = "all", sellStage = 5, feeds = true, visitEvery = 120, bait = "ev", reserve = 50 },
+	keeper = {
+		name = "keeper",
+		keep = "all",
+		sellStage = 5,
+		feeds = true,
+		visitEvery = 120,
+		bait = "ev",
+		reserve = 50,
+	},
 	-- Only Uncommon and up go to a pool.
-	grower = { name = "grower", keep = "uncommon", sellStage = 5, feeds = true, visitEvery = 180, bait = "ev", reserve = 50 },
+	grower = {
+		name = "grower",
+		keep = "uncommon",
+		sellStage = 5,
+		feeds = true,
+		visitEvery = 180,
+		bait = "ev",
+		reserve = 50,
+	},
 	-- Only Rare and up; feeds them (feeding is worth most on slow growers).
-	rareOnly = { name = "rareOnly", keep = "rare", sellStage = 5, feeds = true, visitEvery = 300, bait = "ev", reserve = 50 },
+	rareOnly = {
+		name = "rareOnly",
+		keep = "rare",
+		sellStage = 5,
+		feeds = true,
+		visitEvery = 300,
+		bait = "ev",
+		reserve = 50,
+	},
 	-- Never uses the pools: sells every catch from the card.
-	seller = { name = "seller", keep = "none", sellStage = 5, feeds = false, visitEvery = 0, bait = "ev", reserve = 50 },
+	seller = {
+		name = "seller",
+		keep = "none",
+		sellStage = 5,
+		feeds = false,
+		visitEvery = 0,
+		bait = "ev",
+		reserve = 50,
+	},
 	-- Sells pools at Grown (x3) to turn them over fast; always buys worms.
-	flipper = { name = "flipper", keep = "all", sellStage = 3, feeds = false, visitEvery = 90, bait = "worm", reserve = 50 },
+	flipper = {
+		name = "flipper",
+		keep = "all",
+		sellStage = 3,
+		feeds = false,
+		visitEvery = 90,
+		bait = "worm",
+		reserve = 50,
+	},
 	-- Never buys bait.
-	baitless = { name = "baitless", keep = "all", sellStage = 5, feeds = true, visitEvery = 120, bait = "none", reserve = 50 },
+	baitless = {
+		name = "baitless",
+		keep = "all",
+		sellStage = 5,
+		feeds = true,
+		visitEvery = 120,
+		bait = "none",
+		reserve = 50,
+	},
 } :: { [string]: Style }
 
 local RARITY_RANK = { Common = 1, Uncommon = 2, Rare = 3, Epic = 4, Legendary = 5 }
@@ -490,7 +538,11 @@ local function wantsCove(b: State): boolean
 	if style.visitEvery > 0 and h.time - b.lastVisit >= style.visitEvery then
 		for _, pooled in d.pools do
 			local def = species[pooled.speciesId]
-			if style.feeds and Creatures.grown(pooled, now, def.rarity, pools) < Creatures.growthSeconds(def.rarity, pools) then
+			if
+				style.feeds
+				and Creatures.grown(pooled, now, def.rarity, pools)
+					< Creatures.growthSeconds(def.rarity, pools)
+			then
 				return true
 			end
 		end
@@ -560,11 +612,25 @@ end
 function Bot.printTimeline(b: State)
 	print("  min   coins   fish$  pool$  casts catch  esc  rod slots pooled poolVal bucket journal worms")
 	for _, r in b.timeline do
-		print(string.format(
-			"  %3d %7d %7d %6d  %5d %5d %4d  %3d  %4d  %5d  %6d  %5d  %5d  %5d",
-			r.minute, r.coins, r.fish, r.pool, r.casts, r.catches, r.escapes, r.rod, r.slots, r.pooled,
-			r.poolValue, r.bucket, r.journal, r.worms
-		))
+		print(
+			string.format(
+				"  %3d %7d %7d %6d  %5d %5d %4d  %3d  %4d  %5d  %6d  %5d  %5d  %5d",
+				r.minute,
+				r.coins,
+				r.fish,
+				r.pool,
+				r.casts,
+				r.catches,
+				r.escapes,
+				r.rod,
+				r.slots,
+				r.pooled,
+				r.poolValue,
+				r.bucket,
+				r.journal,
+				r.worms
+			)
+		)
 	end
 end
 
@@ -583,9 +649,26 @@ function Bot.summary(b: State): string
 	end
 	return string.format(
 		"coins %d (fish sales %d, pool sales %d; spent rod %d, pools %d, bait %d), casts %d, catches %d, escapes %d, too-fast %d, swaps %d, auto-sold %d, rod %d, pools %d/%d, journal %d/25, walked %ds, reeling %ds, waiting %ds; %s",
-		d.coins, b.earned.fish, b.earned.pool, b.spent.rod, b.spent.pool, b.spent.bait,
-		b.casts, b.catches, b.escapes, b.tooFast, b.swaps, b.autoSold, d.rodTier, #d.pools, d.poolSlots, journal,
-		b.walked, b.reeling, b.waiting, table.concat(parts, ", ")
+		d.coins,
+		b.earned.fish,
+		b.earned.pool,
+		b.spent.rod,
+		b.spent.pool,
+		b.spent.bait,
+		b.casts,
+		b.catches,
+		b.escapes,
+		b.tooFast,
+		b.swaps,
+		b.autoSold,
+		d.rodTier,
+		#d.pools,
+		d.poolSlots,
+		journal,
+		b.walked,
+		b.reeling,
+		b.waiting,
+		table.concat(parts, ", ")
 	)
 end
 

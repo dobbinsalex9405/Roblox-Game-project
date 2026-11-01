@@ -177,7 +177,10 @@ local function reachable(h: any, b: Bot, d: any): { { x: number, y: number, z: n
 				local x, y, z = b.x + dx, b.row + dy, b.z + dz
 				if y >= 1 and h.grid:isExposed(x, y, z) and canMineRow(d, y) then
 					if Layout.distance(root, Layout.blockCenter(mine, x, y, z)) <= dive.reach then
-						table.insert(out, { x = x, y = y, z = z, value = blocks[h.grid:blockAt(x, y, z)].value })
+						table.insert(
+							out,
+							{ x = x, y = y, z = z, value = blocks[h.grid:blockAt(x, y, z)].value }
+						)
 					end
 				end
 			end
@@ -393,7 +396,11 @@ local function act(h: any, b: Bot)
 				for _, t in dirs do
 					local nx, nz = c.x + t[1], c.z + t[2]
 					local k = key(nx, nz)
-					if h.grid:inBounds(nx, b.row, nz) and not h.grid:isSolid(nx, b.row, nz) and not seen[k] then
+					if
+						h.grid:inBounds(nx, b.row, nz)
+						and not h.grid:isSolid(nx, b.row, nz)
+						and not seen[k]
+					then
 						seen[k] = true
 						cameFrom[k] = key(c.x, c.z)
 						table.insert(queue, { x = nx, z = nz })
