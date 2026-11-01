@@ -27,7 +27,8 @@ Studio, Roblox shows a test purchase window and charges nothing.
 ## Real purchases (Staging, then Production)
 
 1. Create the passes and developer products on the experience in the Creator
-   Hub (prices are set there, and need Alex's approval).
+   Hub, with the name, Robux price and description from the game's
+   `listings` (the table in `ops/PRICING.md`).
 2. Put each id under `environments.staging` (or `.production`) in the game's
    `config/monetization.luau`. Keys you leave out stay 0 there, and an item
    with id 0 is never prompted.

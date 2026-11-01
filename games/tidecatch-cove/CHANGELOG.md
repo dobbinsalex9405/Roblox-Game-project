@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Robux prices and Roblox listings for every pass and product, on the
+  studio price ladder (ops/PRICING.md). The Storm Lure Pack is now 4 lures
+  (was 5), so at the same 25 Robux Mystery Bait is never the worse deal.
+
 - Robux shop wired into the core's shared shop and Studio test panel: Bait
   Pack, Mystery Bait (odds shown first, policy-checked), Growth Boost,
   Restock Skip, and the Auto-reel, Extra Pools and Sell Multiplier passes.
