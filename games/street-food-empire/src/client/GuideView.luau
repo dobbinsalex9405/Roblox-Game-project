@@ -143,6 +143,7 @@ function GuideView.start(ctx: Context.Context)
 
 	local targetPart: BasePart? = nil
 	local done = false
+	local render: RBXScriptConnection? = nil
 
 	-- The goal changes with cash and the queue; a few times a second is plenty.
 	task.spawn(function()
@@ -169,12 +170,20 @@ function GuideView.start(ctx: Context.Context)
 			end
 			task.wait(0.25)
 		end
-		panel.Visible = false
+		-- The guide is finished for good: take it all down.
 		targetPart = nil
+		if render then
+			render:Disconnect()
+		end
+		gui:Destroy()
+		anchor:Destroy()
+		if from then
+			from:Destroy()
+		end
 	end)
 
 	-- Arrow bounce and beam end, every frame.
-	RunService.RenderStepped:Connect(function()
+	render = RunService.RenderStepped:Connect(function()
 		local part = targetPart
 		if part == nil then
 			arrow.Enabled = false
