@@ -1,9 +1,9 @@
 --!strict
 -- Registers developer products with the core's receipt handler. A product
 -- whose id is still 0 has not been created on Roblox yet and is skipped.
--- Products that depend on M2 gameplay (Instant Hatch, Premium Egg, Luck Boost)
--- are registered when that gameplay lands, so nothing can be sold that the
--- game cannot deliver.
+-- Instant Hatch, Premium Egg and Luck Boost are registered with the M5 shop,
+-- once Alex approves prices, so nothing can be sold that the game cannot
+-- deliver.
 
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

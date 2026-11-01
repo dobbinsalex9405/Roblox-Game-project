@@ -1,23 +1,36 @@
 --!strict
--- Hatchery Heist server start-up: validate config, start the core, wire the shop.
--- Gameplay (conveyor, incubators, hatching, collecting, rebirth) arrives in M2.
+-- Hatchery Heist server start-up: validate config, build the map, start the
+-- core, then wire the base loop (Actions) to remotes, the map and a tick.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Workspace = game:GetService("Workspace")
 
 local Core = ReplicatedStorage.Core
 local Config = require(Core.Config)
+local Log = require(Core.Log)
 local Net = require(Core.Net)
 local Odds = require(Core.Odds)
 local Schema = require(Core.Schema)
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 
 local Shared = ReplicatedStorage.Shared
+local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
 local DataTemplate = require(Shared.DataTemplate)
 local Eggs = require(Shared.Eggs)
+local Hatchery = require(Shared.Hatchery)
+local Layout = require(Shared.Layout)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
+
+local Mounts = require(script.Mounts)
+local World = require(script.World)
+
+local TICK_SECONDS = 10 -- income is added to the pending pile this often
+
+local log = Log.new("Game")
 
 local GameConfig = ReplicatedStorage.GameConfig
 local raw = {
@@ -36,6 +49,13 @@ Config.load(Schemas.sections(raw))
 
 local economy = Config.get("economy")
 local monetization = Config.get("monetization")
+local config = { economy = economy, creatures = Config.get("creatures"), eggs = Config.get("eggs") }
+assert(
+	economy.incubators.maxSlots + economy.incubators.passBonusSlots <= Layout.INCUBATOR_POSITIONS,
+	"the map has fewer incubators than maxSlots + passBonusSlots"
+)
+assert(economy.creaturePads <= 20, "the map has 20 creature pads")
+
 -- Coin packs make coins Robux-bought currency, so coin eggs count as paid random items.
 local sellsCurrency = false
 for key in monetization.products do
@@ -44,7 +64,84 @@ for key in monetization.products do
 	end
 end
 
-local services = CoreServer.start({
+World.build()
+Mounts.start()
+
+local services: CoreServer.Services
+local actions: Actions.Actions? = nil
+
+local function perks(player: Player): Actions.Perks
+	return {
+		doubleCoins = services.passes:owns(player, "DoubleCoins"),
+		extraIncubators = services.passes:owns(player, "ExtraIncubators"),
+		autoCollect = services.passes:owns(player, "AutoCollect"),
+	}
+end
+
+-- Redraws a player's base from their data (at most once per frame).
+local pendingSync: { [Player]: boolean } = {}
+local function syncBase(player: Player)
+	if pendingSync[player] then
+		return
+	end
+	pendingSync[player] = true
+	task.defer(function()
+		pendingSync[player] = nil
+		local index = World.plotOf(player)
+		local d = services.data:get(player)
+		if index and d then
+			local p = perks(player)
+			World.sync(index, d, config, Hatchery.slotCount(d, economy, p))
+		end
+	end)
+end
+
+local function rideFor(player: Player, speed: number?): Mounts.Ride?
+	local d = services.data:get(player)
+	if speed == nil or d == nil then
+		return nil
+	end
+	local creature = Hatchery.creatureByUid(d, d.mountUid)
+	local species = creature and config.creatures.species[creature.speciesId]
+	if species == nil then
+		return nil
+	end
+	return { speed = speed, speciesId = creature.speciesId, rarity = species.rarity }
+end
+
+local function onPlayerReady(player: Player)
+	-- start() returns before any player finishes loading (loading yields), but
+	-- guard anyway so a fast load can never see actions unset.
+	while actions == nil do
+		task.wait()
+	end
+	local index = World.claim(player)
+	if index == nil then
+		log:error("no free base; set the server size to 8", { userId = player.UserId })
+		player:Kick("This server is full. Please join another one.")
+		return
+	end
+	player:SetAttribute("PaidRandomRestricted", not services.policy:paidRandomAllowed(player))
+	player.CharacterAdded:Connect(function(character: Model)
+		character:WaitForChild("HumanoidRootPart")
+		World.sendHome(player)
+	end)
+	World.sendHome(player)
+	local loop = actions :: Actions.Actions
+	loop:join(player)
+	syncBase(player)
+end
+
+local function onPlayerLeaving(player: Player)
+	if actions then
+		actions:leave(player)
+	end
+	Mounts.set(player, nil)
+	World.release(player)
+	pendingSync[player] = nil
+end
+
+services = CoreServer.start({
 	game = "hatchery-heist",
 	build = Build.commit,
 	dataStoreName = "PlayerData_v1",
@@ -52,8 +149,86 @@ local services = CoreServer.start({
 	migrations = DataTemplate.migrations,
 	currencies = { coins = { field = "coins", max = economy.coinsMax } },
 	passes = monetization.passes,
-	oddsTables = Eggs.oddsTables(Config.get("eggs"), sellsCurrency),
+	oddsTables = Eggs.oddsTables(config.eggs, sellsCurrency),
 	remotes = Remotes,
+	onPlayerReady = onPlayerReady,
+	onPlayerLeaving = onPlayerLeaving,
 })
 
+local function fire(remote: any, player: Player, ...: any)
+	if player.Parent == Players then
+		services.net:fire(remote, player, ...)
+	end
+end
+
+local ready: Actions.Actions = Actions.new({
+	data = services.data,
+	economy = services.economy,
+	odds = services.odds,
+	policy = services.policy,
+	analytics = services.analytics,
+	config = config,
+	sellsCurrency = sellsCurrency,
+	perks = perks,
+	now = os.time,
+	serverTime = function()
+		return Workspace:GetServerTimeNow()
+	end,
+	plotOf = World.plotOf,
+	notify = function(player: Player, text: string)
+		fire(Remotes["HH:Notice"], player, text)
+	end,
+	hatched = function(player: Player, speciesId: string)
+		fire(Remotes["HH:Hatched"], player, speciesId)
+	end,
+	welcome = function(player: Player, coins: number, readyEggs: number)
+		fire(Remotes["HH:WelcomeBack"], player, coins, readyEggs)
+	end,
+	mount = function(player: Player, speed: number?)
+		Mounts.set(player, rideFor(player, speed))
+	end,
+})
+actions = ready
+
+services.data:onChanged(function(player: Player)
+	syncBase(player)
+end)
+
+local net = services.net
+net:on(Remotes["HH:BuyEgg"], function(player: Player, index: number)
+	ready:buyEgg(player, index)
+end)
+net:on(Remotes["HH:Hatch"], function(player: Player, slot: number)
+	ready:hatch(player, slot)
+end)
+net:on(Remotes["HH:BuySlot"], function(player: Player)
+	ready:buySlot(player)
+end)
+net:on(Remotes["HH:Collect"], function(player: Player)
+	ready:collect(player)
+end)
+net:on(Remotes["HH:Rebirth"], function(player: Player)
+	ready:rebirth(player)
+end)
+net:on(Remotes["HH:Ride"], function(player: Player, uid: string)
+	ready:ride(player, uid)
+end)
+net:on(Remotes["HH:Dismount"], function(player: Player)
+	ready:dismount(player)
+end)
+
 require(script.Shop).register(services, Config)
+
+-- Income tick: adds earnings to each player's pending pile, runs Auto-Collect
+-- and redraws bases (a pass bought mid-session can unlock incubators).
+task.spawn(function()
+	while true do
+		task.wait(TICK_SECONDS)
+		for _, player in Players:GetPlayers() do
+			if services.data:isLoaded(player) and World.plotOf(player) then
+				ready:tick(player)
+				syncBase(player)
+			end
+		end
+	end
+end)
