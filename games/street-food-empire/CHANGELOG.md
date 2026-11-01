@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- First-session guide: a goal line under the cash bar, plus a gold arrow and
+  beam to the place to go, from the first customer to opening Market Row.
+  It follows the onboarding funnel, then offers the cheapest next station,
+  upgrade or cook, so the save for Market Row is a run of small goals.
+- Store page: title, description and art brief in `STORE.md`.
+
 - Shop: the shared Robux shop lists the three cash packs, Speed Boost, 2x
   Cash and Auto-Collect, and the Studio test panel can buy and replay each
   product. Per-experience ids go in `config/monetization.luau` under

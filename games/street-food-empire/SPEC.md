@@ -56,6 +56,15 @@ each client draws them: the counter queue on every plot and one walk-up
 customer at each station with a working cook. This keeps the server light with
 8 busy restaurants.
 
+## First session
+
+`src/shared/Guide.luau` gives a new player one goal at a time, shown as a
+line under the cash bar with a gold arrow and beam to the place to go: serve
+the first customer, build a second station, upgrade, hire a cook, then the
+cheapest next station, upgrade or cook until Market Row opens. It points at
+the register when the register holds enough to matter. See `STORE.md` for the
+first-minute timeline.
+
 ## Pacing
 
 Tuned to lean idle: cooks earn a real share, so a player who only looks in
