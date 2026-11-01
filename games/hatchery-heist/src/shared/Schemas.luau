@@ -149,6 +149,16 @@ return function(Schema: any, Odds: any)
 				coins = Schema.optional(Schema.integer({ min = 1 })),
 			})
 		),
+		-- Ids per experience (see packages/core/src/Monetization.luau).
+		environments = Schema.optional(
+			Schema.map(
+				Schema.oneOf({ "dev", "staging", "production" }),
+				Schema.record({
+					passes = Schema.optional(Schema.map(id, productId)),
+					products = Schema.optional(Schema.map(id, productId)),
+				})
+			)
+		),
 		boosts = Schema.map(
 			id,
 			Schema.record({
