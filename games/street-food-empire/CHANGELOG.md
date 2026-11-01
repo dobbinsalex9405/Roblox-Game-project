@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Robux prices and Roblox listings (name, price, description) for every
+  pass and product, on the studio price ladder (ops/PRICING.md).
+
 - First-session guide: a goal line under the cash bar, plus a gold arrow and
   beam to the place to go, from the first customer to opening Market Row.
   It follows the onboarding funnel, then offers the cheapest next station,

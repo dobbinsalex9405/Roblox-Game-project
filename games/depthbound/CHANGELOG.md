@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Robux prices and Roblox listings (name, price, description) for every
+  pass and product, on the studio price ladder (ops/PRICING.md).
+
 - Daily first haul: the first sale of 5+ ore each UTC day pays double
   (stacks with an Ore Boost, Auto-Sell included); the goal line shows it
   while it is waiting. Save data v1 gains `dailyHaulDay`.
