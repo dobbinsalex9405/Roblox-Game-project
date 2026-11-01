@@ -4,5 +4,10 @@
     "dev": { "universeId": 0, "placeId": 0 },
     "staging": { "universeId": 0, "placeId": 0 },
     "production": { "universeId": 0, "placeId": 0 }
+  },
+  "tidecatch-cove": {
+    "dev": { "universeId": 0, "placeId": 0 },
+    "staging": { "universeId": 0, "placeId": 0 },
+    "production": { "universeId": 0, "placeId": 0 }
   }
 }

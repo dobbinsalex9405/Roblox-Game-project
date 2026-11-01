@@ -2,6 +2,49 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Tidecatch Cove first playable (milestone M2)
+
+- **One odds table per spot and bait; the rod is a boost.** Bait multiplies
+  the spot's weights by rarity and is rescaled to 10,000 at start-up, so each
+  table is exact. The rod is applied with the core's `setBoosts`, so the dock
+  boards, the odds card and the bite all read one table and update the moment
+  a rod is bought.
+- **The catch is rolled at the bite, on the server.** The client learns only
+  the rarity (to set the minigame's difficulty) until the fish is landed.
+- **The reel is checked by time, not watched.** The minigame runs on the
+  client (`src/shared/Reel.luau`, the same code the tests play), and the
+  server rejects a catch reported sooner than a human reaction plus a perfect
+  fill (`Reel.minSeconds`). The client never starts the bar before the
+  reaction time, so honest players are never rejected. One line at a time, a
+  1 s cast cooldown and a distance check cover the rest.
+- **Free casts are not paid random items.** Tidecatch sells no coins for
+  Robux, so casts with no bait or coin-bought bait are free rolls. A bait
+  marked `robux` (M5 bait packs) turns every cast with that bait type into a
+  paid roll through `Odds.rollPaid`, refused for restricted players before
+  the bait is used. If coin packs are ever added, every bait cast becomes
+  paid. Verify this reading on the Creator Hub before M5, as the Wave 1 plan asks.
+- **Offline growth uses the saved clock and is folded in on join.** Time away
+  counts up to `pools.offline.maxSeconds` (3 hours, more than any creature
+  needs to reach Giant today), then each pool's timer is moved forward so the
+  rest of the absence can never count later. Feeding adds growth seconds on
+  top (`fed`), so growth is pure arithmetic over saved numbers.
+- **Starting bait is given in code, not the template.** The core refills
+  missing template keys on load, so a template `bait = { Worm = 10 }` would
+  hand back worms every time a player used them up.
+- **A full bucket sells the new catch at once** rather than refusing it, so a
+  reeled fish is never wasted. The catch card says so.
+- **Onboarding steps are only the moments that must happen in order** (Joined,
+  FirstCast, FirstCatch, FirstPlaced, FirstGrowth); the core drops
+  out-of-order steps, and a first sale can come before or after a first
+  placement, so it is the custom event `Onboarding:FirstSale`.
+- **Leaderboards ("biggest catch today") wait for M4** with the tide and the
+  journal pages; the save already records each player's biggest catch.
+- **Pacing (first tuning, for the closed test).** A simulated player catches
+  about 6 fish a minute, earns about 1,000 coins in the first 10 minutes and
+  reaches the Reef Rod (1,500) in 25 to 40 minutes. A simulated human (0.2 s
+  reaction) lands almost every Common and Rare with the starting rod, and
+  Legendaries need a better rod.
+
 ## 2026-11-01: Hatchery Heist first playable (milestone M2)
 
 - **The conveyor is a schedule, not physics.** Egg n appears at

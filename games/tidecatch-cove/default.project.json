@@ -1,0 +1,80 @@
+{
+  "name": "TidecatchCove",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Core": {
+        "$path": "../../packages/core/src"
+      },
+      "CoreClient": {
+        "$path": "../../packages/core/client"
+      },
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "GameConfig": {
+        "$path": "config"
+      }
+    },
+    "ServerScriptService": {
+      "CoreServer": {
+        "$path": "../../packages/core/server"
+      },
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "ServerStorage": {
+      "ServerPackages": {
+        "$path": "../../ServerPackages"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Workspace": {
+      "Baseplate": {
+        "$className": "Part",
+        "$properties": {
+          "Anchored": true,
+          "Size": [
+            512,
+            20,
+            512
+          ],
+          "Position": [
+            0,
+            -10,
+            0
+          ],
+          "Material": "Sand",
+          "Color": [
+            0.86,
+            0.79,
+            0.6
+          ]
+        }
+      },
+      "SpawnLocation": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "Size": [
+            12,
+            1,
+            12
+          ],
+          "Position": [
+            0,
+            0.5,
+            0
+          ]
+        }
+      }
+    }
+  }
+}
