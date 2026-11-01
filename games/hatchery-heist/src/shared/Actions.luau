@@ -72,6 +72,26 @@ function Actions.new(options: Options): Actions
 	-- Conveyor eggs each player has bought recently: { [player] = { [index] = true } }.
 	local boughtOnBelt: { [any]: { [number]: boolean } } = {}
 	local lastAutoCollect: { [any]: number } = {}
+	-- Storage auto-sales are reported at most once per SOLD_NOTICE_SECONDS,
+	-- summed, so they never drown out other notices.
+	local SOLD_NOTICE_SECONDS = 20
+	type SoldNotice = { at: number, count: number, coins: number, what: string }
+	local soldNotice: { [any]: SoldNotice } = {}
+
+	local function flushSold(player: any, now: number, force: boolean)
+		local pending = soldNotice[player]
+		if pending == nil or pending.count == 0 then
+			return
+		end
+		if not force and now - pending.at < SOLD_NOTICE_SECONDS then
+			return
+		end
+		local what = if pending.count == 1 then pending.what else `{pending.count} creatures`
+		options.notify(player, `Storage is full: sold {what} for {pending.coins} coins.`)
+		pending.at = now
+		pending.count = 0
+		pending.coins = 0
+	end
 
 	local function perSecond(d: Hatchery.Data, player: any): number
 		local perks = options.perks(player)
@@ -169,15 +189,18 @@ function Actions.new(options: Options): Actions
 		local now = options.now()
 		local autoCollect = options.perks(player).autoCollect
 			and now - (lastAutoCollect[player] or now) >= economyConfig.autoCollectSeconds
+		local step: number? = nil
 		change(player, function(d, ledger)
-			if autoCollect then
-				Hatchery.collect(d, ledger)
+			if autoCollect and Hatchery.collect(d, ledger) > 0 then
+				step = Hatchery.markFirst(d, "FirstCollect", now)
 			end
 			return nil
 		end)
 		if autoCollect then
 			lastAutoCollect[player] = now
 		end
+		onboarding(player, step)
+		flushSold(player, now, false)
 	end
 
 	-- Call when the player leaves, before their data is released.
@@ -187,6 +210,7 @@ function Actions.new(options: Options): Actions
 		end)
 		boughtOnBelt[player] = nil
 		lastAutoCollect[player] = nil
+		soldNotice[player] = nil
 	end
 
 	function actions.buyEgg(_self: Actions, player: any, index: number): (boolean, string?)
@@ -254,53 +278,81 @@ function Actions.new(options: Options): Actions
 		local creature: any = nil
 		local sold: { any } = {}
 		local step: number? = nil
+		local fullStep: number? = nil
+		local now = options.now()
 		local ok, err = change(player, function(d, ledger)
 			local refusal: string?
-			creature, refusal, sold =
-				Hatchery.hatch(d, ledger, slot, options.now(), config.creatures, economyConfig)
+			creature, refusal, sold = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
 			if creature then
-				step = Hatchery.markFirst(d, "FirstHatch", options.now())
+				step = Hatchery.markFirst(d, "FirstHatch", now)
+				if Hatchery.padsFull(d, economyConfig.creaturePads) then
+					fullStep = Hatchery.markFirst(d, "PadsFull", now)
+				end
 			end
 			return refusal
 		end)
 		if ok and creature then
 			onboarding(player, step)
+			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
 			options.hatched(player, creature.speciesId)
 			if #sold > 0 then
-				local coins = 0
+				local pending: SoldNotice = soldNotice[player]
+					or { at = -math.huge, count = 0, coins = 0, what = "" }
+				soldNotice[player] = pending
 				for _, c in sold do
-					coins += Hatchery.sellValue(c, config.creatures, economyConfig)
+					pending.coins += Hatchery.sellValue(c, config.creatures, economyConfig)
 				end
-				local what = if #sold == 1 then sold[1].speciesId else `{#sold} creatures`
-				options.notify(player, `Storage is full: sold {what} for {coins} coins.`)
+				pending.count += #sold
+				pending.what = sold[1].speciesId
+				flushSold(player, now, false)
 			end
 		end
 		return ok, err
 	end
 
 	function actions.buySlot(_self: Actions, player: any): (boolean, string?)
-		return change(player, function(d, ledger)
+		local step: number? = nil
+		local ok, err = change(player, function(d, ledger)
 			local done, refusal = Hatchery.buySlot(d, ledger, economyConfig)
+			if done then
+				step = Hatchery.markFirst(d, "FirstSlot", options.now())
+			end
 			return if done then nil else refusal
 		end)
+		if ok then
+			onboarding(player, step)
+		end
+		return ok, err
 	end
 
 	function actions.collect(_self: Actions, player: any): (boolean, string?)
-		return change(player, function(d, ledger)
-			Hatchery.collect(d, ledger)
+		local step: number? = nil
+		local ok, err = change(player, function(d, ledger)
+			if Hatchery.collect(d, ledger) > 0 then
+				step = Hatchery.markFirst(d, "FirstCollect", options.now())
+			end
 			return nil
 		end)
+		if ok then
+			onboarding(player, step)
+		end
+		return ok, err
 	end
 
 	function actions.rebirth(_self: Actions, player: any): (boolean, string?)
 		local level = 0
+		local step: number? = nil
 		local ok, err = change(player, function(d, ledger)
 			local done, refusal = Hatchery.rebirth(d, ledger, economyConfig)
 			level = d.rebirths
+			if done then
+				step = Hatchery.markFirst(d, "FirstRebirth", options.now())
+			end
 			return if done then nil else refusal
 		end)
 		if ok then
+			onboarding(player, step)
 			analytics:progression(player, "Rebirth", "Complete", level)
 			options.mount(player, nil)
 		end

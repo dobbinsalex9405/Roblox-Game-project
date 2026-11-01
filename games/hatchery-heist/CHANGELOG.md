@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Playtest fixes:
+  - A refused egg purchase no longer leaves an invisible egg on the belt. The
+    egg dims until the server answers (`HH:EggResult`).
+  - Storage auto-sale notices are summed and sent at most every 20 s.
+  - Only creatures on a pad can be ridden.
+  - The fixed order for restricted players matches the odds exactly (a
+    Turtle once in 50 Basic eggs, not once in 4). The odds card shows the
+    wait for each creature.
+  - Onboarding funnel gains FirstCollect, FirstSlot, PadsFull and
+    FirstRebirth.
 - Raids and defenses (M4): steal one creature at a time from a rival base and
   carry it home at carry speed; the owner, the guard or a snare takes it back.
   Shield pylon (free, 90 s, 5-minute recharge), Snare and Slime traps, decoy

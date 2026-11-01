@@ -35,6 +35,12 @@ return function(Net: any, Schema: any)
 		["HH:BuyDecoy"] = Net.toServer("HH:BuyDecoy", { spot }, { count = 2, window = 1 }),
 		["HH:Guard"] = Net.toServer("HH:Guard", { uid }, { count = 2, window = 1 }),
 
+		-- The answer to HH:BuyEgg: belt egg `index`, and whether it was bought.
+		-- The client hides the egg only once this says yes.
+		["HH:EggResult"] = Net.toClient(
+			"HH:EggResult",
+			{ Schema.integer({ min = 0, max = 2 ^ 40 }), Schema.boolean() }
+		),
 		-- A short message for the player (a refusal, a reward).
 		["HH:Notice"] = Net.toClient("HH:Notice", { text }),
 		-- An egg hatched: species id.

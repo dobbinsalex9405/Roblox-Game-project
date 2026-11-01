@@ -32,7 +32,43 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 
 	-- shown[plot][index] = egg part
 	local shown: { [number]: { [number]: Part } } = {}
+	-- Own-belt eggs bought (hidden) or waiting for the server's answer.
 	local bought: { [number]: boolean } = {}
+	local waiting: { [number]: boolean } = {}
+	local ANSWER_TIMEOUT = 3 -- seconds before an unanswered purchase is shown again
+
+	local function ownEgg(index: number): Part?
+		local _, ownPlot = ctx.plot()
+		local eggs = ownPlot and shown[ownPlot]
+		return eggs and eggs[index]
+	end
+
+	-- Shows the egg and its prompt again after a refusal (or no answer).
+	local function restore(index: number)
+		waiting[index] = nil
+		local egg = ownEgg(index)
+		if egg == nil or bought[index] then
+			return
+		end
+		egg.Transparency = 0
+		local prompt = egg:FindFirstChild("Buy") :: ProximityPrompt?
+		if prompt then
+			prompt.Enabled = OddsView.ready(egg:GetAttribute("EggId") :: string)
+		end
+	end
+
+	ctx.on(ctx.remotes["HH:EggResult"], function(index: number, ok: boolean)
+		if ok then
+			waiting[index] = nil
+			bought[index] = true
+			local egg = ownEgg(index)
+			if egg then
+				egg.Transparency = 1
+			end
+		else
+			restore(index)
+		end
+	end)
 
 	local function makeEgg(index: number, eggId: string, own: boolean): Part
 		local egg = Instance.new("Part")
@@ -58,13 +94,19 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 			prompt.Enabled = OddsView.ready(eggId)
 			prompt:SetAttribute("HHEggId", eggId)
 			prompt.Triggered:Connect(function()
-				if bought[index] then
+				if bought[index] or waiting[index] then
 					return
 				end
-				bought[index] = true
-				egg.Transparency = 1
+				-- Dim it until the server answers; hidden only once bought.
+				waiting[index] = true
+				egg.Transparency = 0.6
 				prompt.Enabled = false
 				ctx.fire(ctx.remotes["HH:BuyEgg"], index)
+				task.delay(ANSWER_TIMEOUT, function()
+					if waiting[index] then
+						restore(index)
+					end
+				end)
 			end)
 			prompt.Parent = egg
 		end
@@ -76,7 +118,7 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 		for _, eggs in shown do
 			for index, egg in eggs do
 				local prompt = egg:FindFirstChild("Buy") :: ProximityPrompt?
-				if prompt and not bought[index] then
+				if prompt and not bought[index] and not waiting[index] then
 					prompt.Enabled = OddsView.ready(egg:GetAttribute("EggId") :: string)
 				end
 			end
@@ -119,6 +161,7 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 					current[index] = nil
 					if plot == ownPlot then
 						bought[index] = nil
+						waiting[index] = nil
 					end
 				end
 			end

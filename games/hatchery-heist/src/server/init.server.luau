@@ -269,7 +269,8 @@ end)
 
 local net = services.net
 net:on(Remotes["HH:BuyEgg"], function(player: Player, index: number)
-	ready:buyEgg(player, index)
+	local bought = ready:buyEgg(player, index)
+	fire(Remotes["HH:EggResult"], player, index, bought)
 end)
 net:on(Remotes["HH:Hatch"], function(player: Player, slot: number)
 	ready:hatch(player, slot)

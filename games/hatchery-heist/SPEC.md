@@ -100,9 +100,12 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
 **Every egg is a paid random item** (coins can be bought with Robux): odds
 screen before purchase, odds update live during a Luck Boost, PolicyService
 check on every purchase. Players for whom PolicyService restricts paid random
-items get the fixed order instead: each egg hatches its outcomes in listed
-order, and the odds card shows that list with the next creature marked, so
-nothing they buy is random.
+items get the fixed order instead: each egg hatches a fixed repeating cycle
+in which every outcome comes exactly as often as its odds (a Basic Egg cycle
+is 50 eggs: 30 Chicks, 15 Ducklings, 4 Goslings, 1 Turtle). The odds card
+shows the next creature and how many eggs until each other one, so nothing
+they buy is random and they get no more and no fewer rare creatures than
+anyone else.
 
 ## Save data
 

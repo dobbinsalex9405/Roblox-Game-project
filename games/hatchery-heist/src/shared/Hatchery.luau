@@ -47,6 +47,10 @@ local ONBOARDING = {
 	"FirstRide",
 	"FirstRaidTried",
 	"FirstRaidDefended",
+	"FirstCollect",
+	"FirstSlot",
+	"PadsFull",
+	"FirstRebirth",
 }
 
 local Hatchery = {}
@@ -203,12 +207,69 @@ function Hatchery.buyEgg(
 	return incubator, nil
 end
 
--- The alternative for players who may not receive paid random items: the
--- egg's outcomes in their listed order, one after another. The next result is
--- shown before purchase, so nothing about it is random.
-function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
+local function gcd(a: number, b: number): number
+	while b ~= 0 do
+		a, b = b, a % b
+	end
+	return a
+end
+
+-- The alternative for players who may not receive paid random items: a fixed
+-- cycle with each outcome exactly as often as its odds say (smooth weighted
+-- round robin), so a restricted player gets the expected mix, no more and no
+-- less. The next results are shown before purchase, so nothing about them is
+-- random. A cycle is 10,000 / (the weights' greatest common divisor) eggs at
+-- most, computed once per egg.
+local cycles: { [any]: { string } } = setmetatable({}, { __mode = "k" }) :: any
+
+function Hatchery.fixedOrderCycle(egg: any): { string }
+	local cached = cycles[egg]
+	if cached then
+		return cached
+	end
 	local outcomes = egg.outcomes
-	return outcomes[(boughtBefore % #outcomes) + 1].id
+	local divisor = 0
+	for _, o in outcomes do
+		divisor = gcd(divisor, o.weight)
+	end
+	local weights = {}
+	local total = 0
+	for i, o in outcomes do
+		weights[i] = o.weight // divisor
+		total += weights[i]
+	end
+	local current = table.create(#outcomes, 0)
+	local cycle = table.create(total)
+	for _ = 1, total do
+		local pick = 1
+		for i, w in weights do
+			current[i] += w
+			if current[i] > current[pick] then
+				pick = i
+			end
+		end
+		current[pick] -= total
+		table.insert(cycle, outcomes[pick].id)
+	end
+	cycles[egg] = cycle
+	return cycle
+end
+
+-- The outcome of a restricted player's next egg of this kind.
+function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
+	local cycle = Hatchery.fixedOrderCycle(egg)
+	return cycle[(boughtBefore % #cycle) + 1]
+end
+
+-- How many more eggs of this kind until `outcomeId` hatches (0 = the next one).
+function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: string): number?
+	local cycle = Hatchery.fixedOrderCycle(egg)
+	for ahead = 0, #cycle - 1 do
+		if cycle[((boughtBefore + ahead) % #cycle) + 1] == outcomeId then
+			return ahead
+		end
+	end
+	return nil
 end
 
 -- Places a new creature: the first free pad, or, when every pad is full, the
@@ -245,6 +306,17 @@ local function place(d: Data, creature: any, creatureConfig: any, creaturePads: 
 		creature.slot = weakest.slot
 		weakest.slot = nil
 	end
+end
+
+-- Whether every creature pad holds a creature.
+function Hatchery.padsFull(d: Data, creaturePads: number): boolean
+	local used = 0
+	for _, c in d.creatures do
+		if c.slot then
+			used += 1
+		end
+	end
+	return used >= creaturePads
 end
 
 -- Coins a stored creature sells for when storage overflows.
@@ -387,6 +459,9 @@ function Hatchery.ride(d: Data, uid: string, creatureConfig: any): (number?, str
 	end
 	if uid == d.guardUid then
 		return nil, "That creature is guarding your base."
+	end
+	if creature.slot == nil then
+		return nil, "Only a creature on a pad can be ridden."
 	end
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then

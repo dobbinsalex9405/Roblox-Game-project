@@ -41,8 +41,11 @@ Non-obvious choices, newest first, so a later session can trust them.
   the fixed order) happen in the same atomic save, and the incubator stores
   the outcome. Waiting for a better roll or re-rolling is impossible.
 - **Fixed order for restricted players.** Where PolicyService restricts paid
-  random items, eggs hatch their outcomes in listed order and the odds card
-  shows that order with the next one marked. Verify this reading against the
+  random items, eggs hatch a fixed cycle that matches the odds exactly
+  (smooth weighted round robin) and the odds card shows the next outcome and
+  the wait for each other one. (First version cycled the listed outcomes in
+  turn, which gave a Turtle every 4th egg and about twice the early income;
+  the playtest caught it.) Verify this reading against the
   Creator Hub policy before M5, as the Wave 1 plan asks.
 - **Buy stays off until the odds arrive** from the server, so no egg can be
   bought without its odds on screen.
