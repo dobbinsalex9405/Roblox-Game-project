@@ -24,4 +24,11 @@ return {
 		keepFraction = 0.25,
 		minKeep = 1, -- never come back empty-handed from a small haul
 	},
+
+	-- The daily return reward: the first sale each (UTC) day of at least
+	-- `minPieces` ore pays `multiplier` times (on top of an Ore Boost).
+	dailyHaul = {
+		multiplier = 2,
+		minPieces = 5,
+	},
 }

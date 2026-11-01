@@ -144,7 +144,8 @@ function Hud.start(ctx: Context.Context)
 	boost.TextColor3 = GOLD
 	boost.Visible = false
 
-	-- First-session goal line, just under the bar (gone after the first upgrade).
+	-- Goal line, just under the bar: the first-session steps, then today's
+	-- first-haul bonus while it is waiting.
 	local goal = panel(gui, "Goal", UDim2.fromOffset(380, 30), UDim2.new(0.5, 0, 0, 76), Vector2.new(0.5, 0))
 	goal.BackgroundColor3 = Color3.fromRGB(45, 50, 110)
 	goal.Visible = false
@@ -223,7 +224,7 @@ function Hud.start(ctx: Context.Context)
 		local worth = math.floor(Pack.value(d.pack, config.blocks) * multiplier)
 		pack.Text = `Pack {count}/{capacity} · {Layout.shortNumber(worth)}`
 		pack.TextColor3 = if count >= capacity then OIL_LOW else Color3.new(1, 1, 1)
-		local objective = Guide.objective(d, config.gear, ctx.dive().phase)
+		local objective = Guide.objective(d, config.gear, ctx.dive().phase, config.dive.dailyHaul, now)
 		goal.Visible = objective ~= nil
 		goalText.Text = objective or ""
 		local left = Boosts.left(d, "OreBoost", now)

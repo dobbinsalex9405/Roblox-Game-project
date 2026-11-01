@@ -101,6 +101,10 @@ return function(Schema: any, Odds: any)
 			keepFraction = Schema.number({ min = 0, max = 1 }),
 			minKeep = Schema.integer({ min = 0, max = 1000 }),
 		}),
+		dailyHaul = Schema.record({
+			multiplier = Schema.number({ min = 1, max = 10 }),
+			minPieces = Schema.integer({ min = 1, max = 1000 }),
+		}),
 	})
 
 	Schemas.monetization = Schema.record({
