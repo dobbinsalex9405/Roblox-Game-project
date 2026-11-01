@@ -31,8 +31,9 @@ ops/
   SETUP.md                the steps only Alex can do (accounts, keys)
   DECISIONS.md            why things are the way they are
   DAILY_RUN.md            what the daily scheduled Claude run does
+  METRICS.md              daily counters and the studio scoreboard issue
   digests/                weekly digests
-.github/workflows/        ci, publish-staging, publish-production
+.github/workflows/        ci, publish-staging, publish-production, metrics (scoreboard)
 ```
 
 ## Daily commands

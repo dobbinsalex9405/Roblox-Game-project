@@ -93,23 +93,26 @@ another Claude.
 
 ## Step 3: game metrics
 
-Roblox's revenue and engagement numbers live in the Creator Dashboard, and
-the group's revenue pages need Alex's signed-in session, which Claude never
-uses. So the run reads only what the studio's own code reports:
+Every game counts its own players and Robux, and the **Studio scoreboard**
+workflow (06:41 UTC) rewrites the open issue labelled `daily-metrics` from
+those counters (`ops/METRICS.md`). Roblox's own dashboards and the group's
+revenue pages need Alex's signed-in session, which Claude never uses.
 
-- **Until the games are live** (`ops/environments.json` production ids are 0,
-  or there is no `daily-metrics` issue yet): write "metrics: not set up" in
-  the heartbeat and skip this step.
-- **Once a `daily-metrics` issue exists** (the planned workflow reads each
-  game's own daily counters from a DataStore with the read-only key), read
-  the latest one and check each live game against:
-  - the **Wave 2 gate**, 14 days after launch: D1 retention at least 25%,
-    average session 10+ minutes, players rising 3 days in a row;
-  - **kill signals**: D1 under 15% after 7 days, or Robux per 1,000 sessions
-    falling for 7 days. Flag them; deciding to stop a game is Alex's call.
-  - **regressions**: a drop of 30% or more day over day in sessions, average
-    session, or Robux right after a release points at that release. Open a
-    `sev1` issue and route it like a bug.
+- **Until the games are live** (no `daily-metrics` issue, or every game says
+  "not live"): write "metrics: not live yet" in the heartbeat and skip this
+  step.
+- **Once it exists,** read the issue and its `<!-- loop-lab-metrics v1 ... -->`
+  block. If the issue was not updated today, check the workflow run (step 1).
+  For each live game look at:
+  - the **next-wave gate** (`gate.pass`): 14 days after launch, 7-day D1 at
+    least 25%, average session 10+ minutes, players rising 3 days in a row.
+    When a game first passes, tell Alex: the plan says the next wave of games
+    can start;
+  - the **kill signal** (`kill: true`): 7-day D1 under 15% after 7 days.
+    Flag it to Alex with the numbers; stopping a game is Alex's call;
+  - **regressions**: players, average session or Robux down 30% or more day
+    over day, right after a release, point at that release. Open a `sev1`
+    issue and route it like a bug.
 
 ## Step 4: what is waiting on Alex
 
@@ -135,15 +138,17 @@ Then:
 
 ## Step 5: weekly summary (Mondays)
 
-On Mondays, post one summary in the thread (under 15 lines): reports and
-average fun per game, bugs opened and fixed by severity, top ideas, metrics
-against the gate, and what is waiting on Alex.
+On Mondays, post one summary in the thread (under 15 lines). Lead with the
+**score**: Robux since 2026-11-01 and over the last 7 days (with the week
+before for comparison), best and worst game by Robux and by D1. Then: reports
+and average fun per game, bugs opened and fixed by severity, top ideas, each
+game against the gate, and what is waiting on Alex. Link the scoreboard issue.
 
 ## Step 6: the heartbeat (always last)
 
 Write the switch database, collection `agent`, document `heartbeat`:
 `{ at: <epoch ms>, summary: "<one line>" }`, for example
-`Ran: 1 digest, 7 reports, 2 bugs (1 sev2 → #41), metrics not set up, 2 Alex steps open`.
+`Ran: 1 digest, 7 reports, 2 bugs (1 sev2 → #41), 412 Robux yesterday, 2 Alex steps open`.
 The switch page warns Alex when no heartbeat arrives for 36 hours, so a run
 that crashes halfway shows up there.
 

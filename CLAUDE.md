@@ -92,6 +92,7 @@ tools/typecheck.sh                             # strict types
 - `ops/SETUP.md`: the steps only Alex can do.
 - `ops/FEEDBACK.md`: from player report to fix.
 - `ops/DAILY_RUN.md`: the daily scheduled run.
+- `ops/METRICS.md`: the games' daily counters and the studio scoreboard.
 - `ops/SHOP.md`: the shared shop and Studio test panel.
 - `games/<game>/SPEC.md`: what each game is.
 
