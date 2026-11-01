@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- First-minute guide: a goal banner (cast, reel, pool, grow), a glowing
+  beam to the nearest dock until the first catch, and starting Worms picked
+  for a new player.
+
 - Robux shop wired into the core's shared shop and Studio test panel: Bait
   Pack, Mystery Bait (odds shown first, policy-checked), Growth Boost,
   Restock Skip, and the Auto-reel, Extra Pools and Sell Multiplier passes.

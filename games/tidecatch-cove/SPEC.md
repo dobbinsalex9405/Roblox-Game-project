@@ -54,6 +54,17 @@ is a see-through slab players wade through. Everything is built from code
    size; the HUD shows how many of the 25 species the player has. Rewards per
    page come with M4.
 
+## First minute
+
+A new player spawns at their own cove, about 100 studs from the nearest
+dock. Until their first creature has grown, a goal banner under the top bar
+says what to do next (`src/shared/Guide.luau`): cast, reel, put the catch in a
+pool, watch it grow. Until the first catch, a glowing beam runs from the
+player to the nearest dock their rod can fish, and their starting Worms are
+picked so the first casts show off rarer fish. At a dock the banner steps
+aside for the odds card, the Cast prompt and the reel panel, which explain
+themselves. A first catch lands about 20 seconds after joining.
+
 ## Odds
 
 Every spot and bait has one odds table (weights out of 10,000), and the rod is
