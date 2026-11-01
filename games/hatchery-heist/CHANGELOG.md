@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Robux prices and Roblox listings (name, price, description) for every
+  pass and product, on the studio price ladder (ops/PRICING.md). The shop's
+  catalog moved to `src/shared/Products.luau` so tests check its names.
+
 - Economy tuned from the playtest (Alex approved the playtest set): 200
   starting coins, Basic Egg hatches in 10 s, storage auto-sale pays 20 s of
   income (spam-buying Basic eggs no longer makes coins), first rebirth

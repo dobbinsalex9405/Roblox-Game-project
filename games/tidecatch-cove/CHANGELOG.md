@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Robux prices and Roblox listings for every pass and product, on the
+  studio price ladder (ops/PRICING.md). The Storm Lure Pack is now 4 lures
+  (was 5), so at the same 25 Robux Mystery Bait is never the worse deal.
 - The first-minute guide retires after 8 catches for a player who never
   pools one, instead of asking them to pool forever, and its update loop
   stops once the guide is done.

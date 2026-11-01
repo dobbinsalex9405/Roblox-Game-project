@@ -174,7 +174,21 @@ return function(Schema: any, Odds: any)
 		restockSeconds = Schema.integer({ min = 60, max = 24 * 60 * 60 }),
 	})
 
+	-- Name, Robux price and description of each pass and product on Roblox
+	-- (Roblox's limits: names 50 characters, descriptions 1,000). Which items
+	-- need one, and the price ladder, are checked by tools/tests/Pricing.spec.
+	local listing = Schema.record({
+		name = Schema.string({ minLength = 1, maxLength = 50 }),
+		robux = Schema.integer({ min = 1 }),
+		description = Schema.string({ minLength = 1, maxLength = 1000 }),
+	})
+	local listings = Schema.record({
+		passes = Schema.map(id, listing),
+		products = Schema.map(id, listing),
+	})
+
 	Schemas.monetization = Schema.record({
+		listings = listings,
 		passes = Schema.record({
 			AutoReel = productId,
 			ExtraPools = productId,

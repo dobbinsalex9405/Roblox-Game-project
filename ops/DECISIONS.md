@@ -22,6 +22,40 @@ Non-obvious choices, newest first, so a later session can trust them.
   error-queue sweep, first-24-hours rule) and the promotion rule to Production.
 - `playtests/` is now formatted and linted like the rest of the repo.
 
+## 2026-11-01: One Robux price ladder for every game
+
+- **Six prices: 25, 49, 99, 149, 199, 399.** Small packs, skips and refills
+  at 25; 15-minute boosts, protection and one paid random roll at 49; medium
+  packs and convenience passes at 99; capacity passes (and Auto-reel, which
+  plays the core action) at 149; earnings multipliers at 199; large packs at
+  399, the ceiling while the games are new. Full table and reasons:
+  `ops/PRICING.md`.
+- **Low end of the usual simulator ranges on purpose.** New games have no
+  reviews or social proof, so conversion matters more than price per sale;
+  passes can rise a rung later without hurting early buyers. Prices are
+  revisited after each game's first 7 live days.
+- **Prices live in the game configs** (`listings`: name, Robux, description),
+  not only on Roblox, so the laptop creates exactly what the repo says and a
+  test (`tools/tests/Pricing.spec.luau`) holds every game to the ladder, the
+  shop's names and `ops/PRICING.md`.
+- **Tidecatch's draft (Mystery 39, packs 49, Extra Pools 199, Sell 299) was
+  folded in**, keeping its rule that the paid random item is never the worse
+  deal: Mystery Bait and the Storm Lure Pack are both 25, with the pack cut
+  from 5 lures to 4.
+- **No Starter Pack yet.** It is usually the best first purchase in a
+  simulator, but each game needs a grant and a once-only check, so it is a
+  separate change.
+
+## 2026-11-01: Tidecatch Cove keeps the HUD Pools panel
+
+- **Feed, Sell and Unlock work from anywhere** through the HUD Pools panel,
+  as Place already did from the Bucket. In the playtest a bot spent about a
+  quarter of its time walking between dock and cove (about 13 s a round
+  trip), which is dead time on a phone. The cove still matters: it is where
+  the creatures are seen growing, and the welcome-back message points there.
+  Decided by Claude under the standing rule that design calls do not go to
+  Alex; revisit if session data shows players never visit their cove.
+
 ## 2026-11-01: Depthbound's daily return reward
 
 - **The first real haul sold each UTC day pays double** (at least 5 ore, so
