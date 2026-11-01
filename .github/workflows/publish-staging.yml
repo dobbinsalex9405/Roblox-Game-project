@@ -1,0 +1,86 @@
+name: Publish to Staging
+
+# Every merge to main that touches game code publishes each game to its
+# private Staging experience. Production never happens here.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "games/**"
+      - "packages/**"
+      - "wally.toml"
+      - "rokit.toml"
+      - "ops/environments.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-staging
+  cancel-in-progress: false
+
+jobs:
+  games:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.list.outputs.list }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        run: |
+          list=$(find games -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | python3 -c '
+          import json, sys
+          games = [g.strip() for g in sys.stdin if g.strip()]
+          print(json.dumps([{"name": g, "secret": "ROBLOX_API_KEY_" + g.upper().replace("-", "_")} for g in games]))')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: games
+    name: Staging / ${{ matrix.game.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    strategy:
+      fail-fast: false
+      matrix:
+        game: ${{ fromJSON(needs.games.outputs.list) }}
+    env:
+      ROBLOX_API_KEY: ${{ secrets[matrix.game.secret] }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Is Staging set up for this game?
+        id: check
+        run: lune run tools/publish/run ${{ matrix.game.name }} staging --check
+
+      - name: Install packages
+        if: steps.check.outputs.configured == 'true'
+        run: wally install
+
+      - name: Tests
+        if: steps.check.outputs.configured == 'true'
+        run: lune run tools/test/run
+
+      - name: Build
+        if: steps.check.outputs.configured == 'true'
+        run: tools/build.sh ${{ matrix.game.name }}
+
+      - name: Publish to Staging
+        id: publish
+        if: steps.check.outputs.configured == 'true'
+        run: lune run tools/publish/run ${{ matrix.game.name }} staging
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.check.outputs.configured }}" != "true" ]; then
+            echo "Skipped ${{ matrix.game.name }}: Staging ids or key not set up yet (see ops/SETUP.md)." >> "$GITHUB_STEP_SUMMARY"
+          elif [ -n "${{ steps.publish.outputs.version }}" ]; then
+            echo "Published ${{ matrix.game.name }} @ ${GITHUB_SHA:0:12} to Staging as place version ${{ steps.publish.outputs.version }}." >> "$GITHUB_STEP_SUMMARY"
+          fi

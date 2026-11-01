@@ -1,0 +1,9 @@
+{
+	"languageMode": "strict",
+	"lint": { "*": true, "LocalShadow": false, "ImportUnused": true },
+	"lintErrors": false,
+	"aliases": {
+		"core": "packages/core/src",
+		"testlib": "tools/test/lib"
+	}
+}

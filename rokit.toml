@@ -1,0 +1,9 @@
+# Pinned toolchain. `rokit install` reads this file, on CI and on Alex's computer.
+# Bump a version here (and only here) to upgrade a tool for everyone.
+[tools]
+rojo = "rojo-rbx/rojo@7.7.1"
+wally = "UpliftGames/wally@0.3.2"
+lune = "lune-org/lune@0.11.1"
+selene = "Kampfkarren/selene@0.31.0"
+stylua = "JohnnyMorganz/StyLua@2.6.0"
+luau-lsp = "JohnnyMorganz/luau-lsp@1.70.1"

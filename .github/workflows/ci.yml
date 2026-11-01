@@ -1,0 +1,55 @@
+name: CI
+
+# Runs on every pull request and on main. Nothing here can reach Roblox:
+# no secrets are available to this workflow.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Format, lint, test, build, type check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned tools (rokit.toml)
+        uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Install packages (wally.toml)
+        run: wally install
+
+      - name: Format (StyLua)
+        run: stylua --check packages games tools
+
+      - name: Lint (Selene)
+        run: selene packages games tools
+
+      - name: Tests (Lune)
+        run: lune run tools/test/run
+
+      - name: Build every game (Rojo)
+        run: tools/build.sh all
+
+      - name: Strict type check (luau-lsp)
+        run: tools/typecheck.sh
+
+      - name: Keep the built places
+        uses: actions/upload-artifact@v4
+        with:
+          name: places-${{ github.sha }}
+          path: build/*.rbxl
+          retention-days: 14

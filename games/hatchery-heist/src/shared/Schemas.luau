@@ -1,0 +1,205 @@
+--!strict
+-- Schemas for every file in config/, plus checks that span files (an egg can
+-- only hatch species that exist, a paid egg needs a product, and so on).
+--
+-- Takes the core Schema module as an argument because this file runs both in
+-- Roblox (server start-up) and in Lune (CI tests), which load the core from
+-- different places.
+
+export type Section = { schema: (value: any, path: string) -> (boolean, string?), value: any }
+
+return function(Schema: any, Odds: any)
+	local Schemas = {}
+
+	local id = Schema.string({ maxLength = 50, pattern = "^%u%w*$" })
+	local positive = Schema.number({ min = 0 })
+	local count = Schema.integer({ min = 0 })
+	local productId = Schema.integer({ min = 0 })
+
+	Schemas.economy = Schema.record({
+		startingCoins = count,
+		coinsMax = Schema.integer({ min = 1, max = 2 ^ 53 }),
+		incubators = Schema.check(
+			Schema.record({
+				startingSlots = Schema.integer({ min = 1, max = 50 }),
+				maxSlots = Schema.integer({ min = 1, max = 50 }),
+				slotCosts = Schema.array(Schema.integer({ min = 1 })),
+				passBonusSlots = count,
+			}),
+			function(v: any): (boolean, string?)
+				if v.maxSlots < v.startingSlots then
+					return false, "maxSlots is below startingSlots"
+				end
+				if #v.slotCosts ~= v.maxSlots - v.startingSlots then
+					return false,
+						`slotCosts needs {v.maxSlots - v.startingSlots} entries (one per buyable slot)`
+				end
+				for i = 2, #v.slotCosts do
+					if v.slotCosts[i] < v.slotCosts[i - 1] then
+						return false, "slotCosts must not decrease"
+					end
+				end
+				return true, nil
+			end
+		),
+		rebirth = Schema.record({
+			baseCost = Schema.integer({ min = 1 }),
+			costGrowth = Schema.number({ min = 1 }),
+			incomeBonusPerRebirth = positive,
+		}),
+		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
+		offline = Schema.record({
+			rate = Schema.number({ min = 0, max = 1 }),
+			maxSeconds = Schema.integer({ min = 0, max = 24 * 60 * 60 }),
+		}),
+	})
+
+	Schemas.creatures = Schema.check(
+		Schema.record({
+			species = Schema.map(
+				id,
+				Schema.record({
+					rarity = Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
+					coinsPerSecond = Schema.number({ min = 0 }),
+				}),
+				{ maxEntries = 500 }
+			),
+			mutations = Schema.map(id, Schema.number({ min = 1 })),
+		}),
+		function(v: any): (boolean, string?)
+			if v.mutations.None ~= 1 then
+				return false, "mutations.None must exist and equal 1"
+			end
+			return true, nil
+		end
+	)
+
+	Schemas.eggs = Schema.array(
+		Schema.record({
+			id = id,
+			priceCoins = Schema.optional(Schema.integer({ min = 1 })),
+			productKey = Schema.optional(id),
+			hatchSeconds = Schema.integer({ min = 0, max = 24 * 60 * 60 }),
+			outcomes = Schema.array(
+				Schema.record({ id = id, weight = Schema.integer({ min = 1 }) }),
+				{ minLength = 1 }
+			),
+		}),
+		{ minLength = 1 }
+	)
+
+	Schemas.raids = Schema.record({
+		newPlayerProtectionSeconds = count,
+		perOwnerCooldownSeconds = count,
+		pickupReach = Schema.number({ min = 1, max = 50 }),
+		carryWalkSpeed = Schema.number({ min = 1, max = 32 }),
+		carrySpeedTolerance = Schema.number({ min = 1, max = 3 }),
+		maxCarried = Schema.integer({ min = 1, max = 1 }),
+		shieldSeconds = count,
+		shieldCooldownSeconds = count,
+	})
+
+	Schemas.monetization = Schema.record({
+		passes = Schema.record({
+			DoubleCoins = productId,
+			ExtraIncubators = productId,
+			AutoCollect = productId,
+		}),
+		products = Schema.map(
+			id,
+			Schema.record({
+				id = productId,
+				coins = Schema.optional(Schema.integer({ min = 1 })),
+			})
+		),
+		boosts = Schema.map(
+			id,
+			Schema.record({
+				durationSeconds = Schema.integer({ min = 1 }),
+				eggs = Schema.array(id, { minLength = 1 }),
+				rarityMultipliers = Schema.map(
+					Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
+					Schema.number({ min = 0.01, max = 100 })
+				),
+			})
+		),
+	})
+
+	-- Rules that need more than one file. Returns a list of problems.
+	function Schemas.crossCheck(config: { [string]: any }): { string }
+		local problems = {}
+		local species = config.creatures.species
+		local products = config.monetization.products
+
+		local eggIds: { [string]: boolean } = {}
+		for _, egg in config.eggs do
+			if eggIds[egg.id] then
+				table.insert(problems, `eggs: {egg.id} is listed twice`)
+			end
+			eggIds[egg.id] = true
+			if (egg.priceCoins == nil) == (egg.productKey == nil) then
+				table.insert(problems, `eggs.{egg.id}: set exactly one of priceCoins or productKey`)
+			end
+			if egg.productKey and products[egg.productKey] == nil then
+				table.insert(
+					problems,
+					`eggs.{egg.id}: productKey {egg.productKey} is not in monetization.products`
+				)
+			end
+			for _, outcome in egg.outcomes do
+				if species[outcome.id] == nil then
+					table.insert(problems, `eggs.{egg.id}: hatches unknown species {outcome.id}`)
+				end
+			end
+			local ok, err = pcall(Odds.validate, {
+				id = egg.id,
+				paid = egg.productKey ~= nil,
+				outcomes = egg.outcomes,
+			})
+			if not ok then
+				table.insert(problems, `eggs.{egg.id}: {err}`)
+			end
+		end
+
+		for boostId, boost in config.monetization.boosts do
+			if products[boostId] == nil then
+				table.insert(problems, `monetization.boosts.{boostId} has no matching product`)
+			end
+			for _, eggId in boost.eggs do
+				if not eggIds[eggId] then
+					table.insert(problems, `monetization.boosts.{boostId}: unknown egg {eggId}`)
+				end
+			end
+		end
+
+		local usedIds: { [number]: string } = {}
+		for key, product in products do
+			if product.id > 0 then
+				if usedIds[product.id] then
+					table.insert(
+						problems,
+						`monetization: product id {product.id} used by {usedIds[product.id]} and {key}`
+					)
+				end
+				usedIds[product.id] = key
+			end
+			if string.match(key, "^CoinPack") and product.coins == nil then
+				table.insert(problems, `monetization.products.{key}: coin packs need coins`)
+			end
+		end
+		return problems
+	end
+
+	-- Builds the Config.load input from the raw config modules.
+	function Schemas.sections(config: { [string]: any }): { [string]: Section }
+		local sections = {}
+		for name, value in config do
+			local schema = Schemas[name]
+			assert(type(schema) == "function", `no schema for config/{name}`)
+			sections[name] = { schema = schema, value = value }
+		end
+		return sections
+	end
+
+	return Schemas
+end

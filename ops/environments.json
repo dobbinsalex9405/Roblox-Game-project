@@ -1,0 +1,8 @@
+{
+  "$comment": "Universe and place ids for each game's three experiences. Ids only: API keys live in GitHub environment secrets, never here. 0 means not created yet; publishing to an environment with a 0 id is skipped, not attempted.",
+  "hatchery-heist": {
+    "dev": { "universeId": 0, "placeId": 0 },
+    "staging": { "universeId": 0, "placeId": 0 },
+    "production": { "universeId": 0, "placeId": 0 }
+  }
+}

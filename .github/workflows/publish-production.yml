@@ -1,0 +1,91 @@
+name: Publish to Production
+
+# Started by hand. The `production` environment requires Alex's review, so
+# nothing reaches players until Alex clicks Approve on the run.
+#
+# Rollback: run this workflow again with `ref` set to the tag of the last good
+# release (tags look like hatchery-heist/production/v12).
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: "Game folder name, e.g. hatchery-heist"
+        required: true
+        type: string
+      ref:
+        description: "Commit, branch or release tag to publish (must already be on main)"
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: write # to tag the commit that was published
+
+concurrency:
+  group: publish-production-${{ inputs.game }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Production / ${{ inputs.game }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Check the game name and that the commit is on main
+        id: target
+        env:
+          GAME: ${{ inputs.game }}
+        run: |
+          if ! [[ "$GAME" =~ ^[a-z][a-z0-9-]*$ ]] || [ ! -f "games/$GAME/default.project.json" ]; then
+            echo "Unknown game: $GAME" >&2
+            exit 1
+          fi
+          git fetch origin main
+          if ! git merge-base --is-ancestor HEAD origin/main; then
+            echo "Refusing to publish $(git rev-parse --short HEAD): it is not on main, so it has not been reviewed." >&2
+            exit 1
+          fi
+          secret="ROBLOX_API_KEY_$(echo "$GAME" | tr 'a-z-' 'A-Z_')"
+          echo "secret=$secret" >> "$GITHUB_OUTPUT"
+          previous=$(git tag --list "$GAME/production/v*" --sort=-v:refname | head -n 1)
+          echo "previous=${previous:-none}" >> "$GITHUB_OUTPUT"
+
+      - uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Install packages
+        run: wally install
+
+      - name: Tests
+        run: lune run tools/test/run
+
+      - name: Build
+        run: tools/build.sh "${{ inputs.game }}"
+
+      - name: Publish to Production
+        id: publish
+        env:
+          ROBLOX_API_KEY: ${{ secrets[steps.target.outputs.secret] }}
+        run: lune run tools/publish/run "${{ inputs.game }}" production
+
+      - name: Tag the release
+        env:
+          GAME: ${{ inputs.game }}
+          VERSION: ${{ steps.publish.outputs.version }}
+        run: |
+          tag="$GAME/production/v$VERSION"
+          git tag "$tag" HEAD
+          git push origin "$tag"
+          {
+            echo "Published $GAME @ $(git rev-parse --short HEAD) to Production as place version $VERSION (tag $tag)."
+            echo ""
+            echo "Previous release: ${{ steps.target.outputs.previous }}. To roll back, run this workflow with ref set to that tag."
+          } >> "$GITHUB_STEP_SUMMARY"

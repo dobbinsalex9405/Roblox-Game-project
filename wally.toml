@@ -1,0 +1,12 @@
+[package]
+name = "dobbinsalex9405/roblox-studio"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+private = true
+license = "UNLICENSED"
+
+# Exact pins (`=`) so an upstream release can never change a build silently.
+# Reviewed 2026-11-01: see ops/DECISIONS.md.
+[server-dependencies]
+ProfileStore = "lm-loleris/profilestore@=1.0.3"
