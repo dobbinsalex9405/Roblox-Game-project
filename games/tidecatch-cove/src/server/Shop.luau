@@ -1,36 +1,49 @@
 --!strict
--- Developer products. Nothing is registered yet: every product id is still 0
--- because prices wait for Alex's approval at milestone M5, and a product the
--- game cannot deliver must never be sold. M5 adds the handlers here (growth
--- boost, restock skip, bait packs with their odds screen, mystery bait).
+-- Tidecatch Cove's products and passes, wired into the core's shared shop
+-- (ops/SHOP.md). What each product does is in src/shared/Products.luau.
+--
+-- Every product is registered with the core's receipt handler even while its
+-- Roblox id is 0, so the Studio test panel can run it through the real
+-- receipt path. The shop only prompts items whose id is set for this
+-- experience (config/monetization.luau, `environments`), and prices wait for
+-- Alex's approval.
 
-local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
-local Log = require(ReplicatedStorage.Core.Log)
+local Monetization = require(ReplicatedStorage.Core.Monetization)
 
-local log = Log.new("Shop")
+local Shared = ReplicatedStorage.Shared
+local Catch = require(Shared.Catch)
+local Cove = require(Shared.Cove)
+local Products = require(Shared.Products)
 
 local Shop = {}
 
-function Shop.register(_services: CoreServer.Services, Config: any)
-	local products = Config.get("monetization").products
-	local skipped = {}
-	for key, product in products do
-		if product.id == 0 then
-			table.insert(skipped, key)
-		else
-			-- Not registered, so the core's receipt handler never grants it
-			-- and Roblox refunds the purchase. Config.spec keeps this from
-			-- shipping.
-			log:error("product has an id but no handler yet (milestone M5)", { product = key })
-		end
+function Shop.register(
+	services: CoreServer.Services,
+	config: Cove.Config,
+	ids: Monetization.Resolved,
+	notify: (player: Player, text: string) -> ()
+)
+	local grants = Products.grants({
+		config = config,
+		now = os.time,
+		rollMystery = function(player: Player): string?
+			return (services.odds:rollPaid(Catch.MYSTERY_TABLE, player, services.policy))
+		end,
+		notify = function(player: Player, text: string)
+			-- After the receipt's data update returns.
+			task.defer(notify, player, text)
+		end,
+	})
+	for key in config.monetization.products do
+		local grant = grants[key]
+		assert(grant, `product {key} has no grant (src/shared/Products.luau)`)
+		services.receipts:register(key, ids.products[key], grant)
 	end
-	table.sort(skipped)
-	if #skipped > 0 then
-		log:info("products not created on Roblox yet", { products = table.concat(skipped, ",") })
-	end
+	services.shop:setCatalog(Products.catalog(config) :: any)
 end
 
 return Shop
