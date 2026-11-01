@@ -1,0 +1,5 @@
+std = "roblox"
+
+[lints]
+# Luau type annotations make these noisy without catching real bugs.
+shadowing = "allow"

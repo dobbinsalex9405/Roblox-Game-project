@@ -1,0 +1,53 @@
+# Decisions
+
+Non-obvious choices, newest first, so a later session can trust them.
+
+## 2026-11-01: Framework scaffold (milestone M1)
+
+- **Repo name.** The plan suggested `roblox-studio`; Alex created
+  `roblox-game-project`. Same layout either way.
+- **Pure core, injected Roblox.** Everything in `packages/core/src` runs in
+  Lune with no Roblox services, so every money and data rule is unit-tested on
+  each push. Roblox wiring is a thin layer in `packages/core/server` and
+  `packages/core/client`, checked by the strict type check and exercised in
+  Studio sessions.
+- **String requires inside the core.** `src/` modules use
+  `require("./Module")`, which Roblox and Lune both resolve. Everything outside
+  `src/` requires by instance. Verify at the first Studio session (M3); the
+  fallback is instance requires in `src/` plus a Lune shim.
+- **Game modules that need the core take it as an argument** (for example
+  `Schemas(Schema, Odds)`), because a game's shared folder and the core sit in
+  different places in Roblox and on disk.
+- **Every Hatchery Heist egg is a paid random item.** Coin packs sell coins for
+  Robux, so eggs bought with coins fall under the paid random items policy too
+  (brief, Part 7). All egg tables are marked paid: odds screen before purchase,
+  PolicyService check on every hatch. For restricted players the M5 shop must
+  offer a policy-approved alternative (for example direct purchase of a
+  specific creature, or eggs from a free earnable currency).
+- **Odds as integers out of 10,000.** Shown percentages are exact to 0.01% and
+  always total 100.00%; boosts renormalize with the largest-remainder method and
+  never drop a possible outcome below 0.01%.
+- **Receipts trust only saved data.** Roblox is told "granted" only after a
+  save containing the purchase id lands (ProfileStore `OnAfterSave`), with a
+  15 second timeout.
+- **Data from a newer build is refused, not downgraded,** so a rollback can
+  never overwrite progress made on the newer build.
+- **Error queue keys** are `<unix minute>-<JobId>` in the `ErrorQueue`
+  DataStore: one write per server per minute at most. The nightly reader (M5)
+  lists keys newer than its cursor. Consider MemoryStore with expiry at M5 if
+  DataStore storage grows.
+- **Packages.** ProfileStore pinned at exactly `1.0.3` (MadStudio, by loleris;
+  source reviewed 2026-11-01). React-Lua is deferred to the UI kit (module 13,
+  M5) so no unused code ships before then.
+- **Publishing.** GitHub Actions with group-owned keys in environment secrets
+  named `ROBLOX_API_KEY_<GAME>`. Staging publishes on merge and skips games
+  whose ids or key are not set yet. Production is manual, only from commits on
+  `main`, waits for Alex's approval, and tags `<game>/production/v<version>`;
+  rollback is a re-run with the previous tag. The publish tool only sends the
+  key to `apis.roblox.com` (or 127.0.0.1 for its own smoke test).
+- **Third-party action.** `CompeyDev/setup-rokit@v0.2.1` installs Rokit on CI.
+  Pinned by tag; pin to a commit SHA if supply-chain rules tighten.
+- **Not yet applied from the Wave 1 build plans:** the Mounts module and the
+  `mountUid`/`decoys` save fields wait for Alex's approval of mounts. Adding
+  top-level save fields later needs no migration (new keys are filled from the
+  template on load).

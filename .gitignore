@@ -1,0 +1,19 @@
+# Wally output (installed on CI and locally with `wally install`)
+/Packages/
+/ServerPackages/
+/DevPackages/
+
+# Build output
+/build/
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+sourcemap.json
+globalTypes.d.luau
+roblox.yml
+
+# Editors and OS
+.DS_Store
+.idea/
+*.log
