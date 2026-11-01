@@ -318,6 +318,9 @@ describe("Depthbound shop", function()
 		s.buy(p, "OreBoost")
 		expect(h.get(p).boosts.OreBoost).toBe(start + oreBoost.durationSeconds)
 		expect(h.notices[#h.notices]).toContain("Ore Boost")
+		-- Today's first haul bonus stacks on top; after it, the boost alone.
+		local daily = config.dive.dailyHaul.multiplier
+		expect(sellNow(items)).toBe(math.floor(base * oreBoost.sellMultiplier * daily))
 		expect(sellNow(items)).toBe(math.floor(base * oreBoost.sellMultiplier))
 		-- A second boost stacks its time on what is left.
 		h.clock.advance(100)

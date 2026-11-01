@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Daily first haul: the first sale of 5+ ore each UTC day pays double
+  (stacks with an Ore Boost, Auto-Sell included); the goal line shows it
+  while it is waiting. Save data v1 gains `dailyHaulDay`.
 - First minute: the pickaxe goes straight into the player's hand, a goal line
   walks new players to their first upgrade, and the Rucksack costs 40 (was
   100) so the first full dive pays for it.
