@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- The first-minute guide retires after 8 catches for a player who never
+  pools one, instead of asking them to pool forever, and its update loop
+  stops once the guide is done.
 - First-minute guide: a goal banner (cast, reel, pool, grow), a glowing
   beam to the nearest dock until the first catch, and starting Worms picked
   for a new player.

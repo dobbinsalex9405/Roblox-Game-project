@@ -55,6 +55,18 @@ describe("Tidecatch Cove first-minute guide", function()
 		expect(step.arrowToDock).toBe(true)
 	end)
 
+	it("retires for a player who keeps selling and never pools, and stays retired", function()
+		local d = { firsts = { FirstCast = 1, FirstCatch = 2 }, bucket = {}, stats = { catches = 1 } }
+		expect((Guide.step(d) :: Guide.Step).id).toBe("Place")
+		d.stats.catches = Guide.RETIRE_AFTER_CATCHES - 1
+		expect((Guide.step(d) :: Guide.Step).id).toBe("Place")
+		d.stats.catches = Guide.RETIRE_AFTER_CATCHES
+		expect(Guide.step(d)).toBeNil()
+		-- A catch kept in the bucket later does not bring it back.
+		d.bucket = { { uid = "c1" } }
+		expect(Guide.step(d)).toBeNil()
+	end)
+
 	it("points at the best open dock the rod allows and never a low-tide one", function()
 		local d = { rodTier = 1, bait = {} }
 		expect(Guide.dockFor(d, fishing)).toBe("Shallows")
