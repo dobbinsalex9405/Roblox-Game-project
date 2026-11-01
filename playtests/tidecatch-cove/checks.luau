@@ -1031,7 +1031,20 @@ do
 				`{styleName}: the guide's dock is always fishable now and never low-tide-only`,
 				`{styleName}: bad dock {badDock[1]}`
 			)
-			if Guide.step(h.get(p)) == nil then
+			local final = h.get(p)
+			local retireAfter = Guide.RETIRE_AFTER_CATCHES
+			if
+				retireAfter
+				and final.firsts.FirstPlaced == nil
+				and (final.stats.catches or 0) >= retireAfter
+			then
+				-- PR #20: a player who keeps selling and never pools is let go after a few catches.
+				check(
+					Guide.step(final) == nil,
+					`{styleName}: never pooled, so the guide retires after {retireAfter} catches ({final.stats.catches} caught)`,
+					`{styleName}: {final.stats.catches} catches without a pool and the guide still shows "{seen[#seen]}"`
+				)
+			elseif Guide.step(final) == nil then
 				note(`{styleName}: finished the guide inside 15 minutes`)
 			else
 				note(`{styleName}: still on "{seen[#seen]}" after 15 minutes`)
