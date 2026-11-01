@@ -576,6 +576,109 @@ do
 end
 
 -- ---------------------------------------------------------------------------
+section("First-session guide (PR #13)")
+do
+	-- The guide must never point at something the player cannot do right now,
+	-- and its goals must never go backwards, whatever the player's habits.
+	-- Each bot style plays 15 minutes; whenever the guide says a goal is
+	-- affordable ("... for $N"), the matching action is taken and must succeed.
+	local hasGuide, Guide = pcall(require, "../../games/street-food-empire/src/shared/Guide")
+	local hasBot, PlayBot = pcall(require, "./bot")
+	if not hasGuide then
+		note("no Guide module in this build; skipping")
+	elseif not hasBot then
+		bug(`the playtest bot failed to load: {PlayBot}`)
+	else
+		local ORDER = { Serve = 1, Build = 2, Upgrade = 3, Hire = 4, Unlock = 5 }
+		local function money(n: number): string
+			return `${math.floor(n)}`
+		end
+		local function unspace(text: string): string
+			return (string.gsub(text, " ", ""))
+		end
+		for _, styleName in { "attentive", "batcher", "casual", "idle" } do
+			local style = PlayBot.STYLES[styleName]
+			local h, p = fresh()
+			local b = PlayBot.new(h, p, style)
+			local last, backwards, refused, finishedAt = 0, 0, {}, nil
+			local seen = {}
+			for second = 1, 15 * 60 do
+				local d = h.get(p)
+				local now = h.clock.now()
+				local step = Guide.next(d, config, h.perks, now, false, money)
+				if step == nil then
+					finishedAt = finishedAt or second
+					break
+				end
+				local rank = ORDER[step.id]
+				if rank == nil then
+					bug(`{styleName}: unknown guide step id {step.id}`)
+				elseif rank < last then
+					backwards += 1
+				else
+					if rank > last then
+						table.insert(seen, step.id)
+					end
+					last = rank
+				end
+				local target = step.target
+				if target == nil then
+					bug(`{styleName}: guide step "{step.text}" has no target`)
+				elseif target.kind == "Register" then
+					local pending = Restaurant.preview(d, config, h.perks, now)
+					if pending < 1 then
+						table.insert(refused, `collect with an empty register: {step.text}`)
+					end
+				elseif
+					string.find(step.text, " for %$") and (target.kind == "Spot" or target.kind == "Gate")
+				then
+					local ok, err
+					local station = string.match(step.text, "^Build a (.-) for %$")
+					local upgrade = string.match(step.text, "^Upgrade your (.-) for %$")
+					local tier = string.match(step.text, "^Hire a (.-) for ")
+					if station then
+						ok, err = h.actions:build(p, unspace(station), target.spot)
+					elseif upgrade then
+						ok, err = h.actions:upgrade(p, target.spot)
+					elseif tier then
+						local tierId = if tier == "cook" then config.cooks.tiers[1].id else unspace(tier)
+						ok, err = h.actions:hireCook(p, tierId, target.spot)
+					elseif target.kind == "Gate" then
+						ok, err = h.actions:unlockDistrict(p)
+					else
+						ok, err = false, "the check does not know this step"
+					end
+					if not ok then
+						table.insert(refused, `{step.id} "{step.text}" -> {err or lastNotice(h)}`)
+					end
+				end
+				PlayBot.play(h, b, 1)
+			end
+			check(
+				backwards == 0,
+				`{styleName}: guide goals never go backwards ({table.concat(seen, " > ")})`,
+				`{styleName}: the guide went backwards {backwards} times`
+			)
+			check(
+				#refused == 0,
+				`{styleName}: every affordable goal the guide pointed at could be done`,
+				`{styleName}: {#refused} guided actions refused, first: {refused[1]}`
+			)
+			if finishedAt then
+				note(
+					`{styleName}: the guide finished (Market Row open) at {finishedAt // 60}:{string.format(
+						"%02d",
+						finishedAt % 60
+					)}`
+				)
+			else
+				note(`{styleName}: still on "{seen[#seen]}" after 15 minutes`)
+			end
+		end
+	end
+end
+
+-- ---------------------------------------------------------------------------
 section("Numbers worth a look")
 do
 	-- Hand income versus register at a few states.
