@@ -18,6 +18,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   gate measures day-1 return and session length first.
 - **The goal line advertises it** after the first upgrade, until it is taken.
   An event `Daily:FirstHaul` (coins paid) shows whether it brings players back.
+
 ## 2026-11-01: Tidecatch Cove Robux shop (milestone M5 code, prices pending)
 
 - **Robux bait is its own bait.** Bait Pack and Mystery Bait give Storm Lures
