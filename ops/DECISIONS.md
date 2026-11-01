@@ -46,6 +46,43 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **`CLAUDE.md` holds the standing rules** (switch, never-touch-credentials,
   merge and thread rules) so every session in this repo starts with them.
 
+## 2026-11-01: Depthbound's first minute
+
+- **The pickaxe is put in the player's hand on every spawn.** Before, a new
+  player had to find the hotbar before their first swing, and a pickaxe that
+  arrived in the backpack after the character could be missed entirely.
+- **A goal line under the top bar** walks a new player through dig, climb out
+  and sell, then the cheapest upgrade with coins / cost, and disappears after
+  the first upgrade (Shared/Guide.luau, from the saved `firsts`).
+- **The Rucksack costs 40, not 100,** so one full first dive (about 30-60
+  coins) buys the first upgrade. A test bot on 12 mines now sells within
+  30 s and upgrades within 60 s (it took 55-107 s at 100); the test holds
+  45 s and 75 s as the bars.
+
+## 2026-11-01: Depthbound in the shared shop
+
+- **Two products and three passes are listed; the Geode Crate is not.** It is
+  a paid random item and geodes do not exist yet, so it stays out of the
+  catalog (and unregistered) until M5 brings geodes, its odds table, the odds
+  screen and the policy check. A Geode Crate id set before then is logged as
+  an error, since Roblox would charge for a product nobody can deliver.
+- **An Oil Refill is a saved item, poured at most once per dive** (the plan's
+  recommendation; Alex approves the limit with prices at M5). A grant cannot
+  refuse a purchase, so a refill bought at camp, after this dive's refill, or
+  with the lamp over 90% full is kept for a later dive instead of wasted.
+  Bought mid-dive it pours straight away; the HUD's refill button pours one
+  from stock or opens the purchase. A lamp already dry is a lamp-out first.
+- **An Ore Boost doubles sale prices for 15 minutes** (a config number), and
+  buying more adds time. Its end is saved as a server Unix time, so it runs
+  across servers and rejoins. Auto-Sell gets the boosted price too. Prices
+  and the multiplier are Alex's call at M5.
+- **Grants live in Shared/Products**, so the Lune tests run them through the
+  core's real receipt path (Buy, then Replay grants nothing twice). Anything
+  that touches the live dive runs right after the save, never inside it.
+- **The config checks resolve every experience's ids** (dev, staging,
+  production): an override for an unknown key, or one id used twice in one
+  experience, fails CI.
+
 ## 2026-11-01: Shared shop and Studio test panel
 
 - **One shop and one test panel in core** (`ops/SHOP.md`), so purchase rules

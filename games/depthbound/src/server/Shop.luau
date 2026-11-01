@@ -1,35 +1,62 @@
 --!strict
--- Registers developer products with the core's receipt handler. Every
--- Depthbound product (Oil Refill, Ore Boost, Geode Crate) arrives with the M5
--- shop, once Alex approves prices, so nothing can be sold that the game
--- cannot deliver. Until then this only reports what is not created yet.
+-- Depthbound's products and passes, wired into the core's shop (ops/SHOP.md).
+--
+-- Every product the game can deliver is registered with the core's receipt
+-- handler, even before it exists on Roblox (id 0), so the Studio test panel
+-- can run it through the real receipt path. The shop only prompts items whose
+-- id is set for this experience (config/monetization.luau, `environments`).
+-- The grants and the catalog live in Shared/Products so the tests run them.
 
-local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+local Workspace = game:GetService("Workspace")
 
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
+local Purchases = require(ServerScriptService.CoreServer.Purchases)
 local Log = require(ReplicatedStorage.Core.Log)
+local Monetization = require(ReplicatedStorage.Core.Monetization)
+local Products = require(ReplicatedStorage.Shared.Products)
 
 local log = Log.new("Shop")
 
 local Shop = {}
 
-function Shop.register(_services: CoreServer.Services, Config: any)
-	local products = Config.get("monetization").products
-	local waiting = {}
-	for key, product in products do
-		if product.id == 0 then
-			table.insert(waiting, key)
-		else
-			-- Created on Roblox before its M5 handler exists: the receipt is never
-			-- granted (so never charged for good), but say so loudly.
-			log:error("product has an id but no handler yet; add it in Shop.luau (M5)", { product = key })
+function Shop.register(services: CoreServer.Services, Config: any, ids: Monetization.Resolved, actions: any)
+	local monetization = Config.get("monetization")
+	local grants = Products.grants({
+		monetization = monetization,
+		actions = actions,
+		now = function()
+			return Workspace:GetServerTimeNow()
+		end,
+		after = function(fn: () -> ())
+			task.defer(fn)
+		end,
+	})
+	for _, key in Products.SOLD do
+		services.receipts:register(key, ids.products[key], grants[key])
+	end
+
+	-- A product created on Roblox before the game can deliver it would take
+	-- Robux for nothing: Roblox would retry its receipt forever. Say so loudly.
+	for key, id in ids.products do
+		if id > 0 and table.find(Products.SOLD, key) == nil then
+			log:error("product has an id but is not sold yet; remove the id until it is", { product = key })
 		end
 	end
-	table.sort(waiting)
-	if #waiting > 0 then
-		log:info("products not created on Roblox yet", { products = table.concat(waiting, ",") })
+
+	local catalog: { Purchases.CatalogItem } = {}
+	for _, item in Products.catalog(monetization, Config.get("gear")) do
+		table.insert(catalog, {
+			key = item.key,
+			kind = item.kind,
+			name = item.name,
+			description = item.description,
+			oddsTable = item.oddsTable,
+			paidRandom = item.paidRandom,
+		})
 	end
+	services.shop:setCatalog(catalog)
 end
 
 return Shop

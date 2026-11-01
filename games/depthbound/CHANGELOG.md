@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- First minute: the pickaxe goes straight into the player's hand, a goal line
+  walks new players to their first upgrade, and the Rucksack costs 40 (was
+  100) so the first full dive pays for it.
+- Shop (shared core shop and Studio test panel): Oil Refill (saved, one
+  poured per dive, pours at once when bought mid-dive), Ore Boost (ore sells
+  for 2x for 15 minutes, stacking time), and the Bigger Pack, Better Lamp and
+  Auto-Sell passes. Ids per experience under `environments` in
+  `config/monetization.luau`. The HUD gains a refill button and the Ore Boost
+  timer. Save data v1 gains `oilRefills` (filled in on load). Geode Crate
+  waits for M5.
 - First playable (M2): a shared three-layer mine built per server from a
   seed, with only blocks that touch air drawn as Parts and old tunnels growing
   back; pickaxe mining with server checks for reach, swing speed, exposure
