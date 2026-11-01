@@ -43,7 +43,7 @@ function Shop.register(
 		assert(grant, `product {key} has no grant (src/shared/Products.luau)`)
 		services.receipts:register(key, ids.products[key], grant)
 	end
-	services.shop:setCatalog(Products.catalog(config) :: any)
+	services.shop:setCatalog(Products.catalog(config))
 end
 
 return Shop
