@@ -121,6 +121,16 @@ return function(Schema: any)
 				cash = Schema.optional(Schema.integer({ min = 1 })),
 			})
 		),
+		-- Ids per experience (see packages/core/src/Monetization.luau).
+		environments = Schema.optional(
+			Schema.map(
+				Schema.oneOf({ "dev", "staging", "production" }),
+				Schema.record({
+					passes = Schema.optional(Schema.map(id, productId)),
+					products = Schema.optional(Schema.map(id, productId)),
+				})
+			)
+		),
 		boosts = Schema.record({
 			SpeedBoost = Schema.record({
 				durationSeconds = Schema.integer({ min = 1, max = 24 * 60 * 60 }),
