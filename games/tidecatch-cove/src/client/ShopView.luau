@@ -102,6 +102,9 @@ function ShopView.start(ctx: Context.Context)
 			end
 		end
 		for _, bait in fishing.bait do
+			if bait.robux then
+				continue -- Robux-only bait comes from the Robux shop, not for coins
+			end
 			order += 1
 			local left = Cove.stockLeft(d, bait, now, config.economy)
 			local boosts = {}

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <style>/*FONTS*/</style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:tidecatch-cove/fish.svg-->
+    <radialGradient id="bg" cx="50%" cy="38%" r="78%">
+      <stop offset="0" stop-color="#2E5FB8"/><stop offset="0.55" stop-color="#1E2A78"/><stop offset="1" stop-color="#0D1030"/>
+    </radialGradient>
+    <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE066" stop-opacity="0.85"/><stop offset="0.5" stop-color="#FFAA28" stop-opacity="0.35"/><stop offset="1" stop-color="#FFAA28" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8CF5FF"/><stop offset="0.5" stop-color="#2FC6EE"/><stop offset="1" stop-color="#1580C8"/>
+    </linearGradient>
+    <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8C48A"/><stop offset="1" stop-color="#A7774A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- light rays -->
+  <g opacity="0.13" fill="#BFF6FF">
+    <path d="M256 210 L120 -20 L200 -20 Z"/><path d="M256 210 L300 -20 L380 -20 Z"/>
+    <path d="M256 210 L470 -20 L540 40 Z"/><path d="M256 210 L-40 60 L-30 -10 Z"/>
+  </g>
+  <!-- gold "Giant" glow behind the catch -->
+  <circle cx="262" cy="214" r="200" fill="url(#goldGlow)"/>
+  <circle cx="262" cy="214" r="150" fill="none" stroke="#FFD23F" stroke-width="6" stroke-opacity="0.55" stroke-dasharray="4 18" stroke-linecap="round"/>
+
+  <!-- tide pool -->
+  <ellipse cx="256" cy="440" rx="236" ry="86" fill="#0A0E2A" opacity="0.5"/>
+  <ellipse cx="256" cy="428" rx="232" ry="80" fill="url(#rock)" stroke="#2A1240" stroke-width="9"/>
+  <g fill="#C9965E" stroke="#2A1240" stroke-width="6">
+    <ellipse cx="62" cy="410" rx="36" ry="24"/><ellipse cx="452" cy="414" rx="38" ry="24"/>
+    <ellipse cx="140" cy="476" rx="40" ry="20"/><ellipse cx="380" cy="478" rx="44" ry="20"/>
+  </g>
+  <ellipse cx="256" cy="420" rx="186" ry="54" fill="url(#water)" stroke="#2A1240" stroke-width="8"/>
+  <ellipse cx="256" cy="416" rx="120" ry="30" fill="none" stroke="#DDFDFF" stroke-width="6" opacity="0.7"/>
+  <ellipse cx="256" cy="414" rx="64" ry="15" fill="none" stroke="#DDFDFF" stroke-width="5" opacity="0.85"/>
+
+  <!-- splash crown where the catch left the water -->
+  <g stroke="#2A1240" stroke-width="7" stroke-linejoin="round">
+    <path d="M150 420 C140 396 120 380 104 376 C124 372 146 380 162 394 C160 370 168 348 184 336 C182 360 188 382 198 396
+             C204 372 220 356 238 350 C228 368 226 388 230 404 C246 388 266 384 284 388 C268 396 258 408 254 424 Z"
+          fill="#BFF8FF"/>
+    <path d="M300 424 C306 404 320 390 338 384 C330 398 330 410 334 420 C346 404 366 396 386 398 C370 406 360 416 356 428 Z" fill="#BFF8FF"/>
+  </g>
+  <g fill="#DDFDFF" stroke="#2A1240" stroke-width="5">
+    <circle cx="96" cy="346" r="11"/><circle cx="402" cy="352" r="9"/><circle cx="150" cy="318" r="7"/><circle cx="246" cy="326" r="8"/>
+  </g>
+
+  <!-- fishing line + bobber -->
+  <path d="M520 -10 C470 60 430 110 404 160" stroke="#FFFFFF" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M404 160 C396 176 382 186 372 190" stroke="#FFFFFF" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <use href="#bobber" transform="translate(440 104) rotate(28)"/>
+
+  <!-- the leaping catch -->
+  <g filter="url(#dropShadow)">
+    <use href="#heroFish" transform="translate(254 222) rotate(-24) scale(1.18)"/>
+  </g>
+
+  <!-- sparkles -->
+  <g fill="#FFF2A8">
+    <use href="#spark" transform="translate(96 150) scale(1.6)"/>
+    <use href="#spark" transform="translate(430 250) scale(1.2)"/>
+    <use href="#spark" transform="translate(150 70) scale(0.9)"/>
+    <use href="#spark" transform="translate(340 60) scale(1.1)"/>
+  </g>
+</svg>

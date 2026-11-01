@@ -1,0 +1,217 @@
+[
+  {
+    "name": "community-banner",
+    "src": "community-banner.svg",
+    "out": [
+      {
+        "path": "branding/community-banner.svg"
+      },
+      {
+        "path": "branding/community-banner-1440x456.png",
+        "size": [
+          1440,
+          456
+        ]
+      },
+      {
+        "path": "branding/community-banner-2880x912.png",
+        "size": [
+          2880,
+          912
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tidecatch-cove/icon",
+    "src": "tidecatch-cove/icon.svg",
+    "out": [
+      {
+        "path": "games/tidecatch-cove/store/icon.svg"
+      },
+      {
+        "path": "games/tidecatch-cove/store/icon.png",
+        "size": [
+          512,
+          512
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tidecatch-cove/thumbnail-1",
+    "src": "tidecatch-cove/thumbnail-1.svg",
+    "out": [
+      {
+        "path": "games/tidecatch-cove/store/thumbnail-1.svg"
+      },
+      {
+        "path": "games/tidecatch-cove/store/thumbnail-1.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "tidecatch-cove/thumbnail-2",
+    "src": "tidecatch-cove/thumbnail-2.svg",
+    "out": [
+      {
+        "path": "games/tidecatch-cove/store/thumbnail-2.svg"
+      },
+      {
+        "path": "games/tidecatch-cove/store/thumbnail-2.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "street-food-empire/icon",
+    "src": "street-food-empire/icon.svg",
+    "out": [
+      {
+        "path": "games/street-food-empire/store/icon.svg"
+      },
+      {
+        "path": "games/street-food-empire/store/icon.png",
+        "size": [
+          512,
+          512
+        ]
+      }
+    ]
+  },
+  {
+    "name": "street-food-empire/thumbnail-1",
+    "src": "street-food-empire/thumbnail-1.svg",
+    "out": [
+      {
+        "path": "games/street-food-empire/store/thumbnail-1.svg"
+      },
+      {
+        "path": "games/street-food-empire/store/thumbnail-1.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "street-food-empire/thumbnail-2",
+    "src": "street-food-empire/thumbnail-2.svg",
+    "out": [
+      {
+        "path": "games/street-food-empire/store/thumbnail-2.svg"
+      },
+      {
+        "path": "games/street-food-empire/store/thumbnail-2.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "depthbound/icon",
+    "src": "depthbound/icon.svg",
+    "out": [
+      {
+        "path": "games/depthbound/store/icon.svg"
+      },
+      {
+        "path": "games/depthbound/store/icon.png",
+        "size": [
+          512,
+          512
+        ]
+      }
+    ]
+  },
+  {
+    "name": "depthbound/thumbnail-1",
+    "src": "depthbound/thumbnail-1.svg",
+    "out": [
+      {
+        "path": "games/depthbound/store/thumbnail-1.svg"
+      },
+      {
+        "path": "games/depthbound/store/thumbnail-1.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "depthbound/thumbnail-2",
+    "src": "depthbound/thumbnail-2.svg",
+    "out": [
+      {
+        "path": "games/depthbound/store/thumbnail-2.svg"
+      },
+      {
+        "path": "games/depthbound/store/thumbnail-2.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hatchery-heist/icon",
+    "src": "hatchery-heist/icon.svg",
+    "out": [
+      {
+        "path": "games/hatchery-heist/store/icon.svg"
+      },
+      {
+        "path": "games/hatchery-heist/store/icon.png",
+        "size": [
+          512,
+          512
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hatchery-heist/thumbnail-1",
+    "src": "hatchery-heist/thumbnail-1.svg",
+    "out": [
+      {
+        "path": "games/hatchery-heist/store/thumbnail-1.svg"
+      },
+      {
+        "path": "games/hatchery-heist/store/thumbnail-1.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  {
+    "name": "hatchery-heist/thumbnail-2",
+    "src": "hatchery-heist/thumbnail-2.svg",
+    "out": [
+      {
+        "path": "games/hatchery-heist/store/thumbnail-2.svg"
+      },
+      {
+        "path": "games/hatchery-heist/store/thumbnail-2.png",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  }
+]

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Robux shop wired into the core's shared shop and Studio test panel: Bait
+  Pack, Mystery Bait (odds shown first, policy-checked), Growth Boost,
+  Restock Skip, and the Auto-reel, Extra Pools and Sell Multiplier passes.
+  New Robux-only baits (Storm Lure, Pearl Lure), whose casts are paid rolls.
+  Ids stay 0 until prices are approved.
+
 - First playable (M2): cast from four docks, a server-rolled bite, a
   touch-first reel minigame, keep or sell into a 12-slot bucket, 2 to 8 tide
   pools where creatures grow through five stages by the saved clock, feeding,

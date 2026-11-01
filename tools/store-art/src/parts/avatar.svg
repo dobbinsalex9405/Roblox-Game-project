@@ -1,0 +1,51 @@
+    <!-- Generic blocky player, front 3/4, ~190 tall, origin at feet centre.
+         Colours via CSS vars on the <use>: --skin --shirt --pants --hat -->
+    <g id="avatarBody">
+      <!-- legs -->
+      <rect x="-34" y="-82" width="32" height="82" rx="8" style="fill:var(--pants,#2B3A67)" stroke="#1B1238" stroke-width="7"/>
+      <rect x="2" y="-82" width="32" height="82" rx="8" style="fill:var(--pants,#2B3A67)" stroke="#1B1238" stroke-width="7"/>
+      <rect x="-38" y="-12" width="38" height="14" rx="6" fill="#1B1238"/><rect x="2" y="-12" width="38" height="14" rx="6" fill="#1B1238"/>
+      <!-- torso -->
+      <rect x="-42" y="-170" width="84" height="94" rx="14" style="fill:var(--shirt,#3A7BFF)" stroke="#1B1238" stroke-width="7"/>
+      <path d="M-30 -158 H30" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.35"/>
+    </g>
+    <g id="avatarHead">
+      <rect x="-40" y="-82" width="80" height="78" rx="20" style="fill:var(--skin,#FFD9A8)" stroke="#1B1238" stroke-width="7"/>
+      <circle cx="-14" cy="-46" r="7" fill="#1B1238"/><circle cx="16" cy="-46" r="7" fill="#1B1238"/>
+      <circle cx="-12" cy="-49" r="2.5" fill="#FFFFFF"/><circle cx="18" cy="-49" r="2.5" fill="#FFFFFF"/>
+      <path d="M-14 -28 Q2 -14 18 -28" stroke="#1B1238" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="-26" cy="-30" rx="7" ry="4" fill="#FF7B7B" opacity="0.5"/><ellipse cx="28" cy="-30" rx="7" ry="4" fill="#FF7B7B" opacity="0.5"/>
+    </g>
+    <!-- arm, pivot at shoulder (0,0), hangs down 80 -->
+    <g id="avatarArm">
+      <rect x="-15" y="-8" width="30" height="80" rx="10" style="fill:var(--shirt,#3A7BFF)" stroke="#1B1238" stroke-width="7"/>
+      <rect x="-15" y="52" width="30" height="26" rx="10" style="fill:var(--skin,#FFD9A8)" stroke="#1B1238" stroke-width="7"/>
+    </g>
+    <!-- bucket hat -->
+    <g id="hatBucket">
+      <path d="M-56 -76 Q0 -92 56 -76 L48 -66 Q0 -78 -48 -66 Z" style="fill:var(--hat,#2FA36B)" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-38 -76 Q-36 -112 0 -114 Q36 -112 38 -76 Z" style="fill:var(--hat,#2FA36B)" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-36 -86 Q0 -94 36 -86" stroke="#FFFFFF" stroke-width="5" fill="none" opacity="0.5"/>
+    </g>
+    <!-- chef hat, sits on avatarHead -->
+    <g id="hatChef">
+      <rect x="-34" y="-104" width="68" height="28" rx="6" fill="#FFFFFF" stroke="#1B1238" stroke-width="6"/>
+      <path d="M-34 -100 C-60 -104 -62 -142 -34 -142 C-30 -166 0 -170 12 -152 C30 -168 62 -152 50 -128 C66 -118 56 -98 34 -100 Z" fill="#FFFFFF" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-14 -104 V-120 M14 -104 V-120" stroke="#D8DEEA" stroke-width="5"/>
+    </g>
+    <!-- paper cook cap, low profile, sits on avatarHead -->
+    <g id="hatPaper">
+      <path d="M-42 -74 L-36 -102 L36 -102 L42 -74 Z" fill="#FFFFFF" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <rect x="-42" y="-86" width="84" height="10" fill="#FF4E44"/>
+      <path d="M-42 -74 L-36 -102 L36 -102 L42 -74 Z" fill="none" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+    </g>
+    <!-- torso only (for custom leg poses), origin at hips centre -->
+    <g id="avatarTorso">
+      <rect x="-42" y="-94" width="84" height="94" rx="14" style="fill:var(--shirt,#3A7BFF)" stroke="#1B1238" stroke-width="7"/>
+      <path d="M-30 -82 H30" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.35"/>
+    </g>
+    <!-- leg, pivot at hip (0,0), 82 long -->
+    <g id="avatarLeg">
+      <rect x="-16" y="-6" width="32" height="88" rx="8" style="fill:var(--pants,#2B3A67)" stroke="#1B1238" stroke-width="7"/>
+      <rect x="-18" y="70" width="38" height="14" rx="6" fill="#1B1238"/>
+    </g>

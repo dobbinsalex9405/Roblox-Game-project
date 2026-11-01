@@ -51,7 +51,8 @@ export type Options = {
 	-- Effects on the player.
 	notify: (player: any, text: string) -> (),
 	castStarted: (player: any, castId: number, spotId: string) -> (),
-	bite: (player: any, castId: number, rarity: string) -> (),
+	-- `auto`: the Auto-reel pass is reeling this one; the client only watches.
+	bite: (player: any, castId: number, rarity: string, auto: boolean) -> (),
 	caught: (player: any, caught: Caught) -> (),
 	escaped: (player: any, castId: number, text: string) -> (),
 	welcome: (player: any, grew: number, restocked: boolean) -> (),
@@ -86,6 +87,7 @@ export type Line = {
 	hookedAt: number?, -- clock time of the bite
 	speciesId: string?,
 	kg: number?,
+	auto: boolean?, -- the Auto-reel pass reels it; the client cannot
 }
 
 local name = Catch.displayName
@@ -215,6 +217,8 @@ function Actions.new(options: Options): Actions
 		return lines[player]
 	end
 
+	local finishReel: (player: any, castId: number, success: boolean) -> (boolean, string?)
+
 	-- The bite: roll the catch from the odds table the player saw.
 	local function bite(player: any, castId: number)
 		local line = lines[player]
@@ -236,7 +240,20 @@ function Actions.new(options: Options): Actions
 		line.speciesId = speciesId
 		line.kg = Catch.rollKg(def, options.random())
 		line.hookedAt = options.clock()
-		options.bite(player, castId, def.rarity)
+		local auto = options.perks(player).autoReel
+		line.auto = auto
+		options.bite(player, castId, def.rarity, auto)
+		if auto then
+			-- Lands at an average player's success rate, a little slower than
+			-- the fastest human reel.
+			local reel = fishing.reel
+			options.schedule(Reel.minSeconds(def.rarity, fishing) + reel.autoSeconds, function()
+				local current = lines[player]
+				if current == line and data:isLoaded(player) then
+					finishReel(player, castId, options.random() < reel.autoSuccess[def.rarity])
+				end
+			end)
+		end
 	end
 
 	function actions.cast(_self: Actions, player: any, spotId: string, baitId: string): (boolean, string?)
@@ -315,7 +332,8 @@ function Actions.new(options: Options): Actions
 		return true, nil
 	end
 
-	function actions.reel(_self: Actions, player: any, castId: number, success: boolean): (boolean, string?)
+	-- The end of a reel, from the client's minigame or the Auto-reel pass.
+	finishReel = function(player: any, castId: number, success: boolean): (boolean, string?)
 		local line = lines[player]
 		if line == nil or line.id ~= castId then
 			return false, "no line"
@@ -338,7 +356,7 @@ function Actions.new(options: Options): Actions
 			-- Rarer fish are hard on a weak rod: say what helps.
 			local d = data:get(player)
 			local rarer = def.rarity == "Rare" or def.rarity == "Epic" or def.rarity == "Legendary"
-			if rarer and d and d.rodTier < #fishing.rods then
+			if rarer and d and d.rodTier < #fishing.rods and not line.auto then
 				reason = `{def.rarity} fish are tough! A better rod makes them easier to land.`
 			end
 		elseif elapsed < Reel.minSeconds(def.rarity, fishing) - fishing.reel.toleranceSeconds then
@@ -402,6 +420,14 @@ function Actions.new(options: Options): Actions
 			isNew = result.isNew,
 		})
 		return true, nil
+	end
+
+	function actions.reel(_self: Actions, player: any, castId: number, success: boolean): (boolean, string?)
+		local line = lines[player]
+		if line and line.id == castId and line.auto then
+			return false, "auto-reeling" -- the pass decides, not the client
+		end
+		return finishReel(player, castId, success)
 	end
 
 	local function afterSale(player: any, firstSale: boolean)

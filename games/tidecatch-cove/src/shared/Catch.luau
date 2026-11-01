@@ -113,6 +113,27 @@ function Catch.oddsTables(
 	return tables
 end
 
+Catch.MYSTERY_TABLE = "MysteryBait"
+
+-- The Mystery Bait product's odds table: a paid random item.
+function Catch.mysteryTable(monetization: any): OddsTable
+	local outcomes: { Outcome } = {}
+	for _, o in monetization.mysteryBait do
+		table.insert(outcomes, { id = o.id, weight = o.weight })
+	end
+	return { id = Catch.MYSTERY_TABLE, paid = true, outcomes = outcomes }
+end
+
+-- The Mystery Bait outcome with this id.
+function Catch.mysteryOutcome(monetization: any, outcomeId: string): any?
+	for _, o in monetization.mysteryBait do
+		if o.id == outcomeId then
+			return o
+		end
+	end
+	return nil
+end
+
 -- The odds boost a rod puts on one table, or nil when the rod changes nothing.
 function Catch.rodBoost(rod: any, outcomes: { Outcome }, species: { [string]: any }): any?
 	local multipliers = Catch.speciesMultipliers(outcomes, rod.luck, species)
