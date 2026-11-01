@@ -42,7 +42,7 @@ function Harness.new(options: Options?)
 	h.store = opts.store or Fakes.store()
 	h.notices = {} :: { string }
 	h.casts = {} :: { { id: number, spot: string } }
-	h.bites = {} :: { { id: number, rarity: string, at: number } }
+	h.bites = {} :: { { id: number, rarity: string, at: number, auto: boolean } }
 	h.caught = {} :: { Actions.Caught }
 	h.escaped = {} :: { { id: number, text: string } }
 	h.welcomes = {} :: { { grew: number, restocked: boolean } }
@@ -142,8 +142,8 @@ function Harness.new(options: Options?)
 		castStarted = function(_player: any, castId: number, spotId: string)
 			table.insert(h.casts, { id = castId, spot = spotId })
 		end,
-		bite = function(_player: any, castId: number, rarity: string)
-			table.insert(h.bites, { id = castId, rarity = rarity, at = h.time })
+		bite = function(_player: any, castId: number, rarity: string, auto: boolean)
+			table.insert(h.bites, { id = castId, rarity = rarity, at = h.time, auto = auto })
 		end,
 		caught = function(_player: any, caught: Actions.Caught)
 			table.insert(h.caught, caught)

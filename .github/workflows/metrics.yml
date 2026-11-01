@@ -1,0 +1,82 @@
+name: Studio scoreboard
+
+# Once a day, reads every live game's daily counters (written by the shared
+# core's Metrics module) through Open Cloud with the read-only key, and
+# rewrites the one open issue labelled `daily-metrics`: the studio
+# scoreboard. The daily Claude run reads that issue (ops/DAILY_RUN.md).
+# Skips quietly until production ids and ROBLOX_READ_API_KEY exist.
+on:
+  schedule:
+    - cron: "41 6 * * *" # 06:41 UTC: after the UTC day closes, before the 07:13 daily run
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Which experiences to read"
+        type: choice
+        options: [production, staging]
+        default: production
+      through:
+        description: "Last UTC day to report (YYYYMMDD). Empty = yesterday."
+        required: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: studio-scoreboard
+  cancel-in-progress: false
+
+jobs:
+  scoreboard:
+    name: Read metrics and update the scoreboard issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pinned tools (rokit.toml)
+        uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Read metrics
+        id: pull
+        env:
+          ROBLOX_READ_API_KEY: ${{ secrets.ROBLOX_READ_API_KEY }}
+          ENV_FILTER: ${{ inputs.env || 'production' }}
+          THROUGH: ${{ inputs.through }}
+        run: |
+          args=(--env "$ENV_FILTER" --out metrics-out)
+          if [[ -n "$THROUGH" ]]; then args+=(--through "$THROUGH"); fi
+          lune run tools/metrics/pull "${args[@]}"
+
+      - name: Keep the numbers
+        if: steps.pull.outputs.configured == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: scoreboard-${{ github.run_id }}
+          path: metrics-out/
+          retention-days: 90
+
+      - name: Update the scoreboard issue
+        if: steps.pull.outputs.configured == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ENV_FILTER: ${{ inputs.env || 'production' }}
+        run: |
+          label=daily-metrics
+          title="Studio scoreboard"
+          if [[ "$ENV_FILTER" != "production" ]]; then
+            label=daily-metrics-staging
+            title="Studio scoreboard (staging)"
+          fi
+          gh label create "$label" --color 0e8a16 \
+            --description "The studio scoreboard, rewritten daily (ops/METRICS.md)" 2>/dev/null || true
+          number=$(gh issue list --label "$label" --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [[ -n "$number" ]]; then
+            gh issue edit "$number" --body-file metrics-out/scoreboard.md
+          else
+            gh issue create --title "$title" --label "$label" --body-file metrics-out/scoreboard.md
+          fi

@@ -13,7 +13,7 @@ return {
 	-- capacity: pieces of ore the pack holds.
 	pack = {
 		{ name = "Satchel", capacity = 15, cost = 0 },
-		{ name = "Rucksack", capacity = 30, cost = 100 },
+		{ name = "Rucksack", capacity = 30, cost = 40 }, -- reachable from the first full sale (first-minute hook)
 		{ name = "Miner's Pack", capacity = 50, cost = 600 },
 		{ name = "Hauler's Frame", capacity = 80, cost = 2500 },
 		{ name = "Deep Pack", capacity = 120, cost = 18000 },

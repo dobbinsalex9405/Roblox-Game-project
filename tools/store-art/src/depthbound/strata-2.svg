@@ -1,0 +1,374 @@
+<rect x="3" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 156 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 192) rotate(2) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(86 226) rotate(-2) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="123" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 156 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="243" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 156 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(288 192) rotate(0) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(326 226) rotate(-0) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="363" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 156 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="483" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 156 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 192) rotate(0) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(566 226) rotate(-0) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="603" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 156 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="723" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 156 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="963" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 156 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1008 192) rotate(-8) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(1046 226) rotate(8) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="1083" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 156 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1128 192) rotate(12) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(1166 226) rotate(-12) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="1203" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 156 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1323" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 156 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1368 192) rotate(19) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(1406 226) rotate(-19) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="1443" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 156 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1563" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 156 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1683" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 156 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1803" y="143" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 156 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 192) rotate(-19) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(1886 226) rotate(19) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="3" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 276 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 312) rotate(-18) scale(0.95)" style="--gem:#EDEDF5;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(86 346) rotate(18) scale(0.55)" style="--gem:#EDEDF5;--gemHi:#FFFFFF"/>
+<rect x="123" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 276 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(168 312) rotate(-10) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(206 346) rotate(10) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="243" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 276 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(288 312) rotate(-1) scale(0.95)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<use href="#gem" transform="translate(326 346) rotate(1) scale(0.55)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+<rect x="363" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 276 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(408 312) rotate(14) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(446 346) rotate(-14) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="483" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 276 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 312) rotate(6) scale(0.95)" style="--gem:#EDEDF5;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(566 346) rotate(-6) scale(0.55)" style="--gem:#EDEDF5;--gemHi:#FFFFFF"/>
+<rect x="603" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 276 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(648 312) rotate(6) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(686 346) rotate(-6) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="723" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 276 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(768 312) rotate(-9) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(806 346) rotate(9) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="963" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 276 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1083" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 276 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1203" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 276 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1323" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 276 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1443" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 276 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1488 312) rotate(-11) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(1526 346) rotate(11) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="1563" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 276 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 312) rotate(-17) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(1646 346) rotate(17) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="1683" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 276 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1803" y="263" width="114" height="114" rx="12" fill="#9A7352" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 276 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 312) rotate(14) scale(0.95)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<use href="#gem" transform="translate(1886 346) rotate(-14) scale(0.55)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+<rect x="3" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 396 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 432) rotate(18) scale(0.95)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(86 466) rotate(-18) scale(0.55)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<rect x="123" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 396 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="243" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 396 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(288 432) rotate(-12) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(326 466) rotate(12) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="363" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 396 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="483" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 396 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 432) rotate(19) scale(0.95)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
+<use href="#gem" transform="translate(566 466) rotate(-19) scale(0.55)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
+<rect x="603" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 396 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(648 432) rotate(-17) scale(0.95)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(686 466) rotate(17) scale(0.55)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<rect x="723" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 396 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="963" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 396 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1083" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 396 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1128 432) rotate(-17) scale(0.95)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(1166 466) rotate(17) scale(0.55)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<rect x="1203" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 396 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1248 432) rotate(19) scale(0.95)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(1286 466) rotate(-19) scale(0.55)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<rect x="1323" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 396 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1443" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 396 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1488 432) rotate(-10) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(1526 466) rotate(10) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="1563" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 396 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 432) rotate(-18) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(1646 466) rotate(18) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="1683" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 396 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1803" y="383" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 396 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 432) rotate(2) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(1886 466) rotate(-2) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="3" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 516 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 552) rotate(-12) scale(0.95)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
+<use href="#gem" transform="translate(86 586) rotate(12) scale(0.55)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
+<rect x="123" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 516 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="243" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 516 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(288 552) rotate(6) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(326 586) rotate(-6) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="363" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 516 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(408 552) rotate(-3) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(446 586) rotate(3) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="483" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 516 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 552) rotate(-9) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(566 586) rotate(9) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="603" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 516 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="723" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 516 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="963" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 516 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1008 552) rotate(15) scale(0.95)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(1046 586) rotate(-15) scale(0.55)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<rect x="1083" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 516 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1128 552) rotate(-4) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(1166 586) rotate(4) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="1203" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 516 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1323" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 516 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1443" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 516 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1488 552) rotate(20) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(1526 586) rotate(-20) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="1563" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 516 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 552) rotate(-10) scale(0.95)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<use href="#gem" transform="translate(1646 586) rotate(10) scale(0.55)" style="--gem:#A08C82;--gemHi:#E0D0C8"/>
+<rect x="1683" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 516 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1803" y="503" width="114" height="114" rx="12" fill="#5D626D" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 516 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 552) rotate(-8) scale(0.95)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<use href="#gem" transform="translate(1886 586) rotate(8) scale(0.55)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+<rect x="3" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 636 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 672) rotate(-16) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(86 706) rotate(16) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="123" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 636 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(168 672) rotate(-10) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(206 706) rotate(10) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="243" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 636 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(288 672) rotate(-5) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(326 706) rotate(5) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="363" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 636 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(408 672) rotate(18) scale(0.95)" style="--gem:#2840C8;--gemHi:#A0B4FF"/>
+<use href="#gem" transform="translate(446 706) rotate(-18) scale(0.55)" style="--gem:#2840C8;--gemHi:#A0B4FF"/>
+<rect x="483" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 636 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 672) rotate(3) scale(0.95)" style="--gem:#2840C8;--gemHi:#A0B4FF"/>
+<use href="#gem" transform="translate(566 706) rotate(-3) scale(0.55)" style="--gem:#2840C8;--gemHi:#A0B4FF"/>
+<rect x="603" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 636 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="723" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 636 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(768 672) rotate(-14) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(806 706) rotate(14) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="963" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 636 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1083" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 636 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1203" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 636 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1248 672) rotate(-12) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(1286 706) rotate(12) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="1323" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 636 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1443" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 636 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1563" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 636 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 672) rotate(18) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(1646 706) rotate(-18) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="1683" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 636 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1803" y="623" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 636 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 672) rotate(-3) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(1886 706) rotate(3) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="3" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 756 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 792) rotate(-18) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(86 826) rotate(18) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="123" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 756 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="243" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 756 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(288 792) rotate(8) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(326 826) rotate(-8) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="363" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 756 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(408 792) rotate(13) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(446 826) rotate(-13) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="483" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 756 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 792) rotate(-8) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(566 826) rotate(8) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="603" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 756 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(648 792) rotate(9) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(686 826) rotate(-9) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="723" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 756 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(768 792) rotate(-11) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(806 826) rotate(11) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="963" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 756 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1008 792) rotate(14) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(1046 826) rotate(-14) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="1083" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 756 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1128 792) rotate(-9) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(1166 826) rotate(9) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="1203" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 756 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1323" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 756 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1368 792) rotate(-19) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(1406 826) rotate(19) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="1443" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 756 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1488 792) rotate(-2) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(1526 826) rotate(2) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="1563" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 756 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 792) rotate(-13) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(1646 826) rotate(13) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="1683" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 756 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1728 792) rotate(3) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(1766 826) rotate(-3) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="1803" y="743" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 756 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 792) rotate(-6) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(1886 826) rotate(6) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="3" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 876 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="123" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 876 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="243" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 876 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="363" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 876 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="483" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 876 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(528 912) rotate(-14) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(566 946) rotate(14) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="603" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 876 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(648 912) rotate(-19) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(686 946) rotate(19) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="1203" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 876 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1323" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 876 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1443" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 876 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1563" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 876 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 912) rotate(5) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(1646 946) rotate(-5) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="1683" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 876 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1728 912) rotate(9) scale(0.95)" style="--gem:#2840C8;--gemHi:#A0B4FF"/>
+<use href="#gem" transform="translate(1766 946) rotate(-9) scale(0.55)" style="--gem:#2840C8;--gemHi:#A0B4FF"/>
+<rect x="1803" y="863" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 876 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 912) rotate(20) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(1886 946) rotate(-20) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="3" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M16 996 H90" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(48 1032) rotate(2) scale(0.95)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<use href="#gem" transform="translate(86 1066) rotate(-2) scale(0.55)" style="--gem:#F0C83C;--gemHi:#FFF2B0"/>
+<rect x="123" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M136 996 H210" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="243" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M256 996 H330" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="363" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M376 996 H450" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="483" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M496 996 H570" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="603" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M616 996 H690" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="723" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M736 996 H810" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="843" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M856 996 H930" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(888 1032) rotate(7) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(926 1066) rotate(-7) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="963" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M976 996 H1050" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1083" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1096 996 H1170" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1203" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1216 996 H1290" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1248 1032) rotate(12) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(1286 1066) rotate(-12) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="1323" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1336 996 H1410" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<rect x="1443" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1456 996 H1530" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1488 1032) rotate(5) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(1526 1066) rotate(-5) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="1563" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1576 996 H1650" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1608 1032) rotate(3) scale(0.95)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<use href="#gem" transform="translate(1646 1066) rotate(-3) scale(0.55)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+<rect x="1683" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1696 996 H1770" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1728 1032) rotate(-17) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(1766 1066) rotate(17) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<rect x="1803" y="983" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+<path d="M1816 996 H1890" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.15"/>
+<use href="#gem" transform="translate(1848 1032) rotate(20) scale(0.95)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+<use href="#gem" transform="translate(1886 1066) rotate(-20) scale(0.55)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>

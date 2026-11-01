@@ -83,9 +83,11 @@ function Hud.start(ctx: Context.Context): Api
 	pickerTitle.Text = "Bait"
 	pickerTitle.LayoutOrder = 0
 	local baitButtons: { [string]: TextButton } = {}
+	local robuxBait: { [string]: boolean } = {}
 	local baitOrder = { Catch.NO_BAIT }
 	for _, bait in config.fishing.bait do
 		table.insert(baitOrder, bait.id)
+		robuxBait[bait.id] = bait.robux
 	end
 	for i, baitId in baitOrder do
 		local b = Ui.button(picker, baitId, "", UDim2.new(1, 0, 0, 34))
@@ -112,6 +114,8 @@ function Hud.start(ctx: Context.Context): Api
 			local name = if baitId == Catch.NO_BAIT then "No bait" else Layout.displayName(baitId)
 			b.Text = if have then `{name} x{have}` else name
 			local usable = (have == nil or have > 0) and not OddsView.blocked(baitId)
+			-- Robux-only bait shows up once the player has some.
+			b.Visible = not robuxBait[baitId] or (have or 0) > 0
 			b.Active = usable
 			b.AutoButtonColor = usable
 			b.BackgroundColor3 = if baitId == selected

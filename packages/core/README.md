@@ -18,6 +18,7 @@ relative path (`require("./Log")`); everything else requires them by instance
 | 8 | `Policy` | PolicyService per player, read once, fails closed. | `Policy.spec` |
 | – | `Timers` | Progress from a saved start time with an optional offline cap; shared restock windows. | `Timers.spec` |
 | 11 | `Analytics` | One naming scheme over AnalyticsService; session length and D1/D7/D30 return markers for the launch gate. | `Analytics.spec` |
+| 14 | `Metrics` | Daily counters per game (players, new, D1/D7 returns, play time, Robux by product and pass, payers), merged into the `Metrics` DataStore once a minute from live servers only; read by the scoreboard (`ops/METRICS.md`). | `Metrics.spec` |
 | 12 | `ErrorReporter` | Errors grouped by signature, at most one queue write per server per minute, feedback cleaned and rate-limited. | `ErrorReporter.spec` |
 
 Still to come, per the plan: 9 Plots (with Hatchery Heist M2), 10 Events,

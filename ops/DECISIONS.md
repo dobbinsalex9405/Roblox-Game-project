@@ -21,6 +21,101 @@ Non-obvious choices, newest first, so a later session can trust them.
   pre-publish gate and the post-publish checks (version read-back, live join,
   error-queue sweep, first-24-hours rule) and the promotion rule to Production.
 - `playtests/` is now formatted and linted like the rest of the repo.
+## 2026-11-01: Our own metrics and the studio scoreboard
+
+- **Games count their own players and Robux** (`Metrics` in the core,
+  `ops/METRICS.md`) because Roblox's dashboards and group revenue pages need
+  a signed-in account and a DataStore only needs the read-only key.
+- **8 shard keys per day,** fixed per server by a hash of its JobId, merged
+  with `UpdateAsync` once a minute. One key per day would queue writes on
+  busy days; one key per server would make the reader list thousands of keys.
+- **Products count at grant, passes at in-game purchase.** Receipts already
+  grant exactly once, so a retried receipt is never counted twice. Website
+  pass sales and Premium payouts are invisible to the game and left out; the
+  scoreboard says so.
+- **Payers are counted once per player per day across servers** by saving
+  the day of their last payment in their data (`meta.lastPaidDay`).
+- **Studio never writes,** so test-panel purchases cannot inflate the score.
+- **Earnings are shown as 70% of Robux paid,** labelled an estimate.
+- **The scoreboard is one issue rewritten daily,** not one per day, so the
+  daily run and Alex always find it in the same place; the raw numbers stay in
+  the DataStore and in a 90-day run artifact.
+
+## 2026-11-01: The daily run and CLAUDE.md
+
+- **One daily Claude run, not several jobs** (`ops/DAILY_RUN.md`), at 07:13
+  UTC, an hour after the feedback workflow opens its digest. It wakes the
+  project thread "Set up the daily scheduled run" rather than a fresh
+  session, so it can read the pause switch and message the other threads.
+- **It decides and routes; it never writes game code or merges.** Fixes go
+  through the feedback thread and fixer threads, so every change still gets
+  the verifier and CI. This keeps the run cheap and its blast radius small.
+- **A publish hold also holds merges of game code.** A merge to `main`
+  publishes to Staging and GitHub Actions cannot read the switch, so the only
+  way to honour "publish nothing" is to not merge.
+- **An unreadable switch counts as a publish hold,** not as "running".
+- **Severity leans high.** The prefilter's suggestion can be raised freely
+  and lowered only with a reason; a fixed bug that comes back is sev1 or sev2.
+  Missing a broken purchase costs far more than an extra fix.
+- **Revenue is read only from the studio's own counters.** The group revenue
+  pages need Alex's signed-in session, which Claude never uses, so metrics
+  wait for a `daily-metrics` issue from the games' own DataStore counters.
+- **Alex gets a reminder at most every 3 days** about setup steps only Alex can
+  do, because nothing earns Robux until the experiences and keys exist.
+- **`CLAUDE.md` holds the standing rules** (switch, never-touch-credentials,
+  merge and thread rules) so every session in this repo starts with them.
+
+## 2026-11-01: Tidecatch Cove Robux shop (milestone M5 code, prices pending)
+
+- **Robux bait is its own bait.** Bait Pack and Mystery Bait give Storm Lures
+  and Pearl Lures, which coins never buy. A cast is a paid random roll exactly
+  when its bait came from Robux, so the policy check and the "paid" odds
+  label follow the bait id alone, with no per-unit bookkeeping. Coin bait
+  stays a free roll (coins are never sold here).
+- **Auto-reel is decided on the server.** With the pass, the server lands the
+  fish at a fixed per-rarity rate a little slower than the fastest human reel,
+  and ignores the client's report, so the pass cannot be used to claim a
+  perfect reel.
+- **Mystery Bait never grants nothing.** The shop refuses restricted players
+  before Roblox's prompt; if the policy flips after paying, the grant gives
+  the smallest bundle rather than keep the Robux for nothing.
+
+## 2026-11-01: Depthbound's first minute
+
+- **The pickaxe is put in the player's hand on every spawn.** Before, a new
+  player had to find the hotbar before their first swing, and a pickaxe that
+  arrived in the backpack after the character could be missed entirely.
+- **A goal line under the top bar** walks a new player through dig, climb out
+  and sell, then the cheapest upgrade with coins / cost, and disappears after
+  the first upgrade (Shared/Guide.luau, from the saved `firsts`).
+- **The Rucksack costs 40, not 100,** so one full first dive (about 30-60
+  coins) buys the first upgrade. A test bot on 12 mines now sells within
+  30 s and upgrades within 60 s (it took 55-107 s at 100); the test holds
+  45 s and 75 s as the bars.
+
+## 2026-11-01: Depthbound in the shared shop
+
+- **Two products and three passes are listed; the Geode Crate is not.** It is
+  a paid random item and geodes do not exist yet, so it stays out of the
+  catalog (and unregistered) until M5 brings geodes, its odds table, the odds
+  screen and the policy check. A Geode Crate id set before then is logged as
+  an error, since Roblox would charge for a product nobody can deliver.
+- **An Oil Refill is a saved item, poured at most once per dive** (the plan's
+  recommendation; Alex approves the limit with prices at M5). A grant cannot
+  refuse a purchase, so a refill bought at camp, after this dive's refill, or
+  with the lamp over 90% full is kept for a later dive instead of wasted.
+  Bought mid-dive it pours straight away; the HUD's refill button pours one
+  from stock or opens the purchase. A lamp already dry is a lamp-out first.
+- **An Ore Boost doubles sale prices for 15 minutes** (a config number), and
+  buying more adds time. Its end is saved as a server Unix time, so it runs
+  across servers and rejoins. Auto-Sell gets the boosted price too. Prices
+  and the multiplier are Alex's call at M5.
+- **Grants live in Shared/Products**, so the Lune tests run them through the
+  core's real receipt path (Buy, then Replay grants nothing twice). Anything
+  that touches the live dive runs right after the save, never inside it.
+- **The config checks resolve every experience's ids** (dev, staging,
+  production): an override for an unknown key, or one id used twice in one
+  experience, fails CI.
 
 ## 2026-11-01: Shared shop and Studio test panel
 

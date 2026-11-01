@@ -1,0 +1,54 @@
+    <linearGradient id="emRing" gradientUnits="userSpaceOnUse" x1="90" y1="400" x2="420" y2="110">
+      <stop offset="0" stop-color="#FF8A3D"/><stop offset="1" stop-color="#FFD23F"/>
+    </linearGradient>
+    <linearGradient id="emLiquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7CF0FF"/><stop offset="1" stop-color="#1FB5E8"/>
+    </linearGradient>
+    <linearGradient id="titleGold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF08A"/><stop offset="0.5" stop-color="#FFC93C"/><stop offset="1" stop-color="#FF8A3D"/>
+    </linearGradient>
+    <linearGradient id="titleCyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C9FAFF"/><stop offset="0.5" stop-color="#6FE6FA"/><stop offset="1" stop-color="#1FB5E8"/>
+    </linearGradient>
+    <linearGradient id="coinGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE873"/><stop offset="1" stop-color="#FFA526"/>
+    </linearGradient>
+    <clipPath id="emFlaskClip">
+      <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"/>
+    </clipPath>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#05061A" flood-opacity="0.55"/>
+    </filter>
+    <filter id="blur24" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="24"/></filter>
+    <filter id="blur8" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/></filter>
+    <!-- 4-point sparkle, radius 12 -->
+    <path id="spark" d="M0 -12 Q2 -2 12 0 Q2 2 0 12 Q-2 2 -12 0 Q-2 -2 0 -12 Z"/>
+    <!-- Coin, radius 30 -->
+    <g id="coin">
+      <circle r="30" fill="#B8620F"/>
+      <circle r="27" cy="-3" fill="url(#coinGrad)" stroke="#8A4A0B" stroke-width="4"/>
+      <circle r="17" cy="-3" fill="none" stroke="#FFF2A8" stroke-width="4" opacity="0.8"/>
+      <path d="M-10 -18 Q-20 -6 -12 6" stroke="#FFFBE0" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>
+    </g>
+    <!-- Loop Lab emblem mark (ring + flask), drawn in a 512 box -->
+    <g id="emblemMark">
+      <circle cx="256" cy="256" r="170" fill="none" stroke="url(#emRing)" stroke-width="40"
+              stroke-linecap="round" stroke-dasharray="880 188" transform="rotate(-60 256 256)"/>
+      <polygon points="183.2,146.0 141.4,82.6 209.0,83.4" fill="url(#emRing)" stroke="url(#emRing)" stroke-width="10" stroke-linejoin="round"/>
+      <g transform="translate(256 264) scale(1.28) translate(-256 -264)">
+        <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z" fill="#EAF2FF" fill-opacity="0.16"/>
+        <g clip-path="url(#emFlaskClip)"><rect x="180" y="288" width="160" height="60" fill="url(#emLiquid)"/></g>
+        <path d="M236 204 H276 V242 L316 316 Q324 334 306 334 H206 Q188 334 196 316 L236 242 Z"
+              fill="none" stroke="#EAF2FF" stroke-width="9" stroke-linejoin="round"/>
+        <rect x="226" y="194" width="60" height="14" rx="7" fill="#EAF2FF"/>
+        <circle cx="250" cy="308" r="8" fill="#EAF2FF" fill-opacity="0.85"/>
+        <circle cx="274" cy="318" r="5.5" fill="#EAF2FF" fill-opacity="0.85"/>
+      </g>
+    </g>
+    <!-- Studio badge for thumbnails: 372 x 84, top-left at 0,0 -->
+    <g id="studioBadge">
+      <rect width="372" height="84" rx="42" fill="#0D1020" fill-opacity="0.72" stroke="#EAF2FF" stroke-opacity="0.35" stroke-width="3"/>
+      <circle cx="42" cy="42" r="34" fill="#232870"/>
+      <use href="#emblemMark" transform="translate(12 12) scale(0.117)"/>
+      <text x="88" y="54" font-family="'Lilita One'" font-size="34" fill="#FFFFFF" letter-spacing="1">LOOP LAB GAMES</text>
+    </g>

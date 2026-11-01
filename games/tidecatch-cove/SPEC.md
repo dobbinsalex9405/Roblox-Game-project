@@ -79,11 +79,30 @@ every outcome.
 
 ## Money (M5, prices need Alex's approval)
 
-Passes: Auto-reel, Extra Pool, Sell Multiplier (perks already honored for
-Extra Pool and Sell Multiplier). Products: Growth Boost, Restock Skip, Bait
-Packs (paid random: odds screen), Mystery Bait (paid random: odds screen and
-policy check). Subscription: one rare bait a day. Private servers. All ids are
-0 until created; Config.spec fails if one is set before its handler exists.
+Everything below is built and runs in Studio through the core's shared shop
+and test panel (`ops/SHOP.md`); what each product does is in
+`src/shared/Products.luau`. Ids stay 0, so nothing is prompted for Robux, until
+Alex approves prices and the items are created (Config.spec checks this).
+
+- **Passes.** Auto-reel: the server lands each bite itself, `reel.autoSeconds`
+  after the fastest human reel, at `reel.autoSuccess` per rarity (an average
+  player's rate, so skill still pays); the client only watches, and a client
+  report on an auto line is ignored. Extra Pools: +`passBonusSlots` pools.
+  Sell Multiplier: every sale pays x`sellMultiplier`.
+- **Robux-only bait.** Storm Lure and Pearl Lure (`robux = true`) come only
+  from products, never for coins. Every cast with them is a paid random roll:
+  its odds are on the dock board and the Cast card, it goes through
+  `Odds.rollPaid`, and restricted players cannot cast it. Coin bait and Robux
+  bait never share an id, so a cast is paid exactly when its bait came from
+  Robux. Products never give coin bait (crossCheck).
+- **Products.** Bait Pack: a fixed bundle of Storm Lures (not random itself).
+  Mystery Bait: a random bundle from `monetization.mysteryBait`, a paid random
+  item: the shop shows its odds (with readable labels) before Buy and refuses
+  restricted players; the grant rolls through `Odds.rollPaid`. Growth Boost:
+  every pooled creature grows `stages` stages now (fully grown stay so).
+  Restock Skip: the bait shop is back in stock for this player now.
+- **Later.** Subscription (one rare bait a day) waits for core Subscriptions;
+  private servers need no code.
 
 ## Save data
 
@@ -99,5 +118,5 @@ nothing is ever removed.
 - Next (M3): first Staging publish and Studio session (lagoon layout, first
   playtest). Then M4: tide cycle (low-tide spot, storm odds, glow-tide
   mutations), Journal pages and rewards, Leaderboards ("biggest catch today"),
-  and the phone test of the reel. M5: the shop (passes, products, odds
-  screens for bait packs and mystery bait, subscription).
+  and the phone test of the reel. M5: prices (Alex), item ids per
+  experience, and the subscription.

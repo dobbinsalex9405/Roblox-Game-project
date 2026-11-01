@@ -1,0 +1,61 @@
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE07A"/><stop offset="0.5" stop-color="#FFCB45"/><stop offset="1" stop-color="#FF8A3A"/>
+    </linearGradient>
+    <linearGradient id="amberRing" gradientUnits="userSpaceOnUse" x1="0" y1="200" x2="0" y2="-200">
+      <stop offset="0" stop-color="#FF8A3A"/><stop offset="1" stop-color="#FFD23F"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E8B45A"/><stop offset="1" stop-color="#9A5E26"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFE9A8" stop-opacity="0.95"/><stop offset="0.5" stop-color="#FFF6D6" stop-opacity="0.98"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="lampGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE9A0" stop-opacity="0.95"/><stop offset="0.35" stop-color="#FFB547" stop-opacity="0.55"/><stop offset="1" stop-color="#FF8A3A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="emberGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FF5A1E" stop-opacity="0.85"/><stop offset="1" stop-color="#FF5A1E" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Miner's lantern, ~ 200 x 300, origin at glass centre -->
+    <g id="lantern">
+      <path d="M-56 -118 C-56 -190 56 -190 56 -118" fill="none" stroke="#2A160B" stroke-width="22" stroke-linecap="round"/>
+      <path d="M-56 -118 C-56 -190 56 -190 56 -118" fill="none" stroke="url(#brass)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M-70 -84 L-50 -122 H50 L70 -84 Z" fill="url(#brass)" stroke="#2A160B" stroke-width="10" stroke-linejoin="round"/>
+      <rect x="-82" y="-96" width="164" height="24" rx="10" fill="url(#brass)" stroke="#2A160B" stroke-width="10"/>
+      <path d="M-64 -72 H64 L72 76 H-72 Z" fill="url(#glass)" stroke="#2A160B" stroke-width="10" stroke-linejoin="round"/>
+      <!-- flame -->
+      <ellipse cx="0" cy="10" rx="46" ry="56" fill="#FFD23F" opacity="0.6"/>
+      <path d="M0 -50 C34 -14 34 26 0 50 C-34 26 -34 -14 0 -50 Z" fill="#FF8A3A"/>
+      <path d="M0 -24 C18 -2 18 22 0 36 C-18 22 -18 -2 0 -24 Z" fill="#FFE07A"/>
+      <path d="M0 0 C8 10 8 22 0 30 C-8 22 -8 10 0 0 Z" fill="#FFFFFF"/>
+      <!-- cage bars -->
+      <path d="M-24 -72 L-26 76 M24 -72 L26 76" stroke="#2A160B" stroke-width="8"/>
+      <path d="M-50 -60 L-48 60" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+      <rect x="-90" y="72" width="180" height="30" rx="12" fill="url(#brass)" stroke="#2A160B" stroke-width="10"/>
+      <rect x="-72" y="100" width="144" height="18" rx="8" fill="#7A4A1E" stroke="#2A160B" stroke-width="8"/>
+    </g>
+    <!-- Gem, ~ 60 wide, colour via --gem / --gemHi -->
+    <g id="gem">
+      <path d="M-30 -8 L-16 -28 H16 L30 -8 L0 30 Z" style="fill:var(--gem,#41C27A)" stroke="#120C1E" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M-30 -8 H30 M-16 -28 L-8 -8 L0 30 L8 -8 L16 -28" stroke="#120C1E" stroke-width="3" fill="none" stroke-linejoin="round" opacity="0.6"/>
+      <path d="M-14 -24 L-6 -10 L-22 -10 Z" style="fill:var(--gemHi,#BFFFD8)" opacity="0.9"/>
+    </g>
+    <!-- Ore block 90x90: base colour --blk, with gem flecks --gem -->
+    <g id="oreBlock">
+      <rect x="-45" y="-45" width="90" height="90" rx="10" style="fill:var(--blk,#9A7352)" stroke="#120C1E" stroke-width="6"/>
+      <path d="M-36 -36 H30" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.18"/>
+      <use href="#gem" transform="translate(-10 -6) scale(0.6)"/>
+      <use href="#gem" transform="translate(18 18) scale(0.42) rotate(20)"/>
+    </g>
+    <!-- Pickaxe, handle down-left, ~ 220 -->
+    <g id="pickaxe">
+      <rect x="-10" y="-20" width="20" height="200" rx="8" fill="#9A5E26" stroke="#2A160B" stroke-width="8"/>
+      <path d="M-110 -10 C-60 -50 60 -50 110 -10 L100 4 C50 -26 -50 -26 -100 4 Z" fill="#B9C3D6" stroke="#2A160B" stroke-width="8" stroke-linejoin="round"/>
+      <rect x="-20" y="-44" width="40" height="40" rx="8" fill="#6A7590" stroke="#2A160B" stroke-width="8"/>
+    </g>
+    <!-- Miner helmet with headlamp, sits on avatarHead -->
+    <g id="hatMiner">
+      <path d="M-50 -72 C-50 -120 50 -120 50 -72 Z" fill="#FFCB45" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <rect x="-56" y="-78" width="112" height="14" rx="7" fill="#FF8A3A" stroke="#1B1238" stroke-width="6"/>
+      <rect x="-14" y="-118" width="28" height="22" rx="6" fill="#FFF6D6" stroke="#1B1238" stroke-width="5"/>
+    </g>

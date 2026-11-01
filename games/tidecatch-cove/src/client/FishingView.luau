@@ -165,12 +165,17 @@ function FishingView.start(ctx: Context.Context, hud: Hud.Api, reel: ReelView.Ap
 		hud.status("Waiting for a bite...")
 		refreshPrompts()
 	end)
-	ctx.on(ctx.remotes["TC:Bite"], function(castId: number, rarity: string)
+	ctx.on(ctx.remotes["TC:Bite"], function(castId: number, rarity: string, auto: boolean)
 		local current = line
 		if current == nil or current.id ~= castId then
 			return
 		end
 		current.bitten = true
+		if auto then
+			-- The Auto-reel pass lands it on the server; Caught or Escaped follows.
+			hud.status(`Auto-reeling a {rarity} fish...`)
+			return
+		end
 		hud.status(nil)
 		local d = ctx.data()
 		local rodTier = if d then d.rodTier else 1

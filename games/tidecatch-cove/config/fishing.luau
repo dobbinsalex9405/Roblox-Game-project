@@ -32,6 +32,8 @@ type Fishing = {
 		timeoutSeconds: number,
 		toleranceSeconds: number,
 		rarity: { [string]: ReelRarity },
+		autoSeconds: number,
+		autoSuccess: { [string]: number },
 	},
 	bucketSlots: number,
 }
@@ -117,9 +119,12 @@ local fishing: Fishing = {
 	},
 
 	-- Bait is used up by one cast and multiplies the weights of the rarities
-	-- listed. Casting with no bait is always allowed. `robux` marks a bait the
-	-- game sells for Robux (bait packs, milestone M5): every cast with that
-	-- bait is then a paid random roll, policy-checked, with odds shown first.
+	-- listed. Casting with no bait is always allowed. `robux` marks a bait that
+	-- only comes from Robux products (Bait Pack, Mystery Bait): it is never
+	-- sold for coins (price and stock 0), and every cast with it is a paid
+	-- random roll, policy-checked, with its odds on the dock board and the
+	-- Cast card. Coin bait and Robux bait never share an id, so a cast is paid
+	-- exactly when its bait came from Robux.
 	-- Multipliers never fall as rarity rises, so bait can only shift a catch
 	-- toward rarer fish. Tuned so each bait pays back about twice its price
 	-- at Tiny sale prices on the spot it suits (Worm in the Shallows, Krill on
@@ -153,6 +158,20 @@ local fishing: Fishing = {
 			stock = 2,
 			robux = false,
 			rarityMultipliers = { Uncommon = 1.5, Rare = 3, Epic = 6, Legendary = 12 },
+		},
+		{
+			id = "StormLure",
+			priceCoins = 0,
+			stock = 0,
+			robux = true,
+			rarityMultipliers = { Uncommon = 2, Rare = 4, Epic = 6, Legendary = 8 },
+		},
+		{
+			id = "PearlLure",
+			priceCoins = 0,
+			stock = 0,
+			robux = true,
+			rarityMultipliers = { Uncommon = 2, Rare = 4, Epic = 10, Legendary = 20 },
 		},
 	},
 
@@ -202,6 +221,11 @@ local fishing: Fishing = {
 			Epic = { fill = 0.22, drain = 0.2, fishSpeed = 0.34 },
 			Legendary = { fill = 0.18, drain = 0.22, fishSpeed = 0.38 },
 		},
+		-- The Auto-reel pass: the server lands the fish on its own, at about
+		-- an average player's success rate, so skill still pays. It takes
+		-- `autoSeconds` longer than the fastest possible human reel.
+		autoSeconds = 2,
+		autoSuccess = { Common = 0.9, Uncommon = 0.85, Rare = 0.7, Epic = 0.5, Legendary = 0.25 },
 	},
 
 	-- Caught creatures wait in the bucket until they are placed in a pool or
