@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- First-session guide: a goal line under the cash bar, plus a gold arrow and
+  beam to the place to go, from the first customer to opening Market Row.
+  It follows the onboarding funnel, then offers the cheapest next station,
+  upgrade or cook, so the save for Market Row is a run of small goals.
+- Store page: title, description and art brief in `STORE.md`.
+
+- Shop: the shared Robux shop lists the three cash packs, Speed Boost, 2x
+  Cash and Auto-Collect, and the Studio test panel can buy and replay each
+  product. Per-experience ids go in `config/monetization.luau` under
+  `environments`. Instant Build waits for the M5 shop, which can offer it
+  only while something is being built.
+- Fixed: the server refused to start with a counter line longer than 20
+  (the line is 30 since the idle rebalance). The client draws 12 at most.
+
 - First playable (M2): a counter queue fed by each district's foot traffic,
   serving customers by hand for the whole menu, 12 stations (4 per district)
   with 3 levels each, build and upgrade timers, moving stations, 3 cook tiers

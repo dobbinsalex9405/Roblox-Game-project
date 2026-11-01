@@ -42,6 +42,9 @@ export type Actions = {
 	hireCook: (self: Actions, player: any, tierId: string, spot: number) -> (boolean, string?),
 	unlockDistrict: (self: Actions, player: any) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
+	-- Starts (or extends) a paid boost on `d`. For product grants, which run
+	-- inside the receipt handler's own data update: does not update or yield.
+	boost: (self: Actions, player: any, d: Restaurant.Data, boostId: string) -> (),
 }
 
 local Actions = {}
@@ -67,6 +70,14 @@ function Actions.new(options: Options): Actions
 	-- Runs `fn(d, ledger, now)` in one atomic update, after bringing the
 	-- restaurant up to date. `fn` returns a refusal message, or nil on
 	-- success. The ledger's cash changes are reported only when the update lands.
+	-- Brings `d` up to `now`: play time, then the register and the queue.
+	local function catchUp(player: any, d: Restaurant.Data, now: number)
+		if d.lastIncomeAt > 0 and now > d.lastIncomeAt then
+			d.stats.playSeconds += now - d.lastIncomeAt
+		end
+		Restaurant.accrue(d, config, restaurantPerks(player), now)
+	end
+
 	local function change(
 		player: any,
 		fn: (d: Restaurant.Data, ledger: any, now: number) -> string?
@@ -75,10 +86,7 @@ function Actions.new(options: Options): Actions
 		local refusal: string? = nil
 		local now = options.now()
 		local ok, err = data:update(player, function(d: Restaurant.Data)
-			if d.lastIncomeAt > 0 and now > d.lastIncomeAt then
-				d.stats.playSeconds += now - d.lastIncomeAt
-			end
-			Restaurant.accrue(d, config, restaurantPerks(player), now)
+			catchUp(player, d, now)
 			ledger = economy:ledger(player, d)
 			refusal = fn(d, ledger, now)
 		end)
@@ -253,6 +261,15 @@ function Actions.new(options: Options): Actions
 			analytics:progression(player, "Rebirth", "Complete", level)
 		end
 		return ok, err
+	end
+
+	function actions.boost(_self: Actions, player: any, d: Restaurant.Data, boostId: string)
+		local boost = config.monetization.boosts[boostId]
+		assert(boost, `unknown boost {boostId}`)
+		local now = options.now()
+		-- Income so far is at the old rate; the boost only speeds up what comes next.
+		catchUp(player, d, now)
+		Restaurant.startBoost(d, boostId, now, boost.durationSeconds)
 	end
 
 	return (actions :: any) :: Actions
