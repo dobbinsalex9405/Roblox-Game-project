@@ -101,7 +101,7 @@ describe("Hatchery Heist sessions", function()
 		local player = Fakes.player(2)
 		h.join(player)
 		play(h, player, 120)
-		expect(h.actions:buyEgg(player, h.findOnBelt("BasicEgg") or -1)).toBeFalsy() -- incubators may be full
+		h.actions:buyEgg(player, h.findOnBelt("BasicEgg") or -1) -- fill an incubator if one is free
 		h.actions:collect(player)
 		local d = h.get(player)
 		local perSecond = Hatchery.incomePerSecond(d, config, NO_PERKS)
@@ -123,6 +123,51 @@ describe("Hatchery Heist sessions", function()
 		end
 	end)
 
+	it("reports storage auto-sales at most every 20 seconds, summed", function()
+		local h = Harness.new()
+		local player = Fakes.player(9)
+		h.join(player)
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, economy.creaturePads + economy.storage.slots do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = if i <= economy.creaturePads then i else nil,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 100
+			d.incubators = {}
+			for slot = 1, 3 do
+				table.insert(
+					d.incubators,
+					{ slot = slot, eggId = "BasicEgg", readyAt = 0, outcome = "Chick" }
+				)
+			end
+		end)
+		local function soldNotices(): { string }
+			local out = {}
+			for _, n in h.noticesFor do
+				if n.player == player and string.find(n.text, "Storage is full", 1, true) then
+					table.insert(out, n.text)
+				end
+			end
+			return out
+		end
+		for slot = 1, 3 do
+			assert(h.actions:hatch(player, slot))
+		end
+		local value =
+			Hatchery.sellValue({ speciesId = "Chick", mutation = "None" }, config.creatures, economy)
+		expect(soldNotices()).toEqual({ `Storage is full: sold Chick for {value} coins.` })
+		h.wait(player, 25)
+		expect(soldNotices()[2]).toBe(`Storage is full: sold 2 creatures for {value * 2} coins.`)
+		expect(#soldNotices()).toBe(2)
+	end)
+
 	it("reports the onboarding steps once ever, in order", function()
 		local h = Harness.new()
 		local player = Fakes.player(3)
@@ -137,8 +182,11 @@ describe("Hatchery Heist sessions", function()
 		for _, args in h.eventsOf("onboarding") do
 			table.insert(steps, args[2])
 		end
-		expect(steps).toEqual({ "Joined", "FirstEggBought", "FirstHatch", "FirstRide" })
-		expect(#h2.eventsOf("onboarding")).toBe(0)
+		expect(steps).toEqual({ "Joined", "FirstEggBought", "FirstHatch", "FirstRide", "FirstCollect" })
+		-- The second session may reach new steps, but never repeats one.
+		for _, args in h2.eventsOf("onboarding") do
+			expect(table.find(steps, args[2])).toBeNil()
+		end
 	end)
 
 	it("gives restricted players the shown fixed order instead of a roll", function()
@@ -154,7 +202,12 @@ describe("Hatchery Heist sessions", function()
 		for _, incubator in h.get(player).incubators do
 			table.insert(outcomes, incubator.outcome)
 		end
-		expect(outcomes).toEqual({ basic.outcomes[1].id, basic.outcomes[2].id, basic.outcomes[3].id })
+		local expected = {}
+		for i = 0, 2 do
+			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
+		end
+		expect(outcomes).toEqual(expected)
+		expect(outcomes).toEqual({ "Chick", "Duckling", "Chick" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()

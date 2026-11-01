@@ -1,6 +1,6 @@
 --!strict
--- The minimal M2 interface, phone first: coins, income, the uncollected pile,
--- rebirths, a Get off button while riding, short notices, a welcome-back
+-- The minimal interface, phone first: coins, income, the uncollected pile,
+-- rebirths, a Get off button while riding, short notices, a raid banner, a welcome-back
 -- message, hatch reveals, the odds card shown before buying an egg, and the
 -- odds board at the conveyor. Built from code; art comes after the gate.
 
@@ -117,6 +117,37 @@ function Hud.start(ctx: Context.Context)
 		end)
 	end
 
+	-- Raid banner under the notices: what you are carrying and how long you
+	-- have left, or an alarm while raiders are on your base.
+	local banner =
+		panel(gui, "RaidBanner", UDim2.fromOffset(360, 40), UDim2.new(0.5, 0, 0, 122), Vector2.new(0.5, 0))
+	banner.Visible = false
+	local bannerText = label(banner, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
+	local function updateBanner()
+		local carrying = ctx.player:GetAttribute("Carrying")
+		if type(carrying) == "string" then
+			local started = ctx.player:GetAttribute("CarryStartedAt")
+			local left = if type(started) == "number"
+				then math.max(0, math.ceil(started + ctx.config.raids.maxCarrySeconds - ctx.serverNow()))
+				else ctx.config.raids.maxCarrySeconds
+			banner.BackgroundColor3 = Color3.fromRGB(200, 140, 30)
+			bannerText.Text = `Carrying a {Layout.displayName(carrying)}! Run home: {left}s`
+			banner.Visible = true
+			return
+		end
+		local own = ctx.plot()
+		local raiders = if own then own:GetAttribute("Raiders") else nil
+		if type(raiders) == "number" and raiders > 0 then
+			banner.BackgroundColor3 = Color3.fromRGB(190, 40, 40)
+			bannerText.Text = if raiders == 1
+				then "A raider is on your base!"
+				else `{raiders} raiders are on your base!`
+			banner.Visible = true
+			return
+		end
+		banner.Visible = false
+	end
+
 	ctx.on(ctx.remotes["HH:Notice"], function(text: string)
 		show(text)
 	end)
@@ -231,6 +262,7 @@ function Hud.start(ctx: Context.Context)
 					then `Auto-collecting {Layout.shortNumber(pile)}`
 					else `Uncollected: {Layout.shortNumber(pile)}`
 			end
+			updateBanner()
 			if boardGui == nil then
 				renderBoard()
 			end

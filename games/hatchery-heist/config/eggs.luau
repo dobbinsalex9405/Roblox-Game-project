@@ -16,7 +16,7 @@ local eggs: { Egg } = {
 	{
 		id = "BasicEgg",
 		priceCoins = 50,
-		hatchSeconds = 15,
+		hatchSeconds = 10,
 		outcomes = {
 			{ id = "Chick", weight = 6000 },
 			{ id = "Duckling", weight = 3000 },

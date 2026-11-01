@@ -12,7 +12,7 @@ standing rules come from the "Roblox Game Studio — Handoff Brief".
 
 ```
 rokit.toml                pinned tool versions (Rojo, Wally, Lune, Selene, StyLua, luau-lsp)
-wally.toml                third-party packages (ProfileStore)
+deps/wally.toml           third-party packages (ProfileStore), installed into deps/
 packages/core/
   src/                    pure framework logic, shared by server and client, tested with Lune
   server/                 Roblox server adapters (ProfileStore, MarketplaceService, PolicyService, ...)
@@ -39,7 +39,7 @@ Install the tools once with [Rokit](https://github.com/rojo-rbx/rokit), then:
 
 ```sh
 rokit install              # tools at the versions pinned in rokit.toml
-wally install              # packages into Packages/ and ServerPackages/
+(cd deps && wally install) # packages into deps/ServerPackages/
 
 lune run tools/test/run    # all tests (add a word to filter, e.g. "Odds")
 stylua packages games tools   # format

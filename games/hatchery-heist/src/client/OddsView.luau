@@ -91,15 +91,18 @@ function OddsView.render(container: GuiObject, eggId: string)
 		local data = ctx.data()
 		local bought = if data then data.eggsBought[egg.id] or 0 else 0
 		local nextId = Hatchery.fixedOrderOutcome(egg, bought)
-		row(container, 1, "Hatches in this order:", "", Color3.fromRGB(200, 200, 200), false)
+		row(container, 1, "Fixed order, no chance involved:", "", Color3.fromRGB(200, 200, 200), false)
+		local cycle = #Hatchery.fixedOrderCycle(egg)
 		for i, outcome in egg.outcomes do
 			local rarity = species[outcome.id].rarity
+			local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)
 			local isNext = outcome.id == nextId
+			local count = outcome.weight * cycle // 10000
 			row(
 				container,
 				i + 1,
-				`{i}. {Layout.displayName(outcome.id)} ({rarity})`,
-				if isNext then "NEXT" else "",
+				`{Layout.displayName(outcome.id)} ({rarity}): {count} in every {cycle}`,
+				if isNext then "NEXT" elseif wait then `in {wait + 1} eggs` else "",
 				Layout.rarityColor(rarity),
 				isNext
 			)

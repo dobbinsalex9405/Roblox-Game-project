@@ -59,7 +59,7 @@ Install Roblox Studio and the Claude desktop app, turn on Studio's MCP server,
 and install the Rojo Studio plugin. During a session:
 
 ```sh
-rokit install && wally install
+rokit install && (cd deps && wally install)
 rojo serve games/hatchery-heist/default.project.json
 ```
 
@@ -69,7 +69,7 @@ On a computer with Roblox Studio and the tools above:
 
 ```sh
 git pull
-rokit install && wally install
+rokit install && (cd deps && wally install)
 rojo serve games/hatchery-heist/default.project.json
 ```
 
