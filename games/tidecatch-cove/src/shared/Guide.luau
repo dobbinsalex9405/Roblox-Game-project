@@ -14,7 +14,14 @@ export type Step = {
 
 local Guide = {}
 
--- The player's next goal, or nil once they are past the first loop.
+-- A player who has caught this many without ever pooling one has seen the
+-- pool hint long enough: they prefer to sell, and the Pools panel is still
+-- there when they want it.
+Guide.RETIRE_AFTER_CATCHES = 8
+
+-- The player's next goal, or nil once they are past the first loop. Once nil,
+-- it stays nil: it only reads first-time moments and a catch count, which
+-- never go back.
 function Guide.step(d: { [string]: any }): Step?
 	local firsts = d.firsts
 	if firsts.FirstCast == nil then
@@ -32,6 +39,10 @@ function Guide.step(d: { [string]: any }): Step?
 		}
 	end
 	if firsts.FirstPlaced == nil then
+		local catches = if d.stats then d.stats.catches else 0
+		if catches >= Guide.RETIRE_AFTER_CATCHES then
+			return nil
+		end
 		if #d.bucket == 0 then
 			-- Sold the first catch: one more, then raise it.
 			return {
