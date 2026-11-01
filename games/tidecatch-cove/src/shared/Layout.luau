@@ -8,6 +8,8 @@
 -- space, where -Z faces the lagoon. The server builds from these numbers and
 -- the client draws prompts and boards from them, so both always agree.
 
+local Catch = require("./Catch")
+
 local Layout = {}
 
 Layout.COVES = 8 -- one per player; servers hold 8 (ops/SETUP.md)
@@ -99,10 +101,8 @@ function Layout.creatureSize(rarity: string, stage: number): number
 	return (RARITY_SIZES[rarity] or RARITY_SIZES.Common) * (0.6 + 0.25 * stage)
 end
 
--- "SandShrimp" -> "Sand Shrimp"
-function Layout.displayName(id: string): string
-	return (string.gsub(id, "(%l)(%u)", "%1 %2"))
-end
+-- "SandShrimp" -> "Sand Shrimp" (the same names the server's notices use)
+Layout.displayName = Catch.displayName
 
 -- 1234567 -> "1.23M"
 function Layout.shortNumber(n: number): string

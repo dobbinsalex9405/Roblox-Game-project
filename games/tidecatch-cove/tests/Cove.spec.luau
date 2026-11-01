@@ -59,18 +59,46 @@ describe("Cove", function()
 		expect(Cove.journalCount(d, config.species)).toBe(1)
 	end)
 
-	it("sells a catch at once when the bucket is full", function()
+	it("a full bucket sells the new catch when it is worth the least", function()
 		local d = fresh()
 		for _ = 1, config.fishing.bucketSlots do
-			Cove.land(d, ledger(d), catch("SandShrimp"), 100, config, NO_PERKS)
+			Cove.land(d, ledger(d), catch("Octopus", 5), 100, config, NO_PERKS)
 		end
 		local coins = d.coins
-		local landed = Cove.land(d, ledger(d), catch("Octopus", 5), 100, config, NO_PERKS)
+		local landed = Cove.land(d, ledger(d), catch("SandShrimp"), 100, config, NO_PERKS)
 		expect(landed.soldFor).toBe(
-			Creatures.value(catch("Octopus", 5) :: any, 1, config.species, config.pools)
+			Creatures.value(catch("SandShrimp") :: any, 1, config.species, config.pools)
 		)
+		expect(landed.madeRoom).toBeNil()
 		expect(d.coins).toBe(coins + landed.soldFor)
 		expect(#d.bucket).toBe(config.fishing.bucketSlots)
+		expect(Cove.bucketIndex(d, landed.uid)).toBeNil()
+		-- A tie keeps what was already in the bucket.
+		local tie = Cove.land(d, ledger(d), catch("Octopus", 5), 100, config, NO_PERKS)
+		expect(tie.soldFor > 0).toBe(true)
+		expect(Cove.bucketIndex(d, tie.uid)).toBeNil()
+	end)
+
+	it("a full bucket never throws away a rarer catch: it sells the cheapest instead", function()
+		local d = fresh()
+		for i = 1, config.fishing.bucketSlots do
+			-- Bucket item 3 is the smallest shrimp, so the cheapest.
+			Cove.land(d, ledger(d), catch("SandShrimp", if i == 3 then 0.1 else 0.4), 100, config, NO_PERKS)
+		end
+		local cheapestUid = d.bucket[3].uid
+		local coins = d.coins
+		local landed = Cove.land(d, ledger(d), catch("PearlWhale", 900), 100, config, NO_PERKS)
+		expect(landed.soldFor).toBe(0)
+		local room = landed.madeRoom :: { speciesId: string, coins: number }
+		expect(room.speciesId).toBe("SandShrimp")
+		expect(room.coins).toBe(
+			Creatures.value(catch("SandShrimp", 0.1) :: any, 1, config.species, config.pools)
+		)
+		expect(d.coins).toBe(coins + room.coins)
+		expect(#d.bucket).toBe(config.fishing.bucketSlots)
+		expect(Cove.bucketIndex(d, cheapestUid)).toBeNil()
+		expect(Cove.bucketIndex(d, landed.uid) ~= nil).toBe(true)
+		expect(d.stats.sold).toBe(1)
 	end)
 
 	it("sells from the bucket, one or all, with the Sell Multiplier pass", function()
@@ -167,6 +195,23 @@ describe("Cove", function()
 		d.lastSeenAt = 1010
 		Cove.welcomeBack(d, 1040, config)
 		expect(Creatures.grown(d.pools[1], 1040, "Common", config.pools)).toBe(40)
+	end)
+
+	it("a restock counts as news only after a real absence, not a server hop", function()
+		local period = config.economy.restockSeconds
+		local d = fresh()
+		-- Crossing a restock mark in a 30-second hop.
+		d.lastSeenAt = 10 * period - 10
+		local _, hop = Cove.welcomeBack(d, 10 * period + 20, config)
+		expect(hop).toBe(false)
+		-- Crossing one after minutes away.
+		d.lastSeenAt = 20 * period - Cove.WELCOME_MIN_AWAY_SECONDS
+		local _, away = Cove.welcomeBack(d, 20 * period, config)
+		expect(away).toBe(true)
+		-- Minutes away without crossing one.
+		d.lastSeenAt = 30 * period + 1
+		local _, none = Cove.welcomeBack(d, 30 * period + period - 1, config)
+		expect(none).toBe(false)
 	end)
 
 	it("the bait shop sells within stock and restocks on the server clock", function()

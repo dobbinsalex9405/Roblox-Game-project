@@ -68,6 +68,46 @@ describe("Tidecatch Cove config", function()
 		end
 	end)
 
+	it("bait always pays: it only shifts catches rarer, and pays back on its spot", function()
+		local config = load()
+		local species = config.species.species
+		local tables = Catch.oddsTables(config.fishing, species, Odds.normalize, false)
+		local byId = {}
+		for _, def in tables do
+			byId[def.id] = def
+		end
+		-- Average Tiny sale value of one cast.
+		local function value(spotId: string, baitId: string): number
+			local total, sum = 0, 0
+			for _, o in byId[Catch.tableId(spotId, baitId)].outcomes do
+				total += o.weight
+				sum += o.weight * species[o.id].value
+			end
+			return sum / total
+		end
+		local order = { "Common", "Uncommon", "Rare", "Epic", "Legendary" }
+		for _, bait in config.fishing.bait do
+			local last = 1
+			for _, rarity in order do
+				local m = bait.rarityMultipliers[rarity] or 1
+				expect(m >= last).toBe(true)
+				last = m
+			end
+			for _, spot in config.fishing.spots do
+				expect(value(spot.id, bait.id) > value(spot.id, Catch.NO_BAIT)).toBe(true)
+			end
+		end
+		-- Payback at Tiny prices on the spot each bait suits.
+		local function payback(spotId: string, baitId: string): number
+			local bait = Catch.bait(config.fishing, baitId) :: any
+			return (value(spotId, baitId) - value(spotId, Catch.NO_BAIT)) / bait.priceCoins
+		end
+		expect(payback("Shallows", "Worm")).toBeAtLeast(1.5)
+		expect(payback("Reef", "Krill")).toBeAtLeast(1.5)
+		expect(payback("KelpForest", "GlowBait")).toBeAtLeast(1.5)
+		expect(payback("KelpForest", "GoldenLure")).toBeAtLeast(0.9)
+	end)
+
 	it("every rod keeps every table at exactly 100%", function()
 		local config = load()
 		local odds = Odds.new()

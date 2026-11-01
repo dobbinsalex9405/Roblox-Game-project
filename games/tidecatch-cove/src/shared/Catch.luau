@@ -22,6 +22,12 @@ local Catch = {}
 -- The bait id for a cast with no bait.
 Catch.NO_BAIT = "None"
 
+-- "SandShrimp" -> "Sand Shrimp", "ReefRod" -> "Reef Rod": how every id
+-- (species, spots, bait, rods) is shown to players.
+function Catch.displayName(id: string): string
+	return (string.gsub(id, "(%l)(%u)", "%1 %2"))
+end
+
 function Catch.tableId(spotId: string, baitId: string): string
 	return `{spotId}_{baitId}`
 end

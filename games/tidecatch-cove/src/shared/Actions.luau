@@ -88,6 +88,8 @@ export type Line = {
 	kg: number?,
 }
 
+local name = Catch.displayName
+
 local Actions = {}
 
 function Actions.new(options: Options): Actions
@@ -254,7 +256,7 @@ function Actions.new(options: Options): Actions
 			return refuse("This spot opens at low tide.")
 		end
 		if d.rodTier < spot.minRod then
-			return refuse(`You need a {Catch.rod(fishing, spot.minRod).id} or better to fish here.`)
+			return refuse(`You need a {name(Catch.rod(fishing, spot.minRod).id)} or better to fish here.`)
 		end
 		if not options.canReach(player, spot.id) then
 			return refuse("Walk onto the dock to cast here.")
@@ -268,9 +270,9 @@ function Actions.new(options: Options): Actions
 		if last and clock - last < fishing.castCooldownSeconds then
 			return false, "casting too fast"
 		end
-		local line = lines[player]
-		if line and line.hookedAt then
-			return false, "a fish is on the line"
+		-- One line at a time: a recast before the bite would burn another bait.
+		if lines[player] then
+			return false, "your line is already out"
 		end
 		local paid = Catch.isPaid(bait, options.sellsCurrency)
 		if paid and not options.policy:paidRandomAllowed(player) then
@@ -280,7 +282,7 @@ function Actions.new(options: Options): Actions
 		local step: number? = nil
 		local ok, err = change(player, function(dd)
 			if not Cove.useBait(dd, baitId) then
-				return `You are out of {baitId}. Buy more at the bait shop.`
+				return `You are out of {name(baitId)}. Buy more at the bait shop.`
 			end
 			dd.stats.casts += 1
 			local _, s = Cove.markFirst(dd, "FirstCast", options.now())
@@ -333,6 +335,12 @@ function Actions.new(options: Options): Actions
 		local reason: string? = nil
 		if not success then
 			reason = "It got away!"
+			-- Rarer fish are hard on a weak rod: say what helps.
+			local d = data:get(player)
+			local rarer = def.rarity == "Rare" or def.rarity == "Epic" or def.rarity == "Legendary"
+			if rarer and d and d.rodTier < #fishing.rods then
+				reason = `{def.rarity} fish are tough! A better rod makes them easier to land.`
+			end
 		elseif elapsed < Reel.minSeconds(def.rarity, fishing) - fishing.reel.toleranceSeconds then
 			-- Faster than a perfect human reel: a script. Count it as lost.
 			analytics:custom(player, "Fish:ReelTooFast", 1, { def.rarity })
@@ -363,7 +371,8 @@ function Actions.new(options: Options): Actions
 			}, now, config, options.perks(player))
 			local _, s = Cove.markFirst(d, "FirstCatch", now)
 			step = s
-			if (landed :: Cove.Landed).soldFor > 0 then
+			local l = landed :: Cove.Landed
+			if l.soldFor > 0 or l.madeRoom then
 				firstSale = Cove.markFirst(d, "FirstSale", now)
 			end
 			return nil
@@ -373,6 +382,13 @@ function Actions.new(options: Options): Actions
 		end
 		local result = landed :: Cove.Landed
 		onboarding(player, step)
+		if result.madeRoom then
+			local room = result.madeRoom :: { speciesId: string, coins: number }
+			options.notify(
+				player,
+				`Bucket full: sold your {name(room.speciesId)} for {room.coins} coins to make room.`
+			)
+		end
 		if firstSale then
 			analytics:custom(player, "Onboarding:FirstSale", 1)
 		end
@@ -471,7 +487,7 @@ function Actions.new(options: Options): Actions
 			afterSale(player, firstSale)
 			local stageName = config.pools.stages[s.stage].name
 			analytics:custom(player, "Pool:Sold", s.coins, { s.speciesId, stageName })
-			options.notify(player, `Sold a {stageName} creature for {s.coins} coins.`)
+			options.notify(player, `Sold your {stageName} {name(s.speciesId)} for {s.coins} coins.`)
 		end
 		return ok, err
 	end
@@ -491,7 +507,7 @@ function Actions.new(options: Options): Actions
 		if ok then
 			self:refreshOdds(player)
 			analytics:progression(player, "Rod", "Complete", tier)
-			options.notify(player, `You bought the {Catch.rod(fishing, tier).id}!`)
+			options.notify(player, `You bought the {name(Catch.rod(fishing, tier).id)}!`)
 		end
 		return ok, err
 	end

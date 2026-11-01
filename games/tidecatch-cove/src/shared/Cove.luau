@@ -52,6 +52,10 @@ local ONBOARDING = { "Joined", "FirstCast", "FirstCatch", "FirstPlaced", "FirstG
 local Cove = {}
 Cove.ONBOARDING = table.freeze(ONBOARDING)
 
+-- A shorter absence is a server hop, not time away: a restock alone is not
+-- worth a welcome-back message then.
+Cove.WELCOME_MIN_AWAY_SECONDS = 120
+
 -- Records a first-time moment. Returns true the first time it happens for
 -- this player, ever, plus its onboarding step number when it has one.
 function Cove.markFirst(d: Data, name: string, now: number): (boolean, number?)
@@ -78,7 +82,7 @@ end
 -- `pools.offline.maxSeconds`, then each growth timer is moved forward so the
 -- rest of the absence is never counted later. Returns how many creatures
 -- reached a new stage while the player was away, and whether the bait shop
--- restocked meanwhile.
+-- restocked meanwhile (only after at least WELCOME_MIN_AWAY_SECONDS away).
 function Cove.welcomeBack(d: Data, now: number, config: Config): (number, boolean)
 	local lastSeenAt: number = d.lastSeenAt
 	local grew = 0
@@ -101,7 +105,7 @@ function Cove.welcomeBack(d: Data, now: number, config: Config): (number, boolea
 			end
 		end
 		local period = config.economy.restockSeconds
-		restocked = now // period > lastSeenAt // period
+		restocked = now - lastSeenAt >= Cove.WELCOME_MIN_AWAY_SECONDS and now // period > lastSeenAt // period
 	end
 	d.lastSeenAt = now
 	return grew, restocked
@@ -185,11 +189,16 @@ end
 
 export type Landed = {
 	uid: string,
-	soldFor: number, -- 0 when kept in the bucket
+	soldFor: number, -- > 0 when the new catch itself sold at once (bucket full)
 	isNew: boolean, -- first of its species in the journal
+	-- A bucket creature sold to make room for the new catch (bucket full).
+	madeRoom: { speciesId: string, coins: number }?,
 }
 
--- Lands a catch: into the bucket, or sold at once when the bucket is full.
+-- Lands a catch into the bucket. When the bucket is full, the least valuable
+-- of the bucket and the new catch sells at once, so a full bucket never
+-- throws away a rare catch for small change. A tie keeps what was already in
+-- the bucket.
 function Cove.land(d: Data, ledger: Ledger, catch: Catch, now: number, config: Config, perks: Perks): Landed
 	assert(config.species.species[catch.speciesId], `unknown species {catch.speciesId}`)
 	local isNew = record(d, catch, now)
@@ -204,13 +213,33 @@ function Cove.land(d: Data, ledger: Ledger, catch: Catch, now: number, config: C
 		spotId = catch.spotId,
 	}
 	if #d.bucket >= config.fishing.bucketSlots then
-		local coins =
-			Cove.salePrice(Creatures.value(creature, 1, config.species, config.pools), config, perks)
-		sell(d, ledger, coins, "Gameplay:SellCatch")
-		return { uid = uid, soldFor = coins, isNew = isNew }
+		local function price(c: any): number
+			return Cove.salePrice(Creatures.value(c, 1, config.species, config.pools), config, perks)
+		end
+		local cheapest: number? = nil
+		for index, c in d.bucket do
+			if cheapest == nil or price(c) < price(d.bucket[cheapest]) then
+				cheapest = index
+			end
+		end
+		local newPrice = price(creature)
+		if cheapest and price(d.bucket[cheapest]) < newPrice then
+			local sold: any = table.remove(d.bucket, cheapest)
+			local coins = price(sold)
+			sell(d, ledger, coins, "Gameplay:SellCatch")
+			table.insert(d.bucket, creature)
+			return {
+				uid = uid,
+				soldFor = 0,
+				isNew = isNew,
+				madeRoom = { speciesId = sold.speciesId, coins = coins },
+			}
+		end
+		sell(d, ledger, newPrice, "Gameplay:SellCatch")
+		return { uid = uid, soldFor = newPrice, isNew = isNew, madeRoom = nil }
 	end
 	table.insert(d.bucket, creature)
-	return { uid = uid, soldFor = 0, isNew = isNew }
+	return { uid = uid, soldFor = 0, isNew = isNew, madeRoom = nil }
 end
 
 -- Sells one creature from the bucket. Returns the coins, or nil and a refusal.

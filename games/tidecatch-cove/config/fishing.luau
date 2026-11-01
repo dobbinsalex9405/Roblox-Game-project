@@ -120,34 +120,42 @@ local fishing: Fishing = {
 	-- listed. Casting with no bait is always allowed. `robux` marks a bait the
 	-- game sells for Robux (bait packs, milestone M5): every cast with that
 	-- bait is then a paid random roll, policy-checked, with odds shown first.
+	-- Multipliers never fall as rarity rises, so bait can only shift a catch
+	-- toward rarer fish. Tuned so each bait pays back about twice its price
+	-- at Tiny sale prices on the spot it suits (Worm in the Shallows, Krill on
+	-- the Reef, Glow Bait in the Kelp Forest); the Golden Lure breaks even at
+	-- Tiny and pays through Legendaries raised in pools (Config.spec checks).
 	bait = {
-		{ id = "Worm", priceCoins = 10, stock = 40, robux = false, rarityMultipliers = { Uncommon = 1.5 } },
+		{
+			id = "Worm",
+			priceCoins = 6,
+			stock = 40,
+			robux = false,
+			rarityMultipliers = { Uncommon = 2, Rare = 2, Epic = 2, Legendary = 2 },
+		},
 		{
 			id = "Krill",
-			priceCoins = 40,
+			priceCoins = 30,
 			stock = 20,
 			robux = false,
-			rarityMultipliers = { Uncommon = 1.5, Rare = 2 },
+			rarityMultipliers = { Uncommon = 2, Rare = 3, Epic = 3, Legendary = 3 },
 		},
 		{
 			id = "GlowBait",
-			priceCoins = 200,
+			priceCoins = 150,
 			stock = 6,
 			robux = false,
-			rarityMultipliers = { Rare = 2, Epic = 3 },
+			rarityMultipliers = { Uncommon = 1.5, Rare = 3, Epic = 5, Legendary = 5 },
 		},
 		{
 			id = "GoldenLure",
-			priceCoins = 1000,
+			priceCoins = 600,
 			stock = 2,
 			robux = false,
-			rarityMultipliers = { Rare = 2, Epic = 4, Legendary = 5 },
+			rarityMultipliers = { Uncommon = 1.5, Rare = 3, Epic = 6, Legendary = 12 },
 		},
 	},
 
-	-- Rods, best last. Tier 1 is everyone's starting rod. `biteTime`
-	-- multiplies the wait for a bite, `luck` multiplies weights by rarity, and
-	-- `zone` is the width of the catch zone in the reel minigame (0 to 1).
 	rods = {
 		{ id = "DriftwoodRod", priceCoins = 0, biteTime = 1, zone = 0.28, luck = {} },
 		{

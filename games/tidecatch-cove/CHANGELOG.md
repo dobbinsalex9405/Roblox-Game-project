@@ -9,6 +9,12 @@
   welcome-back message, three rods, four baits and a bait shop that restocks
   every 10 minutes on the server clock, and journal records of every species
   caught.
+- Playtest fixes: notices name rods, bait and creatures as players read them;
+  a full bucket sells its least valuable catch instead of the new one; no
+  recast while a line waits for a bite; a lost Rare or rarer fish says a
+  better rod helps; the welcome-back message ignores a restock after a server
+  hop; bait retuned so it always pays (Worm 6c, Krill 30c, Glow Bait 150c,
+  Golden Lure 600c, with stronger rare multipliers).
 - 25 sea creatures in 5 rarities with sizes; value grows with size and stage.
 - Exact odds on every dock's board and on the Cast prompt's card, from the
   same table the server rolls (bait and rod included).

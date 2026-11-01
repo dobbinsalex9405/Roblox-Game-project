@@ -318,11 +318,14 @@ describe("Tidecatch Cove sessions", function()
 		expect(h.actions:cast(player, "Shallows", Catch.NO_BAIT)).toBe(true)
 		expect(h.actions:cast(player, "Shallows", Catch.NO_BAIT)).toBeFalsy() -- cooldown
 		h.wait(fishing.castCooldownSeconds)
-		-- Recasting before a bite replaces the line; the old one never bites.
-		expect(h.actions:cast(player, "Shallows", Catch.NO_BAIT)).toBe(true)
+		-- No recast while the line waits for a bite, so no second bait burns.
+		local worms = h.get(player).bait.Worm
+		expect(h.actions:cast(player, "Shallows", "Worm")).toBeFalsy()
+		expect(h.get(player).bait.Worm).toBe(worms)
+		expect(h.get(player).stats.casts).toBe(1)
 		h.wait(fishing.biteSeconds.max + 1)
 		expect(#h.bites).toBe(1)
-		expect(h.bites[1].id).toBe(2)
+		expect(h.bites[1].id).toBe(1)
 		-- With a fish on, no new cast until it is reeled or lost.
 		expect(h.actions:cast(player, "Shallows", Catch.NO_BAIT)).toBeFalsy()
 		h.wait(Reel.maxSeconds(fishing) + 11)
@@ -330,7 +333,7 @@ describe("Tidecatch Cove sessions", function()
 		expect(h.actions:cast(player, "Shallows", Catch.NO_BAIT)).toBe(true)
 	end)
 
-	it("a full bucket sells new catches at once", function()
+	it("a full bucket sells its least valuable catch and says so", function()
 		local h = Harness.new()
 		local player = Fakes.player(9)
 		h.join(player)
@@ -351,9 +354,16 @@ describe("Tidecatch Cove sessions", function()
 			h.wait(1)
 		end
 		local last = h.caught[#h.caught]
-		expect(last.soldFor > 0).toBe(true)
-		expect(h.get(player).coins).toBe(coins + last.soldFor)
-		expect(#h.get(player).bucket).toBe(fishing.bucketSlots)
+		local d = h.get(player)
+		expect(#d.bucket).toBe(fishing.bucketSlots)
+		expect(d.coins > coins).toBe(true)
+		if last.soldFor > 0 then
+			expect(d.coins).toBe(coins + last.soldFor)
+		else
+			-- The new catch was worth more: it stayed and a cheaper one sold.
+			expect(Cove.bucketIndex(d, last.uid) ~= nil).toBe(true)
+			expect(string.find(h.notices[#h.notices], "^Bucket full: sold your ") ~= nil).toBe(true)
+		end
 	end)
 
 	it("a better rod changes the odds board and the roll together", function()
@@ -385,6 +395,57 @@ describe("Tidecatch Cove sessions", function()
 		-- The Reef is open now.
 		expect(fishOnce(h, player, "Reef", Catch.NO_BAIT) ~= nil).toBe(true)
 		expect(#h.casts).toBe(1)
+	end)
+end)
+
+describe("Tidecatch Cove messages", function()
+	-- Every Shallows bite is a Lionfish (Rare), to test the rare-fish messages.
+	local function lionfishOnly()
+		local f = Util.deepCopy(fishing)
+		f.spots[1].outcomes = { { id = "Lionfish", weight = 10000 } }
+		return f
+	end
+
+	it("names rods, bait and creatures the way players read them", function()
+		local h = Harness.new({ fishing = lionfishOnly() })
+		local player = Fakes.player(13)
+		h.join(player)
+		h.actions:cast(player, "Reef", Catch.NO_BAIT)
+		expect(h.notices[#h.notices]).toBe("You need a Reef Rod or better to fish here.")
+		h.actions:cast(player, "Shallows", "GlowBait")
+		expect(h.notices[#h.notices]).toBe("You are out of Glow Bait. Buy more at the bait shop.")
+
+		expect(fishOnce(h, player, "Shallows", Catch.NO_BAIT)).toBe(true)
+		local uid = h.caught[#h.caught].uid
+		expect(h.actions:place(player, uid)).toBe(true)
+		local pooled = h.get(player).pools[1]
+		local coins = Creatures.value(pooled, 1, config.species, config.pools)
+		expect(h.actions:sellPool(player, pooled.slot)).toBe(true)
+		expect(h.notices[#h.notices]).toBe(`Sold your Tiny Lionfish for {coins} coins.`)
+
+		h.economy:add(player, "coins", 5000, "Admin:Test")
+		expect(h.actions:buyRod(player, 2)).toBe(true)
+		expect(h.notices[#h.notices]).toBe("You bought the Reef Rod!")
+	end)
+
+	it("a lost rare fish says a better rod helps, until the best rod", function()
+		local h = Harness.new({ fishing = lionfishOnly() })
+		local player = Fakes.player(14)
+		h.join(player)
+		local bite = h.castAndWait(player, "Shallows", Catch.NO_BAIT) :: any
+		h.wait(1)
+		h.actions:reel(player, bite.id, false)
+		expect(h.escaped[#h.escaped].text).toBe(
+			"Rare fish are tough! A better rod makes them easier to land."
+		)
+
+		h.economy:add(player, "coins", 1e6, "Admin:Test")
+		expect(h.actions:buyRod(player, #fishing.rods)).toBe(true)
+		h.wait(fishing.castCooldownSeconds)
+		bite = h.castAndWait(player, "Shallows", Catch.NO_BAIT) :: any
+		h.wait(1)
+		h.actions:reel(player, bite.id, false)
+		expect(h.escaped[#h.escaped].text).toBe("It got away!")
 	end)
 end)
 

@@ -30,7 +30,9 @@ is a see-through slab players wade through. Everything is built from code
    built for touch. Rarer fish dart faster and fill slower; better rods have a
    wider zone.
 4. **Keep or sell.** A catch goes into the bucket (`bucketSlots`), and the
-   catch card offers Keep or Sell. If the bucket is full the catch sells at once.
+   catch card offers Keep or Sell. If the bucket is full, the least valuable of
+   the bucket and the new catch sells at once (a tie keeps the bucket), so a
+   rare catch is never thrown away for small change; a notice names what sold.
 5. **Pools.** Place a bucket creature in a free pool (2 to start, more for
    coins, +2 with the Extra Pool pass). It grows Tiny, Young, Grown, Large,
    Giant, one stage every `stageSeconds` for its rarity, and sells for more at
@@ -38,8 +40,12 @@ is a see-through slab players wade through. Everything is built from code
    `feed.cooldownSeconds` per pool. Sell from the pool at any stage.
 6. **Away.** Pools grow by the saved clock. On rejoin, time away counts up to
    `offline.maxSeconds`; a welcome-back message says how many creatures grew
-   and whether the shop restocked.
-7. **Shop.** Rods (3 tiers) and bait (4 kinds) for coins. Each bait has a
+   and whether the shop restocked. A restock alone is not news after an
+   absence under 2 minutes (a server hop).
+7. **Shop.** Rods (3 tiers, any higher tier can be bought straight away) and
+   bait (4 kinds) for coins. Bait only ever shifts a catch toward rarer fish,
+   and pays back about twice its price at Tiny prices on the spot it suits
+   (the Golden Lure breaks even at Tiny and pays through grown Legendaries). Each bait has a
    `stock` per restock; the shop restocks every `restockSeconds` on the server
    clock, the same moment in every server.
 8. **Journal.** Every species caught is recorded with its count and biggest
@@ -58,7 +64,8 @@ every outcome.
 ## Safety
 
 - The server decides every catch, and checks rod, bait, distance to the dock,
-  one line at a time and a cast cooldown.
+  one line at a time (no recast until the cast ends, so no bait is burned)
+  and a cast cooldown.
 - A reel reported faster than `Reel.minSeconds` (a human reaction plus filling
   the bar without one miss) is a script: the fish is lost and
   `Fish:ReelTooFast` is logged.
