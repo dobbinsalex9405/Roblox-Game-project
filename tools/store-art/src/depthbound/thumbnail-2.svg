@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:4px}
+    .ui{font-family:'Fredoka';font-weight:700}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:parts/avatar.svg-->
+<!--INCLUDE:depthbound/parts.svg-->
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F1126"/><stop offset="1" stop-color="#2B3078"/>
+    </linearGradient>
+    <radialGradient id="dark" cx="1020" cy="900" r="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#05060F" stop-opacity="0"/><stop offset="0.25" stop-color="#05060F" stop-opacity="0.2"/>
+      <stop offset="0.55" stop-color="#05060F" stop-opacity="0.72"/><stop offset="1" stop-color="#05060F" stop-opacity="0.9"/>
+    </radialGradient>
+    <linearGradient id="upGreen" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#2FB36B"/><stop offset="1" stop-color="#9AF5B0"/>
+    </linearGradient>
+    <linearGradient id="downRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFB547"/><stop offset="1" stop-color="#FF5A1E"/>
+    </linearGradient>
+    <!-- fat arrow pointing up, 200 wide x 300 tall, tip at 0,-150 -->
+    <path id="arrowUp" d="M0 -150 L100 -30 H45 V150 H-45 V-30 H-100 Z"/>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#night)"/>
+  <rect y="140" width="1920" height="940" fill="#120C14"/>
+<!--INCLUDE:depthbound/strata-2.svg-->
+  <rect y="122" width="1920" height="24" fill="#6A8A4A" stroke="#120C1E" stroke-width="6"/>
+  <path d="M900 40 V860" stroke="#E8C48A" stroke-width="8" stroke-dasharray="18 10"/>
+  <path d="M840 146 V40 H960 V146" fill="none" stroke="#8A5A2B" stroke-width="16"/>
+
+  <!-- pocket -->
+  <circle cx="1020" cy="900" r="330" fill="url(#lampGlow)" opacity="0.65"/>
+  <g transform="translate(1020 980)" style="--shirt:#3C5AD8;--pants:#3A2D2E;--skin:#FFD9A8">
+    <use href="#avatarArm" transform="translate(-42 -160) rotate(160)"/>
+    <use href="#avatarBody"/>
+    <use href="#avatarHead" transform="translate(0 -168)"/>
+    <use href="#hatMiner" transform="translate(0 -168)"/>
+    <use href="#avatarArm" transform="translate(42 -160) rotate(-20)"/>
+    <use href="#lantern" transform="translate(70 -60) scale(0.24)"/>
+  </g>
+  <circle cx="1020" cy="1040" r="150" fill="url(#emberGlow)" opacity="0.8"/>
+  <!-- big emberite one block below -->
+  <g transform="translate(1020 1040)">
+    <use href="#gem" transform="scale(1.6)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+  </g>
+
+  <rect y="146" width="1920" height="934" fill="url(#dark)"/>
+
+  <!-- CASH OUT: up -->
+  <g filter="url(#dropShadow)">
+    <use href="#arrowUp" transform="translate(620 640) scale(1.15)" fill="url(#upGreen)" stroke="#0B3A1A" stroke-width="12" stroke-linejoin="round"/>
+    <text x="620" y="930" text-anchor="middle" class="big" font-size="130" fill="#BFFFD0" stroke="#0B3A1A" stroke-width="16" paint-order="stroke" stroke-linejoin="round">CASH OUT</text>
+  </g>
+  <!-- PUSH ON: down -->
+  <g filter="url(#dropShadow)">
+    <text x="1460" y="420" text-anchor="middle" class="big" font-size="130" fill="url(#amber)" stroke="#3A160B" stroke-width="16" paint-order="stroke" stroke-linejoin="round">PUSH ON</text>
+    <use href="#arrowUp" transform="translate(1460 650) rotate(180) scale(1.15)" fill="url(#downRed)" stroke="#3A160B" stroke-width="12" stroke-linejoin="round"/>
+  </g>
+  <text x="1040" y="610" text-anchor="middle" class="big" font-size="110" fill="#FFFFFF" stroke="#05060F" stroke-width="14" paint-order="stroke" opacity="0.95">OR</text>
+
+  <!-- HUD warning, as in the game -->
+  <g transform="translate(1100 20)" filter="url(#dropShadow)">
+    <rect width="780" height="96" rx="48" fill="#0F1126" stroke="#FF5A4E" stroke-width="7"/>
+    <rect x="86" y="24" width="190" height="48" rx="24" fill="#2B3078"/>
+    <rect x="86" y="24" width="48" height="48" rx="24" fill="#FF5A4E"/>
+    <rect x="160" y="16" width="8" height="64" rx="4" fill="#FFFFFF"/>
+    <use href="#lantern" transform="translate(46 54) scale(0.17)"/>
+    <text x="298" y="62" class="ui" font-size="38" fill="#FFFFFF">Climb now! 9s of oil left</text>
+  </g>
+  <use href="#studioBadge" transform="translate(40 970)"/>
+</svg>

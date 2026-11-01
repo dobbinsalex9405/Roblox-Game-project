@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:3px}
+    .sign{font-family:'Lilita One';letter-spacing:2px}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:parts/avatar.svg-->
+<!--INCLUDE:street-food-empire/parts.svg-->
+    <radialGradient id="streetGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFC24A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC24A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#nightSky)"/>
+  <!-- far skyline -->
+  <g fill="#2A2C78" stroke="#1B1238" stroke-width="5">
+    <rect x="40" y="420" width="140" height="500"/><rect x="200" y="360" width="110" height="560"/><rect x="330" y="460" width="160" height="460"/>
+    <rect x="560" y="400" width="120" height="520"/><rect x="1000" y="330" width="130" height="590"/><rect x="1180" y="420" width="150" height="500"/>
+    <rect x="1700" y="380" width="180" height="540"/>
+  </g>
+  <g fill="#FFE08A" opacity="0.35">
+    <rect x="70" y="460" width="26" height="30"/><rect x="120" y="520" width="26" height="30"/><rect x="230" y="400" width="26" height="30"/><rect x="250" y="480" width="26" height="30"/>
+    <rect x="1030" y="380" width="26" height="30"/><rect x="1080" y="450" width="26" height="30"/><rect x="1740" y="430" width="26" height="30"/><rect x="1800" y="500" width="26" height="30"/>
+  </g>
+  <ellipse cx="1350" cy="780" rx="760" ry="360" fill="url(#streetGlow)"/>
+  <!-- street -->
+  <rect y="880" width="1920" height="200" fill="#3A3550"/>
+  <rect y="868" width="1920" height="24" fill="#B9B4CC" stroke="#1B1238" stroke-width="6"/>
+  <g fill="#FFE08A"><rect x="420" y="980" width="110" height="16" rx="8"/><rect x="760" y="980" width="110" height="16" rx="8"/><rect x="1100" y="980" width="110" height="16" rx="8"/><rect x="1440" y="980" width="110" height="16" rx="8"/><rect x="1780" y="980" width="110" height="16" rx="8"/></g>
+
+  <!-- LEFT: day one, a single cart on an empty lot -->
+  <ellipse cx="290" cy="880" rx="220" ry="22" fill="#05061A" opacity="0.4"/>
+  <g filter="url(#dropShadow)">
+    <g transform="translate(272 666) scale(0.8)" style="--skin:#FFD9A8">
+      <rect x="-46" y="-6" width="92" height="40" rx="12" fill="#FFFFFF" stroke="#1B1238" stroke-width="7"/>
+      <use href="#avatarHead"/><use href="#hatPaper"/>
+    </g>
+    <use href="#hotdogCart" transform="translate(286 690) scale(0.82)"/>
+    <use href="#hotdogBig" transform="translate(294 512) rotate(-6) scale(0.52)"/>
+  </g>
+
+  <!-- big gold arrow -->
+  <g filter="url(#dropShadow)">
+    <path d="M500 640 C560 560 640 540 700 556 L692 506 L800 600 L676 664 L688 616 C640 604 580 616 540 668 Z"
+          fill="url(#titleGold)" stroke="#3A1A0B" stroke-width="10" stroke-linejoin="round"/>
+  </g>
+
+  <!-- RIGHT: the empire, three districts -->
+  <!-- Cart Corner -->
+  <g style="--wall:#3F8CFF;--awn:#FFD23F" transform="translate(830 880) scale(0.8)"><use href="#shopFront"/><use href="#icLemon" transform="translate(130 -205)"/></g>
+  <g style="--wall:#2FB36B;--awn:#FF8A3D" transform="translate(1060 880) scale(0.8)"><use href="#shopFront"/><use href="#icPretzel" transform="translate(130 -200)"/></g>
+  <!-- Market Row -->
+  <g style="--wall:#AA55FF;--awn:#44E0C8" transform="translate(1290 880) scale(1.05 1.3)"><use href="#shopFront"/></g>
+  <use href="#icTaco" transform="translate(1426 616) scale(1.2)"/>
+  <!-- Downtown tower -->
+  <g stroke="#1B1238" stroke-width="8">
+    <rect x="1600" y="250" width="300" height="630" fill="#FF5A6E"/>
+    <g fill="#FFE9A8" stroke-width="5">
+      <rect x="1630" y="380" width="70" height="60" rx="6"/><rect x="1720" y="380" width="70" height="60" rx="6"/><rect x="1810" y="380" width="70" height="60" rx="6"/>
+      <rect x="1630" y="470" width="70" height="60" rx="6"/><rect x="1720" y="470" width="70" height="60" rx="6"/><rect x="1810" y="470" width="70" height="60" rx="6"/>
+      <rect x="1630" y="560" width="70" height="60" rx="6"/><rect x="1720" y="560" width="70" height="60" rx="6"/><rect x="1810" y="560" width="70" height="60" rx="6"/>
+    </g>
+    <rect x="1620" y="270" width="260" height="84" rx="16" fill="#1B1238"/>
+  </g>
+  <rect x="1630" y="280" width="240" height="64" rx="12" fill="#FFF6DE"/>
+  <use href="#icSushi" transform="translate(1700 314) scale(0.9)"/><use href="#icNoodle" transform="translate(1800 318) scale(0.9)"/>
+  <g transform="translate(1576 880)">
+    <path d="M10 -170 H334 V-150 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 Z" fill="#FFD23F" stroke="#1B1238" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M10 -170 H334 V-150 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 Z" fill="url(#whiteStripes)" stroke="#1B1238" stroke-width="8" stroke-linejoin="round"/>
+    <rect x="60" y="-120" width="224" height="100" rx="8" fill="#FFE9A8" stroke="#1B1238" stroke-width="7"/>
+  </g>
+  <!-- string lights -->
+  <path d="M820 640 Q1000 700 1280 600 Q1440 560 1600 600" stroke="#1B1238" stroke-width="4" fill="none"/>
+  <g fill="#FFE873" stroke="#1B1238" stroke-width="3">
+    <circle cx="880" cy="662" r="9"/><circle cx="960" cy="676" r="9"/><circle cx="1040" cy="676" r="9"/><circle cx="1120" cy="660" r="9"/><circle cx="1200" cy="634" r="9"/><circle cx="1360" cy="584" r="9"/><circle cx="1450" cy="572" r="9"/><circle cx="1530" cy="580" r="9"/>
+  </g>
+
+  <!-- district signs -->
+  <g class="sign" text-anchor="middle" font-size="40" fill="#FFFFFF">
+    <g transform="translate(1040 688) scale(0.95)"><use href="#streetSign"/><text y="-74">CART CORNER</text></g>
+    <g transform="translate(1426 566) scale(0.95)"><use href="#streetSign"/><text y="-74">MARKET ROW</text></g>
+    <g transform="translate(1750 240) scale(0.95)"><use href="#streetSign"/><text y="-74">DOWNTOWN</text></g>
+  </g>
+
+  <!-- customers and cash -->
+  <g transform="translate(980 960) scale(0.62)" style="--shirt:#44E0C8;--pants:#2B3A67"><use href="#avatarArm" transform="translate(-42 -160) rotate(8)"/><use href="#avatarBody"/><use href="#avatarHead" transform="translate(0 -168)"/><use href="#avatarArm" transform="translate(42 -160) rotate(-8)"/></g>
+  <g transform="translate(1180 970) scale(0.66)" style="--shirt:#FF8A3D;--pants:#3A2A4A"><use href="#avatarArm" transform="translate(-42 -160) rotate(8)"/><use href="#avatarBody"/><use href="#avatarHead" transform="translate(0 -168)"/><use href="#avatarArm" transform="translate(42 -160) rotate(-8)"/></g>
+  <g transform="translate(1420 980) scale(0.7)" style="--shirt:#FFD23F;--pants:#2B3A67"><use href="#avatarArm" transform="translate(-42 -160) rotate(8)"/><use href="#avatarBody"/><use href="#avatarHead" transform="translate(0 -168)"/><use href="#avatarArm" transform="translate(42 -160) rotate(-8)"/></g>
+  <g transform="translate(1680 990) scale(0.72)" style="--shirt:#AA55FF;--pants:#1B1238"><use href="#avatarArm" transform="translate(-42 -160) rotate(8)"/><use href="#avatarBody"/><use href="#avatarHead" transform="translate(0 -168)"/><use href="#avatarArm" transform="translate(42 -160) rotate(-8)"/></g>
+  <use href="#cashPop" transform="translate(1010 800)"/><use href="#cashPop" transform="translate(1460 810)"/><use href="#cashPop" transform="translate(1720 820)"/>
+  <use href="#coin" transform="translate(1270 790) rotate(12)"/><use href="#coin" transform="translate(1570 760) scale(0.8)"/>
+
+  <!-- headline -->
+  <g class="big" filter="url(#dropShadow)">
+    <text x="60" y="190" font-size="180" fill="#FFFFFF" stroke="#1B1238" stroke-width="18" paint-order="stroke" stroke-linejoin="round">CART <tspan font-size="120" fill="url(#titleCyan)">TO</tspan> <tspan fill="url(#titleGold)">EMPIRE</tspan></text>
+  </g>
+  <use href="#studioBadge" transform="translate(40 970)"/>
+</svg>

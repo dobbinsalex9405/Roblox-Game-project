@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:3px}
+    .tag{font-family:'Lilita One';letter-spacing:2px}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:tidecatch-cove/fish.svg-->
+<!--INCLUDE:tidecatch-cove/scene-defs.svg-->
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A2A7A"/><stop offset="0.45" stop-color="#C2508F"/><stop offset="0.8" stop-color="#FF9A4D"/><stop offset="1" stop-color="#FFD27A"/>
+    </linearGradient>
+    <linearGradient id="duskWater" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFB86B"/><stop offset="0.12" stop-color="#3FB6D8"/><stop offset="1" stop-color="#14327A"/>
+    </linearGradient>
+    <radialGradient id="legendGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE9A0" stop-opacity="0.95"/><stop offset="0.45" stop-color="#FFAA28" stop-opacity="0.45"/><stop offset="1" stop-color="#FFAA28" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#dusk)"/>
+  <circle cx="1240" cy="560" r="520" fill="url(#legendGlow)"/>
+  <circle cx="1240" cy="600" r="120" fill="#FFF3C4"/>
+  <!-- rays -->
+  <g fill="#FFE9A0" opacity="0.18">
+    <path d="M1240 560 L900 -20 L1040 -20 Z"/><path d="M1240 560 L1300 -20 L1440 -20 Z"/><path d="M1240 560 L1700 -20 L1880 -20 Z"/><path d="M1240 560 L1960 200 L1960 360 Z"/>
+  </g>
+  <!-- cove rocks + palms silhouetted -->
+  <path d="M-20 600 C140 520 300 540 420 580 C520 540 620 560 700 600 C900 620 1300 625 1500 610 C1620 540 1760 530 1940 560 V680 H-20 Z" fill="#3B2160" stroke="#1B1238" stroke-width="6"/>
+  <g opacity="0.95" style="filter:brightness(0.35) saturate(0.6)">
+    <use href="#palm" transform="translate(240 560) scale(0.9)"/>
+    <use href="#palm" transform="translate(1760 550) scale(0.8) scale(-1 1)"/>
+  </g>
+  <rect y="640" width="1920" height="440" fill="url(#duskWater)"/>
+  <!-- sun path on water -->
+  <g stroke="#FFE9A0" stroke-width="8" stroke-linecap="round" opacity="0.7">
+    <path d="M1140 690 h200"/><path d="M1100 730 h120 M1260 730 h120"/><path d="M1180 780 h160"/>
+  </g>
+
+  <!-- the breach: front of the whale out of the water, splash crown at the waterline -->
+  <clipPath id="aboveWater"><rect x="0" y="0" width="1700" height="800"/></clipPath>
+  <g clip-path="url(#aboveWater)" filter="url(#dropShadow)">
+    <use href="#pearlWhale" transform="translate(1330 640) rotate(38) scale(1.25)"/>
+  </g>
+  <g stroke="#1B1238" stroke-width="9" stroke-linejoin="round">
+    <path d="M860 800 C850 770 826 748 790 738 C836 730 878 744 904 768 C900 716 918 676 950 650 C948 694 958 734 982 766
+             C996 726 1024 700 1062 688 C1046 720 1044 752 1052 780 L1560 780
+             C1572 744 1600 716 1640 702 C1628 732 1628 760 1640 784 C1666 744 1700 724 1740 720 C1716 746 1706 772 1708 800
+             C1734 786 1766 782 1796 788 C1770 800 1754 814 1750 830 Q1300 870 860 830 Z" fill="#BFF8FF"/>
+  </g>
+  <path d="M900 806 Q1300 840 1730 808" stroke="#FFFFFF" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <ellipse cx="1300" cy="826" rx="520" ry="46" fill="none" stroke="#E6FDFF" stroke-width="8" opacity="0.7"/>
+  <g fill="#DDFDFF" stroke="#1B1238" stroke-width="6">
+    <circle cx="880" cy="600" r="16"/><circle cx="940" cy="540" r="10"/><circle cx="1720" cy="640" r="14"/><circle cx="1780" cy="580" r="9"/><circle cx="820" cy="680" r="8"/>
+  </g>
+    <g fill="#FFF2A8">
+    <use href="#spark" transform="translate(860 300) scale(2)"/><use href="#spark" transform="translate(1640 280) scale(1.6)"/>
+    <use href="#spark" transform="translate(1540 160) scale(1.1)"/><use href="#spark" transform="translate(1000 170) scale(1.2)"/>
+  </g>
+  <!-- LEGENDARY tag -->
+  <g transform="translate(1300 130) rotate(-4)" class="tag" text-anchor="middle" filter="url(#dropShadow)">
+    <rect x="-210" y="-52" width="420" height="96" rx="48" fill="#FFAA28" stroke="#1B1238" stroke-width="8"/>
+    <rect x="-196" y="-40" width="392" height="30" rx="15" fill="#FFFFFF" opacity="0.25"/>
+    <text y="22" font-size="66" fill="#1B1238">LEGENDARY</text>
+  </g>
+
+  <!-- logo -->
+  <g class="big" filter="url(#dropShadow)">
+    <text x="70" y="170" font-size="150" fill="url(#titleCyan)" stroke="#0B1E3A" stroke-width="16" paint-order="stroke" stroke-linejoin="round">TIDECATCH</text>
+    <text x="74" y="300" font-size="130" fill="url(#titleGold)" stroke="#3A1A0B" stroke-width="16" paint-order="stroke" stroke-linejoin="round" letter-spacing="10">COVE</text>
+  </g>
+
+  <!-- collection strip -->
+  <g class="big" filter="url(#dropShadow)">
+    <text x="70" y="740" font-size="96" fill="#FFFFFF" stroke="#1B1238" stroke-width="14" paint-order="stroke" stroke-linejoin="round"><tspan fill="url(#titleGold)">25</tspan> SEA CREATURES</text>
+  </g>
+  <g class="tag" text-anchor="middle" font-size="24">
+    <g transform="translate(160 885)" style="--rar:#C8C8C8"><use href="#cardBase"/><use href="#crCrab" transform="translate(0 -6) scale(0.9)"/><text y="78" fill="#1B1238">COMMON</text></g>
+    <g transform="translate(330 885) rotate(3)" style="--rar:#5AC85A"><use href="#cardBase"/><use href="#crStar" transform="translate(0 -10) scale(0.95)"/><text y="77" fill="#1B1238" font-size="21">UNCOMMON</text></g>
+    <g transform="translate(500 885)" style="--rar:#468CFF"><use href="#cardBase"/><use href="#crTurtle" transform="translate(-4 -8) scale(0.9)"/><text y="78" fill="#FFFFFF">RARE</text></g>
+    <g transform="translate(670 885) rotate(-3)" style="--rar:#AA55FF"><use href="#cardBase"/><use href="#crOcto" transform="translate(0 -18) scale(0.95)"/><text y="78" fill="#FFFFFF">EPIC</text></g>
+    <g transform="translate(840 885) rotate(2)" style="--rar:#FFAA28"><use href="#cardBase"/><text y="22" font-size="96" fill="#1B1238" opacity="0.8">?</text><text y="78" fill="#1B1238" font-size="20">LEGENDARY</text></g>
+  </g>
+  <use href="#studioBadge" transform="translate(1510 970)"/>
+</svg>

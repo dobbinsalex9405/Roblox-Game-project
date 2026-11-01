@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:4px}
+    .ui{font-family:'Lilita One';letter-spacing:2px}
+    .tag{font-family:'Fredoka';font-weight:700}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:parts/avatar.svg-->
+<!--INCLUDE:depthbound/parts.svg-->
+    <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F1126"/><stop offset="1" stop-color="#2B3078"/>
+    </linearGradient>
+    <radialGradient id="dark" cx="1480" cy="880" r="760" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#05060F" stop-opacity="0"/><stop offset="0.28" stop-color="#05060F" stop-opacity="0.15"/>
+      <stop offset="0.6" stop-color="#05060F" stop-opacity="0.72"/><stop offset="1" stop-color="#05060F" stop-opacity="0.9"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#night)"/>
+  <g fill="#FFFFFF" opacity="0.7"><circle cx="980" cy="60" r="3"/><circle cx="1180" cy="120" r="2"/><circle cx="1500" cy="50" r="3"/><circle cx="1760" cy="140" r="2"/><circle cx="1880" cy="60" r="3"/><circle cx="860" cy="170" r="2"/></g>
+  <circle cx="1846" cy="96" r="40" fill="#FFF3C4" opacity="0.9"/>
+  <!-- the mine -->
+  <rect y="260" width="1920" height="820" fill="#120C14"/>
+<!--INCLUDE:depthbound/strata-1.svg-->
+  <!-- surface and camp -->
+  <rect y="240" width="1920" height="26" fill="#6A8A4A" stroke="#120C1E" stroke-width="6"/>
+  <g stroke="#120C1E" stroke-width="7" stroke-linejoin="round">
+    <path d="M1600 240 L1690 130 L1780 240 Z" fill="#FF8A3A"/><path d="M1690 130 L1660 240 H1720 Z" fill="#7A3A1A"/>
+    <path d="M1320 240 V140 H1440 V240 M1310 140 H1450" fill="none" stroke="#8A5A2B" stroke-width="16"/>
+    <path d="M1320 240 V140 H1440 V240 M1310 140 H1450" fill="none" stroke="#120C1E" stroke-width="4" opacity="0.5"/>
+    <circle cx="1380" cy="150" r="16" fill="#B9C3D6"/>
+  </g>
+  <!-- rope down the shaft -->
+  <path d="M1380 160 V880" stroke="#E8C48A" stroke-width="8" stroke-dasharray="18 10"/>
+
+  <!-- the lit pocket: glow, miner, emberite -->
+  <circle cx="1480" cy="900" r="360" fill="url(#lampGlow)" opacity="0.65"/>
+  <g transform="translate(1620 920)" style="--blk:#3A2D2E">
+    <rect x="-57" y="-57" width="114" height="114" rx="12" fill="#3A2D2E" stroke="#120C1E" stroke-width="6"/>
+    <use href="#gem" transform="translate(-6 -4) scale(1.7)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+  </g>
+  <circle cx="1620" cy="916" r="120" fill="url(#emberGlow)" opacity="0.7"/>
+  <g transform="translate(1470 980)" style="--shirt:#3C5AD8;--pants:#3A2D2E;--skin:#FFD9A8">
+    <use href="#avatarArm" transform="translate(-42 -160) rotate(20)"/>
+    <use href="#avatarBody"/>
+    <use href="#avatarHead" transform="translate(0 -168)"/>
+    <use href="#hatMiner" transform="translate(0 -168)"/>
+    <!-- swinging pick -->
+    <g transform="translate(44 -150) rotate(-120)">
+      <use href="#avatarArm"/>
+      <use href="#pickaxe" transform="translate(0 70) rotate(180) scale(0.6) translate(0 -170)"/>
+    </g>
+  </g>
+  <!-- lantern hung on the wall -->
+  <g filter="url(#dropShadow)"><use href="#lantern" transform="translate(1290 900) scale(0.34)"/></g>
+  <g fill="#FFF2A8"><use href="#spark" transform="translate(1690 840) scale(1.4)"/><use href="#spark" transform="translate(1560 820) scale(0.9)"/></g>
+
+  <!-- darkness: the lamp is the only light -->
+  <rect y="266" width="1920" height="814" fill="url(#dark)"/>
+
+  <!-- layer tags -->
+  <g class="tag" font-size="30" text-anchor="middle">
+    <g transform="translate(1130 312)"><rect x="-150" y="-30" width="300" height="48" rx="24" fill="#05060F" opacity="0.75"/><rect x="-150" y="-30" width="300" height="48" rx="24" fill="none" stroke="#9A7352" stroke-width="4"/><text y="5" fill="#FFFFFF">CLAY SHALLOWS</text></g>
+    <g transform="translate(1130 552)"><rect x="-150" y="-30" width="300" height="48" rx="24" fill="#05060F" opacity="0.75"/><rect x="-150" y="-30" width="300" height="48" rx="24" fill="none" stroke="#8A90A0" stroke-width="4"/><text y="5" fill="#FFFFFF" font-size="27">IRONROOT CAVERNS</text></g>
+    <g transform="translate(1130 792)"><rect x="-150" y="-30" width="300" height="48" rx="24" fill="#05060F" opacity="0.75"/><rect x="-150" y="-30" width="300" height="48" rx="24" fill="none" stroke="#FF5A1E" stroke-width="4"/><text y="5" fill="#FFB08A">EMBER DEEP</text></g>
+  </g>
+
+  <!-- wordmark + tagline -->
+  <g class="big" filter="url(#dropShadow)">
+    <text x="70" y="210" font-size="200" fill="url(#amber)" stroke="#2A160B" stroke-width="18" paint-order="stroke" stroke-linejoin="round">DEPTHBOUND</text>
+  </g>
+  <g class="tag" filter="url(#dropShadow)">
+    <text x="78" y="352" font-size="64" fill="#FFFFFF" stroke="#05060F" stroke-width="10" paint-order="stroke" stroke-linejoin="round">Dig deep. Get out before</text>
+    <text x="78" y="432" font-size="64" fill="#FFFFFF" stroke="#05060F" stroke-width="10" paint-order="stroke" stroke-linejoin="round">your lamp runs dry.</text>
+  </g>
+
+  <!-- oil meter, as on the HUD -->
+  <g transform="translate(70 560)" filter="url(#dropShadow)">
+    <rect width="700" height="110" rx="55" fill="#0F1126" stroke="#EAF2FF" stroke-width="7"/>
+    <rect x="96" y="28" width="574" height="54" rx="27" fill="#2B3078"/>
+    <rect x="96" y="28" width="240" height="54" rx="27" fill="url(#amber)"/>
+    <rect x="300" y="18" width="10" height="74" rx="5" fill="#FFFFFF"/>
+    <use href="#lantern" transform="translate(52 62) scale(0.2)"/>
+    <text x="440" y="74" class="ui" font-size="44" fill="#EAF2FF" opacity="0.9">OIL</text>
+  </g>
+  <use href="#studioBadge" transform="translate(40 970)"/>
+</svg>

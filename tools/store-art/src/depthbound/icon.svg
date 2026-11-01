@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <style>/*FONTS*/</style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:depthbound/parts.svg-->
+    <radialGradient id="bg" cx="50%" cy="34%" r="80%">
+      <stop offset="0" stop-color="#2B3078"/><stop offset="0.7" stop-color="#151838"/><stop offset="1" stop-color="#0A0C1C"/>
+    </radialGradient>
+    <clipPath id="frame"><rect width="512" height="512"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- strata cross-section -->
+  <g clip-path="url(#frame)">
+    <rect x="0" y="324" width="512" height="200" fill="#1A1420"/>
+    <ellipse cx="256" cy="540" rx="200" ry="120" fill="url(#emberGlow)"/>
+    <g style="--blk:#9A7352">
+      <use href="#oreBlock" transform="translate(46 372)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+      <use href="#oreBlock" transform="translate(136 372)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+      <use href="#oreBlock" transform="translate(376 372)" style="--gem:#E8834A;--gemHi:#FFD2B0"/>
+      <use href="#oreBlock" transform="translate(466 372)" style="--gem:#2A2A30;--gemHi:#8A8A98"/>
+    </g>
+    <g style="--blk:#5D626D">
+      <use href="#oreBlock" transform="translate(46 462)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
+      <use href="#oreBlock" transform="translate(136 462)" style="--gem:#3C5AD8;--gemHi:#B8C8FF"/>
+      <use href="#oreBlock" transform="translate(376 462)" style="--gem:#41C27A;--gemHi:#BFFFD8"/>
+      <use href="#oreBlock" transform="translate(466 462)" style="--gem:#C8CDD8;--gemHi:#FFFFFF"/>
+    </g>
+    <!-- shaft -->
+    <rect x="181" y="326" width="150" height="200" fill="#07070F"/>
+    <ellipse cx="256" cy="512" rx="110" ry="70" fill="url(#emberGlow)"/>
+    <g style="--blk:#3A2D2E;--gem:#FF5A1E;--gemHi:#FFD0A0">
+      <use href="#oreBlock" transform="translate(211 552)"/><use href="#oreBlock" transform="translate(301 552)"/>
+    </g>
+    <use href="#gem" transform="translate(256 470) scale(1.25)" style="--gem:#FF5A1E;--gemHi:#FFE0B8"/>
+    <!-- surface edge -->
+    <rect x="-10" y="318" width="191" height="12" fill="#C9965E" stroke="#120C1E" stroke-width="5"/>
+    <rect x="331" y="318" width="191" height="12" fill="#C9965E" stroke="#120C1E" stroke-width="5"/>
+    <!-- rope down the shaft -->
+    <path d="M256 340 V440" stroke="#E8C48A" stroke-width="6" stroke-dasharray="12 8"/>
+  </g>
+
+  <!-- oil meter ring: about 70% left -->
+  <circle cx="256" cy="190" r="200" fill="url(#lampGlow)"/>
+  <circle cx="256" cy="190" r="150" fill="none" stroke="#0A0C1C" stroke-width="34" opacity="0.7"/>
+  <circle cx="256" cy="190" r="150" fill="none" stroke="#2B3078" stroke-width="26"/>
+  <circle cx="256" cy="190" r="150" fill="none" stroke="url(#amberRing)" stroke-width="26" stroke-linecap="round"
+          stroke-dasharray="650 1000" transform="rotate(-90 256 190) scale(1 -1) translate(0 -380) rotate(0)" />
+  <!-- lantern -->
+  <g filter="url(#dropShadow)">
+    <use href="#lantern" transform="translate(256 206) scale(0.8)"/>
+  </g>
+  <g fill="#FFF2A8">
+    <use href="#spark" transform="translate(96 96) scale(1.1)"/>
+    <use href="#spark" transform="translate(430 120) scale(0.9)"/>
+  </g>
+</svg>

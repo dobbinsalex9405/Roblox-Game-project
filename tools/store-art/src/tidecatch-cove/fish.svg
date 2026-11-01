@@ -1,0 +1,128 @@
+    <!-- Tidecatch hero fish ("Sunny"), local coords, body ~ 240 x 190, faces right -->
+    <linearGradient id="fishBody" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#FFE45C"/><stop offset="0.55" stop-color="#FFB13B"/><stop offset="1" stop-color="#FF7A2E"/>
+    </linearGradient>
+    <linearGradient id="fishFin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF9B3D"/><stop offset="1" stop-color="#F0582A"/>
+    </linearGradient>
+    <g id="heroFish">
+      <!-- tail -->
+      <path d="M-92 -6 C-130 -60 -168 -70 -176 -58 C-168 -30 -160 -10 -150 2 C-162 16 -170 40 -176 66 C-160 74 -124 54 -92 12 Z"
+            fill="url(#fishFin)" stroke="#2A1240" stroke-width="9" stroke-linejoin="round"/>
+      <path d="M-150 -40 Q-130 -20 -118 -6 M-152 46 Q-132 26 -118 12" stroke="#FFD07A" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.8"/>
+      <!-- dorsal fin -->
+      <path d="M-50 -82 C-40 -128 10 -136 40 -112 C24 -100 18 -90 14 -80 Z" fill="url(#fishFin)" stroke="#2A1240" stroke-width="9" stroke-linejoin="round"/>
+      <!-- body -->
+      <path d="M-104 0 C-104 -64 -44 -96 20 -96 C88 -96 128 -48 128 4 C128 60 82 96 14 96 C-50 96 -104 60 -104 0 Z"
+            fill="url(#fishBody)" stroke="#2A1240" stroke-width="9"/>
+      <!-- belly -->
+      <path d="M-80 36 C-50 76 40 86 100 50 C90 78 56 92 14 92 C-34 92 -70 70 -80 36 Z" fill="#FFF3B8" opacity="0.85"/>
+      <!-- stripes -->
+      <path d="M-36 -88 C-56 -40 -56 40 -40 86" stroke="#F0582A" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.55"/>
+      <!-- shine -->
+      <path d="M-20 -70 C10 -82 50 -80 76 -62" stroke="#FFFBE0" stroke-width="11" fill="none" stroke-linecap="round" opacity="0.9"/>
+      <!-- eye -->
+      <circle cx="54" cy="-22" r="34" fill="#FFFFFF" stroke="#2A1240" stroke-width="8"/>
+      <circle cx="64" cy="-20" r="20" fill="#2A1240"/>
+      <circle cx="71" cy="-29" r="8" fill="#FFFFFF"/>
+      <circle cx="58" cy="-12" r="4" fill="#FFFFFF"/>
+      <!-- cheek -->
+      <ellipse cx="72" cy="28" rx="16" ry="10" fill="#FF6B6B" opacity="0.55"/>
+      <!-- mouth: open happy grin -->
+      <path d="M100 22 C112 46 128 46 128 20 C120 24 110 24 100 22 Z" fill="#7A1F3D" stroke="#2A1240" stroke-width="7" stroke-linejoin="round"/>
+      <!-- pectoral fin -->
+      <path d="M-6 26 C-16 60 -50 72 -64 62 C-56 42 -36 26 -6 26 Z" fill="url(#fishFin)" stroke="#2A1240" stroke-width="8" stroke-linejoin="round"/>
+    </g>
+    <!-- Bobber (float), radius 26 -->
+    <g id="bobber">
+      <circle r="26" fill="#FFFFFF" stroke="#2A1240" stroke-width="7"/>
+      <path d="M-26 0 A26 26 0 0 1 26 0 Z" fill="#FF4757" stroke="#2A1240" stroke-width="7" stroke-linejoin="round"/>
+      <rect x="-5" y="-42" width="10" height="18" rx="4" fill="#2A1240"/>
+      <path d="M-14 -12 Q-8 -20 2 -20" stroke="#FFC2C7" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+    <!-- Pearl Whale, local coords, ~ 640 wide, faces left, origin at body centre -->
+    <linearGradient id="whaleBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F0FF"/><stop offset="0.5" stop-color="#C9BFF5"/><stop offset="1" stop-color="#8E7FD9"/>
+    </linearGradient>
+    <g id="pearlWhale">
+      <!-- tail fluke -->
+      <path d="M250 -40 C300 -90 330 -150 380 -170 C376 -130 360 -100 340 -80 C380 -90 420 -80 440 -50 C390 -40 340 -30 280 10 Z"
+            fill="#B3A6EE" stroke="#1B1238" stroke-width="10" stroke-linejoin="round"/>
+      <!-- body -->
+      <path d="M-300 30 C-300 -110 -160 -170 -20 -160 C140 -150 240 -100 290 -30 C250 60 140 120 -30 124 C-200 128 -300 100 -300 30 Z"
+            fill="url(#whaleBody)" stroke="#1B1238" stroke-width="10"/>
+      <!-- belly grooves -->
+      <path d="M-290 50 C-220 118 -40 130 90 98 C40 120 -10 126 -40 126 C-180 128 -270 100 -290 50 Z" fill="#FFD3E6"/>
+      <path d="M-250 74 C-190 104 -100 112 -10 106 M-230 90 C-170 112 -90 118 -20 116" stroke="#E8A9C8" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <!-- pearl spots -->
+      <g fill="#FFFFFF" stroke="#B3A6EE" stroke-width="4">
+        <circle cx="-60" cy="-120" r="16"/><circle cx="10" cy="-132" r="11"/><circle cx="70" cy="-118" r="14"/>
+        <circle cx="130" cy="-96" r="9"/><circle cx="-10" cy="-96" r="8"/>
+      </g>
+      <path d="M-230 -90 C-170 -140 -80 -150 -10 -146" stroke="#FFFFFF" stroke-width="14" fill="none" stroke-linecap="round" opacity="0.85"/>
+      <!-- eye -->
+      <circle cx="-190" cy="-20" r="30" fill="#FFFFFF" stroke="#1B1238" stroke-width="8"/>
+      <circle cx="-198" cy="-16" r="18" fill="#1B1238"/><circle cx="-204" cy="-24" r="7" fill="#FFFFFF"/>
+      <!-- smile -->
+      <path d="M-290 40 C-260 60 -220 58 -196 40" stroke="#1B1238" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <ellipse cx="-220" cy="20" rx="20" ry="11" fill="#FF8FB8" opacity="0.6"/>
+      <!-- flipper -->
+      <path d="M-80 70 C-60 140 -110 190 -160 190 C-150 150 -130 100 -80 70 Z" fill="#B3A6EE" stroke="#1B1238" stroke-width="9" stroke-linejoin="round"/>
+      <!-- crown pearl -->
+      <circle cx="-110" cy="-150" r="24" fill="#FFFFFF" stroke="#1B1238" stroke-width="7"/>
+      <circle cx="-118" cy="-158" r="8" fill="#FFFFFF" stroke="none"/>
+      <path d="M-120 -160 a10 10 0 0 1 10 -6" stroke="#C9BFF5" stroke-width="4" fill="none"/>
+    </g>
+    <!-- Small collection critters, each in ~ -60..60 box -->
+    <g id="crCrab">
+      <path d="M-46 -10 L-62 -40 L-40 -36 Z M46 -10 L62 -40 L40 -36 Z" fill="#FF5A4E" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-40 30 l-18 14 M-30 36 l-12 18 M40 30 l18 14 M30 36 l12 18" stroke="#1B1238" stroke-width="8" stroke-linecap="round"/>
+      <ellipse cx="0" cy="12" rx="48" ry="32" fill="#FF6B57" stroke="#1B1238" stroke-width="6"/>
+      <path d="M-14 -16 V-34 M14 -16 V-34" stroke="#1B1238" stroke-width="6"/>
+      <circle cx="-14" cy="-38" r="9" fill="#fff" stroke="#1B1238" stroke-width="5"/><circle cx="14" cy="-38" r="9" fill="#fff" stroke="#1B1238" stroke-width="5"/>
+      <circle cx="-12" cy="-38" r="4" fill="#1B1238"/><circle cx="16" cy="-38" r="4" fill="#1B1238"/>
+      <path d="M-12 18 Q0 28 12 18" stroke="#1B1238" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="crJelly">
+      <path d="M-30 20 q-6 20 0 36 M-10 20 q6 22 -2 40 M10 20 q-6 20 2 38 M30 20 q6 18 0 32" stroke="#C78BFF" stroke-width="7" fill="none" stroke-linecap="round"/>
+      <path d="M-46 22 C-46 -30 46 -30 46 22 Q34 14 22 22 Q12 14 0 22 Q-12 14 -22 22 Q-34 14 -46 22 Z" fill="#E7C6FF" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="-14" cy="0" r="5" fill="#1B1238"/><circle cx="14" cy="0" r="5" fill="#1B1238"/>
+      <path d="M-30 -14 Q-20 -24 -6 -26" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="crStar">
+      <path d="M0 -52 L14 -18 L50 -16 L22 8 L32 44 L0 24 L-32 44 L-22 8 L-50 -16 L-14 -18 Z" fill="#FFB23F" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="-9" cy="-4" r="5" fill="#1B1238"/><circle cx="9" cy="-4" r="5" fill="#1B1238"/>
+      <path d="M-8 8 Q0 16 8 8" stroke="#1B1238" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="crOcto">
+      <path d="M-34 10 q-16 30 -6 44 M-14 16 q-8 30 4 40 M14 16 q8 30 -4 40 M34 10 q16 30 6 44" stroke="#A55CF0" stroke-width="13" fill="none" stroke-linecap="round"/>
+      <path d="M-40 14 C-50 -50 50 -50 40 14 C30 26 -30 26 -40 14 Z" fill="#B56BFF" stroke="#1B1238" stroke-width="6"/>
+      <circle cx="-14" cy="-6" r="8" fill="#fff" stroke="#1B1238" stroke-width="4"/><circle cx="14" cy="-6" r="8" fill="#fff" stroke="#1B1238" stroke-width="4"/>
+      <circle cx="-12" cy="-5" r="4" fill="#1B1238"/><circle cx="16" cy="-5" r="4" fill="#1B1238"/>
+      <path d="M-24 -30 Q-12 -40 4 -38" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>
+    </g>
+    <g id="crPuffer">
+      <g stroke="#1B1238" stroke-width="5" stroke-linecap="round"><path d="M0 -50 V-42 M36 -36 l-6 6 M50 0 h-8 M36 36 l-6 -6 M0 50 V42 M-36 36 l6 -6 M-36 -36 l6 6"/></g>
+      <circle r="42" fill="#7FE0A0" stroke="#1B1238" stroke-width="6"/>
+      <path d="M-30 14 Q0 40 30 14" fill="#E8FFD9"/>
+      <circle cx="-12" cy="-8" r="9" fill="#fff" stroke="#1B1238" stroke-width="4"/><circle cx="14" cy="-8" r="9" fill="#fff" stroke="#1B1238" stroke-width="4"/>
+      <circle cx="-10" cy="-7" r="4" fill="#1B1238"/><circle cx="16" cy="-7" r="4" fill="#1B1238"/>
+      <ellipse cx="2" cy="12" rx="7" ry="5" fill="#1B1238"/>
+    </g>
+    <!-- Collection card 150x180 centred; colour via --rar -->
+    <g id="cardBase">
+      <rect x="-75" y="-90" width="150" height="180" rx="24" fill="#0D1030" opacity="0.4" transform="translate(0 8)"/>
+      <rect x="-75" y="-90" width="150" height="180" rx="24" style="fill:var(--rar,#C8C8C8)" stroke="#1B1238" stroke-width="7"/>
+      <rect x="-62" y="-77" width="124" height="128" rx="16" fill="#E9FBFF" stroke="#1B1238" stroke-width="5"/>
+    </g>
+    <g id="crTurtle">
+      <g fill="#7FD8A0" stroke="#1B1238" stroke-width="6" stroke-linejoin="round">
+        <path d="M-40 18 l-20 18 l22 4 Z"/><path d="M36 18 l22 18 l-24 4 Z"/>
+        <path d="M-30 -14 l-26 -14 l20 -6 Z"/>
+        <ellipse cx="50" cy="-2" rx="20" ry="17"/>
+      </g>
+      <path d="M-50 16 C-50 -44 40 -44 40 16 Z" fill="#3FAE6A" stroke="#1B1238" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M-30 12 L-20 -16 L4 -24 L22 -12 L24 12 M-20 -16 L-34 -2 M4 -24 L4 12" stroke="#1B1238" stroke-width="4" fill="none" opacity="0.6"/>
+      <rect x="-56" y="12" width="102" height="12" rx="6" fill="#E9D38A" stroke="#1B1238" stroke-width="5"/>
+      <circle cx="56" cy="-6" r="5" fill="#1B1238"/><path d="M52 6 q6 4 12 0" stroke="#1B1238" stroke-width="3" fill="none"/>
+    </g>

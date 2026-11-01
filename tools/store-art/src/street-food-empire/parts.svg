@@ -1,0 +1,98 @@
+    <linearGradient id="cartRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FF5A46"/><stop offset="1" stop-color="#D2302A"/>
+    </linearGradient>
+    <linearGradient id="cartSide" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C2322A"/><stop offset="1" stop-color="#8E1F22"/>
+    </linearGradient>
+    <linearGradient id="goldTrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE873"/><stop offset="1" stop-color="#FF9A2E"/>
+    </linearGradient>
+    <linearGradient id="bunGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC977"/><stop offset="1" stop-color="#E08A3C"/>
+    </linearGradient>
+    <linearGradient id="sausageGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F0694A"/><stop offset="1" stop-color="#B83A28"/>
+    </linearGradient>
+    <pattern id="awningStripes" width="52" height="400" patternUnits="userSpaceOnUse">
+      <rect width="26" height="400" fill="#FF4E44"/><rect x="26" width="26" height="400" fill="#FFF1D6"/>
+    </pattern>
+    <!-- Hot dog, centred, ~ 300 wide -->
+    <g id="hotdogBig">
+      <path d="M-140 10 C-150 -26 -120 -40 0 -40 C120 -40 150 -26 140 10 C130 50 90 60 0 60 C-90 60 -130 50 -140 10 Z" fill="url(#bunGrad)" stroke="#2A0F14" stroke-width="10" stroke-linejoin="round"/>
+      <rect x="-164" y="-36" width="328" height="56" rx="28" fill="url(#sausageGrad)" stroke="#2A0F14" stroke-width="10"/>
+      <path d="M-150 -22 Q-80 -32 -20 -26" stroke="#FFB59E" stroke-width="9" fill="none" stroke-linecap="round" opacity="0.8"/>
+      <path d="M-128 -6 q14 -18 28 0 t28 0 t28 0 t28 0 t28 0 t28 0 t28 0 t28 0 t28 0" fill="none" stroke="#FFD23F" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M-136 22 C-120 56 120 56 136 22 C140 40 120 58 0 60 C-110 60 -136 44 -136 22 Z" fill="#D9803A" stroke="#2A0F14" stroke-width="10" stroke-linejoin="round"/>
+    </g>
+    <!-- The hot dog cart, 3/4 view, local box ~ -190..190 x -230..200, origin at ground centre-ish -->
+    <g id="hotdogCart">
+      <!-- poles -->
+      <g stroke="#2A0F14" stroke-width="7">
+        <rect x="-158" y="-150" width="16" height="170" fill="#F0E6D2"/>
+        <rect x="114" y="-150" width="16" height="170" fill="#F0E6D2"/>
+        <rect x="176" y="-176" width="14" height="170" fill="#D8CCB4"/>
+      </g>
+      <!-- side face -->
+      <path d="M130 10 L196 -18 L196 118 L130 150 Z" fill="url(#cartSide)" stroke="#2A0F14" stroke-width="9" stroke-linejoin="round"/>
+      <!-- front face -->
+      <rect x="-176" y="10" width="306" height="140" rx="10" fill="url(#cartRed)" stroke="#2A0F14" stroke-width="9"/>
+      <rect x="-176" y="60" width="306" height="34" fill="#FFF1D6" stroke="#2A0F14" stroke-width="7"/>
+      <path d="M130 46 L196 18 L196 50 L130 80 Z" fill="#E8D6B4" stroke="#2A0F14" stroke-width="6" stroke-linejoin="round"/>
+      <circle cx="-23" cy="77" r="30" fill="url(#goldTrim)" stroke="#2A0F14" stroke-width="7"/>
+      <path d="M-30 64 h14 v26 h-14 z M-36 70 h26" fill="none" stroke="#8A4A0B" stroke-width="0"/>
+      <text x="-23" y="91" text-anchor="middle" font-family="'Lilita One'" font-size="40" fill="#8A4A0B">$</text>
+      <path d="M-160 26 H-60" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+      <!-- counter top with gold rim -->
+      <path d="M-190 -4 L144 -4 L210 -32 L-120 -32 Z" fill="#FFF1D6" stroke="#2A0F14" stroke-width="8" stroke-linejoin="round"/>
+      <rect x="-192" y="-6" width="338" height="20" rx="8" fill="url(#goldTrim)" stroke="#2A0F14" stroke-width="7"/>
+      <path d="M146 -4 L212 -32 L212 -16 L146 12 Z" fill="#E08A2E" stroke="#2A0F14" stroke-width="6" stroke-linejoin="round"/>
+      <!-- wheels -->
+      <circle cx="-110" cy="160" r="44" fill="#3A2A4A" stroke="#2A0F14" stroke-width="9"/>
+      <circle cx="-110" cy="160" r="18" fill="url(#goldTrim)" stroke="#2A0F14" stroke-width="6"/>
+      <circle cx="170" cy="134" r="36" fill="#3A2A4A" stroke="#2A0F14" stroke-width="9"/>
+      <circle cx="170" cy="134" r="14" fill="url(#goldTrim)" stroke="#2A0F14" stroke-width="6"/>
+      <!-- awning -->
+      <path d="M-200 -150 L136 -150 L204 -186 L-130 -186 Z" fill="url(#awningStripes)" stroke="#2A0F14" stroke-width="9" stroke-linejoin="round"/>
+      <path d="M136 -150 L204 -186 L204 -160 L136 -122 Z" fill="#E03A34" stroke="#2A0F14" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M-200 -150 H136 V-130 q-21 26 -42 0 q-21 26 -42 0 q-21 26 -42 0 q-21 26 -42 0 q-21 26 -42 0 q-21 26 -42 0 q-21 26 -42 0 q-21 26 -42 0 Z"
+            fill="url(#awningStripes)" stroke="#2A0F14" stroke-width="9" stroke-linejoin="round"/>
+      <rect x="-204" y="-156" width="344" height="14" rx="7" fill="url(#goldTrim)" stroke="#2A0F14" stroke-width="6"/>
+    </g>
+    <!-- Steam puff -->
+    <g id="steam" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.85">
+      <path d="M-40 0 q-16 -20 0 -40 q16 -20 0 -40"/><path d="M0 -10 q-16 -20 0 -40 q16 -20 0 -40"/><path d="M40 0 q-16 -20 0 -40 q16 -20 0 -40"/>
+    </g>
+    <pattern id="whiteStripes" width="40" height="200" patternUnits="userSpaceOnUse">
+      <rect x="20" width="20" height="200" fill="#FFFFFF" opacity="0.85"/>
+    </pattern>
+    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A1D5A"/><stop offset="0.6" stop-color="#3A3FA0"/><stop offset="1" stop-color="#8A5FC8"/>
+    </linearGradient>
+    <!-- Shop front: width 260, height h via transform; origin bottom-left. Colours: --wall --awn -->
+    <g id="shopFront">
+      <rect x="0" y="-240" width="260" height="240" style="fill:var(--wall,#4A7BFF)" stroke="#1B1238" stroke-width="8"/>
+      <rect x="28" y="-120" width="204" height="100" rx="8" fill="#FFE9A8" stroke="#1B1238" stroke-width="7"/>
+      <path d="M28 -84 H232" stroke="#1B1238" stroke-width="5" opacity="0.3"/>
+      <path d="M-10 -170 H270 V-150 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 Z"
+            style="fill:var(--awn,#FF4E44)" stroke="#1B1238" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M-10 -170 H270 V-150 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 q-17.5 22 -35 0 Z"
+            fill="url(#whiteStripes)" stroke="#1B1238" stroke-width="8" stroke-linejoin="round"/>
+      <rect x="40" y="-232" width="180" height="54" rx="14" fill="#1B1238"/>
+      <rect x="46" y="-226" width="168" height="42" rx="10" fill="#FFF6DE"/>
+    </g>
+    <!-- food sign icons (fit ~ 60 x 40 centred) -->
+    <g id="icLemon"><ellipse rx="26" ry="20" fill="#FFE04A" stroke="#1B1238" stroke-width="5"/><path d="M-10 -8 q8 -6 18 -4" stroke="#FFF8C8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M22 -10 l10 -6" stroke="#1B1238" stroke-width="5" stroke-linecap="round"/></g>
+    <g id="icTaco"><path d="M-30 14 A30 30 0 0 1 30 14 Z" fill="#FFC24A" stroke="#1B1238" stroke-width="5" stroke-linejoin="round"/><path d="M-22 4 q6 -12 14 -6 q6 -12 14 -4 q8 -8 14 4" stroke="#4CC85A" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="-6" cy="2" r="4" fill="#E8453A"/><circle cx="10" cy="0" r="4" fill="#E8453A"/></g>
+    <g id="icNoodle"><path d="M-30 -4 H30 A30 24 0 0 1 -30 -4 Z" fill="#FF6B57" stroke="#1B1238" stroke-width="5" stroke-linejoin="round"/><path d="M-20 -6 q4 -10 8 0 q4 -10 8 0 q4 -10 8 0 q4 -10 8 0 q4 -10 8 0" stroke="#FFE08A" stroke-width="5" fill="none"/><path d="M10 -30 L22 -6 M18 -32 L28 -8" stroke="#8A5A2B" stroke-width="5" stroke-linecap="round"/></g>
+    <g id="icSushi"><rect x="-28" y="-6" width="56" height="22" rx="10" fill="#FFFFFF" stroke="#1B1238" stroke-width="5"/><path d="M-30 -2 C-24 -22 24 -22 30 -2 C20 -6 -20 -6 -30 -2 Z" fill="#FF8A5A" stroke="#1B1238" stroke-width="5" stroke-linejoin="round"/><path d="M-16 -12 l6 6 M0 -14 l6 6 M14 -12 l6 6" stroke="#FFD0B8" stroke-width="3"/><rect x="-4" y="-6" width="8" height="22" fill="#1B3A2A"/></g>
+    <g id="icPretzel"><path d="M-22 10 C-40 -16 -10 -30 0 -6 C10 -30 40 -16 22 10 C10 22 -10 22 -22 10 Z M-14 4 L14 -12 M14 4 L-14 -12" fill="none" stroke="#1B1238" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/><path d="M-22 10 C-40 -16 -10 -30 0 -6 C10 -30 40 -16 22 10 C10 22 -10 22 -22 10 Z M-14 4 L14 -12 M14 4 L-14 -12" fill="none" stroke="#D98A3A" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/></g>
+    <!-- district street sign: width 300 centred, origin bottom-centre on its post -->
+    <g id="streetSign">
+      <rect x="-6" y="-60" width="12" height="60" fill="#9AA4C8" stroke="#1B1238" stroke-width="5"/>
+      <rect x="-150" y="-124" width="300" height="70" rx="12" fill="#1F8A5A" stroke="#1B1238" stroke-width="7"/>
+      <rect x="-140" y="-114" width="280" height="50" rx="8" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+    </g>
+    <!-- +$ pop -->
+    <g id="cashPop">
+      <text text-anchor="middle" font-family="'Lilita One'" font-size="56" fill="#7CFF8A" stroke="#0B3A1A" stroke-width="10" paint-order="stroke" stroke-linejoin="round">+$</text>
+    </g>
