@@ -6,7 +6,7 @@ local DataTemplate = {}
 
 DataTemplate.template = {
 	version = 1,
-	coins = 50, -- matches config/economy.startingCoins; checked by tests
+	coins = 200, -- matches config/economy.startingCoins; checked by tests
 	pendingCoins = 0, -- earned but not collected yet (may hold a fraction)
 	lastIncomeAt = 0, -- unix seconds income was last added to pendingCoins
 	rebirths = 0,
@@ -16,10 +16,12 @@ DataTemplate.template = {
 	creatures = {}, -- { { uid, speciesId, mutation, slot?, eggId, hatchedAt } }; slot nil = storage
 	nextUid = 1, -- next creature uid
 	mountUid = "", -- creature being ridden ("" = on foot)
-	decoys = {}, -- decoy eggs placed (M4)
+	decoys = {}, -- { { spot } } decoy eggs on the decoy spots
+	guardUid = "", -- creature guarding the base ("" = none)
 	rebirthArchive = {}, -- creatures from the last 5 rebirths, kept for support
-	shieldUntil = 0,
-	traps = {},
+	shieldUntil = 0, -- unix seconds the shield lasts until
+	shieldReadyAt = 0, -- unix seconds the free shield can be raised again
+	traps = {}, -- { { spot, kind } } traps on the trap spots
 	boosts = {}, -- { [boostId] = expiresAt }
 	receipts = {}, -- recent purchase ids, capped (core Receipts)
 	firsts = {}, -- { [moment] = unix seconds } for the onboarding funnel

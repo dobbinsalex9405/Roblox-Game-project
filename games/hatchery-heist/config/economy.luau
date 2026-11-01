@@ -2,7 +2,7 @@
 -- Coins, incubators and rebirth. Every number here is tunable without code
 -- changes; any change to a live game's economy needs Alex's approval (brief, Part 1).
 return {
-	startingCoins = 50,
+	startingCoins = 200,
 	coinsMax = 1e15,
 
 	incubators = {
@@ -15,8 +15,8 @@ return {
 	},
 
 	rebirth = {
-		baseCost = 1000000,
-		costGrowth = 2.5, -- each rebirth costs this many times the previous one
+		baseCost = 120000,
+		costGrowth = 3, -- each rebirth costs this many times the previous one
 		incomeBonusPerRebirth = 0.25, -- +25% income per rebirth
 	},
 
@@ -38,7 +38,7 @@ return {
 	-- is full, the weakest stored creature sells for `sellSeconds` of its income.
 	storage = {
 		slots = 30,
-		sellSeconds = 60,
+		sellSeconds = 20,
 	},
 
 	-- With the Auto-Collect pass, earnings move into coins this often (seconds).

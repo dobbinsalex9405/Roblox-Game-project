@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Creatures = require(Shared.Creatures)
+local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 
@@ -153,6 +154,61 @@ local function buildPlot(index: number): Model
 	billboard(post, Vector3.new(0, 6, 0), UDim2.fromOffset(240, 50), "Free base")
 	post.Parent = model
 
+	local traps = Instance.new("Folder")
+	traps.Name = "Traps"
+	traps.Parent = model
+	for spot, xz in Geometry.TRAP_SPOTS do
+		local p = part({
+			Name = `Trap{spot}`,
+			Size = Vector3.new(5, 0.3, 5),
+			CFrame = at(Vector3.new(xz[1], 1.15, xz[2])),
+			Color = Color3.fromRGB(90, 90, 90),
+			Transparency = 0.5,
+			CanCollide = false,
+		})
+		p:SetAttribute("Spot", spot)
+		billboard(p, Vector3.new(0, 3, 0), UDim2.fromOffset(120, 30), "")
+		p.Parent = traps
+	end
+
+	local decoys = Instance.new("Folder")
+	decoys.Name = "Decoys"
+	decoys.Parent = model
+	for spot, xz in Geometry.DECOY_SPOTS do
+		local p = part({
+			Name = `Decoy{spot}`,
+			Size = Vector3.new(5, 0.4, 5),
+			CFrame = at(Vector3.new(xz[1], 1.2, xz[2])),
+			Color = Color3.fromRGB(150, 140, 120),
+		})
+		p:SetAttribute("Spot", spot)
+		p.Parent = decoys
+	end
+
+	local pylon = part({
+		Name = "ShieldPylon",
+		Size = Vector3.new(3, 7, 3),
+		CFrame = at(Vector3.new(Geometry.SHIELD_PYLON[1], 4.5, Geometry.SHIELD_PYLON[2])),
+		Color = Color3.fromRGB(60, 160, 255),
+		Material = Enum.Material.Neon,
+	})
+	billboard(pylon, Vector3.new(0, 5, 0), UDim2.fromOffset(160, 36), "Shield")
+	pylon.Parent = model
+
+	local dome = part({
+		Name = "ShieldDome",
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(96, 96, 96),
+		CFrame = at(Vector3.new(0, 0, 0)),
+		Color = Color3.fromRGB(80, 170, 255),
+		Material = Enum.Material.ForceField,
+		Transparency = 1,
+		CanCollide = false,
+		CanQuery = false,
+		CanTouch = false,
+	})
+	dome.Parent = model
+
 	model.Parent = plotsFolder
 	return model
 end
@@ -213,13 +269,46 @@ function World.spawnCFrame(index: number): CFrame
 	return Layout.plotCFrame(index) * CFrame.new(Layout.SPAWN)
 end
 
+function World.model(index: number): Model?
+	return plots[index]
+end
+
+function World.ownerOfIndex(index: number): Player?
+	return owners[index]
+end
+
+-- Server-made moves go through here so the movement check can restart.
+local teleportListeners: { (player: Player) -> () } = {}
+
+function World.onTeleport(listener: (player: Player) -> ())
+	table.insert(teleportListeners, listener)
+end
+
+function World.teleport(player: Player, cframe: CFrame)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	character:PivotTo(cframe)
+	for _, listener in teleportListeners do
+		listener(player)
+	end
+end
+
 -- Puts the player's character at their base.
 function World.sendHome(player: Player)
 	local index = World.plotOf(player)
-	local character = player.Character
-	if index and character then
-		character:PivotTo(World.spawnCFrame(index))
+	if index then
+		World.teleport(player, World.spawnCFrame(index))
 	end
+end
+
+-- Puts the player in the yard just outside base `index`, facing away from it.
+function World.pushOut(player: Player, index: number)
+	local x, z = Geometry.outsideFront(index)
+	local cx, cz = Geometry.center(index)
+	local position = Vector3.new(x, 4, z)
+	World.teleport(player, CFrame.lookAt(position, position + Vector3.new(x - cx, 0, z - cz)))
 end
 
 local function setLabel(p: Instance, text: string)
@@ -280,7 +369,7 @@ local function syncIncubators(model: Model, d: { [string]: any }?, config: any?,
 	end
 end
 
-local function syncPads(model: Model, d: { [string]: any }?, config: any?)
+local function syncPads(model: Model, d: { [string]: any }?, config: any?, carried: { [string]: boolean })
 	local folder = model:FindFirstChild("Pads") :: Folder
 	local onPad: { [number]: any } = {}
 	if d then
@@ -300,13 +389,20 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?)
 			end
 			pad:SetAttribute("CreatureUid", nil)
 			pad:SetAttribute("SpeciesId", nil)
+			pad:SetAttribute("Riding", nil)
+			pad:SetAttribute("Guard", nil)
+			pad:SetAttribute("Carried", nil)
 			continue
 		end
 		local species = config.creatures.species[c.speciesId]
 		local riding = d ~= nil and d.mountUid == c.uid
 		pad:SetAttribute("CreatureUid", c.uid)
 		pad:SetAttribute("SpeciesId", c.speciesId)
+		local guarding = d ~= nil and d.guardUid == c.uid
+		local isCarried = carried[c.uid] == true
 		pad:SetAttribute("Riding", riding)
+		pad:SetAttribute("Guard", guarding)
+		pad:SetAttribute("Carried", isCarried)
 		if shown == nil or shown:GetAttribute("Uid") ~= c.uid then
 			if shown then
 				shown:Destroy()
@@ -331,18 +427,92 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?)
 			body.Parent = pad
 			shown = body
 		end
-		(shown :: Part).Transparency = if riding then 0.75 else 0
+		-- Ridden, guarding (it patrols as its own model) or being carried off.
+		(shown :: Part).Transparency = if isCarried then 1 elseif riding or guarding then 0.75 else 0
 	end
 end
 
--- Draws a base from saved data (nil data = an empty base).
-function World.sync(index: number, d: { [string]: any }?, config: any?, slotCount: number)
+local DECOY_LOOK = "Duckling" -- what a decoy egg pretends to be
+
+local function syncDefenses(model: Model, d: { [string]: any }?, config: any?, now: number)
+	local traps = model:FindFirstChild("Traps") :: Folder
+	for spot = 1, #Geometry.TRAP_SPOTS do
+		local p = traps:FindFirstChild(`Trap{spot}`) :: Part
+		local kind: string? = nil
+		if d then
+			for _, trap in d.traps do
+				if trap.spot == spot then
+					kind = trap.kind
+				end
+			end
+		end
+		-- Every trap spot looks the same to raiders. Only the owner's client
+		-- colors and labels its own traps (BaseView), from this attribute.
+		p:SetAttribute("Kind", kind)
+	end
+
+	local decoys = model:FindFirstChild("Decoys") :: Folder
+	for spot = 1, #Geometry.DECOY_SPOTS do
+		local p = decoys:FindFirstChild(`Decoy{spot}`) :: Part
+		local placed = false
+		if d then
+			for _, decoy in d.decoys do
+				if decoy.spot == spot then
+					placed = true
+				end
+			end
+		end
+		p:SetAttribute("Placed", placed)
+		local shown = p:FindFirstChild("Creature")
+		if placed and shown == nil and config then
+			local species = config.creatures.species[DECOY_LOOK]
+			local size = Layout.raritySize(species.rarity)
+			local body = part({
+				Name = "Creature",
+				Shape = Enum.PartType.Ball,
+				Size = Vector3.new(size, size, size),
+				CFrame = CFrame.new(p.Position + Vector3.new(0, size / 2 + 0.2, 0)),
+				Color = Layout.rarityColor(species.rarity),
+				CanCollide = false,
+			})
+			billboard(
+				body,
+				Vector3.new(0, size / 2 + 1.5, 0),
+				UDim2.fromOffset(140, 40),
+				`{Layout.displayName(DECOY_LOOK)}\n{Layout.shortNumber(species.coinsPerSecond)}/s`
+			)
+			body.Parent = p
+		elseif not placed and shown then
+			shown:Destroy()
+		end
+	end
+
+	local shieldUntil = if d then d.shieldUntil else 0
+	local pylon = model:FindFirstChild("ShieldPylon") :: Part
+	pylon:SetAttribute("ShieldUntil", shieldUntil)
+	pylon:SetAttribute("ReadyAt", if d then d.shieldReadyAt else 0)
+	local dome = model:FindFirstChild("ShieldDome") :: Part
+	dome.Transparency = if shieldUntil > now then 0.6 else 1
+	model:SetAttribute("ShieldUntil", shieldUntil)
+end
+
+-- Draws a base from saved data (nil data = an empty base). `carried` lists
+-- the uids raiders are carrying off right now.
+function World.sync(
+	index: number,
+	d: { [string]: any }?,
+	config: any?,
+	slotCount: number,
+	carried: { [string]: boolean }?,
+	now: number?
+)
 	local model: Model? = plots[index]
 	if model == nil then
 		return
 	end
 	syncIncubators(model, d, config, slotCount)
-	syncPads(model, d, config)
+	syncPads(model, d, config, carried or {})
+	syncDefenses(model, d, config, now or os.time())
 	local rebirth = model:FindFirstChild("RebirthStand") :: Part
 	if d and config then
 		local cost = Creatures.rebirthCost(d.rebirths, config.economy)

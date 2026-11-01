@@ -1,7 +1,9 @@
-# Wally output (installed on CI and locally with `wally install`)
-/Packages/
-/ServerPackages/
-/DevPackages/
+# Wally output (`cd deps && wally install`). Wally lives in deps/ so its
+# Packages/ folder never meets packages/ on case-insensitive disks (Windows,
+# macOS), where `wally install` would delete our own code.
+/deps/Packages/
+/deps/ServerPackages/
+/deps/DevPackages/
 
 # Build output
 /build/
@@ -17,3 +19,4 @@ roblox.yml
 .DS_Store
 .idea/
 *.log
+.playtest/

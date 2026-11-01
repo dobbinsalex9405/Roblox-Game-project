@@ -141,12 +141,59 @@ describe("Hatchery", function()
 		expect(#d.creatures).toBe(2)
 	end)
 
-	it("the fixed order walks the egg's outcomes in turn", function()
-		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
-		local n = #basic.outcomes
-		for i = 0, n * 2 - 1 do
-			expect(Hatchery.fixedOrderOutcome(basic, i)).toBe(basic.outcomes[(i % n) + 1].id)
+	it("the fixed order gives each outcome exactly as often as its odds", function()
+		for _, check in { { egg = "BasicEgg", cycle = 50 }, { egg = "MeadowEgg", cycle = 100 } } do
+			local egg = Hatchery.eggById(config.eggs, check.egg)
+			local counts: { [string]: number } = {}
+			for i = 0, check.cycle - 1 do
+				local id = Hatchery.fixedOrderOutcome(egg, i)
+				counts[id] = (counts[id] or 0) + 1
+				-- The cycle repeats, so the shown next outcome never changes meaning.
+				expect(Hatchery.fixedOrderOutcome(egg, i + check.cycle)).toBe(id)
+			end
+			for _, o in egg.outcomes do
+				expect(counts[o.id]).toBe(o.weight * check.cycle // 10000)
+			end
 		end
+		-- The rarest Basic outcome comes once in 50, not once in 4.
+		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
+		local first = {}
+		for i = 0, 3 do
+			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
+		end
+		expect(first).toEqual({ "Chick", "Duckling", "Chick", "Chick" })
+		expect(#Hatchery.fixedOrderCycle(basic)).toBe(50)
+		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(0)
+		expect(Hatchery.fixedOrderWait(basic, 0, "Duckling")).toBe(1)
+		local turtle = Hatchery.fixedOrderWait(basic, 0, "Turtle") :: number
+		expect(Hatchery.fixedOrderOutcome(basic, turtle)).toBe("Turtle")
+		expect(Hatchery.fixedOrderWait(basic, 0, "Phoenix")).toBeNil()
+	end)
+
+	it("rides only creatures on a pad", function()
+		local d = fresh()
+		d.creatures = {
+			{
+				uid = "1",
+				speciesId = "Chick",
+				mutation = "None",
+				slot = 1,
+				eggId = "BasicEgg",
+				hatchedAt = 0,
+			},
+			{
+				uid = "2",
+				speciesId = "Turtle",
+				mutation = "None",
+				slot = nil,
+				eggId = "BasicEgg",
+				hatchedAt = 0,
+			},
+		}
+		local speed, why = Hatchery.ride(d, "2", config.creatures)
+		expect(speed).toBeNil()
+		expect(why).toBe("Only a creature on a pad can be ridden.")
+		expect(Hatchery.ride(d, "1", config.creatures)).toBe(config.creatures.species.Chick.mountSpeed)
 	end)
 
 	it("accrues income while online and shows the pile between ticks", function()

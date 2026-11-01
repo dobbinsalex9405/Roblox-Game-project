@@ -1,14 +1,15 @@
 --!strict
--- Basic riding (M2): the creature being ridden is drawn under the player's
--- character and sets their walk speed from its species' mountSpeed. The
+-- Basic riding: the creature being ridden is drawn under the player's
+-- character and sets their walk speed (through Speed) from its species'
+-- mountSpeed. The
 -- choice of creature is saved (mountUid), so it comes back after a respawn or
--- a rejoin. M4 adds the server-side Movement check on top.
+-- a rejoin. RaidService checks every move against that speed.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterPlayer = game:GetService("StarterPlayer")
 
 local Layout = require(ReplicatedStorage.Shared.Layout)
+local Speed = require(script.Parent.Speed)
 
 local Mounts = {}
 
@@ -23,7 +24,6 @@ local function clearCharacter(character: Model)
 		old:Destroy()
 	end
 	if humanoid then
-		humanoid.WalkSpeed = StarterPlayer.CharacterWalkSpeed
 		local hip = humanoid:GetAttribute("BaseHipHeight")
 		if type(hip) == "number" then
 			humanoid.HipHeight = hip
@@ -48,7 +48,6 @@ local function applyToCharacter(player: Player, character: Model)
 	local hip = humanoid.HipHeight
 	humanoid:SetAttribute("BaseHipHeight", hip)
 	humanoid.HipHeight = hip + size
-	humanoid.WalkSpeed = ride.speed
 
 	local body = Instance.new("Part")
 	body.Name = "Mount"
@@ -73,10 +72,15 @@ end
 -- Starts riding (ride ~= nil) or stops (ride == nil).
 function Mounts.set(player: Player, ride: Ride?)
 	rides[player] = ride
+	Speed.setMount(player, if ride then ride.speed else nil)
 	local character = player.Character
 	if character then
 		applyToCharacter(player, character)
 	end
+end
+
+function Mounts.rideOf(player: Player): Ride?
+	return rides[player]
 end
 
 function Mounts.start()
@@ -85,6 +89,7 @@ function Mounts.start()
 			character:WaitForChild("HumanoidRootPart")
 			character:WaitForChild("Humanoid")
 			applyToCharacter(player, character)
+			Speed.apply(player)
 		end)
 	end
 	Players.PlayerAdded:Connect(watch)

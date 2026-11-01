@@ -31,6 +31,7 @@ jobs:
 
       - name: Install packages (wally.toml)
         run: wally install
+        working-directory: deps
 
       - name: Format (StyLua)
         run: stylua --check packages games tools
