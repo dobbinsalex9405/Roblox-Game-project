@@ -42,10 +42,23 @@ another Claude.
 4. **After a publish** since the last run, follow the post-publish checks in
    `ops/PUBLISH_CHECKS.md`: confirm the version read-back in the run
    summary, and check that the live-join list was done for it (ask the
-   thread that published if not). The error-queue sweep needs a reader for
-   the `ErrorQueue` DataStore, which does not exist yet; until it does, use
-   the client errors attached to that day's feedback digest and say "error
-   queue not swept" in the heartbeat.
+   thread that published if not). Then the **error sweep**: the day's
+   digest has an **Errors** section (yesterday's `ErrorQueue` records, by
+   game, environment, build and signature), and a publish since the last run
+   should also have an `error-sweep` issue from the 1-hour sweep. List open
+   issues labelled `error-sweep`, and read the digest's Errors section.
+   Any issue labelled `stop` (digest or sweep) is handled first, before
+   anything else in the run:
+   - a group marked **STOP** (any server error, or a client error seen 10+
+     times) on Staging blocks promoting that build: open a `bug`, `<game>`,
+     `sev1` tracking issue with the signature and route it like a bug
+     (step 2.4). On Production it is a rollback question: tell Alex;
+   - other error groups are `sev2` or `sev3` tracking issues (one per
+     signature; search for the signature first);
+   - comment the decision on each `error-sweep` issue and close it.
+   If a publish happened and no sweep issue exists, run the **Player
+   feedback** workflow by hand with `hours: 1` (or `24`) and `build:
+   <commit>`, or say "error queue not swept" in the heartbeat.
 5. **Trip the switch yourself** (see "Tripping the switch") if a publish is
    failing in a loop, CI on `main` has been red for 3 runs in a row, or a
    release that reached players cannot be rolled back.

@@ -1,4 +1,5 @@
 --!strict
+local ErrorReporter = require("@core/ErrorReporter")
 local Feedback = require("@core/Feedback")
 local fs = require("@lune/fs")
 local net = require("@lune/net")
@@ -64,6 +65,64 @@ local function makeBatches(): { { key: string, batch: Feedback.Batch } }
 	feedback:submit(info(5), { category = "other", text = "love it", rating = 4, client = client }, T0 + 11)
 	feedback:flush(T0 + 12, true)
 	return out
+end
+
+-- One ErrorQueue batch as a server writes it.
+local function errorBatch(build: string, source: string, message: string, count: number, at: number): string
+	local written: any = nil
+	local reporter = ErrorReporter.new({
+		game = "hatchery-heist",
+		build = build,
+		write = function(batch)
+			written = batch
+			return true
+		end,
+	})
+	for _ = 1, count do
+		reporter:record(source :: any, message, "Script 'Server', Line 1", at)
+	end
+	reporter:flush(at, true)
+	return serde.encode("json", written)
+end
+
+-- A fake Open Cloud: `stores[name] = { [key] = body }`, listed two keys a page.
+local function fakeOpenCloud(stores: { [string]: { [string]: string } }, state: { sawKey: boolean })
+	local port = 18000 + math.random(1, 1999)
+	local server = net.serve(port, function(request)
+		if request.headers["x-api-key"] ~= "test-key" then
+			state.sawKey = false
+			return { status = 401, body = "no key" }
+		end
+		local query = request.query
+		local store = stores[query.datastoreName]
+		if store == nil then
+			return { status = 404, body = "wrong store" }
+		end
+		if string.find(request.path, "/entries/entry", 1, true) then
+			local body = store[query.entryKey]
+			return if body then { status = 200, body = body } else { status = 404, body = "missing" }
+		end
+		local keys = {}
+		for k in store do
+			if string.sub(k, 1, #query.prefix) == query.prefix then
+				table.insert(keys, k)
+			end
+		end
+		table.sort(keys)
+		local startAt = tonumber(query.cursor) or 1
+		local page = {}
+		for i = startAt, math.min(startAt + 1, #keys) do
+			table.insert(page, { scope = "global", key = keys[i] })
+		end
+		return {
+			status = 200,
+			body = serde.encode("json", {
+				keys = page,
+				nextPageCursor = if startAt + 2 <= #keys then tostring(startAt + 2) else nil,
+			}),
+		}
+	end)
+	return port, server
 end
 
 describe("feedback tool", function()
@@ -182,43 +241,19 @@ describe("feedback tool", function()
 
 	it("pulls from Open Cloud end to end (against a local fake)", function()
 		local batches = makeBatches()
-		local store: { [string]: string } = {
-			[batches[1].key] = serde.encode("json", batches[1].batch),
-			[batches[2].key] = serde.encode("json", batches[2].batch),
-			["20261101-120000-other-1"] = "{not json",
-		}
-		local keys = { batches[1].key, batches[2].key, "20261101-120000-other-1" }
-		local sawKey = true
-		local port = 18000 + math.random(1, 999)
-		local server = net.serve(port, function(request)
-			if request.headers["x-api-key"] ~= "test-key" then
-				sawKey = false
-				return { status = 401, body = "no key" }
-			end
-			local query = request.query
-			if query.datastoreName ~= "Feedback" then
-				return { status = 404, body = "wrong store" }
-			end
-			if string.find(request.path, "/entries/entry", 1, true) then
-				local body = store[query.entryKey]
-				return if body then { status = 200, body = body } else { status = 404, body = "missing" }
-			end
-			-- Two pages: the first two keys, then the rest.
-			local page = {}
-			local startAt = if query.cursor == "page2" then 3 else 1
-			for i = startAt, if startAt == 1 then 2 else #keys do
-				if string.sub(keys[i], 1, #query.prefix) == query.prefix then
-					table.insert(page, { scope = "global", key = keys[i] })
-				end
-			end
-			return {
-				status = 200,
-				body = serde.encode("json", {
-					keys = page,
-					nextPageCursor = if startAt == 1 then "page2" else nil,
-				}),
-			}
-		end)
+		local state = { sawKey = true }
+		local port, server = fakeOpenCloud({
+			Feedback = {
+				[batches[1].key] = serde.encode("json", batches[1].batch),
+				[batches[2].key] = serde.encode("json", batches[2].batch),
+				["20261101-120000-other-1"] = "{not json",
+			},
+			ErrorQueue = {
+				["20261101-090000-srv1-1"] = errorBatch("abc1234def", "client", "UI nil", 3, T0 + 3600),
+				["20261031-230000-srv1-1"] = errorBatch("abc1234def", "server", "old day", 1, T0 - 9 * 3600),
+			},
+		}, state)
+		local sawKey = state.sawKey
 
 		local dir = "build/feedback-test"
 		fs.writeDir(dir)
@@ -248,6 +283,7 @@ describe("feedback tool", function()
 			},
 		})
 		server:stop()
+		sawKey = state.sawKey
 
 		expect(result.ok).toBe(true)
 		expect(sawKey).toBe(true)
@@ -260,6 +296,19 @@ describe("feedback tool", function()
 		local digest = fs.readFile(`{dir}/out/digest.md`)
 		expect(digest).toContain("# Player feedback 2026-11-01")
 		expect(digest).toContain("## Problems reading feedback")
+		expect(digest).toContain("## Needs triage")
+		local block = string.match(digest, "<!%-%- loop%-lab%-triage v1\n(.-)\n%-%->")
+		expect(block ~= nil).toBe(true)
+		local parsed = serde.decode("json", block :: string)
+		expect(parsed.version).toBe(1)
+		expect(#parsed.items).toBe(2)
+		expect(parsed.items[1].priority).toBe("sev1")
+		expect(string.find(block :: string, "egg", 1, true)).toBeNil() -- no player text, only keyword tags
+		expect(summary.escalated).toBe(2)
+		local triage = serde.decode("json", fs.readFile(`{dir}/out/triage.json`))
+		expect(#triage.items).toBe(2)
+		expect(triage.items[1].priority).toBe("sev1") -- "egg vanished", grouped by its client error
+		expect(triage.items[1].reports).toBe(2)
 		local lines = 0
 		for _ in string.gmatch(fs.readFile(`{dir}/out/reports.jsonl`), "[^\n]+") do
 			lines += 1
@@ -268,6 +317,119 @@ describe("feedback tool", function()
 		local outputs = fs.readFile(`{dir}/github-output`)
 		expect(outputs).toContain("configured=true")
 		expect(outputs).toContain("total=5")
+		expect(outputs).toContain("escalated=2")
+		-- The error queue for the same day: one client error, under the STOP count.
+		expect(outputs).toContain("errors=1")
+		expect(outputs).toContain("stop=false")
+		expect(digest).toContain("## Errors")
+		expect(digest).toContain("issue hatchery-heist production · build abc1234 · client")
+		expect(string.find(digest, "old day", 1, true)).toBeNil() -- another day's key is not read
+		expect(parsed.stop).toBe(false)
+		expect(#parsed.errors).toBe(1)
+		-- Errors sit between the triage list and the per-game feedback.
+		local errorsAt = string.find(digest, "## Errors", 1, true) :: number
+		expect(errorsAt < (string.find(digest, "## hatchery-heist", 1, true) :: number)).toBe(true)
+		expect(errorsAt > (string.find(digest, "## Needs triage", 1, true) :: number)).toBe(true)
+		fs.removeDir(dir)
+	end)
+
+	it("sweeps the last hours for one build after a publish", function()
+		local now = T0 + 2 * 3600
+		local state = { sawKey = true }
+		local port, server = fakeOpenCloud({
+			Feedback = {},
+			ErrorQueue = {
+				-- Inside the last hour, the published build: a server error = STOP.
+				["20261101-093000-srv1-1"] = errorBatch(
+					"feedbee1234",
+					"server",
+					"DataStore failed",
+					1,
+					now - 1800
+				),
+				-- Inside the hour, an older build: ignored by --build.
+				["20261101-093100-srv2-1"] = errorBatch("0ld0ld0", "server", "old build", 5, now - 1700),
+				-- The new build, but before the window.
+				["20261101-080500-srv1-1"] = errorBatch("feedbee1234", "client", "too early", 50, now - 6900),
+			},
+		}, state)
+		local dir = "build/feedback-test-sweep"
+		fs.writeDir(dir)
+		fs.writeFile(
+			`{dir}/environments.json`,
+			serde.encode("json", { ["hatchery-heist"] = { staging = { universeId = 7, placeId = 1 } } })
+		)
+		local result = process.exec("lune", {
+			"run",
+			"tools/feedback/pull",
+			"--hours",
+			"1",
+			"--build",
+			"feedbee",
+			"--environments",
+			`{dir}/environments.json`,
+			"--out",
+			`{dir}/out`,
+		}, {
+			env = {
+				ROBLOX_READ_API_KEY = "test-key",
+				OPEN_CLOUD_BASE_URL = `http://127.0.0.1:{port}`,
+				GITHUB_OUTPUT = `{dir}/github-output`,
+				FEEDBACK_NOW = tostring(now),
+			},
+		})
+		server:stop()
+		expect(result.ok).toBe(true)
+		expect(result.stdout).toContain("STOP")
+		local outputs = fs.readFile(`{dir}/github-output`)
+		expect(outputs).toContain("title=Error sweep: last 1 h (build feedbee)")
+		expect(outputs).toContain("errors=1")
+		expect(outputs).toContain("stop=true")
+		local digest = fs.readFile(`{dir}/out/digest.md`)
+		expect(digest).toContain("**STOP: 1 error group(s)")
+		expect(digest).toContain("DataStore failed")
+		expect(string.find(digest, "old build", 1, true)).toBeNil()
+		expect(string.find(digest, "too early", 1, true)).toBeNil()
+		fs.removeDir(dir)
+	end)
+
+	it("still writes the digest, flagged for hand triage, when the prefilter fails", function()
+		local batches = makeBatches()
+		local port = 19000 + math.random(1, 999)
+		local server = net.serve(port, function(request)
+			if string.find(request.path, "/entries/entry", 1, true) then
+				return { status = 200, body = serde.encode("json", batches[1].batch) }
+			end
+			return { status = 200, body = serde.encode("json", { keys = { { key = batches[1].key } } }) }
+		end)
+		local dir = "build/feedback-test-broken"
+		fs.writeDir(dir)
+		fs.writeFile(
+			`{dir}/environments.json`,
+			serde.encode("json", { ["hatchery-heist"] = { production = { universeId = 1, placeId = 1 } } })
+		)
+		local result = process.exec("lune", {
+			"run",
+			"tools/feedback/pull",
+			"--from",
+			"2026-11-01",
+			"--environments",
+			`{dir}/environments.json`,
+			"--out",
+			`{dir}/out`,
+		}, {
+			env = {
+				ROBLOX_READ_API_KEY = "test-key",
+				OPEN_CLOUD_BASE_URL = `http://127.0.0.1:{port}`,
+				FEEDBACK_TEST_BREAK_PREFILTER = "1",
+			},
+		})
+		server:stop()
+		expect(result.ok).toBe(true)
+		local digest = fs.readFile(`{dir}/out/digest.md`)
+		expect(digest).toContain("Prefilter failed: triage every bug by hand.")
+		expect(digest).toContain('"failed":true')
+		expect(digest).toContain("### Bugs (3)") -- the reports are all still there
 		fs.removeDir(dir)
 	end)
 

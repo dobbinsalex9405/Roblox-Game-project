@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Error reports (shared core) are stored under dated keys, so the daily
+  feedback digest and the post-publish error sweep can read them by day.
 - Feedback button in the top bar (shared core): players send a Bug, Idea or
   Other report with an optional fun rating. Reports carry this game's
   progress snapshot (gear tiers, pack contents, deepest row, dives and lamp-outs) to help reproduce bugs.

@@ -2,6 +2,29 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-01: Feedback prefilter and the error sweep
+
+- **A plain-code prefilter, not a model, sits between players and the Claude
+  run.** It dedupes, tags keywords, caps per player and per game, and leans
+  towards escalating; the Claude run decides. Its output is a hidden JSON
+  block with no player text, so nothing a player typed reaches the run as
+  structure.
+- **One read-only key and one workflow read both feedback and errors.** The
+  `ErrorQueue` sweep reuses `ROBLOX_READ_API_KEY` and the Player feedback
+  workflow, so Alex makes one key, not two, and errors land next to the
+  reports that mention them.
+- **`ErrorQueue` keys are now dated** (`YYYYMMDD-HHMMSS-<server>-<n>`, as
+  `Feedback`), so a day or an hour lists by prefix instead of reading the
+  whole store. Keys in the old `<minute>-<job>` form (Staging test sessions
+  at most) are simply never listed; nothing reads or migrates them.
+- **The 1-hour sweep is started by the thread that published, not by a
+  sleeping job**, which would spend an hour of Actions minutes per publish.
+  The daily digest is the 24-hour sweep, and the daily run catches a missed
+  one.
+- **Sweeps open an issue even when clean** (`error-sweep`), so the promotion
+  rule ("24-hour sweep found no server error") has a record to point at.
+  Daily digests still open only when there is something in them.
+
 ## 2026-11-01: In-game feedback in every game
 
 - **The core owns it, so every game gets it.** `CoreClient.start` mounts the
@@ -422,8 +445,9 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Data from a newer build is refused, not downgraded,** so a rollback can
   never overwrite progress made on the newer build.
 - **Error queue keys** are `<unix minute>-<JobId>` in the `ErrorQueue`
-  DataStore: one write per server per minute at most. The nightly reader (M5)
-  lists keys newer than its cursor. Consider MemoryStore with expiry at M5 if
+  DataStore: one write per server per minute at most. *Superseded
+  2026-11-01: keys are dated, `YYYYMMDD-HHMMSS-<server>-<n>`, and the
+  feedback workflow reads them by day or hour prefix (see the top entry).* Consider MemoryStore with expiry at M5 if
   DataStore storage grows.
 - **Packages.** ProfileStore pinned at exactly `1.0.3` (MadStudio, by loleris;
   source reviewed 2026-11-01). React-Lua is deferred to the UI kit (module 13,
