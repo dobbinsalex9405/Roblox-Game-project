@@ -13,6 +13,7 @@
 
 local DataService = require("./DataService")
 local Log = require("./Log")
+local Util = require("./Util")
 
 export type Currency = {
 	field: string, -- key in player data that holds the balance
@@ -169,7 +170,7 @@ function Economy.new(options: Options): Economy
 				player = change.player,
 			})
 			if options.onChange then
-				local ok, err = pcall(options.onChange, change)
+				local ok, err = Util.try(options.onChange, change)
 				if not ok then
 					log:error("onChange failed", { err = err })
 				end

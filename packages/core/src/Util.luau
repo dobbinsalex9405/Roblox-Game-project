@@ -58,6 +58,17 @@ function Util.keys(t: { [any]: any }): { any }
 	return out
 end
 
+-- pcall that always returns (ok, message). Plain pcall on a function that
+-- returns nothing is typed as returning one value, which strict mode rejects
+-- at `local ok, err = pcall(...)`.
+function Util.try(fn: (...any) -> ...any, ...: any): (boolean, string?)
+	local ok, err = pcall(fn, ...)
+	if ok then
+		return true, nil
+	end
+	return false, tostring(err)
+end
+
 -- Short, stable hash (djb2, 32 bit) as 8 hex characters. Not cryptographic.
 function Util.hash(text: string): string
 	local h = 5381

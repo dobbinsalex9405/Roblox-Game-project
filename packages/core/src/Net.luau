@@ -12,6 +12,7 @@
 local Log = require("./Log")
 local RateLimiter = require("./RateLimiter")
 local Schema = require("./Schema")
+local Util = require("./Util")
 
 export type Direction = "toServer" | "toClient"
 
@@ -150,7 +151,7 @@ function Net.newServer(options: ServerOptions): Server
 		if handler == nil then
 			return drop(player, name, "no-handler", nil)
 		end
-		local success, problem = pcall(handler, player, table.unpack(args, 1, #remote.args))
+		local success, problem = Util.try(handler, player, table.unpack(args, 1, #remote.args))
 		if not success then
 			log:error("handler failed", { remote = name, err = problem })
 			return drop(player, name, "error", tostring(problem))

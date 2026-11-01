@@ -4,7 +4,15 @@
 -- Every egg here is a paid random item: Premium Egg costs Robux, and coin
 -- eggs cost coins that coin packs sell for Robux. So every egg shows its odds
 -- before purchase and is policy-checked on every hatch (src/shared/Eggs.luau).
-return {
+type Egg = {
+	id: string,
+	priceCoins: number?, -- bought with coins...
+	productKey: string?, -- ...or with Robux (a key in monetization.products)
+	hatchSeconds: number,
+	outcomes: { { id: string, weight: number } },
+}
+
+local eggs: { Egg } = {
 	{
 		id = "BasicEgg",
 		priceCoins = 50,
@@ -39,3 +47,5 @@ return {
 		},
 	},
 }
+
+return eggs

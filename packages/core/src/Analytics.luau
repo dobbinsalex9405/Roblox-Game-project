@@ -14,6 +14,7 @@
 --   progression       paths like "Rebirth" with a level number
 
 local Log = require("./Log")
+local Util = require("./Util")
 
 export type Flow = "Source" | "Sink"
 export type ProgressionStatus = "Start" | "Complete" | "Fail"
@@ -120,7 +121,7 @@ function Analytics.new(sink: Sink): Analytics
 	local analytics = {}
 
 	local function send(what: string, fn: (...any) -> (), ...: any)
-		local ok, err = pcall(fn, ...)
+		local ok, err = Util.try(fn, ...)
 		if not ok then
 			-- Analytics must never break gameplay.
 			log:warn("event failed", { event = what, err = err })

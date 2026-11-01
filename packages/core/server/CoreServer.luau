@@ -29,6 +29,7 @@ local Odds = require(Core.Odds)
 local Passes = require(Core.Passes)
 local Policy = require(Core.Policy)
 local Receipts = require(Core.Receipts)
+local Util = require(Core.Util)
 
 local ProfileStoreAdapter = require(script.Parent.ProfileStoreAdapter)
 local RobloxSinks = require(script.Parent.RobloxSinks)
@@ -246,7 +247,7 @@ function CoreServer.start(options: Options): Services
 
 		local now = os.time()
 		local before = data:get(player) :: { [string]: any }
-		local meta = before.meta or {}
+		local meta: { [string]: any } = before.meta or {}
 		local info: Analytics.SessionInfo = {
 			firstJoinAt = meta.firstJoinAt or 0,
 			lastJoinAt = meta.lastJoinAt or 0,
@@ -270,7 +271,7 @@ function CoreServer.start(options: Options): Services
 		net:fire(CoreRemotes["Core:Data"], player, snapshot(data:get(player) :: any))
 
 		if options.onPlayerReady then
-			local ok, err = pcall(options.onPlayerReady, player)
+			local ok, err = Util.try(options.onPlayerReady, player)
 			if not ok then
 				log:error("onPlayerReady failed", { userId = player.UserId, err = err })
 			end
@@ -279,7 +280,7 @@ function CoreServer.start(options: Options): Services
 
 	local function onPlayerRemoving(player: Player)
 		if options.onPlayerLeaving and data:isLoaded(player) then
-			local ok, err = pcall(options.onPlayerLeaving, player)
+			local ok, err = Util.try(options.onPlayerLeaving, player)
 			if not ok then
 				log:error("onPlayerLeaving failed", { userId = player.UserId, err = err })
 			end

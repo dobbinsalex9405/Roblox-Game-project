@@ -14,6 +14,7 @@
 local DataService = require("./DataService")
 local Economy = require("./Economy")
 local Log = require("./Log")
+local Util = require("./Util")
 
 export type Decision = "PurchaseGranted" | "NotProcessedYet"
 
@@ -141,7 +142,7 @@ function Receipts.new(options: Options): Receipts
 			{ product = product.key, purchaseId = receipt.PurchaseId, userId = receipt.PlayerId }
 		)
 		if options.onGranted then
-			local fine, problem = pcall(options.onGranted, player, product.key, receipt.CurrencySpent or 0)
+			local fine, problem = Util.try(options.onGranted, player, product.key, receipt.CurrencySpent or 0)
 			if not fine then
 				log:error("onGranted failed", { err = problem })
 			end

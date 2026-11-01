@@ -150,7 +150,7 @@ function DataService.new(options: Options): DataService
 		if data.version < latest then
 			-- Migrate a copy, so a failure leaves the stored data exactly as it was.
 			local copy = Util.deepCopy(data)
-			local ok, err = pcall(DataService.migrate, copy, options.migrations, latest)
+			local ok, err = Util.try(DataService.migrate, copy, options.migrations, latest)
 			if not ok then
 				profile:EndSession()
 				log:error("migration failed", { userId = userId, err = err })
@@ -203,7 +203,7 @@ function DataService.new(options: Options): DataService
 		end
 		Util.replaceContents(data, copy)
 		for _, listener in listeners do
-			local fine, problem = pcall(listener, player, data)
+			local fine, problem = Util.try(listener, player, data)
 			if not fine then
 				log:error("onChanged listener failed", { err = problem })
 			end

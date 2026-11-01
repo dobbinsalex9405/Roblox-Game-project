@@ -15,7 +15,9 @@ status=0
 for dir in games/*/; do
 	game="$(basename "$dir")"
 	echo "Type checking $game"
-	rojo sourcemap "$dir" --output sourcemap.json
+	# Absolute paths: the project file lives in the game folder, but luau-lsp
+	# runs from the repo root.
+	rojo sourcemap "$dir" --absolute --output sourcemap.json
 	luau-lsp analyze \
 		--definitions="$defs" \
 		--sourcemap=sourcemap.json \

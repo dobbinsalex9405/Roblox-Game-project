@@ -26,7 +26,7 @@ return function(Schema: any, Odds: any)
 				slotCosts = Schema.array(Schema.integer({ min = 1 })),
 				passBonusSlots = count,
 			}),
-			function(v)
+			function(v: any): (boolean, string?)
 				if v.maxSlots < v.startingSlots then
 					return false, "maxSlots is below startingSlots"
 				end
@@ -39,7 +39,7 @@ return function(Schema: any, Odds: any)
 						return false, "slotCosts must not decrease"
 					end
 				end
-				return true
+				return true, nil
 			end
 		),
 		rebirth = Schema.record({
@@ -66,11 +66,11 @@ return function(Schema: any, Odds: any)
 			),
 			mutations = Schema.map(id, Schema.number({ min = 1 })),
 		}),
-		function(v)
+		function(v: any): (boolean, string?)
 			if v.mutations.None ~= 1 then
 				return false, "mutations.None must exist and equal 1"
 			end
-			return true
+			return true, nil
 		end
 	)
 

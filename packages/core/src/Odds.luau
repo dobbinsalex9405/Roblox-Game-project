@@ -160,7 +160,10 @@ function Odds.formatPercent(weight: number): string
 end
 
 function Odds.new(options: Options?): Odds
-	local randomInteger = (options and options.randomInteger) or math.random
+	local randomInteger: (min: number, max: number) -> number = (options and options.randomInteger)
+		or function(min: number, max: number): number
+			return math.random(min, max)
+		end
 	local tables: { [string]: TableDef } = {}
 	local boosts: { [any]: { [string]: { Boost } } } = {}
 	local excluded: { [any]: { [string]: { [string]: boolean } } } = {}
@@ -178,7 +181,7 @@ function Odds.new(options: Options?): Odds
 
 	local function changed(player: any, tableId: string)
 		for _, listener in listeners do
-			local ok, err = pcall(listener, player, tableId)
+			local ok, err = Util.try(listener, player, tableId)
 			if not ok then
 				log:error("onChanged listener failed", { err = err })
 			end
@@ -225,8 +228,8 @@ function Odds.new(options: Options?): Odds
 			table.insert(rows, { id = o.id, weight = o.weight, percent = Odds.formatPercent(o.weight) })
 		end
 		local boostIds = {}
-		local playerBoosts = boosts[player] and boosts[player][tableId]
-		for _, boost in playerBoosts or {} do
+		local active: { Boost } = (boosts[player] and boosts[player][tableId]) or {}
+		for _, boost in active do
 			table.insert(boostIds, boost.id)
 		end
 		return { tableId = tableId, paid = def.paid, boosts = boostIds, rows = rows }

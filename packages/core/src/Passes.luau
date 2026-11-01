@@ -6,6 +6,7 @@
 -- on Roblox yet) is never owned.
 
 local Log = require("./Log")
+local Util = require("./Util")
 
 export type Options = {
 	passes: { [string]: number }, -- key -> game pass id
@@ -49,7 +50,7 @@ function Passes.new(options: Options): Passes
 		end
 		set[key] = true
 		if options.onOwned then
-			local ok, err = pcall(options.onOwned, player, key)
+			local ok, err = Util.try(options.onOwned, player, key)
 			if not ok then
 				log:error("onOwned failed", { pass = key, err = err })
 			end
