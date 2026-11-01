@@ -2,11 +2,19 @@
 # Builds one game (or all) into build/<game>.rbxl, stamped with the git commit.
 #   tools/build.sh hatchery-heist
 #   tools/build.sh all
+#   BUILD_ENVIRONMENT=staging tools/build.sh hatchery-heist
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 commit="${GITHUB_SHA:-$(git rev-parse --verify -q HEAD || echo dev)}"
 commit="${commit:0:12}"
+# Which experience this build is for: dev (default), staging or production.
+# Picks the right game pass and product ids (packages/core/src/Monetization.luau).
+environment="${BUILD_ENVIRONMENT:-dev}"
+case "$environment" in
+	dev | staging | production) ;;
+	*) echo "BUILD_ENVIRONMENT must be dev, staging or production, not '$environment'" >&2; exit 2 ;;
+esac
 
 # Runs in a subshell so the EXIT trap restores this game's stamp file however
 # the build ends (success, failure or Ctrl-C), before the next game starts.
@@ -19,10 +27,10 @@ build_game() (
 	backup="$(mktemp)"
 	cp "$stamp" "$backup"
 	trap 'cp "$backup" "$stamp"; rm -f "$backup"' EXIT
-	printf -- '--!strict\n-- Written by tools/build.sh. Do not edit.\nreturn { commit = "%s" }\n' "$commit" > "$stamp"
+	printf -- '--!strict\n-- Written by tools/build.sh. Do not edit.\nreturn { commit = "%s", environment = "%s" }\n' "$commit" "$environment" > "$stamp"
 	mkdir -p build
 	rojo build "$dir" --output "build/$game.rbxl"
-	echo "Built build/$game.rbxl at $commit"
+	echo "Built build/$game.rbxl at $commit for $environment"
 )
 
 if [[ "${1:-}" == "all" ]]; then

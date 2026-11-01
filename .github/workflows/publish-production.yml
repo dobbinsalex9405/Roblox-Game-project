@@ -70,6 +70,8 @@ jobs:
 
       - name: Build
         run: tools/build.sh "${{ inputs.game }}"
+        env:
+          BUILD_ENVIRONMENT: production
 
       - name: Publish to Production
         id: publish

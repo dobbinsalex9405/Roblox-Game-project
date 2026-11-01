@@ -21,6 +21,9 @@ export type Passes = {
 	owns: (self: Passes, player: any, passKey: string) -> boolean,
 	onPurchaseFinished: (self: Passes, player: any, passId: number, purchased: boolean) -> (),
 	keyFor: (self: Passes, passId: number) -> string?,
+	-- Studio test panel: own or stop owning a pass for this session only.
+	-- Nothing is saved; the next join checks Roblox again.
+	setSessionOwned: (self: Passes, player: any, passKey: string, own: boolean) -> (),
 	release: (self: Passes, player: any) -> (),
 }
 
@@ -101,6 +104,21 @@ function Passes.new(options: Options): Passes
 			return
 		end
 		grant(player, key)
+	end
+
+	function passes.setSessionOwned(_self: Passes, player: any, passKey: string, own: boolean)
+		if options.passes[passKey] == nil then
+			error(`unknown pass "{tostring(passKey)}"`, 2)
+		end
+		local set = owned[player]
+		if set == nil then
+			return
+		end
+		if own then
+			grant(player, passKey)
+		else
+			set[passKey] = nil
+		end
 	end
 
 	function passes.keyFor(_self: Passes, passId: number): string?

@@ -9,6 +9,8 @@ local ScriptContext = game:GetService("ScriptContext")
 local CoreRemotes = require(ReplicatedStorage.Core.CoreRemotes)
 local ClientNet = require(script.Parent.ClientNet)
 local FeedbackUi = require(script.Parent.FeedbackUi)
+local ShopUi = require(script.Parent.ShopUi)
+local TestPanelUi = require(script.Parent.TestPanelUi)
 
 -- Client-side throttle so a render-loop error does not spam the remote
 -- (the server rate-limits as well).
@@ -68,6 +70,13 @@ function CoreClient.start(options: Options?)
 	if options == nil or options.feedback ~= false then
 		task.spawn(FeedbackUi.start)
 	end
+	-- The shared shop (shown once the game lists items) and, in Studio only,
+	-- the test panel.
+	task.spawn(ShopUi.start, {
+		requestOdds = CoreClient.requestOdds,
+		onOdds = CoreClient.onOdds,
+	})
+	task.spawn(TestPanelUi.start)
 end
 
 -- The latest copy of this player's data (read-only; the server owns it).

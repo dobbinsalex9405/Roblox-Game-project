@@ -20,6 +20,7 @@ local Feedback = require(ReplicatedStorage.Core.Feedback)
 local ClientNet = require(script.Parent.ClientNet)
 
 local BUTTON_WIDTH = 112
+local LEFT_RESERVED = 8 + 2 * (72 + 8) -- Shop and Test buttons (UiKit.topbarButton slots 0 and 1)
 local FORM_MAX_WIDTH = 400
 local ANSWER_TIMEOUT = 15 -- seconds to wait for the server before saying so
 local COOLDOWN = 60 -- matches the server's per-player cooldown
@@ -150,12 +151,12 @@ function FeedbackUi.start()
 
 	local function placeButton()
 		local inset = GuiService.TopbarInset
-		if inset.Width >= BUTTON_WIDTH + 16 and inset.Height > 0 then
-			local height = math.clamp(inset.Height - 14, 32, 44)
-			open.Size = UDim2.fromOffset(BUTTON_WIDTH, height)
+		-- Leave room for the Shop and Studio Test buttons at the left end (UiKit slots 0 and 1).
+		if inset.Width >= LEFT_RESERVED + BUTTON_WIDTH + 8 and inset.Height > 8 then
+			open.Size = UDim2.fromOffset(BUTTON_WIDTH, inset.Height - 8)
 			open.Position = UDim2.fromOffset(inset.Max.X - 8 - BUTTON_WIDTH, inset.Min.Y + inset.Height / 2)
 		else
-			-- No top bar room (or no top bar): top-left of the safe area.
+			-- Not enough top-bar room (small screen) or no top bar: just below it, top-left of the safe area.
 			local top = GuiService:GetGuiInset()
 			open.Size = UDim2.fromOffset(BUTTON_WIDTH, 40)
 			open.Position = UDim2.fromOffset(12, top.Y + 8 + 20)

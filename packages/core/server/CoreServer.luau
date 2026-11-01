@@ -32,11 +32,14 @@ local Odds = require(Core.Odds)
 local Passes = require(Core.Passes)
 local Policy = require(Core.Policy)
 local Receipts = require(Core.Receipts)
+local ShopRemotes = require(Core.ShopRemotes)
 local Util = require(Core.Util)
 
 local ProfileStoreAdapter = require(script.Parent.ProfileStoreAdapter)
+local Purchases = require(script.Parent.Purchases)
 local RobloxSinks = require(script.Parent.RobloxSinks)
 local ServerNet = require(script.Parent.ServerNet)
+local TestPanel = require(script.Parent.TestPanel)
 
 local RECEIPTS_FIELD = "receipts"
 local FLUSH_EVERY = 5 -- seconds between ErrorReporter/Feedback flush checks (each writes at most once a minute)
@@ -70,6 +73,8 @@ export type Services = {
 	errors: ErrorReporter.Reporter,
 	feedback: Feedback.Feedback,
 	net: ServerNet.ServerNet,
+	-- The shared shop: call shop:setCatalog after registering products.
+	shop: Purchases.Shop,
 }
 
 local log = Log.new("CoreServer")
@@ -89,7 +94,7 @@ function CoreServer.start(options: Options): Services
 	assert(not started, "CoreServer.start called twice")
 	started = true
 
-	local net = ServerNet.start({ CoreRemotes, options.remotes })
+	local net = ServerNet.start({ CoreRemotes, ShopRemotes, options.remotes })
 
 	local errors = ErrorReporter.new({
 		game = options.game,
@@ -168,6 +173,7 @@ function CoreServer.start(options: Options): Services
 	end
 
 	local passes: Passes.Passes
+	local shop: Purchases.Shop? = nil
 	local function sendPasses(player: Player)
 		local owned = {}
 		for key in options.passes do
@@ -177,6 +183,9 @@ function CoreServer.start(options: Options): Services
 		end
 		table.sort(owned)
 		net:fire(CoreRemotes["Core:Passes"], player, owned)
+		if shop then
+			shop:refresh(player)
+		end
 	end
 	passes = Passes.new({
 		passes = options.passes,
@@ -212,12 +221,37 @@ function CoreServer.start(options: Options): Services
 	end
 	local function sendOdds(player: Player, tableId: string)
 		net:fire(CoreRemotes["Core:Odds"], player, odds:display(tableId, player))
+		if shop then
+			shop:oddsShown(player, tableId)
+		end
 	end
 	odds:onChanged(function(player: Player, tableId: string)
 		if player.Parent == Players then
 			sendOdds(player, tableId)
 		end
 	end)
+
+	-- The shared shop, and the test panel (it only starts on a Studio server).
+	local theShop = Purchases.start({
+		net = net,
+		receipts = receipts,
+		passes = passes,
+		passIds = options.passes,
+		policy = policy,
+		studio = RunService:IsStudio(),
+	})
+	shop = theShop
+	TestPanel.start({
+		net = net,
+		data = data,
+		economy = economy,
+		receipts = receipts,
+		passes = passes,
+		passIds = options.passes,
+		currencies = options.currencies,
+		template = options.template,
+		passesChanged = sendPasses,
+	})
 
 	-- Core remotes.
 	net:on(CoreRemotes["Core:ClientError"], function(player: Player, message: string, trace: string)
@@ -366,6 +400,7 @@ function CoreServer.start(options: Options): Services
 		end
 		analytics:sessionEnd(player, os.time())
 		odds:forget(player)
+		theShop:forget(player)
 		passes:release(player)
 		policy:release(player)
 		pendingSnapshot[player] = nil
@@ -393,6 +428,7 @@ function CoreServer.start(options: Options): Services
 		errors = errors,
 		feedback = feedback,
 		net = net,
+		shop = theShop,
 	}
 end
 
