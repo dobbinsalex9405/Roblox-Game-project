@@ -42,6 +42,9 @@ runs it; anyone can follow it by hand.
    - keeps the full reports (with user ids, for moderation or support), the
      prefilter's `triage.json` and the error groups (`errors.json`) as a run
      artifact for 90 days.
+   A store no server has written to yet (Open Cloud's 404
+   `DatastoreNotFound`) reads as empty, so a game nobody has played is not
+   an error; any other failure is listed under "Problems reading feedback".
    It can also be run by hand from the Actions tab for any date range, or
    with `hours` and `build` as the post-publish error sweep.
 

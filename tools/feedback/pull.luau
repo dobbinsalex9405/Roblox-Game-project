@@ -125,6 +125,11 @@ local function readStore(target: lib.Target, store: string, onBatch: (key: strin
 		local cursor: string? = nil
 		repeat
 			local ok, body, status = get(lib.listUrl(target.universeId, prefix, cursor, base, store))
+			if not ok and lib.missingStore(status, body) then
+				-- Nothing written yet: an empty store, read successfully.
+				print(`{label}: not created yet (nothing written), read as empty`)
+				return true
+			end
 			if not ok then
 				-- Roblox's error text never contains the key.
 				table.insert(

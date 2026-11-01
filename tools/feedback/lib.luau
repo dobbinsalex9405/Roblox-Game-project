@@ -103,6 +103,14 @@ function lib.entryUrl(universeId: number, key: string, base: string?, store: str
 end
 
 -- "2026-11-01" -> unix seconds at 00:00 UTC.
+-- Open Cloud answers 404 "DatastoreNotFound" for a store that no server has
+-- written to yet (a game nobody has played, or no player has sent feedback).
+-- That is an empty store, not a failure. Any other 404 (a wrong universe id,
+-- say) still is one.
+function lib.missingStore(status: number, body: string): boolean
+	return status == 404 and string.find(body, "DatastoreNotFound", 1, true) ~= nil
+end
+
 function lib.parseDate(date: string): number
 	local y, m, d = string.match(date, "^(%d%d%d%d)%-(%d%d)%-(%d%d)$")
 	assert(y and m and d, `dates look like 2026-11-01, got {date}`)
