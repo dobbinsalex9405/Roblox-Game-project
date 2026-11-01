@@ -394,7 +394,8 @@ function Restaurant.build(
 	end
 	if stationConfig.district > d.districts then
 		local district = config.districts[stationConfig.district]
-		return nil, `Unlock {if district then district.id else "that district"} first.`
+		local name = if district then (string.gsub(district.id, "(%l)(%u)", "%1 %2")) else "that district"
+		return nil, `Open {name} first.`
 	end
 	if spot < 1 or spot > Restaurant.spotCount(d.districts, config) then
 		return nil, "That spot is not open yet."
@@ -437,7 +438,10 @@ function Restaurant.upgrade(
 		return nil, "There is no station there."
 	end
 	if Restaurant.isBuilding(station, now) then
-		return nil, "That station is still being built."
+		return nil,
+			if station.level == 1
+				then "That station is still being built."
+				else "That station is still being upgraded."
 	end
 	local stationConfig = Restaurant.stationConfig(config, station.stationId)
 	local nextLevel = stationConfig and stationConfig.levels[station.level + 1]
@@ -628,16 +632,35 @@ function Restaurant.startBoost(d: Data, boostId: string, now: number, seconds: n
 	d.boosts[boostId] = from + seconds
 end
 
--- Records a first-time moment. Returns its onboarding step number the first
--- time it happens for this player, ever, and nil after that.
-function Restaurant.markFirst(d: Data, name: string, now: number): number?
-	local step = table.find(ONBOARDING, name)
-	assert(step, `unknown onboarding moment {name}`)
-	if d.firsts[name] ~= nil then
-		return nil
+-- How many onboarding steps, from the first, have all happened.
+local function reached(d: Data): number
+	local count = 0
+	for _, name in ONBOARDING do
+		if d.firsts[name] == nil then
+			break
+		end
+		count += 1
 	end
+	return count
+end
+
+-- Records a first-time moment and returns the onboarding steps to report
+-- now, in order. The funnel only counts steps in order, so a moment that
+-- comes early (building a station before serving anyone) is held back and
+-- reported right after the steps before it happen. Each step is returned
+-- once per player, ever.
+function Restaurant.markFirst(d: Data, name: string, now: number): { number }
+	assert(table.find(ONBOARDING, name), `unknown onboarding moment {name}`)
+	if d.firsts[name] ~= nil then
+		return {}
+	end
+	local before = reached(d)
 	d.firsts[name] = now
-	return step
+	local steps = {}
+	for step = before + 1, reached(d) do
+		table.insert(steps, step)
+	end
+	return steps
 end
 
 return Restaurant

@@ -58,8 +58,8 @@ function Actions.new(options: Options): Actions
 		return { doubleCash = options.perks(player).doubleCash }
 	end
 
-	local function onboarding(player: any, step: number?)
-		if step then
+	local function onboarding(player: any, steps: { number })
+		for _, step in steps do
 			analytics:onboarding(player, step, Restaurant.ONBOARDING[step])
 		end
 	end
@@ -100,17 +100,17 @@ function Actions.new(options: Options): Actions
 		local now = options.now()
 		local earned = 0
 		local waiting = 0
-		local step: number? = nil
+		local steps: { number } = {}
 		local ok = data:update(player, function(d: Restaurant.Data)
 			earned = Restaurant.welcomeBack(d, config, restaurantPerks(player), now)
 			waiting = Restaurant.waiting(d.queue)
-			step = Restaurant.markFirst(d, "Joined", now)
+			steps = Restaurant.markFirst(d, "Joined", now)
 		end)
 		if not ok then
 			return
 		end
 		lastAutoCollect[player] = now
-		onboarding(player, step)
+		onboarding(player, steps)
 		if earned >= 1 or waiting > 0 then
 			options.welcome(player, math.floor(earned), waiting)
 		end
@@ -142,17 +142,17 @@ function Actions.new(options: Options): Actions
 
 	function actions.serve(_self: Actions, player: any): (boolean, string?)
 		local cash: number? = nil
-		local step: number? = nil
+		local steps: { number } = {}
 		local ok, err = change(player, function(d, ledger, now)
 			local refusal: string?
 			cash, refusal = Restaurant.serve(d, ledger, config, restaurantPerks(player), now)
 			if cash then
-				step = Restaurant.markFirst(d, "FirstCustomerServed", now)
+				steps = Restaurant.markFirst(d, "FirstCustomerServed", now)
 			end
 			return refusal
 		end)
 		if ok and cash then
-			onboarding(player, step)
+			onboarding(player, steps)
 			options.served(player, cash)
 		end
 		return ok, err
@@ -166,16 +166,16 @@ function Actions.new(options: Options): Actions
 	end
 
 	function actions.build(_self: Actions, player: any, stationId: string, spot: number): (boolean, string?)
-		local step: number? = nil
+		local steps: { number } = {}
 		local ok, err = change(player, function(d, ledger, now)
 			local station, refusal = Restaurant.build(d, ledger, config, stationId, spot, now)
 			if station then
-				step = Restaurant.markFirst(d, "FirstStationBought", now)
+				steps = Restaurant.markFirst(d, "FirstStationBought", now)
 			end
 			return refusal
 		end)
 		if ok then
-			onboarding(player, step)
+			onboarding(player, steps)
 			analytics:custom(player, "Station:Built", 1, { stationId })
 		end
 		return ok, err
@@ -206,16 +206,16 @@ function Actions.new(options: Options): Actions
 	end
 
 	function actions.hireCook(_self: Actions, player: any, tierId: string, spot: number): (boolean, string?)
-		local step: number? = nil
+		local steps: { number } = {}
 		local ok, err = change(player, function(d, ledger, now)
 			local cook, refusal = Restaurant.hireCook(d, ledger, config, tierId, spot)
 			if cook then
-				step = Restaurant.markFirst(d, "FirstCookHired", now)
+				steps = Restaurant.markFirst(d, "FirstCookHired", now)
 			end
 			return refusal
 		end)
 		if ok then
-			onboarding(player, step)
+			onboarding(player, steps)
 			analytics:custom(player, "Cook:Hired", 1, { tierId })
 		end
 		return ok, err
@@ -223,17 +223,17 @@ function Actions.new(options: Options): Actions
 
 	function actions.unlockDistrict(_self: Actions, player: any): (boolean, string?)
 		local district = 0
-		local step: number? = nil
+		local steps: { number } = {}
 		local ok, err = change(player, function(d, ledger, now)
 			local done, refusal = Restaurant.unlockDistrict(d, ledger, config)
 			district = d.districts
 			if done and district == 2 then
-				step = Restaurant.markFirst(d, "SecondDistrictUnlocked", now)
+				steps = Restaurant.markFirst(d, "SecondDistrictUnlocked", now)
 			end
 			return if done then nil else refusal
 		end)
 		if ok then
-			onboarding(player, step)
+			onboarding(player, steps)
 			analytics:progression(player, "District", "Complete", district)
 		end
 		return ok, err

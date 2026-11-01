@@ -20,7 +20,8 @@
   and festival placeholders (M4), rebirth archive, receipts, onboarding
   moments and stats.
 - Analytics: onboarding steps Joined, FirstCustomerServed, FirstStationBought,
-  FirstCookHired, SecondDistrictUnlocked (once per player, ever),
+  FirstCookHired, SecondDistrictUnlocked (once per player, ever, reported
+  in order even when played out of order),
   `Station:Built`, `Station:Upgraded`, `Cook:Hired`, District and Rebirth
   progression, and every cash change through the economy ledger.
 - Config with schemas and cross-file checks; cash packs (not yet created on

@@ -113,6 +113,23 @@ describe("Street Food Empire sessions", function()
 		expect(#h2.eventsOf("onboarding")).toBe(0)
 	end)
 
+	it("reports every onboarding step even when played out of order", function()
+		-- The common opening: build before serving anyone, then hire.
+		local h = Harness.new()
+		local player = Fakes.player(30)
+		h.join(player)
+		h.give(player, 1000)
+		assert(h.actions:build(player, "LemonadeStand", 2))
+		assert(h.actions:hireCook(player, "Trainee", 1))
+		h.wait(player, 10)
+		assert(h.actions:serve(player))
+		local steps = {}
+		for _, args in h.eventsOf("onboarding") do
+			table.insert(steps, args[2])
+		end
+		expect(steps).toEqual({ "Joined", "FirstCustomerServed", "FirstStationBought", "FirstCookHired" })
+	end)
+
 	it("refuses what the player cannot do and leaves cash alone", function()
 		local h = Harness.new()
 		local player = Fakes.player(4)

@@ -134,7 +134,11 @@ function PlotView.start(ctx: Context.Context, hud: Hud.Hud)
 				table.insert(options, {
 					title = `{Layout.displayName(tier.id)}  {Layout.cash(cost)}`,
 					detail = `Sells {tier.servesPerMinute} a minute here: +{Layout.cash(perSecond)}/s`
-						.. (if current then ` (replaces your {Layout.displayName(current.tier)})` else ""),
+						.. (
+							if current
+								then ` (replaces your {Layout.displayName(current.tier)}, no refund)`
+								else ""
+						),
 					enabled = d.cash >= cost,
 					pick = function()
 						ctx.fire(ctx.remotes["SFE:HireCook"], tier.id, spot)
@@ -321,7 +325,7 @@ function PlotView.start(ctx: Context.Context, hud: Hud.Hud)
 					setPrompt(
 						stand:FindFirstChild("Rebirth") :: ProximityPrompt?,
 						stand:GetAttribute("Available") == true,
-						`Start over from a cart for +{rebirthBonus}% cash from every sale`
+						`Resets all cash and your restaurant to a cart, for +{rebirthBonus}% cash from every sale`
 					)
 				end
 			end
