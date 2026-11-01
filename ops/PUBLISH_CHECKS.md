@@ -104,22 +104,36 @@ and see customers leave, not stack.
 a margin; sell; buy the Rucksack; see the lamp refill at camp; let the lamp
 run out once and confirm the ore is lost but the save is fine.
 
-### 3. Error-queue sweep (automated by the daily run, or by hand)
+### 3. Error-queue sweep (one workflow run)
 
-Servers write errors and feedback to the `ErrorQueue` DataStore once per
-minute at most (`packages/core/src/ErrorReporter.luau`), tagged with the build
-commit. One hour and 24 hours after a publish, list the entries written since
-the publish and read the ones whose `build` equals the published commit:
+Servers write their errors to the `ErrorQueue` DataStore once per minute at
+most (`packages/core/src/ErrorReporter.luau`), tagged with the build commit,
+under dated keys (`YYYYMMDD-HHMMSS-<server>-<n>`). The **Player feedback**
+workflow reads them (`tools/feedback/errors.luau`):
+
+- **1 hour after a publish**, run it by hand (Actions → Player feedback →
+  Run workflow, or the GitHub tools from a Claude thread) with `hours: 1` and
+  `build: <the published commit>`. It always opens an issue
+  "Error sweep: last 1 h (build abc1234)" labelled `error-sweep`, plus `stop`
+  when the rules below say stop. The thread that merged or published sets
+  itself a reminder to do this.
+- **24 hours after**: the next daily digest covers it (its **Errors**
+  section lists every build's errors for the day), or run it again with
+  `hours: 24`.
+
+The verdicts, which the tool applies and the issue shows:
 
 - Any **server** error record: stop. Fix forward on Staging, or roll
   Production back.
 - **Client** error records with `count` under 10 across all servers: open an
   issue, keep going. 10 or more: treat as a server error.
-- Feedback records: triage in the feedback thread as usual.
+- Player reports are in the `Feedback` store and go through the daily
+  digest as usual (`ops/FEEDBACK.md`).
 
-Reading the queue needs the game's API key with DataStore read on that
-environment (`ops/SETUP.md` step 2); the daily run does this with the keys
-GitHub already holds, never from a laptop.
+Reading the queue uses the read-only `ROBLOX_READ_API_KEY` (`ops/SETUP.md`
+step 2b), the same key as player feedback, in GitHub Actions; never from a
+laptop. Until the key exists the sweep cannot run: look at the experience's
+error report in the Creator Dashboard instead (Alex), and say so.
 
 ### 4. Production only: the first 24 hours
 
@@ -145,6 +159,7 @@ the check is reproducible.
   and touches `DataStoreService` would turn most of the live join's
   "it loads" items into a workflow step. It needs the API key to carry the
   Luau execution scope for that experience; add it when the keys are created.
-- **The error-queue sweep in the publish workflows.** Today it belongs to the
-  daily run (`ops/DAILY_RUN.md`), which already reads the queue. A delayed job
-  in the publish workflow would need the same DataStore read scope.
+- **Starting the 1-hour sweep from the publish workflows.** The sweep is one
+  workflow run, but a publish job that waits an hour would burn an hour of
+  Actions minutes per publish on a free private repo. For now the thread that
+  published starts it (a reminder), and the daily run catches any it missed.

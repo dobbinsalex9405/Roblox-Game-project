@@ -1,10 +1,13 @@
 name: Player feedback
 
-# Once a day, reads yesterday's in-game feedback from every configured game
-# (Open Cloud, read-only key) and opens one GitHub issue labelled
-# `player-feedback` with the digest. The triage thread works from those
-# issues; see ops/FEEDBACK.md. Skips quietly until the key and experience ids
-# exist (ops/SETUP.md step 2b).
+# Once a day, reads yesterday's in-game feedback AND the error queue from
+# every configured game (Open Cloud, read-only key) and opens one GitHub issue
+# labelled `player-feedback` with the prefilter's Needs triage list, the error
+# sweep and the digest. The daily Claude run triages those issues; see
+# ops/FEEDBACK.md. Run it by hand with "hours" (and "build") for the 1-hour and
+# 24-hour error sweeps after a publish (ops/PUBLISH_CHECKS.md step 3): that
+# opens an `error-sweep` issue every time, clean or not. Skips quietly until
+# the key and experience ids exist (ops/SETUP.md step 2b).
 on:
   schedule:
     - cron: "17 6 * * *" # 06:17 UTC, after the UTC day it reports on has closed
@@ -15,6 +18,12 @@ on:
         required: false
       to:
         description: "Last UTC day (YYYY-MM-DD). Empty = same as from."
+        required: false
+      hours:
+        description: "Error sweep: the last N hours instead of whole days (e.g. 1 or 24). Empty = daily digest."
+        required: false
+      build:
+        description: "Error sweep: only errors from this commit (or its first characters)."
         required: false
       env:
         description: "Which experiences to read"
@@ -50,11 +59,18 @@ jobs:
           ROBLOX_READ_API_KEY: ${{ secrets.ROBLOX_READ_API_KEY }}
           FROM: ${{ inputs.from }}
           TO: ${{ inputs.to }}
+          HOURS: ${{ inputs.hours }}
+          BUILD: ${{ inputs.build }}
           ENV_FILTER: ${{ inputs.env || 'all' }}
         run: |
           args=(--env "$ENV_FILTER" --out feedback-out)
-          if [[ -n "$FROM" ]]; then args+=(--from "$FROM"); fi
-          if [[ -n "$TO" ]]; then args+=(--to "$TO"); fi
+          if [[ -n "$HOURS" ]]; then
+            args+=(--hours "$HOURS")
+          else
+            if [[ -n "$FROM" ]]; then args+=(--from "$FROM"); fi
+            if [[ -n "$TO" ]]; then args+=(--to "$TO"); fi
+          fi
+          if [[ -n "$BUILD" ]]; then args+=(--build "$BUILD"); fi
           lune run tools/feedback/pull "${args[@]}"
 
       - name: Keep the full reports
@@ -66,13 +82,25 @@ jobs:
           retention-days: 90
 
       - name: Open the digest issue
-        if: steps.pull.outputs.configured == 'true' && (steps.pull.outputs.total != '0' || steps.pull.outputs.problems != '0')
+        # Sweeps always leave a record; the daily digest only opens when there is something in it.
+        if: >-
+          steps.pull.outputs.configured == 'true' && (inputs.hours != ''
+          || steps.pull.outputs.total != '0' || steps.pull.outputs.errors != '0'
+          || steps.pull.outputs.problems != '0')
         env:
           GH_TOKEN: ${{ github.token }}
           TITLE: ${{ steps.pull.outputs.title }}
+          STOP: ${{ steps.pull.outputs.stop }}
+          SWEEP: ${{ inputs.hours }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           gh label create player-feedback --color 1d76db \
-            --description "Daily in-game feedback digest (ops/FEEDBACK.md)" 2>/dev/null || true
+            --description "Daily in-game feedback and error digest (ops/FEEDBACK.md)" 2>/dev/null || true
+          gh label create error-sweep --color 5319e7 \
+            --description "Post-publish error sweep (ops/PUBLISH_CHECKS.md)" 2>/dev/null || true
+          gh label create stop --color b60205 \
+            --description "A server error, or a client error seen 10+ times: do not promote" 2>/dev/null || true
+          labels=(--label "$([[ -n "$SWEEP" ]] && echo error-sweep || echo player-feedback)")
+          if [[ "$STOP" == "true" ]]; then labels+=(--label stop); fi
           printf '\n---\nFull reports (with user ids, 90 days): [run artifact](%s)\n' "$RUN_URL" >> feedback-out/digest.md
-          gh issue create --title "$TITLE" --label player-feedback --body-file feedback-out/digest.md
+          gh issue create --title "$TITLE" "${labels[@]}" --body-file feedback-out/digest.md

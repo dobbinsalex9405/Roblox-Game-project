@@ -40,12 +40,18 @@ Each future game gets its own pair, named `ROBLOX_API_KEY_<GAME_NAME>`.
 ### 2b. One read-only key for player feedback
 
 Every game has a Feedback button; the daily **Player feedback** workflow
-reads what players sent and opens a digest issue (see `ops/FEEDBACK.md`). It
-needs one more **group-owned** key that can only read:
+reads what players sent, plus the errors the games' servers record, and opens
+a digest issue (see `ops/FEEDBACK.md`). The same run is the error check after
+each publish (`ops/PUBLISH_CHECKS.md` step 3). It needs one more
+**group-owned** key that can only read:
 
 | Key | Permissions | Experiences |
 |-----|-------------|-------------|
-| Feedback reader | DataStore: **List entry keys** and **Read entry** (`universe-datastores.objects:list`, `universe-datastores.objects:read`). Nothing else. | Every game's **Staging** and **Production** (add each new game when it is created) |
+| Feedback reader | DataStore: **List entry keys** and **Read entry** (`universe-datastores.objects:list`, `universe-datastores.objects:read`). Nothing else. | Every game's **Staging** and **Production** (add each new game when it is created). |
+
+Name it `loop-lab-feedback-reader`, leave the IP list open (GitHub's runners
+change address) and give it a 90-day expiry. When it lapses the workflow
+fails with HTTP 401 and the daily run flags it; make a new one the same way.
 
 Paste it into GitHub as a **repository** secret (not an environment one, so
 the daily run never waits for an approval): Repo → Settings → Secrets and

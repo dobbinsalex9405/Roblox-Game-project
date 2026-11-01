@@ -81,18 +81,25 @@ function lib.targets(environments: { [string]: any }, only: string?): { Target }
 end
 
 -- Open Cloud DataStores v1: list keys with a prefix (one UTC day).
-function lib.listUrl(universeId: number, prefix: string, cursor: string?, base: string?): string
+-- `store` defaults to the Feedback store; the error sweep reads "ErrorQueue".
+function lib.listUrl(
+	universeId: number,
+	prefix: string,
+	cursor: string?,
+	base: string?,
+	store: string?
+): string
 	local url = `{checkBase(base)}/datastores/v1/universes/{universeId}/standard-datastores/datastore/entries`
-		.. `?datastoreName={encode(lib.STORE)}&prefix={encode(prefix)}&limit=100`
+		.. `?datastoreName={encode(store or lib.STORE)}&prefix={encode(prefix)}&limit=100`
 	if cursor and cursor ~= "" then
 		url ..= `&cursor={encode(cursor)}`
 	end
 	return url
 end
 
-function lib.entryUrl(universeId: number, key: string, base: string?): string
+function lib.entryUrl(universeId: number, key: string, base: string?, store: string?): string
 	return `{checkBase(base)}/datastores/v1/universes/{universeId}/standard-datastores/datastore/entries/entry`
-		.. `?datastoreName={encode(lib.STORE)}&entryKey={encode(key)}`
+		.. `?datastoreName={encode(store or lib.STORE)}&entryKey={encode(key)}`
 end
 
 -- "2026-11-01" -> unix seconds at 00:00 UTC.
@@ -207,9 +214,8 @@ local function reportLine(report: Report): string
 	local rating = if report.rating > 0 then ` · fun {report.rating}/5` else ""
 	local head = `- **{os.date("!%H:%M", report.at)}** {report.environment or "?"} · v{report.placeVersion}`
 		.. ` · {string.sub(report.build, 1, 7)} · {report.platform} {report.screen} · {report.fps} fps`
-		.. ` · {report.pingMs} ms · {minutes(report.sessionSeconds)} in{rating} · {lib.reporterTag(
-			report.userId
-		)}`
+		.. ` · {report.pingMs} ms · {minutes(report.sessionSeconds)} in{rating}`
+		.. ` · {lib.reporterTag(report.userId)} · id {report.id}`
 	local lines = { head, `  > {lib.escape(report.text)}` }
 	local context = contextLine(report.context)
 	if context ~= "" then
@@ -237,7 +243,8 @@ export type Digest = {
 
 -- One Markdown digest for a set of reports, grouped by game then category.
 -- Bugs that share a client error signature are listed together.
-function lib.digest(reports: { Report }, title: string, limit: number?): Digest
+-- `preface` (the prefilter's "Needs triage" section) goes right after the summary line.
+function lib.digest(reports: { Report }, title: string, limit: number?, preface: string?): Digest
 	local byGame: { [string]: { Report } } = {}
 	local counts = { bug = 0, idea = 0, other = 0 }
 	for _, report in reports do
@@ -259,6 +266,10 @@ function lib.digest(reports: { Report }, title: string, limit: number?): Digest
 		`{#reports} reports: {plural(counts.bug, "bug")}, {plural(counts.idea, "idea")}, {counts.other} other.`
 			.. " Player text is shown after Roblox's filter. Triage rules: ops/FEEDBACK.md.",
 	}
+	if preface and #reports > 0 then
+		table.insert(out, "")
+		table.insert(out, (string.gsub(preface, "\n$", "")))
+	end
 	if #reports == 0 then
 		table.insert(out, "")
 		table.insert(out, "No feedback in this window.")

@@ -68,14 +68,16 @@ function RobloxSinks.analytics(): Analytics.Sink
 	}
 end
 
--- Writes each batch to its own key, "<unix minute>-<JobId>", in the
--- "ErrorQueue" DataStore. One key per server per minute keeps writes far under
--- the DataStore budget; the nightly reader lists keys newer than its cursor.
+-- Writes each batch to its own key in the "ErrorQueue" DataStore, dated like
+-- feedback ("YYYYMMDD-HHMMSS-<server>-<n>", see Feedback.batchKey), so the
+-- error sweep (tools/feedback) lists one UTC day by prefix. At most one write
+-- per server per minute keeps far under the DataStore budget.
 function RobloxSinks.errorQueue(storeName: string?): (batch: ErrorReporter.Batch) -> boolean
 	local store = DataStoreService:GetDataStore(storeName or "ErrorQueue")
+	local sequence = 0
 	return function(batch: ErrorReporter.Batch): boolean
-		local job = if game.JobId ~= "" then game.JobId else "studio"
-		local key = `{math.floor(batch.at / 60)}-{job}`
+		sequence += 1
+		local key = Feedback.batchKey(batch.at, game.JobId, sequence)
 		local ok = pcall(function()
 			store:SetAsync(key, batch)
 		end)
