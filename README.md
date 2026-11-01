@@ -11,6 +11,7 @@ standing rules come from the "Roblox Game Studio — Handoff Brief".
 ## Layout
 
 ```
+CLAUDE.md                 standing rules for every Claude session (read first)
 rokit.toml                pinned tool versions (Rojo, Wally, Lune, Selene, StyLua, luau-lsp)
 deps/wally.toml           third-party packages (ProfileStore), installed into deps/
 packages/core/
@@ -29,6 +30,7 @@ ops/
   environments.json       universe and place ids per game (no keys, ever)
   SETUP.md                the steps only Alex can do (accounts, keys)
   DECISIONS.md            why things are the way they are
+  DAILY_RUN.md            what the daily scheduled Claude run does
   digests/                weekly digests
 .github/workflows/        ci, publish-staging, publish-production
 ```
