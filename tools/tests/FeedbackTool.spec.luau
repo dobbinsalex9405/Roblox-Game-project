@@ -86,6 +86,9 @@ local function errorBatch(build: string, source: string, message: string, count:
 end
 
 -- A fake Open Cloud: `stores[name] = { [key] = body }`, listed two keys a page.
+local MISSING_STORE = '{"error":"NOT_FOUND","message":"Datastore not found.","errorDetails":'
+	.. '[{"errorDetailType":"DatastoreErrorInfo","datastoreErrorCode":"DatastoreNotFound"}]}'
+
 local function fakeOpenCloud(stores: { [string]: { [string]: string } }, state: { sawKey: boolean })
 	local port = 18000 + math.random(1, 1999)
 	local server = net.serve(port, function(request)
@@ -96,7 +99,8 @@ local function fakeOpenCloud(stores: { [string]: { [string]: string } }, state: 
 		local query = request.query
 		local store = stores[query.datastoreName]
 		if store == nil then
-			return { status = 404, body = "wrong store" }
+			-- What Open Cloud answers for a store no server has written to yet.
+			return { status = 404, body = MISSING_STORE }
 		end
 		if string.find(request.path, "/entries/entry", 1, true) then
 			local body = store[query.entryKey]
@@ -430,6 +434,62 @@ describe("feedback tool", function()
 		expect(digest).toContain("Prefilter failed: triage every bug by hand.")
 		expect(digest).toContain('"failed":true')
 		expect(digest).toContain("### Bugs (3)") -- the reports are all still there
+		fs.removeDir(dir)
+	end)
+
+	it("treats a store no server has written to yet as empty, not as a failure", function()
+		expect(lib.missingStore(404, MISSING_STORE)).toBe(true)
+		expect(lib.missingStore(404, '{"error":"NOT_FOUND","message":"Universe not found."}')).toBe(false)
+		expect(lib.missingStore(403, MISSING_STORE)).toBe(false)
+
+		-- Before any player has played: neither store exists in either game.
+		local state = { sawKey = true }
+		local port, server = fakeOpenCloud({}, state)
+		local dir = "build/feedback-test-empty"
+		fs.writeDir(dir)
+		fs.writeFile(
+			`{dir}/environments.json`,
+			serde.encode("json", {
+				["hatchery-heist"] = { staging = { universeId = 7, placeId = 1 } },
+				depthbound = { production = { universeId = 8, placeId = 2 } },
+			})
+		)
+		local function run(extra: { string })
+			local args = {
+				"run",
+				"tools/feedback/pull",
+				"--environments",
+				`{dir}/environments.json`,
+				"--out",
+				`{dir}/out`,
+			}
+			for _, a in extra do
+				table.insert(args, a)
+			end
+			fs.writeFile(`{dir}/github-output`, "")
+			return process.exec("lune", args, {
+				env = {
+					ROBLOX_READ_API_KEY = "test-key",
+					OPEN_CLOUD_BASE_URL = `http://127.0.0.1:{port}`,
+					GITHUB_OUTPUT = `{dir}/github-output`,
+					FEEDBACK_NOW = tostring(T0),
+				},
+			})
+		end
+		local daily = run({})
+		expect(daily.ok).toBe(true)
+		local outputs = fs.readFile(`{dir}/github-output`)
+		expect(outputs).toContain("problems=0")
+		expect(outputs).toContain("total=0")
+		expect(outputs).toContain("errors=0")
+		expect(string.find(daily.stdout, "problem:", 1, true)).toBeNil()
+
+		local sweep = run({ "--hours", "1", "--build", "abc1234" })
+		server:stop()
+		expect(sweep.ok).toBe(true)
+		expect(fs.readFile(`{dir}/github-output`)).toContain("problems=0")
+		expect(fs.readFile(`{dir}/out/digest.md`)).toContain("No server or client errors")
+		expect(state.sawKey).toBe(true)
 		fs.removeDir(dir)
 	end)
 
