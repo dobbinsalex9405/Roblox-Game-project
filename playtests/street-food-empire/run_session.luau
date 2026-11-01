@@ -149,5 +149,14 @@ print("\n=== 2x Cash + Auto-Collect, attentive, 15 min ===")
 do
 	local h, b = run("attentive", 900, { doubleCash = true, autoCollect = true })
 	local d = h.get(b.player)
-	print(string.format("  cash %d, hand %d, register %d, district %d, stations %d", d.cash, b.hand, b.register, d.districts, #d.stations))
+	print(
+		string.format(
+			"  cash %d, hand %d, register %d, district %d, stations %d",
+			d.cash,
+			b.hand,
+			b.register,
+			d.districts,
+			#d.stations
+		)
+	)
 end

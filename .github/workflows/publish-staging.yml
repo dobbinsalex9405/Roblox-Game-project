@@ -74,6 +74,16 @@ jobs:
         env:
           BUILD_ENVIRONMENT: staging
 
+      # Pre-publish gate (ops/PUBLISH_CHECKS.md): the game must start and play through
+      # its key flows on this exact commit before anything is uploaded.
+      - name: Boot check (server start, player join, client UI)
+        if: steps.check.outputs.configured == 'true'
+        run: lune run tools/boot/run --built ${{ matrix.game.name }}
+
+      - name: Key flows (headless playtest)
+        if: steps.check.outputs.configured == 'true'
+        run: tools/keyflows.sh ${{ matrix.game.name }}
+
       - name: Publish to Staging
         id: publish
         if: steps.check.outputs.configured == 'true'

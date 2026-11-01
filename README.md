@@ -25,10 +25,12 @@ games/hatchery-heist/
   src/server  src/client  src/shared
   tests/                  config, save data and gameplay-math tests
   SPEC.md  CHANGELOG.md
-tools/                    test runner, build, type check, publish
+tools/                    test runner, build, type check, boot check, key flows, publish
+playtests/                headless playtests per game: system checks (CI) and bot sessions
 ops/
   environments.json       universe and place ids per game (no keys, ever)
   SETUP.md                the steps only Alex can do (accounts, keys)
+  PUBLISH_CHECKS.md       what runs before a publish is allowed and what is verified after
   DECISIONS.md            why things are the way they are
   DAILY_RUN.md            what the daily scheduled Claude run does
   METRICS.md              daily counters and the studio scoreboard issue
@@ -48,6 +50,8 @@ lune run tools/test/run    # all tests (add a word to filter, e.g. "Odds")
 stylua packages games tools   # format
 selene packages games tools   # lint
 tools/build.sh all         # build/<game>.rbxl for every game
+lune run tools/boot/run all --built   # boot every built game: server start, player join, client UI
+tools/keyflows.sh all      # play every game's main loop headless (playtests/<game>/checks.luau)
 tools/typecheck.sh         # strict type check with Roblox API types
 
 rojo serve games/hatchery-heist/default.project.json   # live-sync into Studio
@@ -57,10 +61,13 @@ CI runs the same checks on every pull request.
 
 ## How a change reaches players
 
-1. A pull request: CI must be green (format, lint, tests, build, strict types).
-2. Merge to `main`: **Publish to Staging** builds and publishes every game to
-   its private Staging experience.
-3. Playtest on Staging.
+1. A pull request: CI must be green (format, lint, tests, build, boot check,
+   key flows, strict types).
+2. Merge to `main`: **Publish to Staging** re-runs tests, the boot check and
+   the key flows on the exact file, then publishes every game to its private
+   Staging experience.
+3. Playtest on Staging: the live join and the error-queue sweep in
+   `ops/PUBLISH_CHECKS.md`.
 4. Run **Publish to Production** for one game. It waits for Alex's approval in
    GitHub, publishes, and tags the commit `<game>/production/v<version>`.
    Rolling back is the same workflow run with the previous tag.

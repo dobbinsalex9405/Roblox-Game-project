@@ -34,16 +34,24 @@ jobs:
         working-directory: deps
 
       - name: Format (StyLua)
-        run: stylua --check packages games tools
+        run: stylua --check packages games tools playtests
 
       - name: Lint (Selene)
-        run: selene packages games tools
+        run: selene packages games tools playtests
 
       - name: Tests (Lune)
         run: lune run tools/test/run
 
       - name: Build every game (Rojo)
         run: tools/build.sh all
+
+      # A game that fails to start, or breaks its main loop, must not reach main.
+      # ops/PUBLISH_CHECKS.md explains both checks.
+      - name: Boot every game (server start, player join, client UI)
+        run: lune run tools/boot/run all --built
+
+      - name: Key flows (headless playtests)
+        run: tools/keyflows.sh all
 
       - name: Strict type check (luau-lsp)
         run: tools/typecheck.sh

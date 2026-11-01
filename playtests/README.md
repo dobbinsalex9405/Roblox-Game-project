@@ -2,8 +2,11 @@
 
 Scripts that play a game through its own server logic under Lune, without
 Roblox: the real core services and the game's Actions on an in-memory
-session-locked store with a hand-moved clock. They are not part of CI; run
-them by hand from the repo root when a build changes the loop or the economy.
+session-locked store with a hand-moved clock. Each game's `checks.luau` is the
+**key-flow check**: CI and both publish workflows run it through
+`tools/keyflows.sh`, and it exits non-zero on any `[BUG]`, so every game needs
+one. The bot sessions and pacing runs are longer; run them by hand from the
+repo root when a build changes the loop or the economy.
 
 ```sh
 lune run playtests/hatchery-heist/checks.luau       # system-by-system checks (PASS / BUG / NOTE)

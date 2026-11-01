@@ -48,7 +48,20 @@ end
 
 -- Milestones across seeds, 15 minutes, keeper.
 print("\n=== milestones, keeper, seeds 1-5, 15 min (m:ss; - = not reached) ===")
-local names = { "FirstCatch", "FirstPlaced", "FirstSale", "FirstGrowth", "FirstUncommon", "FirstRare", "FirstEpic", "Pool3", "ReefRod", "Journal10", "Pool4", "FirstGiantSold" }
+local names = {
+	"FirstCatch",
+	"FirstPlaced",
+	"FirstSale",
+	"FirstGrowth",
+	"FirstUncommon",
+	"FirstRare",
+	"FirstEpic",
+	"Pool3",
+	"ReefRod",
+	"Journal10",
+	"Pool4",
+	"FirstGiantSold",
+}
 print("  seed  " .. table.concat(names, "  "))
 for seed = 1, 5 do
 	local b = session("keeper", 900, seed)
@@ -71,11 +84,25 @@ for _, name in { "keeper", "seller" } do
 	print("  min   coins   fish$  pool$  casts catch  esc  rod slots pooled poolVal bucket journal worms")
 	for _, r in b.timeline do
 		if r.minute % 10 == 0 then
-			print(string.format(
-				"  %3d %7d %7d %6d  %5d %5d %4d  %3d  %4d  %5d  %6d  %5d  %5d  %5d",
-				r.minute, r.coins, r.fish, r.pool, r.casts, r.catches, r.escapes, r.rod, r.slots, r.pooled,
-				r.poolValue, r.bucket, r.journal, r.worms
-			))
+			print(
+				string.format(
+					"  %3d %7d %7d %6d  %5d %5d %4d  %3d  %4d  %5d  %6d  %5d  %5d  %5d",
+					r.minute,
+					r.coins,
+					r.fish,
+					r.pool,
+					r.casts,
+					r.catches,
+					r.escapes,
+					r.rod,
+					r.slots,
+					r.pooled,
+					r.poolValue,
+					r.bucket,
+					r.journal,
+					r.worms
+				)
+			)
 		end
 	end
 	Bot.printMilestones(b)
@@ -94,7 +121,9 @@ do
 	local p = Fakes.player(2026)
 	h2.join(p)
 	local w = h2.welcomes[1]
-	print(`  welcome: grew {if w then w.grew else "none"} restocked {if w then tostring(w.restocked) else "-"} (pools {poolsBefore})`)
+	print(
+		`  welcome: grew {if w then w.grew else "none"} restocked {if w then tostring(w.restocked) else "-"} (pools {poolsBefore})`
+	)
 	local b2 = Bot.new(h2, p, Bot.STYLES.keeper)
 	Bot.play(b2, 300)
 	local after = h2.get(p)
@@ -105,6 +134,11 @@ end
 -- Sell Multiplier + Extra Pools passes, keeper, 15 min.
 print("\n=== keeper with Sell Multiplier + Extra Pools, 15 min (seed 2026) ===")
 do
-	local b = session("keeper", 900, 2026, { perks = { autoReel = false, extraPools = true, sellMultiplier = true } })
+	local b = session(
+		"keeper",
+		900,
+		2026,
+		{ perks = { autoReel = false, extraPools = true, sellMultiplier = true } }
+	)
 	print("  end: " .. Bot.summary(b))
 end

@@ -48,7 +48,20 @@ function Sim.new(options)
 	end
 	h.analytics = Analytics.new({
 		economy = function(player, flow, currency, amount, balance, transactionType, sku)
-			table.insert(h.events, { kind = "economy", player = player, args = { { flow = flow, currency = currency, amount = amount, balance = balance, transactionType = transactionType, sku = sku } } })
+			table.insert(h.events, {
+				kind = "economy",
+				player = player,
+				args = {
+					{
+						flow = flow,
+						currency = currency,
+						amount = amount,
+						balance = balance,
+						transactionType = transactionType,
+						sku = sku,
+					},
+				},
+			})
 		end,
 		onboarding = record("onboarding"),
 		funnel = record("funnel"),
@@ -210,7 +223,7 @@ function Sim.new(options)
 
 	-- Moves the clock; the server ticks every 10 seconds for every loaded player.
 	h.sinceTick = 0
-	function h.wait(seconds, players)
+	function h.wait(seconds)
 		local left = seconds
 		while left > 0 do
 			local step = math.min(left, 1)
