@@ -3,7 +3,9 @@
 -- coins only through the Economy ledger passed in, inside DataService:update.
 
 export type Data = { [string]: any }
-export type Kind = "Pick" | "Pack" | "Lamp"
+-- "Pick", "Pack" or "Lamp" (Gear.KINDS). A plain string: the strict checker widens
+-- a list of string literals when another module iterates it; field() below checks it.
+export type Kind = string
 
 export type Perks = {
 	biggerPack: boolean,
@@ -13,17 +15,22 @@ export type Perks = {
 
 local Gear = {}
 
--- Cast through any: a frozen literal list would otherwise widen to { string }.
-Gear.KINDS = (table.freeze({ "Pick", "Pack", "Lamp" }) :: any) :: { Kind }
+Gear.KINDS = table.freeze({ "Pick", "Pack", "Lamp" }) :: { Kind }
 
-local FIELD: { [Kind]: string } = { Pick = "pick", Pack = "pack", Lamp = "lamp" }
+local FIELD: { [string]: string } = { Pick = "pick", Pack = "pack", Lamp = "lamp" }
+
+local function field(kind: Kind): string
+	local name = FIELD[kind]
+	assert(name, `unknown gear kind {kind}`)
+	return name
+end
 
 function Gear.tiers(gear: any, kind: Kind): { any }
-	return gear[FIELD[kind]]
+	return gear[field(kind)]
 end
 
 function Gear.tier(d: Data, kind: Kind): number
-	return d.gear[FIELD[kind]]
+	return d.gear[field(kind)]
 end
 
 function Gear.current(d: Data, gear: any, kind: Kind): any
@@ -60,7 +67,7 @@ function Gear.upgrade(d: Data, ledger: any, gear: any, kind: Kind): (boolean, st
 		local short = nextTier.cost - ledger:balance("coins")
 		return false, `You need {short} more coins for the {nextTier.name}.`
 	end
-	d.gear[FIELD[kind]] += 1
+	d.gear[field(kind)] += 1
 	return true, nil
 end
 
