@@ -35,7 +35,8 @@ return function(Net: any, Schema: any)
 		-- The line is in the water at a spot.
 		["TC:CastStarted"] = Net.toClient("TC:CastStarted", { castId, id }),
 		-- A fish bit: start the reel minigame at this rarity's difficulty.
-		["TC:Bite"] = Net.toClient("TC:Bite", { castId, id }),
+		-- Bite: rarity, and whether the Auto-reel pass reels it (the client only watches).
+		["TC:Bite"] = Net.toClient("TC:Bite", { castId, id, Schema.boolean() }),
 		-- Caught: species, kg, uid, coins if it sold at once (bucket full), new to the journal.
 		["TC:Caught"] = Net.toClient(
 			"TC:Caught",

@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:3px}
+    .tag{font-family:'Lilita One';letter-spacing:2px}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:parts/avatar.svg-->
+<!--INCLUDE:tidecatch-cove/fish.svg-->
+<!--INCLUDE:tidecatch-cove/scene-defs.svg-->
+  </defs>
+
+  <!-- sky and far cove -->
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <circle cx="980" cy="380" r="340" fill="url(#sunGlow)"/>
+  <circle cx="980" cy="400" r="70" fill="#FFF6C2" opacity="0.9"/>
+  <g fill="#FFFFFF" opacity="0.85">
+    <path d="M220 170 q30 -50 80 -24 q40 -40 90 0 q50 0 50 36 H200 q-20 -20 20 -12 Z"/>
+    <path d="M1460 120 q30 -46 76 -22 q38 -38 86 0 q46 0 46 34 H1440 q-18 -18 20 -12 Z"/>
+  </g>
+  <!-- encircling rock ring of the lagoon on the horizon -->
+  <path d="M-20 470 C120 400 260 410 380 440 C520 380 640 400 760 440 L1200 450 C1330 400 1480 390 1600 430 C1720 400 1840 410 1940 450 V520 H-20 Z"
+        fill="#5E8A6B" stroke="#1B1238" stroke-width="6"/>
+  <path d="M-20 490 C200 460 500 470 760 480 C1100 470 1500 460 1940 490 V540 H-20 Z" fill="#E7C98E" stroke="#1B1238" stroke-width="6"/>
+  <use href="#palm" transform="translate(150 480) scale(0.8)"/>
+  <use href="#palm" transform="translate(1720 470) scale(0.9) scale(-1 1)"/>
+  <use href="#palm" transform="translate(1530 476) scale(0.6)"/>
+
+  <!-- lagoon -->
+  <rect y="520" width="1920" height="560" fill="url(#lagoon)"/>
+  <g stroke="#E6FDFF" stroke-width="7" stroke-linecap="round" fill="none" opacity="0.6">
+    <path d="M90 600 q40 -14 80 0"/><path d="M820 580 q40 -14 80 0"/><path d="M640 760 q50 -16 100 0"/>
+    <path d="M200 900 q50 -16 100 0"/><path d="M880 960 q50 -16 100 0"/><path d="M1060 610 q40 -14 80 0"/>
+  </g>
+
+  <!-- dock -->
+  <g stroke="#1B1238" stroke-width="7" stroke-linejoin="round">
+    <rect x="80" y="690" width="40" height="300" fill="#7A4E2C"/>
+    <rect x="360" y="690" width="40" height="300" fill="#7A4E2C"/>
+    <rect x="560" y="690" width="40" height="260" fill="#7A4E2C"/>
+    <path d="M-20 640 H640 L620 700 H-20 Z" fill="url(#wood)"/>
+    <path d="M100 640 V700 M240 640 V700 M380 640 V700 M520 640 V700" stroke-width="5" opacity="0.6"/>
+  </g>
+  <g stroke="#E6FDFF" stroke-width="7" fill="none" opacity="0.6" stroke-linecap="round">
+    <path d="M60 990 q40 -12 80 0"/><path d="M340 990 q40 -12 80 0"/><path d="M540 950 q40 -12 80 0"/>
+  </g>
+
+  <!-- player reeling in: rod held in both hands, leaning back -->
+  <g transform="translate(420 646)" style="--shirt:#FF7A3D;--pants:#2B3A67;--skin:#FFD9A8;--hat:#2FA36B">
+    <g transform="rotate(-6)">
+      <use href="#avatarArm" transform="translate(-42 -160) rotate(30)"/>
+      <use href="#avatarBody"/>
+      <use href="#avatarHead" transform="translate(0 -168)"/>
+      <use href="#hatBucket" transform="translate(0 -168)"/>
+      <!-- rod -->
+      <path d="M40 -100 L320 -360" stroke="#1B1238" stroke-width="20" stroke-linecap="round"/>
+      <path d="M40 -100 L320 -360" stroke="#F4F4F4" stroke-width="10" stroke-linecap="round"/>
+      <path d="M40 -100 L110 -165" stroke="#3B2A6B" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="78" cy="-120" r="16" fill="#9AA4C8" stroke="#1B1238" stroke-width="6"/>
+      <use href="#avatarArm" transform="translate(42 -160) rotate(-70)"/>
+    </g>
+  </g>
+  <!-- taut line to the catch -->
+  <path d="M701 255 Q790 320 856 444" stroke="#FFFFFF" stroke-width="5" fill="none"/>
+  <!-- the catch breaking the surface -->
+  <g stroke="#1B1238" stroke-width="7" stroke-linejoin="round" fill="#BFF8FF">
+    <path d="M700 660 C690 630 676 612 660 606 C680 604 700 616 712 632 C712 606 724 588 740 578 C736 604 742 624 752 640 C762 618 780 606 800 604 C786 618 782 636 784 656 C800 638 822 632 842 636 C826 646 816 660 814 676 Z"/>
+  </g>
+  <ellipse cx="760" cy="676" rx="110" ry="24" fill="none" stroke="#E6FDFF" stroke-width="7" opacity="0.8"/>
+  <g filter="url(#dropShadow)">
+    <use href="#heroFish" transform="translate(800 520) rotate(-60) scale(0.72)"/>
+  </g>
+  <g fill="#DDFDFF" stroke="#1B1238" stroke-width="5">
+    <circle cx="650" cy="560" r="10"/><circle cx="880" cy="600" r="8"/><circle cx="690" cy="500" r="6"/>
+  </g>
+
+  <!-- the player's tide pool, raising the same catch -->
+  <ellipse cx="1420" cy="880" rx="470" ry="150" fill="#0A3A6A" opacity="0.35"/>
+  <ellipse cx="1420" cy="860" rx="460" ry="150" fill="url(#rockGrad)" stroke="#1B1238" stroke-width="9"/>
+  <g fill="#C9965E" stroke="#1B1238" stroke-width="6">
+    <ellipse cx="985" cy="840" rx="54" ry="30"/><ellipse cx="1860" cy="850" rx="56" ry="30"/>
+    <ellipse cx="1120" cy="985" rx="70" ry="28"/><ellipse cx="1700" cy="990" rx="74" ry="28"/>
+  </g>
+  <ellipse cx="1420" cy="850" rx="390" ry="108" fill="url(#poolWater)" stroke="#1B1238" stroke-width="8"/>
+  <ellipse cx="1420" cy="846" rx="260" ry="62" fill="none" stroke="#DDFDFF" stroke-width="6" opacity="0.6"/>
+
+  <!-- growth: Tiny, Grown, Giant -->
+  <circle cx="1640" cy="640" r="260" fill="url(#giantGlow)"/>
+  <g filter="url(#dropShadow)">
+    <use href="#heroFish" transform="translate(1150 820) rotate(-8) scale(0.34)"/>
+    <use href="#heroFish" transform="translate(1340 790) rotate(-10) scale(0.58)"/>
+    <use href="#heroFish" transform="translate(1640 700) rotate(-12) scale(1.02)"/>
+  </g>
+  <!-- growth arrows -->
+  <g fill="#FFFFFF" stroke="#1B1238" stroke-width="6" stroke-linejoin="round">
+    <path d="M1206 730 l34 -6 l-8 -14 l40 10 l-28 30 l-4 -14 l-32 6 Z"/>
+    <path d="M1430 680 l34 -8 l-8 -14 l42 8 l-26 32 l-4 -14 l-34 8 Z"/>
+  </g>
+  <!-- stage tags -->
+  <g class="tag" font-size="40" text-anchor="middle">
+    <g transform="translate(1150 690)"><rect x="-70" y="-34" width="140" height="56" rx="28" fill="#C8C8C8" stroke="#1B1238" stroke-width="6"/><text y="10" fill="#1B1238">TINY</text></g>
+    <g transform="translate(1340 610)"><rect x="-92" y="-34" width="184" height="56" rx="28" fill="#468CFF" stroke="#1B1238" stroke-width="6"/><text y="10" fill="#FFFFFF">GROWN</text></g>
+    <g transform="translate(1640 440)"><rect x="-100" y="-38" width="200" height="64" rx="32" fill="#FFAA28" stroke="#1B1238" stroke-width="6"/><text y="12" fill="#1B1238" font-size="48">GIANT</text></g>
+  </g>
+  <!-- coins popping from the giant -->
+  <use href="#coin" transform="translate(1830 560) rotate(12)"/>
+  <use href="#coin" transform="translate(1866 650) scale(0.8) rotate(-10)"/>
+  <use href="#coin" transform="translate(1800 470) scale(0.7)"/>
+  <g fill="#FFF2A8"><use href="#spark" transform="translate(1500 520) scale(1.6)"/><use href="#spark" transform="translate(1780 800) scale(1.3)"/></g>
+
+  <!-- headline -->
+  <g filter="url(#dropShadow)" class="big">
+    <text x="70" y="200" font-size="176" fill="url(#titleCyan)" stroke="#0B1E3A" stroke-width="16" paint-order="stroke" stroke-linejoin="round">CATCH IT.</text>
+    <text x="1090" y="200" font-size="176" fill="url(#titleGold)" stroke="#3A1A0B" stroke-width="16" paint-order="stroke" stroke-linejoin="round">RAISE IT.</text>
+  </g>
+  <use href="#studioBadge" transform="translate(40 970)"/>
+</svg>

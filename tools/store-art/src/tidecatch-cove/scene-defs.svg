@@ -1,0 +1,33 @@
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2D4FB8"/><stop offset="0.6" stop-color="#5FA8EE"/><stop offset="1" stop-color="#B9EEFF"/>
+    </linearGradient>
+    <linearGradient id="lagoon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7DEBFA"/><stop offset="0.35" stop-color="#2FC6EE"/><stop offset="1" stop-color="#1265B8"/>
+    </linearGradient>
+    <linearGradient id="poolWater" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9AF7FF"/><stop offset="0.5" stop-color="#35CBEF"/><stop offset="1" stop-color="#1886CC"/>
+    </linearGradient>
+    <linearGradient id="rockGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EBC994"/><stop offset="1" stop-color="#A3744A"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C98A52"/><stop offset="1" stop-color="#8E5A31"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFF6C2" stop-opacity="0.95"/><stop offset="0.4" stop-color="#FFE08A" stop-opacity="0.45"/><stop offset="1" stop-color="#FFE08A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="giantGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE066" stop-opacity="0.9"/><stop offset="0.5" stop-color="#FFAA28" stop-opacity="0.35"/><stop offset="1" stop-color="#FFAA28" stop-opacity="0"/>
+    </radialGradient>
+    <!-- palm tree, base at 0,0, ~260 tall -->
+    <g id="palm">
+      <path d="M0 0 C6 -80 20 -170 44 -240" stroke="#7A4E2C" stroke-width="22" fill="none" stroke-linecap="round"/>
+      <path d="M0 0 C6 -80 20 -170 44 -240" stroke="#1B1238" stroke-width="30" fill="none" stroke-linecap="round" opacity="0.0"/>
+      <g fill="#2FB36B" stroke="#1B1238" stroke-width="6" stroke-linejoin="round">
+        <path d="M44 -240 C0 -270 -60 -260 -96 -220 C-50 -236 -10 -236 44 -240 Z"/>
+        <path d="M44 -240 C90 -280 150 -270 180 -226 C130 -244 90 -244 44 -240 Z"/>
+        <path d="M44 -240 C20 -300 50 -330 80 -334 C66 -300 60 -270 44 -240 Z"/>
+        <path d="M44 -240 C-10 -230 -40 -190 -44 -150 C-16 -190 10 -214 44 -240 Z"/>
+        <path d="M44 -240 C100 -230 130 -190 130 -150 C104 -190 80 -214 44 -240 Z"/>
+      </g>
+    </g>

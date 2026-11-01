@@ -18,6 +18,20 @@ Non-obvious choices, newest first, so a later session can trust them.
   gate measures day-1 return and session length first.
 - **The goal line advertises it** after the first upgrade, until it is taken.
   An event `Daily:FirstHaul` (coins paid) shows whether it brings players back.
+## 2026-11-01: Tidecatch Cove Robux shop (milestone M5 code, prices pending)
+
+- **Robux bait is its own bait.** Bait Pack and Mystery Bait give Storm Lures
+  and Pearl Lures, which coins never buy. A cast is a paid random roll exactly
+  when its bait came from Robux, so the policy check and the "paid" odds
+  label follow the bait id alone, with no per-unit bookkeeping. Coin bait
+  stays a free roll (coins are never sold here).
+- **Auto-reel is decided on the server.** With the pass, the server lands the
+  fish at a fixed per-rarity rate a little slower than the fastest human reel,
+  and ignores the client's report, so the pass cannot be used to claim a
+  perfect reel.
+- **Mystery Bait never grants nothing.** The shop refuses restricted players
+  before Roblox's prompt; if the policy flips after paying, the grant gives
+  the smallest bundle rather than keep the Robux for nothing.
 
 ## 2026-11-01: Depthbound's first minute
 

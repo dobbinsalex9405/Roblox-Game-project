@@ -413,6 +413,9 @@ function Cove.buyBait(
 	if bait == nil then
 		return false, "unknown bait"
 	end
+	if bait.robux then
+		return false, "That bait comes only from Bait Packs and Mystery Bait."
+	end
 	if count < 1 or count // 1 ~= count then
 		return false, "invalid amount"
 	end
@@ -430,6 +433,41 @@ function Cove.buyBait(
 	d.shop.bought[bait.id] = (d.shop.bought[bait.id] or 0) + count
 	d.bait[bait.id] = (d.bait[bait.id] or 0) + count
 	return true, nil
+end
+
+-- Robux products. Each runs inside the core's receipt handler, in the same
+-- data update that records the receipt, so it lands exactly once.
+
+-- Adds bait to the player's tackle box (Bait Pack, Mystery Bait).
+function Cove.grantBait(d: Data, baitId: string, count: number)
+	assert(count >= 1 and count // 1 == count, "whole bait counts only")
+	d.bait[baitId] = (d.bait[baitId] or 0) + count
+end
+
+-- Grows every pooled creature `stages` growth stages at once (Growth Boost).
+-- Fully grown creatures stay fully grown. Returns how many creatures grew.
+function Cove.growthBoost(d: Data, stages: number, now: number, config: Config): number
+	local pools = config.pools
+	local grew = 0
+	for _, pooled in d.pools do
+		local def = config.species.species[pooled.speciesId]
+		if def then
+			local total = Creatures.growthSeconds(def.rarity, pools)
+			local room = total - Creatures.grown(pooled, now, def.rarity, pools)
+			if room > 0 then
+				pooled.fed += math.min(room, pools.stageSeconds[def.rarity] * stages)
+				grew += 1
+			end
+		end
+	end
+	return grew
+end
+
+-- Restocks the bait shop for this player now (Restock Skip): everything is
+-- back in stock until the next shared restock.
+function Cove.restockNow(d: Data, now: number, economy: any)
+	d.shop.window = Cove.restockWindow(now, economy)
+	d.shop.bought = {}
 end
 
 -- Uses one bait for a cast. "None" always works.

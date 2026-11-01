@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <style>/*FONTS*/
+    .big{font-family:'Lilita One';letter-spacing:3px}
+  </style>
+  <defs>
+<!--INCLUDE:parts/common-defs.svg-->
+<!--INCLUDE:parts/avatar.svg-->
+<!--INCLUDE:street-food-empire/parts.svg-->
+    <linearGradient id="daySky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3FA8FF"/><stop offset="0.7" stop-color="#8FD8FF"/><stop offset="1" stop-color="#FFE3A8"/>
+    </linearGradient>
+    <radialGradient id="cartGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE873" stop-opacity="0.75"/><stop offset="1" stop-color="#FFE873" stop-opacity="0"/>
+    </radialGradient>
+    <g id="customer">
+      <use href="#avatarArm" transform="translate(-42 -160) rotate(10)"/><use href="#avatarBody"/>
+      <use href="#avatarHead" transform="translate(0 -168)"/><use href="#avatarArm" transform="translate(42 -160) rotate(-10)"/>
+    </g>
+    <g id="bubble">
+      <path d="M-56 -52 H56 a16 16 0 0 1 16 16 V20 a16 16 0 0 1 -16 16 H10 L-6 56 L-10 36 H-56 a16 16 0 0 1 -16 -16 V-36 a16 16 0 0 1 16 -16 Z" fill="#FFFFFF" stroke="#1B1238" stroke-width="7" stroke-linejoin="round"/>
+    </g>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#daySky)"/>
+  <g fill="#FFFFFF" opacity="0.9">
+    <path d="M1080 180 q30 -50 80 -24 q40 -40 90 0 q50 0 50 36 H1060 q-20 -20 20 -12 Z"/>
+    <path d="M1600 110 q30 -46 76 -22 q38 -38 86 0 q46 0 46 34 H1580 q-18 -18 20 -12 Z"/>
+  </g>
+  <!-- backdrop buildings -->
+  <g stroke="#1B1238" stroke-width="7">
+    <rect x="-20" y="420" width="300" height="460" fill="#FFB25A"/><rect x="280" y="480" width="260" height="400" fill="#5AC8A0"/>
+    <rect x="540" y="400" width="300" height="480" fill="#FF7A8A"/><rect x="840" y="460" width="280" height="420" fill="#7AA8FF"/>
+    <rect x="1120" y="380" width="300" height="500" fill="#C38AFF"/><rect x="1420" y="440" width="520" height="440" fill="#FFD25A"/>
+  </g>
+  <g fill="#FFF3D0" stroke="#1B1238" stroke-width="5" opacity="0.9">
+    <rect x="40" y="470" width="70" height="70" rx="8"/><rect x="160" y="470" width="70" height="70" rx="8"/>
+    <rect x="600" y="450" width="70" height="70" rx="8"/><rect x="720" y="450" width="70" height="70" rx="8"/>
+    <rect x="1180" y="430" width="70" height="70" rx="8"/><rect x="1300" y="430" width="70" height="70" rx="8"/>
+    <rect x="340" y="530" width="70" height="70" rx="8"/><rect x="900" y="510" width="70" height="70" rx="8"/><rect x="1020" y="510" width="70" height="70" rx="8"/>
+  </g>
+  <!-- pavement -->
+  <rect y="760" width="1920" height="320" fill="#D9D2E8"/>
+  <path d="M0 760 H1920" stroke="#1B1238" stroke-width="7"/>
+  <g stroke="#B9B0CF" stroke-width="5"><path d="M0 860 H1920 M0 980 H1920 M200 760 L120 1080 M600 760 L560 1080 M1000 760 L1000 1080 M1400 760 L1440 1080 M1800 760 L1880 1080"/></g>
+
+  <!-- the cart, front of the rush -->
+  <circle cx="1530" cy="640" r="430" fill="url(#cartGlow)"/>
+  <ellipse cx="1540" cy="990" rx="330" ry="34" fill="#1B1238" opacity="0.25"/>
+  <g filter="url(#dropShadow)">
+    <g transform="translate(1510 676) scale(1.36)" style="--skin:#FFD9A8">
+      <rect x="-46" y="-6" width="92" height="40" rx="12" fill="#FF7A3D" stroke="#1B1238" stroke-width="7"/>
+      <use href="#avatarHead"/><use href="#hatPaper"/>
+    </g>
+    <use href="#hotdogCart" transform="translate(1530 710) scale(1.4)"/>
+    <use href="#hotdogBig" transform="translate(1545 410) rotate(-6) scale(0.85)"/>
+  </g>
+  <use href="#steam" transform="translate(1545 330) scale(0.9)"/>
+
+  <!-- the queue, back to front -->
+  <g style="--pants:#2B3A67">
+    <g transform="translate(160 900) scale(0.62)" style="--shirt:#5AC85A"><use href="#customer"/></g>
+    <g transform="translate(300 920) scale(0.68)" style="--shirt:#FF5A6E;--skin:#C98B5A"><use href="#customer"/></g>
+    <g transform="translate(450 940) scale(0.74)" style="--shirt:#468CFF"><use href="#customer"/></g>
+    <g transform="translate(610 960) scale(0.8)" style="--shirt:#FFD23F;--skin:#8E5A3A"><use href="#customer"/></g>
+    <g transform="translate(780 980) scale(0.86)" style="--shirt:#AA55FF"><use href="#customer"/></g>
+    <g transform="translate(960 1000) scale(0.92)" style="--shirt:#44E0C8;--skin:#E8B88A"><use href="#customer"/></g>
+    <g transform="translate(1150 1020) scale(1.0)" style="--shirt:#FF8A3D"><use href="#customer"/></g>
+  </g>
+  <!-- orders -->
+  <g transform="translate(450 640) scale(0.9)"><use href="#bubble"/><use href="#icLemon" transform="translate(0 -8)"/></g>
+  <g transform="translate(780 660)"><use href="#bubble"/><use href="#icTaco" transform="translate(0 -6)"/></g>
+  <g transform="translate(1150 680) scale(1.05)"><use href="#bubble"/><use href="#icNoodle" transform="translate(0 0)"/></g>
+  <!-- cash pops -->
+  <use href="#cashPop" transform="translate(1290 600) scale(1.5)"/>
+  <use href="#cashPop" transform="translate(960 640) scale(1.2)"/>
+  <use href="#cashPop" transform="translate(610 660) scale(1.0)"/>
+  <use href="#cashPop" transform="translate(300 690) scale(0.9)"/>
+  <use href="#coin" transform="translate(1810 560) rotate(14) scale(1.2)"/>
+  <use href="#coin" transform="translate(1860 680) scale(0.9)"/>
+  <use href="#coin" transform="translate(1250 470) rotate(-10)"/>
+
+  <!-- headline -->
+  <g class="big" filter="url(#dropShadow)">
+    <text x="60" y="210" font-size="190" fill="#FFFFFF" stroke="#1B1238" stroke-width="18" paint-order="stroke" stroke-linejoin="round">SERVE THE</text>
+    <text x="60" y="390" font-size="210" fill="url(#titleGold)" stroke="#3A1A0B" stroke-width="18" paint-order="stroke" stroke-linejoin="round">RUSH!</text>
+  </g>
+  <use href="#studioBadge" transform="translate(40 970)"/>
+</svg>
