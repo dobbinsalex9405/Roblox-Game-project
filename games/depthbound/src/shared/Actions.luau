@@ -245,12 +245,12 @@ function Actions.new(options: Options): Actions
 		end)
 		-- M4: the dropped haul stays where the player fell for anyone to find.
 		backToCamp(player, s, now)
-		analytics:custom(
-			player,
-			"Dive:LampOut",
-			dropped,
-			{ ending, `Layer{Layout.layerOf(mine, math.max(1, row))}`, if first then "First" else "Repeat" }
-		)
+		local fields: { string } = {
+			ending,
+			`Layer{Layout.layerOf(mine, math.max(1, row))}`,
+			if first then "First" else "Repeat",
+		}
+		analytics:custom(player, "Dive:LampOut", dropped, fields)
 		if ending == "LeftInDark" then
 			return
 		end

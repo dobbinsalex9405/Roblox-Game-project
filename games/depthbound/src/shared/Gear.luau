@@ -13,8 +13,8 @@ export type Perks = {
 
 local Gear = {}
 
-local KINDS: { Kind } = { "Pick", "Pack", "Lamp" }
-Gear.KINDS = table.freeze(KINDS)
+-- Cast through any: a frozen literal list would otherwise widen to { string }.
+Gear.KINDS = (table.freeze({ "Pick", "Pack", "Lamp" }) :: any) :: { Kind }
 
 local FIELD: { [Kind]: string } = { Pick = "pick", Pack = "pack", Lamp = "lamp" }
 

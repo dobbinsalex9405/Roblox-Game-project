@@ -30,7 +30,7 @@ function Mining.start(ctx: Context.Context)
 	box.Parent = ctx.player:WaitForChild("PlayerGui")
 
 	local function target(): BasePart?
-		local part = mouse.Target
+		local part: BasePart? = mouse.Target
 		local mineFolder = Workspace:FindFirstChild("Mine")
 		if part == nil or mineFolder == nil or part.Parent ~= mineFolder then
 			return nil

@@ -26,7 +26,7 @@ return function(Schema: any, Odds: any)
 		fields.cost = Schema.integer({ min = 0 })
 		return Schema.check(
 			Schema.array(Schema.record(fields), { minLength = 1, maxLength = 20 }),
-			function(v)
+			function(v: any): (boolean, string?)
 				if v[1].cost ~= 0 then
 					return false, "tier 1 is the starting gear and must cost 0"
 				end
