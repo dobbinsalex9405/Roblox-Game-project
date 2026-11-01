@@ -52,12 +52,25 @@ the daily run never waits for an approval): Repo → Settings → Secrets and
 variables → Actions → **New repository secret** named `ROBLOX_READ_API_KEY`.
 It cannot change anything in a game. Until it exists, the workflow skips.
 
+### Keys in place now (set up 2026-11-01)
+
+| Key on Roblox (Loop Lab Games) | Scope | GitHub secret(s) | Expires |
+|---|---|---|---|
+| Staging publish (GitHub Actions) | `universe-places` Write on the 4 Staging experiences | `staging` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
+| Production publish (GitHub Actions) | `universe-places` Write on the 4 Production experiences | `production` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
+| Read-only (GitHub Actions) | `universe-datastores.objects` read + list on all 8 experiences | repository: `ROBLOX_READ_API_KEY` | **2027-01-30**: make a new one before then |
+
+Every Roblox key also expires after 60 days without use. The publish keys
+have no DataStore read; nothing reads the error queue with them yet.
+
 ## 3. Your approval gate on production
 
 Repo → Settings → Environments → `production`:
 
 - **Required reviewers**: add yourself. Every production publish then waits for
   your Approve click.
+  Not available while the repo is private on GitHub Free (checked 2026-11-01);
+  until then Production only runs when someone starts it by hand.
 - **Deployment branches and tags**: "Selected branches and tags", add `main`.
 
 ## 4. Protect main
