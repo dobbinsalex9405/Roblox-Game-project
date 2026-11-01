@@ -16,6 +16,8 @@ local Context = require(script.Parent.Context)
 
 local CrowdView = {}
 
+local QUEUE_FIGURES = 12
+
 local SHIRTS = {
 	Color3.fromRGB(220, 90, 90),
 	Color3.fromRGB(90, 150, 230),
@@ -88,7 +90,9 @@ function CrowdView.start(ctx: Context.Context)
 	local root = Instance.new("Folder")
 	root.Name = "Crowd"
 	root.Parent = Workspace
-	local queueMax = ctx.config.economy.customers.queueMax
+	-- The line in front of the counter has room for this many figures; the
+	-- HUD shows the owner the full count.
+	local shownMax = math.min(ctx.config.economy.customers.queueMax, QUEUE_FIGURES)
 
 	task.spawn(function()
 		while true do
@@ -115,7 +119,7 @@ function CrowdView.start(ctx: Context.Context)
 					local _, live = Restaurant.preview(d, ctx.config, ctx.perks(), now)
 					queue = Restaurant.waiting(live)
 				end
-				show(folder :: Folder, "Queue", math.clamp(queue, 0, queueMax), frame, Layout.queuePoint)
+				show(folder :: Folder, "Queue", math.clamp(queue, 0, shownMax), frame, Layout.queuePoint)
 
 				-- One walk-up customer at each station with a working cook.
 				local spots: { number } = {}

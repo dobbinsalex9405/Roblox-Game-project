@@ -98,6 +98,7 @@ describe("Street Food Empire sessions", function()
 		expect(h.actions:serve(player)).toBe(true)
 		h.give(player, 100_000)
 		assert(h.actions:build(player, "LemonadeStand", 2))
+		assert(h.actions:upgrade(player, 1))
 		assert(h.actions:hireCook(player, "Trainee", 1))
 		assert(h.actions:unlockDistrict(player))
 		h.leave(player)
@@ -114,7 +115,8 @@ describe("Street Food Empire sessions", function()
 	end)
 
 	it("reports every onboarding step even when played out of order", function()
-		-- The common opening: build before serving anyone, then hire.
+		-- The common opening: build and hire before serving anyone, and
+		-- upgrade only after that.
 		local h = Harness.new()
 		local player = Fakes.player(30)
 		h.join(player)
@@ -123,11 +125,22 @@ describe("Street Food Empire sessions", function()
 		assert(h.actions:hireCook(player, "Trainee", 1))
 		h.wait(player, 10)
 		assert(h.actions:serve(player))
-		local steps = {}
-		for _, args in h.eventsOf("onboarding") do
-			table.insert(steps, args[2])
+		local function steps()
+			local out = {}
+			for _, args in h.eventsOf("onboarding") do
+				table.insert(out, args[2])
+			end
+			return out
 		end
-		expect(steps).toEqual({ "Joined", "FirstCustomerServed", "FirstStationBought", "FirstCookHired" })
+		expect(steps()).toEqual({ "Joined", "FirstCustomerServed", "FirstStationBought" })
+		assert(h.actions:upgrade(player, 1))
+		expect(steps()).toEqual({
+			"Joined",
+			"FirstCustomerServed",
+			"FirstStationBought",
+			"FirstUpgrade",
+			"FirstCookHired",
+		})
 	end)
 
 	it("refuses what the player cannot do and leaves cash alone", function()

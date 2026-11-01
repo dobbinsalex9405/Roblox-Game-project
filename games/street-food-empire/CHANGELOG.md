@@ -19,8 +19,11 @@
   spot, level, build finish time), cooks (tier, station), boosts, order board
   and festival placeholders (M4), rebirth archive, receipts, onboarding
   moments and stats.
+- Balance leans idle: cooks sell twice as fast (12/24/48 a minute), the
+  counter line holds 30, and Market Row opens around minute 15. A player who
+  looks in every 5 minutes reaches the rebirth in about 7.5 hours.
 - Analytics: onboarding steps Joined, FirstCustomerServed, FirstStationBought,
-  FirstCookHired, SecondDistrictUnlocked (once per player, ever, reported
+  FirstUpgrade, FirstCookHired, SecondDistrictUnlocked (once per player, ever, reported
   in order even when played out of order),
   `Station:Built`, `Station:Upgraded`, `Cook:Hired`, District and Rebirth
   progression, and every cash change through the economy ledger.

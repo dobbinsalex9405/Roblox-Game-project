@@ -10,8 +10,8 @@
 -- for a station replaces the cook there.
 return {
 	tiers = {
-		{ id = "Trainee", cost = 100, costGrowth = 1.5, servesPerMinute = 6 },
-		{ id = "LineCook", cost = 8000, costGrowth = 1.5, servesPerMinute = 12 },
-		{ id = "Chef", cost = 500000, costGrowth = 1.5, servesPerMinute = 24 },
+		{ id = "Trainee", cost = 100, costGrowth = 1.5, servesPerMinute = 12 },
+		{ id = "LineCook", cost = 8000, costGrowth = 1.5, servesPerMinute = 24 },
+		{ id = "Chef", cost = 500000, costGrowth = 1.5, servesPerMinute = 48 },
 	},
 }

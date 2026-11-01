@@ -184,15 +184,18 @@ function Actions.new(options: Options): Actions
 	function actions.upgrade(_self: Actions, player: any, spot: number): (boolean, string?)
 		local stationId: string? = nil
 		local level = 0
+		local steps: { number } = {}
 		local ok, err = change(player, function(d, ledger, now)
 			local station, refusal = Restaurant.upgrade(d, ledger, config, spot, now)
 			if station then
 				stationId = station.stationId
 				level = station.level
+				steps = Restaurant.markFirst(d, "FirstUpgrade", now)
 			end
 			return refusal
 		end)
 		if ok and stationId then
+			onboarding(player, steps)
 			analytics:custom(player, "Station:Upgraded", level, { stationId })
 		end
 		return ok, err

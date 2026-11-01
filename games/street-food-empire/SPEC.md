@@ -58,10 +58,18 @@ customer at each station with a working cook. This keeps the server light with
 
 ## Pacing
 
-Tuned with a simulated attentive player (`tests/Bot.luau`, guarded by
-`tests/Pacing.spec.luau`): Market Row opens after about 18 minutes, Downtown
-after about 70, the rebirth is affordable after about 6 hours. These are
-starting numbers for the M4 playtests.
+Tuned to lean idle: cooks earn a real share, so a player who only looks in
+now and then still progresses. Simulated players (`tests/Bot.luau`, guarded
+by `tests/Pacing.spec.luau`):
+
+| Player | Market Row | Downtown | Rebirth affordable | Cash from hand serving |
+| --- | --- | --- | --- | --- |
+| Attentive (acts every second) | ~15 min | ~57 min | ~4.5 h | ~44% |
+| Looks in every minute | ~15 min | ~58 min | ~4.5 h | ~44% |
+| Looks in every 5 minutes | ~30 min | ~100 min | ~7.5 h | ~14% |
+
+The counter line (30) is long enough that checking in once a minute loses no
+customers. These are starting numbers for the M4 playtests.
 
 ## Money
 

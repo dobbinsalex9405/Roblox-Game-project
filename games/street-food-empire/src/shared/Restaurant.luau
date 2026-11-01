@@ -69,11 +69,13 @@ export type Rates = {
 }
 
 -- First-time moments, in the order the onboarding funnel reports them.
--- New steps are added at the end so earlier step numbers never change.
+-- Once the game is live, new steps go at the end so earlier step numbers
+-- never change.
 local ONBOARDING = {
 	"Joined",
 	"FirstCustomerServed",
 	"FirstStationBought",
+	"FirstUpgrade",
 	"FirstCookHired",
 	"SecondDistrictUnlocked",
 }
