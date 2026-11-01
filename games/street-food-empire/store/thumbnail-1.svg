@@ -209,6 +209,7 @@
     <g id="cashPop">
       <text text-anchor="middle" font-family="'Lilita One'" font-size="56" fill="#7CFF8A" stroke="#0B3A1A" stroke-width="10" paint-order="stroke" stroke-linejoin="round">+$</text>
     </g>
+    <g id="icPizza"><path d="M0 30 L-30 -24 Q0 -36 30 -24 Z" fill="#FFD27A" stroke="#1B1238" stroke-width="5" stroke-linejoin="round"/><path d="M-30 -24 Q0 -36 30 -24 L26 -16 Q0 -28 -26 -16 Z" fill="#D98A3A" stroke="#1B1238" stroke-width="4" stroke-linejoin="round"/><circle cx="-6" cy="-10" r="5" fill="#E8453A"/><circle cx="8" cy="0" r="5" fill="#E8453A"/><circle cx="-2" cy="12" r="4" fill="#E8453A"/></g>
 
     <radialGradient id="streetGlow" cx="50%" cy="50%" r="50%">
       <stop offset="0" stop-color="#FFC24A" stop-opacity="0.55"/><stop offset="1" stop-color="#FFC24A" stop-opacity="0"/>
@@ -266,7 +267,7 @@
     <rect x="1620" y="270" width="260" height="84" rx="16" fill="#1B1238"/>
   </g>
   <rect x="1630" y="280" width="240" height="64" rx="12" fill="#FFF6DE"/>
-  <use href="#icSushi" transform="translate(1700 314) scale(0.9)"/><use href="#icNoodle" transform="translate(1800 318) scale(0.9)"/>
+  <use href="#icSushi" transform="translate(1700 314) scale(0.9)"/><use href="#icPizza" transform="translate(1800 316) scale(0.95)"/>
   <g transform="translate(1576 880)">
     <path d="M10 -170 H334 V-150 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 Z" fill="#FFD23F" stroke="#1B1238" stroke-width="8" stroke-linejoin="round"/>
     <path d="M10 -170 H334 V-150 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 q-20.25 22 -40.5 0 Z" fill="url(#whiteStripes)" stroke="#1B1238" stroke-width="8" stroke-linejoin="round"/>

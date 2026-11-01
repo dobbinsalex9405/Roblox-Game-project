@@ -96,3 +96,4 @@
     <g id="cashPop">
       <text text-anchor="middle" font-family="'Lilita One'" font-size="56" fill="#7CFF8A" stroke="#0B3A1A" stroke-width="10" paint-order="stroke" stroke-linejoin="round">+$</text>
     </g>
+    <g id="icPizza"><path d="M0 30 L-30 -24 Q0 -36 30 -24 Z" fill="#FFD27A" stroke="#1B1238" stroke-width="5" stroke-linejoin="round"/><path d="M-30 -24 Q0 -36 30 -24 L26 -16 Q0 -28 -26 -16 Z" fill="#D98A3A" stroke="#1B1238" stroke-width="4" stroke-linejoin="round"/><circle cx="-6" cy="-10" r="5" fill="#E8453A"/><circle cx="8" cy="0" r="5" fill="#E8453A"/><circle cx="-2" cy="12" r="4" fill="#E8453A"/></g>
