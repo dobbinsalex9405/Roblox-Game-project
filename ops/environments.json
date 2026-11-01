@@ -2,22 +2,22 @@
   "$comment": "Universe and place ids for each game's three experiences. Ids only: API keys live in GitHub environment secrets, never here. 0 means not created yet; publishing to an environment with a 0 id is skipped, not attempted.",
   "hatchery-heist": {
     "dev": { "universeId": 0, "placeId": 0 },
-    "staging": { "universeId": 0, "placeId": 0 },
-    "production": { "universeId": 0, "placeId": 0 }
+    "staging": { "universeId": 10774144065, "placeId": 110929970966106 },
+    "production": { "universeId": 10774144286, "placeId": 72291749837564 }
   },
   "tidecatch-cove": {
     "dev": { "universeId": 0, "placeId": 0 },
-    "staging": { "universeId": 0, "placeId": 0 },
-    "production": { "universeId": 0, "placeId": 0 }
+    "staging": { "universeId": 10774144444, "placeId": 86721889946666 },
+    "production": { "universeId": 10774144611, "placeId": 105188132466140 }
   },
   "depthbound": {
     "dev": { "universeId": 0, "placeId": 0 },
-    "staging": { "universeId": 0, "placeId": 0 },
-    "production": { "universeId": 0, "placeId": 0 }
+    "staging": { "universeId": 10774145089, "placeId": 124704857779198 },
+    "production": { "universeId": 10774145201, "placeId": 71229935502102 }
   },
   "street-food-empire": {
     "dev": { "universeId": 0, "placeId": 0 },
-    "staging": { "universeId": 0, "placeId": 0 },
-    "production": { "universeId": 0, "placeId": 0 }
+    "staging": { "universeId": 10774144770, "placeId": 91432680586330 },
+    "production": { "universeId": 10774144972, "placeId": 93877755225252 }
   }
 }

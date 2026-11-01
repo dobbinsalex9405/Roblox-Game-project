@@ -19,6 +19,50 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **The goal line advertises it** after the first upgrade, until it is taken.
   An event `Daily:FirstHaul` (coins paid) shows whether it brings players back.
 
+## 2026-11-01: Our own metrics and the studio scoreboard
+
+- **Games count their own players and Robux** (`Metrics` in the core,
+  `ops/METRICS.md`) because Roblox's dashboards and group revenue pages need
+  a signed-in account and a DataStore only needs the read-only key.
+- **8 shard keys per day,** fixed per server by a hash of its JobId, merged
+  with `UpdateAsync` once a minute. One key per day would queue writes on
+  busy days; one key per server would make the reader list thousands of keys.
+- **Products count at grant, passes at in-game purchase.** Receipts already
+  grant exactly once, so a retried receipt is never counted twice. Website
+  pass sales and Premium payouts are invisible to the game and left out; the
+  scoreboard says so.
+- **Payers are counted once per player per day across servers** by saving
+  the day of their last payment in their data (`meta.lastPaidDay`).
+- **Studio never writes,** so test-panel purchases cannot inflate the score.
+- **Earnings are shown as 70% of Robux paid,** labelled an estimate.
+- **The scoreboard is one issue rewritten daily,** not one per day, so the
+  daily run and Alex always find it in the same place; the raw numbers stay in
+  the DataStore and in a 90-day run artifact.
+
+## 2026-11-01: The daily run and CLAUDE.md
+
+- **One daily Claude run, not several jobs** (`ops/DAILY_RUN.md`), at 07:13
+  UTC, an hour after the feedback workflow opens its digest. It wakes the
+  project thread "Set up the daily scheduled run" rather than a fresh
+  session, so it can read the pause switch and message the other threads.
+- **It decides and routes; it never writes game code or merges.** Fixes go
+  through the feedback thread and fixer threads, so every change still gets
+  the verifier and CI. This keeps the run cheap and its blast radius small.
+- **A publish hold also holds merges of game code.** A merge to `main`
+  publishes to Staging and GitHub Actions cannot read the switch, so the only
+  way to honour "publish nothing" is to not merge.
+- **An unreadable switch counts as a publish hold,** not as "running".
+- **Severity leans high.** The prefilter's suggestion can be raised freely
+  and lowered only with a reason; a fixed bug that comes back is sev1 or sev2.
+  Missing a broken purchase costs far more than an extra fix.
+- **Revenue is read only from the studio's own counters.** The group revenue
+  pages need Alex's signed-in session, which Claude never uses, so metrics
+  wait for a `daily-metrics` issue from the games' own DataStore counters.
+- **Alex gets a reminder at most every 3 days** about setup steps only Alex can
+  do, because nothing earns Robux until the experiences and keys exist.
+- **`CLAUDE.md` holds the standing rules** (switch, never-touch-credentials,
+  merge and thread rules) so every session in this repo starts with them.
+
 ## 2026-11-01: Tidecatch Cove Robux shop (milestone M5 code, prices pending)
 
 - **Robux bait is its own bait.** Bait Pack and Mystery Bait give Storm Lures
