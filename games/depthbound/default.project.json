@@ -1,0 +1,53 @@
+{
+  "name": "Depthbound",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Core": {
+        "$path": "../../packages/core/src"
+      },
+      "CoreClient": {
+        "$path": "../../packages/core/client"
+      },
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "GameConfig": {
+        "$path": "config"
+      }
+    },
+    "ServerScriptService": {
+      "CoreServer": {
+        "$path": "../../packages/core/server"
+      },
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+    "ServerStorage": {
+      "ServerPackages": {
+        "$path": "../../deps/ServerPackages"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Lighting": {
+      "$properties": {
+        "Ambient": [0.04, 0.04, 0.05],
+        "OutdoorAmbient": [0.45, 0.45, 0.45],
+        "Brightness": 2,
+        "ClockTime": 14
+      }
+    },
+    "Workspace": {
+      "$properties": {
+        "StreamingEnabled": true
+      }
+    }
+  }
+}
