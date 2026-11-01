@@ -29,3 +29,20 @@ reach, digs down while the pick allows, tunnels sideways at the deepest layer,
 climbs with a margin or a full pack, sells and buys upgrades. Several bots run
 in lockstep on one server (`Bot.Scheduler.run`), stepping every 0.2 s and
 regrowing the mine every 15 s like the real server.
+
+## Street Food Empire (PR #5 branch)
+
+These scripts require `games/street-food-empire` (the PR #5 branch, or main
+once it merges). The game's own `tests/Harness.luau` is the server.
+
+```sh
+lune run playtests/street-food-empire/checks.luau       # system checks (PASS / BUG / NOTE), incl. hand-vs-register numbers
+lune run playtests/street-food-empire/run_session.luau  # 15-minute bots (6 styles), 2-hour curves, 8-hour rebirth runs
+```
+
+`bot.luau` is the player: it stands at the counter and serves every customer,
+collects the register, and leaves for six seconds per purchase. Styles differ
+in how often they come back to the counter (`attentive`, `batcher` 60 s,
+`casual` 180 s, `idle` 600 s), in what they buy (`attentiveRoi` picks by
+payback time) and whether they hire at all (`handOnly`). Customers who find
+the line full are counted as lost.

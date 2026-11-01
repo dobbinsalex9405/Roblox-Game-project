@@ -245,7 +245,7 @@ do
 	local h, p = fresh({ seed = 11 })
 	check((digDown(h, p, 7, 7, 12)), "a Rusty Pick digs to the bottom of layer 1")
 	local ok, err = h.mine(p, 7, 13, 7)
-	check(not ok and err == "pick too weak" and lastNotice(h) == "Ironroot Caverns needs a Iron Pick or better. Upgrade at camp.", "layer 2 needs an Iron Pick; the notice names it", `L2: {err} / {lastNotice(h)}`)
+	check(not ok and err == "pick too weak" and string.find(lastNotice(h), "Iron Pick") ~= nil, "layer 2 needs an Iron Pick; the notice names it", `L2: {err} / {lastNotice(h)}`)
 	if string.find(lastNotice(h), "a Iron") then
 		note("grammar: 'needs a Iron Pick' (and 'a Ember Pick'); use 'an' or rephrase ('needs the Iron Pick or better')")
 	end
@@ -529,8 +529,8 @@ do
 	end
 	check(#h.lampOuts == 1 and h.get(p).firsts.FirstLampOut ~= nil, "the lamp-out after reaching layer 2 happened and was marked in firsts")
 	check(
-		table.find(names, "FirstLampOut") ~= nil,
-		"FirstLampOut is reported when it happens after Layer2Reached",
+		table.find(Actions.ONBOARDING, "FirstLampOut") == nil or table.find(names, "FirstLampOut") ~= nil,
+		if table.find(Actions.ONBOARDING, "FirstLampOut") then "FirstLampOut is reported when it happens after Layer2Reached" else "the onboarding funnel is linear (" .. table.concat(Actions.ONBOARDING, ",") .. "); the lamp-out and layer 2 are separate events",
 		"FirstLampOut (step 5) is never reported for a player who reached layer 2 (step 6) first: Analytics.onboarding drops any step <= the last one sent, and d.firsts already marks it, so the event is lost for good. Sent: "
 			.. table.concat(names, ",")
 			.. ". Keep the funnel strictly linear (drop FirstLampOut from ONBOARDING; Dive:LampOut 'First' already covers it) or let Analytics accept out-of-order steps"
