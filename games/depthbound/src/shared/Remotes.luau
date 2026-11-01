@@ -3,7 +3,7 @@
 -- limit; the server drops anything else before a handler runs, and handlers
 -- re-check every rule (reach, swing speed, exposure, pick tier, oil) against
 -- server state. Selling and upgrading use server-side ProximityPrompts, so
--- they need no remote.
+-- they need no remote. Buying goes through the core shop (Shop:Buy).
 return function(Net: any, Schema: any)
 	local coord = Schema.integer({ min = 1, max = 1000 })
 	local text = Schema.string({ maxLength = 200 })
@@ -15,14 +15,17 @@ return function(Net: any, Schema: any)
 		["DB:Hit"] = Net.toServer("DB:Hit", { coord, coord, coord }, { count = 8, window = 1 }),
 		-- Start climbing out.
 		["DB:Climb"] = Net.toServer("DB:Climb", {}, { count = 2, window = 1 }),
+		-- Pour one of the player's bought oil refills (one per dive).
+		["DB:Refill"] = Net.toServer("DB:Refill", {}, { count = 2, window = 1 }),
 
 		-- A short message for the player (a refusal, a reward).
 		["DB:Notice"] = Net.toClient("DB:Notice", { text }),
 		-- The dive state: phase, then the oil meter (oil, rate, server time it
-		-- was settled), the oil a full lamp holds, and when a climb finishes (0 if not climbing).
+		-- was settled), the oil a full lamp holds, when a climb finishes (0 if not
+		-- climbing), and whether this dive's oil refill has been poured.
 		["DB:Dive"] = Net.toClient(
 			"DB:Dive",
-			{ Schema.oneOf({ "Camp", "Diving", "Climbing" }), time, time, time, time, time }
+			{ Schema.oneOf({ "Camp", "Diving", "Climbing" }), time, time, time, time, time, Schema.boolean() }
 		),
 		-- A block broke and its ore went in the pack.
 		["DB:Ore"] = Net.toClient("DB:Ore", { id }),
