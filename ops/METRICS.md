@@ -68,6 +68,12 @@ least 25%, average session 10+ minutes, players up 3 days in a row.
 **Kill signal:** 7-day D1 under 15% after 7 days. Stopping a game is Alex's
 call; the run only flags it.
 
+The **Update plan** workflow runs when this one finishes and turns the same
+block into each game's next update (`ops/UPDATE_LOOP.md`). Fields added to
+the block later (D7, friends, purchase prompts, onboarding steps) are
+optional: version 1 keeps every existing field and meaning, and the plan uses
+a new field only when it is there.
+
 Run it by hand from the Actions tab (`env: staging` writes a separate
 "Studio scoreboard (staging)" issue, labelled `daily-metrics-staging`, useful
 while testing on Staging).

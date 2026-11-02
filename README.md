@@ -25,7 +25,8 @@ games/hatchery-heist/
   src/server  src/client  src/shared
   tests/                  config, save data and gameplay-math tests
   SPEC.md  CHANGELOG.md
-tools/                    test runner, build, type check, boot check, key flows, publish, feedback reader
+tools/                    test runner, build, type check, boot check, key flows, publish, feedback reader,
+                          metrics (scoreboard), loop (update plan)
 playtests/                headless playtests per game: system checks (CI) and bot sessions
 ops/
   environments.json       universe and place ids per game (no keys, ever)
@@ -35,8 +36,9 @@ ops/
   DECISIONS.md            why things are the way they are
   DAILY_RUN.md            what the daily scheduled Claude run does
   METRICS.md              daily counters and the studio scoreboard issue
+  UPDATE_LOOP.md          how the numbers choose each game's weekly update
   digests/                weekly digests
-.github/workflows/        ci, publish-staging, publish-production, metrics (scoreboard)
+.github/workflows/        ci, publish-staging, publish-production, metrics (scoreboard), update-plan
 ```
 
 ## Daily commands
@@ -72,6 +74,8 @@ CI runs the same checks on every pull request.
 4. Run **Publish to Production** for one game. It waits for Alex's approval in
    GitHub, publishes, and tags the commit `<game>/production/v<version>`.
    Rolling back is the same workflow run with the previous tag.
+5. The **update plan** checks the release on day 3 and reviews it on day 7,
+   and picks each game's next update from the numbers (`ops/UPDATE_LOOP.md`).
 
 Publishing uses Roblox Open Cloud with group-owned API keys stored only as
 GitHub environment secrets. See `ops/SETUP.md`.

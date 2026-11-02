@@ -2,6 +2,37 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-02: The update loop
+
+- **Plain code decides the signals; Claude decides the update.** The plan
+  (`tools/loop/`) is a tested rules engine over the scoreboard JSON, the open
+  bugs and the release tags. It never writes game code; it names a focus and
+  the numbers behind it, and the loop owner thread writes the brief.
+- **One focus per game per week**, so a release's effect can be read. Ties
+  go fix → discovery → onboarding → depth → return → monetization → social →
+  content: fix the leak before pouring players or prices into it.
+- **Rates need a sample.** D1/D7 need 30 new players a week, session length 40
+  sessions, spending 60 player-days; below that a rule stays quiet and the
+  plan says what it could not judge. With too few new players the focus is
+  the store page (discovery), the only thing that can change that.
+- **Weekly cadence with a Wednesday merge deadline and a Friday Production
+  ask**, so the Staging 24-hour sweep fits before the ask and releases land
+  before the weekend peak. Alex gets one batched ask a week, plus hotfixes.
+- **Release checks compare days, not weekdays.** Day 3 (rollback question)
+  and day 7 (verdict) compare the days after a release with up to 7 days
+  before, skipping the release day itself. Weekday mix can blur day 3; the
+  thresholds (a third off session length, 30% off players or Robux per
+  player, 10 points off D1) are set wide for that reason.
+- **Production tags are now annotated**, so a tag carries its publish date
+  (a lightweight tag only has its commit's date, which can be days older).
+- **The loop reads the scoreboard issue, not the metrics run's files**, and a
+  separate workflow writes the plan. The analytics work can change
+  `metrics.yml` and `tools/metrics/` freely; the contract is the
+  `loop-lab-metrics v1` block, where new fields are optional.
+- **Thresholds are first guesses** from common Roblox benchmarks (D1 25%, D7
+  8%, about 1% of daily players paying). Review them after two weeks of real
+  data.
+
 ## 2026-11-01: Feedback prefilter and the error sweep
 
 - **A plain-code prefilter, not a model, sits between players and the Claude
