@@ -93,7 +93,10 @@ jobs:
           VERSION: ${{ steps.publish.outputs.version }}
         run: |
           tag="$GAME/production/v$VERSION"
-          git tag "$tag" HEAD
+          # Annotated, so the tag carries the publish date: the update loop compares
+          # the days before and after each release (ops/UPDATE_LOOP.md).
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            tag -a "$tag" -m "Published $GAME to Production as place version $VERSION" HEAD
           git push origin "$tag"
           {
             echo "Published $GAME @ $(git rev-parse --short HEAD) to Production as place version $VERSION (tag $tag)."

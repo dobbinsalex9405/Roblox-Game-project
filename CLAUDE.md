@@ -96,6 +96,8 @@ tools/typecheck.sh                             # strict types
 - `ops/FEEDBACK.md`: from player report to fix.
 - `ops/DAILY_RUN.md`: the daily scheduled run.
 - `ops/METRICS.md`: the games' daily counters and the studio scoreboard.
+- `ops/UPDATE_LOOP.md`: how the numbers choose each game's weekly update,
+  the release flow and the rollback rule.
 - `ops/SHOP.md`: the shared shop and Studio test panel.
 - `ops/PUBLISH_CHECKS.md`: the gate before every publish and the checks after.
 - `games/<game>/SPEC.md`: what each game is.
