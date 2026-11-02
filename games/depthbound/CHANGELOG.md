@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Player analytics (shared core): the daily scoreboard now shows time played
+  and session lengths, D7 and D30 returns, players who come with or bring
+  friends, Robux by item and by where in the game it was bought, purchase
+  prompts, onboarding drop-off and game event counts.
+  The oil refill button reports its purchases as `HudRefill`.
+
 - Error reports (shared core) are stored under dated keys, so the daily
   feedback digest and the post-publish error sweep can read them by day.
 - Feedback button in the top bar (shared core): players send a Bug, Idea or

@@ -132,6 +132,9 @@ revenue pages need Alex's signed-in session, which Claude never uses.
     Alex's call;
   - **regressions and release drops** are computed by the update plan
     (step 3b); act on them there.
+  - the block's analytics fields (friends, where Robux is spent,
+    onboarding, events) are read by the update plan; this run only checks
+    they are there.
 
 ## Step 3b: the update loop
 

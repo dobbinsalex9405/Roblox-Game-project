@@ -34,15 +34,20 @@ local function series(
 	return days
 end
 
--- A steady day: `players` players, `newPlayers` new, D1 `d1`, `minutes` per session, `robux` a day.
+-- A steady day: `players` players, `newPlayers` new, D1 `d1`, D7 `d7`, `minutes` per session,
+-- a share `friends` of sessions with a friend on the server, `robux` a day.
 local function steady(o: { [string]: number }): (i: number) -> { [string]: any }
 	return function(i: number)
 		local players = o.players or 100
 		local sessions = o.sessions or players
+		local friendSessions = math.floor(sessions * (o.friends or 0.2) + 0.5)
 		return {
 			players = players + (o.growth or 0) * i,
 			newPlayers = o.newPlayers or 40,
 			returnedD1 = math.floor((o.newPlayers or 40) * (o.d1 or 0.3) + 0.5),
+			returnedD7 = math.floor((o.newPlayers or 40) * (o.d7 or 0.12) + 0.5),
+			friendSessions = friendSessions,
+			friendPlaySeconds = friendSessions * (o.minutes or 12) * 60,
 			sessionsEnded = sessions,
 			sessions = sessions,
 			playSeconds = sessions * (o.minutes or 12) * 60,

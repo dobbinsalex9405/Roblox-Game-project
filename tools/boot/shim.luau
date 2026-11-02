@@ -568,6 +568,9 @@ function Shim.install()
 	method("Player", "GetJoinData", function()
 		return {}
 	end)
+	method("Player", "IsFriendsWithAsync", function()
+		return false
+	end)
 	method("Player", "IsInGroup", function()
 		return false
 	end)
@@ -977,7 +980,10 @@ local SEEDS = {
 		{ Health = 100, MoveDirection = roblox.Vector3.zero, FloorMaterial = Enum.Material.Plastic },
 	},
 	{ "Camera", { ViewportSize = roblox.Vector2.new(1280, 720) } },
-	{ "Player", { AccountAge = 30, LocaleId = "en-us", MembershipType = Enum.MembershipType.None } },
+	{
+		"Player",
+		{ AccountAge = 30, LocaleId = "en-us", MembershipType = Enum.MembershipType.None, FollowUserId = 0 },
+	},
 	{
 		"BasePart",
 		{

@@ -2,6 +2,32 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-02: Player analytics in the scoreboard
+
+- **One pipeline, not two.** Analytics (time played, returning players,
+  friends, where Robux is spent, onboarding, game events) are extra counters
+  in the same `Metrics` DataStore days and extra sections in the same Studio
+  scoreboard issue. No new store, key, workflow or secret.
+- **No third-party analytics service.** Roblox's own analytics need a
+  signed-in session and outside services need an API key in game servers;
+  DataStore counters are readable with the read-only key Alex already made.
+- **Counts only.** No user ids, names or player text leave the game; the
+  "brought a friend" and "first payment" markers live in each player's own
+  save.
+- **The JSON stays `version: 1`.** New numbers are optional fields, so the
+  daily run and the update loop thread keep working; a breaking change would
+  bump the version.
+- **Where Robux is spent is named by the client.** `Shop:Buy` carries a
+  PascalCase place name (schema-checked, at most 100 per day kept), because
+  only the client knows which button was pressed. A lying client can only
+  mislabel its own purchase; Robux totals still come from Roblox's receipts.
+- **Schema 2 reads schema 1.** A server running older code during a rollout
+  leaves schema 2 values alone (its write is skipped), so a few minutes of
+  counts from old servers can be lost on the day of the first rollout. Nothing
+  is live yet, so this costs nothing now.
+- **"With a friend" is checked against Roblox**, at most 50 lookups per join,
+  in the background; a failed lookup counts as solo.
+
 ## 2026-11-02: The update loop
 
 - **Plain code decides the signals; Claude decides the update.** The plan

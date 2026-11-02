@@ -7,6 +7,7 @@ local Net = require("./Net")
 local Schema = require("./Schema")
 
 local key = Schema.string({ maxLength = 50, pattern = "^[%a][%w_]*$" })
+local source = Schema.string({ maxLength = 24, pattern = "^%u%w*$" })
 
 local ShopRemotes = {
 	-- Client -> server: what the shop sells here (answered with Shop:Catalog).
@@ -14,10 +15,13 @@ local ShopRemotes = {
 	-- Server -> client: the catalog (see Purchases.CatalogEntry).
 	["Shop:Catalog"] = Net.toClient("Shop:Catalog", { Schema.any() }),
 	-- Client -> server: buy a product or pass by key. The server checks
-	-- everything and opens Roblox's purchase prompt.
+	-- everything and opens Roblox's purchase prompt. The optional third
+	-- argument names where in the game the player pressed Buy ("Shop", or a
+	-- game's own button such as "HudRefill"), so the scoreboard can show where
+	-- Robux is spent (ops/METRICS.md).
 	["Shop:Buy"] = Net.toServer(
 		"Shop:Buy",
-		{ Schema.oneOf({ "product", "pass" }), key },
+		{ Schema.oneOf({ "product", "pass" }), key, Schema.optional(source) },
 		{ count = 3, window = 2 }
 	),
 	-- Server -> client: a short shop message (a refusal, "not on Roblox yet").
