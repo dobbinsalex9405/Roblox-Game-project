@@ -126,10 +126,10 @@ revenue pages need Alex's signed-in session, which Claude never uses.
   For each live game look at:
   - the **next-wave gate** (`gate.pass`): 14 days after launch, 7-day D1 at
     least 25%, average session 10+ minutes, players rising 3 days in a row.
-    When a game first passes, tell Alex: the plan says the next wave of games
-    can start;
+    reported to Alex through step 3b's For Alex list (one message, not two);
   - the **kill signal** (`kill: true`): 7-day D1 under 15% after 7 days.
-    Flag it to Alex with the numbers; stopping a game is Alex's call;
+    Reported to Alex through step 3b's For Alex list; stopping a game is
+    Alex's call;
   - **regressions and release drops** are computed by the update plan
     (step 3b); act on them there.
 
@@ -140,8 +140,15 @@ latest) rewrites the open issue labelled `update-plan` with each game's focus
 for the week, the signals behind it, a check on the latest Production
 release and a **For Alex** list; the same data is in its
 `<!-- loop-lab-plan v1 ... -->` block. `ops/UPDATE_LOOP.md` is the whole loop;
-this step is the daily run's part of it. If the issue was not updated today,
-check the workflow run (step 1).
+this step is the daily run's part of it.
+
+**A stale plan is never acted on.** If the issue was not updated today (the
+GitHub schedules do not always fire), dispatch **Studio scoreboard**
+(`env: production`), then **Update plan**, and read the plan once both
+finish. If it still cannot be produced, skip this step's urgent checks and
+For Alex items, write "plan stale" in the heartbeat, and treat the failing
+workflow like any other in step 1. Yesterday's release-drop signal must not
+become today's rollback question.
 
 **Every day:**
 

@@ -23,6 +23,8 @@ concurrency:
 jobs:
   plan:
     name: Write the update plan
+    # A failed scoreboard run would leave yesterday's numbers in the issue: do not plan from them.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
