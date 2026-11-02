@@ -69,7 +69,7 @@ export type Review = {
 	day: string,
 	previous: string?,
 	postDays: number,
-	verdict: string, -- "too early" | "too few players" | "worse" | "mixed" | "better" | "softer" | "flat"
+	verdict: string, -- "worse so far" (1 day) | "too early" | "too few players" | "worse" | "mixed" | "better" | "softer" | "flat"
 	changes: { [string]: number }, -- relative change (d1: absolute points)
 	worse: { string },
 }
@@ -128,7 +128,9 @@ end
 
 -- The JSON in a scoreboard issue body (the hidden block), or a bare JSON document.
 -- Returns nil and a reason when there is none.
-function lib.extractMetrics(text: string, decode: (string) -> any): (any, string?)
+function lib.extractMetrics(raw: string, decode: (string) -> any): (any, string?)
+	-- An issue edited in the GitHub web page comes back with CRLF line ends.
+	local text = string.gsub(raw, "\r", "")
 	local inner = string.match(text, "<!%-%- loop%-lab%-metrics v1\n(.-)\n%-%->")
 	local source = inner or text
 	if inner then
@@ -390,15 +392,23 @@ function lib.worstStep(funnel: any): (string?, number?)
 end
 
 -- Items whose purchase prompt opens often but rarely ends in a purchase.
-function lib.weakItems(prompts: any, best: any): { string }
+-- `purchases` (purchasesByItem7) is exact when the analytics have it; otherwise the
+-- scoreboard's best sellers (the top 5 by Robux) stand in, and an item missing from a
+-- full list of 5 may still sell, so it is not judged.
+function lib.weakItems(prompts: any, best: any, purchases: any?): { string }
 	if type(prompts) ~= "table" then
 		return {}
 	end
-	-- Purchases come from the scoreboard's best sellers (the top 5 by Robux). An item
-	-- missing from a full list of 5 may still sell, so it is not judged.
 	local bought: { [string]: number } = {}
 	local listed = 0
-	if type(best) == "table" then
+	if type(purchases) == "table" then
+		for key, n in purchases do
+			if type(key) == "string" and num(n) then
+				bought[key] = n
+			end
+		end
+		listed = 0 -- an item absent from the exact map sold nothing
+	elseif type(best) == "table" then
 		for _, b in best do
 			if type(b) == "table" and type(b.key) == "string" then
 				bought[b.key] = num(b.purchases) or 0
@@ -541,7 +551,13 @@ function lib.planGame(
 			plan.release = review
 			if review.verdict == "worse" then
 				local what = table.concat(review.worse, ", ")
-				if releaseGap <= config.release.fastWindowDays then
+				if
+					releaseGap <= config.release.fastWindowDays
+					and review.postDays < config.release.fastMinDays
+				then
+					-- One day after a release is too thin for a rollback question; the plan shows it.
+					review.verdict = "worse so far"
+				elseif releaseGap <= config.release.fastWindowDays then
 					signal("fix", "urgent", "release drop", `since {review.tag}: {what}`)
 					table.insert(
 						alex,
@@ -645,7 +661,7 @@ function lib.planGame(
 		end
 
 		if retained and enoughPlayers then
-			local rpp = w7.robuxPerPlayer or 0
+			local rpp = num(m.arpdau7) or w7.robuxPerPlayer or 0
 			local low = {}
 			if payerRate and payerRate < T.payerRate then
 				table.insert(low, `{string.format("%.1f%%", payerRate * 100)} of players pay`)
@@ -654,7 +670,7 @@ function lib.planGame(
 				table.insert(low, `{string.format("%.2f", rpp)} Robux per player a day`)
 			end
 			if #low > 0 then
-				local weak = lib.weakItems(m.prompts7, m.best)
+				local weak = lib.weakItems(m.prompts7, m.best, m.purchasesByItem7)
 				local detail = if #weak > 0
 					then `; prompts that rarely sell: {table.concat(weak, ", ")}`
 					else ""
@@ -780,7 +796,7 @@ local function releaseText(r: Review?): string
 		return "–"
 	end
 	local text = `{r.tag}: {r.verdict}`
-	if r.verdict == "worse" then
+	if r.verdict == "worse" or r.verdict == "worse so far" then
 		text ..= ` ({table.concat(r.worse, ", ")})`
 	end
 	return text

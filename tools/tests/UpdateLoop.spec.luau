@@ -117,6 +117,9 @@ describe("update loop", function()
 		local metrics = lib.extractMetrics(body, decode)
 		expect(metrics.games["a-b--c"].live).toBe(false)
 		expect(lib.extractMetrics(serde.encode("json", json), decode).through).toBe(THROUGH)
+		-- An issue edited in the web page comes back with CRLF line ends.
+		local crlf = string.gsub(body, "\n", "\r\n")
+		expect(lib.extractMetrics(crlf, decode).games["a-b--c"].live).toBe(false)
 		local none, why = lib.extractMetrics("# Studio scoreboard\nno block", decode)
 		expect(none).toBeNil()
 		expect(why).toContain("no loop-lab-metrics block")
@@ -249,6 +252,11 @@ describe("update loop", function()
 			"product:P1 2% of 200 prompts",
 		})
 
+		-- Exact purchase counts from the analytics win over the best-seller list.
+		expect(lib.weakItems({ ["pass:Vip"] = 120, ["product:P1"] = 200 }, best, { ["product:P1"] = 40 })).toEqual({
+			"pass:Vip 0% of 120 prompts",
+		})
+
 		-- Poor retention first: spending is not judged while D1 is far off.
 		local leaky = planFor(series(20, steady({ robux = 50, payers = 0, d1 = 0.15 })))
 		expect(kinds(leaky)).toEqual({ "high:onboarding" })
@@ -285,6 +293,14 @@ describe("update loop", function()
 		-- The day-over-day check stays quiet: the release already explains it.
 		for _, s in g.signals do
 			expect(s.rule ~= "regression").toBe(true)
+		end
+
+		-- One day after a release is too thin to ask: the plan shows it, nobody is asked.
+		local early = planFor(days, nil, lib.parseReleases("tidecatch-cove/production/v7|20261129"))
+		expect(early.release and early.release.verdict).toBe("worse so far")
+		expect(#early.alex).toBe(0)
+		for _, s in early.signals do
+			expect(s.rule ~= "release drop").toBe(true)
 		end
 
 		local first = planFor(days, nil, lib.parseReleases("tidecatch-cove/production/v7|20261128"))
