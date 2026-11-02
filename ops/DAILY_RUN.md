@@ -126,16 +126,62 @@ revenue pages need Alex's signed-in session, which Claude never uses.
   For each live game look at:
   - the **next-wave gate** (`gate.pass`): 14 days after launch, 7-day D1 at
     least 25%, average session 10+ minutes, players rising 3 days in a row.
-    When a game first passes, tell Alex: the plan says the next wave of games
-    can start;
+    reported to Alex through step 3b's For Alex list (one message, not two);
   - the **kill signal** (`kill: true`): 7-day D1 under 15% after 7 days.
-    Flag it to Alex with the numbers; stopping a game is Alex's call;
-  - **regressions**: players, average session or Robux down 30% or more day
-    over day, right after a release, point at that release. Open a `sev1`
-    issue and route it like a bug.
-  The block's analytics fields (friends, where Robux is spent, onboarding,
-  events) are for the update loop thread; this run only checks they are
-  there.
+    Reported to Alex through step 3b's For Alex list; stopping a game is
+    Alex's call;
+  - **regressions and release drops** are computed by the update plan
+    (step 3b); act on them there.
+  - the block's analytics fields (friends, where Robux is spent,
+    onboarding, events) are read by the update plan; this run only checks
+    they are there.
+
+## Step 3b: the update loop
+
+The **Update plan** workflow (after the scoreboard, 07:03 UTC at the
+latest) rewrites the open issue labelled `update-plan` with each game's focus
+for the week, the signals behind it, a check on the latest Production
+release and a **For Alex** list; the same data is in its
+`<!-- loop-lab-plan v1 ... -->` block. `ops/UPDATE_LOOP.md` is the whole loop;
+this step is the daily run's part of it.
+
+**A stale plan is never acted on.** If the issue was not updated today (the
+GitHub schedules do not always fire), dispatch **Studio scoreboard**
+(`env: production`), then **Update plan**, and read the plan once both
+finish. If it still cannot be produced, skip this step's urgent checks and
+For Alex items, write "plan stale" in the heartbeat, and treat the failing
+workflow like any other in step 1. Yesterday's release-drop signal must not
+become today's rollback question.
+
+**Every day:**
+
+- **urgent** signals, handled before the rest of this step:
+  - `release drop`: ask Alex in the thread whether to roll back, with the
+    plan's numbers, the previous tag it names and the **Publish to
+    Production** workflow link (`ref` = that tag). Also open or update a
+    `bug`, `<game>`, `sev1` issue and route it like a bug (step 2.4).
+  - `regression`: open a `bug`, `<game>`, `sev1` issue titled
+    `<game>: <metric> down <n>% on <day>` with the plan's numbers, and route
+    it like a bug. The fixer looks for the cause (a Roblox outage counts; say
+    so and close it).
+  - `open sev1`: already routed by step 2; check it has an owner.
+- **For Alex** items (gate passed, kill signal): tell Alex once per game and
+  item. Record it in the switch database, collection `agent`, document
+  `runstate`, field `loopAsks` (`{ "<game>:<kind>": <epoch ms> }`), and ask
+  again only if the item is still there 7 days later.
+
+**Mondays:** send the plan to the loop owner thread "Run the update loop from
+metrics" (one message: each game's focus and why, last week's release
+verdicts, the top ideas from step 2.5). The owner opens the week's update
+issues and gets builders started.
+
+**Fridays:** list open issues labelled `update` and `ready-for-production`.
+If there are any, send Alex **one** message: per game, the update, its
+commit, that the Staging checks passed, and the **Publish to Production**
+link. Hotfixes are asked for as soon as they are ready, not on Fridays.
+
+Under a **publish hold**, send no Production asks (a rollback question still
+goes, with the hold mentioned) and tell the owner "no merges".
 
 ## Step 4: what is waiting on Alex
 
@@ -165,7 +211,9 @@ On Mondays, post one summary in the thread (under 15 lines). Lead with the
 **score**: Robux since 2026-11-01 and over the last 7 days (with the week
 before for comparison), best and worst game by Robux and by D1. Then: reports
 and average fun per game, bugs opened and fixed by severity, top ideas, each
-game against the gate, and what is waiting on Alex. Link the scoreboard issue.
+game against the gate, each game's update focus this week and last week's
+release verdict, and what is waiting on Alex. Link the scoreboard and the
+update plan issues.
 
 ## Step 6: the heartbeat (always last)
 
@@ -178,7 +226,8 @@ that crashes halfway shows up there.
 ## Talking to Alex
 
 Post in the thread only when Alex should know or act: a sev1, a tripped
-switch, an unreadable switch, a reminder (step 4) or the Monday summary.
+switch, an unreadable switch, a rollback question or a For Alex item (step
+3b), the Friday Production ask, a reminder (step 4) or the Monday summary.
 Otherwise end the run quietly. Keep messages under 80 words.
 
 ## Tripping the switch
