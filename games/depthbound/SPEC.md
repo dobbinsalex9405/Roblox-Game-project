@@ -90,3 +90,27 @@ disconnect never loses a haul.
   guide with exact chances, minimal phone-first HUD, onboarding analytics.
 - Next: the phone performance test (M2 Studio session with Alex), then M3
   (camp layout, first Staging publish and playtest).
+
+## Update backlog
+
+Candidate updates for the weekly loop (`ops/UPDATE_LOOP.md`), grouped by
+focus. A brief takes the top item that fits the week's focus; the loop owner
+adds new ones from playtests, feedback ideas and what worked elsewhere.
+
+- **fix**: refused swings ("too fast", "out of reach") do nothing on screen;
+  add a client swing cooldown matched to the server's.
+- **onboarding**: nothing says how to climb out or what the oil bar means
+  before the first dive; a 3-step first-dive hint.
+- **onboarding**: funnel steps for the first full pack, Layer 3 and the first
+  max-tier purchase (the funnel ends at FirstLampOut).
+- **depth**: a time-based "climb in 10 s" warning (the x1.3 window shrinks to
+  3 s at bedrock); hide the Climb button on the top face.
+- **depth**: a full pack blocks ore entirely; break it and drop the ore, or
+  show pack-full on the block. Pause regrowth of a column while anyone is
+  below it.
+- **return**: the daily depth board (M4); the daily bonus already exists.
+- **monetization**: Geode Crate with odds screen and PolicyService check
+  (M5); Oil Refill placed on the lamp-out moment.
+- **social**: party dives of up to 4 sharing one oil pool, dropped hauls
+  others can find (M4).
+- **content**: more layers and biomes, boss floors (after the gate).

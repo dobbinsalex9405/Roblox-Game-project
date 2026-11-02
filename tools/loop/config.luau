@@ -43,6 +43,7 @@ return {
 	-- Release checks: post-release days against up to 7 days before.
 	release = {
 		fastWindowDays = 3, -- days after a release in which a drop is a rollback question
+		fastMinDays = 2, -- full days after a release before a drop can raise that question
 		reviewAfterDays = 3, -- days of data after a release before the review gives a verdict
 		reviewDays = 7, -- days on each side that the review compares
 		sessionDrop = 0.33, -- average session down by a third or more

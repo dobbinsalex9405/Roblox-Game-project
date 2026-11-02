@@ -124,3 +124,26 @@ nothing is ever removed.
 - Next (M3, waiting on Alex's setup): first Staging publish and the first
   Studio session (lay out the map, first playtest, tune raid numbers). Then M5
   the shop (Premium Egg, Instant Hatch, Luck Boost, prices).
+
+## Update backlog
+
+Candidate updates for the weekly loop (`ops/UPDATE_LOOP.md`), grouped by
+focus. A brief takes the top item that fits the week's focus; the loop owner
+adds new ones from playtests, feedback ideas and what worked elsewhere.
+
+- **fix**: the conveyor marks an egg bought before the server answers, so a
+  refused buy leaves it invisible for that player; show it again on refusal.
+- **onboarding**: funnel events for FirstCollect, FirstSlot and FirstRebirth
+  (the funnel ends at FirstRide, about 15 s in), so D1 problems can be placed.
+- **onboarding**: say "eggs are ready: press Hatch" on the welcome-back
+  message; eggs finished while away earn nothing until hatched.
+- **depth**: rebirth takes all leftover coins; keep the surplus or warn first.
+  Slots 10 to 12 cost more than the first rebirths: re-space the slot curve.
+- **depth**: batch the "Storage is full" notices (14 in 5 minutes) into one.
+- **return**: show the offline earnings as a reward moment with the number,
+  not a passing notice.
+- **monetization**: list the Premium Egg with its odds (M5, paid random:
+  odds screen and PolicyService check); Instant Hatch and Luck Boost.
+- **social**: raids and visits already exist (M4); add a raid leaderboard and
+  a reward for visiting a friend's base.
+- **content**: new egg tier and creatures; a timed event egg.
