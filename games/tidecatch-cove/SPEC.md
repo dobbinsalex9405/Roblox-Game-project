@@ -133,3 +133,26 @@ nothing is ever removed.
   mutations), Journal pages and rewards, Leaderboards ("biggest catch today"),
   and the phone test of the reel. M5: prices (Alex), item ids per
   experience, and the subscription.
+
+## Update backlog
+
+Candidate updates for the weekly loop (`ops/UPDATE_LOOP.md`), grouped by
+focus. A brief takes the top item that fits the week's focus; the loop owner
+adds new ones from playtests, feedback ideas and what worked elsewhere.
+
+- **onboarding**: funnel steps for the first rod, first pool bought and first
+  Rare (the 10-minute gate wants a step near minute 5 to 10).
+- **depth**: Sell and Feed buttons on the HUD pool list: a keeper spends a
+  quarter of a 15-minute session walking between dock, cove and shop.
+- **depth**: slower phone players lose almost every Epic and Legendary on the
+  starting rod; widen the reel window on touch, or show the rod is the gate.
+- **depth**: a "move back to bucket" or swap for pools, and say on the pool
+  card that feeding is for rare fish.
+- **return**: the welcome-back toast fires for a 2-minute hop ("the shop
+  restocked"); keep it for growth and add a small daily-return reward.
+  Show the restock countdown in the shop.
+- **monetization**: Sell Multiplier is a flat 2x on every coin: price it as
+  the big pass; wire Auto-reel (the perk exists, nothing reads it).
+- **social**: "biggest catch today" leaderboard (M4).
+- **content**: tide cycle (low-tide spot, storm odds, glow-tide mutations)
+  and Journal pages with rewards (M4).

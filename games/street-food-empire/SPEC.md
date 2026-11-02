@@ -118,3 +118,26 @@ nothing is ever removed.
   layout, first playtest). Then M4 customer moods, the daily order board, the
   weekly food festival and helper co-op; M5 the shop (Instant Build, Speed
   Boost, subscription, prices).
+
+## Update backlog
+
+Candidate updates for the weekly loop (`ops/UPDATE_LOOP.md`), grouped by
+focus. A brief takes the top item that fits the week's focus; the loop owner
+adds new ones from playtests, feedback ideas and what worked elsewhere.
+
+- **onboarding**: the first minute is 11 taps and 49 s of standing still;
+  every bot was still on "Unlock" after 15 minutes. Shorten the first unlock
+  and point at the next build.
+- **onboarding**: funnel steps for the first upgrade, the first full line,
+  District 3 and the first Line Cook.
+- **depth**: show how many customers walked away (half are lost at 3
+  districts if the player is gone 2 minutes); a serve-all or queue upgrade.
+- **depth**: rebirth burns everything above its cost; keep the surplus or
+  warn. After the one rebirth there is no further goal: add rebirth 2+.
+- **depth**: the hire menu should say "replaces your Trainee (no refund)".
+- **return**: offline pay is worth about 15 minutes of play; the daily order
+  board (M4) as the reason to return.
+- **monetization**: 2x Cash halves the 6-hour climb, so price it as the big
+  pass; Instant Build and Speed Boost on the long timers (M5).
+- **social**: helper co-op (M4).
+- **content**: customer moods, the weekly food festival (M4), a 4th district.

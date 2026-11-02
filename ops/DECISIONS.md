@@ -23,6 +23,9 @@ Non-obvious choices, newest first, so a later session can trust them.
   before, skipping the release day itself. Weekday mix can blur day 3; the
   thresholds (a third off session length, 30% off players or Robux per
   player, 10 points off D1) are set wide for that reason.
+- **A rollback question needs 2 days after a release.** With 20 players a
+  day, one day can swing 30% on noise (verifier's review of #30); day 1 shows
+  as "worse so far" in the plan and asks no one.
 - **Production tags are now annotated**, so a tag carries its publish date
   (a lightweight tag only has its commit's date, which can be days older).
 - **The loop reads the scoreboard issue, not the metrics run's files**, and a

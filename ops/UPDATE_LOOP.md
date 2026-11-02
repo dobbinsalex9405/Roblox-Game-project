@@ -43,7 +43,7 @@ an average of daily rates):
 | Signal | Fires when | Focus | Level |
 |---|---|---|---|
 | open sev1 | any open `sev1` bug for the game | fix | urgent |
-| release drop | within 3 days of a Production release, against the 7 days before it: average session -33%, Robux per player -30%, players -30%, or D1 -10 points | fix, and a rollback question for Alex | urgent |
+| release drop | 2 to 3 days after a Production release (one day is too thin; the plan shows it as "worse so far"), against the 7 days before it: average session -33%, Robux per player -30%, players -30%, or D1 -10 points | fix, and a rollback question for Alex | urgent |
 | regression | yesterday against the 7 days before, with no release in the last 3 days: players, average session or Robux down 30% | fix (open a sev1 and find the cause) | urgent |
 | sev2 pile | 3 or more open `sev2` bugs | fix | high |
 | release review | the latest release (4 to 13 days old) reviewed worse | fix (fix forward or revert) | high |
@@ -58,7 +58,8 @@ an average of daily rates):
 **Sample sizes.** A rate needs players behind it: D1 and D7 need 30 new
 players a week, session length 40 sessions, spending 60 player-days. Below
 that the rule stays quiet and the plan lists what it could not judge. A
-release check needs 20 players a day before the release.
+release check needs 20 players a day before the release. The analytics' exact
+counts (`purchasesByItem7`, `arpdau7`) are used when the scoreboard has them.
 
 **Picking the week's focus.** One focus per game per week, so we can tell
 what worked. The most severe level wins; within a level the order is:
