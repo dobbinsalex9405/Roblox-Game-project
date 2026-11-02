@@ -4,6 +4,13 @@ Non-obvious choices, newest first, so a later session can trust them.
 
 ## 2026-11-02: The update loop
 
+- **Ages 16+ is the starting audience.** Every game is shown to 16+ only
+  until Alex completes ID verification, 2-step verification and, per game,
+  250 highly engaged players or a refundable 1,000 Robux fee. The plan
+  carries it as one studio-wide For Alex line, repeated in the Friday ask,
+  and early metrics are read against the 16+ pool. Which games are open lives
+  in `tools/loop/config.luau` (`audience`).
+
 - **Plain code decides the signals; Claude decides the update.** The plan
   (`tools/loop/`) is a tested rules engine over the scoreboard JSON, the open
   bugs and the release tags. It never writes game code; it names a focus and

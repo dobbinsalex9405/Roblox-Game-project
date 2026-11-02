@@ -85,6 +85,24 @@ work on it), and a game passing the **launch gate** (14 days after launch, D1
 at least 25%, average session 10+ minutes, players rising 3 days in a row: the
 next wave of games can start).
 
+**The audience step (launch item).** Every game starts out shown to **Ages
+16+ only**. Opening a game to under-16 players, most of Roblox's audience,
+takes steps only Alex can do: ID verification and 2-step verification on the
+account, then per game either 250 highly engaged players or a refundable
+1,000 Robux fee (spending Robux is Alex's call, never Claude's). Until a game
+is open, the plan's **For Alex** list carries one studio-wide line naming the
+games still limited, and the Friday Production ask repeats it. When Roblox
+shows a game to every age, set it to `"all"` under `audience` in
+`tools/loop/config.luau`.
+
+**Reading early numbers.** While a game is 16+ only, its numbers come from
+that smaller pool: fewer new players, and different play and spending than
+the all-ages benchmarks behind the targets. Treat 16+ numbers as the
+baseline. A "few new players" signal at 16+ points at the audience step as
+much as at the store page, and after a game opens to all ages, compare it
+with its own 16+ weeks rather than reading the change as an update's effect
+(note the day on that week's update issue).
+
 ## The playbook: what each focus changes
 
 An update is small and aimed: one focus, at most three changes, plus any bug

@@ -161,6 +161,19 @@ describe("update loop", function()
 		expect(counts.studio.sev1).toBe(1)
 	end)
 
+	it("drops the audience ask once every game is open to all ages", function()
+		local saved = config.audience.games
+		local open = {}
+		for _, game in GAMES do
+			open[game] = "all"
+		end
+		config.audience.games = open
+		local plan = lib.plan(nil, GAMES, {}, {}, "20261102")
+		config.audience.games = saved
+		expect(#plan.alex).toBe(0)
+		expect((string.find(lib.markdown(plan, "now"), "Ages 16+", 1, true))).toBeNil()
+	end)
+
 	it("plans the launch for games that are not live, but still puts sev1 bugs first", function()
 		local plan = lib.plan(nil, GAMES, {}, {
 			{ number = 4, labels = { { name = "hatchery-heist" }, { name = "sev1" } } },
@@ -384,6 +397,11 @@ describe("update loop", function()
 		expect(md).toContain("| hatchery-heist | not live | **launch** |")
 		expect(md).toContain("## For Alex")
 		expect(md).toContain("## Rules in force")
+		-- Every game starts at Ages 16+: one studio-wide ask, and a line per game.
+		expect(md).toContain("are shown to Ages 16+ only")
+		expect(md).toContain("refundable 1,000 Robux fee")
+		expect(md).toContain("- Audience: Ages 16+ only")
+		expect(plan.audience.depthbound).toBe("16+")
 		local block = lib.hiddenBlock(serde.encode("json", plan))
 		expect((string.find(inner0(block), "--", 1, true))).toBeNil()
 		local inner = inner0(block)

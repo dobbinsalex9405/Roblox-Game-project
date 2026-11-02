@@ -96,6 +96,8 @@ export type Plan = {
 	games: { [string]: GamePlan },
 	order: { string },
 	problems: { string },
+	alex: { string }, -- studio-wide questions for Alex, before the per-game ones
+	audience: { [string]: string }, -- game -> "16+" | "all"
 }
 
 local function num(v: any): number?
@@ -781,7 +783,26 @@ function lib.plan(metrics: any, games: { string }, releases: { Release }, issues
 		games = {},
 		order = names,
 		problems = problems,
+		alex = {},
+		audience = {},
 	}
+	local limited = {}
+	for _, game in names do
+		local audience = config.audience.games[game] or config.audience.default
+		plan.audience[game] = audience
+		if audience ~= "all" then
+			table.insert(limited, game)
+		end
+	end
+	if #limited > 0 then
+		table.insert(
+			plan.alex,
+			`{table.concat(limited, ", ")} {if #limited == 1 then "is" else "are"} shown to Ages 16+ only.`
+				.. " Opening a game to under-16 players needs your account steps: ID verification and 2-step"
+				.. " verification, then per game either 250 highly engaged players or a refundable 1,000 Robux fee"
+				.. " (spending Robux is your call)."
+		)
+	end
 	for _, game in names do
 		local m = if type(gamesData) == "table" then gamesData[game] else nil
 		plan.games[game] = lib.planGame(game, m, through or today, releases, bugs[game])
@@ -822,6 +843,9 @@ function lib.markdown(plan: Plan, updatedAt: string): string
 		"|---|---|---|---|---|---|",
 	}
 	local asks = {}
+	for _, a in plan.alex do
+		table.insert(asks, `- {clean(a)}`)
+	end
 	for _, name in plan.order do
 		local g = plan.games[name]
 		table.insert(
@@ -862,6 +886,13 @@ function lib.markdown(plan: Plan, updatedAt: string): string
 					.. ` ({if n.playersTrend then signedPct(n.playersTrend) else "–"} week over week),`
 					.. ` {n.robux7 or 0} Robux, {string.format("%.2f", n.robuxPerPlayer or 0)} per player,`
 					.. ` {pct(n.payerRate)} pay, {pct(n.friendShare)} with friends`
+			)
+		end
+		local audience = plan.audience[name]
+		if audience and audience ~= "all" then
+			table.insert(
+				out,
+				`- Audience: Ages {audience} only, so numbers are read against that smaller pool`
 			)
 		end
 		if #g.unjudged > 0 then
