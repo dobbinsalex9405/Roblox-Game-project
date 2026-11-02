@@ -69,6 +69,15 @@ return {
 	-- New players over 7 days below this, after `discoveryAfterDays` live: the store page is the problem.
 	discoveryAfterDays = 3,
 
+	-- Who can find each game. Every game starts at Ages 16+: opening it to under-16
+	-- players takes account steps only Alex can do (ID verification and 2-step
+	-- verification, then per game 250 highly engaged players or a refundable 1,000
+	-- Robux fee). Set a game to "all" here once Roblox shows it to every age.
+	audience = {
+		default = "16+",
+		games = {} :: { [string]: string },
+	},
+
 	-- Days live before D7 is judged (a full week of D7 cohorts behind it).
 	returnAfterDays = 14,
 }

@@ -166,7 +166,8 @@ become today's rollback question.
     so and close it).
   - `open sev1`: already routed by step 2; check it has an owner.
 - **For Alex** items (gate passed, kill signal): tell Alex once per game and
-  item. Record it in the switch database, collection `agent`, document
+  item. The studio-wide audience line (games still shown to Ages 16+ only)
+  is not asked daily; it rides the Friday ask. Record it in the switch database, collection `agent`, document
   `runstate`, field `loopAsks` (`{ "<game>:<kind>": <epoch ms> }`), and ask
   again only if the item is still there 7 days later.
 
@@ -179,6 +180,9 @@ issues and gets builders started.
 If there are any, send Alex **one** message: per game, the update, its
 commit, that the Staging checks passed, and the **Publish to Production**
 link. Hotfixes are asked for as soon as they are ready, not on Fridays.
+While the plan's For Alex list has the audience line, add it to the Friday
+message as one sentence (which games are 16+ only and the next account step),
+even in a week with nothing ready for Production.
 
 Under a **publish hold**, send no Production asks (a rollback question still
 goes, with the hold mentioned) and tell the owner "no merges".
