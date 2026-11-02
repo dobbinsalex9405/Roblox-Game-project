@@ -139,7 +139,7 @@ function ShopUi.start(hooks: Hooks)
 			buy.Activated:Connect(function()
 				if canBuy then
 					notice.Text = ""
-					ClientNet.fire(ShopRemotes["Shop:Buy"], entry.kind, entry.key)
+					ClientNet.fire(ShopRemotes["Shop:Buy"], entry.kind, entry.key, "Shop")
 				end
 			end)
 		end

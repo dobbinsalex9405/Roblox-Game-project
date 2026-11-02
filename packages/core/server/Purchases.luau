@@ -22,6 +22,9 @@ local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 local ServerNet = require(script.Parent.ServerNet)
 
 local ODDS_FRESH_SECONDS = 600
+-- A purchase that completes this long after its prompt opened still counts
+-- for the place the prompt came from; later ones count as "Other".
+local SOURCE_FRESH_SECONDS = 900
 
 export type Kind = "product" | "pass"
 
@@ -61,6 +64,8 @@ export type Deps = {
 	passIds: { [string]: number },
 	policy: Policy.Policy,
 	studio: boolean,
+	-- Called each time Roblox's purchase prompt is opened (for the scoreboard).
+	onPrompt: ((player: Player, kind: Kind, key: string, source: string) -> ())?,
 }
 
 export type Shop = {
@@ -72,6 +77,10 @@ export type Shop = {
 	oddsShown: (self: Shop, player: Player, tableId: string) -> (),
 	-- Re-sends the catalog (after a pass changes hands, for example).
 	refresh: (self: Shop, player: Player) -> (),
+	-- Where the player's last prompt for this item was opened ("Shop",
+	-- "HudRefill"), or "Other" if none was opened here in the last
+	-- SOURCE_FRESH_SECONDS. A purchase uses up its source.
+	takeSource: (self: Shop, player: Player, kind: Kind, key: string) -> string,
 	forget: (self: Shop, player: Player) -> (),
 }
 
@@ -83,6 +92,7 @@ function Purchases.start(deps: Deps): Shop
 	local items: { CatalogItem } = {}
 	local byKey: { [string]: CatalogItem } = {}
 	local oddsSeen: { [Player]: { [string]: number } } = {}
+	local prompted: { [Player]: { [string]: { source: string, at: number } } } = {}
 
 	local shop = {}
 
@@ -163,6 +173,17 @@ function Purchases.start(deps: Deps): Shop
 
 	function shop.forget(_self: Shop, player: Player)
 		oddsSeen[player] = nil
+		prompted[player] = nil
+	end
+
+	function shop.takeSource(_self: Shop, player: Player, kind: Kind, key: string): string
+		local mine = prompted[player]
+		local last = mine and mine[`{kind}:{key}`]
+		if mine == nil or last == nil then
+			return "Other"
+		end
+		mine[`{kind}:{key}`] = nil
+		return if os.clock() - last.at <= SOURCE_FRESH_SECONDS then last.source else "Other"
 	end
 
 	local function notice(player: Player, text: string)
@@ -173,7 +194,7 @@ function Purchases.start(deps: Deps): Shop
 		shop.refresh(shop :: any, player)
 	end)
 
-	deps.net:on(ShopRemotes["Shop:Buy"], function(player: Player, kind: Kind, key: string)
+	deps.net:on(ShopRemotes["Shop:Buy"], function(player: Player, kind: Kind, key: string, source: string?)
 		local item = byKey[`{kind}:{key}`]
 		if item == nil then
 			return
@@ -208,7 +229,20 @@ function Purchases.start(deps: Deps): Shop
 		else
 			MarketplaceService:PromptProductPurchase(player, id)
 		end
-		log:info("purchase prompted", { userId = player.UserId, kind = kind, key = key })
+		local from = source or "Other"
+		local mine = prompted[player] or {}
+		prompted[player] = mine
+		mine[`{kind}:{key}`] = { source = from, at = os.clock() }
+		local onPrompt = deps.onPrompt
+		if onPrompt then
+			local ok, err = pcall(function()
+				onPrompt(player, kind, key, from)
+			end)
+			if not ok then
+				log:warn("onPrompt failed", { err = tostring(err) })
+			end
+		end
+		log:info("purchase prompted", { userId = player.UserId, kind = kind, key = key, source = from })
 	end)
 
 	return (shop :: any) :: Shop

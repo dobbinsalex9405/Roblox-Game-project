@@ -134,7 +134,14 @@ function lib.addShard(days: GameDays, key: string, value: any): string?
 	if day == nil then
 		return "not a metrics key"
 	end
-	if type(value) ~= "table" or value.schema ~= Metrics.SCHEMA or value.day ~= day then
+	-- Older schemas are read too (their missing fields count as zero).
+	if
+		type(value) ~= "table"
+		or type(value.schema) ~= "number"
+		or value.schema < 1
+		or value.schema > Metrics.SCHEMA
+		or value.day ~= day
+	then
 		return `unexpected value (schema {tostring(type(value) == "table" and value.schema or nil)})`
 	end
 	local merged = Metrics.merge(days[day] or Metrics.empty(day), value :: Metrics.Day, 0)
@@ -157,31 +164,214 @@ export type DayRow = {
 	day: string,
 	players: number,
 	newPlayers: number,
+	returning: number, -- players - newPlayers
 	sessions: number,
 	d1: number?, -- returned on day 1 / new players the day before
+	d7: number?, -- returned on day 7 / new players 7 days before
 	avgSessionMin: number?,
 	robux: number,
 	purchases: number,
 	payers: number,
+	newPayers: number,
+	friendJoins: number,
+	friendSessions: number,
 	peakServerPlayers: number,
 }
 
+-- Returns on day `n` / new players `n` days before, or nil without a cohort.
+local function returnRate(days: GameDays, day: string, n: number, field: string): number?
+	local d = days[day]
+	local cohortDay = days[lib.addDays(day, -n)]
+	local cohort = if cohortDay then cohortDay.newPlayers else 0
+	if cohort <= 0 then
+		return nil
+	end
+	return (if d then ((d :: any)[field] or 0) else 0) / cohort
+end
+
 function lib.row(days: GameDays, day: string): DayRow
 	local d = days[day] or Metrics.empty(day)
-	local before = days[lib.addDays(day, -1)]
-	local cohort = if before then before.newPlayers else 0
 	return {
 		day = day,
 		players = d.players,
 		newPlayers = d.newPlayers,
+		returning = math.max(0, d.players - d.newPlayers),
 		sessions = d.sessions,
-		d1 = if cohort > 0 then d.returnedD1 / cohort else nil,
+		d1 = returnRate(days, day, 1, "returnedD1"),
+		d7 = returnRate(days, day, 7, "returnedD7"),
 		avgSessionMin = if d.sessionsEnded > 0 then d.playSeconds / d.sessionsEnded / 60 else nil,
 		robux = sum(d.robux),
 		purchases = sum(d.purchases),
 		payers = d.payers,
+		newPayers = d.newPayers,
+		friendJoins = d.friendJoins,
+		friendSessions = d.friendSessions,
 		peakServerPlayers = d.peakServerPlayers,
 	}
+end
+
+lib.TOP = 25 -- entries kept per map in the report (the busiest first)
+
+export type Entry = { key: string, value: number }
+
+-- A map as a list, biggest value first (ties by key), at most `limit` long.
+function lib.top(map: { [string]: number }, limit: number?): { Entry }
+	local out = {}
+	for key, value in map do
+		table.insert(out, { key = key, value = value })
+	end
+	table.sort(out, function(a, b)
+		if a.value ~= b.value then
+			return a.value > b.value
+		end
+		return a.key < b.key
+	end)
+	while #out > (limit or lib.TOP) do
+		table.remove(out)
+	end
+	return out
+end
+
+-- The same as a map again (for JSON), or nil when empty so it is left out.
+local function topMap(map: { [string]: number }, limit: number?): { [string]: number }?
+	local list = lib.top(map, limit)
+	if #list == 0 then
+		return nil
+	end
+	local out = {}
+	for _, e in list do
+		out[e.key] = e.value
+	end
+	return out
+end
+
+-- Seven days of the analytics numbers (ops/METRICS.md, "Analytics").
+export type Week = {
+	playerDays: number, -- sum of daily players (a player counts once per day played)
+	returningShare: number?, -- returning player-days / player-days
+	newPlayers: number,
+	d7Week: number?, -- pooled D7 return over days whose cohort was read
+	d30Week: number?,
+	sessionsEnded: number,
+	longSessionShare: number?, -- sessions of 10+ minutes / sessions ended
+	sessionLengths: { [string]: number }, -- "m0".."m40" -> sessions
+	friendJoins: number,
+	friendNewPlayers: number,
+	friendJoinShare: number?, -- new players who came with a friend / new players
+	friendShare: number?, -- sessions with a friend on the server / sessions ended
+	friendAvgMin: number?,
+	soloAvgMin: number?,
+	friendsBrought: number,
+	bringers: number, -- summed daily distinct bringers
+	payers: number, -- summed daily payers
+	payerRate: number?, -- payers / player-days
+	newPayers: number,
+	arpdau: number?, -- Robux / player-days
+	robuxByItem: { [string]: number },
+	purchasesByItem: { [string]: number },
+	robuxBySource: { [string]: number },
+	purchasesBySource: { [string]: number },
+	prompts: { [string]: number },
+	promptsBySource: { [string]: number },
+	onboarding: { [string]: number }, -- "01:StepName" -> times reached
+	events: { [string]: number }, -- other game events
+}
+
+local function addInto(into: { [string]: number }, from: { [string]: number }?)
+	if type(from) == "table" then
+		for key, value in from do
+			into[key] = (into[key] or 0) + value
+		end
+	end
+end
+
+-- The analytics numbers for the 7 days ending `through`.
+function lib.week(days: GameDays, through: string): Week
+	local w = {
+		playerDays = 0,
+		newPlayers = 0,
+		sessionsEnded = 0,
+		sessionLengths = {},
+		friendJoins = 0,
+		friendNewPlayers = 0,
+		friendsBrought = 0,
+		bringers = 0,
+		payers = 0,
+		newPayers = 0,
+		robuxByItem = {},
+		purchasesByItem = {},
+		robuxBySource = {},
+		purchasesBySource = {},
+		prompts = {},
+		promptsBySource = {},
+		onboarding = {},
+		events = {},
+	} :: Week
+	local returning, d7, cohort7, d30, cohort30 = 0, 0, 0, 0, 0
+	local play, friendPlay, friendSessions, long = 0, 0, 0, 0
+	for i = 0, 6 do
+		local day = lib.addDays(through, -i)
+		local d = days[day]
+		if d then
+			w.playerDays += d.players
+			returning += math.max(0, d.players - d.newPlayers)
+			w.newPlayers += d.newPlayers
+			w.sessionsEnded += d.sessionsEnded
+			play += d.playSeconds
+			friendPlay += d.friendPlaySeconds
+			friendSessions += d.friendSessions
+			w.friendJoins += d.friendJoins
+			w.friendNewPlayers += d.friendNewPlayers
+			w.friendsBrought += d.friendsBrought
+			w.bringers += d.bringers
+			w.payers += d.payers
+			w.newPayers += d.newPayers
+			addInto(w.sessionLengths, d.sessionLengths)
+			addInto(w.robuxByItem, d.robux)
+			addInto(w.purchasesByItem, d.purchases)
+			addInto(w.robuxBySource, d.robuxBySource)
+			addInto(w.purchasesBySource, d.purchasesBySource)
+			addInto(w.prompts, d.prompts)
+			addInto(w.promptsBySource, d.promptsBySource)
+			for name, count in d.events do
+				local step = string.match(name, "^Onboarding:(%d%d:.+)$")
+				if step then
+					w.onboarding[step] = (w.onboarding[step] or 0) + count
+				else
+					w.events[name] = (w.events[name] or 0) + count
+				end
+			end
+		end
+		local c7 = days[lib.addDays(day, -7)]
+		if c7 and c7.newPlayers > 0 then
+			d7 += if d then d.returnedD7 else 0
+			cohort7 += c7.newPlayers
+		end
+		local c30 = days[lib.addDays(day, -30)]
+		if c30 and c30.newPlayers > 0 then
+			d30 += if d then d.returnedD30 else 0
+			cohort30 += c30.newPlayers
+		end
+	end
+	for key, count in w.sessionLengths do
+		local bound = tonumber(string.match(key, "^m(%d+)$"))
+		if bound and bound >= 10 then
+			long += count
+		end
+	end
+	local robux = sum(w.robuxByItem)
+	local solo = w.sessionsEnded - friendSessions
+	w.returningShare = if w.playerDays > 0 then returning / w.playerDays else nil
+	w.d7Week = if cohort7 > 0 then d7 / cohort7 else nil
+	w.d30Week = if cohort30 > 0 then d30 / cohort30 else nil
+	w.longSessionShare = if w.sessionsEnded > 0 then long / w.sessionsEnded else nil
+	w.friendJoinShare = if w.newPlayers > 0 then w.friendNewPlayers / w.newPlayers else nil
+	w.friendShare = if w.sessionsEnded > 0 then friendSessions / w.sessionsEnded else nil
+	w.friendAvgMin = if friendSessions > 0 then friendPlay / friendSessions / 60 else nil
+	w.soloAvgMin = if solo > 0 then (play - friendPlay) / solo / 60 else nil
+	w.payerRate = if w.playerDays > 0 then w.payers / w.playerDays else nil
+	w.arpdau = if w.playerDays > 0 then robux / w.playerDays else nil
+	return w
 end
 
 export type GameReport = {
@@ -199,6 +389,7 @@ export type GameReport = {
 	gate: { eligible: boolean, pass: boolean, misses: { string } },
 	kill: boolean,
 	best: { { key: string, robux: number, purchases: number } }, -- top sellers, 7 days
+	week: Week, -- the analytics numbers, last 7 days
 }
 
 -- One game's numbers through `through` (the last full UTC day).
@@ -306,6 +497,7 @@ function lib.report(game: string, live: boolean, days: GameDays, through: string
 		gate = { eligible = eligible, pass = eligible and #misses == 0, misses = misses },
 		kill = daysLive >= lib.KILL.afterDays and d1Week ~= nil and d1Week < lib.KILL.d1,
 		best = best,
+		week = lib.week(days, through),
 	}
 end
 
@@ -337,6 +529,132 @@ local function gateText(r: GameReport): string
 	else
 		return `short on {table.concat(r.gate.misses, ", ")}`
 	end
+end
+
+local function cell(text: string): string
+	return (string.gsub(text, "[\r\n`<>|]", " "))
+end
+
+local BUCKET_NAMES = {
+	m0 = "<1 min",
+	m1 = "1-5",
+	m5 = "5-10",
+	m10 = "10-20",
+	m20 = "20-40",
+	m40 = "40+",
+}
+
+-- The "Analytics, last 7 days" lines for one live game.
+function lib.analyticsLines(r: GameReport): { string }
+	local w = r.week
+	local out = { "", "**Analytics, last 7 days**", "" }
+	table.insert(
+		out,
+		`- Players: {commas(w.playerDays)} player-days, {pct(w.returningShare)} returning,`
+			.. ` {commas(w.newPlayers)} new. D1 {pct(r.d1Week)} · D7 {pct(w.d7Week)} · D30 {pct(w.d30Week)}.`
+	)
+	local buckets = {}
+	for _, bound in Metrics.SESSION_BUCKETS do
+		local key = `m{bound}`
+		local share = if w.sessionsEnded > 0 then (w.sessionLengths[key] or 0) / w.sessionsEnded else nil
+		table.insert(buckets, `{BUCKET_NAMES[key]} {pct(share)}`)
+	end
+	table.insert(
+		out,
+		`- Time played: {commas(w.sessionsEnded)} sessions, average {minutes(r.avgMinWeek)} min,`
+			.. ` {pct(w.longSessionShare)} ran 10+ min ({table.concat(buckets, " · ")}).`
+	)
+	table.insert(
+		out,
+		`- Friends: {pct(w.friendJoinShare)} of new players came with a friend; {pct(w.friendShare)} of sessions`
+			.. ` had a friend on the server (average {minutes(w.friendAvgMin)} min, solo {minutes(
+				w.soloAvgMin
+			)});`
+			.. ` {commas(w.friendsBrought)} friends brought in by {commas(w.bringers)} players.`
+	)
+	table.insert(
+		out,
+		`- Spending: {pct(w.payerRate)} of player-days paid, {commas(w.newPayers)} first-time payers,`
+			.. ` {if w.arpdau then string.format("%.2f", w.arpdau) else "–"} Robux per player-day.`
+	)
+	local items = lib.top(w.robuxByItem, 10)
+	local prompted = lib.top(w.prompts, 10)
+	if #items > 0 or #prompted > 0 then
+		local keys, seen = {}, {}
+		for _, list in { items, prompted } do
+			for _, e in list do
+				if not seen[e.key] then
+					seen[e.key] = true
+					table.insert(keys, e.key)
+				end
+			end
+		end
+		table.insert(out, "")
+		table.insert(out, "| Item | Robux | Bought | Prompts | Bought per prompt |")
+		table.insert(out, "|---|---:|---:|---:|---:|")
+		for _, key in keys do
+			local bought = w.purchasesByItem[key] or 0
+			local prompts = w.prompts[key] or 0
+			table.insert(
+				out,
+				`| {cell(key)} | {commas(w.robuxByItem[key] or 0)} | {commas(bought)} | {commas(prompts)} | {pct(
+					if prompts > 0 then bought / prompts else nil
+				)} |`
+			)
+		end
+	end
+	local sources = lib.top(w.robuxBySource, 10)
+	local promptedFrom = lib.top(w.promptsBySource, 10)
+	if #sources > 0 or #promptedFrom > 0 then
+		local keys, seen = {}, {}
+		for _, list in { sources, promptedFrom } do
+			for _, e in list do
+				if not seen[e.key] then
+					seen[e.key] = true
+					table.insert(keys, e.key)
+				end
+			end
+		end
+		table.insert(out, "")
+		table.insert(out, "| Where in the game | Robux | Bought | Prompts |")
+		table.insert(out, "|---|---:|---:|---:|")
+		for _, key in keys do
+			table.insert(
+				out,
+				`| {cell(key)} | {commas(w.robuxBySource[key] or 0)} | {commas(w.purchasesBySource[key] or 0)} | {commas(
+					w.promptsBySource[key] or 0
+				)} |`
+			)
+		end
+	end
+	local steps = {}
+	for key in w.onboarding do
+		table.insert(steps, key)
+	end
+	table.sort(steps)
+	if #steps > 0 then
+		local first = w.onboarding[steps[1]]
+		local parts = {}
+		for _, key in steps do
+			local count = w.onboarding[key]
+			table.insert(
+				parts,
+				`{cell(key)} {commas(count)} ({pct(if first > 0 then count / first else nil)})`
+			)
+		end
+		table.insert(out, "")
+		table.insert(out, `First minutes (onboarding steps reached): {table.concat(parts, " → ")}`)
+	end
+	local events = lib.top(w.events, 12)
+	if #events > 0 then
+		local parts = {}
+		for _, e in events do
+			table.insert(parts, `{cell(e.key)} {commas(e.value)}`)
+		end
+		table.insert(out, "")
+		table.insert(out, `Game events: {table.concat(parts, " · ")}`)
+	end
+	return out
 end
 
 -- The scoreboard issue body. `json` is the machine-readable block's payload.
@@ -423,6 +741,9 @@ function lib.scoreboard(
 				table.insert(out, "")
 				table.insert(out, `Best sellers, 7 days: {table.concat(parts, " · ")}`)
 			end
+			for _, line in lib.analyticsLines(r) do
+				table.insert(out, line)
+			end
 		end
 	end
 
@@ -454,6 +775,30 @@ function lib.scoreboard(
 			kill = r.kill,
 			best = r.best,
 			days = rows,
+			-- Analytics, last 7 days (ops/METRICS.md). Optional: nil = no data.
+			d7Week = r.week.d7Week,
+			d30Week = r.week.d30Week,
+			returningShare7 = r.week.returningShare,
+			playerDays7 = r.week.playerDays,
+			longSessionShare7 = r.week.longSessionShare,
+			sessionLengths7 = topMap(r.week.sessionLengths),
+			friendShare = r.week.friendShare,
+			friendJoinShare = r.week.friendJoinShare,
+			friendAvgMinWeek = r.week.friendAvgMin,
+			soloAvgMinWeek = r.week.soloAvgMin,
+			friendsBrought7 = r.week.friendsBrought,
+			bringers7 = r.week.bringers,
+			payerRate7 = r.week.payerRate,
+			newPayers7 = r.week.newPayers,
+			arpdau7 = r.week.arpdau,
+			robuxByItem7 = topMap(r.week.robuxByItem),
+			purchasesByItem7 = topMap(r.week.purchasesByItem),
+			robuxBySource7 = topMap(r.week.robuxBySource),
+			purchasesBySource7 = topMap(r.week.purchasesBySource),
+			prompts7 = topMap(r.week.prompts),
+			promptsBySource7 = topMap(r.week.promptsBySource),
+			onboarding7 = topMap(r.week.onboarding, 40),
+			events7 = topMap(r.week.events),
 		}
 	end
 	local json = {

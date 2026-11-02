@@ -133,6 +133,9 @@ revenue pages need Alex's signed-in session, which Claude never uses.
   - **regressions**: players, average session or Robux down 30% or more day
     over day, right after a release, point at that release. Open a `sev1`
     issue and route it like a bug.
+  The block's analytics fields (friends, where Robux is spent, onboarding,
+  events) are for the update loop thread; this run only checks they are
+  there.
 
 ## Step 4: what is waiting on Alex
 

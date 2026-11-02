@@ -68,3 +68,8 @@ The server re-checks every Buy before opening Roblox's prompt. It refuses an
 item with id 0, a pass already owned, and a paid random item for restricted
 players. It also refuses a random item whose odds the player has not seen in
 the last 10 minutes; the shop's "Show odds" button counts.
+
+A game's own Buy button (outside the shop screen) fires
+`Shop:Buy(kind, key, "<PlaceName>")` with a PascalCase name of at most 24
+characters, such as `HudRefill`, so the scoreboard shows where Robux is spent
+(ops/METRICS.md). The shop screen sends `Shop`.

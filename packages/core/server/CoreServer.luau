@@ -47,6 +47,7 @@ local RECEIPTS_FIELD = "receipts"
 local FLUSH_EVERY = 5 -- seconds between ErrorReporter/Feedback flush checks (each writes at most once a minute)
 local METRICS_EVERY = 60 -- seconds between Metrics writes (one UpdateAsync per server per day touched)
 local DAY = 86400
+local MAX_FRIEND_CHECKS = 50 -- friend lookups per join (a server holds far fewer players)
 
 export type Options = {
 	game: string, -- folder name, e.g. "hatchery-heist"
@@ -130,11 +131,11 @@ function CoreServer.start(options: Options): Services
 		feedback:flush(os.time(), true)
 	end)
 
-	local analytics = Analytics.new(RobloxSinks.analytics())
-
 	-- Daily counters for the studio scoreboard (ops/METRICS.md). Counted
 	-- everywhere, written only from live servers, so Studio never reaches it.
 	local metrics = Metrics.new()
+	-- Every game event also counts in the daily metrics.
+	local analytics = Analytics.new(Metrics.countingSink(RobloxSinks.analytics(), metrics, os.time))
 	if not RunService:IsStudio() then
 		local writeMetrics = MetricsStore.writer()
 		local function flushMetrics()
@@ -182,25 +183,35 @@ function CoreServer.start(options: Options): Services
 		migrations = options.migrations,
 	})
 
+	-- Where a purchase's prompt was opened; set once the shop exists.
+	local sourceOf = function(_player: Player, _kind: "product" | "pass", _key: string): string
+		return "Other"
+	end
+
 	-- Counts a payment once the purchase is granted. The player's first payment
 	-- of the UTC day is remembered in their data, so "payers" counts each
-	-- player once a day across servers.
+	-- player once a day across servers; their first payment ever is
+	-- remembered too ("newPayers").
 	local function countPayment(player: Player, kind: "product" | "pass", key: string, robux: number)
 		local now = os.time()
-		local firstToday = false
+		local firstToday, firstEver = false, false
 		local current = if data:isLoaded(player) then data:get(player) else nil
 		if current then
-			local meta = current.meta
-			firstToday =
-				Metrics.isFirstPaymentToday(if type(meta) == "table" then meta.lastPaidDay else nil, now)
-			if firstToday then
+			local meta = if type(current.meta) == "table" then current.meta else {}
+			firstToday = Metrics.isFirstPaymentToday(meta.lastPaidDay, now)
+			-- Players who paid before firstPaidAt existed have a lastPaidDay.
+			firstEver = meta.firstPaidAt == nil and meta.lastPaidDay == nil
+			if firstToday or firstEver then
 				data:update(player, function(d)
 					d.meta = d.meta or {}
 					d.meta.lastPaidDay = now // DAY
+					if d.meta.firstPaidAt == nil then
+						d.meta.firstPaidAt = now
+					end
 				end)
 			end
 		end
-		metrics:purchase(kind, key, robux, firstToday, now)
+		metrics:purchase(kind, key, robux, firstToday, now, sourceOf(player, kind, key), firstEver)
 	end
 
 	local economy = Economy.new({
@@ -320,8 +331,14 @@ function CoreServer.start(options: Options): Services
 		passIds = options.passes,
 		policy = policy,
 		studio = RunService:IsStudio(),
+		onPrompt = function(_player: Player, kind: "product" | "pass", key: string, source: string)
+			metrics:prompt(kind, key, source, os.time())
+		end,
 	})
 	shop = theShop
+	sourceOf = function(player: Player, kind: "product" | "pass", key: string): string
+		return theShop:takeSource(player, kind, key)
+	end
 	TestPanel.start({
 		net = net,
 		data = data,
@@ -422,6 +439,66 @@ function CoreServer.start(options: Options): Services
 		end)
 	end)
 
+	-- Friends (ops/METRICS.md): who joined by following or being invited by
+	-- someone, who brought them, and which sessions had a friend on the server.
+	local withFriend: { [Player]: boolean } = {}
+	local function markFriends(a: Player, b: Player)
+		if a.Parent == Players and b.Parent == Players then
+			withFriend[a] = true
+			withFriend[b] = true
+		end
+	end
+	-- The user id this player followed in or was invited by, or 0.
+	local function referrerOf(player: Player): number
+		local ok, joinData = pcall(function()
+			return player:GetJoinData()
+		end)
+		local referred = if ok and type(joinData) == "table"
+			then tonumber((joinData :: any).ReferredByPlayerId) or 0
+			else 0
+		if referred > 0 and referred ~= player.UserId then
+			return referred
+		end
+		local followed = tonumber(player.FollowUserId) or 0
+		return if followed > 0 and followed ~= player.UserId then followed else 0
+	end
+	local function countFriends(player: Player, now: number): boolean
+		local referrer = referrerOf(player)
+		local bringer = if referrer > 0 then Players:GetPlayerByUserId(referrer) else nil
+		if bringer and bringer ~= player then
+			markFriends(player, bringer)
+			local current = if data:isLoaded(bringer) then data:get(bringer) else nil
+			local meta = if current and type(current.meta) == "table" then current.meta else {}
+			local firstToday = current ~= nil and Metrics.isFirstToday(meta.lastBroughtDay, now)
+			if firstToday then
+				data:update(bringer, function(d)
+					d.meta = d.meta or {}
+					d.meta.lastBroughtDay = now // DAY
+				end)
+			end
+			metrics:brought(firstToday, now)
+		end
+		-- Anyone else already here who is a friend (each check is a web call).
+		task.spawn(function()
+			local checked = 0
+			for _, other in Players:GetPlayers() do
+				if checked >= MAX_FRIEND_CHECKS or player.Parent ~= Players then
+					break
+				end
+				if other ~= player and other ~= bringer then
+					checked += 1
+					local ok, friends = pcall(function()
+						return player:IsFriendsWithAsync(other.UserId)
+					end)
+					if ok and friends == true then
+						markFriends(player, other)
+					end
+				end
+			end
+		end)
+		return referrer > 0
+	end
+
 	local function onPlayerAdded(player: Player)
 		joinedAt[player] = os.time()
 		local result, reason = data:load(player, player.UserId)
@@ -461,7 +538,11 @@ function CoreServer.start(options: Options): Services
 			return
 		end
 		analytics:sessionStart(player, info, now)
-		metrics:join(info, now)
+		metrics:join({
+			firstJoinAt = info.firstJoinAt,
+			lastJoinAt = info.lastJoinAt,
+			viaFriend = countFriends(player, now),
+		}, now)
 		metrics:serverPlayers(#Players:GetPlayers(), now)
 		sendPasses(player)
 		net:fire(CoreRemotes["Core:Data"], player, snapshot(data:get(player) :: any))
@@ -483,8 +564,9 @@ function CoreServer.start(options: Options): Services
 		end
 		local sessionSeconds = analytics:sessionEnd(player, os.time())
 		if sessionSeconds then
-			metrics:leave(sessionSeconds, os.time())
+			metrics:leave(sessionSeconds, os.time(), withFriend[player] == true)
 		end
+		withFriend[player] = nil
 		odds:forget(player)
 		theShop:forget(player)
 		passes:release(player)
