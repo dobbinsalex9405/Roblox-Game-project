@@ -21,3 +21,7 @@ roblox.yml
 *.log
 .playtest/
 /feedback-out/
+
+# Screen-control tool: its Python environment
+/tools/screen-control/.venv/
+__pycache__/

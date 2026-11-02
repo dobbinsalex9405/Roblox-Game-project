@@ -1,0 +1,5 @@
+mcp>=1.30,<2
+mss==10.2.0
+PyAutoGUI==0.9.54
+pywinauto==0.6.9
+pillow==13.0.0
