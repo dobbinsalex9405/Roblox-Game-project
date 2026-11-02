@@ -651,7 +651,15 @@ function lib.planGame(
 			and d1 >= config.retained.d1
 			and avgMin >= config.retained.avgMinutes
 
-		if enoughNew and d7 and d1 and d1 >= config.retained.d1 and d7 < T.d7 then
+		-- D7 needs a full week of cohorts behind it: a young game reads 0% D7 by construction.
+		if
+			daysLive >= config.returnAfterDays
+			and enoughNew
+			and d7
+			and d1
+			and d1 >= config.retained.d1
+			and d7 < T.d7
+		then
 			signal(
 				"return",
 				"normal",

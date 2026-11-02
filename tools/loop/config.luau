@@ -68,4 +68,7 @@ return {
 
 	-- New players over 7 days below this, after `discoveryAfterDays` live: the store page is the problem.
 	discoveryAfterDays = 3,
+
+	-- Days live before D7 is judged (a full week of D7 cohorts behind it).
+	returnAfterDays = 14,
 }

@@ -267,6 +267,12 @@ describe("update loop", function()
 		expect(kinds(g)).toEqual({ "normal:return", "normal:social" })
 		expect(g.focus).toBe("return")
 		expect(g.signals[2].why).toContain("20.0 min against 11.0 min alone")
+
+		-- A young game has no full D7 cohort yet: 0% D7 is not judged.
+		local young = planFor(series(10, steady({ growth = 2 })), { d7Week = 0 })
+		for _, s in young.signals do
+			expect(s.kind ~= "return").toBe(true)
+		end
 	end)
 
 	it("asks Alex about a rollback when a release drops the numbers within 3 days", function()

@@ -50,7 +50,7 @@ an average of daily rates):
 | few new players | live 3+ days and under 30 new players in 7 days | discovery | high |
 | low D1 | D1 under 25% (high under 20%); names the onboarding step that loses most players when the analytics have it | onboarding | high / normal |
 | short sessions | average session under 10 min (high under 6); with the share of sessions reaching 10 min | depth | high / normal |
-| low D7 | D7 under 8% while D1 is at least 20% | return | normal |
+| low D7 | live 14+ days, D7 under 8% while D1 is at least 20% | return | normal |
 | low spend | retention good enough (D1 20%+, sessions 8+ min) and under 1% of players paying or under 1 Robux per player a day; names items whose prompts rarely sell (under 5% of 20+ prompts) | monetization | normal |
 | little friend play | under 15% of sessions with a friend on the server (and D1 not under 20%); compares minutes with and without a friend | social | normal |
 | retained but flat | D1 and session length on target, but players flat or down week over week | content | normal |
