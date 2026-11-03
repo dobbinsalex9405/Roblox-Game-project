@@ -57,6 +57,18 @@ class GuardTest(unittest.TestCase):
     def test_clicks_elsewhere_are_allowed(self):
         self.assertIsNone(page_refusal("Notepad", "Roblox Creator Hub - Google Chrome"))
 
+    def test_opaque_browser_page_is_refused(self):
+        for control_type in ("Document", "Pane", ""):
+            with self.subTest(control_type=control_type):
+                focus = Focus(window_title="Creator Hub - Google Chrome", framework="Chrome", control_type=control_type)
+                self.assertIsNotNone(refusal(focus, "a"))
+
+    def test_exposed_browser_field_is_allowed(self):
+        focus = Focus(
+            window_title="Creator Hub - Google Chrome", name="Address and search bar", framework="Chrome", control_type="Edit"
+        )
+        self.assertIsNone(refusal(focus, "https://create.roblox.com"))
+
     def test_file_dialog_is_allowed(self):
         focus = Focus(window_title="Open", name="File name:", class_name="Edit")
         self.assertIsNone(refusal(focus, r"C:\art\thumbnail-1.png"))

@@ -78,6 +78,26 @@ mcp = FastMCP(
     ),
 )
 
+CONTROL_TYPES = {
+    50000: "Button",
+    50002: "CheckBox",
+    50003: "ComboBox",
+    50004: "Edit",
+    50005: "Hyperlink",
+    50007: "ListItem",
+    50008: "List",
+    50010: "MenuBar",
+    50011: "MenuItem",
+    50013: "RadioButton",
+    50018: "Tab",
+    50019: "TabItem",
+    50020: "Text",
+    50024: "TreeItem",
+    50030: "Document",
+    50032: "Window",
+    50033: "Pane",
+}
+
 # Where the last screenshot came from: monitor origin and downscale factor.
 _frame = {"left": 0, "top": 0, "scale": 1.0, "monitor": 1}
 
@@ -99,6 +119,11 @@ def _to_screen(x: float, y: float) -> tuple[int, int]:
     return round(_frame["left"] + x / s), round(_frame["top"] + y / s)
 
 
+def _to_frame(sx: float, sy: float) -> tuple[int, int]:
+    s = _frame["scale"]
+    return round((sx - _frame["left"]) * s), round((sy - _frame["top"]) * s)
+
+
 def _focus() -> Focus:
     title = win32gui.GetWindowText(win32gui.GetForegroundWindow())
     try:
@@ -109,6 +134,8 @@ def _focus() -> Focus:
             automation_id=el.CurrentAutomationId or "",
             class_name=el.CurrentClassName or "",
             is_password=bool(el.CurrentIsPassword),
+            framework=el.CurrentFrameworkId or "",
+            control_type=CONTROL_TYPES.get(el.CurrentControlType, str(el.CurrentControlType)),
         )
     except Exception:  # noqa: BLE001 - any UIA failure means "unknown"
         return Focus(window_title=title, readable=False)
@@ -135,29 +162,134 @@ def _check_click(*points: tuple[int, int]) -> None:
         raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
 
 
+def _grab(region: dict) -> PILImage.Image:
+    with mss.mss() as sct:
+        shot = sct.grab(region)
+    return PILImage.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
+
+
+def _jpeg(img: PILImage.Image) -> Image:
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=80)
+    return Image(data=buf.getvalue(), format="jpeg")
+
+
+def _screenshot(monitor: int) -> list:
+    mon = _monitor(monitor)
+    img = _grab(mon)
+    scale = min(1.0, MAX_EDGE / max(img.size))
+    if scale < 1.0:
+        img = img.resize((round(img.width * scale), round(img.height * scale)), PILImage.LANCZOS)
+    _frame.update(left=mon["left"], top=mon["top"], scale=scale, monitor=monitor)
+    log(f"screenshot monitor {monitor} -> {img.width}x{img.height}")
+    note = (
+        f"Monitor {monitor}: {img.width}x{img.height} screenshot pixels "
+        f"(screen {mon['width']}x{mon['height']}, scale {scale:.3f}). Foreground window: "
+        f"{win32gui.GetWindowText(win32gui.GetForegroundWindow())!r}"
+    )
+    return [_jpeg(img), note]
+
+
+def _done(message: str, then_screenshot: bool) -> str | list:
+    """A tool's result: the message, plus a fresh screenshot when asked."""
+    if not then_screenshot:
+        return message
+    time.sleep(0.4)  # let the screen settle
+    return [message, *_screenshot(_frame["monitor"])]
+
+
 @mcp.tool()
 def screenshot(monitor: int = 1) -> list:
     """Capture a monitor (1 is the primary). Returns the image and its size.
 
     Mouse coordinates in the other tools are pixels in the latest screenshot.
     """
-    mon = _monitor(monitor)
-    with mss.mss() as sct:
-        shot = sct.grab(mon)
-    img = PILImage.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
-    scale = min(1.0, MAX_EDGE / max(img.size))
-    if scale < 1.0:
-        img = img.resize((round(img.width * scale), round(img.height * scale)), PILImage.LANCZOS)
-    _frame.update(left=mon["left"], top=mon["top"], scale=scale, monitor=monitor)
-    buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=80)
-    log(f"screenshot monitor {monitor} -> {img.width}x{img.height}")
-    note = (
-        f"Monitor {monitor}: {img.width}x{img.height} screenshot pixels "
-        f"(screen {mon['width']}x{mon['height']}). Foreground window: "
-        f"{win32gui.GetWindowText(win32gui.GetForegroundWindow())!r}"
-    )
-    return [Image(data=buf.getvalue(), format="jpeg"), note]
+    return _screenshot(monitor)
+
+
+@mcp.tool()
+def zoom(x0: float, y0: float, x1: float, y1: float) -> list:
+    """Close-up of a rectangle of the latest screenshot, at full screen detail.
+
+    Use it to read small text or find a small button. Coordinates (in and
+    for later clicks) stay those of the latest full screenshot.
+    """
+    left, top = _to_screen(min(x0, x1), min(y0, y1))
+    right, bottom = _to_screen(max(x0, x1), max(y0, y1))
+    if right - left < 4 or bottom - top < 4:
+        raise ValueError("the rectangle is too small")
+    img = _grab({"left": left, "top": top, "width": right - left, "height": bottom - top})
+    if max(img.size) > MAX_EDGE:
+        k = MAX_EDGE / max(img.size)
+        img = img.resize((round(img.width * k), round(img.height * k)), PILImage.LANCZOS)
+    log(f"zoom {left},{top} -> {right},{bottom}")
+    return [_jpeg(img), f"Zoom of screen {left},{top} to {right},{bottom}; click with full-screenshot coordinates."]
+
+
+def _elements(text: str, window_title_contains: str) -> list[dict]:
+    """UI Automation elements whose name contains `text`, in one window."""
+    if window_title_contains:
+        needle = window_title_contains.lower()
+        hwnds = [h for h, t in _windows() if needle in t.lower()]
+        if not hwnds:
+            raise ValueError(f"no visible window title contains {window_title_contains!r}")
+        hwnd = hwnds[0]
+    else:
+        hwnd = win32gui.GetForegroundWindow()
+    iuia = IUIA().iuia
+    found = iuia.ElementFromHandle(hwnd).FindAll(4, iuia.CreateTrueCondition())  # TreeScope_Descendants
+    want = text.lower()
+    out = []
+    for i in range(found.Length):
+        el = found.GetElement(i)
+        name = el.CurrentName or ""
+        if not name or want not in name.lower() or el.CurrentIsOffscreen:
+            continue
+        r = el.CurrentBoundingRectangle
+        if r.right <= r.left or r.bottom <= r.top:
+            continue
+        x, y = _to_frame((r.left + r.right) / 2, (r.top + r.bottom) / 2)
+        out.append(
+            {
+                "name": name,
+                "type": CONTROL_TYPES.get(el.CurrentControlType, str(el.CurrentControlType)),
+                "x": x,
+                "y": y,
+                "_screen": ((r.left + r.right) // 2, (r.top + r.bottom) // 2),
+            }
+        )
+    return out
+
+
+@mcp.tool()
+def find_elements(text: str, window_title_contains: str = "") -> list[dict]:
+    """Find buttons, fields, menu items... whose accessible name contains `text`.
+
+    Searches the foreground window (or the first window whose title contains
+    window_title_contains). Returns up to 30 with their centre in the latest
+    screenshot's pixels. Works for native apps (Studio, file dialogs,
+    Explorer); Chrome often hides page contents, so use the browser tools or
+    a screenshot there.
+    """
+    found = _elements(text, window_title_contains)
+    log(f"find {text!r}: {len(found)}")
+    return [{k: v for k, v in e.items() if k != "_screen"} for e in found[:30]]
+
+
+@mcp.tool()
+def click_element(text: str, index: int = 0, window_title_contains: str = "", then_screenshot: bool = False) -> str | list:
+    """Click the centre of the index-th element find_elements(text) returns.
+
+    Same refusals as click. then_screenshot returns a fresh screenshot too.
+    """
+    found = _elements(text, window_title_contains)
+    if index >= len(found):
+        raise ValueError(f"{len(found)} element(s) named like {text!r}; no index {index}")
+    el = found[index]
+    _check_click(el["_screen"])
+    pyautogui.click(*el["_screen"])
+    log(f"click element {el['name']!r} at {el['_screen']}")
+    return _done(f"Clicked {el['type']} {el['name']!r}.", then_screenshot)
 
 
 @mcp.tool()
@@ -177,10 +309,12 @@ def move_mouse(x: float, y: float) -> str:
 
 
 @mcp.tool()
-def click(x: float, y: float, button: str = "left", clicks: int = 1) -> str:
+def click(x: float, y: float, button: str = "left", clicks: int = 1, then_screenshot: bool = False) -> str | list:
     """Click at (x, y) in the latest screenshot's pixels.
 
     button is left, right or middle; clicks is 1 to 3 (2 = double-click).
+    The pointer jumps straight there. then_screenshot returns a fresh
+    screenshot too (also on drag, scroll, type_text and press_keys).
     """
     if button not in ("left", "right", "middle"):
         raise ValueError("button must be left, right or middle")
@@ -190,11 +324,13 @@ def click(x: float, y: float, button: str = "left", clicks: int = 1) -> str:
     _check_click((sx, sy))
     pyautogui.click(sx, sy, clicks=clicks, interval=0.08, button=button)
     log(f"{button} click x{clicks} at {sx},{sy}")
-    return f"Clicked {button} x{clicks} at screen {sx},{sy}."
+    return _done(f"Clicked {button} x{clicks} at screen {sx},{sy}.", then_screenshot)
 
 
 @mcp.tool()
-def drag(from_x: float, from_y: float, to_x: float, to_y: float, button: str = "left") -> str:
+def drag(
+    from_x: float, from_y: float, to_x: float, to_y: float, button: str = "left", then_screenshot: bool = False
+) -> str | list:
     """Press at (from_x, from_y), drag to (to_x, to_y) and release (screenshot pixels)."""
     if button not in ("left", "right", "middle"):
         raise ValueError("button must be left, right or middle")
@@ -204,17 +340,17 @@ def drag(from_x: float, from_y: float, to_x: float, to_y: float, button: str = "
     pyautogui.moveTo(fx, fy, duration=0.1)
     pyautogui.dragTo(tx, ty, duration=0.5, button=button)
     log(f"drag {fx},{fy} -> {tx},{ty}")
-    return f"Dragged from screen {fx},{fy} to {tx},{ty}."
+    return _done(f"Dragged from screen {fx},{fy} to {tx},{ty}.", then_screenshot)
 
 
 @mcp.tool()
-def scroll(x: float, y: float, amount: int) -> str:
+def scroll(x: float, y: float, amount: int, then_screenshot: bool = False) -> str | list:
     """Scroll the wheel at (x, y): positive amount scrolls up, negative down (in notches)."""
     sx, sy = _to_screen(x, y)
     pyautogui.moveTo(sx, sy, duration=0.1)
     pyautogui.scroll(amount * 120)
     log(f"scroll {amount} at {sx},{sy}")
-    return f"Scrolled {amount} at screen {sx},{sy}."
+    return _done(f"Scrolled {amount} at screen {sx},{sy}.", then_screenshot)
 
 
 class _KEYBDINPUT(ctypes.Structure):
@@ -252,7 +388,7 @@ def _type_char(ch: str) -> None:
 
 
 @mcp.tool()
-def type_text(text: str) -> str:
+def type_text(text: str, then_screenshot: bool = False) -> str | list:
     """Type text into the focused field. Newlines press Enter.
 
     Refuses password, 2FA or one-time code, CAPTCHA and payment fields, and
@@ -267,11 +403,11 @@ def type_text(text: str) -> str:
         else:
             _type_char(ch)
     log(f"typed {len(text)} characters")
-    return f"Typed {len(text)} characters."
+    return _done(f"Typed {len(text)} characters.", then_screenshot)
 
 
 @mcp.tool()
-def press_keys(keys: str) -> str:
+def press_keys(keys: str, then_screenshot: bool = False) -> str | list:
     """Press a key or combination, such as "enter", "esc", "ctrl+s", "alt+tab".
 
     Names are PyAutoGUI key names joined with "+". Same refusals as type_text.
@@ -283,7 +419,7 @@ def press_keys(keys: str) -> str:
     _check()
     pyautogui.hotkey(*parts)
     log(f"keys {'+'.join(parts)}")
-    return f"Pressed {'+'.join(parts)}."
+    return _done(f"Pressed {'+'.join(parts)}.", then_screenshot)
 
 
 def _windows() -> list[tuple[int, str]]:

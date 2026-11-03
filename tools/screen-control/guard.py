@@ -89,6 +89,10 @@ class Focus:
     class_name: str = ""
     is_password: bool = False
     readable: bool = True
+    # UI Automation framework ("Chrome" for Chrome and Edge pages, "Win32"...)
+    # and control type name ("Edit", "Document", "Pane"...).
+    framework: str = ""
+    control_type: str = ""
 
 
 def _match(text: str, words: tuple[str, ...]) -> str | None:
@@ -129,6 +133,15 @@ def refusal(focus: Focus, text: str = "") -> str | None:
         )
     if focus.is_password:
         return "the focused field is a password field"
+    if focus.framework.lower() == "chrome" and focus.control_type in ("Document", "Pane", ""):
+        # Chrome often keeps page contents hidden from UI Automation, so focus
+        # reads as the whole page and a password field there would look like
+        # nothing. Only typing into a field the browser exposes is allowed.
+        return (
+            "the browser does not expose which page field has focus, so it "
+            "cannot be confirmed that it is not a password field (use the "
+            "browser tools for typing in web pages)"
+        )
     for value in (focus.name, focus.automation_id, focus.class_name):
         word = _match(value, FIELD_WORDS)
         if word:
