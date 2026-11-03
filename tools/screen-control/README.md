@@ -70,14 +70,14 @@ AppData.
 | `screenshot(monitor=1)` | JPEG of a monitor, longest edge at most 1568 px, plus its scale and the foreground window's title |
 | `zoom(x0, y0, x1, y1)` | Close-up of part of the latest screenshot at full detail, for small text and buttons |
 | `find_elements(text, window_title_contains)` | Buttons, fields, menu items whose accessible name contains `text`, with their centre |
-| `click_element(text, index)` | Clicks such an element by name: no pixel hunting, survives layout changes |
+| `click_element(text, window_title_contains, index)` | Clicks such an element by name in that window: no pixel hunting, survives layout changes |
 | `list_monitors()` | Monitors with position and size |
 | `click(x, y, button, clicks)` | Jumps straight to the point and clicks; `clicks=2` double-clicks |
 | `move_mouse(x, y)` | Hover |
 | `drag(from_x, from_y, to_x, to_y)` | Press, drag, release |
 | `scroll(x, y, amount)` | Wheel notches; positive is up |
-| `type_text(text)` | Types into the focused field; `\n` presses Enter |
-| `press_keys(keys)` | `enter`, `esc`, `ctrl+s`, `alt+tab`… (PyAutoGUI key names) |
+| `type_text(text, window_title_contains, method)` | Types into the focused field, only if that window is in front; pastes by default (exact), `method="keys"` sends keystrokes for apps that ignore paste |
+| `press_keys(keys, window_title_contains)` | `enter`, `esc`, `ctrl+s`, `alt+tab`… (PyAutoGUI key names), only if that window is in front |
 | `list_windows()` | Visible windows, foreground first |
 | `focus_window(title_contains / handle)` | Brings a window to the front |
 
@@ -91,9 +91,13 @@ in native apps (Studio, file dialogs, Explorer, Notepad) and in Edge. Chrome
 usually hides page contents from it: in Chrome, click by screenshot
 coordinates, or use the Chrome browser tools.
 
+`window_title_contains` is required on `type_text`, `press_keys` and
+`click_element`: the Claude app itself often takes the foreground, and
+without the check, text lands in whatever window is in front.
+
 Uploading a file through a web page: click the page's upload button, wait
-for the Windows "Open" dialog, `type_text` the full path into "File name",
-then `press_keys("enter")`.
+for the Windows "Open" dialog, `type_text(path, "Open")` into "File name",
+then `press_keys("enter", "Open")`.
 
 ## Hard limits
 
