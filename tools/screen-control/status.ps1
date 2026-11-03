@@ -10,11 +10,11 @@ try {
 } catch {
     $ok = $false
 }
-$task = Get-ScheduledTask -TaskName 'Claude screen control' -ErrorAction SilentlyContinue
+$startup = Join-Path ([Environment]::GetFolderPath('Startup')) 'Claude screen control.lnk'
 if (-not $Quiet) {
     if ($ok) { Write-Host "Screen control is running on 127.0.0.1:$port." }
     else { Write-Host "Screen control is NOT running on 127.0.0.1:$port." }
-    if ($task) { Write-Host 'Starts at logon: yes (install-autostart.ps1 -Remove turns that off).' }
-    else { Write-Host 'Starts at logon: no (install-autostart.ps1 turns that on).' }
+    if (Test-Path $startup) { Write-Host "Starts at logon: yes (delete $startup to stop that)." }
+    else { Write-Host 'Starts at logon: no (see README, "Always on").' }
 }
 if (-not $ok) { exit 1 }

@@ -28,6 +28,19 @@ powershell -ExecutionPolicy Bypass -File tools\screen-control\stop.ps1     # off
 answers `ok` and nothing else). A second copy of the server cannot start
 while one holds the port.
 
+## Always on (Alex sets this up)
+
+To start the server hidden at every logon, Alex adds a shortcut named
+`Claude screen control` to the Startup folder (Win+R, `shell:startup`) with
+this target:
+
+```
+<repo>	ools\screen-control\.venv\Scripts\pythonw.exe "<repo>	ools\screen-control\server.py"
+```
+
+Deleting the shortcut turns that off; `stop.ps1` stops the running copy.
+Claude does not create startup entries itself.
+
 ## Register with Claude Code (once per laptop)
 
 ```powershell
