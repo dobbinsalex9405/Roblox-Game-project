@@ -1,9 +1,10 @@
 """Screen-control MCP server: lets Claude see this Windows screen and use the
 mouse and keyboard, while Alex has it running.
 
-Runs in the foreground of the window start.ps1 opens and listens only on
-127.0.0.1, behind a bearer token kept in ~\\.screen-control\\token.
-Closing that window, or pressing Ctrl+C in it, stops it. Slamming the mouse
+Started at logon by the task install-autostart.ps1 creates (hidden, logging
+to ~\\.screen-control\\server.log), or in a window by start.ps1. Listens only
+on 127.0.0.1, behind a bearer token kept in ~\\.screen-control\\token, with an
+unauthenticated GET /health. stop.ps1 stops it. Slamming the mouse
 into a screen corner aborts the action in progress (PyAutoGUI fail-safe).
 
 Every typing and key-press call first reads the focused field through UI
@@ -311,6 +312,11 @@ class TokenAuth:
         self.expected = f"Bearer {token}".encode()
 
     async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and scope["path"] == "/health":
+            # Liveness only, so status.ps1 needs no token; reveals nothing.
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"ok"})
+            return
         if scope["type"] == "http":
             headers = dict(scope.get("headers") or [])
             if headers.get(b"authorization") != self.expected:
@@ -320,14 +326,26 @@ class TokenAuth:
         await self.app(scope, receive, send)
 
 
+def _log_to_file() -> None:
+    """Without a console (pythonw, the logon task), log to server.log."""
+    STATE_DIR.mkdir(exist_ok=True)
+    path = STATE_DIR / "server.log"
+    if path.exists() and path.stat().st_size > 1_000_000:
+        path.replace(STATE_DIR / "server.log.1")
+    stream = open(path, "a", encoding="utf-8", buffering=1)  # noqa: SIM115 - lives as long as the process
+    sys.stdout = sys.stderr = stream
+
+
 def main() -> None:
+    if sys.stdout is None or "--log" in sys.argv:
+        _log_to_file()
     if not TOKEN_FILE.exists():
-        sys.exit(f"No token at {TOKEN_FILE}. Start with start.ps1, which creates it.")
+        sys.exit(f"No token at {TOKEN_FILE}. Run start.ps1 or install-autostart.ps1, which create it.")
     token = TOKEN_FILE.read_text(encoding="utf-8").strip()
     app = TokenAuth(mcp.streamable_http_app(), token)
     log(f"screen-control listening on http://127.0.0.1:{PORT}/mcp")
     log("Claude can now see this screen and use the mouse and keyboard.")
-    log("Close this window or press Ctrl+C to stop. Mouse into a corner aborts an action.")
+    log("Stop: tools\\screen-control\\stop.ps1 (or Ctrl+C in its window). Mouse into a corner aborts an action.")
     uvicorn.run(app, host="127.0.0.1", port=PORT, log_level="warning")
 
 

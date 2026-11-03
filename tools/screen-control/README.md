@@ -3,7 +3,7 @@
 A small local MCP server that lets Claude Code on Alex's Windows laptop see
 the screen and use the mouse and keyboard: for the clicks the browser tools
 cannot do (Roblox's thumbnail uploader, Studio play tests, native file
-dialogs). It runs only while Alex has its window open.
+dialogs). It runs only while Alex has started it, and `stop.ps1` stops it.
 
 ## Start and stop
 
@@ -15,6 +15,18 @@ The first run creates `.venv` here and installs `requirements.txt` (Python
 3.11+ from python.org, no admin rights). The window prints every action
 Claude takes. **Close the window or press Ctrl+C to stop.** Moving the mouse
 hard into a screen corner aborts the action in progress.
+
+Without a console (started with `pythonw`, or with `--log`) the server
+writes the same lines to `%USERPROFILE%\.screen-control\server.log`.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\screen-control\status.ps1   # health check; exit 0 when running
+powershell -ExecutionPolicy Bypass -File tools\screen-control\stop.ps1     # off switch, however it was started
+```
+
+`status.ps1` calls `GET /health`, the one route that needs no token (it
+answers `ok` and nothing else). A second copy of the server cannot start
+while one holds the port.
 
 ## Register with Claude Code (once per laptop)
 
