@@ -35,7 +35,7 @@ To start the server hidden at every logon, Alex adds a shortcut named
 this target:
 
 ```
-<repo>	ools\screen-control\.venv\Scripts\pythonw.exe "<repo>	ools\screen-control\server.py"
+<repo>\tools\screen-control\.venv\Scripts\pythonw.exe "<repo>\tools\screen-control\server.py"
 ```
 
 Deleting the shortcut turns that off; `stop.ps1` stops the running copy.
