@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from guard import Focus, refusal  # noqa: E402
+from guard import Focus, page_refusal, refusal  # noqa: E402
 
 
 class GuardTest(unittest.TestCase):
@@ -39,6 +39,23 @@ class GuardTest(unittest.TestCase):
     def test_session_cookie_text_is_refused(self):
         focus = Focus(window_title="Notepad", name="Text editor")
         self.assertIsNotNone(refusal(focus, "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this"))
+
+    def test_captcha_field_is_refused(self):
+        self.assertIsNotNone(refusal(Focus(window_title="Editor", name="Enter the CAPTCHA"), "a"))
+
+    def test_payment_page_is_refused(self):
+        self.assertIsNotNone(refusal(Focus(window_title="Payment - Google Chrome", name="Search"), "a"))
+
+    def test_clicks_on_checkout_pages_are_refused(self):
+        for title in ("Checkout - Google Chrome", "Buy Robux - Chrome", "Verify you are human - captcha"):
+            with self.subTest(title=title):
+                self.assertIsNotNone(page_refusal(title))
+
+    def test_clicks_check_every_window_given(self):
+        self.assertIsNotNone(page_refusal("Notepad", "Log in to Roblox - Google Chrome"))
+
+    def test_clicks_elsewhere_are_allowed(self):
+        self.assertIsNone(page_refusal("Notepad", "Roblox Creator Hub - Google Chrome"))
 
     def test_file_dialog_is_allowed(self):
         focus = Focus(window_title="Open", name="File name:", class_name="Edit")

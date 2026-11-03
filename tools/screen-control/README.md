@@ -95,7 +95,10 @@ then `press_keys("enter")`.
 - Claude must not work around a refusal (on-screen keyboard, saved-password
   suggestions, pasting with the mouse). Those steps are Alex's, as are
   sign-ins, purchases and account settings (`CLAUDE.md`, "Never").
-- Clicks are not filtered: the guard stops keys, not mouse clicks. The
+- **No clicks or drags on sign-in, verification, CAPTCHA or payment
+  pages** (same window-title words, checked for the foreground window and
+  the window under the pointer), so a click cannot confirm a purchase or
+  answer a CAPTCHA. Pages whose titles don't say so are not caught; the
   project rules still apply to every click.
 - It runs only while Alex has started it. Nothing starts it automatically.
 

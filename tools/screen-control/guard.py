@@ -104,6 +104,22 @@ def _match(text: str, words: tuple[str, ...]) -> str | None:
     return None
 
 
+def page_refusal(*window_titles: str) -> str | None:
+    """Return why a click must be refused, or None.
+
+    Clicks are checked against the page, not the field: a click can confirm a
+    purchase or answer a CAPTCHA without any typing.
+    """
+    for title in window_titles:
+        word = _match(title, PAGE_WORDS)
+        if word:
+            return (
+                f'the window looks like a sign-in, verification, CAPTCHA or payment '
+                f'page ("{word}" in "{title}")'
+            )
+    return None
+
+
 def refusal(focus: Focus, text: str = "") -> str | None:
     """Return why typing `text` (or pressing keys) must be refused, or None."""
     if not focus.readable:

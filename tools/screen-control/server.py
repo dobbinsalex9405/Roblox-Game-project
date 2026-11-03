@@ -1,15 +1,17 @@
 """Screen-control MCP server: lets Claude see this Windows screen and use the
 mouse and keyboard, while Alex has it running.
 
-Started at logon by the task install-autostart.ps1 creates (hidden, logging
-to ~\\.screen-control\\server.log), or in a window by start.ps1. Listens only
+Started at logon by a Startup-folder shortcut Alex adds (pythonw, hidden,
+logging to ~\\.screen-control\\server.log), or in a window by start.ps1. Listens only
 on 127.0.0.1, behind a bearer token kept in ~\\.screen-control\\token, with an
 unauthenticated GET /health. stop.ps1 stops it. Slamming the mouse
 into a screen corner aborts the action in progress (PyAutoGUI fail-safe).
 
 Every typing and key-press call first reads the focused field through UI
 Automation and goes through guard.refusal: no password, one-time code,
-CAPTCHA or payment field ever gets keys from this server.
+CAPTCHA or payment field ever gets keys from this server. Clicks and drags
+go through guard.page_refusal: none on sign-in, verification, CAPTCHA or
+payment pages.
 """
 
 from __future__ import annotations
@@ -39,7 +41,7 @@ from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa: E402
 from pywinauto.uia_defines import IUIA  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from guard import Focus, refusal  # noqa: E402
+from guard import Focus, page_refusal, refusal  # noqa: E402
 
 PORT = int(os.environ.get("SCREEN_CONTROL_PORT", "8765"))
 STATE_DIR = Path.home() / ".screen-control"
@@ -52,8 +54,9 @@ pyautogui.PAUSE = 0.05
 
 REFUSAL_NOTE = (
     "Never use this to type into, paste into or press keys in a password, "
-    "2FA or one-time code, CAPTCHA or payment field, or on a sign-in, "
-    "verification or checkout page; the server refuses those, and you must "
+    "2FA or one-time code, CAPTCHA or payment field, or to type or click on "
+    "a sign-in, verification, CAPTCHA or checkout page, or to confirm a "
+    "purchase; the server refuses those, and you must "
     "not try to get around it (for example by clicking an on-screen keyboard "
     "or a saved-password suggestion). Leave those steps to Alex."
 )
@@ -118,6 +121,20 @@ def _check(text: str = "") -> None:
         raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
 
 
+def _check_click(*points: tuple[int, int]) -> None:
+    """Refuse a click when the foreground window, or the window under any
+    point, is a sign-in, verification, CAPTCHA or payment page."""
+    titles = [win32gui.GetWindowText(win32gui.GetForegroundWindow())]
+    for point in points:
+        hwnd = win32gui.WindowFromPoint(point)
+        if hwnd:
+            titles.append(win32gui.GetWindowText(win32gui.GetAncestor(hwnd, 2)))  # GA_ROOT
+    reason = page_refusal(*titles)
+    if reason:
+        log(f"REFUSED: {reason}")
+        raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
+
+
 @mcp.tool()
 def screenshot(monitor: int = 1) -> list:
     """Capture a monitor (1 is the primary). Returns the image and its size.
@@ -170,6 +187,7 @@ def click(x: float, y: float, button: str = "left", clicks: int = 1) -> str:
     if not 1 <= clicks <= 3:
         raise ValueError("clicks must be 1 to 3")
     sx, sy = _to_screen(x, y)
+    _check_click((sx, sy))
     pyautogui.click(sx, sy, clicks=clicks, interval=0.08, button=button)
     log(f"{button} click x{clicks} at {sx},{sy}")
     return f"Clicked {button} x{clicks} at screen {sx},{sy}."
@@ -182,6 +200,7 @@ def drag(from_x: float, from_y: float, to_x: float, to_y: float, button: str = "
         raise ValueError("button must be left, right or middle")
     fx, fy = _to_screen(from_x, from_y)
     tx, ty = _to_screen(to_x, to_y)
+    _check_click((fx, fy), (tx, ty))
     pyautogui.moveTo(fx, fy, duration=0.1)
     pyautogui.dragTo(tx, ty, duration=0.5, button=button)
     log(f"drag {fx},{fy} -> {tx},{ty}")
@@ -340,7 +359,7 @@ def main() -> None:
     if sys.stdout is None or "--log" in sys.argv:
         _log_to_file()
     if not TOKEN_FILE.exists():
-        sys.exit(f"No token at {TOKEN_FILE}. Run start.ps1 or install-autostart.ps1, which create it.")
+        sys.exit(f"No token at {TOKEN_FILE}. Run start.ps1 once, which creates it.")
     token = TOKEN_FILE.read_text(encoding="utf-8").strip()
     app = TokenAuth(mcp.streamable_http_app(), token)
     log(f"screen-control listening on http://127.0.0.1:{PORT}/mcp")

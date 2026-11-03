@@ -1,6 +1,6 @@
 # Off switch: stops the running screen-control server, however it was
-# started. The logon task (if installed) starts it again at the next logon;
-# to stop that too, run install-autostart.ps1 -Remove.
+# started. A "Claude screen control" shortcut in the Startup folder (if Alex
+# added one) starts it again at the next logon; delete it to stop that too.
 #
 #   powershell -ExecutionPolicy Bypass -File tools\screen-control\stop.ps1
 $serverPy = Join-Path $PSScriptRoot 'server.py'
