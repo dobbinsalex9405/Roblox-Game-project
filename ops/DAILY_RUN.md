@@ -33,6 +33,15 @@ another Claude.
 
 1. Check the latest **CI** run on `main` and every **Publish to Staging**,
    **Publish to Production** and **Player feedback** run since the last run.
+   **Do not wait for GitHub's schedules.** They run hours late or not at all
+   (Nov 2: about 10 hours late; Nov 3: not started by 07:13). If today's
+   **Player feedback** or **Studio scoreboard** run has not finished, dispatch
+   it yourself: Player feedback, then Studio scoreboard with
+   `env: production` and again with `env: staging` (a production scoreboard
+   run also starts **Update plan**). Read the results once they finish,
+   usually within two minutes. A Staging publish job that failed with an
+   HTTP 5xx from Roblox gets one re-run of its failed jobs (never under a
+   publish hold); a second failure is handled as in item 3.
 2. A red run on `main` is a severity 1 bug in the studio itself: open (or
    update) an issue labelled `bug`, `ci`, `sev1` with the failing step and
    log link, and send it to the thread that owns that code (the last PR that
@@ -67,6 +76,9 @@ another Claude.
 
 1. List open issues labelled `player-feedback` **without** the label
    `triaged`, oldest first. Usually there is one (yesterday's), or none.
+   Two digests with the same title are the same day pulled twice (a late
+   scheduled run after a dispatched one): triage the first, and close the
+   second as a duplicate with a link to the first.
 2. Each digest starts with a **Needs triage** section written by the plain
    code prefilter in the feedback workflow (dedupes reports, tags keywords,
    caps per game and per reporter, and leans towards escalating). Each item

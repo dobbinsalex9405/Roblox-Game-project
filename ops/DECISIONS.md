@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-03: The daily run starts the morning workflows itself
+
+- GitHub's `schedule` trigger ran the feedback pull and the scoreboard about
+  10 hours late on Nov 2 and had not started them by 07:13 UTC on Nov 3. The
+  daily Claude run now dispatches Player feedback and both scoreboards when
+  today's runs are missing (`ops/DAILY_RUN.md` step 1). The cron lines stay
+  as a fallback. A late scoreboard or plan run only rewrites the same issue;
+  a late feedback run can open a second digest for the same day, which the
+  next run closes as a duplicate (step 2.1).
+- A Staging publish that fails with a Roblox 5xx gets one re-run of the
+  failed job before it counts as a failure (Nov 2: Depthbound got HTTP 500,
+  the re-run published).
+
 ## 2026-11-02: Screen control on the laptop
 
 - **A local MCP server, not a skill.** `tools/screen-control/` gives Claude
