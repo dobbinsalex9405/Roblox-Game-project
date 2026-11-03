@@ -33,6 +33,7 @@ except (AttributeError, OSError):
 import mss  # noqa: E402
 import pyautogui  # noqa: E402
 import uvicorn  # noqa: E402
+import win32clipboard  # noqa: E402
 import win32gui  # noqa: E402
 from mcp.server.fastmcp import FastMCP, Image  # noqa: E402
 from mcp.server.transport_security import TransportSecuritySettings  # noqa: E402
@@ -144,8 +145,14 @@ def _focus() -> Focus:
         return Focus(window_title=title, readable=False)
 
 
-def _check(text: str = "") -> None:
-    reason = refusal(_focus(), text)
+def _check(text: str, window_title_contains: str) -> None:
+    focus = _focus()
+    if not window_title_contains or window_title_contains.lower() not in focus.window_title.lower():
+        raise RuntimeError(
+            f"Not sent: the foreground window is {focus.window_title!r}, not one whose title "
+            f"contains {window_title_contains!r}. Focus the right window first."
+        )
+    reason = refusal(focus, text)
     if reason:
         log(f"REFUSED: {reason}")
         raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
@@ -279,12 +286,17 @@ def find_elements(text: str, window_title_contains: str = "") -> list[dict]:
     return [{k: v for k, v in e.items() if k != "_screen"} for e in found[:30]]
 
 
-@mcp.tool()
-def click_element(text: str, index: int = 0, window_title_contains: str = "", then_screenshot: bool = False) -> str | list:
-    """Click the centre of the index-th element find_elements(text) returns.
+@mcp.tool(structured_output=False)
+def click_element(text: str, window_title_contains: str, index: int = 0, then_screenshot: bool = False) -> str | list:
+    """Click the centre of the index-th element named like `text` in the
+    first window whose title contains window_title_contains (required, so a
+    click never lands in whatever window happens to be in front).
 
-    Same refusals as click. then_screenshot returns a fresh screenshot too.
+    Refuses elements named like Buy Robux, Purchase, Checkout, Log in, and
+    the same pages as click. then_screenshot returns a fresh screenshot too.
     """
+    if not window_title_contains:
+        raise ValueError("window_title_contains is required")
     found = _elements(text, window_title_contains)
     if index >= len(found):
         raise ValueError(f"{len(found)} element(s) named like {text!r}; no index {index}")
@@ -315,7 +327,7 @@ def move_mouse(x: float, y: float) -> str:
     return f"Mouse at screen {sx},{sy}."
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 def click(x: float, y: float, button: str = "left", clicks: int = 1, then_screenshot: bool = False) -> str | list:
     """Click at (x, y) in the latest screenshot's pixels.
 
@@ -334,7 +346,7 @@ def click(x: float, y: float, button: str = "left", clicks: int = 1, then_screen
     return _done(f"Clicked {button} x{clicks} at screen {sx},{sy}.", then_screenshot)
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 def drag(
     from_x: float, from_y: float, to_x: float, to_y: float, button: str = "left", then_screenshot: bool = False
 ) -> str | list:
@@ -350,7 +362,7 @@ def drag(
     return _done(f"Dragged from screen {fx},{fy} to {tx},{ty}.", then_screenshot)
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 def scroll(x: float, y: float, amount: int, then_screenshot: bool = False) -> str | list:
     """Scroll the wheel at (x, y): positive amount scrolls up, negative down (in notches)."""
     sx, sy = _to_screen(x, y)
@@ -394,14 +406,50 @@ def _type_char(ch: str) -> None:
     time.sleep(0.02)
 
 
-@mcp.tool()
-def type_text(text: str, then_screenshot: bool = False) -> str | list:
-    """Type text into the focused field. Newlines press Enter.
+def _paste(text: str) -> None:
+    """Ctrl+V the text, then put back whatever text the clipboard held."""
+    win32clipboard.OpenClipboard()
+    try:
+        try:
+            saved = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
+        except TypeError:  # no text on the clipboard
+            saved = None
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, text)
+    finally:
+        win32clipboard.CloseClipboard()
+    pyautogui.hotkey("ctrl", "v")
+    time.sleep(0.3)  # the app reads the clipboard after the key press
+    win32clipboard.OpenClipboard()
+    try:
+        win32clipboard.EmptyClipboard()
+        if saved is not None:
+            win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, saved)
+    finally:
+        win32clipboard.CloseClipboard()
 
+
+@mcp.tool(structured_output=False)
+def type_text(
+    text: str, window_title_contains: str, method: str = "paste", then_screenshot: bool = False
+) -> str | list:
+    """Type text into the focused field.
+
+    method "paste" (default) puts the text on the clipboard, presses Ctrl+V
+    and restores the clipboard: exact and fast. "keys" sends it key by key
+    (newlines press Enter), for places that ignore paste, such as games.
+    window_title_contains (required): only type if the foreground window's
+    title contains it, so text never lands in the wrong window.
     Refuses password, 2FA or one-time code, CAPTCHA and payment fields, and
     sign-in, verification and checkout pages. Never try to get around it.
     """
-    _check(text)
+    if method not in ("paste", "keys"):
+        raise ValueError('method must be "paste" or "keys"')
+    _check(text, window_title_contains)
+    if method == "paste":
+        _paste(text)
+        log(f"pasted {len(text)} characters")
+        return _done(f"Typed {len(text)} characters (paste).", then_screenshot)
     for ch in text.replace("\r", ""):
         if ch == "\n":
             pyautogui.press("enter")
@@ -413,17 +461,18 @@ def type_text(text: str, then_screenshot: bool = False) -> str | list:
     return _done(f"Typed {len(text)} characters.", then_screenshot)
 
 
-@mcp.tool()
-def press_keys(keys: str, then_screenshot: bool = False) -> str | list:
+@mcp.tool(structured_output=False)
+def press_keys(keys: str, window_title_contains: str, then_screenshot: bool = False) -> str | list:
     """Press a key or combination, such as "enter", "esc", "ctrl+s", "alt+tab".
 
-    Names are PyAutoGUI key names joined with "+". Same refusals as type_text.
+    Names are PyAutoGUI key names joined with "+". Same refusals and
+    required window_title_contains check as type_text.
     """
     parts = [k.strip().lower() for k in keys.split("+") if k.strip()]
     unknown = [k for k in parts if k not in pyautogui.KEYBOARD_KEYS]
     if not parts or unknown:
         raise ValueError(f"unknown key name(s): {unknown or keys!r}")
-    _check()
+    _check("", window_title_contains)
     pyautogui.hotkey(*parts)
     log(f"keys {'+'.join(parts)}")
     return _done(f"Pressed {'+'.join(parts)}.", then_screenshot)
@@ -460,8 +509,19 @@ def focus_window(title_contains: str = "", handle: int = 0) -> str:
         if not matches:
             raise ValueError(f"no visible window title contains {title_contains!r}")
         target = matches[0]
-    HwndWrapper(target).set_focus()
+    try:
+        HwndWrapper(target).set_focus()
+    except Exception:  # noqa: BLE001 - Windows' foreground lock; try the Alt trick
+        if win32gui.IsIconic(target):
+            win32gui.ShowWindow(target, 9)  # SW_RESTORE
+        pyautogui.press("alt")
+        try:
+            win32gui.SetForegroundWindow(target)
+        except Exception:  # noqa: BLE001 - checked below
+            pass
     title = win32gui.GetWindowText(target)
+    if win32gui.GetForegroundWindow() != target:
+        raise RuntimeError(f"Windows did not let {title!r} come to the front; click on it instead.")
     log(f"focus {title!r}")
     return f"Focused {title!r}."
 
