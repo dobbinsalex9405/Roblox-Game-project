@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from guard import Focus, page_refusal, refusal  # noqa: E402
+from guard import Focus, element_refusal, page_refusal, refusal  # noqa: E402
 
 
 class GuardTest(unittest.TestCase):
@@ -68,6 +68,16 @@ class GuardTest(unittest.TestCase):
             window_title="Creator Hub - Google Chrome", name="Address and search bar", framework="Chrome", control_type="Edit"
         )
         self.assertIsNone(refusal(focus, "https://create.roblox.com"))
+
+    def test_purchase_elements_are_refused(self):
+        for name in ("Buy Robux", "Purchase", "Checkout", "Log In", "Payment method"):
+            with self.subTest(name=name):
+                self.assertIsNotNone(element_refusal(name))
+
+    def test_plain_elements_are_allowed(self):
+        for name in ("Upload thumbnail", "Open", "Add New Tab"):
+            with self.subTest(name=name):
+                self.assertIsNone(element_refusal(name))
 
     def test_file_dialog_is_allowed(self):
         focus = Focus(window_title="Open", name="File name:", class_name="Edit")

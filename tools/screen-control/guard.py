@@ -124,6 +124,16 @@ def page_refusal(*window_titles: str) -> str | None:
     return None
 
 
+def element_refusal(name: str) -> str | None:
+    """Return why clicking an element with this accessible name must be
+    refused, or None. Purchase prompts in the Roblox client or Studio sit in
+    windows with plain titles, so the button's own name is checked too."""
+    word = _match(name, PAGE_WORDS)
+    if word:
+        return f'the element looks like a sign-in, verification or purchase control ("{word}" in "{name}")'
+    return None
+
+
 def refusal(focus: Focus, text: str = "") -> str | None:
     """Return why typing `text` (or pressing keys) must be refused, or None."""
     if not focus.readable:

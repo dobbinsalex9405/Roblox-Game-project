@@ -41,7 +41,8 @@ from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa: E402
 from pywinauto.uia_defines import IUIA  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from guard import Focus, page_refusal, refusal  # noqa: E402
+from guard import Focus, element_refusal, page_refusal, refusal  # noqa: E402
+import overlay  # noqa: E402
 
 PORT = int(os.environ.get("SCREEN_CONTROL_PORT", "8765"))
 STATE_DIR = Path.home() / ".screen-control"
@@ -103,7 +104,9 @@ _frame = {"left": 0, "top": 0, "scale": 1.0, "monitor": 1}
 
 
 def log(message: str) -> None:
+    """Every action logs, so this also shows the orange "Claude is here" border."""
     print(time.strftime("%H:%M:%S"), message, flush=True)
+    overlay.touch()
 
 
 def _monitor(index: int) -> dict:
@@ -286,6 +289,10 @@ def click_element(text: str, index: int = 0, window_title_contains: str = "", th
     if index >= len(found):
         raise ValueError(f"{len(found)} element(s) named like {text!r}; no index {index}")
     el = found[index]
+    reason = element_refusal(el["name"])
+    if reason:
+        log(f"REFUSED: {reason}")
+        raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
     _check_click(el["_screen"])
     pyautogui.click(*el["_screen"])
     log(f"click element {el['name']!r} at {el['_screen']}")

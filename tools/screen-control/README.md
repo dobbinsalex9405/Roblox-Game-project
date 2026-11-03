@@ -16,6 +16,10 @@ The first run creates `.venv` here and installs `requirements.txt` (Python
 Claude takes. **Close the window or press Ctrl+C to stop.** Moving the mouse
 hard into a screen corner aborts the action in progress.
 
+While Claude is using the screen, an **orange border** runs around it; it
+goes away 6 seconds after the last action. It lets clicks through, never
+takes focus and is left out of screenshots (`overlay.py`).
+
 Without a console (started with `pythonw`, or with `--log`) the server
 writes the same lines to `%USERPROFILE%\.screen-control\server.log`.
 
@@ -111,7 +115,10 @@ then `press_keys("enter")`.
 - **No clicks or drags on sign-in, verification, CAPTCHA or payment
   pages** (same window-title words, checked for the foreground window and
   the window under the pointer), so a click cannot confirm a purchase or
-  answer a CAPTCHA. Pages whose titles don't say so are not caught; the
+  answer a CAPTCHA. `click_element` also refuses elements named like
+  that (Buy Robux, Purchase, Checkout, Log in…), which catches purchase
+  prompts inside Roblox or Studio windows with plain titles. Pages whose
+  titles don't say so are not caught; the
   project rules still apply to every click.
 - It runs only while Alex has it on: the Startup shortcut Alex made, or `start.ps1`. Claude never creates startup entries.
 
