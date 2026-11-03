@@ -62,3 +62,15 @@ jobs:
           name: places-${{ github.sha }}
           path: build/*.rbxl
           retention-days: 14
+
+  screen-control:
+    name: Screen-control guard tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # The guard is plain Python; the server itself needs Windows.
+      - run: python -m unittest discover -s tools/screen-control/tests -v

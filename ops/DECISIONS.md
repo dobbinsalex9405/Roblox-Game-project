@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-02: Screen control on the laptop
+
+- **A local MCP server, not a skill.** `tools/screen-control/` gives Claude
+  Code on the laptop screenshots, mouse, keyboard and window focus, for the
+  clicks the browser tools cannot do (thumbnail uploads, Studio play tests).
+  Registered in Claude Code's user config so every laptop session gets it.
+- **Alex starts it, nothing else does.** It is an HTTP server on 127.0.0.1
+  behind a token, run in a visible window by `start.ps1`; no stdio server
+  that Claude Code could launch by itself.
+- **Keys go through a guard, fail closed.** No typing or key presses in
+  password, code, CAPTCHA or payment fields or on sign-in and checkout
+  pages; an unreadable focused field is a refusal too.
+- **Token in `%USERPROFILE%`, not AppData**, because the Store-installed
+  Claude app gets a private AppData copy that other programs cannot see.
+
 ## 2026-11-02: Player analytics in the scoreboard
 
 - **One pipeline, not two.** Analytics (time played, returning players,
