@@ -89,6 +89,10 @@ class Focus:
     class_name: str = ""
     is_password: bool = False
     readable: bool = True
+    # UI Automation framework ("Chrome" for Chrome and Edge pages, "Win32"...)
+    # and control type name ("Edit", "Document", "Pane"...).
+    framework: str = ""
+    control_type: str = ""
 
 
 def _match(text: str, words: tuple[str, ...]) -> str | None:
@@ -120,6 +124,16 @@ def page_refusal(*window_titles: str) -> str | None:
     return None
 
 
+def element_refusal(name: str) -> str | None:
+    """Return why clicking an element with this accessible name must be
+    refused, or None. Purchase prompts in the Roblox client or Studio sit in
+    windows with plain titles, so the button's own name is checked too."""
+    word = _match(name, PAGE_WORDS)
+    if word:
+        return f'the element looks like a sign-in, verification or purchase control ("{word}" in "{name}")'
+    return None
+
+
 def refusal(focus: Focus, text: str = "") -> str | None:
     """Return why typing `text` (or pressing keys) must be refused, or None."""
     if not focus.readable:
@@ -129,6 +143,15 @@ def refusal(focus: Focus, text: str = "") -> str | None:
         )
     if focus.is_password:
         return "the focused field is a password field"
+    if focus.framework.lower() == "chrome" and focus.control_type in ("Document", "Pane", ""):
+        # Chrome often keeps page contents hidden from UI Automation, so focus
+        # reads as the whole page and a password field there would look like
+        # nothing. Only typing into a field the browser exposes is allowed.
+        return (
+            "the browser does not expose which page field has focus, so it "
+            "cannot be confirmed that it is not a password field (use the "
+            "browser tools for typing in web pages)"
+        )
     for value in (focus.name, focus.automation_id, focus.class_name):
         word = _match(value, FIELD_WORDS)
         if word:

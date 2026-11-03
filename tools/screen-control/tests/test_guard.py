@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from guard import Focus, page_refusal, refusal  # noqa: E402
+from guard import Focus, element_refusal, page_refusal, refusal  # noqa: E402
 
 
 class GuardTest(unittest.TestCase):
@@ -56,6 +56,28 @@ class GuardTest(unittest.TestCase):
 
     def test_clicks_elsewhere_are_allowed(self):
         self.assertIsNone(page_refusal("Notepad", "Roblox Creator Hub - Google Chrome"))
+
+    def test_opaque_browser_page_is_refused(self):
+        for control_type in ("Document", "Pane", ""):
+            with self.subTest(control_type=control_type):
+                focus = Focus(window_title="Creator Hub - Google Chrome", framework="Chrome", control_type=control_type)
+                self.assertIsNotNone(refusal(focus, "a"))
+
+    def test_exposed_browser_field_is_allowed(self):
+        focus = Focus(
+            window_title="Creator Hub - Google Chrome", name="Address and search bar", framework="Chrome", control_type="Edit"
+        )
+        self.assertIsNone(refusal(focus, "https://create.roblox.com"))
+
+    def test_purchase_elements_are_refused(self):
+        for name in ("Buy Robux", "Purchase", "Checkout", "Log In", "Payment method"):
+            with self.subTest(name=name):
+                self.assertIsNotNone(element_refusal(name))
+
+    def test_plain_elements_are_allowed(self):
+        for name in ("Upload thumbnail", "Open", "Add New Tab"):
+            with self.subTest(name=name):
+                self.assertIsNone(element_refusal(name))
 
     def test_file_dialog_is_allowed(self):
         focus = Focus(window_title="Open", name="File name:", class_name="Edit")

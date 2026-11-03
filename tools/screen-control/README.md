@@ -16,6 +16,10 @@ The first run creates `.venv` here and installs `requirements.txt` (Python
 Claude takes. **Close the window or press Ctrl+C to stop.** Moving the mouse
 hard into a screen corner aborts the action in progress.
 
+While Claude is using the screen, an **orange border** runs around it; it
+goes away 6 seconds after the last action. It lets clicks through, never
+takes focus and is left out of screenshots (`overlay.py`).
+
 Without a console (started with `pythonw`, or with `--log`) the server
 writes the same lines to `%USERPROFILE%\.screen-control\server.log`.
 
@@ -63,23 +67,37 @@ AppData.
 
 | Tool | What it does |
 | --- | --- |
-| `screenshot(monitor=1)` | JPEG of a monitor, longest edge at most 1568 px, plus the foreground window's title |
+| `screenshot(monitor=1)` | JPEG of a monitor, longest edge at most 1568 px, plus its scale and the foreground window's title |
+| `zoom(x0, y0, x1, y1)` | Close-up of part of the latest screenshot at full detail, for small text and buttons |
+| `find_elements(text, window_title_contains)` | Buttons, fields, menu items whose accessible name contains `text`, with their centre |
+| `click_element(text, window_title_contains, index)` | Clicks such an element by name in that window: no pixel hunting, survives layout changes |
 | `list_monitors()` | Monitors with position and size |
-| `click(x, y, button, clicks)` | Click; `clicks=2` double-clicks |
+| `click(x, y, button, clicks)` | Jumps straight to the point and clicks; `clicks=2` double-clicks |
 | `move_mouse(x, y)` | Hover |
 | `drag(from_x, from_y, to_x, to_y)` | Press, drag, release |
 | `scroll(x, y, amount)` | Wheel notches; positive is up |
-| `type_text(text)` | Types into the focused field; `\n` presses Enter |
-| `press_keys(keys)` | `enter`, `esc`, `ctrl+s`, `alt+tab`… (PyAutoGUI key names) |
+| `type_text(text, window_title_contains, method)` | Types into the focused field, only if that window is in front; pastes by default (exact), `method="keys"` sends keystrokes for apps that ignore paste |
+| `press_keys(keys, window_title_contains)` | `enter`, `esc`, `ctrl+s`, `alt+tab`… (PyAutoGUI key names), only if that window is in front |
 | `list_windows()` | Visible windows, foreground first |
 | `focus_window(title_contains / handle)` | Brings a window to the front |
 
 Coordinates are pixels in the **latest screenshot**; the server scales them
-to the screen. Take a fresh screenshot after anything changes the layout.
+to the screen. Take a fresh screenshot after anything changes the layout, or
+pass `then_screenshot=True` to `click`, `click_element`, `drag`, `scroll`,
+`type_text` or `press_keys` to get one back with the result.
+
+`find_elements` and `click_element` read Windows UI Automation, so they work
+in native apps (Studio, file dialogs, Explorer, Notepad) and in Edge. Chrome
+usually hides page contents from it: in Chrome, click by screenshot
+coordinates, or use the Chrome browser tools.
+
+`window_title_contains` is required on `type_text`, `press_keys` and
+`click_element`: the Claude app itself often takes the foreground, and
+without the check, text lands in whatever window is in front.
 
 Uploading a file through a web page: click the page's upload button, wait
-for the Windows "Open" dialog, `type_text` the full path into "File name",
-then `press_keys("enter")`.
+for the Windows "Open" dialog, `type_text(path, "Open")` into "File name",
+then `press_keys("enter", "Open")`.
 
 ## Hard limits
 
@@ -90,7 +108,10 @@ then `press_keys("enter")`.
   name or id says password, code, CAPTCHA, card, CVV and the like, or the
   window title says sign in, log in, verification, checkout, payment or buy
   Robux. If the field cannot be read, it refuses too. Text that looks like a
-  `.ROBLOSECURITY` cookie is refused anywhere. The word lists are in
+  `.ROBLOSECURITY` cookie is refused anywhere. When a Chrome or Edge page
+  is focused but the browser does not say which field (Chrome usually hides
+  page contents), typing is refused, since a password box would look the
+  same; the address bar and other exposed fields are fine. The word lists are in
   `guard.py`, tested by `tests/test_guard.py`.
 - Claude must not work around a refusal (on-screen keyboard, saved-password
   suggestions, pasting with the mouse). Those steps are Alex's, as are
@@ -98,9 +119,12 @@ then `press_keys("enter")`.
 - **No clicks or drags on sign-in, verification, CAPTCHA or payment
   pages** (same window-title words, checked for the foreground window and
   the window under the pointer), so a click cannot confirm a purchase or
-  answer a CAPTCHA. Pages whose titles don't say so are not caught; the
+  answer a CAPTCHA. `click_element` also refuses elements named like
+  that (Buy Robux, Purchase, Checkout, Log in…), which catches purchase
+  prompts inside Roblox or Studio windows with plain titles. Pages whose
+  titles don't say so are not caught; the
   project rules still apply to every click.
-- It runs only while Alex has started it. Nothing starts it automatically.
+- It runs only while Alex has it on: the Startup shortcut Alex made, or `start.ps1`. Claude never creates startup entries.
 
 ## Tests
 
