@@ -49,8 +49,9 @@ function CoinShop.start(ctx: Context.Context)
 		UiKit.label(card, about, 34)
 		UiKit.label(card, price, 18).TextColor3 = GOLD
 		if action then
-			local row = UiKit.row(card, 34)
-			local b = UiKit.button(row, action, 150, 32, if enabled then UiKit.ACCENT else UiKit.MUTED)
+			local row = UiKit.row(card, UiKit.TOUCH_ROW)
+			local b =
+				UiKit.button(row, action, 150, UiKit.TOUCH, if enabled then UiKit.ACCENT else UiKit.MUTED)
 			b.AutoButtonColor = enabled
 			b.Activated:Connect(function()
 				if enabled and onBuy then
@@ -171,8 +172,8 @@ function CoinShop.start(ctx: Context.Context)
 		local more = UiKit.card(body)
 		more.LayoutOrder = 100
 		UiKit.label(more, "Need more coins?", 22, true)
-		local row = UiKit.row(more, 34)
-		UiKit.button(row, "See Robux items", 170, 32, UiKit.ACCENT).Activated:Connect(api.showRobux)
+		local row = UiKit.row(more, UiKit.TOUCH_ROW)
+		UiKit.button(row, "See Robux items", 170, UiKit.TOUCH, UiKit.ACCENT).Activated:Connect(api.showRobux)
 	end)
 
 	-- Keep prices and states current while the shop is open.

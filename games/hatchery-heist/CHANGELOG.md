@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Phones: shop buttons are 40 px tall (thumb-sized), and every shop card
+  reads top to bottom (name, description, price, button).
 - First look (Alex's Nov 4 play test): a welcome screen on a new player's
   first join and a Guide button in a new side menu to reopen it; a goal line
   under the coin bar with a beam and arrow to the next thing to do (first

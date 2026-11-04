@@ -6,6 +6,7 @@
 -- Built from code; art comes after the gate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage.Shared
 local Catch = require(Shared.Catch)
@@ -89,14 +90,41 @@ function Hud.start(ctx: Context.Context): Api
 		table.insert(baitOrder, bait.id)
 		robuxBait[bait.id] = bait.robux
 	end
+	-- Every tap shows something: a quick pop on the button, and the title
+	-- says why when a bait can't be picked.
+	local titleNote = 0
+	local function note(text: string)
+		titleNote += 1
+		local mine = titleNote
+		pickerTitle.Text = text
+		pickerTitle.TextColor3 = Ui.GOLD
+		task.delay(2.5, function()
+			if titleNote == mine then
+				pickerTitle.Text = "Bait"
+				pickerTitle.TextColor3 = Color3.new(1, 1, 1)
+			end
+		end)
+	end
+	local function pop(b: TextButton)
+		local scale = b:FindFirstChildOfClass("UIScale") or Instance.new("UIScale")
+		scale.Scale = 0.9
+		scale.Parent = b
+		TweenService:Create(scale, TweenInfo.new(0.15, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+	end
 	for i, baitId in baitOrder do
-		local b = Ui.button(picker, baitId, "", UDim2.new(1, 0, 0, 34))
+		local b = Ui.button(picker, baitId, "", UDim2.new(1, 0, 0, 38))
 		b.LayoutOrder = i
 		b.Activated:Connect(function()
+			pop(b)
 			local d = ctx.data()
 			local have = if baitId == Catch.NO_BAIT then 1 elseif d then d.bait[baitId] or 0 else 0
-			if have > 0 and not OddsView.blocked(baitId) then
+			if OddsView.blocked(baitId) then
+				note("Not available")
+			elseif have <= 0 then
+				note(`No {Layout.displayName(baitId)} left`)
+			else
 				ctx.setBait(baitId)
+				note(if baitId == Catch.NO_BAIT then "No bait" else `{Layout.displayName(baitId)} on`)
 			end
 		end)
 		baitButtons[baitId] = b
@@ -112,11 +140,12 @@ function Hud.start(ctx: Context.Context): Api
 		for baitId, b in baitButtons do
 			local have = if baitId == Catch.NO_BAIT then nil elseif d then d.bait[baitId] or 0 else 0
 			local name = if baitId == Catch.NO_BAIT then "No bait" else Layout.displayName(baitId)
-			b.Text = if have then `{name} x{have}` else name
+			local label = if have then `{name} x{have}` else name
+			b.Text = if baitId == selected then `✓ {label}` else label
 			local usable = (have == nil or have > 0) and not OddsView.blocked(baitId)
 			-- Robux-only bait shows up once the player has some.
 			b.Visible = not robuxBait[baitId] or (have or 0) > 0
-			b.Active = usable
+			-- Still tappable when empty, so the tap can say why.
 			b.AutoButtonColor = usable
 			b.BackgroundColor3 = if baitId == selected
 				then Ui.GOOD

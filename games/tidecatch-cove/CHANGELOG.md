@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Phones: pool rows show their status in readable text instead of
+  shrinking it to a few pixels; bait buttons pop when tapped, mark the
+  chosen bait with a tick and say why an empty bait can't be picked.
 - Fix: on a landscape phone the Pools, Bucket and shop panels were taller
   than the screen, so the Unlock and Sell all buttons were cut off. Panels
   now fit 90% of the screen height and their lists scroll.

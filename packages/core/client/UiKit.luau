@@ -12,6 +12,10 @@ UiKit.ROW = Color3.fromRGB(40, 40, 55)
 UiKit.ACCENT = Color3.fromRGB(70, 160, 90)
 UiKit.MUTED = Color3.fromRGB(110, 110, 125)
 UiKit.WARN = Color3.fromRGB(200, 80, 70)
+-- Height of a button players tap, and of the row that holds it: big enough
+-- for a thumb on a phone.
+UiKit.TOUCH = 40
+UiKit.TOUCH_ROW = 44
 
 local function corner(parent: Instance, radius: number)
 	local c = Instance.new("UICorner")
@@ -96,6 +100,15 @@ function UiKit.card(parent: Instance): Frame
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Padding = UDim.new(0, 4)
 	layout.Parent = f
+	-- Children stack in the order they were added (equal LayoutOrders
+	-- would otherwise come out in no fixed order).
+	local added = 0
+	f.ChildAdded:Connect(function(child: Instance)
+		if child:IsA("GuiObject") and child.LayoutOrder == 0 then
+			added += 1
+			child.LayoutOrder = added
+		end
+	end)
 	f.Parent = parent
 	return f
 end
