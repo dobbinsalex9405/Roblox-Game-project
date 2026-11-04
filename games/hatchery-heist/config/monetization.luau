@@ -36,6 +36,7 @@ return {
 				ShieldRefill = 3726413289,
 				CoinPackMedium = 3726413675,
 				CoinPackLarge = 3726413903,
+				CoinPackBig = 3728152137,
 			},
 		},
 		production = { passes = {}, products = {} },
