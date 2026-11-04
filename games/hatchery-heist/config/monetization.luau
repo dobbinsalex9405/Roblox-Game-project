@@ -15,7 +15,7 @@ return {
 	products = {
 		CoinPackSmall = { id = 0, coins = 5000 },
 		CoinPackMedium = { id = 0, coins = 30000 },
-		CoinPackLarge = { id = 0, coins = 100000 },
+		CoinPackLarge = { id = 0, coins = 200000 },
 		ShieldRefill = { id = 0 },
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
@@ -71,9 +71,9 @@ return {
 				description = "30,000 coins, added right away.",
 			},
 			CoinPackLarge = {
-				name = "100K Coins",
-				robux = 199,
-				description = "100,000 coins, added right away. The best value per Robux.",
+				name = "200K Coins",
+				robux = 399,
+				description = "200,000 coins, added right away. The best value per Robux.",
 			},
 			ShieldRefill = {
 				name = "Shield Refill",
