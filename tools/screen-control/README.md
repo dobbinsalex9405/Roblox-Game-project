@@ -52,7 +52,11 @@ powershell -ExecutionPolicy Bypass -File tools\screen-control\register.ps1
 ```
 
 This adds `screen-control` to Claude Code's user config, so every new
-session on the laptop, Remote Control threads included, gets the tools.
+session on the laptop, Remote Control threads included, gets the tools. It
+also installs `skill/SKILL.md` as the user skill `screen-control`
+(`%USERPROFILE%\.claude\skills\screen-control`), which tells a session when
+and how to use the tools and the hard rules. Edit the copy here and re-run
+`register.ps1` to update it.
 While the server is stopped, `claude mcp list` shows it as failed to connect
 and Claude cannot touch the screen. Sessions started before the server was
 up need a restart (or `/mcp` reconnect) to see the tools.
@@ -92,8 +96,9 @@ usually hides page contents from it: in Chrome, click by screenshot
 coordinates, or use the Chrome browser tools.
 
 `window_title_contains` is required on `type_text`, `press_keys` and
-`click_element`: the Claude app itself often takes the foreground, and
-without the check, text lands in whatever window is in front.
+`click_element`: the Claude app itself often takes the foreground between
+calls. The server brings the named window to the front first and sends
+nothing if it cannot, so text never lands in whatever window is in front.
 
 Uploading a file through a web page: click the page's upload button, wait
 for the Windows "Open" dialog, `type_text(path, "Open")` into "File name",
