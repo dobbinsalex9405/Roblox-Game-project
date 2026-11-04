@@ -25,8 +25,11 @@ _started = False
 
 
 def touch() -> None:
-    global _last, _started
-    _last = time.monotonic()
+    global _last, _session, _started
+    now = time.monotonic()
+    if now - _last >= SESSION_TIMEOUT:
+        _session = False  # a task left open that long has ended
+    _last = now
     if not _started:
         _started = True
         threading.Thread(target=_run, name="overlay", daemon=True).start()
@@ -34,8 +37,8 @@ def touch() -> None:
 
 def begin() -> None:
     global _session
-    _session = True
     touch()
+    _session = True
 
 
 def end() -> None:

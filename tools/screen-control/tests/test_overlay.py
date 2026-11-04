@@ -35,5 +35,20 @@ class OverlayTest(unittest.TestCase):
         self.assertFalse(overlay.visible(now + overlay.SESSION_TIMEOUT + 1))
 
 
+    def test_action_after_timed_out_task_shows_it_briefly(self):
+        overlay.begin()
+        overlay._last -= overlay.SESSION_TIMEOUT + 1  # the task went quiet
+        overlay.touch()
+        now = overlay._last
+        self.assertFalse(overlay.visible(now + overlay.IDLE_SECONDS + 1))
+
+    def test_begin_after_timed_out_task_starts_a_new_one(self):
+        overlay.begin()
+        overlay._last -= overlay.SESSION_TIMEOUT + 1
+        overlay.begin()
+        now = overlay._last
+        self.assertTrue(overlay.visible(now + 120))
+
+
 if __name__ == "__main__":
     unittest.main()
