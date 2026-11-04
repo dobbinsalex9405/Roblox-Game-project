@@ -11,6 +11,7 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 
@@ -274,6 +275,17 @@ function ShopUi.start(hooks: Hooks)
 	end)
 
 	ClientNet.on(ShopRemotes["Shop:Catalog"], function(entries: { Entry })
+		-- Items not created on Roblox yet only show in Studio (for the test
+		-- panel); players never see a card they can't buy.
+		if not RunService:IsStudio() then
+			local live = {}
+			for _, entry in entries do
+				if entry.available then
+					table.insert(live, entry)
+				end
+			end
+			entries = live
+		end
 		catalog = entries
 		button.Visible = #entries > 0 or #tabs > 0
 		render()

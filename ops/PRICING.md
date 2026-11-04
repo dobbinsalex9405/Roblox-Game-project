@@ -40,15 +40,16 @@ Why these numbers:
   passes the launch gate and its numbers say players want a bigger item.
 - **Bigger packs are better value.** Every game's currency packs give more
   per Robux as they get bigger (the test checks it): Hatchery Heist pays 200,
-  303 and 501 coins per Robux; Street Food Empire 200, 505 and 1,504 cash per
+  303, 402 and 501 coins per Robux; Street Food Empire 200, 505 and 1,504 cash per
   Robux (its station costs grow faster, so its large pack has to reach
   further).
 - **Hatchery Heist sits one rung lower (Nov 4).** Alex's first look found
   its shop a little dear for a brand-new game, so Double Coins is 149,
-  and Extra Incubators 99. The 200K coin pack stays at 399 for now: a
-  product's grant can't change while its live Roblox price is the old one,
-  so a cheaper pack must be a new product (a new key with id 0 until the
-  laptop creates it), not a changed one. Revisit after 7 days of sales.
+  and Extra Incubators 99, and a new 80K Coins pack at 199 fills the gap
+  under the 200K pack at 399. A live product's grant never changes while
+  its Roblox price is the old one, so a cheaper pack is a new product key
+  (id 0 until the laptop creates it; the shop hides it until then), never
+  a changed one. Revisit after 7 days of sales.
 - **Roblox keeps 30%.** The studio earns about 70% of each price, so a 199
   pass earns about 139 Robux.
 
@@ -116,6 +117,7 @@ Why these numbers:
 | Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Dragonling or Phoenix. Exact odds are shown before you buy. |
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
+| Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |
 | Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |
 | Tidecatch Cove | AutoReel | Game Pass | Auto-reel | 149 | Capacity | Yes | Bites reel themselves in at an average player's success rate. Skill still pays. |
 | Tidecatch Cove | ExtraPools | Game Pass | Extra Pools | 149 | Capacity | Yes | More tide pools, so you can raise more creatures at once. |

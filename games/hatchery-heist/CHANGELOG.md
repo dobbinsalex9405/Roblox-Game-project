@@ -11,7 +11,8 @@
   music (tracks set in `config/atmosphere.luau`) with a Music on/off button.
 - Shop opens on a new Coins tab (incubator, shield, traps, decoy, belt
   eggs), with Robux items on the second tab.
-- Prices one rung lower: Double Coins 149, Extra Incubators 99.
+- Prices one rung lower: Double Coins 149, Extra Incubators 99, and a new
+  80K Coins pack at 199 between the 30K and 200K packs.
 
 - Fix: the map was buried in the ground. The Baseplate was placed with a
   property Rojo drops when it builds the place, so it sat ten studs too high
