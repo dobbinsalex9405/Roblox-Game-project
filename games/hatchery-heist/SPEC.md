@@ -86,11 +86,27 @@ Defenses, bought and placed on the owner's own base:
 Only players online in the server can be raided. Permanent raid immunity is
 never sold.
 
+## First session and look
+
+- **Welcome screen** on a brand-new save's first join: what the game is and
+  four steps (buy eggs, hatch, earn and collect, raid and defend). The
+  **Guide** button in the side menu (right edge) reopens it any time.
+- **Goal line** under the coin bar, with a beam and a bouncing arrow to the
+  target: buy an egg, wait for it and hatch it, collect, then save up for and
+  unlock the 4th incubator. It goes away after that (`src/shared/Guide.luau`).
+- **Look and sound** from `config/atmosphere.luau`: sunny afternoon light,
+  haze, clouds, bloom and sun rays; a sandy yard with the Golden Nest in the
+  middle; low fences and flower beds on each base; trees and a ring of hills.
+  Background music from Roblox's licensed library, with a Music on/off button
+  in the side menu.
+
 ## Money
 
 All prices need Alex's approval (M5). Product and pass ids stay 0 in
 `config/monetization.luau` until created on Roblox; id 0 is never sold.
 
+- The shop opens on its **Coins** tab (next incubator, free shield, traps,
+  decoy egg, belt eggs); Robux items are the second tab.
 - Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect.
 - Products: three coin packs, Shield Refill (adds `shieldSeconds`), Instant
   Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare/Epic/Legendary

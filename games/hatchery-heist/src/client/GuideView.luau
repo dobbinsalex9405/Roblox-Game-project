@@ -1,0 +1,365 @@
+--!strict
+-- Getting started: a welcome screen on a brand-new player's first join, a
+-- Guide button in the side menu that reopens it, and the first-session goal
+-- (src/shared/Guide.luau) as a line under the coin bar with a beam and a
+-- bouncing arrow to the place to go.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage.Shared
+local Guide = require(Shared.Guide)
+local Layout = require(Shared.Layout)
+
+local Context = require(script.Parent.Context)
+
+local GuideView = {}
+
+local GOLD = Color3.fromRGB(255, 210, 63)
+local PANEL = Color3.fromRGB(28, 30, 48)
+
+export type SideMenu = {
+	add: (name: string, text: string, onClick: () -> ()) -> TextButton,
+}
+
+local function corner(parent: Instance, radius: number)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, radius)
+	c.Parent = parent
+end
+
+local function text(parent: Instance, name: string, value: string, size: number, bold: boolean?): TextLabel
+	local l = Instance.new("TextLabel")
+	l.Name = name
+	l.BackgroundTransparency = 1
+	l.Font = if bold then Enum.Font.GothamBold else Enum.Font.GothamMedium
+	l.TextSize = size
+	l.TextColor3 = Color3.new(1, 1, 1)
+	l.TextWrapped = true
+	l.Text = value
+	l.Parent = parent
+	return l
+end
+
+-- What the welcome screen teaches, in play order.
+local STEPS = {
+	{
+		icon = "🥚",
+		title = "Buy eggs",
+		body = "Eggs ride the conveyor belt at the front of your base. Walk up to one and buy it with coins.",
+	},
+	{
+		icon = "🐣",
+		title = "Hatch them",
+		body = "Eggs go into your incubators. When one is ready, hatch it to see what you got.",
+	},
+	{
+		icon = "💰",
+		title = "Earn coins",
+		body = "Creatures on your pads earn coins every second. Collect them at the green pad.",
+	},
+	{
+		icon = "🦊",
+		title = "Raid and defend",
+		body = "Sneak into other bases and carry creatures home. Raise your shield and set traps to protect yours.",
+	},
+}
+
+local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
+	local shade = Instance.new("Frame")
+	shade.Name = "Welcome"
+	shade.Size = UDim2.fromScale(1, 1)
+	shade.BackgroundColor3 = Color3.new(0, 0, 0)
+	shade.BackgroundTransparency = 0.45
+	shade.Visible = false
+	shade.ZIndex = 10
+	shade.Parent = gui
+
+	local card = Instance.new("Frame")
+	card.Name = "Card"
+	card.AnchorPoint = Vector2.new(0.5, 0.5)
+	card.Position = UDim2.fromScale(0.5, 0.5)
+	card.Size = UDim2.new(0.92, 0, 0, 0)
+	card.AutomaticSize = Enum.AutomaticSize.Y
+	card.BackgroundColor3 = PANEL
+	card.ZIndex = 11
+	corner(card, 16)
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = GOLD
+	stroke.Thickness = 3
+	stroke.Parent = card
+	local limit = Instance.new("UISizeConstraint")
+	limit.MaxSize = Vector2.new(460, math.huge)
+	limit.Parent = card
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 16)
+	pad.PaddingBottom = UDim.new(0, 16)
+	pad.PaddingLeft = UDim.new(0, 18)
+	pad.PaddingRight = UDim.new(0, 18)
+	pad.Parent = card
+	local list = Instance.new("UIListLayout")
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Padding = UDim.new(0, 10)
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	list.Parent = card
+	card.Parent = shade
+
+	local title = text(card, "Title", "Welcome to Hatchery Heist!", 26, true)
+	title.TextColor3 = GOLD
+	title.Size = UDim2.new(1, 0, 0, 34)
+	title.LayoutOrder = 1
+	title.ZIndex = 12
+	local sub =
+		text(card, "Subtitle", "Hatch rare creatures, grow your coin empire, and steal from your rivals.", 16)
+	sub.Size = UDim2.new(1, 0, 0, 40)
+	sub.TextColor3 = Color3.fromRGB(210, 215, 235)
+	sub.LayoutOrder = 2
+	sub.ZIndex = 12
+
+	for index, step in STEPS do
+		local row = Instance.new("Frame")
+		row.Name = `Step{index}`
+		row.LayoutOrder = 2 + index
+		row.Size = UDim2.new(1, 0, 0, 0)
+		row.AutomaticSize = Enum.AutomaticSize.Y
+		row.BackgroundColor3 = Color3.fromRGB(44, 48, 74)
+		row.ZIndex = 11
+		corner(row, 10)
+		local icon = text(row, "Icon", step.icon, 30)
+		icon.Size = UDim2.fromOffset(48, 48)
+		icon.Position = UDim2.fromOffset(6, 6)
+		icon.ZIndex = 12
+		local name = text(row, "Name", step.title, 18, true)
+		name.TextXAlignment = Enum.TextXAlignment.Left
+		name.Position = UDim2.fromOffset(60, 6)
+		name.Size = UDim2.new(1, -68, 0, 22)
+		name.ZIndex = 12
+		local body = text(row, "Body", step.body, 15)
+		body.TextXAlignment = Enum.TextXAlignment.Left
+		body.TextYAlignment = Enum.TextYAlignment.Top
+		body.TextColor3 = Color3.fromRGB(215, 220, 240)
+		body.Position = UDim2.fromOffset(60, 30)
+		body.Size = UDim2.new(1, -68, 0, 0)
+		body.AutomaticSize = Enum.AutomaticSize.Y
+		body.ZIndex = 12
+		local rowPad = Instance.new("UIPadding")
+		rowPad.PaddingBottom = UDim.new(0, 8)
+		rowPad.Parent = row
+		row.Parent = card
+	end
+
+	local go = Instance.new("TextButton")
+	go.Name = "Go"
+	go.LayoutOrder = 20
+	go.Size = UDim2.fromOffset(200, 48)
+	go.BackgroundColor3 = Color3.fromRGB(70, 180, 90)
+	go.Font = Enum.Font.GothamBold
+	go.TextSize = 22
+	go.TextColor3 = Color3.new(1, 1, 1)
+	go.Text = "Let's go!"
+	go.ZIndex = 12
+	corner(go, 12)
+	go.Parent = card
+	return shade, go
+end
+
+-- A column of buttons on the right edge of the screen.
+local function sideMenu(gui: ScreenGui): SideMenu
+	local column = Instance.new("Frame")
+	column.Name = "SideMenu"
+	column.AnchorPoint = Vector2.new(1, 0.5)
+	column.Position = UDim2.new(1, -10, 0.45, 0)
+	column.Size = UDim2.fromOffset(84, 0)
+	column.AutomaticSize = Enum.AutomaticSize.Y
+	column.BackgroundTransparency = 1
+	local list = Instance.new("UIListLayout")
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Padding = UDim.new(0, 8)
+	list.Parent = column
+	column.Parent = gui
+	local count = 0
+	return {
+		add = function(name: string, label: string, onClick: () -> ()): TextButton
+			count += 1
+			local b = Instance.new("TextButton")
+			b.Name = name
+			b.LayoutOrder = count
+			b.Size = UDim2.fromOffset(84, 44)
+			b.BackgroundColor3 = PANEL
+			b.BackgroundTransparency = 0.1
+			b.Font = Enum.Font.GothamBold
+			b.TextSize = 16
+			b.TextColor3 = Color3.new(1, 1, 1)
+			b.Text = label
+			corner(b, 10)
+			local stroke = Instance.new("UIStroke")
+			stroke.Color = GOLD
+			stroke.Thickness = 1.5
+			stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			stroke.Parent = b
+			b.Activated:Connect(onClick)
+			b.Parent = column
+			return b
+		end,
+	}
+end
+
+local function findTarget(plot: Model, target: Guide.Target): BasePart?
+	local found: Instance? = nil
+	if target.kind == "Belt" then
+		found = plot:FindFirstChild("Belt")
+	elseif target.kind == "CollectPad" then
+		found = plot:FindFirstChild("CollectPad")
+	elseif target.kind == "Incubator" then
+		local folder = plot:FindFirstChild("Incubators")
+		found = folder and folder:FindFirstChild(`Incubator{target.slot}`)
+	end
+	return if found and found:IsA("BasePart") then found else nil
+end
+
+function GuideView.start(ctx: Context.Context): SideMenu
+	local player = Players.LocalPlayer
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "HatcheryGuide"
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = 5
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	-- The goal line, under the coin bar (Hud).
+	local goal = Instance.new("Frame")
+	goal.Name = "Goal"
+	goal.AnchorPoint = Vector2.new(0.5, 0)
+	goal.Position = UDim2.new(0.5, 0, 0, 80)
+	goal.Size = UDim2.new(0.92, 0, 0, 38)
+	goal.BackgroundColor3 = PANEL
+	goal.BackgroundTransparency = 0.1
+	goal.Visible = false
+	corner(goal, 10)
+	local goalLimit = Instance.new("UISizeConstraint")
+	goalLimit.MaxSize = Vector2.new(420, 38)
+	goalLimit.Parent = goal
+	local goalStroke = Instance.new("UIStroke")
+	goalStroke.Color = GOLD
+	goalStroke.Thickness = 2
+	goalStroke.Parent = goal
+	local goalText = text(goal, "Text", "", 16, true)
+	goalText.Position = UDim2.fromOffset(10, 3)
+	goalText.Size = UDim2.new(1, -20, 1, -6)
+	goal.Parent = gui
+
+	local welcome, go = welcomeWindow(gui)
+	go.Activated:Connect(function()
+		welcome.Visible = false
+	end)
+
+	local menu = sideMenu(gui)
+	menu.add("Guide", "📖 Guide", function()
+		welcome.Visible = not welcome.Visible
+	end)
+
+	local shownWelcome = false
+	ctx.onData(function(d: { [string]: any })
+		if not shownWelcome then
+			shownWelcome = true
+			if Guide.isNewPlayer(d) then
+				welcome.Visible = true
+			end
+		end
+	end)
+
+	-- The beam from the player to the goal, and an arrow over it.
+	local fromAttachment: Attachment? = nil
+	local toAttachment = Instance.new("Attachment")
+	toAttachment.Name = "GuideTarget"
+	local beam = Instance.new("Beam")
+	beam.Name = "GuideBeam"
+	beam.Color = ColorSequence.new(GOLD)
+	beam.Transparency = NumberSequence.new(0.25)
+	beam.Width0 = 0.5
+	beam.Width1 = 0.5
+	beam.FaceCamera = true
+	beam.LightEmission = 0.6
+	beam.Segments = 1
+	beam.Attachment1 = toAttachment
+	beam.Enabled = false
+	local arrow = Instance.new("BillboardGui")
+	arrow.Name = "GuideArrow"
+	arrow.Size = UDim2.fromOffset(60, 60)
+	arrow.AlwaysOnTop = true
+	arrow.LightInfluence = 0
+	arrow.Enabled = false
+	local arrowText = text(arrow, "Text", "▼", 48, true)
+	arrowText.Size = UDim2.fromScale(1, 1)
+	arrowText.TextColor3 = GOLD
+	arrowText.TextStrokeTransparency = 0.2
+
+	local function attachToCharacter(): Attachment?
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if root == nil then
+			return nil
+		end
+		if fromAttachment == nil or fromAttachment.Parent ~= root then
+			local a = Instance.new("Attachment")
+			a.Name = "GuideFrom"
+			a.Position = Vector3.new(0, -1.5, 0)
+			a.Parent = root
+			fromAttachment = a
+			beam.Attachment0 = a
+			beam.Parent = root
+		end
+		return fromAttachment
+	end
+
+	local function hidePointer()
+		beam.Enabled = false
+		arrow.Enabled = false
+	end
+
+	task.spawn(function()
+		local bounce = 0
+		while true do
+			local d = ctx.data()
+			local plot = ctx.plot()
+			local step = if d
+				then Guide.next(d, ctx.config.economy, ctx.serverNow(), Layout.shortNumber)
+				else nil
+			if step == nil or plot == nil then
+				goal.Visible = false
+				hidePointer()
+			else
+				goal.Visible = true
+				goalText.Text = `➜ {step.text}`
+				local target = step.target and findTarget(plot, step.target)
+				if target and attachToCharacter() then
+					-- Half the part's height in the world (incubators lie on their side).
+					local top = math.abs(target.CFrame:VectorToWorldSpace(target.Size).Y) / 2
+					if target.Name == "Belt" then
+						-- The middle of the belt, where the eggs are.
+						top += 1
+					end
+					toAttachment.Parent = target
+					toAttachment.WorldPosition = target.Position + Vector3.new(0, top + 0.5, 0)
+					arrow.Adornee = target
+					arrow.Parent = target
+					bounce = (bounce + 1) % 8
+					arrow.StudsOffsetWorldSpace = Vector3.new(0, top + 3 + math.abs(4 - bounce) * 0.25, 0)
+					beam.Enabled = true
+					arrow.Enabled = true
+				else
+					hidePointer()
+				end
+			end
+			task.wait(0.15)
+		end
+	end)
+
+	-- A new character needs a new beam start.
+	player.CharacterAdded:Connect(function()
+		fromAttachment = nil
+	end)
+
+	return menu
+end
+
+return GuideView

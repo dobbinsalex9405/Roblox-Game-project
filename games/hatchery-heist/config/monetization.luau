@@ -15,7 +15,7 @@ return {
 	products = {
 		CoinPackSmall = { id = 0, coins = 5000 },
 		CoinPackMedium = { id = 0, coins = 30000 },
-		CoinPackLarge = { id = 0, coins = 200000 },
+		CoinPackLarge = { id = 0, coins = 100000 },
 		ShieldRefill = { id = 0 },
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
@@ -49,12 +49,12 @@ return {
 		passes = {
 			DoubleCoins = {
 				name = "Double Coins",
-				robux = 199,
+				robux = 149,
 				description = "Every creature you own earns twice as many coins, forever.",
 			},
 			ExtraIncubators = {
 				name = "Extra Incubators",
-				robux = 149,
+				robux = 99,
 				description = "Two more incubators, so you can hatch more eggs at once.",
 			},
 			AutoCollect = {
@@ -71,9 +71,9 @@ return {
 				description = "30,000 coins, added right away.",
 			},
 			CoinPackLarge = {
-				name = "200K Coins",
-				robux = 399,
-				description = "200,000 coins, added right away. The best value per Robux.",
+				name = "100K Coins",
+				robux = 199,
+				description = "100,000 coins, added right away. The best value per Robux.",
 			},
 			ShieldRefill = {
 				name = "Shield Refill",

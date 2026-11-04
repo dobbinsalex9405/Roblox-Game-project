@@ -40,9 +40,15 @@ Why these numbers:
   passes the launch gate and its numbers say players want a bigger item.
 - **Bigger packs are better value.** Every game's currency packs give more
   per Robux as they get bigger (the test checks it): Hatchery Heist pays 200,
-  303 and 501 coins per Robux; Street Food Empire 200, 505 and 1,504 cash per
+  303 and 503 coins per Robux; Street Food Empire 200, 505 and 1,504 cash per
   Robux (its station costs grow faster, so its large pack has to reach
   further).
+- **Hatchery Heist sits one rung lower (Nov 4).** Alex's first look found
+  its shop a little dear for a brand-new game, so Double Coins is 149,
+  Extra Incubators 99 and its largest pack 100K coins for 199 (about the
+  same coins per Robux as before, half the ticket). The table's Tier column
+  names the rung by price, so that pack reads "Power". Revisit after 7 days
+  of sales.
 - **Roblox keeps 30%.** The studio earns about 70% of each price, so a 199
   pass earns about 139 Robux.
 
@@ -102,15 +108,15 @@ Why these numbers:
 | Game | Key | Type | Name on Roblox | Robux | Tier | In shop now | Description |
 | --- | --- | --- | --- | ---: | --- | --- | --- |
 | Hatchery Heist | AutoCollect | Game Pass | Auto-Collect | 99 | Medium | Yes | Your earnings flow into your coins by themselves. No more trips to the collect pad. |
-| Hatchery Heist | ExtraIncubators | Game Pass | Extra Incubators | 149 | Capacity | Yes | Two more incubators, so you can hatch more eggs at once. |
-| Hatchery Heist | DoubleCoins | Game Pass | Double Coins | 199 | Power | Yes | Every creature you own earns twice as many coins, forever. |
+| Hatchery Heist | ExtraIncubators | Game Pass | Extra Incubators | 99 | Medium | Yes | Two more incubators, so you can hatch more eggs at once. |
+| Hatchery Heist | DoubleCoins | Game Pass | Double Coins | 149 | Capacity | Yes | Every creature you own earns twice as many coins, forever. |
 | Hatchery Heist | CoinPackSmall | Developer Product | 5K Coins | 25 | Impulse | Yes | 5,000 coins, added right away. |
 | Hatchery Heist | InstantHatch | Developer Product | Instant Hatch | 25 | Impulse | Not yet | Finishes hatching an egg right now. |
 | Hatchery Heist | LuckBoost | Developer Product | Luck Boost | 49 | Boost | Not yet | Better odds of Rare, Epic and Legendary hatches for 15 minutes. The boosted odds are shown. |
 | Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Dragonling or Phoenix. Exact odds are shown before you buy. |
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
-| Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |
+| Hatchery Heist | CoinPackLarge | Developer Product | 100K Coins | 199 | Power | Yes | 100,000 coins, added right away. The best value per Robux. |
 | Tidecatch Cove | AutoReel | Game Pass | Auto-reel | 149 | Capacity | Yes | Bites reel themselves in at an average player's success rate. Skill still pays. |
 | Tidecatch Cove | ExtraPools | Game Pass | Extra Pools | 149 | Capacity | Yes | More tide pools, so you can raise more creatures at once. |
 | Tidecatch Cove | SellMultiplier | Game Pass | Sell Multiplier | 199 | Power | Yes | Every creature you sell pays double, forever. |
