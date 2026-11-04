@@ -134,13 +134,15 @@ def element_refusal(name: str) -> str | None:
     return None
 
 
-def covered_refusal(window_at_point: int, target_window: int, title_at_point: str = "") -> str | None:
+def covered_refusal(owner_chain: list[int], target_window: int, title_at_point: str = "") -> str | None:
     """Return why a click by element name must not be sent, or None.
 
-    The element was found in target_window, but another window (often the
-    Claude app) can cover that spot; the click would then land there.
+    owner_chain is the top-level window at the click point followed by its
+    owners. The click belongs to the target when the target is in the chain:
+    the window itself, or a menu or dropdown it owns. Otherwise another
+    window (often the Claude app) covers the spot.
     """
-    if window_at_point != target_window:
+    if target_window not in owner_chain:
         return f"another window ({title_at_point!r}) covers that element; focus the target window first"
     return None
 

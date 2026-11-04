@@ -13,7 +13,8 @@ session on the laptop has it. An orange border shows on screen while you use it.
 ## Before you start
 
 1. If the tools are missing or fail to connect, check it is running:
-   `powershell -ExecutionPolicy Bypass -File C:\Users\dobbi\Roblox-Game-project\tools\screen-control\status.ps1`.
+   `powershell -ExecutionPolicy Bypass -File tools\screen-control\status.ps1`
+   from the repo folder (`%USERPROFILE%\Roblox-Game-project`).
    If it is not running, tell Alex (don't start it yourself unless Alex asked
    for screen control in this conversation). Sessions opened before it started
    need `/mcp` reconnect or a restart.
@@ -35,15 +36,17 @@ session on the laptop has it. An orange border shows on screen while you use it.
 - `find_elements(text, window_title_contains)` and
   `click_element(text, window_title_contains, index)` work by on-screen name
   in native apps, file dialogs, Notepad and Edge. Chrome usually hides page
-  contents from them: click by coordinates there. `click_element` is not
-  sent if another window covers the element: `focus_window` first.
+  contents from them: click by coordinates there. If another window covers
+  the element, `click_element` brings the target window forward first and
+  sends nothing if it is still covered.
 - `type_text(text, window_title_contains)` pastes the text exactly (clipboard
-  text is restored; with an image or files on the clipboard it types keys
-  instead); `method="keys"` sends keystrokes for apps that ignore paste.
+  text is restored; if the clipboard holds only an image or files, it types
+  keys instead); `method="keys"` sends keystrokes for apps that ignore paste.
   `press_keys("ctrl+s", window_title_contains)` for keys and shortcuts.
-  **`window_title_contains` is required** and must match the window you mean:
-  the Claude app often jumps to the front, and the check stops text landing
-  there. Click into the target field first.
+  **`window_title_contains` is required**: name the window you mean. The
+  Claude app often jumps to the front between calls, so the server brings
+  the named window forward first and sends nothing if it can't. Click into
+  the target field first.
 - `list_windows()`, `focus_window(title_contains)` to switch windows. If
   Windows refuses the focus change, click the window instead.
 - Upload a file through a web page: click the page's upload button, then in

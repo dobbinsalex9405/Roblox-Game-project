@@ -80,10 +80,23 @@ class GuardTest(unittest.TestCase):
                 self.assertIsNone(element_refusal(name))
 
     def test_covered_element_is_not_clicked(self):
-        self.assertIsNotNone(covered_refusal(111, 222, "Claude"))
+        # The Claude app (111, no owner) covers Notepad (222).
+        self.assertIsNotNone(covered_refusal([111], 222, "Claude"))
 
     def test_uncovered_element_is_clicked(self):
-        self.assertIsNone(covered_refusal(222, 222, "Notepad"))
+        self.assertIsNone(covered_refusal([222], 222, "Notepad"))
+
+    def test_menu_owned_by_target_is_clicked(self):
+        # A dropdown (333) is its own top-level window, owned by Notepad (222).
+        self.assertIsNone(covered_refusal([333, 222], 222, ""))
+
+    def test_dialog_as_target_is_clicked(self):
+        # The "Open" dialog (444) is the target; it is owned by Chrome (555).
+        self.assertIsNone(covered_refusal([444, 555], 444, "Open"))
+
+    def test_dialog_over_other_target_is_not_clicked(self):
+        # An "Open" dialog owned by Chrome covers Notepad.
+        self.assertIsNotNone(covered_refusal([444, 555], 222, "Open"))
 
     def test_file_dialog_is_allowed(self):
         focus = Focus(window_title="Open", name="File name:", class_name="Edit")

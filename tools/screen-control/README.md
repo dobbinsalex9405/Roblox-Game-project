@@ -96,8 +96,9 @@ usually hides page contents from it: in Chrome, click by screenshot
 coordinates, or use the Chrome browser tools.
 
 `window_title_contains` is required on `type_text`, `press_keys` and
-`click_element`: the Claude app itself often takes the foreground, and
-without the check, text lands in whatever window is in front.
+`click_element`: the Claude app itself often takes the foreground between
+calls. The server brings the named window to the front first and sends
+nothing if it cannot, so text never lands in whatever window is in front.
 
 Uploading a file through a web page: click the page's upload button, wait
 for the Windows "Open" dialog, `type_text(path, "Open")` into "File name",
