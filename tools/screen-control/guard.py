@@ -134,6 +134,17 @@ def element_refusal(name: str) -> str | None:
     return None
 
 
+def covered_refusal(window_at_point: int, target_window: int, title_at_point: str = "") -> str | None:
+    """Return why a click by element name must not be sent, or None.
+
+    The element was found in target_window, but another window (often the
+    Claude app) can cover that spot; the click would then land there.
+    """
+    if window_at_point != target_window:
+        return f"another window ({title_at_point!r}) covers that element; focus the target window first"
+    return None
+
+
 def refusal(focus: Focus, text: str = "") -> str | None:
     """Return why typing `text` (or pressing keys) must be refused, or None."""
     if not focus.readable:

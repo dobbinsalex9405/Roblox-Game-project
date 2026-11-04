@@ -52,7 +52,11 @@ powershell -ExecutionPolicy Bypass -File tools\screen-control\register.ps1
 ```
 
 This adds `screen-control` to Claude Code's user config, so every new
-session on the laptop, Remote Control threads included, gets the tools.
+session on the laptop, Remote Control threads included, gets the tools. It
+also installs `skill/SKILL.md` as the user skill `screen-control`
+(`%USERPROFILE%\.claude\skills\screen-control`), which tells a session when
+and how to use the tools and the hard rules. Edit the copy here and re-run
+`register.ps1` to update it.
 While the server is stopped, `claude mcp list` shows it as failed to connect
 and Claude cannot touch the screen. Sessions started before the server was
 up need a restart (or `/mcp` reconnect) to see the tools.

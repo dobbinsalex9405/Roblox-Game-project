@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from guard import Focus, element_refusal, page_refusal, refusal  # noqa: E402
+from guard import Focus, covered_refusal, element_refusal, page_refusal, refusal  # noqa: E402
 
 
 class GuardTest(unittest.TestCase):
@@ -78,6 +78,12 @@ class GuardTest(unittest.TestCase):
         for name in ("Upload thumbnail", "Open", "Add New Tab"):
             with self.subTest(name=name):
                 self.assertIsNone(element_refusal(name))
+
+    def test_covered_element_is_not_clicked(self):
+        self.assertIsNotNone(covered_refusal(111, 222, "Claude"))
+
+    def test_uncovered_element_is_clicked(self):
+        self.assertIsNone(covered_refusal(222, 222, "Notepad"))
 
     def test_file_dialog_is_allowed(self):
         focus = Focus(window_title="Open", name="File name:", class_name="Edit")

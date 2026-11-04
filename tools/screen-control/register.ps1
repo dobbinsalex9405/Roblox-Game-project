@@ -26,4 +26,9 @@ $ErrorActionPreference = 'Continue'
 $ErrorActionPreference = 'Stop'
 & $claude mcp add --scope user --transport http screen-control "http://127.0.0.1:$port/mcp" --header "Authorization: Bearer $token"
 if ($LASTEXITCODE -ne 0) { throw 'claude mcp add failed.' }
+
+# The how-to skill, so every session knows when and how to use the tools.
+$skillDir = Join-Path $env:USERPROFILE '.claude\skills\screen-control'
+New-Item -ItemType Directory -Force $skillDir | Out-Null
+Copy-Item (Join-Path $PSScriptRoot 'skill\SKILL.md') (Join-Path $skillDir 'SKILL.md') -Force
 Write-Host 'Registered. New Claude Code sessions get the screen-control tools while start.ps1 runs.'

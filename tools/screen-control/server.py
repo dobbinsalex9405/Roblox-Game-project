@@ -42,7 +42,7 @@ from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa: E402
 from pywinauto.uia_defines import IUIA  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from guard import Focus, element_refusal, page_refusal, refusal  # noqa: E402
+from guard import Focus, covered_refusal, element_refusal, page_refusal, refusal  # noqa: E402
 import overlay  # noqa: E402
 
 PORT = int(os.environ.get("SCREEN_CONTROL_PORT", "8765"))
@@ -266,6 +266,7 @@ def _elements(text: str, window_title_contains: str) -> list[dict]:
                 "x": x,
                 "y": y,
                 "_screen": ((r.left + r.right) // 2, (r.top + r.bottom) // 2),
+                "_hwnd": hwnd,
             }
         )
     return out
@@ -283,7 +284,7 @@ def find_elements(text: str, window_title_contains: str = "") -> list[dict]:
     """
     found = _elements(text, window_title_contains)
     log(f"find {text!r}: {len(found)}")
-    return [{k: v for k, v in e.items() if k != "_screen"} for e in found[:30]]
+    return [{k: v for k, v in e.items() if not k.startswith("_")} for e in found[:30]]
 
 
 @mcp.tool(structured_output=False)
@@ -292,6 +293,7 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
     first window whose title contains window_title_contains (required, so a
     click never lands in whatever window happens to be in front).
 
+    Not sent when another window covers the element (focus_window first).
     Refuses elements named like Buy Robux, Purchase, Checkout, Log in, and
     the same pages as click. then_screenshot returns a fresh screenshot too.
     """
@@ -305,6 +307,11 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
     if reason:
         log(f"REFUSED: {reason}")
         raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
+    at_point = win32gui.GetAncestor(win32gui.WindowFromPoint(el["_screen"]), 2)  # GA_ROOT
+    reason = covered_refusal(at_point, el["_hwnd"], win32gui.GetWindowText(at_point))
+    if reason:
+        log(f"NOT SENT: {reason}")
+        raise RuntimeError(f"Not sent: {reason}.")
     _check_click(el["_screen"])
     pyautogui.click(*el["_screen"])
     log(f"click element {el['name']!r} at {el['_screen']}")
@@ -406,10 +413,41 @@ def _type_char(ch: str) -> None:
     time.sleep(0.02)
 
 
-def _paste(text: str) -> None:
-    """Ctrl+V the text, then put back whatever text the clipboard held."""
-    win32clipboard.OpenClipboard()
+# Clipboard formats that are only text (and its locale); anything else on
+# the clipboard (an image, files) would be lost by a paste.
+TEXT_FORMATS = {1, 7, 13, 16}  # CF_TEXT, CF_OEMTEXT, CF_UNICODETEXT, CF_LOCALE
+
+
+def _open_clipboard() -> None:
+    """OpenClipboard, retrying while another app briefly holds it."""
+    for _ in range(20):
+        try:
+            win32clipboard.OpenClipboard()
+            return
+        except Exception:  # noqa: BLE001 - pywintypes.error while held elsewhere
+            time.sleep(0.05)
+    raise RuntimeError("the clipboard is busy in another app; try again")
+
+
+def _clipboard_formats() -> set[int]:
+    formats, f = set(), 0
+    while True:
+        f = win32clipboard.EnumClipboardFormats(f)
+        if not f:
+            return formats
+        formats.add(f)
+
+
+def _paste(text: str) -> bool:
+    """Ctrl+V the text, then put back the text the clipboard held.
+
+    Returns False without touching anything when the clipboard holds more
+    than text (an image, copied files), so the caller types keys instead.
+    """
+    _open_clipboard()
     try:
+        if _clipboard_formats() - TEXT_FORMATS:
+            return False
         try:
             saved = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
         except TypeError:  # no text on the clipboard
@@ -420,13 +458,14 @@ def _paste(text: str) -> None:
         win32clipboard.CloseClipboard()
     pyautogui.hotkey("ctrl", "v")
     time.sleep(0.3)  # the app reads the clipboard after the key press
-    win32clipboard.OpenClipboard()
+    _open_clipboard()
     try:
         win32clipboard.EmptyClipboard()
         if saved is not None:
             win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, saved)
     finally:
         win32clipboard.CloseClipboard()
+    return True
 
 
 @mcp.tool(structured_output=False)
@@ -436,7 +475,8 @@ def type_text(
     """Type text into the focused field.
 
     method "paste" (default) puts the text on the clipboard, presses Ctrl+V
-    and restores the clipboard: exact and fast. "keys" sends it key by key
+    and restores the clipboard: exact and fast (if the clipboard holds an
+    image or files, it types keys instead so they aren't lost). "keys" sends it key by key
     (newlines press Enter), for places that ignore paste, such as games.
     window_title_contains (required): only type if the foreground window's
     title contains it, so text never lands in the wrong window.
@@ -446,8 +486,7 @@ def type_text(
     if method not in ("paste", "keys"):
         raise ValueError('method must be "paste" or "keys"')
     _check(text, window_title_contains)
-    if method == "paste":
-        _paste(text)
+    if method == "paste" and _paste(text):
         log(f"pasted {len(text)} characters")
         return _done(f"Typed {len(text)} characters (paste).", then_screenshot)
     for ch in text.replace("\r", ""):
