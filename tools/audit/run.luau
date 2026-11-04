@@ -21,18 +21,27 @@
 --   phone.png, tablet.png, desktop.png   the HUD over the spawn view
 --   click-NN-<button>.png   the phone screen after each button click
 --
---   lune run tools/audit/run [game|all] [--built] [--out build/audit] [--no-images]
+--   lune run tools/audit/run [game|all] [--built] [--environment staging]
+--                            [--out build/audit] [--no-images]
+--
+-- Without --built it builds each game for Staging (BUILD_OUT=build/audit-places
+-- tools/build.sh), so pass and product ids are real and the Robux shop shows
+-- what a player sees; GetProductInfo answers with the game's own listings
+-- (config/monetization.luau: name and Robux price). --built audits
+-- build/<game>.rbxl as it is (a dev build has no ids, so its shop is empty).
 --
 -- Writes <out>/<game>/report.md, report.json and the images. Exit code 1 when
 -- any check fails. ops/VISUAL_PLAYTEST.md says how the verifier uses it.
 
 local fs = require("@lune/fs")
+local luau = require("@lune/luau")
 local process = require("@lune/process")
 local roblox = require("@lune/roblox")
 local serde = require("@lune/serde")
 local task = require("@lune/task")
 
 local Shim = require("../boot/shim")
+local Monetization = require("../../packages/core/src/Monetization")
 local Canvas = require("./Canvas")
 local Collect = require("./Collect")
 local Gui = require("./Gui")
@@ -47,8 +56,8 @@ do
 	local i = 1
 	while i <= #args do
 		local a = args[i]
-		if a == "--out" then
-			flags.out = args[i + 1]
+		if a == "--out" or a == "--environment" then
+			flags[string.sub(a, 3)] = args[i + 1]
 			i += 2
 		elseif string.sub(a, 1, 2) == "--" then
 			flags[string.sub(a, 3)] = true
@@ -76,6 +85,8 @@ else
 	games = positional
 end
 
+local ENVIRONMENT = flags.environment or "staging"
+
 local function placeFor(game: string): string
 	if flags.built then
 		local built = `build/{game}.rbxl`
@@ -84,13 +95,55 @@ local function placeFor(game: string): string
 		end
 		return built
 	end
-	local path = `build/audit-{game}.rbxl`
-	fs.writeDir("build")
-	local result = process.exec("rojo", { "build", `games/{game}`, "--output", path })
+	local result = process.exec("tools/build.sh", { game }, {
+		env = { BUILD_ENVIRONMENT = ENVIRONMENT, BUILD_OUT = "build/audit-places" },
+	})
 	if not result.ok then
-		error(`rojo build failed for {game}:\n{result.stderr}`)
+		error(`tools/build.sh failed for {game}:\n{result.stdout}\n{result.stderr}`)
 	end
-	return path
+	return `build/audit-places/{game}.rbxl`
+end
+
+-- The environment a built place was stamped for (tools/build.sh).
+local function environmentOf(placePath: string): string
+	local place = roblox.deserializePlace(fs.readFile(placePath))
+	for _, d in place:GetDescendants() do
+		if d.ClassName == "ModuleScript" and d.Name == "Build" then
+			local env = string.match(d.Source, 'environment = "(%a+)"')
+			if env then
+				return env
+			end
+		end
+	end
+	return "dev"
+end
+
+-- What GetProductInfo answers in that environment: each created pass and
+-- product's listed name and Robux price (an id of 0 is not on Roblox).
+local function productInfoFor(game: string, environment: string): ({ [number]: any }, number)
+	local path = `games/{game}/config/monetization.luau`
+	if not fs.isFile(path) then
+		return {}, 0
+	end
+	local config = luau.load(fs.readFile(path), { debugName = path })()
+	local resolved = Monetization.resolve(config, environment)
+	local listings = config.listings or {}
+	local info, count = {}, 0
+	for _, kind in { "passes", "products" } do
+		for key, id in resolved[kind] do
+			local listing = listings[kind] and listings[kind][key]
+			if id > 0 and listing then
+				info[id] = {
+					Name = listing.name,
+					PriceInRobux = listing.robux,
+					Description = listing.description or "",
+					IsForSale = true,
+				}
+				count += 1
+			end
+		end
+	end
+	return info, count
 end
 
 local function scriptsUnder(root: any, className: string): { any }
@@ -225,6 +278,7 @@ local function boot(placePath: string): (any, any, { any })
 	pendingToClient = {}
 	Shim.side = "server"
 	Shim.quiet = true
+	Shim.detachOnDestroy = true
 	-- Before Shim.install, which only fills in members not yet implemented.
 	bridgeRemotes()
 	Shim.install()
@@ -460,6 +514,9 @@ local function auditGame(gameName: string)
 	local findings: { World.Finding } = {}
 	local images: { { file: string, title: string } } = {}
 
+	local environment = environmentOf(placePath)
+	local priced
+	Shim.productInfo, priced = productInfoFor(gameName, environment)
 	local game, player, errors = boot(placePath)
 	for _, e in errors do
 		local severity, why = Gui.severityOfError(e.message)
@@ -547,7 +604,20 @@ local function auditGame(gameName: string)
 		})
 	end
 
-	local report = Report.build(gameName, commit, findings, images, gui.notes, Shim.gaps)
+	local notes = table.clone(gui.notes)
+	local emptyShop = if priced == 0
+		then " (none is created there, so the Robux shop is empty: audit a Staging build to see it)"
+		else ""
+	table.insert(
+		notes,
+		1,
+		`Built for {environment}; {priced} pass(es) and product(s) priced from config/monetization.luau listings{emptyShop}.`
+	)
+	table.insert(
+		notes,
+		"Reading the HUD images: the two dark rounded boxes at the top left stand in for Roblox's own top-bar buttons (menu and chat), not the game's; grey boxes with a cross are images (not loaded); red outlines mark elements with a FAIL. Text is a bitmap font, so its width is approximate (the cloud check measures it with Roblox's fonts)."
+	)
+	local report = Report.build(gameName, commit, findings, images, notes, Shim.gaps)
 	fs.writeFile(`{dir}/report.md`, report.markdown)
 	fs.writeFile(
 		`{dir}/report.json`,

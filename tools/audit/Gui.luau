@@ -30,6 +30,8 @@ Gui.MIN_TEXT_WARN = 12
 Gui.MIN_TAP = 28
 Gui.CHAR_WIDTH = 0.6
 Gui.MAX_CLICKS = 14
+-- Buttons clicked inside each panel a first-screen button opens.
+Gui.MAX_INNER_CLICKS = 12
 -- Roblox's own buttons in the top bar (menu, chat) on the left.
 Gui.TOPBAR_LEFT = 104 -- GuiService.TopbarInset.Min.X: free top-bar space starts here
 
@@ -135,6 +137,8 @@ local function snapshotNode(inst: any, guiName: string): any
 	end
 	if class == "ScrollingFrame" then
 		node.canvas = udim2(prop(inst, "CanvasSize", nil))
+		local cp = prop(inst, "CanvasPosition", nil)
+		node.scroll = if cp then { cp.X, cp.Y } else { 0, 0 }
 		node.autoCanvas = enumName(prop(inst, "AutomaticCanvasSize", nil), "None")
 	end
 	for _, child in inst:GetChildren() do
@@ -345,19 +349,29 @@ function place.content(node: any, rect: any, _scale: number): any
 end
 
 local function sortedForLayout(node: any): { any }
+	-- Roblox: "If two children share the same LayoutOrder, whichever was
+	-- added sooner to the parent object takes precedence." GetChildren keeps
+	-- that order, so ties keep their child index. SortOrder Name sorts by name.
 	local list = {}
-	for _, c in node.children do
+	for i, c in node.children do
 		if c.visible then
-			table.insert(list, c)
+			table.insert(list, { c = c, i = i })
 		end
 	end
-	local byOrder = node.layout and node.layout.sort == "LayoutOrder"
+	local byOrder = node.layout == nil or node.layout.sort ~= "Name"
 	table.sort(list, function(a, b)
-		if byOrder and a.order ~= b.order then
-			return a.order < b.order
+		if byOrder then
+			if a.c.order ~= b.c.order then
+				return a.c.order < b.c.order
+			end
+		elseif a.c.name ~= b.c.name then
+			return a.c.name < b.c.name
 		end
-		return a.name < b.name
+		return a.i < b.i
 	end)
+	for i, e in list do
+		list[i] = e.c
+	end
 	return list
 end
 
@@ -387,6 +401,10 @@ function place.node(node: any, rect: any, clip: any, scale: number, probing: boo
 			w = math.max(content.w, cv[1] * rect.w + cv[2]),
 			h = math.max(content.h, cv[3] * rect.h + cv[4]),
 		}
+		-- CanvasPosition scrolls the content up and left.
+		local sc = node.scroll or { 0, 0 }
+		content.x -= sc[1]
+		content.y -= sc[2]
 	end
 	place.children(node, content, childClip, childScale, probing)
 end
@@ -778,12 +796,15 @@ function Gui.check(items: { Item }, screen: Screen, phoneLike: boolean): { any }
 					item
 				)
 			end
-			if phoneLike and (vis.w < Gui.MIN_TAP or vis.h < Gui.MIN_TAP) then
+			-- The button's own size: one half scrolled out of a list is still
+			-- big enough once the player scrolls to it.
+			local r = item.rect
+			if phoneLike and (r.w < Gui.MIN_TAP or r.h < Gui.MIN_TAP) then
 				add(
 					"WARN",
 					"hud.tap-size",
 					node.path,
-					`{label(item)} is {math.floor(vis.w)}x{math.floor(vis.h)}: hard to tap (aim for {Gui.MIN_TAP}+)`,
+					`{label(item)} is {math.floor(r.w)}x{math.floor(r.h)}: hard to tap (aim for {Gui.MIN_TAP}+)`,
 					item
 				)
 			end
@@ -1098,14 +1119,62 @@ function Gui.click(Shim: any, inst: any): boolean
 	return false
 end
 
+-- Several elements can share a path (list rows made by one function), so
+-- each is told apart by how many came before it with the same path.
+local function keyed(items: { Item }): { [Item]: string }
+	local count: { [string]: number } = {}
+	local keys = {}
+	for _, item in items do
+		local path = item.node.path
+		count[path] = (count[path] or 0) + 1
+		keys[item] = `{path}#{count[path]}`
+	end
+	return keys
+end
+
 local function visibleSet(items: { Item }): { [string]: string }
 	local set = {}
+	local keys = keyed(items)
 	for _, item in items do
 		if item.visibleRect == nil or area(item.visibleRect) > 1 then
-			set[item.node.path] = item.node.text or ""
+			set[keys[item]] = item.node.text or ""
 		end
 	end
 	return set
+end
+
+-- Scrolls the ScrollingFrame around `item` so all of it shows, as a player
+-- would swipe to it. Returns false when it is not in a scrolling frame.
+local function scrollIntoView(items: { Item }, item: Item): boolean
+	local inst = item.node.inst
+	local scroller = inst and inst:FindFirstAncestorWhichIsA("ScrollingFrame")
+	if scroller == nil then
+		return false
+	end
+	local frame = nil
+	for _, other in items do
+		if other.node.inst == scroller then
+			frame = other
+			break
+		end
+	end
+	if frame == nil then
+		return false
+	end
+	local cp = scroller.CanvasPosition
+	local top = item.rect.y - frame.rect.y + cp.Y
+	local y = cp.Y
+	if top < cp.Y then
+		y = top - 8
+	elseif top + item.rect.h > cp.Y + frame.rect.h then
+		y = top + item.rect.h + 8 - frame.rect.h
+	end
+	y = math.max(0, y)
+	if y == cp.Y then
+		return false
+	end
+	scroller.CanvasPosition = roblox.Vector2.new(cp.X, y)
+	return true
 end
 
 -- Audit ------------------------------------------------------------------------
@@ -1288,6 +1357,10 @@ function Gui.audit(
 		targets = table.move(targets, 1, Gui.MAX_CLICKS, 1, {})
 	end
 	local before = visibleSet(idleItems or {})
+	local beforePaths: { [string]: boolean } = {}
+	for _, item in idleItems or {} do
+		beforePaths[item.node.path] = true
+	end
 	for n, target in targets do
 		local path = target.node.path
 		local name = if (target.node.text or "") ~= "" then target.node.text else target.node.name
@@ -1367,10 +1440,15 @@ function Gui.audit(
 		render(items, list, phone, string.format("click-%02d-%s.png", n, slug(name)), where)
 
 		-- Close it again, as a player would.
+		local reopen = false
 		if opened > 0 then
 			local closer = nil
 			for _, item in items do
-				if item.node.interactive and before[item.node.path] == nil and isCloseButton(item.node) then
+				if
+					item.node.interactive
+					and beforePaths[item.node.path] == nil
+					and isCloseButton(item.node)
+				then
 					closer = item
 					break
 				end
@@ -1396,6 +1474,7 @@ function Gui.audit(
 					stillOpen += 1
 				end
 			end
+			reopen = stillOpen == 0
 			if stillOpen > 0 then
 				table.insert(findings, {
 					severity = "WARN",
@@ -1403,6 +1482,135 @@ function Gui.audit(
 					message = `After opening "{name}", no close button (X, Close, Back, Done, OK) or second tap closed it; {stillOpen} element(s) stayed open.`,
 					screens = { "phone" },
 				})
+			end
+		end
+		-- Inside what opened: tabs, odds, buy buttons, one after another as a
+		-- player would (same session), so a shop's second tab and its odds
+		-- screen are seen too. Close buttons are left for the step below.
+		if opened > 0 then
+			-- Open it again if the close step closed it.
+			if reopen then
+				Gui.click(opts.shim, inst)
+				opts.wait(opts.settle)
+				opts.takeErrors()
+				items, list = snapshotScreen(p, phone)
+			end
+			local tried: { [string]: boolean } = {}
+			-- The next button to try, in reading order; one scrolled out of
+			-- view in a list is swiped to first.
+			local function nextTarget(): Item?
+				local keys = keyed(items)
+				local order = table.clone(items)
+				table.sort(order, function(a, b)
+					if math.abs(a.rect.y - b.rect.y) > 4 then
+						return a.rect.y < b.rect.y
+					end
+					return a.rect.x < b.rect.x
+				end)
+				for _, item in order do
+					local node = item.node
+					local key = `{keys[item]}|{node.text or ""}`
+					local shows = item.visibleRect ~= nil and area(item.visibleRect) > 1
+					if
+						node.interactive
+						and node.class ~= "TextBox"
+						and beforePaths[node.path] == nil
+						and not tried[key]
+						and not isCloseButton(node)
+						and not item.backdrop
+						and (shows or (item.clip and item.clip.scrolling))
+					then
+						tried[key] = true
+						local whole = shows and area(item.visibleRect) >= 0.9 * area(item.rect)
+						if not whole and scrollIntoView(items, item) then
+							opts.wait(0.05)
+							items, list = snapshotScreen(p, phone)
+							local again = keyed(items)
+							local found = nil
+							for _, other in items do
+								if
+									again[other] == keys[item]
+									and (other.node.text or "") == (node.text or "")
+								then
+									found = other
+									break
+								end
+							end
+							if found == nil or found.visibleRect == nil or area(found.visibleRect) <= 1 then
+								continue
+							end
+							item = found
+						elseif not shows then
+							continue
+						end
+						if not covered(items, item, item.visibleRect) then
+							return item
+						end
+					end
+				end
+				return nil
+			end
+			for m = 1, Gui.MAX_INNER_CLICKS do
+				local inner = nextTarget()
+				if inner == nil then
+					break
+				end
+				local innerName = if (inner.node.text or "") ~= "" then inner.node.text else inner.node.name
+				local innerWhere = `after clicking "{name}" then "{innerName}"`
+				local shown = visibleSet(items)
+				opts.shim.output = {}
+				local innerHandled = Gui.click(opts.shim, inner.node.inst)
+				opts.wait(opts.settle)
+				local lost = false
+				for _, e in opts.takeErrors() do
+					if Gui.severityOfError(e.message) == "NOTE" then
+						lost = true
+					end
+					table.insert(
+						findings,
+						errorFinding(
+							"click.error",
+							`Clicking "{innerName}" in "{name}" raised an error`,
+							e,
+							"phone"
+						)
+					)
+				end
+				local innerPrompt = nil
+				for _, line in opts.shim.output do
+					if string.sub(line, 1, 8) == "[prompt]" then
+						innerPrompt = string.sub(line, 10)
+						break
+					end
+				end
+				items, list = snapshotScreen(p, phone)
+				record(list, innerWhere)
+				local now = visibleSet(items)
+				local diff = 0
+				for k, text in now do
+					if shown[k] ~= text then
+						diff += 1
+					end
+				end
+				for k in shown do
+					if now[k] == nil then
+						diff += 1
+					end
+				end
+				local result = if not innerHandled
+					then "no click handler"
+					elseif lost then "the harness lost track (see harness.destroyed); check it in Studio"
+					elseif innerPrompt then `purchase prompt: {innerPrompt}`
+					elseif diff == 0 then "nothing changed on the screen"
+					else `{diff} element(s) changed`
+				table.insert(notes, `In "{name}", clicked "{innerName}": {result}.`)
+				render(
+					items,
+					list,
+					phone,
+					string.format("click-%02d-%02d-%s.png", n, m, slug(innerName)),
+					innerWhere
+				)
 			end
 		end
 	end

@@ -342,6 +342,51 @@ describe("player's-eye audit: HUD at phone size", function()
 		expect(rects.Second.y).toBe(rects.Menu.y + 35)
 	end)
 
+	it("keeps equal LayoutOrder children in the order they were added, as Roblox does", function()
+		local player = playerWith(function(gui)
+			local f = Instance.new("Frame")
+			f.Name = "Card"
+			f.Size = UDim2.fromOffset(200, 300)
+			f.Parent = gui
+			local list = Instance.new("UIListLayout")
+			list.SortOrder = Enum.SortOrder.LayoutOrder
+			list.Parent = f
+			-- Names out of alphabetical order, all LayoutOrder 0.
+			for _, name in { "Title", "About", "Price", "Buttons" } do
+				local l = Instance.new("TextLabel")
+				l.Name = name
+				l.Text = name
+				l.Size = UDim2.fromOffset(200, 30)
+				l.Parent = f
+			end
+		end)
+		local y = {}
+		for _, item in Gui.layout(Gui.snapshot(player), phone) do
+			y[item.node.name] = item.rect.y
+		end
+		expect(y.Title < y.About).toBe(true)
+		expect(y.About < y.Price).toBe(true)
+		expect(y.Price < y.Buttons).toBe(true)
+	end)
+
+	it("scrolls a ScrollingFrame's content by its CanvasPosition", function()
+		local player = playerWith(function(gui)
+			local sf = Instance.new("ScrollingFrame")
+			sf.Name = "List"
+			sf.Size = UDim2.fromOffset(200, 100)
+			sf.Position = UDim2.fromOffset(100, 100)
+			sf.CanvasSize = UDim2.fromOffset(0, 400)
+			sf.CanvasPosition = Vector2.new(0, 150)
+			sf.Parent = gui
+			button(sf, "Row", "Buy", UDim2.fromOffset(200, 40), UDim2.fromOffset(0, 170))
+		end)
+		local rects = {}
+		for _, item in Gui.layout(Gui.snapshot(player), phone) do
+			rects[item.node.name] = item.rect
+		end
+		expect(rects.Row.y).toBe(rects.List.y + 20)
+	end)
+
 	it("a full-screen tap-to-close backdrop is not an overlapping button", function()
 		local player = playerWith(function(gui)
 			local dim = button(gui, "Dim", "", UDim2.fromScale(1, 1), UDim2.new())
@@ -349,5 +394,22 @@ describe("player's-eye audit: HUD at phone size", function()
 			button(gui, "Close", "X", UDim2.fromOffset(44, 44), UDim2.fromOffset(400, 150))
 		end)
 		expect(failRules(player)).toEqual({})
+	end)
+end)
+
+describe("boot shim: Destroy as a detach (audit only)", function()
+	local Shim = require("../boot/shim")
+
+	it("rewrites Destroy on names and fields, and leaves other code alone", function()
+		expect(Shim.detachSource("child:Destroy()")).toBe("__shimDetach(child)")
+		expect(Shim.detachSource("parts[key]:Destroy()")).toBe("__shimDetach(parts[key])")
+		expect(Shim.detachSource("self.ui.panel:Destroy()")).toBe("__shimDetach(self.ui.panel)")
+		expect(Shim.detachSource("make():Destroy()")).toBe("make():Destroy()")
+		expect(Shim.detachSource("local x = 1")).toBe("local x = 1")
+	end)
+
+	it("keeps the source when the rewrite would not compile", function()
+		local source = "local a = f:GetChildren()[1]:Destroy()"
+		expect(Shim.detachSource(source)).toBe(source)
 	end)
 end)
