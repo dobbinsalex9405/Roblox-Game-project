@@ -78,6 +78,9 @@ function Hud.start(ctx: Context.Context)
 	local rebirths = label(bar, "Rebirths", UDim2.new(0.35, -8, 0.38, 0), UDim2.fromScale(0.65, 0.6))
 	rebirths.TextXAlignment = Enum.TextXAlignment.Right
 	rebirths.Font = Enum.Font.Gotham
+	-- Never an empty bar: say so while the save loads.
+	coins.Text = "Loading..."
+	pending.Text = "Loading your hatchery"
 
 	-- Get off button while riding.
 	local getOff = Instance.new("TextButton")
@@ -186,12 +189,19 @@ function Hud.start(ctx: Context.Context)
 		if board == nil then
 			return
 		end
+		-- Everyone else sees the board's title; on your own board the real
+		-- odds replace it.
+		local title = board:FindFirstChild("Title")
+		if title and title:IsA("SurfaceGui") then
+			title.Enabled = false
+		end
 		if boardGui == nil or boardGui.Parent ~= board then
 			local sg = Instance.new("SurfaceGui")
 			sg.Name = "Odds"
 			sg.Face = Enum.NormalId.Front
 			sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 			sg.PixelsPerStud = 25
+			sg.LightInfluence = 0 -- readable in the board's own shadow
 			sg.Adornee = board
 			local holder = Instance.new("Frame")
 			holder.Name = "Holder"

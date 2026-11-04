@@ -204,6 +204,57 @@ local function sideMenu(gui: ScreenGui): SideMenu
 	}
 end
 
+-- Marks the player's own base, for them only: a gold outline around the
+-- floor and a big "Your hatchery" sign that can be seen from the yard.
+local function markOwnBase(plot: Model)
+	if plot:FindFirstChild("YourBase") then
+		return
+	end
+	local floor = plot:FindFirstChild("Floor")
+	local sign = plot:FindFirstChild("Sign")
+	if floor == nil or not floor:IsA("BasePart") then
+		return
+	end
+	local folder = Instance.new("Folder")
+	folder.Name = "YourBase"
+	local half = Layout.PLOT_SIZE / 2
+	local function strip(offset: Vector3, size: Vector3)
+		local p = Instance.new("Part")
+		p.Name = "Outline"
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.CastShadow = false
+		p.Material = Enum.Material.Neon
+		p.Color = GOLD
+		p.Size = size
+		p.CFrame = floor.CFrame * CFrame.new(offset)
+		p.Parent = folder
+	end
+	local y = floor.Size.Y / 2 + 0.06
+	strip(Vector3.new(0, y, -half + 0.4), Vector3.new(Layout.PLOT_SIZE, 0.1, 0.8))
+	strip(Vector3.new(0, y, half - 0.4), Vector3.new(Layout.PLOT_SIZE, 0.1, 0.8))
+	strip(Vector3.new(-half + 0.4, y, 0), Vector3.new(0.8, 0.1, Layout.PLOT_SIZE))
+	strip(Vector3.new(half - 0.4, y, 0), Vector3.new(0.8, 0.1, Layout.PLOT_SIZE))
+	if sign and sign:IsA("BasePart") then
+		local gui = Instance.new("BillboardGui")
+		gui.Name = "YourBaseLabel"
+		gui.Size = UDim2.fromScale(20, 4)
+		gui.StudsOffset = Vector3.new(0, 10, 0)
+		gui.MaxDistance = 400
+		gui.LightInfluence = 0
+		gui.Adornee = sign
+		local l = text(gui, "Text", "⭐ YOUR HATCHERY ⭐", 40, true)
+		l.Size = UDim2.fromScale(1, 1)
+		l.TextScaled = true
+		l.TextColor3 = GOLD
+		l.TextStrokeTransparency = 0.2
+		gui.Parent = folder
+	end
+	folder.Parent = plot
+end
+
 local function findTarget(plot: Model, target: Guide.Target): BasePart?
 	local found: Instance? = nil
 	if target.kind == "Belt" then
@@ -321,6 +372,9 @@ function GuideView.start(ctx: Context.Context): SideMenu
 		while true do
 			local d = ctx.data()
 			local plot = ctx.plot()
+			if plot then
+				markOwnBase(plot)
+			end
 			local step = if d
 				then Guide.next(d, ctx.config.economy, ctx.serverNow(), Layout.shortNumber)
 				else nil
