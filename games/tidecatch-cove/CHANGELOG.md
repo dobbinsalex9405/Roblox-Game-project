@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: on a landscape phone the Pools, Bucket and shop panels were taller
+  than the screen, so the Unlock and Sell all buttons were cut off. Panels
+  now fit 90% of the screen height and their lists scroll.
 - Fix: the map was buried in the ground. The Baseplate was placed with a
   property Rojo drops when it builds the place, so it sat ten studs too high
   and covered every floor, pad and label. It is now placed with CFrame, and

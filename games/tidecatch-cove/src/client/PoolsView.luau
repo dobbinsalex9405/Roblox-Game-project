@@ -23,9 +23,15 @@ function PoolsView.start(ctx: Context.Context, hud: Hud.Api)
 	local config = ctx.config
 	local gui = ctx.player:WaitForChild("PlayerGui"):WaitForChild("TidecatchHud")
 
+	-- 360 px tall at most, and never taller than 90% of the screen, so the
+	-- Unlock button at the bottom stays on a landscape phone (the list
+	-- scrolls instead).
 	local panel =
-		Ui.panel(gui, "Pools", UDim2.fromOffset(340, 360), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
+		Ui.panel(gui, "Pools", UDim2.new(0, 340, 0.9, 0), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
 	panel.Visible = false
+	local fit = Instance.new("UISizeConstraint")
+	fit.MaxSize = Vector2.new(340, 360)
+	fit.Parent = panel
 	local title = Ui.label(panel, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 34), Ui.WARN)
