@@ -16,9 +16,13 @@ The first run creates `.venv` here and installs `requirements.txt` (Python
 Claude takes. **Close the window or press Ctrl+C to stop.** Moving the mouse
 hard into a screen corner aborts the action in progress.
 
-While Claude is using the screen, an **orange border** runs around it; it
-goes away 6 seconds after the last action. It lets clicks through, never
-takes focus and is left out of screenshots (`overlay.py`).
+While Claude is using the screen, an **orange border** runs around it. A
+session calls `begin_control` when it starts a screen task and `end_control`
+when it is done; the border stays on in between and goes away at
+`end_control`. A single action without `begin_control` shows it for 6
+seconds, and a task left open with no action for 10 minutes ends by itself.
+It lets clicks through, never takes focus and is left out of screenshots
+(`overlay.py`).
 
 Without a console (started with `pythonw`, or with `--log`) the server
 writes the same lines to `%USERPROFILE%\.screen-control\server.log`.

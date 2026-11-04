@@ -26,6 +26,10 @@ session on the laptop has it. An orange border shows on screen while you use it.
 
 ## How to use it
 
+- Call `begin_control("what you are doing")` before your first action and
+  `end_control()` as soon as you are done (also when you stop early or hand
+  a step to Alex). The orange border stays on in between, so Alex can see
+  the screen is in use.
 - `screenshot()` first. Every x, y is in **pixels of the latest screenshot**;
   the server scales to the real screen. Re-screenshot after the layout changes,
   or pass `then_screenshot=True` to an action to get one back.
