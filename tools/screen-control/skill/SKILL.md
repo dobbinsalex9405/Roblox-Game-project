@@ -28,8 +28,17 @@ session on the laptop has it. An orange border shows on screen while you use it.
 
 - Call `begin_control("what you are doing")` before your first action and
   `end_control()` as soon as you are done (also when you stop early or hand
-  a step to Alex). The orange border stays on in between, so Alex can see
-  the screen is in use.
+  a step to Alex, and at the end of every turn). The orange border stays on
+  in between, so Alex can see the screen is in use.
+- The first screen call of a task shows Alex a prompt in the middle of the
+  screen with your `begin_control` text, a 4-second countdown and a Stop
+  button; the call returns when the countdown ends. Write the task so Alex
+  understands it at a glance ("Upload Depthbound thumbnails in Creator
+  Hub"). It asks again after `end_control`, so ending each turn means each
+  turn is announced.
+- If a call is refused because **Alex pressed Stop**, stop using the
+  screen: don't retry, don't use another tool to do the same thing. Tell
+  Alex in the thread what you wanted to do and wait for a go-ahead.
 - `screenshot()` first. Every x, y is in **pixels of the latest screenshot**;
   the server scales to the real screen. Re-screenshot after the layout changes,
   or pass `then_screenshot=True` to an action to get one back.

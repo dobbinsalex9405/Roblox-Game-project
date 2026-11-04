@@ -2,6 +2,22 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-04: Screen control announces itself with a prompt
+
+- Alex asked for a prompt in the middle of the screen the first time a
+  thread wants to use it. The first screen call of a task (after
+  `end_control`, after 10 quiet minutes, after the server starts, or when a
+  different Claude session takes over) shows a centred card with the task,
+  a 4-second countdown and a **Stop** button, and waits for it.
+- **Countdown, not "click to allow".** Threads mostly run while Alex is
+  away; a prompt that needed a click would stall every unattended task.
+  Stop is the "no": it refuses that call and every screen call for 10
+  minutes, from any session, and the thread is told to ask Alex in its
+  thread rather than retry.
+- The card never takes focus (Alex's typing isn't interrupted) and is not
+  hidden from screen captures, so it can be checked from a screenshot;
+  Claude's own screenshots never see it because the tool call waits for it.
+
 ## 2026-11-03: The daily run starts the morning workflows itself
 
 - GitHub's `schedule` trigger ran the feedback pull and the scoreboard about

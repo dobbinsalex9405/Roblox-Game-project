@@ -110,6 +110,32 @@ def log(message: str) -> None:
     overlay.touch()
 
 
+STOPPED_NOTE = (
+    "Not sent: Alex pressed Stop on the screen-control prompt, so the screen "
+    f"is off limits for {round(overlay.STOP_SECONDS / 60)} minutes. Don't retry; "
+    "tell Alex in the thread what you wanted to do and wait for a go-ahead."
+)
+
+
+def _start(action: str, task: str = "") -> None:
+    """Before any use of the screen. The first use in a task (and the
+    first by a different Claude session) shows Alex a prompt in the middle
+    of the screen and waits for its countdown; Stop there means nothing is
+    sent."""
+    try:
+        client = mcp.get_context().session  # one per Claude session
+    except ValueError:  # outside a request
+        client = None
+    answer = overlay.start(task, action, client)
+    if answer == overlay.ASKED:
+        log(f"prompt shown for {action}: {task or 'no task given'}")
+    elif answer == overlay.UNSHOWN:
+        log(f"prompt could not be shown for {action}; going ahead")
+    elif answer == overlay.STOPPED:
+        log(f"NOT SENT: {action}, Alex pressed Stop")
+        raise PermissionError(STOPPED_NOTE)
+
+
 def _monitor(index: int) -> dict:
     with mss.mss() as sct:
         monitors = sct.monitors
@@ -229,6 +255,7 @@ def screenshot(monitor: int = 1) -> list:
 
     Mouse coordinates in the other tools are pixels in the latest screenshot.
     """
+    _start("screenshot")
     return _screenshot(monitor)
 
 
@@ -239,6 +266,7 @@ def zoom(x0: float, y0: float, x1: float, y1: float) -> list:
     Use it to read small text or find a small button. Coordinates (in and
     for later clicks) stay those of the latest full screenshot.
     """
+    _start("zoom")
     left, top = _to_screen(min(x0, x1), min(y0, y1))
     right, bottom = _to_screen(max(x0, x1), max(y0, y1))
     if right - left < 4 or bottom - top < 4:
@@ -311,6 +339,7 @@ def find_elements(text: str, window_title_contains: str = "") -> list[dict]:
     Explorer); Chrome often hides page contents, so use the browser tools or
     a screenshot there.
     """
+    _start("find_elements")
     found = _elements(text, window_title_contains)
     log(f"find {text!r}: {len(found)}")
     return [{k: v for k, v in e.items() if not k.startswith("_")} for e in found[:30]]
@@ -327,6 +356,7 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
     Refuses elements named like Buy Robux, Purchase, Checkout, Log in, and
     the same pages as click. then_screenshot returns a fresh screenshot too.
     """
+    _start("click_element")
     if not window_title_contains:
         raise ValueError("window_title_contains is required")
     found = _elements(text, window_title_contains)
@@ -356,7 +386,11 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
 def begin_control(task: str = "") -> str:
     """Call when you start using the screen: the orange border stays on until
     end_control (or 10 minutes with no action), so Alex can see Claude is at
-    work. task is a few words for the log."""
+    work. task is a few words for Alex: the first use of the screen in a
+    task shows it in a prompt in the middle of the screen, with a few
+    seconds' countdown and a Stop button. If Alex presses Stop, this and
+    every screen call for 10 minutes is refused."""
+    _start("begin_control", task)
     overlay.begin()
     log(f"control started: {task}")
     return "Control started; the orange border stays on until end_control."
@@ -373,6 +407,7 @@ def end_control() -> str:
 @mcp.tool()
 def list_monitors() -> list[dict]:
     """List monitors with their position and size in screen pixels."""
+    _start("list_monitors")
     with mss.mss() as sct:
         return [dict(index=i, **m) for i, m in enumerate(sct.monitors) if i > 0]
 
@@ -380,6 +415,7 @@ def list_monitors() -> list[dict]:
 @mcp.tool()
 def move_mouse(x: float, y: float) -> str:
     """Move the mouse to (x, y) in the latest screenshot's pixels."""
+    _start("move_mouse")
     sx, sy = _to_screen(x, y)
     pyautogui.moveTo(sx, sy, duration=0.1)
     log(f"move to {sx},{sy}")
@@ -394,6 +430,7 @@ def click(x: float, y: float, button: str = "left", clicks: int = 1, then_screen
     The pointer jumps straight there. then_screenshot returns a fresh
     screenshot too (also on drag, scroll, type_text and press_keys).
     """
+    _start("click")
     if button not in ("left", "right", "middle"):
         raise ValueError("button must be left, right or middle")
     if not 1 <= clicks <= 3:
@@ -410,6 +447,7 @@ def drag(
     from_x: float, from_y: float, to_x: float, to_y: float, button: str = "left", then_screenshot: bool = False
 ) -> str | list:
     """Press at (from_x, from_y), drag to (to_x, to_y) and release (screenshot pixels)."""
+    _start("drag")
     if button not in ("left", "right", "middle"):
         raise ValueError("button must be left, right or middle")
     fx, fy = _to_screen(from_x, from_y)
@@ -424,6 +462,7 @@ def drag(
 @mcp.tool(structured_output=False)
 def scroll(x: float, y: float, amount: int, then_screenshot: bool = False) -> str | list:
     """Scroll the wheel at (x, y): positive amount scrolls up, negative down (in notches)."""
+    _start("scroll")
     sx, sy = _to_screen(x, y)
     pyautogui.moveTo(sx, sy, duration=0.1)
     pyautogui.scroll(amount * 120)
@@ -540,6 +579,7 @@ def type_text(
     Refuses password, 2FA or one-time code, CAPTCHA and payment fields, and
     sign-in, verification and checkout pages. Never try to get around it.
     """
+    _start("type_text")
     if method not in ("paste", "keys"):
         raise ValueError('method must be "paste" or "keys"')
     _check(text, window_title_contains)
@@ -564,6 +604,7 @@ def press_keys(keys: str, window_title_contains: str, then_screenshot: bool = Fa
     Names are PyAutoGUI key names joined with "+". Same refusals and
     required window_title_contains check as type_text.
     """
+    _start("press_keys")
     parts = [k.strip().lower() for k in keys.split("+") if k.strip()]
     unknown = [k for k in parts if k not in pyautogui.KEYBOARD_KEYS]
     if not parts or unknown:
@@ -589,6 +630,7 @@ def _windows() -> list[tuple[int, str]]:
 @mcp.tool()
 def list_windows() -> list[dict]:
     """List visible top-level windows (handle and title), foreground first."""
+    _start("list_windows")
     fg = win32gui.GetForegroundWindow()
     wins = sorted(_windows(), key=lambda w: w[0] != fg)
     return [{"handle": h, "title": t, "foreground": h == fg} for h, t in wins]
@@ -610,6 +652,7 @@ def _bring_forward(target: int) -> None:
 @mcp.tool()
 def focus_window(title_contains: str = "", handle: int = 0) -> str:
     """Bring a window to the front, by handle or by part of its title."""
+    _start("focus_window")
     if handle:
         target = handle
     else:
