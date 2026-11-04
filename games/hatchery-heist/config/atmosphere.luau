@@ -53,9 +53,11 @@ return {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
 		-- tracks from Roblox's own licensed library (Creator Store, Audio,
 		-- by Roblox): uploads by others may be private or unlicensed. Empty
-		-- = no music.
-		tracks = {},
-		volume = 0.3,
+		-- = no music. Provisional picks (Roblox's licensed APM library, chosen
+		-- in Studio's Creator Store, Nov 4); confirm by ear in the next
+		-- playtest: Beautiful Morning, Mellow Landscape, Castle Reel.
+		tracks = { 1846167658, 1842262737, 1845861718 },
+		volume = 0.25,
 		fadeSeconds = 2,
 	},
 }
