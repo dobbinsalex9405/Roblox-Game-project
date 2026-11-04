@@ -12,7 +12,8 @@
 --
 -- What it catches: a config assert that fails at start-up, a require that
 -- points nowhere, a nil index while the world is built or remotes are
--- registered, a start-up error on the client. It cannot judge how anything
+-- registered, a start-up error on the client, a part built inside the
+-- ground (the Baseplate). It cannot judge how anything
 -- looks or plays; Studio still does that.
 --
 -- Exit code 1 when any game's server or client raised an error.
@@ -169,6 +170,57 @@ local function takeOutput(): { string }
 	return output
 end
 
+-- Nothing the server builds may sit inside the ground. Rojo silently drops a
+-- part's `Position` from a project file when it builds a place, which once
+-- left every Baseplate centred on Y = 0: its top at Y = 10, ten studs above
+-- the floors the games build at ground level, so in Roblox the whole map was
+-- buried. A part whose centre is inside a Baseplate is that bug.
+local GROUND_EPSILON = 0.05
+
+local function buriedParts(game: any): { string }
+	local workspace = game:GetService("Workspace")
+	local grounds = {}
+	for _, child in workspace:GetChildren() do
+		if child:IsA("BasePart") and child.Name == "Baseplate" then
+			table.insert(grounds, child)
+		end
+	end
+	local buried: { string } = {}
+	for _, ground in grounds do
+		local half = ground.Size / 2
+		for _, d in workspace:GetDescendants() do
+			if d ~= ground and d:IsA("BasePart") and not d:IsA("Terrain") then
+				local p = ground.CFrame:PointToObjectSpace(d.CFrame.Position)
+				local inside = math.abs(p.X) < half.X
+					and math.abs(p.Z) < half.Z
+					and p.Y < half.Y - GROUND_EPSILON
+					and p.Y > -half.Y
+				if inside then
+					table.insert(
+						buried,
+						`{d:GetFullName()} is {string.format("%.1f", half.Y - p.Y)} studs under the ground`
+					)
+				end
+			end
+		end
+	end
+	return buried
+end
+
+local function checkGround(game: any)
+	local buried = buriedParts(game)
+	if #buried > 0 then
+		local shown = table.move(buried, 1, math.min(#buried, 5), 1, {})
+		table.insert(Shim.errors, {
+			where = "world",
+			message = `{#buried} part(s) inside the Baseplate, for example:\n      {table.concat(
+				shown,
+				"\n      "
+			)}`,
+		})
+	end
+end
+
 -- One game: start the server, let a player join, start that player's client
 -- against the same tree (as a real client would see it), then let them leave.
 local function bootGame(gameName: string, placePath: string)
@@ -193,6 +245,8 @@ local function bootGame(gameName: string, placePath: string)
 		task.wait(settle * 2)
 		table.insert(ran, "join of one player")
 	end
+	checkGround(game)
+	table.insert(ran, "ground check (nothing built inside the Baseplate)")
 
 	local clientRan, clientErrors, clientOutput = nil, nil, nil
 	local serverStarted = #Shim.errors == 0

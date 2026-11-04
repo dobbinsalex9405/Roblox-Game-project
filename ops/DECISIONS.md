@@ -2,6 +2,18 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-04: Place parts in project files with CFrame, and check the ground
+
+- `rojo build` does not write a part's `Position` into the place file, so the
+  Baseplates of Hatchery Heist, Tidecatch Cove and Street Food Empire were
+  built centred on Y = 0 (top at Y = 10) and buried each map. Project files
+  now use `CFrame`; `tools/tests/ProjectFiles.spec.luau` rejects `Position`,
+  `Orientation` and `Rotation`.
+- The boot check now fails when a part sits inside a Baseplate after the
+  server builds its world and a player joins. It is still no substitute for
+  looking: every visible change gets a Studio play-solo screenshot before it
+  is called done.
+
 ## 2026-11-03: The daily run starts the morning workflows itself
 
 - GitHub's `schedule` trigger ran the feedback pull and the scoreboard about
