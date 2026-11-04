@@ -18,8 +18,9 @@ cloud with no laptop; the third is the real-pixel gate.
   without its visual playtest report for the PR's head commit.** The
   verifier posts the report (template below) as a PR comment, with links to
   the images. The **Visual playtest gate** workflow sets the commit status
-  `visual-playtest` on the PR head: pending until a report from the repo
-  owner's account for that exact commit says `Verdict: OK`, red when it says
+  `visual-playtest` on the PR head: pending until a PR comment headed
+  `Visual playtest (verifier)` for that exact commit says `Verdict: OK`
+  (the PR body never counts; only the verifier writes that heading), red when it says
   `Verdict: not OK`. A push after the report needs a new report. PRs that
   touch neither folder pass the gate on their own.
 - A **FAIL** in tier 1 or 2 blocks the PR. A finding that is real but already
@@ -160,7 +161,7 @@ purchase prompt in Studio is a test prompt and is closed, never confirmed.
 ## The report (one per PR head)
 
 ```md
-### Visual playtest: <PR> @ <head sha>
+### Visual playtest (verifier): #<PR> @ <head sha>
 
 - Tier 1 audit: PASS/FAIL per game, <n> known, <n> warnings; images: <link to the CI artifact or project files folder>
 - Tier 2 real engine: PASS/FAIL per game (<workflow run link>), or "not run: <reason>"

@@ -4,8 +4,9 @@ name: Visual playtest gate
 # report for its head commit before it is OK'd or merged
 # (ops/VISUAL_PLAYTEST.md). This sets the commit status "visual-playtest" on
 # the PR's head: pending until a report for that exact commit says
-# "Verdict: OK", failure when it says "not OK". Only reports from the repo's
-# owner, members or collaborators count. Reads nothing else and runs no code
+# "Verdict: OK", failure when it says "not OK". Only PR comments headed
+# "Visual playtest (verifier)" from the repo's owner, members or
+# collaborators count; the PR body never does. Reads nothing else and runs no code
 # from the PR.
 on:
   pull_request:
@@ -55,16 +56,17 @@ jobs:
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner, repo, issue_number: number, per_page: 100,
             });
-            // Oldest first, so the latest report for this head wins.
-            const texts = trusted.has(pr.author_association) ? [pr.body || ""] : [];
+            // Comments only (a PR body is the builder's), oldest first, so the
+            // latest report for this head wins.
+            const texts = [];
             for (const c of comments) {
               if (trusted.has(c.author_association)) texts.push(c.body || "");
             }
 
-            // "### Visual playtest: <anything> @ <sha>" ... "Verdict: OK" or "Verdict: not OK"
+            // "### Visual playtest (verifier): <anything> @ <sha>" ... "Verdict: OK" or "Verdict: not OK"
             let verdict = null;
             for (const text of texts) {
-              const m = text.match(/#{2,4}\s*Visual playtest[^\n]*?@\s*`?([0-9a-f]{7,40})`?/i);
+              const m = text.match(/#{2,4}\s*Visual playtest \(verifier\)[^\n]*?@\s*`?([0-9a-f]{7,40})`?/i);
               if (!m || !head.startsWith(m[1].toLowerCase())) continue;
               const v = text.match(/Verdict:\s*\**\s*(not ok|ok)\b/i);
               if (v) verdict = v[1].toLowerCase();
