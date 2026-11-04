@@ -65,6 +65,10 @@ local STEPS = {
 	},
 }
 
+-- The card never grows past 90% of the screen: on a phone the steps scroll
+-- and the "Let's go!" button stays pinned at the bottom.
+local GO_AREA = 64 -- button plus its margin
+
 local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	local shade = Instance.new("Frame")
 	shade.Name = "Welcome"
@@ -79,8 +83,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	card.Name = "Card"
 	card.AnchorPoint = Vector2.new(0.5, 0.5)
 	card.Position = UDim2.fromScale(0.5, 0.5)
-	card.Size = UDim2.fromScale(0.92, 0)
-	card.AutomaticSize = Enum.AutomaticSize.Y
+	card.Size = UDim2.fromOffset(460, 400)
 	card.BackgroundColor3 = PANEL
 	card.ZIndex = 11
 	corner(card, 16)
@@ -88,29 +91,39 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	stroke.Color = GOLD
 	stroke.Thickness = 3
 	stroke.Parent = card
-	local limit = Instance.new("UISizeConstraint")
-	limit.MaxSize = Vector2.new(460, math.huge)
-	limit.Parent = card
-	local pad = Instance.new("UIPadding")
-	pad.PaddingTop = UDim.new(0, 16)
-	pad.PaddingBottom = UDim.new(0, 16)
-	pad.PaddingLeft = UDim.new(0, 18)
-	pad.PaddingRight = UDim.new(0, 18)
-	pad.Parent = card
-	local list = Instance.new("UIListLayout")
-	list.SortOrder = Enum.SortOrder.LayoutOrder
-	list.Padding = UDim.new(0, 10)
-	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	list.Parent = card
 	card.Parent = shade
 
-	local title = text(card, "Title", "Welcome to Hatchery Heist!", 26, true)
+	local body = Instance.new("ScrollingFrame")
+	body.Name = "Body"
+	body.BackgroundTransparency = 1
+	body.BorderSizePixel = 0
+	body.Position = UDim2.fromOffset(0, 0)
+	body.Size = UDim2.new(1, 0, 1, -GO_AREA)
+	body.CanvasSize = UDim2.new()
+	body.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	body.ScrollBarThickness = 6
+	body.ScrollingDirection = Enum.ScrollingDirection.Y
+	body.ZIndex = 11
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 14)
+	pad.PaddingBottom = UDim.new(0, 6)
+	pad.PaddingLeft = UDim.new(0, 16)
+	pad.PaddingRight = UDim.new(0, 16)
+	pad.Parent = body
+	local list = Instance.new("UIListLayout")
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Padding = UDim.new(0, 8)
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	list.Parent = body
+	body.Parent = card
+
+	local title = text(body, "Title", "Welcome to Hatchery Heist!", 26, true)
 	title.TextColor3 = GOLD
-	title.Size = UDim2.new(1, 0, 0, 34)
+	title.Size = UDim2.new(1, 0, 0, 32)
 	title.LayoutOrder = 1
 	title.ZIndex = 12
 	local sub =
-		text(card, "Subtitle", "Hatch rare creatures, grow your coin empire, and steal from your rivals.", 16)
+		text(body, "Subtitle", "Hatch rare creatures, grow your coin empire, and steal from your rivals.", 16)
 	sub.Size = UDim2.new(1, 0, 0, 40)
 	sub.TextColor3 = Color3.fromRGB(210, 215, 235)
 	sub.LayoutOrder = 2
@@ -125,33 +138,34 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 		row.BackgroundColor3 = Color3.fromRGB(44, 48, 74)
 		row.ZIndex = 11
 		corner(row, 10)
-		local icon = text(row, "Icon", step.icon, 30)
-		icon.Size = UDim2.fromOffset(48, 48)
-		icon.Position = UDim2.fromOffset(6, 6)
+		local icon = text(row, "Icon", step.icon, 28)
+		icon.Size = UDim2.fromOffset(44, 44)
+		icon.Position = UDim2.fromOffset(6, 4)
 		icon.ZIndex = 12
-		local name = text(row, "Name", step.title, 18, true)
+		local name = text(row, "Name", step.title, 17, true)
 		name.TextXAlignment = Enum.TextXAlignment.Left
-		name.Position = UDim2.fromOffset(60, 6)
-		name.Size = UDim2.new(1, -68, 0, 22)
+		name.Position = UDim2.fromOffset(56, 6)
+		name.Size = UDim2.new(1, -64, 0, 20)
 		name.ZIndex = 12
-		local body = text(row, "Body", step.body, 15)
-		body.TextXAlignment = Enum.TextXAlignment.Left
-		body.TextYAlignment = Enum.TextYAlignment.Top
-		body.TextColor3 = Color3.fromRGB(215, 220, 240)
-		body.Position = UDim2.fromOffset(60, 30)
-		body.Size = UDim2.new(1, -68, 0, 0)
-		body.AutomaticSize = Enum.AutomaticSize.Y
-		body.ZIndex = 12
+		local about = text(row, "Body", step.body, 14)
+		about.TextXAlignment = Enum.TextXAlignment.Left
+		about.TextYAlignment = Enum.TextYAlignment.Top
+		about.TextColor3 = Color3.fromRGB(215, 220, 240)
+		about.Position = UDim2.fromOffset(56, 28)
+		about.Size = UDim2.new(1, -64, 0, 0)
+		about.AutomaticSize = Enum.AutomaticSize.Y
+		about.ZIndex = 12
 		local rowPad = Instance.new("UIPadding")
 		rowPad.PaddingBottom = UDim.new(0, 8)
 		rowPad.Parent = row
-		row.Parent = card
+		row.Parent = body
 	end
 
 	local go = Instance.new("TextButton")
 	go.Name = "Go"
-	go.LayoutOrder = 20
-	go.Size = UDim2.fromOffset(200, 48)
+	go.AnchorPoint = Vector2.new(0.5, 1)
+	go.Position = UDim2.new(0.5, 0, 1, -10)
+	go.Size = UDim2.fromOffset(200, 46)
 	go.BackgroundColor3 = Color3.fromRGB(70, 180, 90)
 	go.Font = Enum.Font.GothamBold
 	go.TextSize = 22
@@ -160,6 +174,22 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	go.ZIndex = 12
 	corner(go, 12)
 	go.Parent = card
+
+	-- Fit the card to its content, the screen and a 460 px maximum width.
+	local function fit()
+		local screen = shade.AbsoluteSize
+		if screen.X <= 0 or screen.Y <= 0 then
+			return
+		end
+		local width = math.min(460, math.floor(screen.X * 0.92))
+		local wanted = list.AbsoluteContentSize.Y + 20 + GO_AREA
+		local height = math.min(wanted, math.floor(screen.Y * 0.9))
+		card.Size = UDim2.fromOffset(width, height)
+	end
+	shade:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	list:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fit)
+	shade:GetPropertyChangedSignal("Visible"):Connect(fit)
+	fit()
 	return shade, go
 end
 

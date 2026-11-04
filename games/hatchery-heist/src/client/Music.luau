@@ -31,17 +31,46 @@ function Music.start(menu: Menu)
 	local on = true
 	local current = 1
 	local fade = TweenInfo.new(config.fadeSeconds)
-	local function play(index: number)
+	local LOAD_SECONDS = 10 -- a track that hasn't loaded by then is skipped
+	local generation = 0 -- bumps on every track change, so stale waits give up
+
+	local play: (index: number, skipped: number) -> ()
+	local function advance(skipped: number)
+		if skipped >= #sounds then
+			return -- nothing loads: stay silent rather than spin
+		end
+		play(current % #sounds + 1, skipped + 1)
+	end
+
+	function play(index: number, skipped: number)
+		generation += 1
+		local mine = generation
 		current = index
 		local sound = sounds[index]
-		sound.Volume = 0
-		sound:Play()
-		TweenService:Create(sound, fade, { Volume = config.volume }):Play()
+		task.spawn(function()
+			if not sound.IsLoaded then
+				local started = os.clock()
+				while not sound.IsLoaded and os.clock() - started < LOAD_SECONDS do
+					task.wait(0.25)
+				end
+			end
+			if mine ~= generation or not on then
+				return
+			end
+			if not sound.IsLoaded then
+				advance(skipped)
+				return
+			end
+			sound.Volume = 0
+			sound:Play()
+			TweenService:Create(sound, fade, { Volume = config.volume }):Play()
+		end)
 	end
+
 	for index, sound in sounds do
 		sound.Ended:Connect(function()
 			if on and current == index then
-				play(index % #sounds + 1)
+				play(index % #sounds + 1, 0)
 			end
 		end)
 	end
@@ -52,8 +81,15 @@ function Music.start(menu: Menu)
 		button.Text = if on then "🎵 Music" else "🔇 Music"
 		local sound = sounds[current]
 		if on then
-			play(current)
+			if sound.IsPaused and sound.TimePosition > 0 then
+				-- Carry on where it stopped instead of restarting the track.
+				sound:Resume()
+				TweenService:Create(sound, fade, { Volume = config.volume }):Play()
+			else
+				play(current, 0)
+			end
 		else
+			generation += 1
 			TweenService:Create(sound, fade, { Volume = 0 }):Play()
 			task.delay(config.fadeSeconds, function()
 				if not on then
@@ -62,7 +98,7 @@ function Music.start(menu: Menu)
 			end)
 		end
 	end)
-	play(1)
+	play(1, 0)
 end
 
 return Music
