@@ -79,7 +79,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	card.Name = "Card"
 	card.AnchorPoint = Vector2.new(0.5, 0.5)
 	card.Position = UDim2.fromScale(0.5, 0.5)
-	card.Size = UDim2.new(0.92, 0, 0, 0)
+	card.Size = UDim2.fromScale(0.92, 0)
 	card.AutomaticSize = Enum.AutomaticSize.Y
 	card.BackgroundColor3 = PANEL
 	card.ZIndex = 11
@@ -120,7 +120,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 		local row = Instance.new("Frame")
 		row.Name = `Step{index}`
 		row.LayoutOrder = 2 + index
-		row.Size = UDim2.new(1, 0, 0, 0)
+		row.Size = UDim2.fromScale(1, 0)
 		row.AutomaticSize = Enum.AutomaticSize.Y
 		row.BackgroundColor3 = Color3.fromRGB(44, 48, 74)
 		row.ZIndex = 11
