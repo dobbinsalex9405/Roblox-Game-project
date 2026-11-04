@@ -49,8 +49,10 @@ session on the laptop has it. An orange border shows on screen while you use it.
   `press_keys("ctrl+s", window_title_contains)` for keys and shortcuts.
   **`window_title_contains` is required**: name the window you mean. The
   Claude app often jumps to the front between calls, so the server brings
-  the named window forward first and sends nothing if it can't. Click into
-  the target field first.
+  the named window forward first and sends nothing if it can't. Name it
+  specifically (check `list_windows()`): the first matching window is used,
+  so "Roblox" could pick Studio or a Chrome tab; "Roblox Studio" or
+  "Creator Hub - Google Chrome" can't. Click into the target field first.
 - `list_windows()`, `focus_window(title_contains)` to switch windows. If
   Windows refuses the focus change, click the window instead.
 - Upload a file through a web page: click the page's upload button, then in
