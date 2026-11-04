@@ -24,6 +24,22 @@ seconds, and a task left open with no action for 10 minutes ends by itself.
 It lets clicks through, never takes focus and is left out of screenshots
 (`overlay.py`).
 
+**The first time a session reaches for the screen**, a prompt shows in the
+middle of the main screen first: "Claude is about to use your screen", the
+task given to `begin_control` (or the first action, if none), a 4-second
+countdown and a **Stop** button. The tool call waits for it; when the
+countdown runs out the work goes ahead, and the rest of the task doesn't
+ask again. It asks again after `end_control`, after 10 quiet minutes, when
+the server restarts, and when a different Claude session starts using the
+screen. **Stop** refuses that call and every screen call, from any
+session, for 10 minutes (restart the server to lift it sooner). The prompt
+never takes focus, so typing elsewhere is not interrupted. To see it
+without the server:
+
+```powershell
+tools\screen-control\.venv\Scripts\python.exe tools\screen-control\overlay.py --demo "Checking the prompt"
+```
+
 Without a console (started with `pythonw`, or with `--log`) the server
 writes the same lines to `%USERPROFILE%\.screen-control\server.log`.
 
@@ -141,4 +157,5 @@ then `press_keys("enter", "Open")`.
 python -m unittest discover -s tools/screen-control/tests
 ```
 
-CI runs these on Linux; the guard has no Windows imports.
+CI runs these on Linux; the guard and the overlay's timing rules have no
+Windows imports.
