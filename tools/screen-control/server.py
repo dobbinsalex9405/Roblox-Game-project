@@ -353,6 +353,24 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
 
 
 @mcp.tool()
+def begin_control(task: str = "") -> str:
+    """Call when you start using the screen: the orange border stays on until
+    end_control (or 10 minutes with no action), so Alex can see Claude is at
+    work. task is a few words for the log."""
+    overlay.begin()
+    log(f"control started: {task}")
+    return "Control started; the orange border stays on until end_control."
+
+
+@mcp.tool()
+def end_control() -> str:
+    """Call when you are done with the screen: the orange border goes away."""
+    log("control ended")
+    overlay.end()
+    return "Control ended; the orange border is off."
+
+
+@mcp.tool()
 def list_monitors() -> list[dict]:
     """List monitors with their position and size in screen pixels."""
     with mss.mss() as sct:

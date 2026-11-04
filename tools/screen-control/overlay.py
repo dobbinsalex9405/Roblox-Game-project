@@ -1,9 +1,10 @@
 """Orange border around the screen while Claude is using it.
 
-Every tool call calls `touch()`; the border shows at once and hides after
-IDLE_SECONDS without another call. It never takes focus, lets clicks through
-and is left out of screen captures, so it is in nobody's way, including
-Claude's own screenshots.
+`begin()` turns it on for a whole task and `end()` turns it off. Every tool
+call also calls `touch()`, which shows it for at least IDLE_SECONDS. A task
+left open with no action for SESSION_TIMEOUT (a session that died) ends by
+itself. It never takes focus, lets clicks through and is left out of screen
+captures, so it is in nobody's way, including Claude's own screenshots.
 """
 
 from __future__ import annotations
@@ -13,11 +14,13 @@ import threading
 import time
 
 IDLE_SECONDS = 6.0
+SESSION_TIMEOUT = 600.0
 COLOR = "#ff8a00"
 THICKNESS = 6
 KEY = "#010203"  # painted inside the border; made fully transparent
 
 _last = 0.0
+_session = False
 _started = False
 
 
@@ -27,6 +30,23 @@ def touch() -> None:
     if not _started:
         _started = True
         threading.Thread(target=_run, name="overlay", daemon=True).start()
+
+
+def begin() -> None:
+    global _session
+    _session = True
+    touch()
+
+
+def end() -> None:
+    global _session, _last
+    _session = False
+    _last = 0.0
+
+
+def visible(now: float) -> bool:
+    idle = now - _last
+    return idle < IDLE_SECONDS or (_session and idle < SESSION_TIMEOUT)
 
 
 def _run() -> None:
@@ -67,7 +87,7 @@ def _run() -> None:
     shown = [None]
 
     def tick() -> None:
-        want = time.monotonic() - _last < IDLE_SECONDS
+        want = visible(time.monotonic())
         if want != shown[0]:
             # SW_SHOWNOACTIVATE / SW_HIDE: show without taking focus.
             user32.ShowWindow(hwnd, 4 if want else 0)
