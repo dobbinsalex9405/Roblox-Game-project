@@ -144,3 +144,13 @@ FAIL.
   pad (Legendary and Godly hover 0.3-0.45 by design). Voxel style is the same across tiers with no
   z-fighting seen. Phoenix ride 4.4 studs, 17 MeshParts, no glow, rider seated. Hatch reveal
   shows the mesh. The creature is on its pad 0.23 s after the hatch press.
+
+## Re-gate: #66 at 1d4efbd
+
+FAIL. Every mesh loads (all 12 sampled creatures have MeshParts with MeshIds, no SurfaceAppearance,
+no "Failed to upload TexturePack" errors), sizes follow the tiers and feet sit on the pads. But
+no creature has colour: every one is plain grey (`66b-hh-grey-meshes`). Each creature's TextureID
+fails to load with "Asset type does not match requested type" (24 warnings; ContentProvider
+Failure for all 12 sampled, e.g. Mouse 134268190690554, Fawn 123371316878080, Toad
+98361995289835, Koala 76631192769813, Crab 104822474090359). These ids look like Decal asset ids,
+not the Image ids that a MeshPart.TextureID needs.
