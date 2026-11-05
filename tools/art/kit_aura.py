@@ -1002,12 +1002,16 @@ def cloud_feet(c, H, col, col2=None):
                          (0.5 * k, 0.5 * k, 0.4 * k), col)
 
 
-def raincloud(c, H, col, col2=None):
+def raincloud(c, H, col, col2=None, a=None):
     """A little raincloud resting on the head like a cap, with glowing
     raindrops dripping from its underside past the sides of the head (each
-    drip hangs from the cloud, so nothing floats or reads as a pole)."""
+    drip hangs from the cloud, so nothing floats or reads as a pole).
+    With "float": true the cloud hovers with a clear gap above the head and
+    thin drips hang from its overhanging edges instead."""
     k = H / 10.0
     col2 = col2 or hexc('#7FD4FF')
+    if (a or {}).get('float'):
+        return _raincloud_float(c, k, col, col2)
     y, zt = _crown(c)
     part = c.part('cloud', 'static')
     head = head_of(c)
@@ -1041,44 +1045,109 @@ def raincloud(c, H, col, col2=None):
             drops.put((xx + (1 if xx >= 0 else -1) * 0, yy - 1, z - n), col2, True)
 
 
+def _raincloud_float(c, k, col, col2):
+    """A raincloud floating over the head: its underside is 5 voxels above
+    the top of the head, it overhangs both sides, and 4 thin drips (col2)
+    with a round drop hang from the overhang, every voxel at least 5 steps
+    (Manhattan) from the head, so the weld pass leaves it floating."""
+    y, zt = _crown(c)
+    eyes = _find(c, 'eyes')
+    solid = set()
+    for p in c.parts:
+        if p.name not in ('cloud', 'raindrops'):
+            solid |= set(p.v)
+    ztop = max(q[2] for q in solid)
+    R = 2.1 * k
+    zb = ztop + 5
+    cloud = c.part('cloud', 'static')
+    cloud.v = {}
+    puffs(cloud, (0, y + 0.3 * k, zb + 0.9 * R * 0.6), R, col, n=7, seed=8, flat=0.6)
+    right = {q: v for q, v in cloud.v.items() if q[0] >= 0}
+    cloud.v = dict(right)
+    for (x, yy, z), v in right.items():
+        cloud.v[(_mx(x), yy, z)] = v
+    shade = _dark(col, 0.12)  # a grey belly so it reads as a rain cloud
+    for q in list(cloud.v):
+        if (q[0], q[1], q[2] - 1) not in cloud.v:
+            cloud.v[q] = (shade, False)
+    drops = c.part('raindrops', 'glow')
+
+    def clear(q):
+        return all(abs(q[0] - s[0]) + abs(q[1] - s[1]) + abs(q[2] - s[2]) >= 5
+                   for s in solid if abs(q[2] - s[2]) < 5)
+    under = {}
+    for (x, yy, z) in cloud.v:
+        if x >= 0 and (x, yy, z - 1) not in cloud.v:
+            under[(x, yy)] = min(z, under.get((x, yy), z))
+    L = max(2, round(0.8 * k))
+    picked = []
+    for (x, yy), z in sorted(under.items(), key=lambda t: (-t[0][0], abs(t[0][1] - y))):
+        if any(abs(x - a) + abs(yy - b) < max(3, 1.2 * k) for a, b, _ in picked):
+            continue
+        n = L + len(picked) % 2
+        cells = [(x, yy, z - t) for t in range(1, n + 1)] + [(x, yy - 1, z - n), (x, yy, z - n - 1)]
+        if all(clear(q) for q in cells):
+            picked.append((x, yy, z))
+            for (cx, cy, cz) in cells:
+                for xx in (cx, _mx(cx)):
+                    drops.put((xx, cy, cz), col2, True)
+        if len(picked) >= 2:
+            break
+
+
 def raindrops(c, H, col, col2=None):
-    """Glowing raindrops dripping from the OUTER edge of the fleece: one
-    from each side between the legs and one from each front corner, each a
-    thin drip with a round drop, hanging clear of the legs so they show in
-    the hero view (never between the legs, where they read as knees)."""
+    """Raindrops dripping down the OUTSIDE of the fleece: from each front
+    corner and from mid-flank, each a thin drip (col) that starts at the
+    fleece's widest point and ends in a round drop (col2, default a lighter
+    tint), hanging against the side of the fleece, well above and outside
+    the legs, so they read as rain on a cloud, not as glowing ankles."""
     k = H / 10.0
     body = _find(c, 'body')
     if not body:
         return
-    part = c.part('raindrops', 'glow')
+    col2 = col2 or _light(col, 0.35)
+    part = c.part('raindrops', 'static')
     legs = set()
     for p in c.parts:
         if p.name.startswith('leg'):
             legs |= set(p.v)
     y0, y1 = _yrange(body)
-    # the widest row of each slice, its outer column and that column's underside
-    def edge(y):
-        row = [(x, z) for (x, yy, z) in body.v if yy == y and x >= 0]
-        if not row:
-            return None
-        xm = max(x for x, _ in row)
-        return xm, min(z for x, z in row if x == xm)
-    spots = []  # (x, y, z): the top cell of each drip, just outside the fleece
-    gap = max(4, round(1.6 * k))
+
+    zs_all = [p[2] for p in body.v]
+    zh = round(min(zs_all) + 0.6 * (max(zs_all) - min(zs_all)))  # where the drips start
+
+    def widest(y):
+        """(x, z): the outer edge of slice y at 60% of the fleece's height."""
+        row = [x for (x, yy, z) in body.v if yy == y and z == zh and x >= 0]
+        return (max(row), zh) if row else None
     yc = (y0 + y1) / 2
-    for y in (round(yc - gap / 2), round(yc + gap / 2)):  # mid-flank, clear of the legs
-        e = edge(y)
+    L = max(2, round(0.6 * k))
+    spots = []
+    for y in (round(yc - 1.1 * k), round(yc + 0.7 * k)):  # mid-flank, between the legs
+        e = widest(y)
         if e:
-            spots.append((e[0] + 1, y, e[1] + 1))
-    for n, (x, y, z) in enumerate(spots):
-        L = max(1, round((0.35 + 0.25 * (n % 2)) * k))
-        cells = [(x, y, z - d) for d in range(0, L)]
-        bulb = [(x, y, z - L), (x, y, z - L - 1), (x, y + 1, z - L), (x, y + 1, z - L - 1)]  # a round drop
+            spots.append((e[0] + 1, y, e[1]))
+    # the front of the fleece, either side of the chest
+    xs = [p[0] for p in body.v if p[2] == zh and p[0] >= 0]
+    if xs:
+        xf = max(1, round(0.55 * max(xs)))
+        ys = [p[1] for p in body.v if p[0] == xf and p[2] == zh]
+        if ys:
+            spots.append((xf, min(ys) - 1, zh))
+    for x, y, z in spots:
+        cells = [(x, y, z - d) for d in range(L)]
+        bulb = [(x, y, z - L), (x, y, z - L - 1), (x, y + 1, z - L), (x, y + 1, z - L - 1)]
         if any(q in legs or q in body.v for q in cells + bulb):
-            continue
-        for (xx, yy, zz) in cells + bulb:
-            part.put((xx, yy, zz), col, True)
-            part.put((_mx(xx), yy, zz), col, True)
+            # nudge out one more voxel rather than drop the drip
+            cells = [(q[0] + 1, q[1], q[2]) for q in cells]
+            bulb = [(q[0] + 1, q[1], q[2]) for q in bulb]
+            if any(q in legs or q in body.v for q in cells + bulb):
+                continue
+        for q in cells + bulb:
+            colr = col2 if q in bulb else col
+            part.put(q, colr)
+            part.put((_mx(q[0]), q[1], q[2]), colr)
+
 
 def wave(c, H, col, col2=None):
     """Riding a little wave: the creature is lifted and a curling wave of
@@ -2539,20 +2608,28 @@ def hedgehog_quills(c, H, col, col2=None, a=None):
         eyes = _find(c, 'eyes')
         brow = (max(p[2] for p in eyes.v) + 1.5) if eyes and eyes.v else min(hz) + (max(hz) - min(hz)) * 0.7
         cheek = min(hz) + 0.3 * (max(hz) - min(hz))
-        outs += paint(head, lambda q: q[2] < cheek or (q[2] < brow and q[1] < yf + 2.0 * k))
+        ears0 = _find(c, 'ears')
+        if ears0 and ears0.v:
+            # the coat starts behind the ears: the whole face and crown in
+            # front of them stays bare, so it never wraps the face like a hood
+            eyb = sum(p[1] for p in ears0.v) / len(ears0.v) + 0.3 * k
+            outs += paint(head, lambda q: q[2] < cheek or q[1] < eyb)
+        else:
+            outs += paint(head, lambda q: q[2] < cheek or (q[2] < brow and q[1] < yf + 2.0 * k))
     # quills: short chunky spikes (2x2 at the root, one voxel at the pale
     # tip) on a staggered grid, leaning up and back, so the coat's outline
     # bristles all over
     step = max(3, round(1.1 * k / float((a or {}).get('density', 1.0))))  # "density": quills per area
-    L = max(3, round(1.3 * k))
+    sharp = (a or {}).get('thorns')  # longer, thinner thorns swept back
+    L = max(3, round((1.6 if sharp else 1.3) * k))
     for (x, y, z), n in outs:
         if (x + (z // step) % 2 * (step // 2 or 1)) % step or (y + z) % step:
             continue
-        d = _norm((n[0], n[1] + 0.7, n[2] + 0.5))
+        d = _norm((n[0], n[1] + (1.0 if sharp else 0.7), n[2] + (0.7 if sharp else 0.5)))
         for i in range(1, L + 1):
             px, py, pz = x + .5 + d[0] * i, y + .5 + d[1] * i, z + .5 + d[2] * i
-            cc = tip if i == L else col
-            w = 1 if i <= L // 2 else 0
+            cc = tip if i >= L - (1 if sharp else 0) else col
+            w = 1 if i <= (L // 3 if sharp else L // 2) else 0
             for ox in range(w + 1):
                 for oz in range(w + 1):
                     q = (math.floor(px) + ox, math.floor(py), math.floor(pz) + oz)
