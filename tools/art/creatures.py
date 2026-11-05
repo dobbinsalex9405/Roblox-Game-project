@@ -385,24 +385,34 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
 
 
 def hedgehog(c, H, col, face, spine, tip):
-    """A hedgehog: a cream face and belly, a pointed snout with a dark nose
-    tip, and a thick coat of spines over the whole back and the top of the
-    head, standing out in spiky tufts (paler tips)."""
-    quadruped(c, H, col, ears='none', tail='short')
+    """A hedgehog: a round dome of dark spines (pale-tipped spikes in
+    staggered rows, leaning back) over a low body on short legs, and in front
+    of it a small cream face with a pointed snout and a dark nose. The face,
+    cheeks and chin stay clear: the spines start behind them."""
     k = H / 10.0
-    head, body = c.part('head'), c.part('body')
-    # low to the ground: everything down, the legs cut short (3+ voxels left)
-    drop = max(0, round(1.6 * k) + 1 - 3) if k < 2 else round(0.5 * k)
-    for p in c.parts:
-        p.v = {(x, y, z - drop): v for (x, y, z), v in p.v.items() if z - drop >= 0}
-        p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] - drop)
-    # the pointed snout: a long cone out of the lower face, narrowing to a
-    # small dark nose at its tip
-    ln = max(4, round(2.0 * k))
-    zc = 5.4 * k - drop
-    yf = min(p[1] for p in head.v if abs(p[0] + .5) < 1 and abs(p[2] - zc) < 1)
+    fine = getattr(c, 'fine', False)
+    body = c.part('body')
+    head = c.part('head', 'head', (0, -1.4 * k, 2.6 * k))
+    # short legs, a darker foot
+    lw = max(1, round(0.9 * k * (1.3 if fine else 1)))
+    lh = max(2, round(1.1 * k)) if fine else round(1.2 * k)
+    for sx in (-1, 1):
+        for ly in (-1.3 * k, 1.9 * k):
+            x0 = round(sx * 1.3 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
+            body.box((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, lh), col)
+    # the body: a low cream belly, and over it the spine dome
+    cz = lh + 1.3 * k
+    body.ell((0, 0.6 * k, cz), (2.0 * k, 2.6 * k, 1.3 * k), col)
+    dome_c, dome_r = (0, 0.9 * k, cz + 0.2 * k), (2.5 * k, 3.1 * k, 2.2 * k)
+    body.ell(dome_c, dome_r, spine, cond=lambda x, y, z: z + .5 >= cz - 0.3 * k)
+    # the face: a small cream head low in front of the dome, a pointed snout
+    hc = (0, -2.2 * k, cz + 0.1 * k)
+    head.ell(hc, (1.4 * k, 1.3 * k, 1.25 * k), face)
+    ln = max(3, round(1.5 * k))
+    yf = min(p[1] for p in head.v if abs(p[0] + .5) < 1 and abs(p[2] + .5 - hc[2]) < 1)
+    zc = hc[2] - 0.25 * k
     for i in range(ln + 1):
-        r = max(0.55, (1.05 - 0.8 * i / ln) * k)
+        r = max(0.55, (0.8 - 0.55 * i / ln) * k)
         for x in range(-math.ceil(r), math.ceil(r)):
             for z in range(math.floor(zc - r), math.ceil(zc + r) + 1):
                 if math.hypot(x + .5, z + .5 - zc) <= r:
@@ -410,43 +420,33 @@ def hedgehog(c, H, col, face, spine, tip):
     tipy = min(p[1] for p in head.v)
     for p in [p for p in head.v if p[1] == tipy]:
         head.put(p, INK)
-    # the spine coat: everything above the flank on the body, and the head
-    # behind the eyes, thickened one voxel and painted dark (into the parts
-    # themselves, so no hidden faces), then rows of short spikes standing out
-    # up and back with pale tips
-    others = set()
-    for p in c.parts:
-        if p.name not in ('body', 'head'):
-            others |= set(p.v)
-    cover = [(body, lambda q: q[2] > 1.9 * k - drop and q[1] > -2.6 * k, False),
-             (head, lambda q: q[2] > 6.95 * k - drop or (q[1] > -2.6 * k and q[2] > 4.8 * k - drop), False)]
-    coat = []
-    for part, ok, thick in cover:
-        add = {}
-        for (x, y, z) in list(part.v):
-            if not ok((x, y, z)):
-                continue
-            for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 1)):
-                q = (x + d[0], y + d[1], z + d[2])
-                if q in body.v or q in head.v or q in others:
-                    continue
-                add[q] = d
-        if thick:
-            for q in add:
-                part.put(q, spine)
-            coat += [(part, q, d) for q, d in add.items()]
-        else:
-            coat += [(part, (q[0] - d[0], q[1] - d[1], q[2] - d[2]), d) for q, d in add.items()]
-        part.paint(lambda p, cc, g, ok=ok: (spine, False) if ok(p) and cc != INK else None)
+    for p in [p for p in head.v if p in body.v]:
+        del body.v[p]  # the face in front of the dome, not inside it
+    eyes(c, head, max(1, round(0.55 * k)), round(hc[2] + 0.3 * k), max(1, round(0.45 * k)))
+    if k >= 1:
+        blush(head, round(1.0 * k), round(hc[2] - 0.35 * k))
+    # spikes out of the dome: staggered diagonal rows, a dark base and a pale
+    # point, leaning back toward the tail (the finer build only: the in-game
+    # boxes keep to a box budget)
+    if not fine:
+        return
     sp = c.part('spines', 'static')
-    for part, q, d in coat:
-        if q[0] < 0 or (q[0] + 2 * q[1] + 3 * q[2]) % 4 or not getattr(c, 'fine', False):
-            continue  # (the in-game boxes keep to the painted coat: box budget)
-        # a spike: one voxel out along the surface and one back, pale-tipped
-        s1 = (q[0] + d[0], q[1] + d[1] + 1, q[2] + d[2])
-        if s1 in body.v or s1 in head.v or s1 in others:
+    solid = set(body.v) | set(head.v)
+    for (x, y, z), (cc, _) in list(body.v.items()):
+        if cc != spine or x < 0 or (y + 2 * z + x) % 3:
             continue
-        sp.put(s1, tip)
+        n = ((x + .5 - dome_c[0]) / dome_r[0], (y + .5 - dome_c[1]) / dome_r[1], (z + .5 - dome_c[2]) / dome_r[2])
+        if max(abs(v) for v in n) < 0.75:
+            continue  # not on the surface
+        d = tuple(1 if v > 0.45 else -1 if v < -0.45 else 0 for v in n)
+        if d[1] < 0 and d[2] <= 0:
+            continue  # nothing pointing at the face
+        s1 = (x + d[0], y + max(d[1], 0) + 1, z + d[2])
+        s2 = (s1[0] + d[0], s1[1] + 1, s1[2] + d[2])
+        if s1 in solid or s2 in solid:
+            continue
+        sp.put(s1, spine)
+        sp.put(s2, tip)
     for (x, y, z), v in list(sp.v.items()):
         sp.v[(-x - 1, y, z)] = v
 
@@ -755,7 +755,7 @@ ROSTER = [
     ('Gosling', 'Uncommon', lambda c, H: bird(c, H, P('#D8D2B0'), belly=P('#F1EBD0'), beak=P('#3A3A4A'))),
     ('Turtle', 'Uncommon', lambda c, H: blob(c, H, 'turtle', P('#9BD36A'), P('#4FA84A'))),
     ('FoxKit', 'Uncommon', lambda c, H: quadruped(c, H, P('#FF8A3D'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='pointy', ear_col=P('#3A2A2A'), tail='fox')),
-    ('Hedgehog', 'Uncommon', lambda c, H: hedgehog(c, H, P('#E8C9A0'), P('#F6E3C8'), P('#5A3A24'), P('#A9825C'))),
+    ('Hedgehog', 'Uncommon', lambda c, H: hedgehog(c, H, P('#E8C9A0'), P('#F6E3C8'), P('#5A3A24'), P('#EADBC2'))),
     ('Squirrel', 'Uncommon', lambda c, H: quadruped(c, H, P('#C9763A'), belly=P('#FFE3BF'), snout=P('#FFE3BF'), ears='pointy', tail='bushy')),
     ('Puppy', 'Uncommon', lambda c, H: quadruped(c, H, P('#E3B27A'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='floppy', ear_col=P('#8A5A33'), tail='short')),
     ('Kitten', 'Uncommon', lambda c, H: kitten(c, H, P('#9AA3B5'), P('#FFFFFF'), P('#6E7688'), P('#FFB3C7'))),
