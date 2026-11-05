@@ -261,7 +261,7 @@
    "rarity": "Ultra Rare",
    "plan": "bird",
    "colors": {
-    "col": "#E8F4FF",
+    "col": "#BCD3EA",
     "belly": "#FFFFFF",
     "beak": "#7FB8E0",
     "wing": "#C8E2F7",
@@ -276,12 +276,12 @@
    "accessories": [
     {
      "kind": "facial_disc",
-     "color": "#CFE0F0"
+     "color": "#FFFFFF"
     },
     {
      "kind": "iris_eyes",
-     "color": "#6CC8FF",
-     "color2": "#16253A"
+     "color": "#3FA9F5",
+     "color2": "#0E1828"
     },
     {
      "kind": "owl_tufts",
@@ -295,7 +295,7 @@
     {
      "kind": "zigzag_tips",
      "color": "#5FB4EC",
-     "color2": "#BFF0FF"
+     "color2": "#7FE8FF"
     },
     {
      "kind": "mend",
