@@ -887,21 +887,21 @@ def ray(c, H, cols, opts):
     """A manta: a raised head with curled cephalic lobes, wide wing-fins
     (finL/finR) that flap, a white underside showing at the rim, spots
     on the back and a thin whip tail."""
-    k = H / 10.0 * 1.25
+    k = H / 10.0 * 1.5
     col = cols['col']
     belly, accent, glow, iris = _cols(cols, col, belly=hexc('#F4F7FF'))
     body = c.part('body')
     cz = 2.2 * k
-    body.ell((0, 0.2 * k, cz), (1.6 * k, 2.3 * k, 1.0 * k), col)
-    body.paint(lambda p, cc, g: (belly, False) if p[2] < cz - 0.3 * k else None)
+    body.ell((0, 0.2 * k, cz), (1.6 * k, 2.3 * k, 1.4 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < cz - 0.5 * k else None)
     spot = light(col, 0.35) if glow is None else glow
     for (px, py) in ((0.7, -0.4), (-0.7, -0.4), (0.0, 0.8), (0.9, 1.4), (-0.9, 1.4)):
-        body.paint(lambda p, cc, g, px=px, py=py: (spot, glow is not None) if cc == col and p[2] > cz + 0.4 * k and
+        body.paint(lambda p, cc, g, px=px, py=py: (spot, glow is not None) if cc == col and p[2] > cz + 0.7 * k and
                    (p[0] + .5 - px * k) ** 2 + (p[1] + .5 - py * k) ** 2 < (0.32 * k) ** 2 else None)
     head = c.part('head', 'head', (0, -1.6 * k, cz))
-    head.ell((0, -2.2 * k, cz + 0.35 * k), (1.35 * k, 1.0 * k, 0.9 * k), col)
+    head.ell((0, -2.2 * k, cz + 0.45 * k), (1.35 * k, 1.0 * k, 1.2 * k), col)
     head.paint(lambda p, cc, g: (belly, False) if p[2] < cz - 0.1 * k else None)
-    eye_pair(c, head, round(0.5 * k), round(cz + 0.3 * k), max(2, round(0.3 * k)), iris=iris)
+    eye_pair(c, head, round(0.5 * k), round(cz + 0.55 * k), max(2, round(0.3 * k)), iris=iris)
     # the wide mouth under the eyes
     for x in range(-round(0.7 * k), round(0.7 * k)):
         f = head.front(x, round(cz - 0.25 * k))
@@ -917,13 +917,18 @@ def ray(c, H, cols, opts):
     for sx, name in ((1, 'finR'), (-1, 'finL')):
         f = c.part(name, name, (sx * 1.3 * k, 0, cz))
         S = round(3.6 * k)
+        prev = 0
         for i in range(S):
             t = i / S
             front = -1.6 * k + t * t * 2.4 * k
             back = 1.9 * k - t * 1.7 * k
             x = round(1.2 * k) + i
-            lift = round(math.sin(t * math.pi * 0.5) * 0.8 * k)
-            thick = 3 if t < 0.35 else 2 if t < 0.75 else 1
+            # the wings sweep up in a shallow V (they flap from there)
+            lift = round(math.sin(t * math.pi * 0.5) * 2.0 * k)
+            # each column reaches down to the last one's top, so a steep
+            # rise never leaves the wing tip loose
+            thick = max(3 if t < 0.35 else 2 if t < 0.75 else 1, lift - prev + 1)
+            prev = lift
             for y in range(math.floor(front), math.ceil(back) + 1):
                 edge = y >= math.ceil(back) - 1 or i >= S - 2
                 for dz in range(thick):
