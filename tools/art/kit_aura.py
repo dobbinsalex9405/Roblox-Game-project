@@ -1930,6 +1930,7 @@ def raised_wings(c, H, col, col2=None, span=3.6, angle=60, tip_glow=False, a=Non
     ry = y0 + (y1 - y0) * 0.33
     rz = zt - (0.3 + float(a.get('drop', 0.0))) * k
     tip = col2 or _light(col, 0.45)
+    fine = getattr(c, 'fine', False)  # the in-game box build skips feather bands
     ang = math.radians(angle)
     d = (math.cos(ang), math.sin(ang))      # along the arm, up and out
     n = (math.sin(ang), -math.cos(ang))     # across the wing, out and down
@@ -1953,7 +1954,7 @@ def raised_wings(c, H, col, col2=None, span=3.6, angle=60, tip_glow=False, a=Non
                 # feathers: darker bands across the wing, then pale tips
                 if u > 0.82 or vv > 0.88:
                     colr, g = tip, tip_glow and u > 0.86
-                elif math.floor(v) % rows == 0 and vv > 0.3:
+                elif fine and math.floor(v) % rows == 0 and vv > 0.3:  # bands only where voxels are fine enough
                     colr, g = _dark(col, 0.14), False
                 else:
                     colr, g = col, False
