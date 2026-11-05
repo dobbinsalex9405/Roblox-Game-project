@@ -35,7 +35,7 @@ local function collect(loaded: Instance, speciesId: string): Model?
 	model.Name = speciesId
 	for _, part in entry.parts do
 		for _, mesh in part.meshes do
-			local mp = found[mesh.name]
+			local mp: MeshPart? = found[mesh.name]
 			if mp == nil then
 				model:Destroy()
 				return nil
