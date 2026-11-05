@@ -316,6 +316,9 @@ local function boot(placePath: string): (any, any, { any })
 	camera.Name = "Camera"
 	camera.Parent = game:GetService("Workspace")
 	game:GetService("Workspace").CurrentCamera = camera
+	-- The client starts on a phone, as most players do.
+	local phone = Gui.SCREENS[1]
+	setScreen(game, phone.width, phone.height, phone.inset)
 	local clientScripts = scriptsUnder(game:GetService("StarterPlayer"), "LocalScript")
 	for _, s in scriptsUnder(game:GetService("StarterGui"), "LocalScript") do
 		table.insert(clientScripts, s)

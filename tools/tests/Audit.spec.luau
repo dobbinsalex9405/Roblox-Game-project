@@ -387,6 +387,82 @@ describe("player's-eye audit: HUD at phone size", function()
 		expect(rects.Row.y).toBe(rects.List.y + 20)
 	end)
 
+	it("UIScale shrinks the whole subtree: sizes, list offsets, padding and text", function()
+		local player = playerWith(function(gui)
+			local f = Instance.new("Frame")
+			f.Name = "Words"
+			f.Size = UDim2.fromOffset(400, 300)
+			f.Position = UDim2.fromOffset(100, 20)
+			f.Parent = gui
+			local s = Instance.new("UIScale")
+			s.Scale = 0.5
+			s.Parent = f
+			local pad = Instance.new("UIPadding")
+			pad.PaddingTop = UDim.new(0, 20)
+			pad.Parent = f
+			local list = Instance.new("UIListLayout")
+			list.SortOrder = Enum.SortOrder.LayoutOrder
+			list.Parent = f
+			for i, h in { 24, 44 } do
+				local l = Instance.new("TextLabel")
+				l.Name = `Line{i}`
+				l.Text = "Rare!"
+				l.TextSize = h
+				l.Size = UDim2.new(1, 0, 0, h)
+				l.LayoutOrder = i
+				l.Parent = f
+			end
+		end)
+		local byName = {}
+		for _, item in Gui.layout(Gui.snapshot(player), phone) do
+			byName[item.node.name] = item
+		end
+		local top = byName.Words.rect.y
+		expect(byName.Words.rect.h).toBe(150)
+		expect(byName.Line1.rect.y - top).toBe(10) -- padding 20 x 0.5
+		expect(byName.Line1.rect.h).toBe(12)
+		expect(byName.Line2.rect.y - top).toBe(22)
+		expect(byName.Line2.textSize).toBe(22)
+	end)
+
+	it("a click after a fresh join happens on a phone-sized screen", function()
+		local Shim = require("../boot/shim")
+		local log = {}
+		local function hud(): any
+			return playerWith(function(gui)
+				for i, name in { "Shop", "Book" } do
+					local b =
+						button(gui, name, name, UDim2.fromOffset(120, 44), UDim2.fromOffset(150 * i, 300))
+					Shim.signalOf(b, "Activated"):Connect(function()
+						table.insert(log, `click {name}`)
+					end)
+				end
+			end)
+		end
+		Gui.audit(nil, hud(), {
+			images = false,
+			background = function() end :: any,
+			save = function() end,
+			takeErrors = function()
+				return {}
+			end,
+			settle = 0,
+			reboot = function()
+				table.insert(log, "reboot")
+				return nil, hud()
+			end,
+			shim = Shim,
+			wait = function() end,
+			setScreen = function(_, w, h)
+				table.insert(log, `screen {w}x{h}`)
+			end,
+		})
+		local at = table.find(log, "click Book")
+		expect(at ~= nil).toBe(true)
+		expect(log[at - 1]).toBe(`screen {phone.width}x{phone.height}`)
+		expect(log[at - 2]).toBe("reboot")
+	end)
+
 	it("a full-screen tap-to-close backdrop is not an overlapping button", function()
 		local player = playerWith(function(gui)
 			local dim = button(gui, "Dim", "", UDim2.fromScale(1, 1), UDim2.new())

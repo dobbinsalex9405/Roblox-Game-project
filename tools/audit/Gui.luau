@@ -243,7 +243,8 @@ local function estimateTextSize(node: any, w: number, h: number): number
 	local text = node.text or ""
 	local n = math.max(1, utf8len(text))
 	if not node.scaled then
-		return node.textSize
+		-- UIScale above (and on) the label scales its text with it.
+		return node.textSize * (node.effScale or 1)
 	end
 	local maxSize = math.min(100, node.textMax or 100)
 	local s
@@ -303,13 +304,17 @@ local function measure(node: any, pw: number, ph: number, scale: number): (numbe
 			end
 		end
 		if node.text and node.text ~= "" and not node.scaled then
-			local tw, th = textBounds(node, node.textSize, if node.auto == "Y" then w else 0)
+			local tw, th = textBounds(
+				node,
+				node.textSize * scale * (node.uiScale or 1),
+				if node.auto == "Y" then w else 0
+			)
 			maxX = math.max(maxX, tw + 4)
 			maxY = math.max(maxY, th + 2)
 		end
 		if node.padding then
-			maxX += node.padding[2][1] * w + node.padding[2][2]
-			maxY += node.padding[4][1] * h + node.padding[4][2]
+			maxX += node.padding[2][1] * w + node.padding[2][2] * childScale
+			maxY += node.padding[4][1] * h + node.padding[4][2] * childScale
 		end
 		if node.auto == "X" or node.auto == "XY" then
 			w = math.max(w, maxX)
@@ -336,15 +341,16 @@ end
 place = {}
 
 -- A node's content box: its rect minus padding.
-function place.content(node: any, rect: any, _scale: number): any
+function place.content(node: any, rect: any, scale: number): any
 	local p = node.padding
 	if p == nil then
 		return { x = rect.x, y = rect.y, w = rect.w, h = rect.h }
 	end
-	local l = p[1][1] * rect.w + p[1][2]
-	local r = p[2][1] * rect.w + p[2][2]
-	local t = p[3][1] * rect.h + p[3][2]
-	local b = p[4][1] * rect.h + p[4][2]
+	-- Offsets scale with the UIScales above and on the node.
+	local l = p[1][1] * rect.w + p[1][2] * scale
+	local r = p[2][1] * rect.w + p[2][2] * scale
+	local t = p[3][1] * rect.h + p[3][2] * scale
+	local b = p[4][1] * rect.h + p[4][2] * scale
 	return { x = rect.x + l, y = rect.y + t, w = math.max(0, rect.w - l - r), h = math.max(0, rect.h - t - b) }
 end
 
@@ -382,6 +388,7 @@ function place.node(node: any, rect: any, clip: any, scale: number, probing: boo
 		node.clip = clip
 	end
 	local childScale = scale * (node.uiScale or 1)
+	node.effScale = childScale
 	local content = place.content(node, rect, childScale)
 	local childClip = clip
 	if node.clips then
@@ -1368,6 +1375,10 @@ function Gui.audit(
 		if opts.reboot and n > 1 then
 			local _, fresh = opts.reboot()
 			p = fresh
+			-- A fresh join on a phone: the camera and insets are the phone's
+			-- before anything opens (UI often sizes itself from ViewportSize).
+			opts.setScreen(p, phone.width, phone.height, phone.inset)
+			opts.wait(0.05)
 		end
 		-- Find the same button in this boot.
 		local inst = nil
