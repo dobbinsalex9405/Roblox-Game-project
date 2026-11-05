@@ -5,7 +5,7 @@
    "id": "DolphinCalf",
    "rarity": "Rare",
    "plan": "whale",
-   "gait": "hover",
+   "gait": "swim",
    "options": {
     "kind": "dolphin"
    },
@@ -34,7 +34,7 @@
    "id": "MantaRay",
    "rarity": "Rare",
    "plan": "ray",
-   "gait": "hover",
+   "gait": "swim",
    "options": {
     "kind": "manta"
    },
@@ -100,7 +100,7 @@
    "id": "Narwhal",
    "rarity": "Rare",
    "plan": "whale",
-   "gait": "hover",
+   "gait": "swim",
    "options": {
     "kind": "narwhal"
    },
