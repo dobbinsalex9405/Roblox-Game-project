@@ -322,7 +322,7 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
                 w = max(0, round((1.8 * k - i) * 0.35))
                 earp.box((round(bx - w), round(-2.4 * k), round(7.6 * k) + i), (round(bx + w), round(-2.4 * k) + max(0, round(0.4 * k)), round(7.6 * k) + i), ec)
         elif ears == 'cat':  # short, wide-based triangles set on the head corners
-            n = max(2, round(1.6 * k))
+            n = max(3, round(1.6 * k) + 1)
             y0 = round(-2.5 * k)
             for i in range(n):
                 t = i / (n - 1)
@@ -341,8 +341,28 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
         elif ears == 'long':  # bunny
             earp.box((round(bx - 0.4 * k), round(-2.0 * k), round(7.6 * k)), (round(bx + 0.4 * k), round(-2.0 * k) + max(0, round(0.3 * k)), round(10.6 * k)), ec)
             earp.box((round(bx), round(-2.0 * k) - 1, round(8.0 * k)), (round(bx), round(-2.0 * k) - 1, round(10.0 * k)), BLUSH)
-        elif ears == 'floppy':
+        elif ears == 'floppy':  # an upright flap beside the head (in-game meshes use it; new creatures: 'hanging')
             earp.box((round(bx * 1.7), round(-2.4 * k), round(5.0 * k)), (round(bx * 1.7) + (0 if k < 1.2 else 1), round(-1.8 * k), round(7.4 * k)), ec)
+        elif ears == 'hanging':  # hangs from the top of the head, hugging its side, down past the jaw
+            zt = max(p[2] for p in head.v)
+            z_top, z_bot = zt - max(1, round(0.4 * k)), round(3.6 * k)
+            thick = max(1, round(0.35 * k))
+            yc = -2.4 * k
+            edge = None
+            for z in range(z_top, z_bot - 1, -1):
+                xs = [p[0] for p in head.v if p[2] == z and abs(p[1] - yc) <= 1.2 * k]
+                if xs:
+                    edge = max(xs)
+                if edge is None:
+                    continue
+                t = (z_top - z) / max(1, z_top - z_bot)  # 0 at the root, 1 at the tip
+                half = (0.3 + 0.55 * math.sin(min(1.0, t * 1.25) * math.pi * 0.6)) * k  # narrow root, wide rounded tip
+                if t > 0.85:
+                    half *= 1.0 - (t - 0.85) * 2.5
+                out = round(t * 0.4 * k)  # the tip swings a little away from the cheek
+                for xx in range(edge + 1 + out, edge + 1 + out + thick):
+                    x = xx if sx > 0 else -xx - 1
+                    earp.box((x, round(yc - half), z), (x, round(yc + half), z), ec)
     # tail
     tc = tail_col or col
     tl = c.part('tail', 'tail' if c.rarity != 'Common' else 'static', (0, 3.4 * k, 3.4 * k))

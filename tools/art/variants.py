@@ -55,7 +55,7 @@ PLANS = {
     'quadruped': (
         {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines', 'glow', 'horn',
          'antlers', 'wings'},
-        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy'},
+        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy', 'hanging'},
          'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'flame', 'none'},
          'fluffy': {True, False}, 'pig': {True, False}, 'cow': {True, False}, 'bunny': {True, False}},
     ),
@@ -186,6 +186,55 @@ def load(directory=ROSTER_DIR):
     return out
 
 
+def _lum(rgb):
+    r, g, b = (v / 255.0 for v in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+DARK_FACE = 0.35
+
+
+def eye_contrast(c):
+    """Dark eyes vanish on a dark face (or a dark mask). When the face around
+    an eye is dark, ring the eye with a lighter shade of the face and give it
+    a white shine, so it always reads. Glowing eyes are left alone."""
+    eyes = next((p for p in c.parts if p.name == 'eyes'), None)
+    if not eyes or not eyes.v:
+        return
+    ink = [q for q, (rgb, g) in eyes.v.items() if not g and _lum(rgb) < 0.25]
+    if not ink:
+        return
+    face = [p for p in c.parts if p is not eyes and p.name in ('head', 'body')]
+    WHITE = (255, 255, 255)
+    for side in (lambda x: x >= 0, lambda x: x < 0):
+        dots = [q for q in ink if side(q[0])]
+        if not dots:
+            continue
+        ring = {}
+        for (x, y, z) in dots:
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                for dy in (0, 1, -1):
+                    q = (x + dx, y + dy, z + dz)
+                    if q in eyes.v:
+                        break
+                    hit = next((p for p in face if q in p.v), None)
+                    if hit:
+                        ring[q] = hit
+                        break
+        if not ring:
+            continue
+        cols = [ring[q].v[q][0] for q in ring]
+        if sum(_lum(col) for col in cols) / len(cols) >= DARK_FACE:
+            continue
+        for q, part in ring.items():
+            rgb, g = part.v[q]
+            if not g:
+                part.v[q] = (tuple(round(v + (255 - v) * 0.45) for v in rgb), False)
+        if len(dots) >= 4 and not any(eyes.v[q][0] == WHITE for q in eyes.v if side(q[0])):
+            top = max(dots, key=lambda q: (q[2], -abs(q[0] + 0.5)))
+            eyes.v[top] = (WHITE, False)
+
+
 def builder(entry):
     """fn(c, H) that builds the entry, for the ROSTER."""
     import creatures as cr
@@ -239,6 +288,7 @@ def builder(entry):
                     kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
         if entry.get('gait'):
             c.gait_hint = entry['gait']  # the sheet's gait wins over one a body plan set
+        eye_contrast(c)
         return c
 
     return build

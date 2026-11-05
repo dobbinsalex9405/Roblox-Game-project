@@ -550,7 +550,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
 		tris = 7388,
-		trisLod1 = 730,
+		trisLod1 = 746,
 		parts = {
 			{
 				name = "body",
@@ -658,7 +658,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		height = 1.8,
 		size = { 1.2, 1.8, 1.8 },
 		tris = 9884,
-		trisLod1 = 782,
+		trisLod1 = 788,
 		parts = {
 			{
 				name = "body",
