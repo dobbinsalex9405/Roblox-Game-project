@@ -60,3 +60,10 @@ no MeshParts or blank meshes, same widths and heights within animation). But the
 10.1 studs tall with its ring and glow, against 6.0 studs and no glow on main: d20ae77 is not based
 on eecbc3e, so #52's mount fixes (ArtScale ridden scale, CreatureLooks, Layout, init.server) are
 undone by this branch. Output: no errors.
+
+## Re-gate: #57 at af5e559
+
+PASS. Contains main eecbc3e. Chick, Ember Fox and Phoenix match main exactly on pads (parts
+14/61/415, total part volume 1.219/10.406/188.729, no MeshParts or blank meshes, same heights
+within animation). Ridden Phoenix 6.0 studs with no neon, ring, light or particles; rider in view.
+Output: no errors.
