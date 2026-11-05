@@ -220,7 +220,7 @@ def split_legs(c, Part):
     return names
 
 
-GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover')
+GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover', 'swim')
 # How a creature moves when its legs alone don't say: hand-made creatures by
 # species, roster creatures by plan and kind (variants.py sets c.gait_hint).
 SPECIES_GAIT = {
@@ -249,9 +249,11 @@ def gait_hint(c):
 
 def gait(c):
     """trot, waddle, hop, scuttle, slither or hover."""
-    if c.rarity in FLYING_TIERS:
-        return 'hover'
     g = gait_hint(c)
+    if c.rarity in FLYING_TIERS:
+        # they float: they fly, or swim through the air (whales, rays, fish)
+        return 'swim' if g == 'swim' else 'hover'
+
     if g:
         return g
     legs = [p for p in c.parts if p.name.startswith('leg')]
