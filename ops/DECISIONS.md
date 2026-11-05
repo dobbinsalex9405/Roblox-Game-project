@@ -23,8 +23,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   match the rest once the game scales every Godly to 6 studs tall.
 - **The swimmers swim level** (the strict review: they must read as a whale):
   the Clockwork Leviathan and the Cosmic Whale are long and low, their
-  orbits ride above the back, and once scaled to 6 studs tall they are about
-  8 and 10.5 studs long, inside the 30 x 10 three-spot area.
+  orbits ride above the back, and they swim (tail sweeps, flippers paddle).
+  Scaled to 6 studs tall they are about 15 and 10.5 studs long: longer than
+  the 10-stud depth of the three-spot area, inside its 30-stud width; the
+  reviewer asked for the Leviathan at least 3x as long as tall.
 - **They hover** (rig: Legendary and Godly always hover); legs, tentacles
   (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
   so the hover pose tucks and paddles them.
