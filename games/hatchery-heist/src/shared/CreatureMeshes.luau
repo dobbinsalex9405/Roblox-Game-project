@@ -6004,8 +6004,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "waddle",
 		height = 4.4,
 		size = { 5.6, 4.4, 4 },
-		tris = 37252,
-		trisLod1 = 1524,
+		tris = 37894,
+		trisLod1 = 1506,
 		parts = {
 			{
 				name = "body",
@@ -6025,7 +6025,7 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "legR",
 				anim = "legR",
 				parent = "body",
-				pivot = { 0.35, 0.4, -0.0286 },
+				pivot = { 0.35, 0.4, -0.03 },
 				meshes = {
 					{
 						name = "GoldenGoose_legR",
@@ -6043,7 +6043,7 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "legL",
 				anim = "legL",
 				parent = "body",
-				pivot = { -0.35, 0.4, -0.0286 },
+				pivot = { -0.35, 0.4, -0.03 },
 				meshes = {
 					{
 						name = "GoldenGoose_legL",
@@ -6065,14 +6065,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "GoldenGoose_nest",
-						center = { 0.05, 0.1017, -1.35 },
-						size = { 1.307, 0.2035, 1.307 },
+						center = { 0.05, 0.1017, -1.15 },
+						size = { 1.307, 0.2035, 1.707 },
 					},
 				},
 				lod1 = {
 					name = "GoldenGoose_nest_lod1",
-					center = { 0.1, 0.1, -1.3 },
-					size = { 1.4, 0.2, 1.4 },
+					center = { 0.1, 0.1, -1.2 },
+					size = { 1.4, 0.2, 1.6 },
 				},
 			},
 			{
@@ -6140,30 +6140,36 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "GoldenGoose_crown_glow",
+						center = { -0.25, 4.05, -0.25 },
+						size = { 0.1, 0.1, 0.1 },
+						glow = "3FA9FF",
+					},
+					{
+						name = "GoldenGoose_crown_glow2",
 						center = { -0.25, 4.05, -0.75 },
 						size = { 0.1, 0.1, 0.1 },
 						glow = "3FE08A",
 					},
 					{
-						name = "GoldenGoose_crown_glow2",
+						name = "GoldenGoose_crown_glow3",
 						center = { 0.05, 3.95, -0.5 },
 						size = { 0.9, 0.1, 0.8 },
 						glow = "E8A21A",
 					},
 					{
-						name = "GoldenGoose_crown_glow3",
-						center = { 0.35, 4.05, -0.25 },
-						size = { 0.1, 0.1, 0.1 },
+						name = "GoldenGoose_crown_glow4",
+						center = { 0.35, 4.05, -0.5 },
+						size = { 0.1, 0.1, 0.6 },
 						glow = "FF3B5C",
 					},
 					{
-						name = "GoldenGoose_crown_glow4",
+						name = "GoldenGoose_crown_glow5",
 						center = { 0.05, 4.15, -0.5 },
 						size = { 0.9, 0.3, 0.8 },
 						glow = "FFC72E",
 					},
 					{
-						name = "GoldenGoose_crown_glow5",
+						name = "GoldenGoose_crown_glow6",
 						center = { 0.05, 4.35, -0.5 },
 						size = { 0.9, 0.1, 0.8 },
 						glow = "FFF7C2",
@@ -6231,7 +6237,7 @@ local CreatureMeshes: { [string]: Creature } = {
 						size = { 0.607, 0.5035, 0.907 },
 					},
 				},
-				lod1 = { name = "GoldenGoose_tail_lod1", center = { 0, 1.6, 1.4 }, size = { 0.8, 0.4, 0.8 } },
+				lod1 = { name = "GoldenGoose_tail_lod1", center = { 0, 1.6, 1.5 }, size = { 0.8, 0.4, 1 } },
 			},
 		},
 	},
@@ -6242,8 +6248,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 4.1875,
 		size = { 5.25, 4.1875, 5.25 },
-		tris = 92906,
-		trisLod1 = 2260,
+		tris = 92844,
+		trisLod1 = 2294,
 		parts = {
 			{
 				name = "body",
@@ -6340,18 +6346,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "NebulaSerpent_tailtip_glow",
-						center = { 0.75, 0.75, -1 },
-						size = { 0.875, 0.75, 0.875 },
+						center = { 0.75, 0.7812, -1 },
+						size = { 0.875, 0.6875, 0.875 },
 						glow = "7FF6FF",
 					},
 					{
 						name = "NebulaSerpent_tailtip_glow2",
-						center = { 1.0938, 0.5625, -0.8125 },
-						size = { 0.0625, 0.25, 0.125 },
-						glow = "FFD1F6",
-					},
-					{
-						name = "NebulaSerpent_tailtip_glow3",
 						center = { 0.75, 0.75, -1 },
 						size = { 0.625, 0.5, 0.625 },
 						glow = "FFFFFF",
@@ -6359,8 +6359,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				},
 				lod1 = {
 					name = "NebulaSerpent_tailtip_lod1",
-					center = { 0.7188, 0.6562, -0.9375 },
-					size = { 0.5625, 0.5625, 0.375 },
+					center = { 0.7188, 0.6562, -1.0312 },
+					size = { 0.5625, 0.5625, 0.5625 },
 				},
 			},
 			{
@@ -6547,15 +6547,15 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 					{
 						name = "NebulaSerpent_whiskers_glow2",
-						center = { -0.3125, 2.7188, -1.6562 },
-						size = { 2.125, 0.4375, 0.1875 },
+						center = { -0.3125, 2.7188, -1.6875 },
+						size = { 2.125, 0.4375, 0.25 },
 						glow = "FFFFFF",
 					},
 				},
 				lod1 = {
 					name = "NebulaSerpent_whiskers_lod1",
-					center = { -0.3125, 2.3438, -1.9688 },
-					size = { 1.5, 0.1875, 0.1875 },
+					center = { -0.3125, 2.4375, -1.875 },
+					size = { 1.875, 0.375, 0.375 },
 				},
 			},
 			{
