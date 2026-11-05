@@ -575,14 +575,25 @@ def aphid(c, H, col, col2, a=None):
         x = round(sx * 0.9 * k) - (1 if sx < 0 else 0)
         z = top.get((x, yb), max(top.values()) - 1)
         _line(body, (x + .5, yb + .5, z + .5), (x + .5, yb + 0.6 * k + .5, z + 1.2 * k + .5), tube)
-    # sturdier legs than the ladybug's one-voxel ones: 2 x 2, hip to foot
+    # stand it up on six sturdy legs that show: the body is raised three
+    # voxels and each leg (2 x 2) runs from under the shell out to a foot
+    # beside it, so the legs are seen stepping from every side
     import rig
+    lift = 3
     legs = [p for p in c.parts if p.name in rig.LEG_NAMES]
-    for leg in legs:
-        hx, hy, hz = leg.pivot
+    hips = [(leg.pivot, leg) for leg in legs]
+    for p in c.parts:
+        if p.name not in rig.LEG_NAMES:
+            _shift(p, 0, 0, lift)
+    for (hx, hy, hz), leg in hips:
         sx = 1 if hx >= 0 else -1
         leg.v = {}
-        _rod(leg, (hx - sx * 0.4 * k, hy, hz + 0.3 * k), (hx + sx * 0.4 * k, hy, 0.5), tube, 2)
+        hip = (hx, hy, hz + lift)
+        leg.pivot = hip
+        knee = (hx + sx * 0.7 * k, hy, lift + 0.5)
+        foot = (hx + sx * 1.0 * k, hy, 0.5)
+        _rod(leg, (hx - sx * 0.3 * k, hy, hip[2] - 0.5), knee, tube, 2)
+        _rod(leg, knee, foot, tube, 2)
 
 
 def tidy(c, H, col, col2, a=None):
