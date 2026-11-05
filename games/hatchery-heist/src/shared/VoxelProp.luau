@@ -20,6 +20,26 @@ export type Box = {
 }
 
 local cache: { [string]: { Box } } = {}
+-- More props to look up after WorldArt's (another generated module in the
+-- same format, such as the shop's).
+local extra: { { [string]: WorldArt.Prop } } = {}
+
+function VoxelProp.register(props: { [string]: WorldArt.Prop })
+	table.insert(extra, props)
+end
+
+local function lookup(name: string): WorldArt.Prop?
+	local prop = WorldArt.props[name]
+	if prop then
+		return prop
+	end
+	for _, props in extra do
+		if props[name] then
+			return props[name]
+		end
+	end
+	return nil
+end
 
 local function rgb(hex: string): (Color3, boolean)
 	local r = tonumber(string.sub(hex, 1, 2), 16) or 255
@@ -37,7 +57,7 @@ function VoxelProp.boxes(name: string, scale: number?): { Box }?
 	if hit then
 		return hit
 	end
-	local prop = WorldArt.props[name]
+	local prop = lookup(name)
 	if prop == nil then
 		return nil
 	end
@@ -71,7 +91,7 @@ end
 
 -- A prop's anchor point (studs from its origin at `scale`), or its origin.
 function VoxelProp.anchor(name: string, scale: number?): Vector3
-	local prop = WorldArt.props[name]
+	local prop = lookup(name)
 	if prop == nil or prop.anchor == nil then
 		return Vector3.zero
 	end
