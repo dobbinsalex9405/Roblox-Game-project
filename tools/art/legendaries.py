@@ -786,7 +786,7 @@ def frost_giant(c, H):
 
 
 def frost_saber(c, H):
-    plan('beast', c, H, {'col': '#C8DDF0', 'belly': '#F4FBFF', 'snout': '#F4FBFF', 'accent': '#2E5A9A', 'horn': '#BFF4FF',
+    plan('beast', c, H, {'col': '#C8DDF0', 'belly': '#F4FBFF', 'snout': '#9CC0E8', 'accent': '#2E5A9A', 'horn': '#BFF4FF',
                          'glow': '#2EA8FF', 'eye': '#2E5AC8'}, kind='cat', tail='lion', saber=True, stripes=True)
     k = H / 10.0
     # two long ice fangs from the mouth corners, well past the jaw line:
@@ -797,9 +797,8 @@ def frost_saber(c, H):
     head = c.part('head')
     # a clean face (the stripes stay on the body and tail), so the fangs read
     head.paint(lambda p, cc, g: (P('#C8DDF0'), False) if g and cc == P('#2EA8FF') else None)
-    # each fang grows out of the upper jaw (the jaw's front-bottom voxels
-    # become tooth), runs four voxels past the jaw line and curves forward,
-    # white-blue with a glowing tip, in front of the chest
+    # two white fangs, two voxels wide, rooted in the upper lip and hanging
+    # five voxels below it, one voxel in front of the chin, glowing cyan tips
     xi = round(0.3 * k)
     for cells in ((xi, xi + 1), (-xi - 2, -xi - 1)):
         inner = cells[0] if cells[0] >= 0 else cells[1]
@@ -811,12 +810,18 @@ def frost_saber(c, H):
         front = [q for q in col_v if q[1] <= yf + 1]
         zb = min(q[2] for q in front)
         yb = min(q[1] for q in front if q[2] == zb)
-        rows = [(zb + 1, yb, 2), (zb, yb, 2), (zb - 1, yb, 1), (zb - 2, yb, 1), (zb - 3, yb + 1, 1), (zb - 4, yb + 1, 1)]
-        for i, (z, y, w) in enumerate(rows):
-            tip = i >= len(rows) - 2
-            for xx in (cells if w == 2 else (inner,)):
-                head.v.pop((xx, y, z), None)
-                fangs.put((xx, y, z), P('#2EA8FF') if tip else P('#DDF3FF'), tip)
+        # one voxel forward of the whole chin front, so the fangs stand clear
+        # of the face and chest: a root at the lip, then five voxels below it
+        chin = [q[1] for q in head.v if q[0] in cells and zb - 5 <= q[2] <= zb + 1]
+        yfw = (min(chin) if chin else yb) - 1
+        for xx in cells:  # the root, set into the lip so the fang hangs from it
+            for yy in range(yfw + 1, yb + 1):
+                head.v.pop((xx, yy, zb + 1), None)
+                fangs.put((xx, yy, zb + 1), P('#F4FAFF'))
+        for i, z in enumerate(range(zb + 1, zb - 5, -1)):
+            tip = i >= 4
+            for xx in cells:
+                fangs.put((xx, yfw, z), P('#2EA8FF') if tip else P('#F4FAFF'), tip)
         mouth_z, mouth_y = zb + 1, yb
     # a dark mouth line between the fangs, so they read as coming from the jaw
     for x in range(-xi, xi):
