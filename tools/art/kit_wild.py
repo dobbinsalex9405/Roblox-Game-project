@@ -512,6 +512,23 @@ def whiskers(c, H, col, col2=None):
     _mirror(part)
 
 
+def barbels(c, H, col, col2=None):
+    """A koi's two barbels: thin feelers (one voxel) from the corners of the
+    mouth, out and drooping, about four voxels long, glowing softly."""
+    k = H / 10.0
+    head = _head(c)
+    (lo, hi) = _bounds(head)
+    zm = round(lo[2] + (hi[2] - lo[2]) * 0.35)
+    row = [p for p in head.v if p[2] == zm]
+    fy = min(p[1] for p in row) if row else lo[1]
+    part = c.part('barbels', 'static')
+    n = max(4, round(1.4 * k))
+    x0 = max(1, round(0.5 * k))
+    for i in range(n):
+        part.put((x0 + i // 2, fy + 1 - (i + 1) // 2 - (1 if i == 0 else 0), zm - i // 2), col, True)
+    _mirror(part)
+
+
 def tailtip(c, H, col, col2=None):
     """Colours the end third of the tail (an ermine's black tip)."""
     tl = kit._find(c, 'tail')
@@ -1433,38 +1450,62 @@ def bighorn(c, H, col, col2=None):
     (lo, hi) = _bounds(head)
     part = c.part('horn', 'static')
     base = (0, lo[1] + 0.6 * k, (lo[2] + hi[2]) / 2)
-    pts = [(0, base[1] - t * 2.4 * k, base[2] + math.sin(t * 1.7) * 2.0 * k) for t in (i / 10 for i in range(11))]
+    pts = [(0, base[1] - t * 2.2 * k, base[2] - 0.2 * k + math.sin(t * 1.9) * 1.6 * k) for t in (i / 10 for i in range(11))]
     for i, (x, y, z) in enumerate(pts):
-        part.ell((x, y, z), (0.6 * k * (1 - i / 14) + .5,) * 3, col)
+        part.ell((x, y, z), (0.5 * k * (1 - i / 14) + .5,) * 3, col)
     shell = kit._find(c, 'shell') or kit._find(c, 'body')
     (slo, shi) = _bounds(shell)
     top = (0, slo[1] + 0.8 * k, shi[2])
-    pts2 = [(0, top[1] - t * 3.2 * k, top[2] + 0.6 * k - t * t * 0.9 * k) for t in (i / 10 for i in range(11))]
+    # the great thorax horn: up off the shell, then long and forward over
+    # the head, hooking down at the end to meet the head horn
+    pts2 = [(0, top[1] + 0.4 * k - t * 5.0 * k, top[2] + 0.4 * k + math.sin(t * math.pi * 0.8) * 1.3 * k - t * t * 1.4 * k) for t in (i / 16 for i in range(17))]
     for i, (x, y, z) in enumerate(pts2):
-        part.ell((x, y, z), (0.4 * k * (1 - i / 14) + .4,) * 3, col)
+        part.ell((x, y, z), (0.55 * k * (1 - i / 22) + .4,) * 3, col)
+    # the hairy gold underside of the thorax horn
+    hair = _light(col, 0.45)
+    for (x, y, z) in pts2[5:14]:
+        part.put((0, math.floor(y), math.floor(z - 0.55 * k)), hair)
+        part.put((-1, math.floor(y), math.floor(z - 0.55 * k)), hair)
     tip = col2 or _light(col, 0.5)
     part.paint(lambda p, cc, g: (tip, bool(col2)) if p[1] < min(q[1] for q in part.v) + 0.7 * k else None)
     _mirror(part)
 
 
 def gear(c, H, col, col2=None):
-    """A brass gear lying on the back that turns (anim orbit), its hub
-    glowing col2; the shell gets riveted seams."""
+    """A brass wind-up gear standing upright on a post on the back, side-on
+    so its teeth read; it turns like a wind-up key (anim orbit, about the
+    vertical axis). Its hub glows col2; the shell gets riveted seams."""
     k = H / 10.0
     shell = kit._find(c, 'shell') or kit._find(c, 'body')
     (lo, hi) = _bounds(shell)
-    yc = (lo[1] + hi[1]) / 2 + 0.4 * k
+    yc = (lo[1] + hi[1]) / 2 + 0.6 * k
     zt = (_top_at(c, 0, round(yc), names=(shell.name,)) or hi[2])
+    R = 1.3 * k
+    post = max(1, round(0.5 * k))
+    zc = zt + post + R + 0.4 * k
     g = c.part('gear', 'orbit', (0, round(yc) + .5, zt + 1))
-    R = 1.4 * k
-    for a in range(72):
-        ang = a / 72 * 2 * math.pi
+    for z in range(zt + 1, zt + post + 2):
+        for x in (-1, 0):
+            g.put((x, round(yc), z), _dark(col, 0.3))
+    for a in range(96):
+        ang = a / 96 * 2 * math.pi
         tooth = (a // 6) % 2 == 0
-        for r in range(round(0.6 * k), round(R + (0.4 * k if tooth else 0)) + 1):
-            g.put((math.floor(math.cos(ang) * r), math.floor(yc + math.sin(ang) * r), zt + 1), col)
-    for (x, y, z) in list(g.v):
-        g.put((x, y, z + 1), col)
-    g.ell((0, yc, zt + 1.5), (0.6 * k, 0.6 * k, .8), col2 or hexc('#5CF2FF'), True)
+        for r10 in range(round(0.45 * k * 10), round((R + (0.45 * k if tooth else 0)) * 10) + 1, 5):
+            r = r10 / 10
+            for x in (-1, 0):
+                g.put((x, math.floor(yc + math.cos(ang) * r), math.floor(zc + math.sin(ang) * r)), col)
+    # spokes' gaps: four round windows between the hub and the rim
+    for q in range(4):
+        ang = q * math.pi / 2 + math.pi / 4
+        wy, wz = yc + math.cos(ang) * 0.85 * k, zc + math.sin(ang) * 0.85 * k
+        for p in [p for p in g.v if p[2] > zt + post + 1 and math.hypot(p[1] + .5 - wy, p[2] + .5 - wz) < 0.28 * k + .3]:
+            del g.v[p]
+    hub = col2 or hexc('#5CF2FF')
+    for p in [p for p in g.v if math.hypot(p[1] + .5 - yc, p[2] + .5 - zc) < 0.45 * k + .5]:
+        g.v[p] = (hub, True)
+    for x in (-2, 1):
+        for p in [(x, y, z) for (_, y, z) in list(g.v) if math.hypot(y + .5 - yc, z + .5 - zc) < 0.3 * k + .5]:
+            g.put(p, hub, True)
     shell.paint(lambda p, cc, g2: (_dark(cc, 0.3), False) if abs(p[0] + .5) < 0.6 or (p[1] % max(3, round(1.5 * k)) == 0 and p[2] > lo[2] + k) else None)
 
 
@@ -1659,7 +1700,7 @@ def flamehair(c, H, col, col2=None):
 ACCESSORIES = {
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
-    'glowstripe': glowstripe, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'tailtip': tailtip,
+    'glowstripe': glowstripe, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,
     'mohawk': mohawk, 'zebra': zebra, 'tigerstripes': tigerstripes, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle, 'eartips': eartips, 'tailglow': tailglow,
     'screenface': screenface, 'berryeyes': berryeyes, 'antenna': antenna, 'wraps': wraps, 'beetleshell': beetleshell, 'teapot': teapot,
     'donut': donut, 'wrapper': wrapper, 'cherry': cherry, 'frosting': frosting, 'pancakes': pancakes,
