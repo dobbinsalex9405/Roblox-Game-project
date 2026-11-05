@@ -1102,7 +1102,7 @@ def thunder_tiger(c, H):
     for name in ('body', 'head', 'tail'):
         p = part_or_none(c, name)
         if p:
-            p.paint(lambda q, cc, g: (BOLT_HOT, True) if g and (q[2] % 2 == 0) else None)
+            p.paint(lambda q, cc, g: ((P('#1E9BFF') if (q[0] + q[2]) % 5 else P('#BFF0FF')), True) if g else None)
     tail = c.part('tail')
     tail.paint(lambda q, cc, g: (BOLT, True) if cc == P('#2A2440') else None)
     bt = c.part('bolts', 'glow')
@@ -1605,19 +1605,24 @@ def manticore(c, H):
 
 
 def pixie_dragon(c, H):
-    plan('drake', c, H, {'col': '#9AE6C8', 'belly': '#F4FFF8', 'accent': '#5AC8A8', 'glow': '#FFB3F2', 'horn': '#FFE6F8',
-                         'wing': '#FF9BD2'}, kind='pixie', horns='swept')
+    plan('drake', c, H, {'col': '#9AE6C8', 'belly': '#F4FFF8', 'accent': '#5AC8A8', 'glow': '#FF5FD2', 'horn': '#FFE6F8',
+                         'wing': '#FF6FC8'}, kind='pixie', horns='swept')
     k = H / 10.0
-    # fairy dust: glittering sparkles on the wings and a trail of stars
+    # butterfly wings: hot pink shading to violet at the edges, with glowing
+    # eye-spots and a glitter of fairy dust
     for name in ('wingL', 'wingR'):
         w = c.part(name)
-        speckle(w, (P('#FF9BD2'), light(P('#FF9BD2'), 0.4)), P('#FFF6FF'), 6, glow=True)
-    dust = orbit_part(c, 'fairydust', (0, 0, 5 * k))
-    ring(dust, 0, 0.2 * k, 5.4 * k, 3.4 * k, P('#FFD6F8'), True, thick=0.45, tilt=0.35)
-    for a in range(6):
-        ang = a / 6 * math.pi * 2
-        star(dust, math.cos(ang) * 3.4 * k, 0.2 * k + math.sin(ang) * 3.4 * k, 5.4 * k + math.sin(ang) * 3.4 * k * 0.35, 1,
-             P('#FFFFFF'), True)
+        xs = [abs(q[0] + 0.5) for q in w.v]
+        a, b = min(xs), max(xs)
+        cx = sum(q[0] for q in w.v) / len(w.v)
+        cz = sum(q[2] for q in w.v) / len(w.v)
+        def wc(q, cc, g, a=a, b=b, cx=cx, cz=cz):
+            t = (abs(q[0] + 0.5) - a) / max(1, b - a)
+            if math.hypot(q[0] - cx, q[2] - cz) < 0.45 * k:
+                return (P('#FFD400'), True) if math.hypot(q[0] - cx, q[2] - cz) < 0.25 * k else (P('#7A2EE8'), True)
+            return (P('#FF4FB8') if t < 0.55 else P('#B04AF0'), t > 0.55)
+        w.paint(wc)
+        speckle(w, (P('#FF4FB8'), P('#B04AF0')), P('#FFF0FF'), 9, glow=True)
     return c
 
 
