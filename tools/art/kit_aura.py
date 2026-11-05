@@ -384,7 +384,11 @@ def gem_studs(c, H, col, col2=None):
 
 def facets(c, H, col, col2=None):
     """Carved crystal: flat facets in two tones over the body and head (a
-    rose-quartz fox, a ruby hound), with a few glinting points."""
+    rose-quartz fox, a ruby hound), with a few glinting points. Only in the
+    fine (mesh) build: at in-game box size the facets would shatter the
+    creature into hundreds of boxes."""
+    if not getattr(c, 'fine', False):
+        return
     k = H / 10.0
     col2 = col2 or _dark(col, 0.25)
     s = max(2, round(1.2 * k))
