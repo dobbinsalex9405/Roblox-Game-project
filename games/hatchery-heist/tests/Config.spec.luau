@@ -13,7 +13,7 @@ local function load()
 	return {
 		economy = require("../config/economy"),
 		creatures = require("../config/creatures"),
-		eggs = require("../config/eggs"),
+		eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 		raids = require("../config/raids"),
 		monetization = require("../config/monetization"),
 		atmosphere = require("../config/atmosphere"),

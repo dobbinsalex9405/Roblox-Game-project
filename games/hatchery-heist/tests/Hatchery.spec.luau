@@ -1,4 +1,5 @@
 --!strict
+local Eggs = require("../src/shared/Eggs")
 local Hatchery = require("../src/shared/Hatchery")
 local DataTemplate = require("../src/shared/DataTemplate")
 local Util = require("@core/Util")
@@ -8,7 +9,7 @@ local describe, it, expect = t.describe, t.it, t.expect
 local config = {
 	economy = require("../config/economy"),
 	creatures = require("../config/creatures"),
-	eggs = require("../config/eggs"),
+	eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 }
 local economy = config.economy
 local NO_PERKS = { doubleCoins = false, extraIncubators = false }
@@ -168,16 +169,17 @@ describe("Hatchery", function()
 				end
 			end
 		end
-		-- The rarest Basic outcome (a Phoenix, 1 in 50,000) comes exactly once a cycle.
+		-- The rarest Basic outcome (a Phoenix, 2 in 100,000) comes exactly twice
+		-- a cycle; the Commons split their tier as evenly as whole numbers allow.
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
-		expect(#Hatchery.fixedOrderCycle(basic)).toBe(50000)
+		expect(#Hatchery.fixedOrderCycle(basic)).toBe(100000)
 		local first = {}
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "Chick", "Duckling", "Bunny", "Piglet" })
-		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(0)
-		expect(Hatchery.fixedOrderWait(basic, 0, "Duckling")).toBe(1)
+		expect(first).toEqual({ "Bunny", "Chick", "Duckling", "Hamster" })
+		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(0)
+		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(1)
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 

@@ -12,6 +12,7 @@ local ClientNet = require(ReplicatedStorage.CoreClient.ClientNet)
 local Net = require(ReplicatedStorage.Core.Net)
 local Schema = require(ReplicatedStorage.Core.Schema)
 local Shared = ReplicatedStorage.Shared
+local Eggs = require(Shared.Eggs)
 local Hatchery = require(Shared.Hatchery)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 
@@ -53,7 +54,10 @@ function Context.new(): Context
 		config = {
 			economy = require(GameConfig.economy) :: any,
 			creatures = require(GameConfig.creatures) :: any,
-			eggs = require(GameConfig.eggs) :: any,
+			eggs = Eggs.expand(
+				require(GameConfig.eggs) :: any,
+				(require(GameConfig.creatures) :: any).species
+			),
 			raids = require(GameConfig.raids) :: any,
 		},
 		remotes = Remotes,

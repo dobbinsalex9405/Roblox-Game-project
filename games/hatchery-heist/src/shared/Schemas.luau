@@ -94,8 +94,15 @@ return function(Schema: any, Odds: any)
 					}),
 					coinsPerSecond = Schema.number({ min = 0 }),
 					mountSpeed = Schema.number({ min = 16, max = 60 }),
+					-- The eggs' pools it hatches from, its share inside its
+					-- tier (1 when left out), and its element (no effect yet).
+					pools = Schema.array(id, { minLength = 1 }),
+					weight = Schema.optional(Schema.number({ min = 0.01, max = 100 })),
+					element = Schema.optional(
+						Schema.oneOf({ "Ember", "Glacial", "Nature", "Storm", "Celestial" })
+					),
 				}),
-				{ maxEntries = 500 }
+				{ maxEntries = 2000 }
 			),
 			mutations = Schema.map(id, Schema.number({ min = 1 })),
 		}),
@@ -115,6 +122,13 @@ return function(Schema: any, Odds: any)
 			hatchSeconds = Schema.integer({ min = 0, max = 24 * 60 * 60 }),
 			-- What the weights add up to (a power of ten; 10,000 when left out).
 			total = Schema.optional(Schema.integer({ min = 100, max = 10000000 })),
+			-- The pool its creatures come from, and each tier's whole weight.
+			pool = id,
+			tiers = Schema.map(
+				Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }),
+				Schema.integer({ min = 1 })
+			),
+			-- One weight per creature, made from tiers by Eggs.expand.
 			outcomes = Schema.array(
 				Schema.record({ id = id, weight = Schema.integer({ min = 1 }) }),
 				{ minLength = 1 }
@@ -319,6 +333,27 @@ return function(Schema: any, Odds: any)
 					problems,
 					`eggs.{egg.id}: productKey {egg.productKey} is not in monetization.products`
 				)
+			end
+			local tierSum = 0
+			for rarity, weight in egg.tiers do
+				tierSum += weight
+				local members = 0
+				for _, s in species do
+					if s.rarity == rarity and table.find(s.pools, egg.pool) then
+						members += 1
+					end
+				end
+				if members == 0 then
+					table.insert(problems, `eggs.{egg.id}: no {rarity} creature is in pool {egg.pool}`)
+				elseif weight < members then
+					table.insert(
+						problems,
+						`eggs.{egg.id}: {rarity} weight {weight} is less than its {members} creatures`
+					)
+				end
+			end
+			if tierSum ~= (egg.total or 10000) then
+				table.insert(problems, `eggs.{egg.id}: tiers add up to {tierSum}, not {egg.total or 10000}`)
 			end
 			for _, outcome in egg.outcomes do
 				if species[outcome.id] == nil then
