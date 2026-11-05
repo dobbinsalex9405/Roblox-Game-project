@@ -76,6 +76,10 @@
      "kind": "raptorarms",
      "color": "#FFC8E0",
      "color2": "#FF7AB0"
+    },
+    {
+     "kind": "mantisantennae",
+     "color": "#B0507A"
     }
    ]
   },
@@ -119,8 +123,8 @@
    "accessories": [
     {
      "kind": "wingtails",
-     "color": "#B8F0A0",
-     "color2": "#E8FFB0"
+     "color": "#7CCF5A",
+     "color2": "#E8FF8A"
     },
     {
      "kind": "eyespots",
@@ -219,6 +223,10 @@
     {
      "kind": "cobweb",
      "color": "#F4F4FF"
+    },
+    {
+     "kind": "glinteyes",
+     "color": "#E8E8F4"
     }
    ]
   },

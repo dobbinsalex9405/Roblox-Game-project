@@ -323,15 +323,23 @@
    "colors": {
     "col": "#4A4A58",
     "belly": "#7A7A8C",
-    "snout": "#2E2E38",
+    "snout": "#9A9AAE",
     "accent": "#3A3A46",
     "glow": "#9FE8FF"
    },
    "accessories": [
     {
+     "kind": "knucklearms",
+     "color": "#2A2A34"
+    },
+    {
      "kind": "banana",
      "color": "#FFE04A",
      "color2": "#6A4A22"
+    },
+    {
+     "kind": "nostrils",
+     "color": "#2A2A34"
     }
    ]
   },
