@@ -5,7 +5,7 @@ standard they follow (every Godly hovers in game)."""
 import math
 
 from godly_common import (C, INK, WHITE, tilt, _ball_pts, _fbm, _hash, _mix, _shade, ball, cloud, ctx, front_at,
-                          gradient, leg, limb, mirror_put, mottle, orbit_ring, proud_eyes, shard, sparkle, star4, tidy,
+                          gradient, leg, limb, mirror_put, mottle, orbit_ring, proud_eyes, shard, side_eyes, sparkle, star4, tidy,
                           tube, wing)
 
 
@@ -385,17 +385,42 @@ def crystal_swan(c, H):
         gradient(part, [iceDD, iceD, ice, iceL], 1.6 * k, 8.4 * k, fine, keep=(beak,))
         if fine:
             part.paint(lambda p, cc, g: (_shade(cc, 1.08 if (p[0] - p[1] + 2 * p[2]) // round(0.7 * k) % 2 else 0.93), False) if not g and cc != beak else None)
-    proud_eyes(c, h, [(0.42 * k, hz + 0.15 * k)], 0.26 * k, 0.26 * k, C('#2E4AA8'), ring=INK, pupil=INK, lid=iceD,
-               glow=False, behind=hy - 0.6 * k)
-    # diamond crown
+    # dark eyes with a bright shine, on the sides of the head
+    side_eyes(c, h, hy - 0.15 * k, hz + 0.12 * k, 0.32 * k, C('#1A2340'), ring=C('#1A2340'), pupil=INK, glow=False,
+              lid=iceD)
+    # the crown: a gold band round the top of the head with five pointed,
+    # faceted sapphire gems standing up from it, the middle one tallest,
+    # a white sparkle on each tip
     crown = c.part('crown', 'glow', (0, hy, hz + 0.7 * k))
-    for i in range(5):
-        x = round((i - 2) * 0.3 * k)
-        L = round((0.9 if i == 2 else 0.6) * k)
-        for j in range(L):
-            w = max(0, round(0.15 * k * (1 - j / L)))
-            for dx in range(-w, w + 1):
-                crown.put((x + dx, round(hy), round(hz + 0.62 * k) + j), WHITE if j > L * 0.6 else gem, True)
+    gold, goldD = C('#FFC93B'), C('#D9961A')
+    sapph, sapphL, sapphD = C('#3FA9FF'), C('#9AD8FF'), C('#1E6FD0')
+    zb = hz + 0.5 * k
+    for x in range(-round(0.62 * k), round(0.62 * k)):
+        for y in range(round(hy - 0.6 * k), round(hy + 0.6 * k)):
+            d = math.hypot((x + .5) / (0.62 * k), (y + .5 - hy) / (0.6 * k))
+            if 0.62 < d <= 1.0:
+                for dz in range(max(2, round(0.22 * k))):
+                    crown.put((x, y, round(zb) + dz), gold if dz else goldD)
+    for i, (gx, gy, L) in enumerate(((0, -0.55, 0.95), (-0.42, -0.36, 0.68), (0.42, -0.36, 0.68),
+                                     (-0.6, 0.1, 0.5), (0.6, 0.1, 0.5))):
+        cx, cy, z0 = gx * k, hy + gy * k, round(zb) + max(2, round(0.22 * k)) - 1
+        Lv = round(L * k)
+        for j in range(Lv):
+            t = j / Lv
+            w = 0.24 * k * (1 - t) if t > 0.3 else 0.24 * k * (0.6 + t / 0.3 * 0.4)  # a diamond: widens, then points
+            for x in range(math.floor(cx - w) - 1, math.ceil(cx + w) + 1):
+                for y in range(math.floor(cy - w) - 1, math.ceil(cy + w) + 1):
+                    ddx, ddy = x + .5 - cx, y + .5 - cy
+                    if abs(ddx) + abs(ddy) > w + 0.3:
+                        continue
+                    # facets: light on the front-left faces, dark on the back-right
+                    col = sapphL if ddx < 0 and ddy < 0 else (sapph if ddx < 0 or ddy < 0 else sapphD)
+                    crown.put((x, y, z0 + j), col, False)
+        tip = (math.floor(cx), math.floor(cy), z0 + Lv)
+        crown.put(tip, WHITE, True)
+        if fine:
+            for d in ((1, 0, 0), (-1, 0, 0), (0, -1, 0), (0, 1, 0)):
+                crown.put((tip[0] + d[0], tip[1] + d[1], tip[2] - 1 if d[1] else tip[2]), WHITE, True)  # sparkle
     for q in [q for q in crown.v if q in h.v]:
         del crown.v[q]
     # crystal wings, raised in an arch
@@ -562,96 +587,168 @@ def butterfly_empress(c, H):
                         if (xx, y, z) in w.v and w.v[(xx, y, z)][0] != rim_c:
                             ctr = d < fr * 0.35
                             w.put((xx, y - 1, z), gold if ctr else pc, ctr)
-                            # leaves beside it
-            if fine:
+                            if (xx, y + 1, z) in w.v:  # the same blossom, paler, on the back of the wing
+                                w.put((xx, y + 2, z), _mix(gold, WHITE, 0.3) if ctr else _mix(pc, WHITE, 0.3), ctr)
+            if fine:  # leaves and glowing dew, front and back
                 for (x, y, z), (cc, g) in list(w.v.items()):
-                    if cc in (sky, skyD) and _hash(x, z, lobe, 9) % 23 == 0:
-                        w.put((x, y - 1, z), leafc)
-                    elif cc in (sky, skyD) and _hash(x, z, lobe, 10) % 61 == 0:
-                        w.put((x, y - 1, z), WHITE, True)  # dew
+                    if cc not in (sky, skyD):
+                        continue
+                    for dy, seed, lc in ((-1, 9, leafc), (1, 19, _mix(leafc, WHITE, 0.25))):
+                        if (x, y + dy, z) in w.v:
+                            continue
+                        if _hash(x, z, lobe, seed) % 23 == 0:
+                            w.put((x, y + dy, z), lc)
+                        elif _hash(x, z, lobe, seed + 1) % 61 == 0:
+                            w.put((x, y + dy, z), WHITE, True)  # dew
     tidy(c)
-    orbit_ring(c, k, [(a, z, 0.42, ball(C('#FFD93B'), C('#FFF6B0'), glow=True, cap=True, fine=fine))
-                      for a, z in ((20, 2.4), (100, 4.4), (180, 2.0), (260, 3.6), (330, 6.0))], margin=0.5)
+    orbit_ring(c, k, [(a, z, 0.48, ball(C('#FFB21A'), C('#FFE45C'), glow=True, cap=True, fine=fine))
+                      for a, z in ((20, 2.4), (100, 4.4), (180, 2.0), (260, 3.6), (330, 6.0))]
+               + ([(60, 3.2, 0.3, star4(C('#FFE45C'), C('#FFB21A'))), (220, 5.0, 0.3, star4(C('#FFE45C'), C('#FFB21A')))]
+                  if fine else []), margin=0.5)
     return c
 
 
 # ------------------------------------------------------------ Cosmic Whale
 
 def cosmic_whale(c, H):
-    """A whale of deep space: a navy body you can see a galaxy swirling in
-    (a glowing spiral of stars), a pale grooved belly, flippers that paddle
-    and great tail flukes; moons circle it."""
-    k, fine = ctx(c, H * 1.18)  # a round body that floats: drawn bigger so it gets as many voxels as the rest
-    navy, navyL, navyD, belly = C('#1E2A6A'), C('#2E3F9A'), C('#141C4A'), C('#9AB0E8')
+    """A whale made of glass with a galaxy inside: a long tapered body
+    swimming level, its shell rimmed in pale-blue glass with bright glints,
+    the dark inside swirling with a glowing spiral galaxy and stars; a pale
+    grooved throat under a long jaw line, bright eyes, long flippers that
+    paddle and wide tail flukes; moons circle above its back."""
+    k, fine = ctx(c, H * 1.2)  # long and low: drawn a little bigger so its voxels match the rest at 6 studs
+    navy, navyL, navyD = C('#1E2A6A'), C('#2E3F9A'), C('#141C4A')
+    glass, glassL, belly, groove = C('#8FC8FF'), C('#D4ECFF'), C('#B4C8F0'), C('#8098D8')
     vio, pink, cyan = C('#9A5CFF'), C('#FF5CD6'), C('#5CE1FF')
     b = c.part('body')
-    # a big head-heavy body, tapering to the tail
-    for i in range(24):
-        s = i / 23
-        y = (-1.8 + s * 3.6) * k
-        r = (2.2 - 1.4 * s ** 1.8) * k
-        b.ell((0, y, (4.6 + 0.4 * math.sin(s * math.pi)) * k), (r, 0.55 * k, r * 0.95), navy)
-    b.paint(lambda p, cc, g: (belly, False) if p[2] < 3.4 * k and p[1] < 1.2 * k else None)
-    if fine:
-        b.paint(lambda p, cc, g: (C('#7A90D0'), False) if cc == belly and p[0] % 3 == 0 else None)  # throat grooves
-    gradient(b, [navyD, navy, navyL], 3.0 * k, 7.0 * k, fine, keep=(belly, C('#7A90D0')))
-    # the galaxy inside: a glowing spiral on the flanks and back
+    # spine: blunt head at the front (-y), biggest just behind the eyes,
+    # tapering to a slim tail stock that lifts a little
+    spine = []
+    n = 56
+    for i in range(n):
+        s_ = i / (n - 1)
+        y = (-4.0 + 7.6 * s_) * k
+        z = (3.0 + 0.35 * math.sin(s_ * math.pi) + 0.9 * max(0.0, s_ - 0.7) ** 1.5 * 4.0) * k
+        r = (1.85 * math.sin(min(1.0, (s_ + 0.12) / 0.42) * math.pi / 2) ** 0.7 * (1 - 0.82 * max(0.0, s_ - 0.3) / 0.7) ** 1.1
+             + 0.12) * k
+        spine.append((0.0, y, z, r))
+    for (x, y, z, r) in spine:
+        b.ell((x, y, z), (r * 0.92, 0.5 * k, r * 0.85), navy)
+
+    def at_y(y):
+        i = min(range(n), key=lambda j: abs(spine[j][1] - y))
+        return spine[i]
+
+    def normal(p, pad=0.0):
+        _, sy, sz, r = at_y(p[1] + .5)
+        return (p[0] + .5) / (r * 0.92 + pad), (p[2] + .5 - sz) / (r * 0.85 + pad)
+
+    # the glass shell: a pale-blue rim along the top of the back, glass
+    # belly, and the dark galaxy inside showing through the flanks
+    def shell(p, cc, g, pad=0.0):
+        nx, nz = normal(p, pad)
+        if nz < -0.55:
+            if p[1] < 0.6 * k and fine and p[0] % 3 == 0:
+                return (groove, False)  # throat grooves
+            return (belly, False)
+        if nz > 0.74 or abs(nx) > 0.98:
+            return (glass, False)
+        if nz > 0.52:
+            return (_mix(navy, glass, 0.55), False)
+        return (navyD if nz < -0.2 else navy), False
+    b.paint(shell)
+
+    # the galaxy inside, seen through each flank: a glowing two-armed spiral
+    gy, gz = 0.1 * k, 3.1 * k
+
     def galaxy(p, cc, g):
-        if cc in (belly, C('#7A90D0')):
+        if cc in (belly, groove, glass):
             return None
         x, y, z = p[0] + .5, p[1] + .5, p[2] + .5
-        for side in (1, -1):
-            gx, gy, gz = side * 1.5 * k, -0.4 * k, 4.9 * k
-            dy, dz = y - gy, z - gz
-            d = math.hypot(dy, dz)
-            if d > 1.6 * k or x * side < 0.8 * k:
-                continue
-            ang = math.atan2(dz, dy)
-            arm = math.sin(2 * ang - d / (0.35 * k))
+        if abs(x) < 0.7 * k:
+            return None
+        dy, dz = y - gy, z - gz
+        d = math.hypot(dy / 1.5, dz)
+        if d < 1.4 * k:
+            ang = math.atan2(dz, dy / 1.5)
+            arm = math.sin(2 * ang - d / (0.32 * k))
             if d < 0.3 * k:
                 return (WHITE, True)
-            if arm > 0.6:
-                return ((pink if d > 0.9 * k else vio) if fine else vio, True)
-        if fine and _fbm(*p, 1.4 * k, 33) > 0.66:
-            return (_mix(cc, vio, 0.4), False)
+            if d < 0.5 * k:
+                return (C('#FFE6FA'), True)
+            if arm > 0.35:
+                return ((pink if d > 0.85 * k else vio) if fine else vio, True)
+        if fine and cc in (navy, navyD) and _fbm(*p, 1.3 * k, 33) > 0.66:
+            return (_mix(cc, vio, 0.35), False)  # nebula clouds
         return None
     b.paint(galaxy)
-    sparkle(b, (WHITE, cyan, WHITE), 40, 91, fine, keep=(belly,))
-    # head: eyes low on the sides, a long smile
-    h = c.part('head', 'head', (0, -2.0 * k, 4.6 * k))
-    h.ell((0, -1.9 * k, 4.4 * k), (1.95 * k, 1.0 * k, 1.85 * k), navy)
-    h.paint(lambda p, cc, g: (belly, False) if p[2] < 3.4 * k else None)
-    gradient(h, [navyD, navy, navyL], 3.0 * k, 6.5 * k, fine, keep=(belly,))
-    for x in range(-round(1.4 * k), round(1.4 * k)):
-        z = round(3.55 * k + 0.25 * k * ((x + .5) / (1.4 * k)) ** 2)
-        f = front_at(h, x, z)
-        if f:
-            h.put(f, INK)
-    proud_eyes(c, h, [(0.95 * k, 4.4 * k)], 0.36 * k, 0.36 * k, cyan, ring=INK, pupil=INK, lid=navyD,
-               iris2=vio, behind=-2.4 * k)
-    sparkle(h, (WHITE,), 60, 92, fine, keep=(belly,))
-    # flippers: paddle when it swims
+    sparkle(b, (WHITE, cyan, WHITE, C('#FFE6FA')), 140, 91, fine, keep=(belly, groove, glass, _mix(navy, glass, 0.55)))
+    # glass glints: short bright diagonal streaks high on each flank
+    if fine:
+        for sx in (1, -1):
+            for gy0, gz0, L in ((-2.4, 3.9, 0.9), (-1.8, 4.0, 0.55), (1.4, 3.75, 0.7)):
+                for j in range(round(L * k)):
+                    y, z = gy0 * k + j * 0.7, gz0 * k - j * 0.7
+                    xs = [q[0] for q in b.v if q[1] == round(y) and q[2] == round(z)]
+                    if xs:
+                        b.put((max(xs) if sx > 0 else min(xs), round(y), round(z)), glassL, True)
+    # the head: a long jaw line from the snout back under the eye, bright eyes
+    h = c.part('head', 'head', spine[8][:3])
+    for (x, y, z, r) in spine[:14]:
+        h.ell((x, y, z), (r * 0.92 + 0.6, 0.5 * k, r * 0.85 + 0.6), navy)
+    for q in [q for q in h.v if q in b.v]:
+        h.v[q] = b.v[q]
+    for q in list(h.v):
+        if q in b.v:
+            del b.v[q]
+    h.paint(lambda p, cc, g: None if g else shell(p, cc, g, 0.6))  # one clean glass shell over head and body
+    sparkle(h, (WHITE, cyan), 160, 94, fine, keep=(belly, groove, glass, _mix(navy, glass, 0.55)))
+    _, hy0, hz0, _ = spine[0]
+    for q in list(h.v):  # jaw line: from the front of the snout, curving up towards the eye
+        x, y, z = q
+        t = (y + .5 - hy0) / (2.7 * k)
+        if 0 <= t <= 1.15 and abs(z + .5 - (hz0 - 0.55 * k + 0.45 * k * t * t)) < 1.0:
+            nbrs = [(x + 1, y, z), (x - 1, y, z), (x, y - 1, z)]
+            if any(n_ not in h.v for n_ in nbrs):
+                h.put(q, INK)
+    _, ey, ez, er = spine[9]
+    side_eyes(c, h, ey, ez - 0.15 * k, 0.62 * k, cyan, iris2=C('#9AE8FF'), rim_shine=True, lid=navyD)
+    # long flippers that paddle, pale-edged like glass
+    _, fy, fz, fr = spine[15]
     for sx, name in ((1, 'finR'), (-1, 'finL')):
-        fp = c.part(name, name, (sx * 1.6 * k, -1.2 * k, 3.6 * k))
-        for i in range(round(1.5 * k)):
-            s = i / (1.5 * k)
-            fp.ell((sx * (1.6 * k + i), -1.1 * k + s * 0.7 * k, 3.6 * k - s * 1.0 * k),
-                   (0.6, (0.55 - 0.3 * s) * k, 0.2 * k), navyL)
-        fp.paint(lambda p, cc, g, sx=sx: (belly, False) if p[2] < 3.0 * k - 0.0 else None)
-    # tail flukes
-    t = c.part('tail', 'tail', (0, 1.8 * k, 4.9 * k))
-    for i in range(round(1.6 * k)):
-        s = i / (1.6 * k)
-        t.ell((0, (1.8 + 0.9 * s) * k, (4.9 + 1.0 * s) * k), ((0.7 - 0.3 * s) * k, 0.6, (0.65 - 0.25 * s) * k), navy)
+        fp = c.part(name, name, (sx * fr * 0.8, fy, fz - 0.45 * fr))
+        L = round(1.5 * k)
+        for i in range(L):
+            s_ = i / L
+            fp.ell((sx * (fr * 0.8 + i), fy + s_ * 1.0 * k, fz - 0.45 * fr - s_ * 0.45 * k),
+                   (0.6, (0.6 - 0.3 * s_) * k, 0.2 * k), navyL if s_ < 0.7 else glass)
+        fp.paint(lambda p, cc, g: (glass, False) if cc == navyL and (p[1] + .5) > fy + 0.35 * k + 0.5 * k * abs(p[0] + .5) / (2.2 * k) else None)
+    # wide flukes with a notch, rimmed in glass, a glow at each tip
+    t = c.part('tail', 'tail', spine[-12][:3])
+    for (x, y, z, r) in spine[-12:]:
+        t.ell((x, y, z), (r * 0.92, 0.5 * k, r * 0.85), navy)
+    for q in [q for q in t.v if q in b.v]:
+        t.v[q] = b.v[q]
+        del b.v[q]
+    _, ye, ze, _ = spine[-1]
     for sx in (1, -1):
-        t.ell((sx * 0.95 * k, 2.95 * k, 6.1 * k), (1.05 * k, 0.5 * k, 0.22 * k), navyL)
-        t.ell((sx * 1.55 * k, 3.25 * k, 6.15 * k), (0.45 * k, 0.32 * k, 0.2 * k), vio, True)
+        for i in range(round(2.2 * k)):
+            s_ = i / (2.2 * k)
+            yy = ye + (0.1 + 0.9 * s_ * s_) * k
+            ln = (1.25 - 0.75 * s_) * k
+            for dy in range(round(ln)):
+                col = glass if dy >= round(ln) - 2 or i >= round(2.2 * k) - 2 else navy
+                for dz in (-1, 0, 1):
+                    t.put((sx * i if sx > 0 else -i - 1, round(yy - ln * 0.4 + dy), round(ze - 0.1 * k) + dz), col)
+        t.ell((sx * 2.05 * k, ye + 1.05 * k, ze - 0.05 * k), (0.32 * k, 0.32 * k, 0.2 * k), vio, True)
+    sparkle(t, (WHITE, cyan), 120, 93, fine, keep=(glass,))
     tidy(c)
-    tilt(c, 18, (0, 0, 4.6 * k))  # rising nose-up, as if swimming up through space
-    orbit_ring(c, k, [(0, 3.2, 0.62, ball(C('#D8DDF0'), C('#A8AECB'), speck=C('#9AA0C0'), seed=3, fine=fine)),
-                      (120, 5.8, 0.55, ball(C('#FFB4E0'), WHITE, cap=True, fine=fine)),
-                      (240, 2.8, 0.5, ball(C('#9AE8FF'), WHITE, bands=True, fine=fine))]
-               + ([(60, 6.6, 0.34, star4(WHITE, cyan)), (300, 6.2, 0.34, star4(WHITE, pink))] if fine else []))
+    tilt(c, 8, (0, 0, 3.0 * k))  # nose a touch up, as if swimming up through space
+    orbit_ring(c, k, [(0, 6.0, 0.55, ball(C('#D8DDF0'), C('#A8AECB'), speck=C('#9AA0C0'), seed=3, fine=fine)),
+                      (120, 6.2, 0.5, ball(C('#FFB4E0'), WHITE, cap=True, fine=fine)),
+                      (240, 6.0, 0.5, ball(C('#9AE8FF'), WHITE, bands=True, fine=fine))]
+               + ([(60, 6.6, 0.3, star4(WHITE, cyan)), (300, 6.6, 0.3, star4(WHITE, pink))] if fine else []),
+               margin=0.4)
     return c
 
 

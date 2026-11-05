@@ -161,6 +161,40 @@ def proud_eyes(c, head, centres, rx, rz, iris, ring=INK, pupil=INK, lid=None, gl
     return eyes
 
 
+
+def side_eyes(c, head, y0, z0, r, iris, ring=INK, pupil=INK, shine=WHITE, glow=True, iris2=None, rim_shine=False,
+              pupil_r=0.12, lid=None):
+    """Eyes on the sides of the head (a whale, a swan), one voxel proud of
+    the skin in their own `blink` part; the skin under each turns `lid`.
+    (y0, z0) is the eye centre, `r` its radius; a ring round the bottom
+    (white round the top too if `rim_shine`), a pupil and a shine."""
+    eyes = c.part('eyes', 'blink', (0, y0, z0))
+    lid = lid if lid is not None else _shade(head.v[next(iter(head.v))][0], 0.8)
+    for sx in (1, -1):
+        for y in range(math.floor(y0 - r) - 1, math.ceil(y0 + r) + 1):
+            for z in range(math.floor(z0 - r) - 1, math.ceil(z0 + r) + 1):
+                dy, dz = (y + .5 - y0) / r, (z + .5 - z0) / r
+                d2 = dy * dy + dz * dz
+                if d2 > 1:
+                    continue
+                xs = [q[0] for q in head.v if q[1] == y and q[2] == z]
+                if not xs:
+                    continue
+                xo = max(xs) if sx > 0 else min(xs)
+                head.put((xo, y, z), lid)
+                if d2 > 0.6 and (dz < 0.2 or not rim_shine):
+                    col, g = ring, False
+                elif d2 > 0.6:
+                    col, g = WHITE, True
+                elif 0.15 < dz < 0.75 and -0.7 < dy < -0.1:
+                    col, g = shine, True
+                elif dy * dy + (dz + 0.1) ** 2 < pupil_r:
+                    col, g = pupil, False
+                else:
+                    col, g = (iris2 if iris2 is not None and dz < -0.1 else iris), glow
+                eyes.put((xo + sx, y, z), col, g)
+    return eyes
+
 def limb(part, a, b, r0, r1, col, n=None, glow=False):
     """A tapered tube from a (radius r0) to b (radius r1)."""
     L = math.dist(a, b)
