@@ -18,6 +18,9 @@ Options:
 - fangs: true for two little white fangs.
 - hold: berry (a berry held under the chin).
 - wrap: true holds the wing tips forward round the body, like a cape.
+- mask: true paints a pale mask (colour `mask`) round the eyes, so they read
+  on a dark face.
+- colours: `berry` sets the held berry's colour (clear red by default).
 
 Same art frame as kit.py (x right, y back, front is -y, z up) and scale
 (k = H / 10). The wings are their own parts hinged at the shoulder, so the
@@ -31,9 +34,9 @@ KINDS = {'bat', 'ptero'}
 
 PLANS = {
     'bat': (
-        {'col', 'wing', 'belly', 'accent', 'ear', 'cape', 'lining', 'crest', 'beak'},
+        {'col', 'wing', 'belly', 'accent', 'ear', 'cape', 'lining', 'crest', 'beak', 'mask', 'berry'},
         {'kind': KINDS, 'face': {'fox', 'pug'}, 'cape': {True, False}, 'fangs': {True, False},
-         'hold': {'berry'}, 'wrap': {True, False}},
+         'hold': {'berry'}, 'wrap': {True, False}, 'mask': {True, False}},
     ),
 }
 
@@ -138,7 +141,17 @@ def bat(c, H, cols, opts):
             for x in (-1, 0):
                 xx = x * 2 + (1 if x == 0 else 0) if k >= 1.5 else x
                 head.put((xx, fy, mz - 1), WHITE)
+        if opts.get('mask'):
+            # a pale mask round the eyes, so dark eyes read on a dark face
+            mask = cols.get('mask') or light(col, 0.5)
+            ez = hz + 0.15 * k + 0.3 * k
+            for p in list(head.v):
+                if p[1] < -0.9 * k - 0.4 * k and abs(abs(p[0] + .5) - 0.75 * k) < 0.75 * k \
+                        and abs(p[2] + .5 - ez) < 0.65 * k:
+                    head.v[p] = (mask, False)
         eyes(c, head, max(0 if k < 1.2 else 1, round(0.5 * k)), round(hz + 0.15 * k), max(1, math.ceil(0.55 * k)))
+        if opts.get('mask'):
+            _glint(c)
         # big pointed ears, up and out, pale inside
         ears = c.part('ears', 'static', (0, -0.6 * k, hz + 1.0 * k))
         inner = cols.get('ear') or light(col, 0.45)
@@ -168,18 +181,41 @@ def bat(c, H, cols, opts):
         _cape(c, k, body, head, bz, hz, cols.get('cape') or hexc('#2B1B3A'), cols.get('lining') or hexc('#D7263D'))
     if opts.get('hold') == 'berry':
         b = c.part('berry', 'static')
-        hy = min(p[1] for p in body.v)
-        cen = (0, hy - 0.4 * k, bz + 0.6 * k)
-        r = 0.6 * k + 0.2
-        b.ell(cen, (r, r, r), hexc('#C2185B'))
-        for p in list(b.v):
-            if p[2] >= cen[2] + r - 1 and (p[0] + p[1]) % 2 == 0:
-                b.v[p] = (hexc('#5DBB63'), False)
+        # a round berry about three voxels across, held against the chest
+        # (a 3x3x3 block without its corners, more for a bigger bat)
+        n = max(1, round(0.45 * k) - 1)
+        zc = round(bz + 0.3 * k)
+        ys = [p[1] for p in body.v if abs(p[0] + .5) < 1 and abs(p[2] - zc) <= 1]
+        yc = (min(ys) if ys else round(-0.9 * k)) - n - 1
+        red = cols.get('berry') or hexc('#E0182D')
+        for dx in range(-n - 1, n + 1):
+            for dy in range(-n, n + 1):
+                for dz in range(-n, n + 1):
+                    cx = dx + .5
+                    if (abs(cx) + .5 > n + .5) + (abs(dy) == n) + (abs(dz) == n) >= 3 - (n > 1):
+                        continue
+                    b.put((dx, yc + dy, zc + dz), red)
+        for dx in (-1, 0):  # a little green stalk on top
+            b.put((dx, yc, zc + n + 1), hexc('#5DBB63'))
+        cen = (0, yc, zc)
         # little paws holding it
         for x in (-1, 0):
             xx = round(-0.8 * k) - 1 if x < 0 else round(0.8 * k)
             b.put((xx, round(cen[1]), round(cen[2])), col)
     return c
+
+
+def _glint(c):
+    """A white glint in the top outer corner of each eye."""
+    e = next(p for p in c.parts if p.name == 'eyes')
+    for side in (1, -1):
+        mine = [p for p in e.v if (p[0] + .5) * side > 0]
+        if mine:  # on the front face (a voxel further back can end up under an ear)
+            yf = min(p[1] for p in mine)
+            mine = [p for p in mine if p[1] == yf]
+        if len(mine) > 1:
+            top = max(p[2] for p in mine)
+            e.v[max((p for p in mine if p[2] == top), key=lambda p: (p[0] + .5) * side)] = (WHITE, False)
 
 
 def _wings(c, k, bz, wing, bone, ptero, wrap):
@@ -206,7 +242,13 @@ def _wings(c, k, bz, wing, bone, ptero, wrap):
             else:
                 bot = bz - 1.4 * k + 1.8 * k * u + 0.75 * k * abs(math.sin(u * math.pi * 3.0))
             bot = min(bot, top - 0.6)
-            yb = 0.3 * k + (-1.4 * k * u * u if wrap else 0.4 * k * u)
+            yb = 0.3 * k + 0.4 * k * u
+            if wrap:
+                # wrapped: the wing curls round the body like a cape, its tip
+                # in front at the side, leaving the chest (and berry) open
+                R = sx0 + 0.8 * k * min(1.0, 3 * u)
+                phi = 1.15 * u
+                x, yb = R * math.cos(phi), 0.4 * k - R * math.sin(phi)
             for zi in range(math.floor(bot), math.ceil(top) + 1):
                 if zi + .5 < bot or zi - .5 > top:
                     continue
