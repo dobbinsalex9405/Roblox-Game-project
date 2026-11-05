@@ -675,9 +675,13 @@ local function animate(v: Visual, now: number, dt: number)
 			if walking then
 				pose *= walkPose(v, anim)
 			end
-		elseif anim == "ears" and look.moves.ears then
+		elseif anim == "ears" and (look.moves.ears or walking) then
 			local k = t % 3.3
-			pose = if k < 0.3 then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			local flick = look.moves.ears and not walking and k < 0.3
+			pose = if flick then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			if walking then
+				pose *= walkPose(v, anim)
+			end
 		elseif anim == "tail" and (look.moves.tail or walking) then
 			local wag = if look.moves.tail then math.sin(t * 6) * 0.35 * (1 - v.moving) else 0
 			pose = CFrame.Angles(0, wag, 0)
