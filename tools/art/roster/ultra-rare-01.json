@@ -1079,7 +1079,21 @@
     "tail": "#F0EEE6",
     "feet": "#E8E4D8"
    },
+   "shape": {
+    "body": [
+     0.85,
+     1.3,
+     0.85
+    ],
+    "head": 0.8
+   },
    "accessories": [
+    {
+     "kind": "long_neck",
+     "color": "#FAFAF5",
+     "amount": 2.6,
+     "slim": 0.65
+    },
     {
      "kind": "paper_wings",
      "color": "#FAFAF5",
@@ -1422,6 +1436,11 @@
    },
    "accessories": [
     {
+     "kind": "iris_eyes",
+     "color": "#5FA8E0",
+     "color2": "#0E1420"
+    },
+    {
      "kind": "whiskers",
      "color": "#9FE4FF"
     },
@@ -1532,6 +1551,11 @@
    },
    "accessories": [
     {
+     "kind": "puffin_face",
+     "color": "#FF8A3D",
+     "color2": "#9FE4FF"
+    },
+    {
      "kind": "glow_color",
      "color": "#9FE4FF"
     },
@@ -1597,6 +1621,11 @@
     "head": 1.05
    },
    "accessories": [
+    {
+     "kind": "monkey_face",
+     "color": "#6AA84A",
+     "color2": "#E8F4C8"
+    },
     {
      "kind": "leaf_collar",
      "color": "#4FA83A",
@@ -1888,15 +1917,17 @@
     "body": [
      0.88,
      0.9,
-     0.9
+     0.85
     ],
-    "head": 0.88
+    "head": 0.85
    },
    "accessories": [
     {
-     "kind": "cog_spines",
-     "color": "#F2B83A",
-     "color2": "#9A6A1A"
+     "kind": "hedgehog_quills",
+     "color": "#8C93A6",
+     "color2": "#F2B83A",
+     "snout": "#D8C0A0",
+     "density": 0.8
     },
     {
      "kind": "gears",
@@ -2090,6 +2121,17 @@
    },
    "accessories": [
     {
+     "kind": "long_legs",
+     "color": "#F7B8D0",
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FFE3EE",
+     "color2": "#8A3A5A",
+     "nose": "wolf"
+    },
+    {
      "kind": "facets",
      "color": "#FFC8DC",
      "color2": "#E08AAE"
@@ -2149,8 +2191,10 @@
      "color2": "#BDD0FF"
     },
     {
-     "kind": "glow_eyes",
-     "color": "#7FF0FF"
+     "kind": "iris_eyes",
+     "color": "#3FD8F0",
+     "color2": "#14203A",
+     "iris_glow": true
     },
     {
      "kind": "wisps",

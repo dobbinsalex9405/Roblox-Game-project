@@ -2383,7 +2383,7 @@ def hedgehog_quills(c, H, col, col2=None, a=None):
     # quills: short chunky spikes (2x2 at the root, one voxel at the pale
     # tip) on a staggered grid, leaning up and back, so the coat's outline
     # bristles all over
-    step = max(3, round(1.1 * k))
+    step = max(3, round(1.1 * k / float((a or {}).get('density', 1.0))))  # "density": quills per area
     L = max(3, round(1.3 * k))
     for (x, y, z), n in outs:
         if (x + (z // step) % 2 * (step // 2 or 1)) % step or (y + z) % step:
@@ -2488,6 +2488,138 @@ def storm_crest(c, H, col, col2=None):
     if fine:
         for x in (-1, 0):
             part.put((x, math.floor(pts[-1][0]), math.floor(pts[-1][1])), tip, True)
+
+
+def _hexa(col, default):
+    if col is None:
+        return default
+    return hexc(col) if isinstance(col, str) else col
+
+
+def puffin_face(c, H, col, col2=None):
+    """A puffin's face: the front of the head turns white below a dark cap,
+    and the beak becomes a big, tall triangle (col, the bill; col2, a pale
+    band at its base), so it can't be read as a penguin."""
+    k = H / 10.0
+    head, eyes = head_of(c), _find(c, 'eyes')
+    if not eyes or not eyes.v:
+        return
+    hz = [p[2] for p in head.v]
+    cap = max(p[2] for p in eyes.v) + 0.6 * k
+    ylo = min(p[1] for p in head.v)
+    yc = (ylo + max(p[1] for p in head.v)) / 2
+    white = hexc('#F7F9FC')
+    bill = _hexa(col, hexc('#FF8A3D'))
+    band = _hexa(col2, hexc('#C9D3E0'))
+    # drop the old beak (anything in front of the face line that is not white/body)
+    face_y = min(p[1] for p in head.v if abs(p[0] + .5) > 1.2 * k) if any(abs(p[0] + .5) > 1.2 * k for p in head.v) else ylo
+    for q in [q for q in head.v if q[1] < face_y]:
+        del head.v[q]
+    for q, (cc, g) in list(head.v.items()):
+        if q[1] < yc and q[2] < cap and q[2] > min(hz) + 0.2 * k:
+            head.v[q] = (white, g)
+    ez = min(p[2] for p in eyes.v)
+    zc = ez - 0.7 * k
+    Lb = max(3, round(1.4 * k))
+    for i in range(Lb):
+        t = i / Lb
+        hh = 1.3 * k * (1 - t) + 0.4
+        ww = 0.75 * k * (1 - 0.5 * t) + 0.3
+        y = face_y - 1 - i
+        cc = band if i < max(1, round(0.25 * Lb)) else bill
+        for x in range(-math.ceil(ww), math.ceil(ww)):
+            if abs(x + .5) > ww:
+                continue
+            for z in range(math.floor(zc - hh * 0.55), math.ceil(zc + hh * 0.6)):
+                head.put((x, y, z), cc)
+
+
+def monkey_face(c, H, col, col2=None):
+    """A monkey's head: big round ears out at the sides of the head at eye
+    height (inner col2), and a pale heart-shaped face (col2) round the eyes
+    and over a small muzzle, so it can't be read as a bear cub."""
+    k = H / 10.0
+    head, eyes = head_of(c), _find(c, 'eyes')
+    if not eyes or not eyes.v:
+        return
+    pale = _hexa(col2, hexc('#E8D8B8'))
+    fur = _hexa(col, head.v[max(head.v, key=lambda q: q[2])][0])
+    ez0, ez1 = min(p[2] for p in eyes.v), max(p[2] for p in eyes.v)
+    ezc = (ez0 + ez1) / 2
+    yf = min(p[1] for p in head.v)
+    exs = [p[0] for p in eyes.v if p[0] >= 0]
+    ex = (min(exs) + max(exs) + 1) / 2 if exs else 1.0 * k
+    # the face: two circles round the eyes and a muzzle oval below
+    for q, (cc, g) in list(head.v.items()):
+        x, y, z = q
+        if y > yf + 1.4 * k:
+            continue
+        ax = abs(x + .5)
+        in_eye = math.hypot(ax - ex, (z + .5 - ezc) * 0.9) <= 1.05 * k
+        in_muz = ((ax / (1.25 * k)) ** 2 + ((z + .5 - (ezc - 1.3 * k)) / (0.85 * k)) ** 2) <= 1
+        if in_eye or in_muz:
+            head.v[q] = (pale, g)
+    head.ell((0, yf + 0.2 * k, ezc - 1.4 * k), (0.95 * k, 0.5 * k, 0.6 * k), pale)
+    # nostrils
+    yn = min(p[1] for p in head.v if abs(p[2] - (ezc - 1.2 * k)) <= 1)
+    for sx in (-1, 1):
+        x = round(sx * 0.3 * k) - (1 if sx < 0 else 0)
+        head.put((x, yn, round(ezc - 1.2 * k)), _dark(pale, 0.5))
+    ears = _find(c, 'ears')
+    if ears:
+        ears.v = {}
+    else:
+        ears = c.part('ears', 'static')
+    hw = max(p[0] for p in head.v if abs(p[2] - ezc) <= 1) + 1
+    yc = yf + 1.6 * k
+    for sx in (-1, 1):
+        x0 = hw if sx > 0 else -hw - 1
+        for dx in range(max(1, round(0.5 * k))):
+            x = x0 + sx * dx
+            for y in range(math.floor(yc - 1.0 * k), math.ceil(yc + 1.0 * k)):
+                for z in range(math.floor(ezc - 0.8 * k), math.ceil(ezc + 1.3 * k)):
+                    if math.hypot(y + .5 - yc, z + .5 - (ezc + 0.25 * k)) <= 1.0 * k:
+                        inner = dx == 0 and math.hypot(y + .5 - yc, z + .5 - (ezc + 0.25 * k)) <= 0.6 * k
+                        ears.put((x, y, z), fur)
+                        if inner and dx == max(1, round(0.5 * k)) - 1:
+                            pass
+        # the pale inner ear faces forward-out: paint the front half of the outer layer
+        xo = x0 + sx * (max(1, round(0.5 * k)) - 1)
+        for (x, y, z) in list(ears.v):
+            if x == xo and math.hypot(y + .5 - yc, z + .5 - (ezc + 0.25 * k)) <= 0.6 * k:
+                ears.put((x, y, z), pale)
+
+
+def long_neck(c, H, col=None, col2=None, a=None):
+    """A long neck (a crane's, a heron's): the head and eyes rise and reach
+    forward by "amount" (default 2.2, in tenths of the height) on a slim
+    neck from the top of the body (col, default the body colour), and the
+    body slims to a boat shape. Put it before the wings."""
+    k = H / 10.0
+    body, head = _find(c, 'body'), head_of(c)
+    if not body or head is body:
+        return
+    amt = float((a or {}).get('amount', 2.2)) * k
+    up, fwd = round(amt), round(0.45 * amt)
+    slim = float((a or {}).get('slim', 0.7))
+    if slim < 1:  # a narrower, boat-shaped body: squeeze it across
+        nv = {}
+        for (x, y, z), v in body.v.items():
+            nv[(math.floor((x + .5) * slim), y, z)] = v
+        body.v = {(x, y, z): v for (x, y, z), v in nv.items() if x >= 0}
+        body.v.update({(_mx(x), y, z): v for (x, y, z), v in list(body.v.items())})
+    for p in c.parts:
+        if p.name in ('head', 'eyes', 'crest', 'beak'):
+            p.v = {(x, y - fwd, z + up): v for (x, y, z), v in p.v.items()}
+            px, py, pz = p.pivot
+            p.pivot = (px, py - fwd, pz + up)
+    nc = _hexa(col, body.v[max(body.v, key=lambda q: q[2])][0])
+    zb = max(p[2] for p in body.v) - 1.0 * k
+    yb = min(p[1] for p in body.v if p[2] >= zb) + 0.6 * k
+    hz0 = min(p[2] for p in head.v)
+    hy = sum(p[1] for p in head.v if p[2] <= hz0 + 1) / max(1, sum(1 for p in head.v if p[2] <= hz0 + 1))
+    top = (hy + 0.3 * k, hz0 + 0.8 * k)
+    line(body, (0, yb, zb), (0, top[0], top[1]), nc, r=0.55 * k + 0.3)
 
 
 def raptor_beak(c, H, col, col2=None):
@@ -2723,7 +2855,7 @@ def mend(c, H, col=None, col2=None):
 
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
-    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest,
+    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'long_neck': long_neck,
     'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'embers': embers, 'cracks': cracks, 'claws': claws,

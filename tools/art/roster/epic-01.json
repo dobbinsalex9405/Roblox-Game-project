@@ -276,12 +276,23 @@
    },
    "shape": {
     "body": [
-     1.1,
-     1.05,
-     1.0
-    ]
+     1.0,
+     0.95,
+     0.92
+    ],
+    "head": 0.9
    },
    "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#6A4A3A",
+     "amount": 0.4
+    },
+    {
+     "kind": "horse_head",
+     "color": "#4A3428",
+     "color2": "#1A120C"
+    },
     {
      "kind": "horns",
      "color": "#FFE84A",
@@ -317,6 +328,17 @@
    },
    "accessories": [
     {
+     "kind": "long_legs",
+     "color": "#CFF4FF",
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FFFFFF",
+     "color2": "#2A4A5A",
+     "nose": "wolf"
+    },
+    {
      "kind": "ghost",
      "color": "#E0F8FF"
     },
@@ -349,18 +371,24 @@
    },
    "shape": {
     "body": [
-     1.05,
-     1.05,
-     1.0
-    ]
+     0.95,
+     0.95,
+     0.92
+    ],
+    "head": 0.9
    },
    "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#7A5A42",
+     "amount": 0.7
+    },
     {
      "kind": "hump",
      "color": "#6A4A34"
     },
     {
-     "kind": "long_muzzle",
+     "kind": "horse_head",
      "color": "#5A4232",
      "color2": "#2A1A12"
     },
@@ -607,20 +635,35 @@
    },
    "shape": {
     "body": [
-     1.1,
+     0.9,
      1.05,
-     1.1
-    ]
+     1.0
+    ],
+    "head": 0.9
    },
    "accessories": [
     {
-     "kind": "bolt_crest",
-     "color": "#FFE84A"
+     "kind": "raptor_pose",
+     "color": "#1A2A58",
+     "lean": 0.35
     },
     {
-     "kind": "feather_wings",
+     "kind": "raptor_beak",
+     "color": "#FFD43B",
+     "color2": "#1A2A58"
+    },
+    {
+     "kind": "raised_wings",
      "color": "#2A4488",
-     "color2": "#FFE84A"
+     "color2": "#FFE84A",
+     "span": 5.2,
+     "angle": 28,
+     "drop": 1.2
+    },
+    {
+     "kind": "storm_crest",
+     "color": "#FFE84A",
+     "color2": "#FFFFFF"
     },
     {
      "kind": "sparks",
@@ -807,6 +850,17 @@
     "tail": "fox"
    },
    "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#FF9A3D",
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FFF1DC",
+     "color2": "#2A1A1A",
+     "nose": "wolf"
+    },
     {
      "kind": "triple_tails",
      "color": "#FFFFFF",
