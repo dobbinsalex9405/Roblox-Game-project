@@ -124,6 +124,8 @@ def pose(gait, anim, ph, moving, h, legged):
             return (0.0, 0.5 * moving * math.sin(a - 1.2), 0.0, 0.0, 0.0)
         if gait == 'swim':
             return (0.0, 0.55 * moving * math.sin(a - 0.8), 0.0, 0.0, 0.0)
+        if gait == 'hover':
+            return (0.1 * moving, 0.25 * moving * math.sin(a - 0.8), 0.0, 0.0, 0.0)
     elif anim in ('wingL', 'wingR'):
         if gait == 'waddle':
             flick = 0.18 * moving * (1 - math.cos(2 * a)) / 2

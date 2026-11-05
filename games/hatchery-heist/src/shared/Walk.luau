@@ -394,6 +394,9 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			return { rx = 0, ry = 0.5 * moving * math.sin(a - 1.2), rz = 0, dx = 0, dy = 0 }
 		elseif gait == "swim" then
 			return { rx = 0, ry = 0.55 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
+		elseif gait == "hover" then
+			-- a flyer's tail streams and sways behind it
+			return { rx = 0.1 * moving, ry = 0.25 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
 		end
 	elseif anim == "wingL" or anim == "wingR" then
 		if gait == "waddle" then

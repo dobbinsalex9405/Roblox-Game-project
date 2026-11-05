@@ -63,8 +63,30 @@ and rides the part it touches.
 | `hop` | bunnies, frogs, grasshoppers | all legs kick back and tuck; body arcs, 60% of the cycle in the air |
 | `scuttle` | bugs, crabs, spiders, turtles, axolotls | numbered legs swing about the vertical axis in two alternating sets, lifting as they reach; four-leg sprawlers swing like a trot |
 | `slither` | worms, slugs, snails, caterpillars, starfish | no legs: a gentle body sway and surge, head and tail follow |
-| `hover` | **every Legendary and Godly** (automatic), bees, butterflies, moths, dragonflies, fireflies | body leans and bobs, wings beat faster, legs trail and paddle |
-| `swim` | fish (none yet) | tail sweeps, `finL`/`finR` paddle in turn, body sways |
+| `hover` | **every Legendary and Godly** (automatic, unless `swim`), bees, butterflies, moths, dragonflies, fireflies, bats | body leans and bobs, wings beat faster, legs trail and paddle, tail streams and sways |
+| `swim` | fish, whales, rays, jellyfish, octopus-in-the-air: anything with fins or a tail fin and no legs | tail sweeps, `finL`/`finR` paddle in turn, body sways. The game plays it (Walk.pose + CreatureView), so judge it like any gait |
+
+### Rulings for new body plans
+
+- **Legendary and Godly** always float in the game, so their gait is `hover`,
+  or `swim` when the sheet says swim (drakes, dinos and griffins hover with
+  legs trailing; whales, rays, fish and sea serpents swim). Never `trot`.
+- **puff** (round, legless): `hop` with no leg parts; the body bounces.
+  With little feet as parts, `hop` still, feet as `legL`/`legR`.
+- **bat**: `hover`; wings `wingL`/`wingR`, feet `legL`/`legR` hanging below.
+- **jelly**: `swim`; tentacles are the `tail` (one part) so they sweep;
+  bell edges can be `finL`/`finR`.
+- **octopus**: `scuttle` on its arms, arms as `leg1L`..`leg4R` (4 a side),
+  hinged at the body; or `swim` if it has no arms on the ground.
+- **scorpion**: `scuttle`, eight legs `leg1L`..`leg4R`; claws and the tail
+  are static parts riding the body (`tail` if it should sway).
+- **fish** (Common/Uncommon/Rare): `swim`, body off the ground is fine (it
+  bobs on its pad); `finL`/`finR` and `tail` as parts.
+- **snake/serpent below Legendary**: `slither`, no legs, `tail` part.
+- **upright** (stands on two legs like a person): `waddle`, legs `legL`/`legR`
+  at least 3 voxels tall, arms static or `wingL`/`wingR` if they swing.
+- Set the gait in the roster entry (`"gait"`) or `KIND_GAIT`; the sheet's
+  gait wins except the Legendary/Godly rule above.
 
 ## 3. Check your creature before the PR goes ready
 
