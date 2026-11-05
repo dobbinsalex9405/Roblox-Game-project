@@ -1679,7 +1679,7 @@ def prism_peacock(c, H):
     body = c.part('body')
     cy = max(v[1] for v in body.v if abs(v[0]) < 2 and v[2] < 3.4 * k + lift) - 1
     base_z = 3.0 * k + lift
-    Rx, Rz = 5.8 * k, 6.5 * k
+    Rx, Rz = 5.6 * k, 6.3 * k
     rainbow = [P('#FF2D5A'), P('#FF8A00'), P('#FFD400'), P('#2ED83A'), P('#1E90FF'), P('#8A3AFF')]
     for x in range(-round(Rx), round(Rx)):
         for z in range(0, round(Rz) + 1):

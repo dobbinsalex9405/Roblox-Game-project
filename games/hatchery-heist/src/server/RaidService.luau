@@ -14,6 +14,7 @@ local Movement = require(ReplicatedStorage.Core.Movement)
 local Util = require(ReplicatedStorage.Core.Util)
 local Shared = ReplicatedStorage.Shared
 local Geometry = require(Shared.Geometry)
+local Tower = require(Shared.Tower)
 local Defenses = require(Shared.Defenses)
 local Layout = require(Shared.Layout)
 local Raids = require(Shared.Raids)
@@ -281,7 +282,19 @@ function RaidService.start(d: Deps)
 		if raid == nil or World.ownerOfIndex(plot) ~= raid.owner then
 			return
 		end
-		local px, pz = Geometry.pad(pad)
+		-- Reach is measured from the middle of the creature's pads (an Epic
+		-- takes 2, a Legendary or Godly 3), where it stands and its prompt is.
+		local span = 1
+		local owner = deps.data:get(raid.owner)
+		if owner then
+			for _, c in owner.creatures do
+				if c.slot == pad then
+					span = Tower.size(c, d.config.creatures, d.config.economy)
+					break
+				end
+			end
+		end
+		local px, pz = Geometry.padCentre(pad, span)
 		-- Pads on a floor above are reached by the ladder: the raider has to
 		-- stand on that floor, not under it.
 		local root = rootOf(player)
