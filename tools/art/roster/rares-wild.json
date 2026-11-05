@@ -375,7 +375,7 @@
    ],
    "accessories": [
     {
-     "kind": "antlers",
+     "kind": "wildantlers",
      "color": "#E3CFA8",
      "color2": "#FFE27A"
     }
@@ -622,7 +622,7 @@
    ],
    "accessories": [
     {
-     "kind": "casque",
+     "kind": "wildcasque",
      "color": "#FF8A1A",
      "color2": "#FFD43B"
     },

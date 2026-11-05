@@ -340,7 +340,7 @@
    },
    "accessories": [
     {
-     "kind": "icing",
+     "kind": "wildicing",
      "color": "#FFFFFF",
      "color2": "#8A4A1E"
     }
@@ -635,7 +635,7 @@
    },
    "accessories": [
     {
-     "kind": "sparks",
+     "kind": "wildsparks",
      "color": "#FFE01A",
      "color2": "#5CE8FF"
     }
@@ -668,7 +668,7 @@
    },
    "accessories": [
     {
-     "kind": "embers",
+     "kind": "wildembers",
      "color": "#FF8A1A"
     },
     {
@@ -697,7 +697,7 @@
    },
    "accessories": [
     {
-     "kind": "whiskers",
+     "kind": "wildwhiskers",
      "color": "#E8FBFF"
     },
     {
@@ -729,7 +729,7 @@
    ],
    "accessories": [
     {
-     "kind": "clover",
+     "kind": "wildclover",
      "color": "#4FC84A",
      "color2": "#DFFFE8"
     }
@@ -758,7 +758,7 @@
    },
    "accessories": [
     {
-     "kind": "raincloud",
+     "kind": "wildraincloud",
      "color": "#E8EEF8",
      "color2": "#7FD4FF"
     }
@@ -864,7 +864,7 @@
    },
    "accessories": [
     {
-     "kind": "sparks",
+     "kind": "wildsparks",
      "color": "#5CE8FF"
     },
     {
