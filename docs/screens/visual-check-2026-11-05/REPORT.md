@@ -388,3 +388,11 @@ Setup: floors 2-4 built, 15 creatures given through the Test panel (2 on floor 2
   - Baseline at the same spot with only the own 15: **59.3 fps**.
   - Client memory was 2.8 GB with the clones present.
   - This is the laptop GPU in Studio, so a real phone will likely be slower.
+
+## #97 re-gate @ 3b75f13 (phone board view, respawn)
+
+- **(1) Phone 844x392 from 34 studs: FAIL.** The board is now 16x11 studs, centred 11.5 studs up, with text bounds 0.88 studs per line.
+  - With the character standing 34 studs out on the path (0, 3, -42.2), facing the market, and a follow camera 12 studs behind and 4 up, the board sits right behind the coin HUD. Only a strip of the coin column shows between the HUD's two lines, and the GOAL banner covers the lower rows (`97d-hh-kiosk-34studs-phone-player.jpg`). The same happens from 46 studs (`97d-hh-kiosk-46studs-phone-3rdperson.jpg`).
+  - On phone, the HUD and banner fill roughly screen y 85-220 of 392. At this distance that band is where anything 8-15 studs up lands.
+  - The rows are readable once they are uncovered, which happens on desktop or when the camera is pitched up.
+- **(2) Respawn: PASS.** After a server kill, the new character was at its own base (plot-local 0, 3, 24) at the first 0.5 s sample and stayed there for 4 s. The plaza SpawnLocation (52, 0.1, 0) is transparent and nothing shows there or by the Golden Egg Shop (`97d-hh-plaza-spawn-empty-phone.jpg`).
