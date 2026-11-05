@@ -11,7 +11,8 @@
 - Only creatures on a floor earn. The rest wait in your inventory (now 150,
   up from 30); "Your Creatures" moves them, and Place best fills the tower
   with your strongest. Old bases are placed best first on the next join.
-- Raiders must climb to a creature's floor to take it.
+- Raiders must climb to a creature's floor to take it. The Ride, Guard and
+  Steal buttons of a big creature sit in the middle of its spots.
 - Fix: some Hatchery Book cards showed no "???" name for creatures not
   found yet (on phones, the top rows).
 

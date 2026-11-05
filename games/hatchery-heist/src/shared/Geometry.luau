@@ -83,6 +83,14 @@ function Geometry.pad(index: number): (number, number, number)
 	return -15 + column * 10, 5 + row * 10, floor * Geometry.FLOOR_HEIGHT
 end
 
+-- Where a creature taking `span` side-by-side pads from pad `index` stands:
+-- the middle of its pads (x, z, height), which is also where its prompts
+-- sit and what a raider's reach is measured from.
+function Geometry.padCentre(index: number, span: number): (number, number, number)
+	local x, z, height = Geometry.pad(index)
+	return x + (span - 1) * 5, z, height
+end
+
 -- Whether a character whose root is `rootAbove` studs above the ground
 -- floor's top stands on the floor of pad `index` (not under it or above it).
 -- A standing R15 root is about 3 studs above the deck it stands on; raiders

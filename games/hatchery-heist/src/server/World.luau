@@ -642,6 +642,7 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			pad:SetAttribute("Riding", nil)
 			pad:SetAttribute("Guard", nil)
 			pad:SetAttribute("Carried", nil)
+			pad:SetAttribute("Span", nil)
 			continue
 		end
 		local species = config.creatures.species[c.speciesId]
@@ -653,6 +654,8 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 		pad:SetAttribute("Riding", riding)
 		pad:SetAttribute("Guard", guarding)
 		pad:SetAttribute("Carried", isCarried)
+		-- How many pads it takes: the client centres its prompts on them.
+		pad:SetAttribute("Span", Tower.size(c, config.creatures, config.economy))
 		if shown == nil or shown:GetAttribute("Uid") ~= c.uid then
 			if shown then
 				shown:Destroy()

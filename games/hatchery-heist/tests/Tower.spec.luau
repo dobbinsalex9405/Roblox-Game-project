@@ -195,6 +195,20 @@ describe("Tower slots", function()
 end)
 
 describe("Tower reach", function()
+	it("measures a big creature from the middle of its pads", function()
+		local x1, z1 = Geometry.pad(1)
+		local x, z, height = Geometry.padCentre(1, 1)
+		expect(x).toBe(x1)
+		expect(z).toBe(z1)
+		expect(height).toBe(0)
+		-- A Legendary on pads 9 to 11 (floor 2) stands over pad 10, the middle one.
+		local x10, z10 = Geometry.pad(10)
+		local cx, cz, ch = Geometry.padCentre(9, 3)
+		expect(cx).toBe(x10)
+		expect(cz).toBe(z10)
+		expect(ch).toBe(Geometry.FLOOR_HEIGHT)
+	end)
+
 	it("lets a raider take a creature only from the floor it stands on", function()
 		local standing = 3 -- a standing R15 root above the deck it is on
 		-- Pad 1 is on floor 1, pad 9 on floor 2 (12 studs up).
