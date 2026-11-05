@@ -33,6 +33,7 @@ import decor  # noqa: E402,F401
 import apartment  # noqa: E402,F401
 import tower  # noqa: E402,F401
 import rooms  # noqa: E402,F401
+import hub  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 
@@ -42,6 +43,7 @@ FOLDER = {
     'pedestal': 'World/Hatchery Heist/Egg Market', 'belt': 'World/Hatchery Heist/Egg Market', 'hub': 'World/Hatchery Heist/Egg Market',
     'elevator': 'World/Hatchery Heist/Elevator and ladder', 'ladder': 'World/Hatchery Heist/Elevator and ladder',
     'plaque': 'World/Hatchery Heist/Elevator and ladder',
+    'building': 'World/Hatchery Heist/Farm hub/Buildings', 'hubprop': 'World/Hatchery Heist/Farm hub/Street props',
 }
 from tower import THEMES  # noqa: E402
 

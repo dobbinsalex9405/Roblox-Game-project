@@ -80,8 +80,6 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 	tower.Name = "Tower"
 	tower.Parent = model
 	local lo, hi = Geometry.TOWER_MIN, Geometry.TOWER_MAX
-	local width, depth = hi[1] - lo[1], hi[2] - lo[2]
-	local cx, cz = (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2
 	local gapLo, gapHi = Layout.LADDER.Z - 2.5, Layout.LADDER.Z + 2.5
 	for floor = 1, Tower.FLOORS do
 		local folder = Instance.new("Folder")
@@ -90,13 +88,22 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 		local top = Layout.floorTop(floor)
 		local look = Layout.FLOOR_LOOKS[floor]
 		if floor > 1 then
-			towerPart(folder, floor, {
-				Name = "Deck",
-				Size = Vector3.new(width, 1, depth),
-				CFrame = at(Vector3.new(cx, top - 0.5, cz)),
-				Color = look.deck,
-				Material = Enum.Material.WoodPlanks,
-			})
+			-- The deck, with an opening beside the ladder (Geometry.LADDER_HOLE)
+			-- so a climber rises through it and steps back onto the floor:
+			-- the main deck up to the opening, and a strip either side of it.
+			local holeLo, holeHi = Geometry.LADDER_HOLE_MIN, Geometry.LADDER_HOLE_MAX
+			local function deck(name: string, x0: number, x1: number, z0: number, z1: number)
+				towerPart(folder, floor, {
+					Name = name,
+					Size = Vector3.new(x1 - x0, 1, z1 - z0),
+					CFrame = at(Vector3.new((x0 + x1) / 2, top - 0.5, (z0 + z1) / 2)),
+					Color = look.deck,
+					Material = Enum.Material.WoodPlanks,
+				})
+			end
+			deck("Deck", lo[1], holeLo[1], lo[2], hi[2])
+			deck("DeckFront", holeLo[1], hi[1], lo[2], holeLo[2])
+			deck("DeckBack", holeLo[1], hi[1], holeHi[2], hi[2])
 			-- Railings round the edge, open where the ladder arrives.
 			local rail = 2.5
 			local function railing(name: string, from: Vector3, to: Vector3)
@@ -669,7 +676,7 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		if p:IsA("BasePart") and p:GetAttribute("Floor") then
 			local floor = p:GetAttribute("Floor") :: number
 			local built = claimed and floor <= owned
-			local ghost = claimed and floor == owned + 1 and p.Name == "Deck"
+			local ghost = claimed and floor == owned + 1 and string.sub(p.Name, 1, 4) == "Deck"
 			local show = built
 			local transparency = if show then p:GetAttribute("Shown") :: number elseif ghost then 0.85 else 1
 			local solid = show and p:GetAttribute("Solid") == true
@@ -703,7 +710,7 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 			if label == nil then
 				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(16, 2.4), "")
 			end
-			setLabel(deck, `Floor {floor}: {shortCoins(nextPrice)} (Tower menu)`)
+			setLabel(deck, `Floor {floor}: {shortCoins(nextPrice)}`)
 		elseif label then
 			label:Destroy()
 		end
