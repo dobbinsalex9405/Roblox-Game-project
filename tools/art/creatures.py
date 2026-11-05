@@ -427,13 +427,20 @@ def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tai
     eyes(c, head, max(1, round(0.7 * k)), round(6.9 * k), es)
     if k >= 1:
         blush(head, round(1.5 * k), round(6.0 * k))
-    for sx in (-1, 1):
-        x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
-        body.box((x - (max(1, round(0.3 * k)) - 1 if sx < 0 else 0), round(-0.8 * k), 0), (x + (max(1, round(0.3 * k)) - 1 if sx > 0 else 0), round(-0.2 * k), round(0.7 * k)), feet)
+    if not fine:
+        for sx in (-1, 1):
+            x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
+            body.box((x - (max(1, round(0.3 * k)) - 1 if sx < 0 else 0), round(-0.8 * k), 0), (x + (max(1, round(0.3 * k)) - 1 if sx > 0 else 0), round(-0.2 * k), round(0.7 * k)), feet)
     wc = wing or col
     if c.rarity in ('Common', 'Uncommon'):
-        for sx in (-1, 1):
-            body.ell((sx * 2.4 * k, 0.8 * k, 3.6 * k), (0.5 * k + .3, 1.4 * k, 1.4 * k), wc)
+        # Folded wings, each its own part hinged at the shoulder so it can
+        # flick out as the bird waddles. Only what shows outside the body
+        # is wing, so a wing that swings out leaves no hole behind it.
+        for sx, name in ((-1, 'wingL'), (1, 'wingR')):
+            wp = c.part(name, name, (sx * 2.2 * k, 0.8 * k, 4.6 * k))
+            wp.ell((sx * 2.4 * k, 0.8 * k, 3.6 * k), (0.5 * k + .3, 1.4 * k, 1.4 * k), wc)
+            for p in [p for p in wp.v if p in body.v]:
+                del wp.v[p]
     else:
         add_wings(c, k, wc, (0, 0.8 * k, 4.2 * k), span=wing_span, glow_edge=glow)
     if crest:
@@ -449,7 +456,34 @@ def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tai
             for x in range(-max(1, round(0.8 * k)) + (i // 2), max(1, round(0.8 * k)) - (i // 2)):
                 g = glow is not None and i >= round(1.2 * k)
                 tp.put((x, round(3.0 * k) + i, round(3.6 * k) + i // 2), (glow if g else tail), g)
+    if fine:
+        bird_legs(c, k, feet)
     return c
+
+
+def bird_legs(c, k, feet):
+    """The finer build stands a bird on two short legs, each its own part
+    hinged at the hip so it steps as the bird waddles: the bird is lifted
+    by the legs' height, and each leg is a shin with three toes forward."""
+    lift = max(2, round(0.6 * k))
+    for p in c.parts:
+        p.v = {(x, y, z + lift): v for (x, y, z), v in p.v.items()}
+        p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] + lift)
+    body = c.part('body')
+    w = max(1, round(0.25 * k))  # shin width
+    for sx in (-1, 1):
+        x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
+        x0, x1 = (x - w + 1, x) if sx < 0 else (x, x + w - 1)
+        y0 = round(-0.4 * k)
+        # the hip is where the shin meets the underside of the body
+        under = [z for (bx, by, z) in body.v if x0 <= bx <= x1 and y0 <= by < y0 + w]
+        top = min(under) if under else lift + 1
+        leg = rig.leg_part(c, 'L' if sx < 0 else 'R', 0, 1, ((x0 + x1 + 1) / 2, y0 + w / 2, top))
+        leg.box((x0, y0, 0), (x1, y0 + w - 1, top - 1), feet)
+        # toes: a wide flat foot reaching forward
+        t = max(1, round(0.35 * k))
+        leg.box((x0 - (t - 1 if sx < 0 else 0) - (1 if sx < 0 else 0), y0 - t - 1, 0),
+                (x1 + (t - 1 if sx > 0 else 0) + (1 if sx > 0 else 0), y0 + w - 1, 0), feet)
 
 
 def blob(c, H, kind, col, accent, glow=None):
@@ -463,6 +497,18 @@ def blob(c, H, kind, col, accent, glow=None):
         head.ell((0, -1.0 * k, 4.4 * k), (2.8 * k, 2.0 * k, 1.6 * k), col)
         for sx in (-1, 1):
             head.ell((sx * 1.5 * k, -1.4 * k, 5.9 * k), (0.9 * k, 0.9 * k, 0.9 * k), col)
+        # Legs, each its own part so it can hop: big folded back legs at the
+        # sides (a haunch and a long flat foot) and short front legs.
+        for sx in (-1, 1):
+            back = rig.leg_part(c, 'L' if sx < 0 else 'R', 1, 2, (sx * 2.3 * k, 1.2 * k, 2.2 * k))
+            back.ell((sx * 2.7 * k, 1.4 * k, 1.3 * k), (0.9 * k, 1.5 * k, 1.1 * k), col)
+            back.ell((sx * 2.9 * k, -0.2 * k, 0.3 * k), (0.7 * k, 1.1 * k, 0.3 * k + .2), accent)
+            front = rig.leg_part(c, 'L' if sx < 0 else 'R', 0, 2, (sx * 1.5 * k, -1.4 * k, 1.4 * k))
+            x = round(sx * 1.6 * k) - (1 if sx < 0 else 0)
+            w = max(0, round(0.25 * k))
+            front.box((min(x, x + sx * w), round(-1.8 * k), 0), (max(x, x + sx * w), round(-1.8 * k) + w, round(1.4 * k)), col)
+            front.box((min(x, x + sx * w) - (w if sx < 0 else 0), round(-2.0 * k) - w, 0),
+                      (max(x, x + sx * w) + (w if sx > 0 else 0), round(-1.8 * k), max(0, round(0.2 * k))), accent)
         eyes(c, head, max(1, round(1.0 * k)), round(5.8 * k), max(1, round(0.6 * k)))
         f = head.front(0, round(3.6 * k))
         if f and getattr(c, 'fine', False):
@@ -501,7 +547,10 @@ def blob(c, H, kind, col, accent, glow=None):
         else:
             eyes(c, head, max(1, round(0.4 * k)), round(2.6 * k), 1)
     elif kind == 'ladybug':
-        body.ell((0, 0.4 * k, 1.8 * k), (2.8 * k, 3.2 * k, 1.9 * k), accent)
+        # raised a little on six short legs, so it can be seen to walk
+        body.ell((0, 0.4 * k, 1.8 * k), (2.8 * k, 3.2 * k, 1.9 * k), accent, cond=lambda x, y, z: z >= round(0.5 * k))
+        import kit_pond
+        kit_pond.legs(body, k, [(1.3, -1.4), (1.5, 0.4), (1.3, 2.2)], INK, out=0.6, height=0.9, c=c)
         body.paint(lambda p, cc, g: (INK, False) if (abs(p[0] + .5) < 0.6 or ((p[0] * 3 + p[1] * 5) % 7 == 0 and p[2] > 1.8 * k)) else None)
         head.ell((0, -2.6 * k, 1.6 * k), (1.6 * k, 1.2 * k, 1.3 * k), INK)
         eyes(c, head, max(1, round(0.5 * k)), round(1.8 * k), 1)
@@ -524,8 +573,10 @@ def blob(c, H, kind, col, accent, glow=None):
         tl.ell((0, 5.0 * k, 2.4 * k), (0.5 * k, 2.0 * k, 1.2 * k), col)
         tl.paint(lambda p, cc, g: (accent, True) if p[2] >= 3.2 * k else None)
         for sx in (-1, 1):
-            for ly in (-1.0 * k, 2.4 * k):
-                body.box((round(sx * 1.6 * k) - (1 if sx < 0 else 0), round(ly), 0), (round(sx * 1.6 * k) - (1 if sx < 0 else 0), round(ly), round(0.8 * k)), col)
+            for i, ly in enumerate((-1.0 * k, 2.4 * k)):
+                x = round(sx * 1.6 * k) - (1 if sx < 0 else 0)
+                leg = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 2, (x + .5, round(ly) + .5, round(0.8 * k) + 1))
+                leg.box((x, round(ly), 0), (x, round(ly), round(0.8 * k)), col)
         blush(head, round(1.6 * k), round(3.0 * k))
     elif kind == 'turtle':
         shell = c.part('shell', 'static')
@@ -535,8 +586,11 @@ def blob(c, H, kind, col, accent, glow=None):
         head.ell((0, -3.4 * k, 2.6 * k), (1.3 * k, 1.2 * k, 1.2 * k), col)
         eyes(c, head, max(1, round(0.5 * k)), round(2.8 * k), max(1, round(0.4 * k)))
         for sx in (-1, 1):
-            for ly in (-1.4 * k, 2.6 * k):
-                body.box((round(sx * 2.0 * k) - (1 if sx < 0 else 0), round(ly), 0), (round(sx * 2.0 * k) - (1 if sx < 0 else 0) + (1 if k > 1 else 0) * sx, round(ly) + 1, round(0.9 * k)), col)
+            for i, ly in enumerate((-1.4 * k, 2.6 * k)):
+                x = round(sx * 2.0 * k) - (1 if sx < 0 else 0)
+                leg = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 2, (x + .5 + 0.5 * sx, round(ly) + 1, round(0.9 * k) + 1))
+                x2 = x + (1 if k > 1 else 0) * sx  # two voxels wide in the finer build (the left leg went missing before)
+                leg.box((min(x, x2), round(ly), 0), (max(x, x2), round(ly) + 1, round(0.9 * k)), col)
     return c
 
 
@@ -738,10 +792,15 @@ def build_all(detail=None):
         # A voxel belongs to one part only: the later, more specific part
         # (head over body, ears over head) keeps it, so no two parts draw the
         # same spot and flicker against each other.
+        # A leg is the exception: the body keeps the voxels a leg drawn into
+        # it shares, so a leg that swings out leaves no hole in the body.
         for i, part in enumerate(c.parts):
             for later in c.parts[i + 1:]:
                 for v in set(part.v) & set(later.v):
-                    del part.v[v]
+                    if part.name == 'body' and later.name in rig.LEG_NAMES:
+                        del later.v[v]
+                    else:
+                        del part.v[v]
         c.parts = [p for p in c.parts if p.v]
         rig.split_legs(c, Part)  # walking legs, each its own part
         out.append(c)

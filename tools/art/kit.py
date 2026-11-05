@@ -70,9 +70,10 @@ def bug(c, H, kind, col, accent, wing=None):
             for i in range(max(2, round(1.2 * k))):
                 head.put((round(sx * 0.7 * k) - (1 if sx < 0 else 0) + (sx * (i // 2)), round(-2.4 * k), round(4.4 * k) + i), accent)
         for sx in (-1, 1):
-            for ly in (-0.4 * k, 1.6 * k):
+            for i, ly in enumerate((-0.4 * k, 1.6 * k)):
                 x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
-                body.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), accent)
+                leg = _leg(c, sx, i, 2, (x + .5, round(ly) + .5, round(0.9 * k) + 1))
+                leg.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), accent)
     elif kind == 'butterfly':
         body.ell((0, 0.6 * k, 2.4 * k), (0.8 * k, 2.4 * k, 0.8 * k), accent)
         head.ell((0, -2.2 * k, 2.8 * k), (1.4 * k, 1.3 * k, 1.3 * k), accent)
@@ -103,7 +104,8 @@ def bug(c, H, kind, col, accent, wing=None):
                 head.put((round(sx * 0.5 * k) - (1 if sx < 0 else 0) + sx * (i // 2), round(-2.8 * k), round(3.9 * k) + i), INK)
         for sx in (-1, 1):
             x = round(sx * 0.5 * k) - (1 if sx < 0 else 0)
-            body.box((x, 0, 0), (x, 0, round(1.8 * k)), INK)
+            leg = _leg(c, sx, 0, 1, (x + .5, .5, round(1.8 * k) + 1))
+            leg.box((x, 0, 0), (x, 0, round(1.8 * k)), INK)
     elif kind == 'beetle':
         shell = c.part('shell', 'static')
         shell.ell((0, 0.8 * k, 2.0 * k), (2.6 * k, 3.0 * k, 1.9 * k), col, cond=lambda x, y, z: z >= round(1.0 * k))
@@ -117,9 +119,13 @@ def bug(c, H, kind, col, accent, wing=None):
             head.put((0, round(-3.4 * k) - i // 2, round(2.2 * k) + i), accent)
             head.put((-1, round(-3.4 * k) - i // 2, round(2.2 * k) + i), accent)
         for sx in (-1, 1):
-            for ly in (-1.0 * k, 0.8 * k, 2.6 * k):
+            for i, ly in enumerate((-1.0 * k, 0.8 * k, 2.6 * k)):
                 x = round(sx * 2.2 * k) - (1 if sx < 0 else 0)
-                body.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), INK)
+                # a leg out from under the shell: a thigh in, then down
+                inner = round(sx * 1.4 * k) - (1 if sx < 0 else 0)
+                leg = _leg(c, sx, i, 3, (inner + .5, round(ly) + .5, round(0.9 * k) + 1))
+                leg.box((min(x, inner), round(ly), round(0.9 * k)), (max(x, inner), round(ly), round(0.9 * k)), INK)
+                leg.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), INK)
     elif kind == 'caterpillar':
         n = 5
         for i in range(n):
@@ -134,6 +140,11 @@ def bug(c, H, kind, col, accent, wing=None):
     else:
         raise ValueError(f'bug: unknown kind {kind}')
     return c
+
+
+def _leg(c, sx, i, n, hip):
+    import rig
+    return rig.leg_part(c, 'L' if sx < 0 else 'R', i, n, hip)
 
 
 def crab(c, H, col, accent):
@@ -154,9 +165,14 @@ def crab(c, H, col, accent):
         cx = sx * 3.0 * k
         body.ell((cx, -1.8 * k, 2.8 * k), (0.9 * k, 0.9 * k, 1.0 * k), col)
         body.ell((cx + sx * 0.3 * k, -2.6 * k, 3.6 * k), (0.4 * k + .3, 0.5 * k, 0.7 * k), col)
-        for ly in (-0.2 * k, 1.0 * k, 2.0 * k):
+        for i, ly in enumerate((-0.2 * k, 1.0 * k, 2.0 * k)):
             xx = round(sx * 3.0 * k) - (1 if sx < 0 else 0)
-            body.box((xx, round(ly), 0), (xx + (sx if k > 1 else 0), round(ly), round(1.2 * k)), col)
+            inner = round(sx * 2.2 * k) - (1 if sx < 0 else 0)
+            top = round(1.2 * k)
+            leg = _leg(c, sx, i, 3, (inner + .5, round(ly) + .5, top + 1))
+            # out from under the shell, then down to the sand
+            leg.box((min(xx, inner), round(ly), top), (max(xx, inner), round(ly), top), col)
+            leg.box((xx, round(ly), 0), (xx + (sx if k > 1 else 0), round(ly), top), col)
     blush(head, round(1.4 * k), round(2.0 * k))
     return c
 
@@ -415,13 +431,19 @@ def shape(c, body=(1.0, 1.0, 1.0), head=1.0):
         cy = (min(ys) + max(ys) + 1) / 2
         front0 = min(ys)
         top0 = max(p[2] for p in b.v)
-        _rescale([b] + [p for p in c.parts if p.name in ('shell', 'spines')], (0, cy, 0), body)
+        import rig
+        # legs a body plan drew as their own parts stretch with the body,
+        # hips and all, so they stay on the ground and under it
+        legs = [p for p in c.parts if p.name in rig.LEG_NAMES]
+        _rescale([b] + [p for p in c.parts if p.name in ('shell', 'spines')] + legs, (0, cy, 0), body)
+        for p in legs:
+            p.pivot = (p.pivot[0] * body[0], cy + (p.pivot[1] - cy) * body[1], p.pivot[2] * body[2])
         # the head and tail move with the body's front, back and top
         dy_front = min(p[1] for p in b.v) - front0
         dy_back = max(p[1] for p in b.v) - max(ys)
         dz_top = max(p[2] for p in b.v) - top0
         for p in c.parts:
-            if p is b or p.name in ('shell', 'spines'):
+            if p is b or p.name in ('shell', 'spines') or p in legs:
                 continue
             dy = dy_front if p.name in HEAD_PARTS else (dy_back if p.name == 'tail' else 0)
             dz = round(dz_top * (0.5 if p.name == 'tail' else 1))
