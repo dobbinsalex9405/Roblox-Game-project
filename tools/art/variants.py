@@ -22,6 +22,16 @@ the ROSTER, so a new Common needs no code. One entry:
 - **accessories** add a part: beanie, bow, flower, sprout, scarf, bell,
   horns, beard. Each takes `color` and an optional `color2`.
 - **element** is optional ("plain" when left out).
+- **gait** is optional: how it moves (trot, waddle, hop, scuttle, slither,
+  hover, swim). Left out, rig.py guesses it from the plan, kind and legs.
+- **glow**: `"glow": true` on a pattern or accessory makes the voxels it
+  painted or added glow (emissive in the meshes, lit in the game).
+
+More plans and accessories live in kit modules: every `kit_*.py` next to
+this file is imported, and its `PLANS` ({plan: (colours, options)}),
+`BUILDERS` ({plan: fn(c, H, cols, opts)}) and `ACCESSORIES` ({kind: fn(c,
+H, col, col2)}) are added here. A name two modules both define is an error,
+so batches never overwrite each other's plans.
 
 Files are read in name order, so a batch file per thread never collides
 with another. `python3 tools/art/variants.py` checks every file and lists
@@ -40,13 +50,14 @@ RARITIES = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Go
 # plan -> (colour arguments, option arguments with their allowed values)
 PLANS = {
     'quadruped': (
-        {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines'},
+        {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines', 'glow', 'horn',
+         'antlers', 'wings'},
         {'ears': {'pointy', 'big', 'round', 'long', 'floppy'},
-         'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'none'},
+         'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'flame', 'none'},
          'fluffy': {True, False}, 'pig': {True, False}, 'cow': {True, False}, 'bunny': {True, False}},
     ),
     'bird': (
-        {'col', 'belly', 'beak', 'wing', 'crest', 'tail', 'feet'},
+        {'col', 'belly', 'beak', 'wing', 'crest', 'tail', 'feet', 'glow'},
         {'big_eyes': {True, False}, 'tuft': {True, False}, 'bill': {True, False}},
     ),
     'blob': ({'col', 'accent'}, {'kind': {'frog', 'snail', 'ladybug', 'axolotl', 'turtle'}}),
@@ -54,15 +65,32 @@ PLANS = {
     'crab': ({'col', 'accent'}, {}),
     'lizard': ({'col', 'accent', 'belly'}, {'kind': {'gecko', 'chameleon', 'iguana', 'bearded'}}),
 }
-# More plans, each kit in its own module so batches add plans without editing
-# the same lines: kit_pond (critter, shore).
+# More plans and accessories, each kit in its own module (kit_*.py, found by
+# name) so batches add them without editing the same lines.
 sys.path.insert(0, HERE)
-import kit_pond  # noqa: E402
+EXTRA_BUILDERS, EXTRA_ACCESSORIES = {}, {}
+_OWNER = {}
 
-PLANS.update(kit_pond.PLANS)
-EXTRA_BUILDERS = dict(kit_pond.BUILDERS)
+
+def _load_kits():
+    import importlib
+    for path in sorted(glob.glob(os.path.join(HERE, 'kit_*.py'))):
+        name = os.path.splitext(os.path.basename(path))[0]
+        mod = importlib.import_module(name)
+        for table, into in ((getattr(mod, 'PLANS', {}), PLANS), (getattr(mod, 'BUILDERS', {}), EXTRA_BUILDERS),
+                            (getattr(mod, 'ACCESSORIES', {}), EXTRA_ACCESSORIES)):
+            for key, val in table.items():
+                kind = 'accessory' if into is EXTRA_ACCESSORIES else 'plan'
+                if (kind, key) in _OWNER and _OWNER[(kind, key)] != name:
+                    raise RuntimeError(f'{name}.py and {_OWNER[(kind, key)]}.py both define the {kind} "{key}"')
+                _OWNER[(kind, key)] = name
+                into[key] = val
+
+
+_load_kits()
 PATTERNS = {'spots', 'stripes', 'socks', 'saddle', 'tips', 'back'}
-ACCESSORIES = {'beanie', 'bow', 'flower', 'sprout', 'scarf', 'bell', 'horns', 'beard'}
+ACCESSORIES = {'beanie', 'bow', 'flower', 'sprout', 'scarf', 'bell', 'horns', 'beard'} | set(EXTRA_ACCESSORIES)
+GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover', 'swim')
 HEX = re.compile(r'^#[0-9A-Fa-f]{6}$')
 ID = re.compile(r'^[A-Z][A-Za-z0-9]{1,23}$')
 
@@ -75,7 +103,8 @@ def check(entry, where):
     def bad(msg):
         raise RosterError(f'{where}: {msg}')
 
-    allowed = {'id', 'rarity', 'plan', 'colors', 'options', 'shape', 'patterns', 'accessories', 'element', 'note'}
+    allowed = {'id', 'rarity', 'plan', 'colors', 'options', 'shape', 'patterns', 'accessories', 'element', 'gait',
+               'note'}
     for key in entry:
         if key not in allowed:
             bad(f'unknown field "{key}" (fields: {", ".join(sorted(allowed))})')
@@ -84,6 +113,8 @@ def check(entry, where):
         bad(f'id "{sid}" must be CamelCase letters and digits, like "GoatKid"')
     if entry.get('rarity') not in RARITIES:
         bad(f'{sid}: rarity must be one of {RARITIES}')
+    if 'gait' in entry and entry['gait'] not in GAITS:
+        bad(f'{sid}: gait must be one of {list(GAITS)}')
     plan = entry.get('plan')
     if plan not in PLANS:
         bad(f'{sid}: plan must be one of {sorted(PLANS)}')
@@ -116,6 +147,8 @@ def check(entry, where):
             bad(f'{sid}: pattern kind must be one of {sorted(PATTERNS)}')
         if not HEX.match(str(p.get('color', ''))):
             bad(f'{sid}: pattern {p.get("kind")} needs a "#RRGGBB" color')
+        if p.get('glow', False) not in (True, False):
+            bad(f'{sid}: pattern {p.get("kind")} glow must be true or false')
     for a in entry.get('accessories', []):
         if a.get('kind') not in ACCESSORIES:
             bad(f'{sid}: accessory kind must be one of {sorted(ACCESSORIES)}')
@@ -124,6 +157,8 @@ def check(entry, where):
                 bad(f'{sid}: accessory {a["kind"]} {key} is not "#RRGGBB"')
         if 'color' not in a:
             bad(f'{sid}: accessory {a["kind"]} needs a color')
+        if a.get('glow', False) not in (True, False):
+            bad(f'{sid}: accessory {a["kind"]} glow must be true or false')
 
 
 def load(directory=ROSTER_DIR):
@@ -160,7 +195,7 @@ def builder(entry):
 
     def build(c, H, cols=cols, opts=opts):
         cols, opts = dict(cols), dict(opts)  # a fresh copy each build
-        c.gait_hint = rig.KIND_GAIT.get(opts.get('kind', plan))
+        c.gait_hint = entry.get('gait') or rig.KIND_GAIT.get(opts.get('kind', plan))
         if plan == 'quadruped':
             col = cols.pop('col')
             if opts.get('tail') == 'none':
@@ -183,12 +218,39 @@ def builder(entry):
         if sh:
             kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))
         for p in entry.get('patterns', []):
-            kit.pattern(c, H, p['kind'], p['color'], tuple(p.get('parts', ['body'])))
+            with _glowing(c, p.get('glow')):
+                kit.pattern(c, H, p['kind'], p['color'], tuple(p.get('parts', ['body'])))
         for a in entry.get('accessories', []):
-            kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
+            with _glowing(c, a.get('glow')):
+                if a['kind'] in EXTRA_ACCESSORIES:
+                    EXTRA_ACCESSORIES[a['kind']](c, H, hexc(a['color']), hexc(a['color2']) if a.get('color2') else None)
+                else:
+                    kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
         return c
 
     return build
+
+
+class _glowing:
+    """With glow on, every voxel the block adds or repaints glows."""
+
+    def __init__(self, c, on):
+        self.c, self.on = c, bool(on)
+
+    def __enter__(self):
+        if self.on:
+            self.before = {id(p): dict(p.v) for p in self.c.parts}
+
+    def __exit__(self, *exc):
+        if self.on and exc[0] is None:
+            for p in self.c.parts:
+                old = self.before.get(id(p), {})
+                for q, (col, g) in p.v.items():
+                    if old.get(q) != (col, g):
+                        p.v[q] = (col, True)
+                if id(p) not in self.before and p.anim == 'static':
+                    p.anim = 'glow'  # a new part that glows pulses
+        return False
 
 
 def roster_entries():
