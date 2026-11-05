@@ -1,0 +1,213 @@
+{
+ "note": "Rare batch: bug Rares from the master list. Every leg is its own part (bugs six, spiders eight).",
+ "creatures": [
+  {
+   "id": "Tarantula",
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "spider"
+   },
+   "colors": {
+    "col": "#6A4A32",
+    "accent": "#FF8A3D"
+   },
+   "accessories": [
+    {
+     "kind": "fuzz",
+     "color": "#8A6448"
+    },
+    {
+     "kind": "knees",
+     "color": "#FF8A3D",
+     "glow": true
+    }
+   ]
+  },
+  {
+   "id": "AtlasMoth",
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "hover",
+   "options": {
+    "kind": "butterfly"
+   },
+   "colors": {
+    "col": "#B8452A",
+    "accent": "#5A2E1E",
+    "wing": "#C8562E"
+   },
+   "accessories": [
+    {
+     "kind": "bigwings",
+     "color": "#C8562E"
+    },
+    {
+     "kind": "wingspots",
+     "color": "#F2E3C8",
+     "color2": "#FFE27A"
+    }
+   ]
+  },
+  {
+   "id": "OrchidMantis",
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "mantis"
+   },
+   "colors": {
+    "col": "#FFD6E8",
+    "accent": "#FF9EC8"
+   },
+   "accessories": [
+    {
+     "kind": "petalcrown",
+     "color": "#FFB3D6",
+     "color2": "#FFF27A"
+    }
+   ]
+  },
+  {
+   "id": "HerculesBeetle",
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "scuttle",
+   "options": {
+    "kind": "beetle"
+   },
+   "colors": {
+    "col": "#8A9A3A",
+    "accent": "#2A2620"
+   },
+   "accessories": [
+    {
+     "kind": "bighorn",
+     "color": "#5A4630",
+     "color2": "#C8FF6A"
+    }
+   ]
+  },
+  {
+   "id": "LunaMoth",
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "hover",
+   "options": {
+    "kind": "butterfly"
+   },
+   "colors": {
+    "col": "#E8F5D0",
+    "accent": "#C8E8A8",
+    "wing": "#B8F0A0"
+   },
+   "accessories": [
+    {
+     "kind": "wingtails",
+     "color": "#B8F0A0",
+     "color2": "#E8FFB0"
+    },
+    {
+     "kind": "wingspots",
+     "color": "#FFD873",
+     "color2": "#E8FFB0"
+    }
+   ]
+  },
+  {
+   "id": "GlasswingButterfly",
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "hover",
+   "options": {
+    "kind": "butterfly"
+   },
+   "colors": {
+    "col": "#2A2A35",
+    "accent": "#2A2A35",
+    "wing": "#DDEEF5"
+   },
+   "accessories": [
+    {
+     "kind": "clearwings",
+     "color": "#DDEEF5",
+     "color2": "#FF9418"
+    }
+   ]
+  },
+  {
+   "id": "HoneypotAnt",
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "ant"
+   },
+   "colors": {
+    "col": "#7A4A2A",
+    "accent": "#5A3420"
+   },
+   "accessories": [
+    {
+     "kind": "honeybelly",
+     "color": "#F2A21A",
+     "color2": "#FFE27A"
+    }
+   ]
+  },
+  {
+   "id": "ClockworkBeetle",
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "scuttle",
+   "options": {
+    "kind": "beetle"
+   },
+   "colors": {
+    "col": "#C8A048",
+    "accent": "#6A5428"
+   },
+   "accessories": [
+    {
+     "kind": "gear",
+     "color": "#7A5424",
+     "color2": "#5CF2FF"
+    }
+   ]
+  },
+  {
+   "id": "CobwebSpider",
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "spider"
+   },
+   "colors": {
+    "col": "#8A8A98",
+    "accent": "#C8C8D8"
+   },
+   "accessories": [
+    {
+     "kind": "cobweb",
+     "color": "#F4F4FF"
+    }
+   ]
+  },
+  {
+   "id": "Scorpion",
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "scorpion"
+   },
+   "colors": {
+    "col": "#E8A23A",
+    "accent": "#FFE27A"
+   }
+  }
+ ]
+}

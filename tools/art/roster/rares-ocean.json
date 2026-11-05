@@ -1,0 +1,222 @@
+{
+ "note": "Rare batch: ocean, pond and dinosaur Rares from the master list (kit_wild octopus/jelly, kit_myth whale/ray/fish/dino/bat).",
+ "creatures": [
+  {
+   "id": "DolphinCalf",
+   "rarity": "Rare",
+   "plan": "whale",
+   "gait": "hover",
+   "options": {
+    "kind": "dolphin"
+   },
+   "colors": {
+    "col": "#7FA3C8",
+    "belly": "#E3EEF8",
+    "accent": "#6A8CB0",
+    "glow": "#9FE8FF"
+   }
+  },
+  {
+   "id": "BabyOctopus",
+   "rarity": "Rare",
+   "plan": "octopus",
+   "gait": "hover",
+   "options": {
+    "kind": "octopus"
+   },
+   "colors": {
+    "col": "#FF8FB1",
+    "accent": "#FFE3EE",
+    "belly": "#FFD0DF"
+   }
+  },
+  {
+   "id": "MantaRay",
+   "rarity": "Rare",
+   "plan": "ray",
+   "gait": "hover",
+   "options": {
+    "kind": "manta"
+   },
+   "colors": {
+    "col": "#2F4A8A",
+    "belly": "#F2F6FF",
+    "accent": "#22386E",
+    "glow": "#7FD4FF"
+   },
+   "shape": {
+    "body": [
+     1.0,
+     1.0,
+     1.35
+    ],
+    "head": 1.3
+   }
+  },
+  {
+   "id": "MoonJelly",
+   "rarity": "Rare",
+   "plan": "jelly",
+   "gait": "hover",
+   "options": {
+    "kind": "moon"
+   },
+   "colors": {
+    "col": "#BFE0FF",
+    "accent": "#FF6FB8"
+   }
+  },
+  {
+   "id": "Angelfish",
+   "rarity": "Rare",
+   "plan": "fish",
+   "gait": "swim",
+   "options": {
+    "kind": "angelfish"
+   },
+   "colors": {
+    "col": "#F4E9C8",
+    "accent": "#2A2F45",
+    "belly": "#FFF8E0",
+    "glow": "#FFD43B"
+   }
+  },
+  {
+   "id": "SharkPup",
+   "rarity": "Rare",
+   "plan": "fish",
+   "gait": "swim",
+   "options": {
+    "kind": "shark"
+   },
+   "colors": {
+    "col": "#8A9AB0",
+    "belly": "#F2F4F8",
+    "accent": "#6E7E96",
+    "glow": "#9FE8FF"
+   }
+  },
+  {
+   "id": "Narwhal",
+   "rarity": "Rare",
+   "plan": "whale",
+   "gait": "hover",
+   "options": {
+    "kind": "narwhal"
+   },
+   "colors": {
+    "col": "#9AA6B8",
+    "belly": "#E8EDF4",
+    "accent": "#5E6A80",
+    "horn": "#FFF4D6",
+    "glow": "#FFF4D6"
+   }
+  },
+  {
+   "id": "Koi",
+   "rarity": "Rare",
+   "plan": "fish",
+   "gait": "swim",
+   "options": {
+    "kind": "koi"
+   },
+   "colors": {
+    "col": "#FFFFFF",
+    "accent": "#FF7A1A",
+    "belly": "#FFFFFF",
+    "glow": "#FFB347"
+   }
+  },
+  {
+   "id": "Socktopus",
+   "rarity": "Rare",
+   "plan": "octopus",
+   "gait": "hover",
+   "options": {
+    "kind": "sock"
+   },
+   "colors": {
+    "col": "#5B8CFF",
+    "accent": "#FFD43B",
+    "belly": "#DDE7FF"
+   }
+  },
+  {
+   "id": "RexHatchling",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "waddle",
+   "options": {
+    "kind": "rex"
+   },
+   "colors": {
+    "col": "#5FBF4A",
+    "belly": "#E8F5B0",
+    "accent": "#3E8F34",
+    "glow": "#C8FF6A"
+   }
+  },
+  {
+   "id": "TrikeHatchling",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "trot",
+   "options": {
+    "kind": "trike"
+   },
+   "colors": {
+    "col": "#F28C38",
+    "belly": "#FFE3B8",
+    "accent": "#C8642A",
+    "horn": "#FFF4D6",
+    "glow": "#FFE27A"
+   },
+   "shape": {
+    "body": [
+     0.874,
+     0.874,
+     0.902
+    ],
+    "head": 0.95
+   }
+  },
+  {
+   "id": "StegoHatchling",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "trot",
+   "options": {
+    "kind": "stego"
+   },
+   "colors": {
+    "col": "#2EB8A8",
+    "belly": "#D8F5EE",
+    "accent": "#FF7A5C",
+    "glow": "#FFB38F"
+   },
+   "shape": {
+    "body": [
+     0.892,
+     0.892,
+     0.921
+    ],
+    "head": 0.97
+   }
+  },
+  {
+   "id": "RaptorChick",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "waddle",
+   "options": {
+    "kind": "raptor"
+   },
+   "colors": {
+    "col": "#4A7BE0",
+    "belly": "#DCE8FF",
+    "accent": "#FFB627",
+    "glow": "#7FD4FF"
+   }
+  }
+ ]
+}
