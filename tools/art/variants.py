@@ -192,12 +192,17 @@ def _lum(rgb):
 
 
 DARK_FACE = 0.35
+RING_CONTRAST = 0.12  # below this the deepened eye still sinks into the face
 
 
 def eye_contrast(c):
     """Dark eyes vanish on a dark face (or a dark mask). When the face around
-    an eye is dark, ring the eye with a lighter shade of the face and give it
-    a white shine, so it always reads. Glowing eyes are left alone."""
+    an eye is dark, every eye gets a one-voxel white shine on its upper outer
+    corner (a one-voxel eye grows to 2x2 to carry it, outward and down).
+    The eye's ink is deepened toward black; only when that still leaves too
+    little contrast does a big eye also get a faint ring, 25% toward white. The two
+    rings never touch: where they would, the ring between the eyes is
+    dropped, so they never read as goggles. Glowing eyes are left alone."""
     eyes = next((p for p in c.parts if p.name == 'eyes'), None)
     if not eyes or not eyes.v:
         return
@@ -206,7 +211,8 @@ def eye_contrast(c):
         return
     face = [p for p in c.parts if p is not eyes and p.name in ('head', 'body')]
     WHITE = (255, 255, 255)
-    for side in (lambda x: x >= 0, lambda x: x < 0):
+    sides = []
+    for sx, side in ((1, lambda x: x >= 0), (-1, lambda x: x < 0)):
         dots = [q for q in ink if side(q[0])]
         if not dots:
             continue
@@ -226,13 +232,57 @@ def eye_contrast(c):
         cols = [ring[q].v[q][0] for q in ring]
         if sum(_lum(col) for col in cols) / len(cols) >= DARK_FACE:
             continue
-        for q, part in ring.items():
-            rgb, g = part.v[q]
-            if not g:
-                part.v[q] = (tuple(round(v + (255 - v) * 0.45) for v in rgb), False)
-        if len(dots) >= 4 and not any(eyes.v[q][0] == WHITE for q in eyes.v if side(q[0])):
-            top = max(dots, key=lambda q: (q[2], -abs(q[0] + 0.5)))
+        sides.append((sx, side, dots, ring))
+
+    def flat(qs):
+        return {(q[0], q[2]) for q in qs}
+
+    # rings that would touch lose the voxels between the eyes
+    if len(sides) == 2:
+        (_, _, d0, r0), (_, _, d1, r1) = sides
+        a, b = flat(r0) | flat(d0), flat(r1) | flat(d1)
+        if any((x + dx, z + dz) in b for (x, z) in a for dx, dz in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))):
+            inner0 = min(q[0] for q in d0)  # the right eye's inner edge
+            inner1 = max(q[0] for q in d1)  # the left eye's inner edge
+            for ring in (r0, r1):
+                for q in [q for q in ring if inner1 < q[0] < inner0]:
+                    del ring[q]
+
+    for sx, side, dots, ring in sides:
+        for q in dots:  # deepen the ink so the eye separates from the face
+            eyes.v[q] = (tuple(round(v * 0.45) for v in eyes.v[q][0]), False)
+        face_lum = sum(_lum(part.v[q][0]) for q, part in ring.items()) / max(1, len(ring))
+        ink_lum = sum(_lum(eyes.v[q][0]) for q in dots) / len(dots)
+        if len(dots) > 2 and face_lum - ink_lum < RING_CONTRAST:
+            for q, part in ring.items():
+                rgb, g = part.v[q]
+                if not g:
+                    part.v[q] = (tuple(round(v + (255 - v) * 0.25) for v in rgb), False)
+        if any(eyes.v[q][0] == WHITE for q in eyes.v if side(q[0])):
+            continue
+        top = max(dots, key=lambda q: (q[2], q[0] * sx, -q[1]))
+        if len(dots) >= 2:
             eyes.v[top] = (WHITE, False)
+            continue
+        # a one-voxel eye is too small to carry a shine, so it grows to a
+        # 2x2 eye (outward and down) with the shine on its upper outer voxel
+        x, y, z = top
+        ink_rgb = eyes.v[top][0]  # already deepened
+        grow = {(x + sx, z): WHITE, (x, z - 1): ink_rgb, (x + sx, z - 1): ink_rgb}
+        spots = {k: _front(face, k[0], k[1], y) for k in grow}
+        if all(spots.values()) and not any(sp[0] in eyes.v or sp[1].v[sp[0]][1] for sp in spots.values()):
+            for k, (q, part) in spots.items():
+                del part.v[q]
+                eyes.v[q] = (grow[k], False)
+
+
+def _front(parts, x, z, y0):
+    """The front-most face voxel at (x, z) near depth y0, and its part."""
+    for y in range(y0 - 2, y0 + 4):
+        part = next((p for p in parts if (x, y, z) in p.v), None)
+        if part:
+            return (x, y, z), part
+    return None
 
 
 def builder(entry):

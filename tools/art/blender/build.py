@@ -51,8 +51,8 @@ LOOKS = {
     'Rare': dict(bob=0.04, bobSpeed=0.8, hover=0, head=True, ears=True, tail=True, wings=True, pulse=False),
     'Ultra Rare': dict(bob=0.04, bobSpeed=0.8, hover=0, head=True, ears=True, tail=True, wings=True, pulse=True),
     'Epic': dict(bob=0.035, bobSpeed=0.7, hover=0, head=True, ears=True, tail=True, wings=True, pulse=True),
-    'Legendary': dict(bob=0.03, bobSpeed=0.5, hover=0.08, head=True, ears=True, tail=True, wings=True, pulse=True),
-    'Godly': dict(bob=0.03, bobSpeed=0.45, hover=0.1, head=True, ears=True, tail=True, wings=True, pulse=True),
+    'Legendary': dict(bob=0.03, bobSpeed=0.5, hover=0.14, head=True, ears=True, tail=True, wings=True, pulse=True),
+    'Godly': dict(bob=0.03, bobSpeed=0.45, hover=0.14, head=True, ears=True, tail=True, wings=True, pulse=True),
 }
 RING = {'Epic': (177, 92, 255), 'Legendary': (255, 194, 26), 'Godly': (255, 77, 94)}
 
@@ -285,7 +285,7 @@ def bake_clip(clip, c, meta, joints, height, glow_mats):
     frames = int(seconds * FPS)
     fn = pose_fn(clip, look, height, seconds, meta)
     rest = {n: Vector(j.location) for n, j in joints.items()}
-    anims = {pm['name']: pm['anim'] for pm in meta['parts']}
+    anims = {pm['name']: walkpose.role(pm['name'], pm['anim']) for pm in meta['parts']}  # as Walk.role
     actions = {}
     for name, j in joints.items():
         j.animation_data_create()

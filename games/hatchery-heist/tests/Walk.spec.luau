@@ -257,17 +257,24 @@ describe("Walk matches the Blender walk clips", function()
 end)
 
 describe("Walk culling", function()
-	-- Coordinator's gate question, Nov 5: from the yard the upper floors
-	-- looked empty because every tower culled by floor, even from outside.
-	it("shows every floor of a tower to someone outside it", function()
-		expect(Walk.culled(false, 9, 60, cfg)).toBe(false)
-		expect(Walk.culled(false, 0, cfg.cullOutsideStuds + 1, cfg)).toBe(true)
+	-- Studio gates, Nov 5: culling by floor left whole floors looking empty,
+	-- from the yard and inside your own tower. Only distance culls now.
+	it("draws every creature of your own tower within cullStuds, whatever its floor", function()
+		expect(Walk.culled(0, true, cfg)).toBe(false)
+		expect(Walk.culled(9 * 12, true, cfg)).toBe(false) -- floor 10, straight up
+		expect(Walk.culled(cfg.cullStuds, true, cfg)).toBe(false)
+		expect(Walk.culled(cfg.cullStuds + 1, true, cfg)).toBe(true)
 	end)
 
-	it("inside a tower, draws only the floors near yours", function()
-		expect(Walk.culled(true, 0, 5, cfg)).toBe(false)
-		expect(Walk.culled(true, cfg.cullFloors, 5, cfg)).toBe(false)
-		expect(Walk.culled(true, cfg.cullFloors + 1, 5, cfg)).toBe(true)
+	-- Studio gate stress test, Nov 5: four full neighbouring towers took a
+	-- phone from 59 to 37 fps. Other towers stop sooner than your own.
+	it("draws other players' towers only nearby: the neighbours either side", function()
+		local neighbour = 84 -- the next base round the ring
+		local across = 155 -- the base after that
+		expect(Walk.culled(neighbour, false, cfg)).toBe(false)
+		expect(Walk.culled(across, false, cfg)).toBe(true)
+		expect(cfg.cullOtherStuds < cfg.cullStuds).toBe(true)
+		expect(cfg.animateOtherStuds < cfg.cullOtherStuds).toBe(true)
 	end)
 end)
 
@@ -295,5 +302,17 @@ describe("Walk without leg parts", function()
 		local legged = Walk.pose("trot", "body", 0.25, 1, 2, true)
 		expect(legged.rz).toBe(0)
 		expect(legged.dy <= 0).toBe(true)
+	end)
+end)
+
+describe("Walk roles", function()
+	it("walks static heads, tails and ears; leaves other static parts still", function()
+		expect(Walk.role("head", "static")).toBe("head")
+		expect(Walk.role("tail", "static")).toBe("tail")
+		expect(Walk.role("ears", "static")).toBe("ears")
+		expect(Walk.role("ears", "ears")).toBe("ears")
+		expect(Walk.role("shell", "static")).toBe("static")
+		expect(Walk.role("crest", "glow")).toBe("glow")
+		expect(Walk.role("body", "static")).toBe("body")
 	end)
 end)
