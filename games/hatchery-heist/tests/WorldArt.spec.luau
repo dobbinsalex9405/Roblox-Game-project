@@ -21,6 +21,7 @@ local BUDGET: { [string]: number } = {
 	plaque = 20,
 	decor = 80,
 	tower = 260,
+	room = 120,
 	building = 700, -- the farm hub's buildings: few, big, one of each (the barn is the landmark)
 	hubprop = 80,
 }
