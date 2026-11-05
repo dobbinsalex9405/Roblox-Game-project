@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Eggs roll a rarity tier first, then a creature from that tier, so adding
+  creatures never changes the chance of any other tier. Creatures in a tier
+  now share its chance evenly.
+- The odds card and the board show one line per tier; "See every creature"
+  on the card lists each creature's exact chance.
+- Rarer creatures are only a little bigger now (2 studs for a Common up to
+  3.8 for a Godly), and every creature is drawn exactly its stand-in's size.
+- Daily Rewards text no longer shrinks below 13 px on phones.
+
 - Each base's floor now sits just above the grass (a 0.3-stud deck instead
   of a 1-stud step), with everything on it lowered to match.
 - Music fades in gently once you have spawned instead of starting at a

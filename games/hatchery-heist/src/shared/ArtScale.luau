@@ -4,18 +4,14 @@
 
 local ArtScale = {}
 
--- How much to scale a creature's art for a stand-in part of `standIn` studs
--- when it is `padSize` studs on a pad and its art is `artHeight` studs tall
--- there (crests and horns can rise above the pad size). On its pad it is 1.
--- Ridden or carried, it scales with the stand-in (a mount is a stud bigger
--- than its pad, a carried one smaller), but never past the point where its
--- whole art fills the stand-in, so a Phoenix's crest never takes a mount
--- over its 6-stud limit.
-function ArtScale.drawScale(standIn: number, padSize: number, artHeight: number): number
-	if math.abs(standIn - padSize) < 1e-6 then
-		return 1
-	end
-	return math.min(standIn / padSize, standIn / math.max(artHeight, 1e-6))
+-- How much to scale a creature's art, `artHeight` studs tall at its native
+-- voxel size, so that the whole art, crest and all, stands exactly as tall as
+-- the server's stand-in (`standIn` studs). The stand-in is the creature's
+-- size on a pad (Layout.raritySize), a stud bigger when ridden or smaller
+-- when carried, so Layout.raritySize is the only size knob, and no ridden
+-- creature ever passes the 6-stud mount limit.
+function ArtScale.drawScale(standIn: number, artHeight: number): number
+	return standIn / math.max(artHeight, 1e-6)
 end
 
 return ArtScale

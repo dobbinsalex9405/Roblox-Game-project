@@ -70,16 +70,18 @@ local RARITY_COLORS: { [string]: Color3 } = {
 	Godly = Color3.fromRGB(255, 77, 94),
 }
 
--- Rough height in studs, for things that need a size before the model loads
--- (labels, the ridden seat). The voxel model sets the real size.
+-- A creature's height in studs on a pad: the server's stand-in ball is this
+-- size and the client draws the whole art exactly this tall. Rarer creatures
+-- are only a little bigger (Alex, Nov 5): they take more room on a floor
+-- instead, so a floor never gets crowded by one giant.
 local RARITY_SIZES: { [string]: number } = {
 	Common = 2,
-	Uncommon = 2.5,
-	Rare = 3.2,
-	["Ultra Rare"] = 4,
-	Epic = 5,
-	Legendary = 9,
-	Godly = 11,
+	Uncommon = 2.2,
+	Rare = 2.4,
+	["Ultra Rare"] = 2.7,
+	Epic = 3,
+	Legendary = 3.4,
+	Godly = 3.8,
 }
 
 -- 1 for Common up to 7 for Godly.

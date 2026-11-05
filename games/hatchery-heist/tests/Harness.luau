@@ -18,7 +18,7 @@ local Fakes = require("../../../packages/core/tests/Fakes")
 local config = {
 	economy = require("../config/economy"),
 	creatures = require("../config/creatures"),
-	eggs = require("../config/eggs"),
+	eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 	raids = require("../config/raids"),
 }
 

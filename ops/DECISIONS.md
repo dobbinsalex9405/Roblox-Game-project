@@ -3,6 +3,35 @@
 Non-obvious choices, newest first, so a later session can trust them.
 
 
+
+## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)
+
+- **Eggs roll a tier, then a creature.** Alex asked for it so creatures can
+  be added without moving other odds. An egg names a pool and a whole
+  weight per tier (out of 100,000); creatures list their pools. At load,
+  `Eggs.expand` turns that into one whole weight per creature (largest
+  remainder inside each tier), so every existing consumer (roll, odds
+  display, fixed order, Book, reveal) keeps reading `egg.outcomes`, and the
+  server rolls exactly the table it shows. Tier chances are unchanged from
+  before; creatures inside a tier now share it evenly, which moved some
+  individual chances (Premium Phoenix 1 in 286 became 1 in 408). Config.spec
+  and the boot check refuse a tier with no creatures or fewer weight units
+  than creatures.
+- **Stayed at 100,000, not 1,000,000.** The fixed-order cycle for
+  restricted players is built once per egg and is as long as the total;
+  100,000 keeps that cheap on phones, and still splits 150 Commons evenly.
+- **Tier boards plus a full list.** With hundreds of creatures planned, the
+  card and board show seven tier lines. Roblox policy and our rule need
+  each item's chance before purchase, so the card has "See every creature",
+  listing every creature's exact chance from the server's table.
+- **Sizes flatten, art fits its stand-in.** Rarer creatures are only a
+  little bigger (2 to 3.8 studs) and will take more floor slots instead.
+  `ArtScale.drawScale` now scales every creature's whole art to its
+  stand-in's height, so `Layout.raritySize` is the one size knob and
+  replaces the earlier crest cap.
+- **An `element` field exists from day one** but does nothing until the
+  roster is several hundred creatures (Alex, Nov 5).
+
 ## 2026-11-05: Hatchery Heist floor height and music fades
 
 - **Bases are lowered, not rebuilt.** Alex found the 1-stud floor step "way
