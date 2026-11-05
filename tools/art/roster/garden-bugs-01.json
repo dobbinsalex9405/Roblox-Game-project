@@ -10,7 +10,7 @@
     {"id": "Cricket", "rarity": "Common", "plan": "critter", "colors": {"col": "#6A4A30", "accent": "#3A2A20", "wing": "#A8835A"}, "options": {"kind": "grasshopper"}, "shape": {"head": 1.1}},
     {"id": "GardenSpider", "rarity": "Common", "plan": "critter", "colors": {"col": "#E89A3C", "accent": "#FFF1DC"}, "options": {"kind": "spider"}},
     {"id": "JumpingSpider", "rarity": "Common", "plan": "critter", "colors": {"col": "#7A6A9A", "accent": "#FFE14D"}, "options": {"kind": "spider"}, "shape": {"body": [0.9, 0.9, 1.0], "head": 1.2}, "accessories": [{"kind": "big_eyes", "color": "#1B1B2F", "size": 0.8, "small_pair": true}]},
-    {"id": "PillBug", "rarity": "Common", "plan": "critter", "colors": {"col": "#8A93A3", "accent": "#6A7383"}, "options": {"kind": "pillbug"}, "shape": {"body": [1.0, 1.0, 1.3], "head": 1.1}},
+    {"id": "PillBug", "rarity": "Common", "plan": "critter", "colors": {"col": "#9AA3B3", "accent": "#7A8494"}, "options": {"kind": "pillbug"}, "shape": {"body": [1.0, 1.05, 1.15], "head": 1.1}},
     {"id": "Earthworm", "rarity": "Common", "plan": "critter", "colors": {"col": "#F29A9A", "accent": "#D9737A"}, "options": {"kind": "worm"}, "accessories": [{"kind": "flower", "color": "#FFFFFF", "color2": "#FFD43B"}]},
     {"id": "Inchworm", "rarity": "Common", "plan": "critter", "colors": {"col": "#A8E05F", "accent": "#7FC23F"}, "options": {"kind": "worm"}},
     {"id": "BananaSlug", "rarity": "Common", "plan": "critter", "colors": {"col": "#FFD43B", "accent": "#F2B820"}, "options": {"kind": "slug"}, "patterns": [{"kind": "spots", "color": "#8A7420"}]},

@@ -30,7 +30,7 @@ dict, its extra keys are the settings named below):
   question mark, rings of color and color2 (a ringtail lemur's).
 - **poms**: pom-poms on the crown, ear tips, tail and ankles (a poodle's).
 - **beak**: the beak redrawn. `style`: pointed, cone (a finch's), hooked
-  (a parrot's), long (a wader's), dagger (a heron's), pouch (a pelican's,
+  (a parrot's), small_hook (a cockatiel's), long (a wader's), dagger (a heron's), pouch (a pelican's,
   color2 the pouch). `len` (in k) for long, dagger and pouch.
 - **cheeks**: a round patch on each cheek (a cockatiel's).
 - **face**: the face and throat painted color (a lovebird's).
@@ -670,6 +670,8 @@ BEAKS = {
     'pointed': [(1, -1, 0), (1, 0, 0)],
     'cone': [(1, -1, 0), (1, -1, 0), (1, 0, 0)],
     'hooked': [(1, -1, 1), (1, -1, 1), (1, -2, 0), (1, -2, -1)],
+    # a parrot's small hook: short, curling down at the tip
+    'small_hook': [(1, -1, 1), (1, -2, 0)],
 }
 
 
@@ -742,8 +744,8 @@ def beak(c, H, color, color2=None, a=None):
 
 
 def cheeks(c, H, color, color2=None, a=None):
-    """A round patch on each cheek: on the side of the face, below and
-    outside the eye (`size`, `down` in k)."""
+    """A round patch on each cheek: on the side of the head, just behind
+    and below the eye, clear of the beak (`size`, `down`, `back` in k)."""
     k = H / 10.0
     a = a or {}
     col = _rgb(color)
@@ -751,21 +753,28 @@ def cheeks(c, H, color, color2=None, a=None):
     le, re_, e = _eye_info(c)
     if head is None or not re_:
         return
-    lo, hi, cz_, yc, top, half = _head_frame(head)
-    ex = sum(p[0] for p in re_) / len(re_)
+    ex = max(p[0] for p in re_)
+    ey = min(p[1] for p in re_)
     ez = min(p[2] for p in re_)
-    xs = [p[0] for p in head.v if abs(p[2] - ez) <= 1]
-    side = (max(xs) + 1) if xs else half
-    cx = max(ex + 0.7 * k, side - 0.7 * k)
-    cz = ez - float(a.get('down', 0.5)) * k
+    cy = ey + float(a.get('back', 0.9)) * k
+    cz = ez - float(a.get('down', 0.4)) * k
     r = max(1.2, float(a.get('size', 0.65)) * k)
     hc = _main(head)
-    for p, (cc, g) in list(head.v.items()):
-        x = p[0] if p[0] >= 0 else _mx(p[0])
-        if p[1] > yc + 0.6 * k or cc not in (hc, BLUSH):
+    # the side surface: the outermost voxel of each (y, z) row, and the
+    # one just inside it
+    side = {}
+    for (x, y, z) in head.v:
+        if x >= 0:
+            side[(y, z)] = max(side.get((y, z), x), x)
+    for (y, z), xo in side.items():
+        if ((y + .5 - cy) / r) ** 2 + ((z + .5 - cz) / r) ** 2 > 1:
             continue
-        if ((x + .5 - cx) / r) ** 2 + ((p[2] + .5 - cz) / r) ** 2 <= 1:
-            head.v[p] = (col, g)
+        for x in (xo, xo - 1):
+            if x <= ex:
+                continue
+            for q in ((x, y, z), (_mx(x), y, z)):
+                if q in head.v and head.v[q][0] in (hc, BLUSH):
+                    head.v[q] = (col, head.v[q][1])
 
 
 def face(c, H, color, color2=None, a=None):
@@ -825,20 +834,23 @@ def throat_bars(c, H, color, color2=None, a=None):
     if head is None or not re_:
         return
     ez = min(p[2] for p in re_)
-    z1 = ez - max(2, round(1.1 * k))
+    z1 = ez - max(3, round(1.9 * k))
     z0 = z1 - max(3, round(1.6 * k))
     for part in (head, body):
         if part is None or not part.v:
             continue
         front = {}
+        ey = min(p[1] for p in re_)
         for (x, y, z) in part.v:
-            if abs(x + .5) <= 1.0 * k and z0 <= z <= z1:
+            if part is head and y < ey:
+                continue  # the beak, not the throat
+            if abs(x + .5) <= float((a or {}).get('w', 1.0)) * k and z0 <= z <= z1:
                 front[(x, z)] = min(front.get((x, z), y), y)
         for (x, z), y in front.items():
             for dy in (0, 1):
                 q = (x, y + dy, z)
                 if q in part.v and part.v[q][0] != INK:
-                    part.v[q] = (col if (z1 - z) % 2 == 0 else pale, False)
+                    part.v[q] = (col if (z1 - z) % 2 == 1 else pale, False)
 
 
 def plume(c, H, color, color2=None, a=None):
