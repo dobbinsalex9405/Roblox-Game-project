@@ -10,7 +10,35 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
-local ANIMS = { "static", "head", "ears", "tail", "wingL", "wingR", "blink", "glow" }
+local ANIMS = {
+	"static",
+	"head",
+	"ears",
+	"tail",
+	"wingL",
+	"wingR",
+	"blink",
+	"glow",
+	"orbit", -- turns about its pivot on the vertical axis (Godly planets)
+	"legFL",
+	"legFR",
+	"legBL",
+	"legBR",
+	"legL",
+	"legR",
+	"leg1L",
+	"leg1R",
+	"leg2L",
+	"leg2R",
+	"leg3L",
+	"leg3R",
+	"leg4L",
+	"leg4R",
+	"leg5L",
+	"leg5R",
+	"leg6L",
+	"leg6R",
+}
 
 -- Parts a client builds per creature, at most, by tier. Commons are cheap so
 -- a base full of them stays light; Godlies may be lavish because they are

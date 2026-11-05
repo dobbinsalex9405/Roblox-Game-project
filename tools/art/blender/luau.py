@@ -80,7 +80,9 @@ def write():
         '-- front -Z, feet at the origin. `assetId` is the uploaded Model holding',
         '-- MeshParts named after the meshes, `textureId` the Image asset (never a Decal) of its colours',
         '-- (every MeshPart\'s TextureID); 0 = not uploaded, so the game draws',
-        '-- the VoxelArt boxes instead.',
+        '-- the VoxelArt boxes instead. `gait` is how it walks: trot, waddle, hop,',
+        '-- scuttle, slither or hover; legs are parts legFL/FR/BL/BR, legL/R or',
+        '-- leg1L..leg3R, each swung about its pivot (the hip).',
         '',
         'export type Mesh = { name: string, center: { number }, size: { number }, glow: string? }',
         'export type Part = {',
@@ -95,6 +97,7 @@ def write():
         '\tassetId: number,',
         '\ttextureId: number,',
         '\trarity: string,',
+        '\tgait: string,',
         '\theight: number,',
         '\tsize: { number },',
         '\ttris: number,',
@@ -110,6 +113,7 @@ def write():
         L.append(f'\t\tassetId = {asset},')
         L.append(f'\t\ttextureId = {texture},')
         L.append(f'\t\trarity = "{c["rarity"]}",')
+        L.append(f'\t\tgait = "{c["gait"]}",')
         L.append(f'\t\theight = {num(c["heightStuds"])},')
         L.append(f'\t\tsize = {vec(c["sizeStuds"])},')
         L.append(f'\t\ttris = {c["tris"]},')

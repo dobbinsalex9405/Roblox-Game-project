@@ -10,7 +10,36 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
-local ANIMS = { "body", "static", "head", "ears", "tail", "wingL", "wingR", "blink", "glow" }
+local ANIMS = {
+	"body",
+	"static",
+	"head",
+	"ears",
+	"tail",
+	"wingL",
+	"wingR",
+	"blink",
+	"glow",
+	"orbit", -- turns about its pivot on the vertical axis (Godly planets)
+	"legFL",
+	"legFR",
+	"legBL",
+	"legBR",
+	"legL",
+	"legR",
+	"leg1L",
+	"leg1R",
+	"leg2L",
+	"leg2R",
+	"leg3L",
+	"leg3R",
+	"leg4L",
+	"leg4R",
+	"leg5L",
+	"leg5R",
+	"leg6L",
+	"leg6R",
+}
 
 -- Triangles a client draws per creature close up (LOD0), at most, by tier;
 -- past 30 studs the game draws the LOD1 meshes (4,000 at most). Agreed with
@@ -47,6 +76,20 @@ describe("Creature meshes", function()
 				expect(if ok then "body" else `{id}.{part.name}: chain ends at {at} after {steps}`).toBe(
 					"body"
 				)
+			end
+		end
+	end)
+
+	it("say how each one walks, and swing every leg from a hip", function()
+		local GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover" }
+		for id, m in CreatureMeshes do
+			expect(table.find(GAITS, m.gait) ~= nil and m.gait or `{id}: gait {m.gait}`).toBe(m.gait)
+			for _, part in m.parts do
+				if string.sub(part.name, 1, 3) == "leg" then
+					expect(`{id}.{part.name} anim {part.anim} parent {part.parent}`).toBe(
+						`{id}.{part.name} anim {part.name} parent body`
+					)
+				end
 			end
 		end
 	end)
@@ -114,6 +157,38 @@ describe("Creature meshes", function()
 			end
 			expect(m.trisLod1 <= 4000 and "within" or `{id}: lod1 {m.trisLod1} > 4000`).toBe("within")
 		end
+	end)
+
+	it("stand on legs in left and right pairs (a crab walks on both sides)", function()
+		for id, m in CreatureMeshes do
+			local left, right = 0, 0
+			for _, part in m.parts do
+				if string.match(part.name, "^leg") then
+					if string.sub(part.name, -1) == "L" then
+						left += 1
+					else
+						right += 1
+					end
+				end
+			end
+			expect(left == right and "paired" or `{id}: {left} left legs, {right} right`).toBe("paired")
+		end
+		local crabLegs = 0
+		for _, part in CreatureMeshes.Crab.parts do
+			if string.match(part.name, "^leg") then
+				crabLegs += 1
+			end
+		end
+		expect(crabLegs >= 6 and "walks" or `Crab: {crabLegs} legs`).toBe("walks")
+		-- a bird's flat toes stay part of its foot: two legs, not four
+		local gooseLegs = {}
+		for _, part in CreatureMeshes.GoldenGoose.parts do
+			if string.match(part.name, "^leg") then
+				table.insert(gooseLegs, part.name)
+			end
+		end
+		table.sort(gooseLegs)
+		expect(table.concat(gooseLegs, " ")).toBe("legL legR")
 	end)
 
 	it("stay within the triangle budgets", function()

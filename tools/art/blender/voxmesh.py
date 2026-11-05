@@ -49,7 +49,7 @@ def _add(a, b, s=1.0):
     return (a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s)
 
 
-def pillow_faces(voxels):
+def pillow_faces(voxels, flat=()):
     """Yields (voxel, dir_index, inner_quad, rims) for every visible face of
     `voxels` (a set or dict keyed by (x, y, z)). Corners are in voxels, art
     frame. inner_quad is 4 points; rims is 4 quads (outer edge, inner edge),
@@ -57,7 +57,8 @@ def pillow_faces(voxels):
 
     Faces that point straight down (bellies, chins, feet) are flat squares
     with no rims: the camera is nearly always above a creature, and it saves
-    about an eighth of the triangles."""
+    about an eighth of the triangles. So are faces against a voxel in
+    `flat` (where a leg meets the body: hidden until the leg swings)."""
     for p in voxels:
         for d, (n, u, v) in enumerate(DIRS):
             q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
@@ -66,7 +67,7 @@ def pillow_faces(voxels):
             # face origin: the voxel corner where this face's u, v start
             o = (p[0] + max(n[0], 0), p[1] + max(n[1], 0), p[2] + max(n[2], 0))
             outer = [o, _add(o, u), _add(_add(o, u), v), _add(o, v)]
-            if d == DOWN:
+            if d == DOWN or q in flat:
                 yield p, d, outer, []
                 continue
             b = BEVEL
@@ -200,7 +201,7 @@ def lod1_meshes(parts, centre, voxel, cell_of, prefix):
     return out
 
 
-def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
+def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=()):
     """Meshes for one creature part: solid faces in one or more meshes (split
     so none passes max_tris; Roblox allows 20,000 per MeshPart) and glowing
     faces in one mesh per glow colour. cell_of(rgb, glow, kind, tone) gives the
@@ -211,7 +212,7 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
     piece; only the outer skin is made."""
     solid_faces = []
     glow_faces = {}
-    for p, d, inner, rims in pillow_faces(part.v):
+    for p, d, inner, rims in pillow_faces(part.v, flat):
         rgb, glow = part.v[p]
         t = tone_of(p, d)
         item = (p, d, inner, rims, rgb, glow, t)
