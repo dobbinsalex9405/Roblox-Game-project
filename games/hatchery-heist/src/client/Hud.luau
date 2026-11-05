@@ -15,6 +15,9 @@ local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
 
+-- The kiosk boards are 16 studs square: 320 pixels, nine 30-pixel lines.
+local KIOSK_PIXELS_PER_STUD = 20
+
 local Hud = {}
 
 local function label(parent: Instance, name: string, size: UDim2, position: UDim2?): TextLabel
@@ -189,7 +192,8 @@ function Hud.start(ctx: Context.Context)
 
 	-- The Egg Market's kiosk: four boards over the Golden Nest. Everyone sees
 	-- their title; this client draws its own odds (fixed order for a
-	-- restricted player) over every face, one column per belt egg.
+	-- restricted player) over them, one egg a board (Board1 the first egg,
+	-- and round again), so the lines are big enough to read from the path.
 	local boardGuis: { [BasePart]: SurfaceGui } = {}
 	local boardGui: SurfaceGui? = nil -- set once the kiosk is found
 	local function renderBoard()
@@ -217,18 +221,19 @@ function Hud.start(ctx: Context.Context)
 				g.Name = `Odds{board.Name}`
 				g.Face = Enum.NormalId.Front
 				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-				g.PixelsPerStud = 50
+				g.PixelsPerStud = KIOSK_PIXELS_PER_STUD
 				g.LightInfluence = 0 -- readable under the kiosk's roof
 				g.Adornee = board
 				local holder = Instance.new("Frame")
 				holder.Name = "Holder"
 				holder.Size = UDim2.fromScale(1, 1)
 				holder.BackgroundTransparency = 1
-				local layout = Instance.new("UIListLayout")
-				layout.FillDirection = Enum.FillDirection.Horizontal
-				layout.SortOrder = Enum.SortOrder.Name
-				layout.Padding = UDim.new(0, 12)
-				layout.Parent = holder
+				local pad = Instance.new("UIPadding")
+				pad.PaddingLeft = UDim.new(0, 12)
+				pad.PaddingRight = UDim.new(0, 12)
+				pad.PaddingTop = UDim.new(0, 10)
+				pad.Parent = holder
+				listLayout(holder, 4)
 				holder.Parent = g
 				g.Parent = ctx.player:WaitForChild("PlayerGui")
 				boardGuis[board] = g
@@ -236,19 +241,8 @@ function Hud.start(ctx: Context.Context)
 				sg = g
 			end
 			local holder = (sg :: SurfaceGui):FindFirstChild("Holder") :: Frame
-			for _, eggId in ids do
-				local column = holder:FindFirstChild(eggId) :: Frame?
-				if column == nil then
-					local c = Instance.new("Frame")
-					c.Name = eggId
-					c.BackgroundTransparency = 1
-					c.Size = UDim2.new(1 / #ids, -12, 1, 0)
-					listLayout(c, 2)
-					c.Parent = holder
-					column = c
-				end
-				OddsView.render(column :: Frame, eggId, true)
-			end
+			local side = tonumber(string.match(board.Name, "%d+")) or 1
+			OddsView.render(holder, ids[(side - 1) % #ids + 1], true)
 		end
 	end
 

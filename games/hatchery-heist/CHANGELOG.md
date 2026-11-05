@@ -18,7 +18,8 @@
   lanes turning opposite ways, each egg on its own pedestal. Whoever buys an
   egg first gets it. Moonlit Eggs come along three times as often (the mix
   is now 55% Basic, 30% Meadow, 15% Moonlit), and the odds are on the kiosk
-  over the Golden Nest.
+  over the Golden Nest, one egg a board in big type you can read from the
+  path.
 
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to

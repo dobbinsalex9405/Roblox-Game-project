@@ -2,7 +2,8 @@
 -- The Egg Market's fixed parts (Alex's plan, Nov 5): the round belt's rails
 -- in the voxel style (WorldArt BeltRail sections round both lanes), the dark
 -- bed under the slats, the odds kiosk over the Golden Nest (four boards,
--- one per side, that each player's client fills with their own odds) and
+-- one per side, one egg each, that each player's client fills with their
+-- own odds) and
 -- one invisible stop facing each base, where the guide's arrow points.
 --
 -- The moving parts (slats, pedestals and eggs) are the client's
@@ -21,8 +22,10 @@ local Market = {}
 -- Rail sections a lane needs: 15 degrees each round lane 1 (radius 22, the
 -- art's own); a wider lane takes more so each section keeps its length.
 local SECTION_DEGREES = 15
-local KIOSK_HEIGHT = 14 -- the boards' middle, above the Golden Egg
-local BOARD_SIZE = Vector2.new(14, 7)
+-- Big enough to read from the walk path (about 34 studs) on a phone: one egg
+-- a board, one tier a line, each line about 1.7 studs tall (Studio gate).
+local KIOSK_HEIGHT = 14.5 -- the boards' middle; their bottom clears the Golden Egg
+local BOARD_SIZE = Vector2.new(16, 16)
 
 local function part(parent: Instance, props: { [string]: any }): Part
 	local p = Instance.new("Part")
