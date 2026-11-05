@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Glowing paw soles and other small glowing bits on creatures no longer go
+  missing after upload: each glow piece is now a closed shape.
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.

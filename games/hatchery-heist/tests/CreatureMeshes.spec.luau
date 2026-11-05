@@ -127,6 +127,10 @@ describe("Creature meshes", function()
 					expect(#mesh.size).toBe(3)
 					if mesh.glow then
 						expect(string.match(mesh.glow, "^%x%x%x%x%x%x$") ~= nil).toBe(true)
+						-- a closed glow piece, never a flat open sheet: Roblox's
+						-- importer drops open one-voxel slabs (paw soles)
+						local flat = mesh.size[1] <= 0 or mesh.size[2] <= 0 or mesh.size[3] <= 0
+						expect(flat and `{mesh.name} is flat` or "closed").toBe("closed")
 					end
 				end
 			end

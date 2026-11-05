@@ -4314,7 +4314,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 2.6,
 		size = { 1.4, 2.6, 2.8 },
-		tris = 16208,
+		tris = 16222,
 		trisLod1 = 1572,
 		parts = {
 			{
@@ -4489,7 +4489,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 2.6,
 		size = { 1.4, 2.6, 2.7 },
-		tris = 17972,
+		tris = 17980,
 		trisLod1 = 1740,
 		parts = {
 			{
@@ -4677,7 +4677,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "waddle",
 		height = 2.5,
 		size = { 2.4, 2.5, 2.1 },
-		tris = 16182,
+		tris = 16208,
 		trisLod1 = 1730,
 		parts = {
 			{
@@ -4837,7 +4837,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 3.3,
 		size = { 2.6, 3.3, 2.7 },
-		tris = 21034,
+		tris = 21042,
 		trisLod1 = 2276,
 		parts = {
 			{
@@ -5049,7 +5049,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 2.8,
 		size = { 2.8, 2.8, 3.3 },
-		tris = 23468,
+		tris = 23488,
 		trisLod1 = 2300,
 		parts = {
 			{
@@ -5293,7 +5293,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 3.2,
 		size = { 1.6, 3.2, 3 },
-		tris = 23580,
+		tris = 23588,
 		trisLod1 = 2290,
 		parts = {
 			{
@@ -5528,7 +5528,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 3.9,
 		size = { 4.6, 3.9, 3.7 },
-		tris = 30532,
+		tris = 30724,
 		trisLod1 = 3858,
 		parts = {
 			{
@@ -5539,14 +5539,14 @@ local CreatureMeshes: { [string]: Creature } = {
 					{ name = "Phoenix_body", center = { 0, 1.2517, -0.35 }, size = { 1.607, 1.7035, 1.407 } },
 					{
 						name = "Phoenix_body_glow",
-						center = { 0.1, 1.75, 0.2 },
-						size = { 0.2, 0.3, 0.1 },
+						center = { 0.05, 1.65, 0.2 },
+						size = { 0.3, 0.5, 0.1 },
 						glow = "FFE14D",
 					},
 					{
 						name = "Phoenix_body_glow2",
-						center = { 0, 1.25, -1.05 },
-						size = { 0.4, 0.5, 0 },
+						center = { 0, 1.25, -1 },
+						size = { 0.4, 0.5, 0.1 },
 						glow = "FFF6B0",
 					},
 				},
@@ -5717,7 +5717,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 3.2,
 		size = { 4.4, 3.2, 4.3 },
-		tris = 32912,
+		tris = 33102,
 		trisLod1 = 3302,
 		parts = {
 			{
@@ -5960,8 +5960,8 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 					{
 						name = "ThunderGriffin_tail_glow2",
-						center = { 0, 1.8, 2 },
-						size = { 0.2, 0, 0.1 },
+						center = { 0, 1.65, 1.95 },
+						size = { 0.2, 0.3, 0.2 },
 						glow = "D8FBFF",
 					},
 				},
@@ -5980,7 +5980,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "waddle",
 		height = 4.4,
 		size = { 5.6, 4.4, 4 },
-		tris = 37252,
+		tris = 37412,
 		trisLod1 = 1524,
 		parts = {
 			{
@@ -6218,7 +6218,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 4.2,
 		size = { 2.6, 4.2, 3.3 },
-		tris = 31978,
+		tris = 33174,
 		trisLod1 = 1684,
 		parts = {
 			{
@@ -6238,20 +6238,20 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 					{
 						name = "NebulaSerpent_body_glow",
-						center = { 0.45, 0.8, 0.65 },
-						size = { 1.7, 1.2, 1.6 },
+						center = { 0.45, 0.8, 0.55 },
+						size = { 1.7, 1.2, 1.8 },
 						glow = "6FF2FF",
 					},
 					{
 						name = "NebulaSerpent_body_glow2",
-						center = { -0.1, 1.5, 0.4 },
-						size = { 2.2, 2, 2.3 },
+						center = { 0, 1.45, 0.25 },
+						size = { 2.4, 2.3, 2.6 },
 						glow = "FFE6FF",
 					},
 					{
 						name = "NebulaSerpent_body_glow3",
-						center = { 0.05, 1.05, 0.55 },
-						size = { 1.9, 1.9, 2 },
+						center = { 0.15, 1.15, 0.35 },
+						size = { 2.1, 2.1, 2.4 },
 						glow = "FFFFFF",
 					},
 				},
