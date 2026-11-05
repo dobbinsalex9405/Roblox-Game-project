@@ -55,9 +55,10 @@
    "colors": {
     "col": "#FFF0D0",
     "accent": "#FFF8E8",
-    "tuft": "#FF7A1A",
+    "tuft": "#FF4A10",
     "feet": "#E8D2A8"
-   }
+   },
+   "accessories": []
   },
   {
    "id": "BubblePup",
@@ -76,11 +77,11 @@
    },
    "shape": {
     "body": [
+     0.9,
      1.0,
-     1.1,
-     0.85
+     0.82
     ],
-    "head": 1.05
+    "head": 0.95
    },
    "accessories": [
     {
@@ -104,7 +105,8 @@
     "accent": "#BDEBFF",
     "tuft": "#FF8A1A",
     "feet": "#D8E8F4"
-   }
+   },
+   "accessories": []
   },
   {
    "id": "Sparkplug",
@@ -120,7 +122,8 @@
     "accent": "#7FDBFF",
     "tuft": "#FFE01A",
     "feet": "#C89A1A"
-   }
+   },
+   "accessories": []
   },
   {
    "id": "CactusPup",
@@ -256,7 +259,13 @@
      0.83
     ],
     "head": 0.83
-   }
+   },
+   "accessories": [
+    {
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    }
+   ]
   },
   {
    "id": "MochiBunny",
@@ -307,7 +316,15 @@
      "color": "#B8783A",
      "color2": "#FFE27A"
     }
-   ]
+   ],
+   "shape": {
+    "body": [
+     0.95,
+     0.95,
+     0.95
+    ],
+    "head": 0.95
+   }
   },
   {
    "id": "CinnamonSnail",
@@ -326,11 +343,6 @@
      "kind": "icing",
      "color": "#FFFFFF",
      "color2": "#8A4A1E"
-    },
-    {
-     "kind": "frosting",
-     "color": "#FFF8F0",
-     "color2": "#FF9EC2"
     }
    ]
   },
@@ -476,7 +488,8 @@
     "col": "#46C2B0",
     "accent": "#7FFFE8",
     "belly": "#FFE27A"
-   }
+   },
+   "accessories": []
   },
   {
    "id": "ToxicToad",
@@ -596,10 +609,9 @@
    },
    "accessories": [
     {
-     "kind": "horns",
-     "color": "#FFE27A",
-     "color2": "#FFFFFF",
-     "glow": true
+     "kind": "unicornhorn",
+     "color": "#FFC93A",
+     "color2": "#FFF6C8"
     },
     {
      "kind": "flakes",
@@ -624,9 +636,18 @@
    "accessories": [
     {
      "kind": "sparks",
-     "color": "#7FDBFF"
+     "color": "#FFE01A",
+     "color2": "#5CE8FF"
     }
-   ]
+   ],
+   "shape": {
+    "body": [
+     1.0,
+     1.25,
+     0.85
+    ],
+    "head": 1.25
+   }
   },
   {
    "id": "CinderChick",
@@ -666,13 +687,13 @@
    "colors": {
     "col": "#BFE4FF",
     "belly": "#F0FAFF",
-    "snout": "#F0FAFF",
+    "snout": "#DDF0FF",
     "ear_col": "#9FD4FF",
     "tail_col": "#BFE4FF"
    },
    "options": {
     "ears": "cat",
-    "tail": "striped"
+    "tail": "long"
    },
    "accessories": [
     {
@@ -773,15 +794,22 @@
     "kind": "lamb"
    },
    "colors": {
-    "col": "#FFFFFF",
+    "col": "#F2F6FF",
     "snout": "#8FA8C8"
    },
    "accessories": [
     {
      "kind": "flakes",
      "color": "#9FE8FF"
+    },
+    {
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
     }
-   ]
+   ],
+   "shape": {
+    "head": 1.3
+   }
   },
   {
    "id": "PetalBunny",
@@ -806,6 +834,14 @@
      "kind": "petalcrown",
      "color": "#FF8FBE",
      "color2": "#FFF27A"
+    },
+    {
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    },
+    {
+     "kind": "petalears",
+     "color": "#E0609A"
     }
    ]
   },
@@ -830,10 +866,18 @@
      "color": "#5CE8FF"
     },
     {
-     "kind": "tailglow",
-     "color": "#5CE8FF"
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    },
+    {
+     "kind": "zigzagtail",
+     "color": "#E8B8C8",
+     "color2": "#5CE8FF"
     }
-   ]
+   ],
+   "shape": {
+    "head": 1.3
+   }
   },
   {
    "id": "AshBadger",
@@ -845,16 +889,23 @@
     "kind": "badger"
    },
    "colors": {
-    "col": "#3A3438",
-    "snout": "#E8E2DA",
-    "belly": "#2A2428"
+    "col": "#6A6268",
+    "snout": "#F2EEE8",
+    "belly": "#3A3438"
    },
    "accessories": [
     {
-     "kind": "lavacracks",
-     "color": "#FF8A2A"
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    },
+    {
+     "kind": "glowstripe",
+     "color": "#FF5A1A"
     }
-   ]
+   ],
+   "shape": {
+    "head": 1.3
+   }
   },
   {
    "id": "FrostHamster",
@@ -893,6 +944,11 @@
     {
      "kind": "gust",
      "color": "#DFF8FF"
+    },
+    {
+     "kind": "finchbeak",
+     "color": "#F2B33D",
+     "color2": "#9A6A2A"
     }
    ]
   },
@@ -908,7 +964,8 @@
     "col": "#F4F6FF",
     "accent": "#DDEBFF",
     "feet": "#E8EAF8"
-   }
+   },
+   "accessories": []
   },
   {
    "id": "WitchKitten",
@@ -931,15 +988,19 @@
      "kind": "witchhat",
      "color": "#4A2E6A",
      "color2": "#B983FF"
+    },
+    {
+     "kind": "shineeyes",
+     "color": "#7CFF6A"
     }
    ],
    "shape": {
     "body": [
-     0.931,
-     0.931,
-     0.931
+     0.92,
+     0.92,
+     0.92
     ],
-    "head": 0.931
+    "head": 0.92
    }
   },
   {
@@ -956,6 +1017,10 @@
    },
    "accessories": [
     {
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    },
+    {
      "kind": "wraps",
      "color": "#F2EAD8",
      "color2": "#C8BCA4"
@@ -964,7 +1029,10 @@
      "kind": "eartips",
      "color": "#B6FF8A"
     }
-   ]
+   ],
+   "shape": {
+    "head": 1.3
+   }
   },
   {
    "id": "WindupMouse",

@@ -94,9 +94,11 @@ def feet(c, k, col, height, x=1.2, y=-0.2, w=0.75, toe=0.5):
     hw = max(1, round(w * k))
     out = []
     for sx in (-1, 1):
-        cx = sx * x * k
-        x0 = math.floor(cx - hw / 2)
+        # the right foot, and the left an exact mirror of it about the body
+        x0 = math.floor(x * k - hw / 2)
         x1 = x0 + hw - 1
+        if sx < 0:
+            x0, x1 = -x1 - 1, -x0 - 1
         y0 = round(y * k - hw / 2)
         leg = _leg(c, sx, (x0 + x1 + 1) / 2, y0 + hw / 2, height)
         leg.box((x0, y0, 0), (x1, y0 + hw - 1, max(0, height - 1)), col)

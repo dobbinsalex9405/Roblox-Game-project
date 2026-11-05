@@ -485,6 +485,7 @@ def _badger(c, k, cols):
     head = c.part('head', 'head', (0, -1.6 * k, 2.6 * k))
     head.ell((0, -2.2 * k, 2.6 * k), (1.15 * k, 1.05 * k, 0.9 * k), col)
     head.ell((0, -3.2 * k, 2.3 * k), (0.55 * k, 0.65 * k, 0.45 * k), col)
+    head.ell((0, -3.9 * k, 2.2 * k), (0.35 * k, 0.5 * k, 0.3 * k), col)  # a pointed snout
     # the badger's white stripe from the nose over the crown, and white cheeks
     head.paint(lambda p, cc, g: (stripe, False) if abs(p[0] + .5) < 0.35 * k + .5 and p[2] > 2.3 * k else None)
     head.paint(lambda p, cc, g: (stripe, False) if abs(p[0] + .5) > 0.75 * k and p[2] < 2.6 * k and p[1] < -2.2 * k else None)
@@ -530,7 +531,7 @@ def _lamb(c, k, cols):
             if eyes.v[q][0] == INK:
                 eyes.v[q] = (WHITE, False)
     ears = c.part('ears', 'ears', (0, -2.0 * k, 4.5 * k))
-    line(ears, (0.75 * k, -2.0 * k, 4.5 * k), (1.45 * k, -2.0 * k, 4.0 * k), face_col, r=0.3 * k)
+    line(ears, (0.75 * k, -2.0 * k, 4.45 * k), (1.6 * k, -2.0 * k, 4.35 * k), face_col, r=0.3 * k)  # out to the sides
     _mirror(ears)
     tail = c.part('tail', 'tail', (0, 2.5 * k, 3.6 * k))
     tail.ell((0, 2.7 * k, 3.5 * k), (0.45 * k, 0.4 * k, 0.45 * k), col)

@@ -45,24 +45,50 @@ def _moss(c, H, k, body, head, cols, opts):
 
 
 def _candle(c, H, k, body, head, cols, opts):
-    """A little candle: a wax body with drips round the top, a wick, and a
-    flickering flame of hair glowing orange into a yellow core."""
+    """A little candle: a wax body with a melted rim and wax drips running
+    down its sides, a dark wick, and a teardrop flame: orange outside, a
+    yellow then white-hot core, rising to a point."""
     col = cols['col']
     drip = cols.get('accent') or light(col, 0.3)
     top = _top(body, head)
+    rim = max(1, round(0.5 * k))
     for part in (body, head):
-        part.paint(lambda p, cc, g: (drip, False) if p[2] > top - 0.8 * k - (_hash(p[0], p[1], 7) % max(2, round(1.4 * k))) else None)
+        part.paint(lambda p, cc, g: (drip, False) if p[2] > top - rim else None)
+    # wax drips: short runs down the outside from the rim, a voxel proud
+    dr = c.part('drips', 'static')
+    allv = set(body.v) | set(head.v)
+    for n, ang in enumerate((25, 100, 160, 230, 300)):
+        a = math.radians(ang)
+        length = (2, 4, 3, 5, 3)[n] * max(1, round(0.5 * k))
+        for i in range(length):
+            z = top - rim - i + 1
+            ring = [p for p in allv if p[2] == z]
+            if not ring:
+                break
+            far = max(ring, key=lambda p: (p[0] + .5) * math.cos(a) + (p[1] + .5) * math.sin(a))
+            q = (far[0] + (1 if math.cos(a) > 0.5 else -1 if math.cos(a) < -0.5 else 0),
+                 far[1] + (1 if math.sin(a) > 0.5 else -1 if math.sin(a) < -0.5 else 0), z)
+            if q not in allv:
+                dr.put(q, light(drip, 0.4))
     flame = c.part('flame', 'static')
     wick = dark(col, 0.6)
     flame.put((0, 0, top + 1), wick)
     flame.put((-1, 0, top + 1), wick)
-    outer = cols.get('tuft') or hexc('#FF8A1A')
-    for i in range(round(2.6 * k)):
-        t = i / (2.6 * k)
-        r = 1.0 * k * math.sin(math.pi * min(1, 0.25 + t * 0.9)) * (1 - 0.5 * t) + .3
-        sway = math.sin(t * 3.2) * 0.35 * k
-        flame.ell((sway, 0, top + 2 + i), (r, r * 0.8, .6), outer, True)
-    flame.paint(lambda p, cc, g: (hexc('#FFF27A'), True) if abs(p[0] + .5) < 0.4 * k + .5 and p[2] < top + 2 + 1.2 * k and p[2] > top + 1 else None)
+    outer = cols.get('tuft') or hexc('#FF7A1A')
+    mid, core = hexc('#FFA820'), hexc('#FFF2B0')
+    # the teardrop, base up: each row's width (an even number, centred) and
+    # its colours, outer to core; a round belly, then narrowing to a point
+    rows = [(2, mid), (4, core), (6, core), (6, mid), (4, mid), (4, outer), (2, outer), (2, outer)]
+    rows = [r for r in rows for _ in range(max(1, round(k / 1.6)))]
+    for i, (D, inner) in enumerate(rows):
+        z = top + 2 + i
+        h = D // 2
+        for x in range(-h, h):
+            for y in range(-h, h):
+                if D >= 4 and abs(x + .5) + abs(y + .5) > h + (0.1 if D == 4 else 1.1):
+                    continue  # round the corners off
+                edge = abs(x + .5) > h - 1 or abs(y + .5) > h - 1
+                flame.put((x, y, z), outer if (edge and D >= 4) else inner, True)
     return {'shine': True}
 
 
@@ -144,19 +170,22 @@ def _pompom(c, H, k, body, head, cols, opts):
     top = _top(body, head)
     step = max(1, (top + 1) / len(bands))
     fur = c.part('fur', 'static')
+    ally = [p[1] for p in list(body.v) + list(head.v)]
+    yfront = min(ally) + 0.45 * (max(ally) - min(ally))  # the face's half stays smooth
     for part in (body, head):
         part.paint(lambda p, cc, g: (bands[min(len(bands) - 1, int((top - p[2]) / step))], False))
         vs = set(part.v)
         for p in list(part.v):
-            if _hash(*p, 33) % 100 < 20 and p[2] > 1.2 * k:
-                for n in ((p[0] + 1, p[1], p[2]), (p[0] - 1, p[1], p[2]), (p[0], p[1] + 1, p[2]), (p[0], p[1], p[2] + 1)):
-                    if n not in vs and not (part is head and n[1] < p[1]):
+            if _hash(*p, 33) % 100 < 20 and 1.2 * k < p[2] < top - 1 and p[1] > yfront:
+                for n in ((p[0] + 1, p[1], p[2]), (p[0] - 1, p[1], p[2]), (p[0], p[1] + 1, p[2])):
+                    if n not in vs:
                         fur.put(n, part.v[p][0])
                         break
     for p in list(fur.v):
         if p in body.v or p in head.v:
             del fur.v[p]
-    fur.paint(lambda p, cc, g: (cc, True) if p[2] > top - step else None)
+    for part in (body, head):  # the very top glows softly
+        part.paint(lambda p, cc, g: (cc, True) if p[2] >= top else None)
     return {'big_eyes': True}
 
 
