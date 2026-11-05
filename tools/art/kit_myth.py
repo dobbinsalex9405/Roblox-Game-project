@@ -276,21 +276,32 @@ def wing_butterfly(c, k, root, size, col, col2, glow=None, edge=INK):
 
 
 def fins(c, k, at, length, height, col, glow=None, down=0.6, thick=1):
-    """Pectoral fins (finL/finR), swept back and down from `at`."""
+    """Pectoral fins (finL/finR) from `at`, swept back and a little down:
+    each column out from the body is a solid run of voxels, and each
+    overlaps the one before, so the fin is one face-connected piece."""
     ax, ay, az = at
     for sx, name in ((1, 'finR'), (-1, 'finL')):
         f = c.part(name, name, (sx * ax, ay, az))
         L = max(2, round(length * k))
+        prev = None
+        prev_end = None
         for i in range(L):
             t = i / max(1, L - 1)
-            x = round(ax + i * 0.85)
-            h = max(1, round(height * k * (1 - t * 0.7)))
+            x = math.floor(ax) + i
+            h = max(1, round(height * k * (1 - t * 0.6)))
+            y0 = math.floor(ay + t * 0.9 * k)
+            if prev_end is not None and y0 > prev_end:
+                y0 = prev_end
+            z = math.floor(az - t * down * k)
+            th = thick + (1 if i < L // 2 else 0)
+            if prev is not None and z < prev:
+                z = prev  # the top of this column touches the bottom of the last
+            prev = z - th + 1
+            prev_end = y0 + h - 1
             for j in range(h):
-                yy = round(ay + j + t * 0.8 * k)
-                zz = round(az - t * down * k)
                 edge = glow is not None and (i == L - 1 or j == h - 1)
-                for dz in range(thick):
-                    f.put((x if sx > 0 else mx(x), yy, zz - dz), glow if edge else col, edge)
+                for dz in range(th):
+                    f.put((x if sx > 0 else mx(x), y0 + j, z - dz), glow if edge else col, edge)
 
 
 def fluke(c, k, root, span, length, col, glow=None, vertical=False, name='tail'):
@@ -301,22 +312,26 @@ def fluke(c, k, root, span, length, col, glow=None, vertical=False, name='tail')
     for i in range(L):
         s = i / L
         r = max(0.6, (0.9 - 0.55 * s) * k)
-        t.ell((0, ry + i, rz + s * 0.5 * k), (r, 0.7, r * 0.9), col)
+        t.ell((0, ry + i, rz + s * 0.5 * k), (r, 1.0, r * 0.9), col)
     ey = ry + L
+    t.ell((0, ey - 0.5, rz + 0.5 * k), (max(0.8, 0.4 * k), 1.2, max(0.8, 0.4 * k)), col)  # stock into fluke
     ez = rz + 0.5 * k
     S = span * k
-    for a in range(-round(S), round(S) + 1):
+    for a in range(0, round(S) + 1):
         u = abs(a) / max(1, S)
+        un = max(0, abs(a) - 1) / max(1, S)  # the column nearer the middle
         back = round(u * u * 1.6 * k)
+        start = round(un * un * 1.6 * k)  # overlap it, so the fluke is one piece
         depth = max(1, round((1.1 - 0.6 * u) * k))
-        for j in range(depth):
-            edge = glow is not None and j == depth - 1
-            p = (a, round(ey + back + j), round(ez)) if not vertical else (0, round(ey + back + j), round(ez + a))
-            t.put(p, glow if edge else col, edge)
-            if not vertical:
-                t.put((a, round(ey + back + j), round(ez) + 1), glow if edge else col, edge)
-            else:
-                t.put((-1, round(ey + back + j), round(ez + a)), glow if edge else col, edge)
+        for yy in range(start, back + depth):
+            edge = glow is not None and yy >= back + depth - 1
+            for aa in (a, -a - 1):
+                if not vertical:
+                    for dz in (0, 1):
+                        t.put((aa, round(ey + yy), round(ez) + dz), glow if edge else col, edge)
+                else:
+                    for x in (0, -1):
+                        t.put((x, round(ey + yy), round(ez) + aa), glow if edge else col, edge)
     return t
 
 
@@ -766,12 +781,12 @@ def dino(c, H, cols, opts):
 
 def whale(c, H, cols, opts):
     """Floats a little off the ground, nose forward, fins and fluke move."""
-    k = H / 10.0
+    k = H / 10.0 * 1.1  # long and low: drawn bigger so it fills the tier's height
     kind = opts['kind']
     col = cols['col']
     belly, accent, glow, iris = _cols(cols, col, belly=hexc('#F4F7FF'))
     body = c.part('body')
-    lift = 1.6 * k
+    lift = 0.9 * k
     cz = lift + 2.6 * k
     L = {'whale': 3.6, 'orca': 3.4, 'narwhal': 3.2, 'dolphin': 3.0}[kind]
     R = {'whale': 2.5, 'orca': 2.3, 'narwhal': 2.1, 'dolphin': 1.8}[kind]
@@ -796,21 +811,28 @@ def whale(c, H, cols, opts):
         head.ell((0, -L * k - 0.6 * k, cz - 0.5 * k), (0.6 * k, 0.9 * k, 0.45 * k), light(col, 0.2))
     if kind == 'narwhal':
         tusk = c.part('tusk', 'glow' if glow is not None else 'static', (0, -L * k, cz + 0.4 * k))
-        n = round(4.2 * k)
+        n = round(4.6 * k)
+        tc = cols.get('horn', hexc('#FFF4D6'))
         for i in range(n):
             s = i / n
-            r = max(0.55, 0.35 * k * (1 - s))
-            y = -L * k - 0.2 * k - i
-            spiral = (i % max(2, round(0.5 * k))) == 0
-            tusk.ell((0, y, cz + 0.5 * k + i * 0.18), (r, 0.6, r), (glow if glow is not None else WHITE) if spiral else hexc('#F5E9C8'), spiral and glow is not None)
+            r = max(1.0, 0.42 * k * (1 - 0.8 * s))
+            y = -L * k + 0.4 * k - i
+            tusk.ell((0, y, cz + 0.4 * k + i * 0.22), (r, 1.0, r), tc)
+        # the spiral: a darker (or glowing) groove winding round the tusk
+        sc = glow if glow is not None else dark(tc, 0.3)
+        tusk.paint(lambda p, cc, g: (sc, glow is not None) if (p[1] + (p[0] + p[2]) % 3) % 3 == 0 else None)
     # dorsal fin and blowhole
     df = c.part('dorsal', 'static')
     fh = {'whale': 0.6, 'orca': 2.2, 'narwhal': 0.4, 'dolphin': 1.4}[kind] * k
-    for i in range(max(1, round(fh))):
-        w = max(1, round((fh - i) * 0.7))
-        for dy in range(w):
-            df.put((0, round(0.6 * k) + dy + i // 2, round(cz + R * k * 0.92) + i), dark(col, 0.1))
-            df.put((-1, round(0.6 * k) + dy + i // 2, round(cz + R * k * 0.92) + i), dark(col, 0.1))
+    dy0 = round(0.6 * k)
+    base = top_of(body, 0, dy0)
+    base = base if base is not None else round(cz + R * k * 0.8)
+    sail(df, 0, dy0, base + 1, max(2, fh * 1.1), fh, dark(col, 0.1), lean=0.7)
+    if kind in ('whale', 'narwhal'):  # a blowhole just behind the head
+        bh = top_of(body, 0, round(-L * k * 0.3))
+        if bh is not None:
+            for x in (0, -1):
+                body.put((x, round(-L * k * 0.3), bh), dark(col, 0.45))
     fins(c, k, (R * k * 0.85, -0.6 * k, cz - 0.6 * k), 1.8 if kind == 'whale' else 1.3, 1.0, dark(col, 0.1) if kind != 'orca' else col, glow=glow, down=0.8)
     fluke(c, k, (0, L * k * 0.85, cz - 0.1 * k), 1.9 if kind == 'whale' else 1.5, 1.4, col, glow=glow)
     c.gait_hint = 'swim'
@@ -818,91 +840,212 @@ def whale(c, H, cols, opts):
 
 
 def ray(c, H, cols, opts):
-    k = H / 10.0
+    """A manta: a raised head with curled cephalic lobes, wide wing-fins
+    (finL/finR) that flap, a white underside showing at the rim, spots
+    on the back and a thin whip tail."""
+    k = H / 10.0 * 1.25
     col = cols['col']
     belly, accent, glow, iris = _cols(cols, col, belly=hexc('#F4F7FF'))
     body = c.part('body')
-    cz = 3.0 * k
-    body.ell((0, 0, cz), (1.5 * k, 2.4 * k, 0.9 * k), col)
-    body.paint(lambda p, cc, g: (belly, False) if p[2] < cz - 0.2 * k else None)
+    cz = 2.2 * k
+    body.ell((0, 0.2 * k, cz), (1.6 * k, 2.3 * k, 1.0 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < cz - 0.3 * k else None)
+    spot = light(col, 0.35) if glow is None else glow
+    for (px, py) in ((0.7, -0.4), (-0.7, -0.4), (0.0, 0.8), (0.9, 1.4), (-0.9, 1.4)):
+        body.paint(lambda p, cc, g, px=px, py=py: (spot, glow is not None) if cc == col and p[2] > cz + 0.4 * k and
+                   (p[0] + .5 - px * k) ** 2 + (p[1] + .5 - py * k) ** 2 < (0.32 * k) ** 2 else None)
     head = c.part('head', 'head', (0, -1.6 * k, cz))
-    head.ell((0, -2.4 * k, cz + 0.1 * k), (1.3 * k, 0.9 * k, 0.75 * k), col)
-    # the cephalic horns either side of the mouth
+    head.ell((0, -2.2 * k, cz + 0.35 * k), (1.35 * k, 1.0 * k, 0.9 * k), col)
+    head.paint(lambda p, cc, g: (belly, False) if p[2] < cz - 0.1 * k else None)
+    eye_pair(c, head, round(0.5 * k), round(cz + 0.3 * k), max(2, round(0.3 * k)), iris=iris)
+    # the wide mouth under the eyes
+    for x in range(-round(0.7 * k), round(0.7 * k)):
+        f = head.front(x, round(cz - 0.25 * k))
+        if f:
+            head.put(f, dark(col, 0.55))
+    # cephalic lobes: curled paddles either side of the mouth
+    lobes = c.part('lobes', 'static')
     for side in (1, -1):
-        x = round(1.0 * k) if side > 0 else mx(round(1.0 * k))
-        head.box((x, round(-3.6 * k), round(cz - 0.3 * k)), (x + (1 if side > 0 else -1) * 0, round(-3.0 * k), round(cz + 0.3 * k)), dark(col, 0.15))
-    eye_pair(c, head, round(0.55 * k), round(cz + 0.0 * k), max(2, round(0.32 * k)), iris=iris)
-    # wings are the fins: wide triangles that flap
+        pts = curve((side * 1.05 * k, -2.8 * k, cz - 0.1 * k), (side * 0.75 * k, -3.9 * k, cz + 0.2 * k), 8, (side * 0.3 * k, 0, 0.5 * k))
+        for x, y, z in pts:
+            lobes.ell((x - (0.5 if side < 0 else 0), y, z), (0.32 * k + .3, 0.32 * k + .3, 0.42 * k), dark(col, 0.15))
+    # wings are the fins: wide triangles, thick at the root, white rim below
     for sx, name in ((1, 'finR'), (-1, 'finL')):
         f = c.part(name, name, (sx * 1.3 * k, 0, cz))
-        S = 4.6 * k
-        for i in range(round(S)):
+        S = round(3.6 * k)
+        for i in range(S):
             t = i / S
-            front = -1.6 * k + t * t * 2.2 * k
-            back = 1.8 * k - t * 1.6 * k
-            for y in range(round(front), round(back) + 1):
-                edge = glow is not None and (y >= round(back) - 1 or i >= round(S) - 2)
-                x = round(1.3 * k) + i
-                lift = round(math.sin(t * math.pi * 0.5) * 0.9 * k)
-                for dz in range(2 if t < 0.5 else 1):
-                    f.put((x if sx > 0 else mx(x), y, round(cz) + lift - dz), glow if edge else (col if dz == 0 else belly), edge)
-    tail = c.part('tail', 'tail', (0, 2.2 * k, cz))
-    for i in range(round(4.2 * k)):
-        tail.put((0, round(2.2 * k) + i, round(cz) + i // 5), dark(col, 0.2))
-        tail.put((-1, round(2.2 * k) + i, round(cz) + i // 5), dark(col, 0.2))
+            front = -1.6 * k + t * t * 2.4 * k
+            back = 1.9 * k - t * 1.7 * k
+            x = round(1.2 * k) + i
+            lift = round(math.sin(t * math.pi * 0.5) * 0.8 * k)
+            thick = 3 if t < 0.35 else 2 if t < 0.75 else 1
+            for y in range(math.floor(front), math.ceil(back) + 1):
+                edge = y >= math.ceil(back) - 1 or i >= S - 2
+                for dz in range(thick):
+                    under = dz == thick - 1 and thick > 1
+                    if glow is not None and edge and dz == 0:
+                        colr, g = glow, True
+                    else:
+                        colr, g = (belly if under or (edge and dz == thick - 1) else col), False
+                    f.put((x if sx > 0 else mx(x), y, round(cz) + lift - dz), colr, g)
+    tail = c.part('tail', 'tail', (0, 2.3 * k, cz))
+    for i in range(round(3.4 * k)):
+        z = round(cz) - i // 6
+        tail.put((0, round(2.3 * k) + i, z), dark(col, 0.2))
+        tail.put((-1, round(2.3 * k) + i, z), dark(col, 0.2))
+        if i < 1.2 * k:
+            tail.put((0, round(2.3 * k) + i, z + 1), dark(col, 0.2))
+            tail.put((-1, round(2.3 * k) + i, z + 1), dark(col, 0.2))
     c.gait_hint = 'swim'
     return c
 
 
+def fish_tail(c, k, root, length, spread, col, col2=None, glow=None, fork=0.35, veil=False):
+    """The tail fin (part `tail`, pivot at its root), trailing behind (+y):
+    a fan that opens as it goes back, a notch (fork) at the end and ray
+    lines. `veil` makes a fancy goldfish's double tail: two lobes that
+    spread out to the sides as well as up and down, drooping at the ends.
+    Every row is a solid run that overlaps the row before (one piece)."""
+    rx, ry, rz = root
+    t = c.part('tail', 'tail', root)
+    col2 = col2 or light(col, 0.3)
+    L = max(3, round(length * k))
+    for j in range(L):
+        u = j / max(1, L - 1)
+        h = 0.45 * k + spread * k * u ** 0.75
+        sag = (0.9 * k * u * u) if veil else 0
+        notch = fork * spread * k * max(0.0, (u - 0.5) / 0.5)
+        if veil:
+            # a fancy double tail: a wide fan that spreads out to both sides
+            # and droops like a veil, two voxels thick, split at the end
+            # two big rounded fans, one each side, splayed out in a V and
+            # drooping a little: it reads from the front, side and back
+            sag = 0.6 * k * u ** 1.5
+            xo = 0.2 * k + 1.1 * k * u
+            hh = 0.5 * k + spread * k * math.sin(min(1.0, u * 1.15) * math.pi * 0.5)
+            lobe_cut = u > 0.6 and False
+            for zz in range(-math.ceil(hh), math.ceil(hh) + 1):
+                if abs(zz) > hh or lobe_cut:
+                    continue
+                if u > 0.62 and abs(zz) < notch * 0.7:
+                    continue  # the notch between the upper and lower lobe
+                edge = u > 0.86 or abs(zz) > hh - 1
+                colr = col2 if edge else (dark(col, 0.1) if (zz % max(3, round(0.6 * k))) == 0 else col)
+                g = glow is not None and edge
+                z = math.floor(rz + zz - sag)
+                xa = math.floor(xo)
+                for x in range(0, xa + 2):  # from the middle out to this lobe: no gaps
+                    if x < xa - 1 and u > 0.25:
+                        continue
+                    for xx in (x, -x - 1):
+                        t.put((xx, math.floor(ry + j), z), glow if g else colr, g)
+            continue
+        for zz in range(-math.ceil(h), math.ceil(h) + 1):
+            if abs(zz) > h or abs(zz) < notch:
+                continue
+            edge = u > 0.84 or abs(zz) > h - 1
+            ray_line = (zz % max(2, round(0.5 * k))) == 0
+            colr = col2 if edge else (dark(col, 0.1) if ray_line else col)
+            g = glow is not None and edge
+            for x in (0, -1):
+                t.put((x, math.floor(ry + j), math.floor(rz + zz - sag)), glow if g else colr, g)
+    return t
+
+
+def sail(part, x0, y0, z0, length, height, col, edge=None, glow=False, up=1, lean=0.6):
+    """A fin standing on the body along y0..y0+length at height z0: each
+    layer up is a solid run, shorter and further back than the one below
+    (`lean`), so it sweeps back and stays one face-connected piece. up=-1
+    hangs it underneath."""
+    H = max(1, round(height))
+    L = max(2, round(length))
+    for i in range(H):
+        t = i / H
+        front = y0 + i * lean
+        back = y0 + L * (1 - 0.75 * t) + i * lean * 0.5
+        if back < front + 1:
+            back = front + 1
+        last = i == H - 1
+        for y in range(math.floor(front), math.ceil(back)):
+            colr = edge if (edge is not None and (last or y == math.ceil(back) - 1)) else col
+            g = glow and colr is edge
+            for x in ((x0, -x0 - 1) if x0 >= 0 else (x0,)):
+                part.put((x, y, round(z0 + up * i)), colr, g)
+
+
 def fish(c, H, cols, opts):
-    k = H / 10.0
+    """A round, cute fish that floats a little off the floor and swims: a
+    fan tail, sail fins on top (and below for angelfish), paddling side
+    fins and big eyes set wide on the face."""
+    # fish are short and long: drawn 1.4x bigger so their height uses the
+    # tier's H like other creatures (otherwise a Common fish is a few voxels)
+    k = H / 10.0 * 1.4
     kind = opts['kind']
     col = cols['col']
     belly, accent, glow, iris = _cols(cols, col)
     body = c.part('body')
-    lift = 2.0 * k
-    shape = {'koi': (1.4, 3.0, 1.6), 'angler': (2.3, 2.3, 2.1), 'angelfish': (0.9, 1.7, 2.6), 'shark': (1.5, 3.4, 1.6),
-             'goldfish': (1.7, 2.0, 1.8)}[kind]
+    shape = {'koi': (1.35, 2.8, 1.45), 'angler': (2.2, 2.2, 2.0), 'angelfish': (0.95, 1.9, 2.0), 'shark': (1.45, 3.2, 1.5),
+             'goldfish': (1.6, 1.9, 1.7)}[kind]
     rx, ry, rz = (v * k for v in shape)
+    lift = (0.9 if kind != 'angelfish' else 1.5) * k  # floats about a third of its height up
     cz = lift + rz
     body.ell((0, 0, cz), (rx, ry, rz), col)
-    body.paint(lambda p, cc, g: (belly, False) if p[2] < cz - rz * 0.35 else None)
+    if kind == 'shark':  # a pointed nose and a tapering back
+        body.ell((0, -ry * 0.75, cz + 0.2 * k), (rx * 0.7, ry * 0.45, rz * 0.65), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < cz - rz * 0.3 else None)
+    # scales: a soft darker scallop every other row on the back
+    sc = dark(col, 0.1)
+    body.paint(lambda p, cc, g: (sc, False) if cc == col and p[2] > cz - rz * 0.2 and (p[1] + 2 * (p[2] // 2)) % 4 == 0 and p[2] % 2 == 0 else None)
     if kind == 'koi':
-        for (px, py, pz, r) in ((0.6, -1.2, 1.0, 0.9), (-0.8, 0.6, 1.0, 1.0), (0.4, 1.9, 0.6, 0.7)):
-            body.paint(lambda p, cc, g, px=px, py=py, pz=pz, r=r: (accent, False) if cc == col and (
+        for (px, py, pz, r) in ((0.6, -1.1, 0.9, 0.9), (-0.8, 0.5, 1.0, 1.0), (0.5, 1.8, 0.6, 0.7)):
+            body.paint(lambda p, cc, g, px=px, py=py, pz=pz, r=r: (accent, False) if cc in (col, sc) and (
                 (p[0] + .5 - px * k) ** 2 + (p[1] + .5 - py * k) ** 2 + (p[2] + .5 - cz - pz * k) ** 2) < (r * k) ** 2 else None)
-    head = c.part('head', 'head', (0, -ry * 0.5, cz))
-    for p in [p for p in body.v if p[1] < -ry * 0.55]:
+    if kind == 'angelfish':  # bold vertical bands
+        body.paint(lambda p, cc, g: (accent, False) if cc in (col, sc) and int((p[1] + 0.3 * k) // max(2, round(0.55 * k))) % 3 == 0 else None)
+    head = c.part('head', 'head', (0, -ry * 0.45, cz))
+    for p in [p for p in body.v if p[1] < -ry * 0.5]:
         head.v[p] = body.v.pop(p)
+    # gill line behind the face
+    gy = round(-ry * 0.5)
+    for p in [p for p in head.v if p[1] == gy and abs(p[2] - cz) < rz * 0.6]:
+        head.v[p] = (dark(col, 0.2), False)
     if kind == 'angler':
-        # a huge jaw full of teeth
-        head.ell((0, -ry * 0.75, cz - rz * 0.35), (rx * 0.9, ry * 0.45, rz * 0.45), dark(col, 0.2))
+        head.ell((0, -ry * 0.72, cz - rz * 0.35), (rx * 0.92, ry * 0.42, rz * 0.42), dark(col, 0.25))
         for x in range(-round(rx * 0.8), round(rx * 0.8)):
             f = head.front(x, round(cz - rz * 0.15))
             if f and x % 2 == 0:
                 head.put(f, WHITE)
                 head.put((f[0], f[1], f[2] - 1), WHITE)
-    es = max(2, round(0.38 * k))
-    eye_pair(c, head, round(rx * 0.35), round(cz + rz * 0.2), es, iris=iris)
+    es = max(2, round(0.34 * k))
+    eye_pair(c, head, round(rx * 0.42), round(cz + rz * 0.12), es, iris=iris)
+    if kind in ('goldfish', 'koi'):
+        cheeks(head, round(rx * 0.62), round(cz - rz * 0.3))
+        # a little round mouth
+        f = head.front(0, round(cz - rz * 0.35)) or head.front(-1, round(cz - rz * 0.35))
+        if f:
+            head.put(f, dark(col, 0.45))
+            head.put((-f[0] - 1, f[1], f[2]), dark(col, 0.45))
     if kind == 'shark':
-        for x in range(-round(rx * 0.6), round(rx * 0.6)):
-            f = head.front(x, round(cz - rz * 0.45))
+        for x in range(-round(rx * 0.55), round(rx * 0.55)):
+            f = head.front(x, round(cz - rz * 0.5))
             if f:
-                head.put(f, WHITE if x % 2 else INK)
-    fins(c, k, (rx * 0.85, -0.2 * k, cz - rz * 0.3), 1.3, 0.9, accent if kind != 'koi' else light(col, 0.3), glow=glow)
+                head.put(f, WHITE if x % 2 else dark(col, 0.5))
+    finc = accent if kind not in ('koi',) else light(col, 0.2)
+    fins(c, k, (rx * 0.8, -0.3 * k, cz - rz * 0.35), 1.5, 1.1, finc, glow=glow, down=0.7, thick=1)
     df = c.part('dorsal', 'static')
-    dh = {'koi': 1.0, 'angler': 0.8, 'angelfish': 2.2, 'shark': 1.8, 'goldfish': 1.2}[kind] * k
-    for i in range(max(1, round(dh))):
-        w = max(1, round((dh - i) * 0.9))
-        for dy in range(w):
-            for x in (0, -1):
-                df.put((x, round(-0.4 * k) + dy + i // 2, round(cz + rz * 0.95) + i), accent)
+    dh = {'koi': 1.0, 'angler': 0.9, 'angelfish': 3.0, 'shark': 2.0, 'goldfish': 1.3}[kind] * k
+    dl = {'koi': 2.6, 'angler': 1.6, 'angelfish': 2.0, 'shark': 1.6, 'goldfish': 2.0}[kind] * k
+    top_z = max(p[2] for p in body.v)
+    sail(df, 0, -0.5 * k, top_z, dl, dh, finc, edge=glow if glow is not None else light(finc, 0.3), glow=glow is not None,
+         lean=0.9 if kind == 'shark' else (1.1 if kind == 'angelfish' else 0.6))
     if kind == 'angelfish':
-        for i in range(round(2.0 * k)):
-            for x in (0, -1):
-                df.put((x, round(-0.2 * k) + i // 2, round(cz - rz) - i), accent)
-    tl = {'koi': 1.8, 'angler': 1.4, 'angelfish': 1.4, 'shark': 2.0, 'goldfish': 2.6}[kind]
-    fluke(c, k, (0, ry * 0.8, cz), tl, 1.2, accent if kind in ('goldfish', 'koi', 'angelfish') else col, glow=glow, vertical=True)
+        low_z = min(p[2] for p in body.v)
+        sail(c.part('fin_low', 'static'), 0, -0.2 * k, low_z, 1.9 * k, 2.6 * k, finc, edge=light(finc, 0.3), up=-1, lean=1.1)
+    tl = {'koi': (1.6, 1.4, 0.4, False), 'angler': (1.3, 1.2, 0.3, False), 'angelfish': (1.4, 1.5, 0.3, False),
+          'shark': (1.8, 1.7, 0.5, False), 'goldfish': (2.4, 1.6, 0.45, True)}[kind]
+    tail_col = accent if kind in ('goldfish', 'koi', 'angelfish') else col
+    fish_tail(c, k, (0, ry * 0.85, cz), tl[0], tl[1], tail_col, light(tail_col, 0.35), glow=glow, fork=tl[2], veil=tl[3])
     c.gait_hint = 'swim'
     return c
 
