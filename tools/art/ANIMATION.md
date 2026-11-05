@@ -62,7 +62,7 @@ and rides the part it touches.
 | `waddle` | two-legged birds, seals, penguins | legs alternate; body rolls; head pecks; folded wings flick out |
 | `hop` | bunnies, frogs, grasshoppers | all legs kick back and tuck; body arcs, 60% of the cycle in the air |
 | `scuttle` | bugs, crabs, spiders, turtles, axolotls | numbered legs swing about the vertical axis in two alternating sets, lifting as they reach; four-leg sprawlers swing like a trot |
-| `slither` | worms, slugs, snails, caterpillars, starfish | no legs: a gentle body sway and surge, head and tail follow |
+| `slither` | worms, slugs, snails, caterpillars, starfish, sea urchins | no legs: a gentle body sway and surge, head and tail follow |
 | `hover` | **every Legendary and Godly** (automatic, unless `swim`), bees, butterflies, moths, dragonflies, fireflies, bats | body leans and bobs, wings beat faster, legs trail and paddle, tail streams and sways |
 | `swim` | fish, whales, rays, jellyfish, octopus-in-the-air: anything with fins or a tail fin and no legs | tail sweeps, `finL`/`finR` paddle in turn, body sways. The game plays it (Walk.pose + CreatureView), so judge it like any gait |
 

@@ -26,12 +26,17 @@ def hexrgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def col(h, glow=0.0):
+def col(h, glow=0.0, of=None):
+    """palette index of a colour. With `of` (another palette index) the colour
+    is a speckle of that one: it gets its own index, folded into `of` when the
+    Parts export drops speckle, so a colour used plainly elsewhere never folds."""
     rgb = hexrgb(h) if isinstance(h, str) else tuple(h)
-    k = (rgb, float(glow))
+    k = (rgb, float(glow)) if of is None else (rgb, float(glow), int(of))
     if k not in _PIDX:
+        if of is not None and (rgb, float(glow)) != (PAL[of][0], PAL[of][1]):
+            FAMILY[len(PAL)] = int(of)
         _PIDX[k] = len(PAL)
-        PAL.append(k)
+        PAL.append(k[:2])
     return _PIDX[k]
 
 
