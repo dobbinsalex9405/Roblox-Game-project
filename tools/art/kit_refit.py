@@ -64,6 +64,7 @@ from collections import Counter
 from voxkit import hexc
 
 INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
+BLUSH = hexc('#FF8FB1')
 
 
 def _rgb(col, default=None):
@@ -179,6 +180,9 @@ def ears(c, H, color, color2=None, a=None):
         cx = max(1.0, half - (0.1 if style == 'tiny' else 0.25) * k)
         cy = yb + (0.4 * k if style == 'tiny' else 0.1 * k)
         cz_e = top + (0.0 if style == 'tiny' else 0.15 * k)
+        if a.get('top'):  # set up on top of the head, not at its sides
+            cx = max(1.0, half * 0.55)
+            cz_e = top + 0.4 * k
         cells = {}
         for x in range(0, math.ceil(cx + r) + 1):
             for y in range(math.floor(cy - r), math.ceil(cy + r) + 1):
@@ -622,10 +626,25 @@ def poms(c, H, color, color2=None, a=None):
 def symmetry(c, H, color=None, color2=None, a=None):
     """Mirrors the right side onto the left where a plan's rounding left
     them a voxel apart: `parts` lists "wings" (wingL from wingR) and/or
-    "legs" (the body's low leg voxels, up to `z` in k, default 1.7)."""
+    "legs" (the body's low leg voxels, up to `z` in k, default 1.7), or "all"
+    (every part)."""
     k = H / 10.0
     a = a or {}
     which = a.get('parts', ['wings', 'legs'])
+    if 'all' in which:
+        # every part's left half from its right; a left part from its right twin
+        byname = {p.name: p for p in c.parts}
+        for p in c.parts:
+            if p.name.endswith('L') and p.name[:-1] + 'R' in byname:
+                r = byname[p.name[:-1] + 'R']
+                p.v = {(_mx(x), y, z): v for (x, y, z), v in r.v.items()}
+                p.pivot = (-r.pivot[0], r.pivot[1], r.pivot[2])
+            elif not p.name.endswith('R'):
+                right = {q: v for q, v in p.v.items() if q[0] >= 0}
+                p.v = dict(right)
+                for (x, y, z), v in right.items():
+                    p.v[(_mx(x), y, z)] = v
+        return
     if 'wings' in which:
         wl, wr = _find(c, 'wingL'), _find(c, 'wingR')
         if wl is not None and wr is not None and wr.v:
@@ -648,8 +667,8 @@ def symmetry(c, H, color=None, color2=None, a=None):
 BEAKS = {
     # per layer outward from the face: (half width, z low, z high) about
     # the beak's centre row
-    'pointed': [(1, -1, 0), (1, -1, 0), (1, -1, -1)],
-    'cone': [(1, -1, 1), (1, -1, 0), (1, 0, 0)],
+    'pointed': [(1, -1, 0), (1, 0, 0)],
+    'cone': [(1, -1, 0), (1, -1, 0), (1, 0, 0)],
     'hooked': [(1, -1, 1), (1, -1, 1), (1, -2, 0), (1, -2, -1)],
 }
 
@@ -717,13 +736,14 @@ def beak(c, H, color, color2=None, a=None):
         pouch = _rgb(color2, _dark(col, 0.1))
         n = len(layers)
         for i in range(1, n - 1):
-            depth = max(1, round(min(i, n - 1 - i) * (0.55 if fine else 0.3)))
+            depth = max(1, round(min(i, n - 1 - i) * (0.9 if fine else 0.3)))
             for dz in range(1, depth + 1):
                 _sym(head, 0, fy - 1 - i, zc - dz, pouch)
 
 
 def cheeks(c, H, color, color2=None, a=None):
-    """A round patch on each cheek, below and behind the eye."""
+    """A round patch on each cheek: on the side of the face, below and
+    outside the eye (`size`, `down` in k)."""
     k = H / 10.0
     a = a or {}
     col = _rgb(color)
@@ -731,16 +751,20 @@ def cheeks(c, H, color, color2=None, a=None):
     le, re_, e = _eye_info(c)
     if head is None or not re_:
         return
+    lo, hi, cz_, yc, top, half = _head_frame(head)
     ex = sum(p[0] for p in re_) / len(re_)
     ez = min(p[2] for p in re_)
-    ey = min(p[1] for p in re_)
-    cx, cz = ex + 0.35 * k, ez - float(a.get('down', 0.6)) * k
-    r = max(1.0, float(a.get('size', 0.6)) * k)
+    xs = [p[0] for p in head.v if abs(p[2] - ez) <= 1]
+    side = (max(xs) + 1) if xs else half
+    cx = max(ex + 0.7 * k, side - 0.7 * k)
+    cz = ez - float(a.get('down', 0.5)) * k
+    r = max(1.2, float(a.get('size', 0.65)) * k)
+    hc = _main(head)
     for p, (cc, g) in list(head.v.items()):
         x = p[0] if p[0] >= 0 else _mx(p[0])
-        if p[1] > ey + 1.6 * k:
+        if p[1] > yc + 0.6 * k or cc not in (hc, BLUSH):
             continue
-        if ((x + .5 - cx) / (r * 1.1)) ** 2 + ((p[2] + .5 - cz) / r) ** 2 <= 1 and cc == _main(head):
+        if ((x + .5 - cx) / r) ** 2 + ((p[2] + .5 - cz) / r) ** 2 <= 1:
             head.v[p] = (col, g)
 
 
@@ -790,20 +814,31 @@ def hood(c, H, color, color2=None, a=None):
 
 
 def throat_bars(c, H, color, color2=None, a=None):
-    """Thin bars across the throat: every other row of the throat in color."""
+    """Bars across the throat and upper breast: rows of color and color2
+    (default white), on the front below the beak."""
     k = H / 10.0
     col = _rgb(color)
+    pale = _rgb(color2, WHITE)
     head = _find(c, 'head')
+    body = _find(c, 'body')
     le, re_, e = _eye_info(c)
     if head is None or not re_:
         return
     ez = min(p[2] for p in re_)
-    yc = sum(p[1] for p in head.v) / len(head.v)
-    zlo = min(p[2] for p in head.v)
-    for p, (cc, g) in list(head.v.items()):
-        if p[1] < yc - 0.4 * k and zlo <= p[2] < ez - max(2, round(1.0 * k)) and abs(p[0] + .5) < 1.2 * k:
-            if (p[2] - zlo) % 2 == 0 and cc != INK:
-                head.v[p] = (col, g)
+    z1 = ez - max(2, round(1.1 * k))
+    z0 = z1 - max(3, round(1.6 * k))
+    for part in (head, body):
+        if part is None or not part.v:
+            continue
+        front = {}
+        for (x, y, z) in part.v:
+            if abs(x + .5) <= 1.0 * k and z0 <= z <= z1:
+                front[(x, z)] = min(front.get((x, z), y), y)
+        for (x, z), y in front.items():
+            for dy in (0, 1):
+                q = (x, y + dy, z)
+                if q in part.v and part.v[q][0] != INK:
+                    part.v[q] = (col if (z1 - z) % 2 == 0 else pale, False)
 
 
 def plume(c, H, color, color2=None, a=None):
@@ -956,21 +991,20 @@ def mandibles(c, H, color, color2=None, a=None):
     fy = lo[1]
     z0 = cz + 0.2 * k
     cells = {}
-    base = (0.7 * k, fy + 0.6 * k, z0)
-    out = (1.5 * k, fy - 1.0 * k, z0 + 0.5 * k)
-    tip = (0.6 * k, fy - 2.3 * k, z0 + 1.0 * k)
+    # each jaw (drawn on the right, mirrored): out and forward, then curving
+    # in to a tip, with a tine pointing inward; the tips stay apart
+    base = (0.9 * k, fy + 0.8 * k, z0)
+    out = (1.8 * k, fy - 1.0 * k, z0 + 0.3 * k)
+    tip = (1.05 * k, fy - 2.4 * k, z0 + 0.6 * k)
     _rod(cells, base, out, col)
     _rod(cells, out, tip, col)
-    # a tine inward from the middle
-    mid = (1.2 * k, fy - 1.6 * k, z0 + 0.7 * k)
-    _rod(cells, mid, (0.5 * k, fy - 1.3 * k, z0 + 0.7 * k), col)
+    _rod(cells, (1.75 * k, fy - 0.7 * k, z0 + 0.3 * k), (1.15 * k, fy - 0.9 * k, z0 + 0.3 * k), col)
     mp = c.part('mandibles', 'static', head.pivot)
-    thick = _fine(c)
+    xmin = max(1, math.floor(0.95 * k))
     for (x, y, z), cc in cells.items():
-        if x < 0:
-            x = 0
+        x = max(x, xmin)
         _sym(mp, x, y, z, cc)
-        if thick:
+        if _fine(c):
             _sym(mp, x, y, z + 1, cc)
 
 
@@ -1129,19 +1163,25 @@ def sentinel(c, H, cols, opts):
                 _sym(body, x + max(0, round(0.15 * k)), y, z, col)
     # the head: small and round with a tapered snout
     hz = hip + 5.4 * k
-    head.ell((0, -0.3 * k, hz), (1.05 * k, 1.05 * k, 0.95 * k), col)
+    head.ell((0, -0.3 * k, hz), (1.25 * k, 1.15 * k, 1.05 * k), col)
     head.ell((0, -1.2 * k, hz - 0.35 * k), (0.55 * k, 0.75 * k, 0.5 * k), belly)
     f = head.front(0, round(hz - 0.2 * k))
     if f:
         _sym(head, 0, f[1], f[2], INK)
     es = max(1, round(0.4 * k))
-    eyes(c, head, max(1, round(0.35 * k)), round(hz + 0.05 * k), es)
-    # dark patches around the eyes
+    eyes(c, head, max(1, round(0.75 * k)), round(hz + 0.05 * k), es)
+    # a dark patch around each eye, apart from the other, and a glint
     e = _find(c, 'eyes')
     ring = {(p[0], p[2]) for p in e.v}
     for p, (cc, g) in list(head.v.items()):
-        if any(abs(p[0] - x) <= 1 and abs(p[2] - z) <= 1 for (x, z) in ring) and p[1] < -0.8 * k and cc != INK:
+        near = [(x, z) for (x, z) in ring if abs(p[0] - x) <= 1 and abs(p[2] - z) <= 1 and (p[0] >= 0) == (x >= 0)]
+        if near and p[1] < -0.6 * k and cc != INK:
             head.v[p] = (patch, g)
+    if _fine(c):
+        for (x, z) in ring:
+            f = head.front(x, z + 1)
+            if f:
+                head.v[f] = (WHITE, False)
     # small dark ears low on the sides
     ep = c.part('ears', 'static', head.pivot)
     r = max(1.0, 0.35 * k)
