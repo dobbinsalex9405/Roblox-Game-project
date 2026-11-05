@@ -63,8 +63,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Bunny_ears",
-						center = { 0.0625, 1.875, -0.3125 },
-						size = { 0.8925, 0.7675, 0.2675 },
+						center = { 0, 1.875, -0.3125 },
+						size = { 1.0175, 0.7675, 0.2675 },
 					},
 				},
 			},
@@ -126,17 +126,17 @@ local CreatureMeshes: { [string]: Creature } = {
 		assetId = 0,
 		rarity = "Common",
 		height = 1.75,
-		size = { 1.25, 1.75, 1.375 },
-		tris = 5920,
+		size = { 1.25, 1.75, 1.5 },
+		tris = 6120,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
-				pivot = { 0, 0, 0.0625 },
+				pivot = { 0, 0, 0.125 },
 				meshes = {
 					{
 						name = "Duckling_body",
-						center = { 0, 0.625, 0.1875 },
+						center = { 0, 0.625, 0.25 },
 						size = { 1.2675, 1.2675, 1.0175 },
 					},
 				},
@@ -145,12 +145,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "head",
 				anim = "static",
 				parent = "body",
-				pivot = { 0, 1.16, -0.0175 },
+				pivot = { 0, 1.16, 0.045 },
 				meshes = {
 					{
 						name = "Duckling_head",
 						center = { 0, 1.375, -0.1875 },
-						size = { 0.7675, 0.7675, 1.0175 },
+						size = { 0.7675, 0.7675, 1.1425 },
 					},
 				},
 			},
@@ -158,11 +158,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "eyes",
 				anim = "blink",
 				parent = "head",
-				pivot = { 0, 1.16, -0.0175 },
+				pivot = { 0, 1.16, 0.045 },
 				meshes = {
 					{
 						name = "Duckling_eyes",
-						center = { 0, 1.4375, -0.375 },
+						center = { 0, 1.4375, -0.3125 },
 						size = { 0.5175, 0.1425, 0.1425 },
 					},
 				},
@@ -328,57 +328,45 @@ local CreatureMeshes: { [string]: Creature } = {
 		assetId = 0,
 		rarity = "Common",
 		height = 1.625,
-		size = { 1.125, 1.625, 1.875 },
-		tris = 7920,
+		size = { 1.25, 1.625, 1.875 },
+		tris = 7760,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
-				pivot = { -0.0625, 0, 0.0625 },
+				pivot = { 0, 0, 0.0625 },
 				meshes = {
-					{
-						name = "Lamb_body",
-						center = { -0.0625, 0.5, 0.1875 },
-						size = { 1.0175, 1.0175, 1.2675 },
-					},
+					{ name = "Lamb_body", center = { 0, 0.5, 0.1875 }, size = { 1.0175, 1.0175, 1.2675 } },
 				},
 			},
 			{
 				name = "head",
 				anim = "static",
 				parent = "body",
-				pivot = { -0.0625, 0.92, -0.2575 },
+				pivot = { 0, 0.92, -0.2575 },
 				meshes = {
-					{
-						name = "Lamb_head",
-						center = { -0.0625, 1.1875, -0.5 },
-						size = { 1.0175, 0.8925, 0.8925 },
-					},
+					{ name = "Lamb_head", center = { 0, 1.1875, -0.5 }, size = { 1.0175, 0.8925, 0.8925 } },
 				},
 			},
 			{
 				name = "eyes",
 				anim = "blink",
 				parent = "head",
-				pivot = { -0.0625, 0.92, -0.2575 },
+				pivot = { 0, 0.92, -0.2575 },
 				meshes = {
-					{
-						name = "Lamb_eyes",
-						center = { -0.0625, 1.3125, -0.75 },
-						size = { 0.5175, 0.1425, 0.1425 },
-					},
+					{ name = "Lamb_eyes", center = { 0, 1.3125, -0.75 }, size = { 0.5175, 0.1425, 0.1425 } },
 				},
 			},
 			{
 				name = "ears",
 				anim = "static",
 				parent = "head",
-				pivot = { -0.0625, 1.56, -0.4175 },
+				pivot = { 0, 1.56, -0.4175 },
 				meshes = {
 					{
 						name = "Lamb_ears",
-						center = { 0.0625, 1.3125, -0.3125 },
-						size = { 1.0175, 0.6425, 0.2675 },
+						center = { 0, 1.3125, -0.3125 },
+						size = { 1.2675, 0.6425, 0.2675 },
 					},
 				},
 			},
@@ -386,13 +374,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "tail",
 				anim = "static",
 				parent = "body",
-				pivot = { -0.0625, 0.68, 0.7425 },
+				pivot = { 0, 0.68, 0.7425 },
 				meshes = {
-					{
-						name = "Lamb_tail",
-						center = { -0.0625, 0.75, 0.8125 },
-						size = { 0.2675, 0.2675, 0.2675 },
-					},
+					{ name = "Lamb_tail", center = { 0, 0.75, 0.8125 }, size = { 0.2675, 0.2675, 0.2675 } },
 				},
 			},
 		},
@@ -515,8 +499,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Piglet_ears",
-						center = { 0.0625, 1.6875, -0.25 },
-						size = { 0.8925, 0.3925, 0.2675 },
+						center = { 0, 1.6875, -0.25 },
+						size = { 1.0175, 0.3925, 0.2675 },
 					},
 				},
 			},
@@ -619,8 +603,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "FoxKit_ears",
-						center = { 0.0625, 2.125, -0.625 },
-						size = { 0.8925, 0.5175, 0.2675 },
+						center = { 0, 2.125, -0.625 },
+						size = { 1.0175, 0.5175, 0.2675 },
 					},
 				},
 			},
@@ -817,8 +801,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Kitten_ears",
-						center = { 0.0625, 2.125, -0.5625 },
-						size = { 0.8925, 0.5175, 0.2675 },
+						center = { 0, 2.125, -0.5625 },
+						size = { 1.0175, 0.5175, 0.2675 },
 					},
 				},
 			},
@@ -842,7 +826,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		rarity = "Uncommon",
 		height = 2,
 		size = { 1.5, 2, 2.25 },
-		tris = 11820,
+		tris = 11660,
 		parts = {
 			{
 				name = "body",
@@ -880,11 +864,7 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.95, -0.475 },
 				meshes = {
-					{
-						name = "Puppy_ears",
-						center = { 0.125, 1.625, -0.375 },
-						size = { 1.2675, 0.7675, 0.2675 },
-					},
+					{ name = "Puppy_ears", center = { 0, 1.625, -0.375 }, size = { 1.5175, 0.7675, 0.2675 } },
 				},
 			},
 			{
@@ -947,8 +927,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Squirrel_ears",
-						center = { 0.0625, 2.125, -0.5625 },
-						size = { 0.8925, 0.5175, 0.2675 },
+						center = { 0, 2.125, -0.5625 },
+						size = { 1.0175, 0.5175, 0.2675 },
 					},
 				},
 			},
@@ -1027,30 +1007,26 @@ local CreatureMeshes: { [string]: Creature } = {
 		assetId = 0,
 		rarity = "Rare",
 		height = 3.375,
-		size = { 1.875, 3.375, 3.625 },
-		tris = 19840,
+		size = { 2, 3.375, 3.625 },
+		tris = 19800,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
-				pivot = { -0.0625, 0, -0.1875 },
+				pivot = { 0, 0, -0.1875 },
 				meshes = {
-					{
-						name = "Fennec_body",
-						center = { -0.0625, 0.8125, 0 },
-						size = { 1.5175, 1.6425, 1.8925 },
-					},
+					{ name = "Fennec_body", center = { 0, 0.8125, 0 }, size = { 1.5175, 1.6425, 1.8925 } },
 				},
 			},
 			{
 				name = "head",
 				anim = "head",
 				parent = "body",
-				pivot = { -0.0625, 1.495, -0.7075 },
+				pivot = { 0, 1.495, -0.7075 },
 				meshes = {
 					{
 						name = "Fennec_head",
-						center = { -0.0625, 1.9375, -1.0625 },
+						center = { 0, 1.9375, -1.0625 },
 						size = { 1.5175, 1.3925, 1.5175 },
 					},
 				},
@@ -1059,25 +1035,21 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "eyes",
 				anim = "blink",
 				parent = "head",
-				pivot = { -0.0625, 1.495, -0.7075 },
+				pivot = { 0, 1.495, -0.7075 },
 				meshes = {
-					{
-						name = "Fennec_eyes",
-						center = { -0.0625, 2.0625, -1.5 },
-						size = { 0.7675, 0.1425, 0.1425 },
-					},
+					{ name = "Fennec_eyes", center = { 0, 2.0625, -1.5 }, size = { 0.7675, 0.1425, 0.1425 } },
 				},
 			},
 			{
 				name = "ears",
 				anim = "ears",
 				parent = "head",
-				pivot = { -0.0625, 2.535, -0.9675 },
+				pivot = { 0, 2.535, -0.9675 },
 				meshes = {
 					{
 						name = "Fennec_ears",
 						center = { 0, 2.875, -0.875 },
-						size = { 1.8925, 1.0175, 0.1425 },
+						size = { 2.0175, 1.0175, 0.1425 },
 					},
 				},
 			},
@@ -1085,13 +1057,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "tail",
 				anim = "tail",
 				parent = "body",
-				pivot = { -0.0625, 1.105, 0.9175 },
+				pivot = { 0, 1.105, 0.9175 },
 				meshes = {
-					{
-						name = "Fennec_tail",
-						center = { -0.0625, 1.25, 1.25 },
-						size = { 0.5175, 0.5175, 1.1425 },
-					},
+					{ name = "Fennec_tail", center = { 0, 1.25, 1.25 }, size = { 0.5175, 0.5175, 1.1425 } },
 				},
 			},
 		},
@@ -1357,8 +1325,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Raccoon_ears",
-						center = { 0.0625, 2.8125, -0.75 },
-						size = { 1.3925, 0.6425, 0.2675 },
+						center = { 0, 2.8125, -0.75 },
+						size = { 1.5175, 0.6425, 0.2675 },
 					},
 				},
 			},
@@ -1440,7 +1408,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		rarity = "Ultra Rare",
 		height = 3.6667,
 		size = { 2, 3.6667, 4.3333 },
-		tris = 16300,
+		tris = 16280,
 		parts = {
 			{
 				name = "body",
@@ -1488,11 +1456,7 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 3.12, -1.1267 },
 				meshes = {
-					{
-						name = "EmberFox_ears",
-						center = { 0.0833, 3.3333, -1 },
-						size = { 1.8567, 0.69, 0.3567 },
-					},
+					{ name = "EmberFox_ears", center = { 0, 3.3333, -1 }, size = { 2.0233, 0.69, 0.3567 } },
 				},
 			},
 			{
@@ -1517,7 +1481,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		rarity = "Ultra Rare",
 		height = 3.6667,
 		size = { 2, 3.6667, 4.1667 },
-		tris = 17800,
+		tris = 17780,
 		parts = {
 			{
 				name = "body",
@@ -1571,8 +1535,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "FrostWolf_ears",
-						center = { 0.0833, 3.3333, -0.9167 },
-						size = { 1.8567, 0.69, 0.3567 },
+						center = { 0, 3.3333, -0.9167 },
+						size = { 2.0233, 0.69, 0.3567 },
 					},
 				},
 			},
@@ -1720,7 +1684,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		rarity = "Epic",
 		height = 5.5,
 		size = { 4.1667, 5.5, 4.8333 },
-		tris = 26700,
+		tris = 26600,
 		parts = {
 			{
 				name = "body",
@@ -1774,8 +1738,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "CrystalStag_ears",
-						center = { 0, 4.25, -0.75 },
-						size = { 2.19, 0.8567, 0.3567 },
+						center = { -0.0833, 4.25, -0.75 },
+						size = { 2.3567, 0.8567, 0.3567 },
 					},
 				},
 			},
@@ -1813,7 +1777,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		rarity = "Epic",
 		height = 4.6667,
 		size = { 4.6667, 4.6667, 5.8333 },
-		tris = 28420,
+		tris = 28400,
 		parts = {
 			{
 				name = "body",
@@ -1861,8 +1825,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Dragonling_ears",
-						center = { 0.0833, 4.25, -1.25 },
-						size = { 2.19, 0.8567, 0.3567 },
+						center = { 0, 4.25, -1.25 },
+						size = { 2.3567, 0.8567, 0.3567 },
 					},
 				},
 			},
@@ -1957,7 +1921,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		rarity = "Epic",
 		height = 5.3333,
 		size = { 2.6667, 5.3333, 5.3333 },
-		tris = 29900,
+		tris = 29880,
 		parts = {
 			{
 				name = "body",
@@ -2011,8 +1975,8 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "MoonUnicorn_ears",
-						center = { 0.0833, 4.25, -1 },
-						size = { 2.19, 0.8567, 0.3567 },
+						center = { 0, 4.25, -1 },
+						size = { 2.3567, 0.8567, 0.3567 },
 					},
 				},
 			},

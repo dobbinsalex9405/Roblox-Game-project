@@ -166,8 +166,11 @@ def add_wings(c, k, colr, root, span=2.6, glow_edge=None, feather=None):
 
 
 def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tail=None, glow=None, big_eyes=False,
-         tuft=False, feet=hexc('#FF9F1C'), wing_span=1.4):
+         tuft=False, feet=hexc('#FF9F1C'), wing_span=1.4, bill=False):
     k = H / 10.0
+    fine = getattr(c, 'detail', 1) > 1
+    if fine and beak == hexc('#FFB627'):
+        beak = hexc('#FF9418')  # the finer build: a beak that stands out from yellow feathers
     body = c.part('body')
     head = c.part('head', 'head' if c.rarity != 'Common' else 'static', (0, -0.4 * k, 5.8 * k))
     body.ell((0, 0.6 * k, 3.4 * k), (2.6 * k, 2.4 * k, 2.9 * k), col)
@@ -176,7 +179,12 @@ def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tai
     head.ell((0, -0.6 * k, 6.8 * k), (2.2 * k, 2.1 * k, 2.0 * k), col)
     # beak
     bw = max(1, round(0.5 * k))
-    head.box((-bw, round(-3.2 * k) - max(1, round(0.6 * k)), round(6.0 * k)), (bw - 1, round(-3.0 * k), round(6.0 * k) + max(0, round(0.5 * k))), beak)
+    if bill and fine:
+        # a duck's bill: wide, flat and long
+        bw = max(2, round(0.9 * k))
+        head.box((-bw, round(-3.2 * k) - max(2, round(1.0 * k)), round(5.8 * k)), (bw - 1, round(-3.0 * k), round(5.8 * k) + 1), beak)
+    else:
+        head.box((-bw, round(-3.2 * k) - max(1, round(0.6 * k)), round(6.0 * k)), (bw - 1, round(-3.0 * k), round(6.0 * k) + max(0, round(0.5 * k))), beak)
     es = max(1, round((0.75 if big_eyes else 0.5) * k))
     eyes(c, head, max(1, round(0.7 * k)), round(6.9 * k), es)
     if k >= 1:
@@ -387,7 +395,7 @@ def P(h):
 ROSTER = [
     # Common
     ('Chick', 'Common', lambda c, H: bird(c, H, P('#FFD93B'), belly=P('#FFE97A'))),
-    ('Duckling', 'Common', lambda c, H: bird(c, H, P('#FFF06A'), beak=P('#FF8C1A'), belly=P('#FFF6A8'))),
+    ('Duckling', 'Common', lambda c, H: bird(c, H, P('#FFF06A'), beak=P('#FF8C1A'), belly=P('#FFF6A8'), bill=True)),
     ('Bunny', 'Common', lambda c, H: quadruped(c, H, P('#F4F1EC'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='long', tail='short', tail_col=P('#FFFFFF'))),
     ('Piglet', 'Common', lambda c, H: quadruped(c, H, P('#FFB3C7'), snout=P('#FF8FB1'), ears='pointy', tail='curly')),
     ('Mouse', 'Common', lambda c, H: quadruped(c, H, P('#B8B8C8'), belly=P('#E6E6EE'), snout=P('#E6E6EE'), ears='round', ear_col=P('#FFB3C7'), tail='long', tail_col=P('#FFB3C7'))),
@@ -440,6 +448,15 @@ def build_all(detail=None):
         c.detail = mult
         fn(c, HEIGHT[rarity] * mult)
         c.voxel = VOXEL / mult
+        if mult > 1:
+            # The finer build mirrors ears exactly: the body plans place them
+            # with rounding that can leave the left ear a voxel off.
+            for part in c.parts:
+                if part.name == 'ears':
+                    right = {p: v for p, v in part.v.items() if p[0] >= 0}
+                    part.v = dict(right)
+                    for (x, y, z), v in right.items():
+                        part.v[(-x - 1, y, z)] = v
         # A voxel belongs to one part only: the later, more specific part
         # (head over body, ears over head) keeps it, so no two parts draw the
         # same spot and flicker against each other.
