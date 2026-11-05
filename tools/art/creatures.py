@@ -322,7 +322,7 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
                 w = max(0, round((1.8 * k - i) * 0.35))
                 earp.box((round(bx - w), round(-2.4 * k), round(7.6 * k) + i), (round(bx + w), round(-2.4 * k) + max(0, round(0.4 * k)), round(7.6 * k) + i), ec)
         elif ears == 'cat':  # short, wide-based triangles set on the head corners
-            n = max(2, round(1.6 * k))
+            n = max(3, round(1.6 * k) + 1)
             y0 = round(-2.5 * k)
             for i in range(n):
                 t = i / (n - 1)
@@ -575,6 +575,10 @@ def blob(c, H, kind, col, accent, glow=None):
             x = round(sx * 0.6 * k) - (1 if sx < 0 else 0)
             head.put((x, round(-3.0 * k), round(3.2 * k)), INK)
             head.put((x + sx, round(-3.2 * k), round(3.8 * k)), INK)
+        if getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the shell
+            import kit_refit
+            kit_refit.lift(c, max(1, round(1.0 * k)))
     elif kind == 'axolotl':
         body.ell((0, 0.8 * k, 2.2 * k), (1.8 * k, 3.4 * k, 1.6 * k), col)
         head.ell((0, -2.4 * k, 3.4 * k), (2.4 * k, 1.8 * k, 1.8 * k), col)

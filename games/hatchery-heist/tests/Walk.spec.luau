@@ -255,3 +255,64 @@ describe("Walk matches the Blender walk clips", function()
 		end
 	end)
 end)
+
+describe("Walk culling", function()
+	-- Studio gates, Nov 5: culling by floor left whole floors looking empty,
+	-- from the yard and inside your own tower. Only distance culls now.
+	it("draws every creature of your own tower within cullStuds, whatever its floor", function()
+		expect(Walk.culled(0, true, cfg)).toBe(false)
+		expect(Walk.culled(9 * 12, true, cfg)).toBe(false) -- floor 10, straight up
+		expect(Walk.culled(cfg.cullStuds, true, cfg)).toBe(false)
+		expect(Walk.culled(cfg.cullStuds + 1, true, cfg)).toBe(true)
+	end)
+
+	-- Studio gate stress test, Nov 5: four full neighbouring towers took a
+	-- phone from 59 to 37 fps. Other towers stop sooner than your own.
+	it("draws other players' towers only nearby: the neighbours either side", function()
+		local neighbour = 84 -- the next base round the ring
+		local across = 155 -- the base after that
+		expect(Walk.culled(neighbour, false, cfg)).toBe(false)
+		expect(Walk.culled(across, false, cfg)).toBe(true)
+		expect(cfg.cullOtherStuds < cfg.cullStuds).toBe(true)
+		expect(cfg.animateOtherStuds < cfg.cullOtherStuds).toBe(true)
+	end)
+end)
+
+describe("Walk without leg parts", function()
+	-- Studio gate, Nov 5: meshes with no leg parts only bobbed 0.2 studs
+	-- and read as gliding. They now rock, nod and swing their tails.
+	it("rocks the body from side to side, one way then the other", function()
+		local left = Walk.pose("trot", "body", 0.25, 1, 2, false)
+		local right = Walk.pose("trot", "body", 0.75, 1, 2, false)
+		expect(left.rz > 0.1).toBe(true)
+		expect(right.rz < -0.1).toBe(true)
+		-- A waddle rocks more than a trot.
+		expect(Walk.pose("waddle", "body", 0.25, 1, 2, false).rz > left.rz).toBe(true)
+	end)
+
+	it("swings the tail and nods the head while walking, not standing", function()
+		local tail = Walk.pose("trot", "tail", 0.45, 1, 2, false)
+		expect(math.abs(tail.ry) > 0.3).toBe(true)
+		local head = Walk.pose("trot", "head", 0.125, 1, 2, false)
+		expect(head.rx > 0.1).toBe(true)
+		expect(Walk.pose("trot", "tail", 0.45, 0, 2, false).ry).toBe(0)
+	end)
+
+	it("keeps the legged walk for creatures with legs", function()
+		local legged = Walk.pose("trot", "body", 0.25, 1, 2, true)
+		expect(legged.rz).toBe(0)
+		expect(legged.dy <= 0).toBe(true)
+	end)
+end)
+
+describe("Walk roles", function()
+	it("walks static heads, tails and ears; leaves other static parts still", function()
+		expect(Walk.role("head", "static")).toBe("head")
+		expect(Walk.role("tail", "static")).toBe("tail")
+		expect(Walk.role("ears", "static")).toBe("ears")
+		expect(Walk.role("ears", "ears")).toBe("ears")
+		expect(Walk.role("shell", "static")).toBe("static")
+		expect(Walk.role("crest", "glow")).toBe("glow")
+		expect(Walk.role("body", "static")).toBe("body")
+	end)
+end)
