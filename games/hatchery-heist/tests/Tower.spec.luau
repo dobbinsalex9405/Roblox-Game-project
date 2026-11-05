@@ -220,3 +220,30 @@ describe("Tower reach", function()
 		expect(Geometry.onFloorOfPad(80, 8 * Geometry.FLOOR_HEIGHT + standing)).toBe(false)
 	end)
 end)
+
+describe("Tower ladder", function()
+	-- Studio gate, Nov 5: climbing from the tower side, the character stuck
+	-- under the floor-2 deck because the decks ran right up to the ladder.
+	it("leaves an opening in the decks beside the ladder a character fits through", function()
+		local lx, lz = Geometry.LADDER[1], Geometry.LADDER[2]
+		local lo, hi = Geometry.LADDER_HOLE_MIN, Geometry.LADDER_HOLE_MAX
+		local truss = 2 -- studs
+		local body = 2 -- an R15 character's width, studs
+		-- The opening reaches the decks' edge right next to the ladder ...
+		expect(hi[1]).toBe(Geometry.TOWER_MAX[1])
+		expect(lx - truss / 2 - hi[1] < 0.5).toBe(true)
+		-- ... and is deep and wide enough for a body on the ladder's tower side.
+		expect(hi[1] - lo[1] >= body + 0.5).toBe(true)
+		expect(lo[2] <= lz - truss / 2 - 0.5 and hi[2] >= lz + truss / 2 + 0.5).toBe(true)
+	end)
+
+	it("keeps the opening clear of every spot's pad and wander area", function()
+		local lo, hi = Geometry.LADDER_HOLE_MIN, Geometry.LADDER_HOLE_MAX
+		for spot = 1, Geometry.SPOTS_PER_FLOOR do
+			local x, z = Geometry.pad(spot)
+			-- a spot is 10 by 10 studs around its pad
+			local apart = x + 5 <= lo[1] or x - 5 >= hi[1] or z + 5 <= lo[2] or z - 5 >= hi[2]
+			expect(apart and "clear" or `spot {spot} overlaps the ladder opening`).toBe("clear")
+		end
+	end)
+end)
