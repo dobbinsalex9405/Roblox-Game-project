@@ -47,7 +47,9 @@ lune run tools/test/run Nature
 
 Then run the **Upload creature meshes** workflow with **art = nature** on
 your branch. It rebuilds everything, uploads what changed, and commits
-`assets.json`, `env.json` and `EnvArt.luau` back onto that branch.
+`assets.json`, `env.json` and `EnvArt.luau` back onto that branch. Images
+go up as Image assets (a Decal id draws nothing on a Sky or Texture), and
+the upload stops if Roblox returns any other type.
 
 Where things go in the world, and how many, is `scenery.nature` in
 `games/hatchery-heist/config/atmosphere.luau` (planned by

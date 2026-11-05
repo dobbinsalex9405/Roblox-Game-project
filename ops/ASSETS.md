@@ -75,5 +75,9 @@ The trees, bushes, rocks, flowers, the six skybox faces and the grass tile
 go the same way, from `tools/art/env` (its README says how). Run the
 **Upload creature meshes** workflow with **art = nature** on a branch; it
 commits `tools/art/env/assets.json`, `env.json` and `EnvArt.luau` back onto
-that branch. `server/EnvAssets` loads the models into ServerStorage and
+that branch. The sky faces and grass tile are uploaded as **Image** assets,
+never Decals: a Decal id on a Sky face or Texture draws nothing, and
+`luau.py` writes 0 for any image not recorded as an Image. A push made by
+the workflow does not start CI, so follow it with a real commit.
+`server/EnvAssets` loads the models into ServerStorage and
 Scenery places copies; until a tree loads the game draws its box tree.
