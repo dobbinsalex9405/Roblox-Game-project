@@ -92,17 +92,4 @@ return {
 		reward = { id = 0, volume = 0.6 }, -- a daily reward claimed
 		click = { id = 0, volume = 0.4 }, -- a menu button
 	},
-	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
-	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
-	-- id 0 = silent until one is picked; the game works the same either way.
-	sounds = {
-		eggShake = { id = 0, volume = 0.5 }, -- the egg wobbles before it hatches
-		eggCrack = { id = 0, volume = 0.6 }, -- the shell breaks
-		reveal = { id = 0, volume = 0.5 }, -- Common to Rare appears
-		revealBig = { id = 0, volume = 0.7 }, -- Ultra Rare and Epic appear
-		revealLegend = { id = 0, volume = 0.8 }, -- Legendary and Godly appear
-		newEntry = { id = 0, volume = 0.5 }, -- a new creature in the Hatchery Book
-		reward = { id = 0, volume = 0.6 }, -- a daily reward claimed
-		click = { id = 0, volume = 0.4 }, -- a menu button
-	},
 }
