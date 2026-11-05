@@ -6,6 +6,7 @@
 -- order their eggs hatch in instead, with the next one marked.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextService = game:GetService("TextService")
 
 local CoreClient = require(ReplicatedStorage.CoreClient.CoreClient)
 local Shared = ReplicatedStorage.Shared
@@ -93,11 +94,56 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	frame.Parent = parent
 end
 
+-- One text size for every row of a list. With TextScaled each label shrinks
+-- to its own text, so long names (Thunder Griffin) came out smaller than
+-- their neighbours. This finds the largest size at which every label fits
+-- its half of the row and gives it to all of them. Before the list has a
+-- width on screen, the labels keep TextScaled.
+local function sameTextSize(container: GuiObject)
+	local width = container.AbsoluteSize.X
+	local pad = container:FindFirstChildOfClass("UIPadding")
+	if pad then
+		width -= pad.PaddingLeft.Offset + pad.PaddingRight.Offset
+	end
+	local labelWidth = width / 2 - 2
+	if labelWidth <= 0 then
+		return
+	end
+	local labels: { TextLabel } = {}
+	for _, frame in container:GetChildren() do
+		for _, l in frame:GetChildren() do
+			if l:IsA("TextLabel") then
+				table.insert(labels, l)
+			end
+		end
+	end
+	local size = rowHeight - 4
+	local bounds = Vector2.new(10000, 10000)
+	while size > 8 do
+		local fits = true
+		for _, l in labels do
+			if TextService:GetTextSize(l.Text, size, l.Font, bounds).X > labelWidth then
+				fits = false
+				break
+			end
+		end
+		if fits then
+			break
+		end
+		size -= 1
+	end
+	for _, l in labels do
+		l.TextScaled = false
+		l.TextSize = size
+		l.TextTruncate = Enum.TextTruncate.AtEnd
+	end
+end
+
 -- Fills `container` (which should have a UIListLayout) with one egg's odds.
 -- `compact` is the board over the belt: names without the rarity word (the
 -- colour says it) and the exact percentage only. The card beside the Buy
 -- prompt always shows the full rows.
-function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
+local function fill(container: GuiObject, eggId: string, compact: boolean?)
 	rowHeight = if compact then 16 else 22
 	for _, child in container:GetChildren() do
 		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
@@ -161,6 +207,11 @@ function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
 			false
 		)
 	end
+end
+
+function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
+	fill(container, eggId, compact)
+	sameTextSize(container)
 end
 
 return OddsView

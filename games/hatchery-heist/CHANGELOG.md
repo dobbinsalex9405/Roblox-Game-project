@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed: an incubator could keep saying "Ready!" after its egg hatched.
+- The odds card and the odds board use one text size per list, so long
+  names no longer show smaller than their neighbours.
 - Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
   flash, and the creature turns under its rarity, name, income and exact
   chance, with rays, glow, confetti and screen shake as rarity rises. Tap to
