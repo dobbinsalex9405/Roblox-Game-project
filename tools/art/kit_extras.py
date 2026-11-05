@@ -462,12 +462,11 @@ def stand_tall(c, H, color, color2=None, a=None):
     if not neck:
         return
     # the front face of the neck (the throat) in color2, the rest in color
-    fy = {}
-    for (x, y, z) in neck:
-        fy[(x, z)] = min(fy.get((x, z), y), y)
+    ys = [y for (x, y, z) in neck]
     xs = [x for (x, y, z) in neck]
+    ymid = (min(ys) + max(ys)) / 2
     for (x, y, z) in neck:
-        throat = y <= fy[(x, z)] + max(0, round(0.3 * k)) and min(xs) < x < max(xs)
+        throat = y < ymid and min(xs) < x < max(xs)
         body.put((x, y, z), front_col if throat else col)
 
 
