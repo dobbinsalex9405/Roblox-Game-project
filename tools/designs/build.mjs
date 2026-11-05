@@ -28,6 +28,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -173,13 +174,54 @@ function detailsOf(meta) {
   return out;
 }
 
+// Draco-compresses a dropped .glb (about 10x smaller: Blender voxel meshes
+// are mostly repeated vertices), so the viewer folder stays small enough to
+// copy and quick to open. Results are cached by the source's hash. Needs
+// `npm ci` in tools/designs/viewer; without it the .glb ships as it is.
+const DRACO_CACHE = path.join(REPO, "build/designs/draco");
+let gltf; // { io, transforms } once loaded, false when unavailable
+async function compressGlb(bytes) {
+  if (gltf === undefined) {
+    try {
+      const req = createRequire(path.join(HERE, "viewer/package.json"));
+      const { NodeIO } = req("@gltf-transform/core");
+      const { ALL_EXTENSIONS } = req("@gltf-transform/extensions");
+      const { draco, dedup } = req("@gltf-transform/functions");
+      const draco3d = req("draco3dgltf");
+      const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
+        "draco3d.decoder": await draco3d.createDecoderModule(),
+        "draco3d.encoder": await draco3d.createEncoderModule(),
+      });
+      gltf = { io, transforms: [dedup(), draco()] };
+    } catch (err) {
+      console.warn(`design viewer: models ship uncompressed (${err.message.split("\n")[0]})`);
+      gltf = false;
+    }
+  }
+  if (!gltf) return bytes;
+  const cached = path.join(DRACO_CACHE, `${hashOf(bytes)}.glb`);
+  if (fs.existsSync(cached)) return fs.readFileSync(cached);
+  let out = bytes;
+  try {
+    const doc = await gltf.io.readBinary(new Uint8Array(bytes));
+    await doc.transform(...gltf.transforms);
+    const packed = Buffer.from(await gltf.io.writeBinary(doc));
+    if (packed.length < bytes.length) out = packed;
+  } catch (err) {
+    console.warn(`design viewer: could not compress a model, shipping it as is (${err.message})`);
+  }
+  fs.mkdirSync(DRACO_CACHE, { recursive: true });
+  fs.writeFileSync(cached, out);
+  return out;
+}
+
 function writeOnce(file, data) {
   if (fs.existsSync(file)) return;
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, data);
 }
 
-function build(opts) {
+async function build(opts) {
   const catalog = readJson(path.join(HERE, "catalog.json"));
   const models = readJson(opts.models);
   if (!models) {
@@ -223,7 +265,7 @@ function build(opts) {
     const meta = readJson(path.join(drop.dir, "meta.json"));
     const added = [];
     for (const { f, mtime } of glbs) {
-      const bytes = fs.readFileSync(path.join(drop.dir, f));
+      const bytes = await compressGlb(fs.readFileSync(path.join(drop.dir, f)));
       const hash = hashOf(bytes);
       writeOnce(
         path.join(dataDir, "models", `${hash}.js`),
@@ -317,4 +359,4 @@ function build(opts) {
   );
 }
 
-build(parseArgs(process.argv.slice(2)));
+await build(parseArgs(process.argv.slice(2)));
