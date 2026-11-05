@@ -104,15 +104,15 @@
   },
   "Butterfly": {
    "assetId": 95471060225988,
-   "textureId": 134279121794796,
+   "textureId": 110947583418224,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "Calf": {
    "assetId": 102259764137875,
-   "textureId": 95501110393058,
+   "textureId": 110955241044536,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "CalicoKitten": {
    "assetId": 84406244306823,
