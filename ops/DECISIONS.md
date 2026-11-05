@@ -19,6 +19,24 @@ Non-obvious choices, newest first, so a later session can trust them.
   inventory is where a collection lives; overflow still sells the weakest.
 - **The raider must stand on the floor** (server checks height): the ladder
   is the only way up for a raider, which gives owners time to react.
+## 2026-11-05: Hatchery Heist towers are cozy apartments, the farm is only the centre
+
+- **Alex's direction (10:52Z):** no farm theme on the towers; a farm in the
+  middle and each player's tower a cozy apartment building. Storybook Farm
+  stays for the shared centre (Golden Nest, belt, trees, farm decor).
+- **Ten apartment floors**, each a room theme that gets more magical going
+  up: Cozy studio, Book nook, Plant sunroom, Bakery kitchen, Games lounge,
+  Winter cabin, Art studio, Rooftop garden, Starlit observatory, Golden sky
+  penthouse. Outside, the building climbs from red brick through pastel
+  plaster with shutters to a trellis garden, a starry navy storey and a
+  white-and-gold penthouse with a domed roof, so a taller tower is visibly
+  richer from across the map.
+- **Shell as pieces on one anchor** (`tools/art/world/tower.py`): floor,
+  back, left, right and front of each storey, plus a roof; the game places
+  every piece at (base centre, floor height). Walls 0.8 thick so the inside
+  wallpaper and the outside facade both survive the Parts version. Elevator
+  and ladder keep their ids, restyled slate and brass, glass shaft, iron
+  fire escape.
 
 ## 2026-11-05: Master creature list, 645 creatures (Hatchery Heist)
 
