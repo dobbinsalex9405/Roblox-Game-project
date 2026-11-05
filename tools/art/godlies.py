@@ -6,6 +6,7 @@ ROSTER, draws them 1.6x finer in the Blender build (FINER) and sets their
 element (ELEMENT)."""
 import godly_beasts
 import godly_skies
+from godly_common import weld
 
 # (id, element), in the master sheet's order
 GODLIES = [
@@ -28,7 +29,19 @@ GODLIES = [
     ('MechaDragon', 'Ember'),
     ('OmegaChimera', 'plain'),
 ]
-DRAW = {**godly_beasts.BUILDERS, **godly_skies.BUILDERS}
+
+
+def _welded(fn):
+    """Draw, then weld every loose piece to the body (godly_common.weld)."""
+    def draw(c, H):
+        out = fn(c, H)
+        weld(c)
+        return out
+    draw.__name__ = fn.__name__
+    return draw
+
+
+DRAW = {sid: _welded(fn) for sid, fn in {**godly_beasts.BUILDERS, **godly_skies.BUILDERS}.items()}
 ROSTER = [(sid, 'Godly', DRAW[sid]) for sid, _ in GODLIES if sid in DRAW]
 ELEMENT = {sid: el for sid, el in GODLIES if sid in DRAW}
 FINER = {sid: 1.6 for sid, _, _ in ROSTER}

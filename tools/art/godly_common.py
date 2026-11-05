@@ -529,3 +529,82 @@ def tilt(c, degrees, about=(0.0, 0.0, 0.0)):
     for part in c.parts:
         part.v = {(x, y, z - low): v for (x, y, z), v in part.v.items()}
         part.pivot = (part.pivot[0], part.pivot[1], part.pivot[2] - low)
+
+
+# ------------------------------------------------------------ one piece
+
+_N6 = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
+
+
+def weld(c, skip=('orbit',), reach=16):
+    """Every voxel outside the orbit touches the rest face to face: bevelled
+    voxels that meet only at an edge or a corner (a claw beside its paw, a
+    stair of tail feathers, a wing hinged a voxel off the shoulder) read as
+    loose bits. Each piece that is not joined to the biggest one gets the
+    shortest bridge of voxels to it, in its own part and colour; a piece too
+    far away to bridge is a build error."""
+    owner = {}
+    for part in c.parts:
+        if part.name in skip:
+            continue
+        for p in part.v:
+            owner[p] = part
+    seen, comps = set(), []
+    for v in owner:
+        if v in seen:
+            continue
+        stack, comp = [v], []
+        seen.add(v)
+        while stack:
+            q = stack.pop()
+            comp.append(q)
+            for d in _N6:
+                n = (q[0] + d[0], q[1] + d[1], q[2] + d[2])
+                if n in owner and n not in seen:
+                    seen.add(n)
+                    stack.append(n)
+        comps.append(comp)
+    if len(comps) < 2:
+        return
+    comps.sort(key=len, reverse=True)
+    main = set(comps[0])
+    for comp in comps[1:]:
+        cs = set(comp)
+        if cs & main:
+            continue
+        # breadth-first from the whole piece through empty space to the main body
+        prev = {q: None for q in comp}
+        frontier, hit = list(comp), None
+        for _ in range(reach):
+            nxt = []
+            for q in frontier:
+                for d in _N6:
+                    n = (q[0] + d[0], q[1] + d[1], q[2] + d[2])
+                    if n in prev or n[2] < 0:
+                        continue
+                    prev[n] = q
+                    if n in main:
+                        hit = n
+                        break
+                    if n in owner:  # another loose piece: walk through it
+                        nxt.append(n)
+                        continue
+                    nxt.append(n)
+                if hit:
+                    break
+            if hit:
+                break
+            frontier = nxt
+        if hit is None:
+            raise ValueError(f'{c.species}: a loose piece of {len(comp)} voxels is too far from the body to weld')
+        path, q = [], prev[hit]
+        while q is not None and q not in cs:
+            path.append(q)
+            q = prev[q]
+        part = owner[q]
+        col, g = part.v[q]
+        for p in path:
+            if p not in owner:
+                part.put(p, col, g)
+                owner[p] = part
+        main |= cs | set(path)
