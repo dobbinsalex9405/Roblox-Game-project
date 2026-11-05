@@ -139,17 +139,22 @@ function BaseView.start(ctx: Context.Context)
 		end
 
 		for _, pad in (model:WaitForChild("Pads") :: Folder):GetChildren() do
+			-- The prompts sit on an attachment in the middle of the
+			-- creature's pads (updatePads moves it for 2- and 3-pad creatures).
+			local spot = Instance.new("Attachment")
+			spot.Name = "PromptSpot"
+			spot.Parent = pad
 			local function uid(): string?
 				local value = pad:GetAttribute("CreatureUid")
 				return if type(value) == "string" then value else nil
 			end
-			prompt(pad, "Ride", "Ride").Triggered:Connect(function()
+			prompt(spot, "Ride", "Ride").Triggered:Connect(function()
 				local id = uid()
 				if id then
 					ctx.fire(remotes["HH:Ride"], id)
 				end
 			end)
-			prompt(pad, "Guard", "Make guard", {
+			prompt(spot, "Guard", "Make guard", {
 				hold = 0.3,
 				key = Enum.KeyCode.R,
 				gamepad = Enum.KeyCode.ButtonY,
@@ -160,7 +165,7 @@ function BaseView.start(ctx: Context.Context)
 					ctx.fire(remotes["HH:Guard"], id)
 				end
 			end)
-			prompt(pad, "Steal", "Steal", { hold = 0.4, reach = raids.pickupReach }).Triggered:Connect(
+			prompt(spot, "Steal", "Steal", { hold = 0.4, reach = raids.pickupReach }).Triggered:Connect(
 				function()
 					local index = plotIndex()
 					local padIndex = pad:GetAttribute("Pad")
@@ -258,15 +263,25 @@ function BaseView.start(ctx: Context.Context)
 			local riding = pad:GetAttribute("Riding") == true
 			local guarding = pad:GetAttribute("Guard") == true
 			local carried = pad:GetAttribute("Carried") == true
-			setPrompt(pad, "Ride", isOwn and has and not riding and not guarding, name)
+			local spot = pad:FindFirstChild("PromptSpot") :: Attachment?
+			if spot == nil then
+				continue
+			end
+			local span = pad:GetAttribute("Span")
+			local x = if type(span) == "number" then (span - 1) * 5 else 0
+			if spot:GetAttribute("X") ~= x then
+				spot:SetAttribute("X", x)
+				spot.Position = Vector3.new(x, 0, 0)
+			end
+			setPrompt(spot, "Ride", isOwn and has and not riding and not guarding, name)
 			setPrompt(
-				pad,
+				spot,
 				"Guard",
 				isOwn and has and not riding,
 				name,
 				if guarding then "Stand down" else "Make guard"
 			)
-			setPrompt(pad, "Steal", canSteal and has and not riding and not guarding and not carried, name)
+			setPrompt(spot, "Steal", canSteal and has and not riding and not guarding and not carried, name)
 		end
 	end
 
