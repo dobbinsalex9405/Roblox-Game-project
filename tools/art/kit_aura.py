@@ -919,40 +919,43 @@ def raincloud(c, H, col, col2=None):
 
 
 def raindrops(c, H, col, col2=None):
-    """Glowing raindrops dripping from the underside of the fleece: each
-    hangs from the fleece's edge, so nothing floats."""
+    """Glowing raindrops dripping from the OUTER edge of the fleece: one
+    from each side between the legs and one from each front corner, each a
+    thin drip with a round drop, hanging clear of the legs so they show in
+    the hero view (never between the legs, where they read as knees)."""
     k = H / 10.0
     body = _find(c, 'body')
     if not body:
         return
     part = c.part('raindrops', 'glow')
+    legs = set()
+    for p in c.parts:
+        if p.name.startswith('leg'):
+            legs |= set(p.v)
     y0, y1 = _yrange(body)
-    placed = []
-    for i in range(9):
-        y = round(y0 + (y1 - y0) * (0.1 + 0.1 * i))
-        if placed and y - placed[-1] < max(4, 1.6 * k):
-            continue  # drops stay apart, never a band
-        col_x = {}
-        for (x, yy, z) in body.v:
-            if yy == y and x >= 0 and z > 1.2 * k:
-                col_x[x] = min(col_x.get(x, 99), z)
-        if not col_x:
+    # the widest row of each slice, its outer column and that column's underside
+    def edge(y):
+        row = [(x, z) for (x, yy, z) in body.v if yy == y and x >= 0]
+        if not row:
+            return None
+        xm = max(x for x, _ in row)
+        return xm, min(z for x, z in row if x == xm)
+    spots = []  # (x, y, z): the top cell of each drip, just outside the fleece
+    gap = max(4, round(1.6 * k))
+    yc = (y0 + y1) / 2
+    for y in (round(yc - gap / 2), round(yc + gap / 2)):  # mid-flank, clear of the legs
+        e = edge(y)
+        if e:
+            spots.append((e[0] + 1, y, e[1] + 1))
+    for n, (x, y, z) in enumerate(spots):
+        L = max(1, round((0.35 + 0.25 * (n % 2)) * k))
+        cells = [(x, y, z - d) for d in range(0, L)]
+        bulb = [(x, y, z - L), (x, y, z - L - 1), (x, y + 1, z - L), (x, y + 1, z - L - 1)]  # a round drop
+        if any(q in legs or q in body.v for q in cells + bulb):
             continue
-        x = max(col_x)  # the outermost column of fleece
-        z = col_x[x]
-        L = max(2, round((0.7 + 0.3 * (len(placed) % 2)) * k))
-        if any((x, y, zz) in body.v for zz in range(z - L - 1, z)):
-            continue  # it would run down a leg: drip only where it hangs free
-        placed.append(y)
-        # a thin drip with a round drop at the end
-        for d in range(1, L + 1):
-            cells = [(x, y)] if d < L else [(x, y), (x, y + 1)]
-            for (xx, yy) in cells:
-                part.put((xx, yy, z - d), col, True)
-                part.put((_mx(xx), yy, z - d), col, True)
-        if len(placed) == 4:
-            break
-
+        for (xx, yy, zz) in cells + bulb:
+            part.put((xx, yy, zz), col, True)
+            part.put((_mx(xx), yy, zz), col, True)
 
 def wave(c, H, col, col2=None):
     """Riding a little wave: the creature is lifted and a curling wave of
@@ -1196,21 +1199,22 @@ def iris_eyes(c, H, col, col2=None, a=None):
         cz = sum(q[2] for q in pts) / len(pts)
         y0 = min(q[1] for q in pts)
         x0, z0 = round(cx - (n - 1) / 2), round(cz - (n - 1) / 2)
+        # one flat disc at the depth of the front-most face voxel over it, so
+        # no face voxel stands in front of part of the eye (a slit or blob)
+        fronts = []
+        for i in range(n):
+            for j in range(n):
+                for y in range(y0 - 2, y0 + 4):
+                    if (x0 + i, y, z0 + j) in old or any((x0 + i, y, z0 + j) in h.v for h in hosts):
+                        fronts.append(y)
+                        break
+        yd = min(fronts) if fronts else y0
         for i in range(n):
             for j in range(n):
                 x, z = x0 + i, z0 + j
-                # sit on the face: the front-most head voxel here, or the old eye's depth
-                spot = None
-                for y in range(y0 - 2, y0 + 4):
-                    if (x, y, z) in old:
-                        spot = (x, y, z)
-                        break
-                    host = next((h for h in hosts if (x, y, z) in h.v), None)
-                    if host:
-                        del host.v[(x, y, z)]
-                        spot = (x, y, z)
-                        break
-                spot = spot or (x, y0, z)
+                for h in hosts:
+                    h.v.pop((x, yd, z), None)
+                spot = (x, yd, z)
                 if n == 3 and i == 1 and j == 1:
                     e.v[spot] = (pupil, False)
                 elif i == 0 and j == n - 1:  # the shine: upper corner toward -x
