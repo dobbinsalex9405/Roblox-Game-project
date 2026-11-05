@@ -1133,8 +1133,9 @@ def mirror_cat(c, H):
 
 
 def spectral_wolf(c, H):
-    ghost = P('#BFEFFF')
-    plan('beast', c, H, {'col': '#BFEFFF', 'belly': '#E6FBFF', 'snout': '#E6FBFF', 'accent': '#8AD8F2', 'glow': '#7FFFE6',
+    # a deep spectral blue so the bright skeleton lines stand out on it
+    ghost = P('#6F7FD0')
+    plan('beast', c, H, {'col': '#6F7FD0', 'belly': '#9AA8E8', 'snout': '#9AA8E8', 'accent': '#4F5FB0', 'glow': '#7FFFE6',
                          'eye': '#7FFFE6'}, kind='canine', tail='bushy', mane='ruff')
     k = H / 10.0
     c.part('eyes').paint(lambda q, cc, g: (P('#7FFFE6'), True) if cc != WHITE else None)
@@ -1145,10 +1146,19 @@ def spectral_wolf(c, H):
                -1.4 * k < p[1] < 1.6 * k and (p[1] % max(3, round(0.8 * k)) == 0) and p[2] > bz - 0.4 * k else None)
     body.paint(lambda p, cc, g: (P('#7FFFE6'), True) if cc == ghost and abs(p[0] + .5) < 0.6 and p[2] >= max(
         q[2] for q in body.v if q[0] == p[0] and q[1] == p[1]) else None)
-    # wispy fading paws and tail tip
+    # leg bones glowing down the front of each leg, and wispy fading paws
     for name in ('legFL', 'legFR', 'legBL', 'legBR'):
         lp = part_or_none(c, name)
         if lp:
+            xs = sorted({q[0] for q in lp.v})
+            mid = xs[len(xs) // 2]
+            fronts = {}
+            for q in lp.v:
+                if q[0] in (mid, mid - 1) and q[1] < fronts.get((q[0], q[2]), 10 ** 6):
+                    fronts[(q[0], q[2])] = q[1]
+            for (x, z), y in fronts.items():
+                if z >= 0.5 * k:
+                    lp.v[(x, y, z)] = (P('#7FFFE6'), True)
             lp.paint(lambda q, cc, g: (P('#E6FBFF'), True) if q[2] < 0.5 * k else None)
     tail = c.part('tail')
     tail.paint(lambda q, cc, g: (P('#E6FBFF'), True) if (q[0] + q[1] + q[2]) % 4 == 0 else None)
