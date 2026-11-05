@@ -22,6 +22,15 @@
   their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
+- Every creature walks on its own legs: birds step on two little legs and
+  flick their wings out, bunnies push off with their hind feet, frogs kick
+  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
+  two alternating sets and spiders on eight; ladybugs, turtles and pill
+  bugs no longer slide along on their bellies. Legendaries and Godlies
+  fly, with their legs trailing. The 3D design viewer's walk clips match.
+- Fix: crabs and lizards had thinner legs on their left side, a seal's
+  belly was taken for one of its legs, and a widened body (Guinea Pig)
+  could end up with mismatched legs; every creature's legs now mirror.
 - The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,

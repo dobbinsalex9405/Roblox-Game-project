@@ -72,8 +72,28 @@ def _pieces(vox):
     return out
 
 
+def leg_name(side, i, n):
+    """The name (and anim) of leg i (0 = front) of n on one side, 'L' or 'R'."""
+    if n == 1:
+        return 'leg' + side
+    if n == 2:
+        return 'leg' + ('F' if i == 0 else 'B') + side
+    return f'leg{i + 1}{side}'
+
+
+def leg_part(c, side, i, n, hip):
+    """The part to draw leg i of n on one side into, hinged at its hip
+    (x, y, z in voxels). Body plans that know where their legs are (bugs,
+    crabs, frogs, turtles) draw them straight into these parts; the rest
+    are found by split_legs."""
+    name = leg_name(side, i, n)
+    return c.part(name, name, hip)
+
+
 def split_legs(c, Part):
     """Moves the body's legs into leg parts. Returns the leg part names."""
+    if any(p.name in LEG_NAMES for p in c.parts):
+        return []  # the body plan drew its own legs
     body = next((p for p in c.parts if p.name == 'body'), None)
     if body is None or not body.v:
         return []
@@ -211,7 +231,7 @@ def split_legs(c, Part):
     return names
 
 
-GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover')
+GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover', 'swim')
 # How a creature moves when its legs alone don't say: hand-made creatures by
 # species, roster creatures by plan and kind (variants.py sets c.gait_hint).
 SPECIES_GAIT = {
@@ -224,11 +244,13 @@ KIND_GAIT = {
     'bee': 'hover', 'butterfly': 'hover', 'beetle': 'scuttle', 'caterpillar': 'slither', 'crab': 'scuttle',
     'gecko': 'trot', 'chameleon': 'trot', 'iguana': 'trot', 'bearded': 'trot',
     # kit_pond critters and shore animals
-    'dragonfly': 'hover', 'firefly': 'hover', 'ant': 'scuttle', 'grasshopper': 'scuttle', 'spider': 'scuttle',
+    'dragonfly': 'hover', 'firefly': 'hover', 'ant': 'scuttle', 'grasshopper': 'hop', 'spider': 'scuttle',
     'mantis': 'scuttle', 'pillbug': 'scuttle', 'worm': 'slither', 'slug': 'slither', 'starfish': 'slither',
-    'urchin': 'scuttle', 'hermit': 'scuttle', 'lobster': 'scuttle', 'newt': 'trot', 'platypus': 'trot',
+    'urchin': 'slither', 'hermit': 'scuttle', 'lobster': 'scuttle', 'newt': 'trot', 'platypus': 'trot',
     'seal': 'waddle', 'walrus': 'waddle',
 }
+# Legendary and Godly creatures float (CreatureLooks hover), so they fly.
+FLYING_TIERS = ('Legendary', 'Godly')
 
 
 def gait_hint(c):
@@ -239,6 +261,10 @@ def gait_hint(c):
 def gait(c):
     """trot, waddle, hop, scuttle, slither or hover."""
     g = gait_hint(c)
+    if c.rarity in FLYING_TIERS:
+        # they float: they fly, or swim through the air (whales, rays, fish)
+        return 'swim' if g == 'swim' else 'hover'
+
     if g:
         return g
     legs = [p for p in c.parts if p.name.startswith('leg')]

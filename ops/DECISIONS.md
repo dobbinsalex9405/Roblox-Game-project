@@ -33,6 +33,29 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Signs are blank:** stalls, the Theme Stand, Book stand, arch, silo and
   notice board carry a blank cream face; the game writes the text
   (SurfaceGui), at the prop's `anchor` (the face centre).
+## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
+
+- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
+  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
+  finds the rest (quadrupeds, lizards) after the build and skips any creature
+  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
+  front to back, each its own anim, hinged at the hip.
+- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
+  never opens a hole in it; small birds' folded wings are only what shows
+  outside the body.
+- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
+  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
+- **Legendary and Godly always hover** (they float in CreatureLooks), so a
+  Phoenix does not waddle in mid-air.
+- **Sideways bug legs swing about the vertical axis**, lifting as they reach
+  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
+- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
+  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
+  Python and `Walk.spec` checks the game gives the same numbers; CI checks
+  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
+- **swim and finL/finR exist before any fish** so the pond batch can add fish
+  with data only.
+
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
 - **Each creature wanders only its own cell** (the 10-stud spots it takes),

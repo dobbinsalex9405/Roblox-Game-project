@@ -142,22 +142,21 @@ describe("Walk gaits", function()
 		local l = Walk.pose("waddle", "legL", 0.25, 1, 2, true).rx
 		local r = Walk.pose("waddle", "legR", 0.25, 1, 2, true).rx
 		expect(l > 0.3 and near(r, -l)).toBe(true)
-		local a = Walk.pose("scuttle", "leg1L", 0.25, 1, 1, true).rx
-		expect(near(Walk.pose("scuttle", "leg2R", 0.25, 1, 1, true).rx, a)).toBe(true)
-		expect(near(Walk.pose("scuttle", "leg3L", 0.25, 1, 1, true).rx, a)).toBe(true)
-		expect(near(Walk.pose("scuttle", "leg1R", 0.25, 1, 1, true).rx, -a)).toBe(true)
-		-- crabs and lobsters go up to six a side, still alternating
-		expect(near(Walk.pose("scuttle", "leg4R", 0.25, 1, 1, true).rx, a)).toBe(true)
-		expect(near(Walk.pose("scuttle", "leg4L", 0.25, 1, 1, true).rx, -a)).toBe(true)
-		expect(near(Walk.pose("scuttle", "leg6L", 0.25, 1, 1, true).rx, -a)).toBe(true)
+		-- Bug legs stick out sideways and swing about Y: the left side turns
+		-- the other way, so the same set reaches forward together.
+		local a = Walk.pose("scuttle", "leg1L", 0.25, 1, 1, true).ry
+		expect(math.abs(a) > 0.3).toBe(true)
+		expect(near(Walk.pose("scuttle", "leg2R", 0.25, 1, 1, true).ry, -a)).toBe(true)
+		expect(near(Walk.pose("scuttle", "leg3L", 0.25, 1, 1, true).ry, a)).toBe(true)
+		expect(near(Walk.pose("scuttle", "leg1R", 0.25, 1, 1, true).ry, a)).toBe(true)
 	end)
 
 	it("lifts the body off the ground in a hop and waves it in a slither", function()
 		local hop = Walk.pose("hop", "body", 0.3, 1, 2, false) -- the top of the hop
 		expect(hop.dy > 0.5).toBe(true)
 		local slither = Walk.pose("slither", "body", 0.25, 1, 2, false)
-		expect(math.abs(slither.ry) > 0.2).toBe(true)
-		expect(math.abs(slither.dx) > 0.1).toBe(true)
+		expect(math.abs(slither.ry) > 0.05 and math.abs(slither.ry) < 0.15).toBe(true)
+		expect(math.abs(slither.dx) > 0.05).toBe(true)
 	end)
 
 	it("holds still when standing, and legless stand-ins still step", function()
@@ -169,6 +168,43 @@ describe("Walk gaits", function()
 		expect(legless.dy > legged.dy).toBe(true)
 	end)
 
+	it("walks a spider's eight legs as two sets of four", function()
+		for _, pair in
+			{ { "leg1L", "leg2R" }, { "leg3L", "leg4R" }, { "leg2L", "leg1R" }, { "leg4L", "leg3R" } }
+		do
+			local a = Walk.pose("scuttle", pair[1], 0.25, 1, 1, true).ry
+			local b = Walk.pose("scuttle", pair[2], 0.25, 1, 1, true).ry
+			expect(math.abs(a) > 0.3 and near(a, -b)).toBe(true)
+		end
+		-- the two sets swing opposite ways (seen from the same side)
+		expect(
+			near(
+				Walk.pose("scuttle", "leg1L", 0.25, 1, 1, true).ry,
+				-Walk.pose("scuttle", "leg2L", 0.25, 1, 1, true).ry
+			)
+		).toBe(true)
+	end)
+
+	it("flicks a waddling bird's wings out only while it walks", function()
+		local l = Walk.pose("waddle", "wingL", 0.25, 1, 2, true).rz
+		local r = Walk.pose("waddle", "wingR", 0.25, 1, 2, true).rz
+		expect(l > 0.1 and near(r, -l)).toBe(true)
+		expect(Walk.pose("waddle", "wingL", 0.25, 0, 2, true).rz).toBe(0)
+		-- a trotting dragon's wings are left to its own flap
+		expect(Walk.pose("trot", "wingL", 0.25, 1, 2, true).rz).toBe(0)
+	end)
+
+	it("lets hovering legs dangle and trail, and fish swim with tail and fins", function()
+		local leg = Walk.pose("hover", "legL", 0, 1, 2, true)
+		expect(leg.rx < -0.1).toBe(true)
+		expect(Walk.gaitOf("swim", {}, false)).toBe("swim")
+		local tail = Walk.pose("swim", "tail", 0.45, 1, 2, false)
+		expect(math.abs(tail.ry) > 0.3).toBe(true)
+		local finL = Walk.pose("swim", "finL", 0.25, 1, 2, false).rz
+		local finR = Walk.pose("swim", "finR", 0.25, 1, 2, false).rz
+		expect(math.abs(finL) > 0.3 and near(finL, finR)).toBe(true)
+	end)
+
 	it("advances the step with distance, by each gait's stride", function()
 		expect(near(Walk.phase("trot", 1.8, 2), 1)).toBe(true)
 		expect(Walk.phase("scuttle", 1, 1) > Walk.phase("trot", 1, 1)).toBe(true)
@@ -177,7 +213,7 @@ end)
 
 describe("Walk poses over time", function()
 	it("never jumps between frames in any gait", function()
-		local anims = { "body", "head", "tail", "legFL", "legL", "leg1L" }
+		local anims = { "body", "head", "tail", "legFL", "legL", "leg1L", "leg4R", "wingL", "finR" }
 		for _, gait in Walk.GAITS do
 			for _, anim in anims do
 				local last = Walk.pose(gait, anim, 0, 1, 2, true)
@@ -199,5 +235,23 @@ describe("Walk poses over time", function()
 		local spread = Walk.pose("trot", "body", 0.25, 1, 2, true)
 		local under = Walk.pose("trot", "body", 0, 1, 2, true)
 		expect(spread.dy < under.dy).toBe(true)
+	end)
+end)
+
+describe("Walk matches the Blender walk clips", function()
+	it("gives the same pose as tools/art/blender/walkpose.py", function()
+		-- WalkMirror.luau is written by tools/art/blender/luau.py from the
+		-- Python copy of Walk.pose the design viewer's walk clips use.
+		local samples = require("./WalkMirror") :: { any }
+		expect(#samples > 100).toBe(true)
+		local keys = { "rx", "ry", "rz", "dx", "dy" }
+		for _, row in samples do
+			local p = Walk.pose(row[1], row[2], row[3], row[4], row[5], row[6]) :: any
+			for i, key in keys do
+				if math.abs(p[key] - row[7][i]) > 1e-5 then
+					error(`{row[1]} {row[2]} {key}: Walk.pose {p[key]}, walkpose.py {row[7][i]}`)
+				end
+			end
+		end
 	end)
 end)
