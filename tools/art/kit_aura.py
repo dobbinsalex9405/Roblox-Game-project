@@ -1031,6 +1031,30 @@ def crescent(c, H, col, col2=None):
                     part.put((x, math.floor(y + yy), math.floor(cz + zz)), col, True)
 
 
+def flank_crescent(c, H, col, col2=None):
+    """A glowing crescent moon marked on each flank (a moon unicorn's)."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    zs = sorted(p[2] for p in body.v)
+    ys = sorted(p[1] for p in body.v)
+    zc = zs[len(zs) * 3 // 4]  # high on the flank, above the legs
+    yc = ys[len(ys) // 2] + 0.4 * k  # toward the hindquarters
+    R = 1.15 * k
+    for sx in (1, -1):
+        edge = {}
+        for (x, y, z) in body.v:
+            if (x >= 0) == (sx > 0):
+                key = (y, z)
+                if key not in edge or x * sx > edge[key] * sx:
+                    edge[key] = x
+        for (y, z), x in edge.items():
+            yy, zz = y + .5 - yc, z + .5 - zc
+            if math.hypot(yy, zz) <= R and math.hypot(yy + 0.5 * R, zz - 0.3 * R) > R * 0.8:
+                body.v[(x, y, z)] = (col, True)
+
+
 def halo(c, H, col, col2=None):
     """A glowing ring floating over the head."""
     k = H / 10.0
@@ -1266,6 +1290,30 @@ def cone_horn(c, H, col, col2=None):
                     colr = _dark(col, 0.25) if (dx + dy + z) % 3 == 0 else col
                     part.put((dx, round(y - 0.4 * k) + dy, z), colr)
     ball(part, (0, y - 0.4 * k, zt - round(0.4 * k) + n + 0.3 * k), (1.0 * k, 1.0 * k, 0.8 * k), col2 or hexc('#FF9EC4'))
+
+
+def spiral_horn(c, H, col, col2=None):
+    """A unicorn's horn: slender and tall, rising from the forehead with a
+    spiral groove (col2) winding up it and a glowing tip."""
+    k = H / 10.0
+    head = head_of(c)
+    y, zt = _crown(c)
+    yf = min(p[1] for p in head.v)
+    yb = round(y + (yf - y) * 0.45)  # forward of the crown, over the brow
+    part = c.part('horn', 'glow', (0, yb, zt))
+    n = max(5, round(3.2 * k))
+    groove = col2 or _dark(col, 0.3)
+    for i in range(n):
+        t = i / (n - 1)
+        r = 0.42 * k * (1 - t) + 0.3
+        lean = round(t * 0.5 * k)  # a gentle forward lean
+        for dx in range(-math.ceil(r) - 1, math.ceil(r) + 1):
+            for dy in range(-math.ceil(r) - 1, math.ceil(r) + 1):
+                if math.hypot(dx + .5, dy + .5) <= r:
+                    ang = (math.atan2(dy + .5, dx + .5) / (2 * math.pi)) % 1.0
+                    spiral = (ang + i / max(2.0, 1.4 * k)) % 1.0 < 0.22
+                    tip = t > 0.82
+                    part.put((dx, yb + dy - lean, zt - 1 + i), col if tip else (groove if spiral else col), tip)
 
 
 def gears(c, H, col, col2=None):
@@ -1864,7 +1912,7 @@ def feather_wings(c, H, col, col2=None, span=3.2, membrane=False):
                                math.floor(bot) - d // 2), tip if t > 0.5 else col)
 
 
-def raised_wings(c, H, col, col2=None, span=3.6, angle=60, tip_glow=False):
+def raised_wings(c, H, col, col2=None, span=3.6, angle=60, tip_glow=False, a=None):
     """Big feathered wings held half-raised (a griffin's, a pegasus's): they
     rise from the shoulders up and out, with rows of feathers, long flight
     feathers along the trailing edge and pale tips (col2). They flap
@@ -1873,14 +1921,18 @@ def raised_wings(c, H, col, col2=None, span=3.6, angle=60, tip_glow=False):
     body = _find(c, 'body')
     if not body:
         return
+    # roster settings: "span", "angle" (degrees above level) and "drop"
+    # (how far below the top of the body the shoulders sit, in tenths of H)
+    a = a or {}
+    span, angle = float(a.get('span', span)), float(a.get('angle', angle))
     y0, y1 = _yrange(body)
     zt = max(p[2] for p in body.v)
     ry = y0 + (y1 - y0) * 0.33
-    rz = zt - 0.3 * k
+    rz = zt - (0.3 + float(a.get('drop', 0.0))) * k
     tip = col2 or _light(col, 0.45)
-    a = math.radians(angle)
-    d = (math.cos(a), math.sin(a))      # along the arm, up and out
-    n = (math.sin(a), -math.cos(a))     # across the wing, out and down
+    ang = math.radians(angle)
+    d = (math.cos(ang), math.sin(ang))      # along the arm, up and out
+    n = (math.sin(ang), -math.cos(ang))     # across the wing, out and down
     L = span * k
     rows = max(2, round(0.55 * k))
     for sx, name in ((-1, 'wingL'), (1, 'wingR')):
@@ -2060,6 +2112,120 @@ def long_muzzle(c, H, col, col2=None):
                 head.put((x, yn, z), nose)
             elif (x, yn + 1, z) in head.v:
                 head.put((x, yn + 1, z), nose)
+
+
+def long_legs(c, H, col, col2=None, a=None):
+    """Longer legs (a foal's, a stag's, a wolf's): the whole creature stands
+    taller on its feet. Every part and pivot moves up and each foot column is
+    stretched, keeping the foot itself (a glowing paw stays a paw). Put it
+    first in the accessories, before anything placed by height. "amount"
+    sets the extra height in tenths of the creature's height (default 0.7)."""
+    k = H / 10.0
+    d = max(1, round(float((a or {}).get('amount', 0.7)) * k))
+    body = _find(c, 'body')
+    feet = {(x, y): v for (x, y, z), v in body.v.items() if z == 0}
+    shin = {(x, y): body.v.get((x, y, 1), v) for (x, y), v in feet.items()}
+    for part in c.parts:
+        part.v = {(x, y, z + d): v for (x, y, z), v in part.v.items()}
+        px, py, pz = part.pivot
+        part.pivot = (px, py, pz + d)
+    for (x, y), v in feet.items():
+        body.v[(x, y, 0)] = v
+        for z in range(1, d + 1):
+            body.v[(x, y, z)] = shin[(x, y)] if not shin[(x, y)][1] else (col, False)
+
+
+def horse_head(c, H, col, col2=None, a=None):
+    """A horse's (or a deer's) head: a long, deep muzzle that reaches forward
+    and down from below the eyes, flat-fronted with two nostrils and a mouth
+    line. col: the muzzle, col2: nostrils. With "nose": "wolf" it is a
+    canine's instead: narrower and tapering to a dark nose on the tip."""
+    k = H / 10.0
+    wolf = (a or {}).get('nose') == 'wolf'
+    head, yf, ez, z0, z1 = _head_front(c)
+    top = (ez - 0.3 * k) if ez is not None else (z0 + z1) / 2
+    zc = top - 1.0 * k
+    face = head.v[next(iter(head.v))][0]
+    # the bridge of the nose, then the muzzle box, deeper toward the tip
+    # a muzzle as wide as the lower face where it leaves the head, tapering
+    # forward and a little down to a broad nose: the whole head reads long
+    hw = max(p[0] for p in head.v if abs(p[2] - zc) <= 1) + 0.5
+    steps = 6
+    for i in range(steps):
+        t = i / (steps - 1)
+        y = yf + 0.6 * k - t * 2.4 * k
+        z = zc + 0.2 * k - t * 0.35 * k
+        tipw = 0.55 if wolf else 0.85
+        rx = (hw * 0.85) * (1 - t) + tipw * k * t
+        rz = 1.15 * k * (1 - t) + (0.6 if wolf else 0.8) * k * t
+        head.ell((0, y, z), (rx, 0.55 * k, rz), face if t < 0.45 else col)
+    # a flat bridge from the forehead down the nose
+    head.ell((0, yf - 0.9 * k, zc + 0.75 * k), (0.7 * k, 1.5 * k, 0.45 * k), face)
+    yn = min(p[1] for p in head.v)
+    nose = col2 or _dark(col, 0.5)
+    if wolf:  # a dark nose capping the tip of the muzzle
+        tipz = max(p[2] for p in head.v if p[1] <= yn + 1)
+        head.ell((0, yn + 0.4 * k, tipz - 0.3 * k), (0.45 * k, 0.45 * k, 0.4 * k), nose)
+        return
+    zn = round(zc + 0.15 * k)
+    for sx in (-1, 1):
+        x = round(sx * 0.55 * k) - (1 if sx < 0 else 0)
+        for z in (zn, zn - 1) if k >= 1.6 else (zn,):
+            for y in range(yn, yn + 3):
+                if (x, y, z) in head.v:
+                    head.put((x, y, z), nose)
+                    break
+    # mouth line on the front-bottom of the muzzle
+    zm = round(zc - 0.75 * k)
+    for x in range(-max(1, round(0.4 * k)), max(1, round(0.4 * k))):
+        for y in range(yn, yn + 4):
+            if (x, y, zm) in head.v:
+                head.put((x, y, zm), _dark(col, 0.35))
+                break
+
+
+def raptor_beak(c, H, col, col2=None):
+    """A hawk's hooked beak in place of a songbird's: a deep upper mandible
+    that curves down to a dark hooked tip, and fierce brows over the eyes
+    (col2, default a dark shade of the head). Replaces the plan's beak."""
+    k = H / 10.0
+    head = head_of(c)
+    eyes = _find(c, 'eyes')
+    face = head.v[max(head.v, key=lambda q: q[2])][0]  # the crown's colour
+    for q in [q for q, (cc, g) in head.v.items() if cc == col]:
+        del head.v[q]
+    ez = min(p[2] for p in eyes.v) if eyes and eyes.v else round(6.9 * k)
+    yf = min(p[1] for p in head.v if abs(p[0] + 0.5) <= 1 and p[2] <= ez)
+    bw = max(1, round(0.55 * k))
+    ztop = ez - 1
+    L = max(3, round(1.5 * k))
+    tip = _dark(col, 0.45)
+    for i in range(L):
+        t = i / (L - 1)
+        w = max(1, round(bw * (1 - 0.5 * t)))
+        top = ztop - round(t * t * 0.9 * k)
+        bot = ztop - round((0.9 - 0.2 * t) * k)
+        head.box((-w, yf - i, bot), (w - 1, yf - i, top), col)
+    # the hook: the tip curls down past the lower jaw
+    hw = max(1, round(bw * 0.5))
+    yh = yf - L + 1
+    for j in range(max(2, round(0.6 * k))):
+        head.box((-hw, yh - (1 if j == 0 else 0), ztop - round(0.9 * k) - j), (hw - 1, yh, ztop - round(0.9 * k) - j), tip)
+    # brows: a dark ridge over each eye, sloping down toward the beak
+    bc = col2 or _dark(face, 0.35)
+    if eyes and eyes.v:
+        for side in (1, -1):
+            xs = [p[0] for p in eyes.v if (p[0] >= 0) == (side > 0)]
+            if not xs:
+                continue
+            zt = max(p[2] for p in eyes.v if (p[0] >= 0) == (side > 0)) + 1
+            inner, outer = (min(xs), max(xs)) if side > 0 else (max(xs), min(xs))
+            for x in range(min(inner, outer) - 1, max(inner, outer) + 2):
+                dz = 0 if abs(x - inner) > abs(x - outer) else -1  # lower toward the beak
+                z = zt + 1 + dz
+                f = head.front(x, z)
+                if f:
+                    head.put(f, bc)
 
 
 def trunk(c, H, col, col2=None):
@@ -2252,7 +2418,7 @@ def mend(c, H, col=None, col2=None):
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes,
-    'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'trunk': trunk, 'hump': hump,
+    'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'embers': embers, 'cracks': cracks, 'claws': claws,
     'ice': ice, 'ice_crown': ice_crown, 'ice_crest': ice_crest, 'gems': gems, 'gem_studs': gem_studs,
@@ -2264,10 +2430,10 @@ ACCESSORIES = {
     'bolt_mark': bolt_mark, 'sparks': sparks, 'rings': rings, 'cloud_hump': cloud_hump, 'cloud_mane': cloud_mane,
     'cloud_tail': cloud_tail, 'cloud_feet': cloud_feet, 'raincloud': raincloud, 'raindrops': raindrops,
     'wave': wave, 'raincoat': raincoat,
-    'stars': stars, 'galaxy': galaxy, 'crescent': crescent, 'halo': halo, 'star_trail': star_trail,
+    'stars': stars, 'galaxy': galaxy, 'crescent': crescent, 'flank_crescent': flank_crescent, 'halo': halo, 'star_trail': star_trail,
     'constellation': constellation, 'glow_eyes': glow_eyes, 'glow_color': glow_color, 'ghost': ghost,
     'wisps': wisps, 'cloak': cloak, 'opal': opal, 'rainbow_shell': rainbow_shell,
-    'sprinkles': sprinkles, 'icing': icing, 'swirl': swirl, 'cone_horn': cone_horn, 'gears': gears,
+    'sprinkles': sprinkles, 'icing': icing, 'swirl': swirl, 'cone_horn': cone_horn, 'spiral_horn': spiral_horn, 'gears': gears,
     'windup_key': windup_key, 'cog_spines': cog_spines, 'rivets': rivets, 'clock_dial': clock_dial,
     'chimney': chimney, 'chest_shell': chest_shell, 'mimic': mimic,
     'twin_tails': twin_tails, 'triple_tails': triple_tails, 'three_heads': three_heads, 'snake_tail': snake_tail,
