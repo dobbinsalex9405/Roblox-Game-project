@@ -49,7 +49,7 @@ def _add(a, b, s=1.0):
     return (a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s)
 
 
-def pillow_faces(voxels):
+def pillow_faces(voxels, flat=()):
     """Yields (voxel, dir_index, inner_quad, rims) for every visible face of
     `voxels` (a set or dict keyed by (x, y, z)). Corners are in voxels, art
     frame. inner_quad is 4 points; rims is 4 quads (outer edge, inner edge),
@@ -57,7 +57,8 @@ def pillow_faces(voxels):
 
     Faces that point straight down (bellies, chins, feet) are flat squares
     with no rims: the camera is nearly always above a creature, and it saves
-    about an eighth of the triangles."""
+    about an eighth of the triangles. So are faces against a voxel in
+    `flat` (where a leg meets the body: hidden until the leg swings)."""
     for p in voxels:
         for d, (n, u, v) in enumerate(DIRS):
             q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
@@ -66,7 +67,7 @@ def pillow_faces(voxels):
             # face origin: the voxel corner where this face's u, v start
             o = (p[0] + max(n[0], 0), p[1] + max(n[1], 0), p[2] + max(n[2], 0))
             outer = [o, _add(o, u), _add(_add(o, u), v), _add(o, v)]
-            if d == DOWN:
+            if d == DOWN or q in flat:
                 yield p, d, outer, []
                 continue
             b = BEVEL
@@ -126,12 +127,18 @@ def _dot(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 
-def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
+def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False):
     """Flat faces (no pillow) for the visible skin of `vox` ({(x, y, z):
     (rgb, glow)}), with neighbouring faces of one colour on one plane merged
     into rectangles (greedy meshing). keep(rgb, glow) picks which voxels get
     faces (all of them hide faces). step > 1 first merges step^3 blocks of
-    voxels into one (the most common colour wins), for a far LOD."""
+    voxels into one (the most common colour wins), for a far LOD.
+
+    closed: also make the faces where a kept voxel meets one that is not
+    kept, so the mesh is a closed shell. Glow meshes need it: Roblox's
+    importer drops an open one-voxel slab (glowing paw soles at ground level
+    vanished from four uploaded creatures). Those faces sit against the solid
+    mesh, which leaves its own face there out, so nothing new shows."""
     if step > 1:
         blocks = {}
         for p, col in vox.items():
@@ -147,7 +154,8 @@ def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
     for d, (n, u, v) in enumerate(DIRS):
         planes = {}
         for p, col in grid.items():
-            if (p[0] + n[0], p[1] + n[1], p[2] + n[2]) in grid:
+            q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
+            if q in grid and not (closed and keep and not keep(*grid[q])):
                 continue
             if keep and not keep(*col):
                 continue
@@ -200,7 +208,7 @@ def lod1_meshes(parts, centre, voxel, cell_of, prefix):
     return out
 
 
-def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
+def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=()):
     """Meshes for one creature part: solid faces in one or more meshes (split
     so none passes max_tris; Roblox allows 20,000 per MeshPart) and glowing
     faces in one mesh per glow colour. cell_of(rgb, glow, kind, tone) gives the
@@ -211,7 +219,7 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
     piece; only the outer skin is made."""
     solid_faces = []
     glow_faces = {}
-    for p, d, inner, rims in pillow_faces(part.v):
+    for p, d, inner, rims in pillow_faces(part.v, flat):
         rgb, glow = part.v[p]
         t = tone_of(p, d)
         item = (p, d, inner, rims, rgb, glow, t)
@@ -247,6 +255,6 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
     # would be invisible: they are flat and greedy-merged instead.
     for k, rgb in enumerate(sorted(glow_faces)):
         m = flat_mesh(part.v, centre, voxel, cell_of, f'{part.name}_glow' + ('' if k == 0 else str(k + 1)),
-                      keep=lambda c, g, rgb=rgb: g and c == rgb)
+                      keep=lambda c, g, rgb=rgb: g and c == rgb, closed=True)
         out.append(('glow', rgb, m))
     return out

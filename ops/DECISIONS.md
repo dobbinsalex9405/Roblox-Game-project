@@ -2,6 +2,80 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The 18 new Godlies from the master sheet (Hatchery Heist)
+
+- **Hand-built, like the legends**, not roster data: tools/art/godlies.py
+  lists them (id, element) and creatures.py adds them to the ROSTER and to
+  FINER (1.6x, the Godly standard). godly_beasts.py draws the ones on legs,
+  godly_skies.py the fliers, floaters and swimmers; godly_common.py holds
+  the shared pieces (eyes proud of the face in a `blink` part, legs as leg
+  parts, wings, the orbit). The game picks one up when config/creatures.luau
+  lists it.
+- **One `orbit` part each, placed by `orbit_ring`**: every piece sits just
+  outside everything else at its height (plus room for the head and wings),
+  and the sweep stays at or under 0.8x the creature's height; a piece that
+  cannot fit is a build error, never a silent overlap. A round floater (the
+  Cosmic Whale) may carry its moons above its back; the added height counts.
+- **Long or wide bodies are drawn a little smaller** (Solar Lion, Omega
+  Chimera, Magma Behemoth, World Turtle, Crystal Hydra, the dragons) to stay
+  inside 100k triangles; long, low or round bodies a little bigger (Cosmic
+  Whale, Clockwork Leviathan, Crystal Swan, Hurricane Roc) so their voxels
+  match the rest once the game scales every Godly to 6 studs tall.
+- **The swimmers swim level** (the strict review: they must read as a whale):
+  the Clockwork Leviathan and the Cosmic Whale are long and low, their
+  orbits ride above the back, and they swim (tail sweeps, flippers paddle).
+  Scaled to 6 studs tall they are about 15 and 10.5 studs long: longer than
+  the 10-stud depth of the three-spot area, inside its 30-stud width; the
+  reviewer asked for the Leviathan at least 3x as long as tall.
+- **They hover** (rig: Legendary and Godly always hover); legs, tentacles
+  (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
+  so the hover pose tucks and paddles them.
+
+## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
+
+- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
+  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
+- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
+  draws a showpiece with smaller voxels in the Blender build (the serpent at
+  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
+  have changed the Goose Alex approved. **1.6x is the standard for every
+  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
+  keeps its approved build unless its size changes.
+- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
+  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
+  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
+  1 in 50,000 each) to pass that.
+- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
+  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
+  so the serpent stays within the Godly 800-box budget (794).
+- **Worlds never pass through the body.** Each orbiting world sits further
+  out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
+
+## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
+
+- **Each creature wanders only its own cell** (the 10-stud spots it takes),
+  not the whole floor: no collision avoidance needed, the Steal prompt on
+  its pad stays beside it, and raids and income need no change.
+- **A schedule, not physics**: position and facing are a pure function of
+  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
+  nothing replicates. The client moves the server's invisible stand-in
+  locally; the server never sees it move.
+- **The step phase follows distance walked**, so feet do not slide; legged
+  bodies dip as the legs spread (feet stay planted), legless stand-ins
+  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
+  each species' legs), falling back to the leg part names.
+- **Cull by distance only**, never by floor: culling by floor left whole
+  floors looking empty, from the yard and inside your own tower (Studio
+  gates). Your own tower draws to `cullStuds` (180); other players' towers
+  to `cullOtherStuds` (100: the neighbours either side, 84 away) and move
+  only within `animateOtherStuds` (60). Four full neighbours at 180 studs
+  took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
+  rest cheap.
+
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
 - **What:** 25 hub props in `tools/art/world/hub.py` (kinds `building` and
@@ -34,6 +108,45 @@ Non-obvious choices, newest first, so a later session can trust them.
   notice board carry a blank cream face; the game writes the text
   (SurfaceGui), at the prop's `anchor` (the face centre).
 
+## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
+
+- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
+  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
+  finds the rest (quadrupeds, lizards) after the build and skips any creature
+  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
+  front to back, each its own anim, hinged at the hip.
+- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
+  never opens a hole in it; small birds' folded wings are only what shows
+  outside the body.
+- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
+  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
+- **Legendary and Godly always hover** (they float in CreatureLooks), so a
+  Phoenix does not waddle in mid-air.
+- **Sideways bug legs swing about the vertical axis**, lifting as they reach
+  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
+- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
+  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
+  Python and `Walk.spec` checks the game gives the same numbers; CI checks
+  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
+- **swim and finL/finR exist before any fish** so the pond batch can add fish
+  with data only.
+
+## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
+
+- **Each creature wanders only its own cell** (the 10-stud spots it takes),
+  not the whole floor: no collision avoidance needed, the Steal prompt on
+  its pad stays beside it, and raids and income need no change.
+- **A schedule, not physics**: position and facing are a pure function of
+  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
+  nothing replicates. The client moves the server's invisible stand-in
+  locally; the server never sees it move.
+- **The step phase follows distance walked**, so feet do not slide; legged
+  bodies dip as the legs spread (feet stay planted), legless stand-ins
+  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
+  each species' legs), falling back to the leg part names.
+- **Cull by floor, not distance**: decks hide other floors anyway, and a
+  full tower is 80 creatures.
+
 ## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
 
 - **Alex asked (11:24Z) for an interior area for Robux spending.** One
@@ -62,7 +175,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
 
-
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 
 - **The palette PNG is uploaded as an Image asset.** MeshPart.TextureID needs an
@@ -73,7 +185,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   "Image"`**, so a wrong id draws the voxel boxes, never a grey mesh.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
-
 
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
@@ -241,6 +352,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
   the repo: designs are for looking at before anything is decided, and big
   .glb files do not belong in git.
+
 ## 2026-11-05: Creature meshes v2 (Hatchery Heist)
 
 - **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
@@ -257,8 +369,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   Godlies, the look Alex had just approved.
 - **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
   gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
-
-
 
 ## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)
 
@@ -327,6 +437,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   arrow's "▼" are not in the game fonts and showed as boxes. The goal line
   has a drawn gold "GOAL" tag and the arrow is two frames. Emoji are fine:
   Roblox draws them with its emoji font.
+
 ## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
 
 - **Meshes are generated from the voxel art, not modelled separately.**
@@ -417,6 +528,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   about 8 for a Meadow Egg).
 - **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
   number on its own line); CI re-runs the exporter and fails if it differs.
+
 ## 2026-11-05: Games start without DataStores (Studio)
 
 - A built `.rbxl` opened in Studio is an unpublished place, where
@@ -473,7 +585,6 @@ Non-obvious choices, newest first, so a later session can trust them.
 - The gate is a commit status (`visual-playtest`, `.github/workflows/visual-gate.yml`)
   because GitHub Free cannot require checks on a private repo; the verifier
   merges only when it is green.
-
 
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
@@ -644,6 +755,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
   test first, verified by the playtest thread, auto-merged, production by
   Alex's click.
+
 ## 2026-11-01: Boot check and key flows gate every merge and publish
 
 - **Why.** PR #5 merged with a start-up assert in Street Food Empire's

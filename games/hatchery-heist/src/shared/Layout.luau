@@ -102,7 +102,9 @@ local RARITY_COLORS: { [string]: Color3 } = {
 -- A creature's height in studs on a pad: the server's stand-in ball is this
 -- size and the client draws the whole art exactly this tall. Rarer creatures
 -- are only a little bigger (Alex, Nov 5): they take more room on a floor
--- instead, so a floor never gets crowded by one giant.
+-- instead, so a floor never gets crowded by one giant. Godlies are the
+-- exception, about 3 times a Common (Alex, Nov 5): they take 3 spots side by
+-- side, 30 by 10 studs, room for the Nebula Serpent's orbiting worlds.
 local RARITY_SIZES: { [string]: number } = {
 	Common = 2,
 	Uncommon = 2.2,
@@ -110,7 +112,7 @@ local RARITY_SIZES: { [string]: number } = {
 	["Ultra Rare"] = 2.7,
 	Epic = 3,
 	Legendary = 3.4,
-	Godly = 3.8,
+	Godly = 6,
 }
 
 -- 1 for Common up to 7 for Godly.

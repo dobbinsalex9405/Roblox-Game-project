@@ -39,6 +39,7 @@ import bpy  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
 from describe import RANK, creatures, describe  # noqa: E402
+import walkpose  # noqa: E402
 
 FPS = 30
 
@@ -50,8 +51,8 @@ LOOKS = {
     'Rare': dict(bob=0.04, bobSpeed=0.8, hover=0, head=True, ears=True, tail=True, wings=True, pulse=False),
     'Ultra Rare': dict(bob=0.04, bobSpeed=0.8, hover=0, head=True, ears=True, tail=True, wings=True, pulse=True),
     'Epic': dict(bob=0.035, bobSpeed=0.7, hover=0, head=True, ears=True, tail=True, wings=True, pulse=True),
-    'Legendary': dict(bob=0.03, bobSpeed=0.5, hover=0.08, head=True, ears=True, tail=True, wings=True, pulse=True),
-    'Godly': dict(bob=0.03, bobSpeed=0.45, hover=0.1, head=True, ears=True, tail=True, wings=True, pulse=True),
+    'Legendary': dict(bob=0.03, bobSpeed=0.5, hover=0.14, head=True, ears=True, tail=True, wings=True, pulse=True),
+    'Godly': dict(bob=0.03, bobSpeed=0.45, hover=0.14, head=True, ears=True, tail=True, wings=True, pulse=True),
 }
 RING = {'Epic': (177, 92, 255), 'Legendary': (255, 194, 26), 'Godly': (255, 77, 94)}
 
@@ -160,6 +161,9 @@ def creature_scene(c, out_dir, coll):
         j = bpy.data.objects.new(part.name, None)
         j.empty_display_type = 'SPHERE'
         j.empty_display_size = 0.06
+        # the game's CFrame.Angles(rx, ry, rz) turns about z, then y, then x;
+        # in Blender's axes (game y is Blender z) that is YZX
+        j.rotation_mode = 'YZX'
         coll.objects.link(j)
         joints[part.name], pivots[part.name] = j, Vector(b_of(pivot))
     for pm in meta['parts']:
@@ -202,10 +206,27 @@ def rot(rx=0.0, ry=0.0, rz=0.0):
     return (rx, -rz, ry)
 
 
-def pose_fn(clip, look, height, seconds):
+ORBIT_SECONDS = 9  # CreatureView: an "orbit" part's turn (the Nebula Serpent's planets)
+
+
+def walk_cycles(gait, height, seconds):
+    """Step cycles a second while walking, as the game's wander (speed over
+    the gait's stride), rounded so a clip of `seconds` loops."""
+    return q(walkpose.wander_speed() / max(0.2, walkpose.STRIDE.get(gait, 1) * height), seconds)
+
+
+def pose_fn(clip, look, height, seconds, meta):
     """f(name, anim, t) -> (location offset (Blender), euler) or None. Same
-    formulas as CreatureView.animate, with frequencies rounded to loop."""
+    formulas as CreatureView.animate (idle) and Walk.pose via walkpose.py
+    (walk), with frequencies rounded to loop."""
     two_pi = math.pi * 2
+    gait = meta.get('gait') or 'trot'
+    anims = {pm['anim'] for pm in meta['parts']}
+    legged = any(walkpose.is_leg(a) for a in anims)
+    flaps = look['wings'] or gait == 'hover'
+
+    def orbit(t):
+        return (0, 0, 0), rot(ry=t * q(1 / ORBIT_SECONDS, seconds) * two_pi)
 
     def idle(name, anim, t):
         if anim == 'body':
@@ -223,30 +244,37 @@ def pose_fn(clip, look, height, seconds):
             return (0, 0, 0), rot(rx=a)
         if anim == 'tail' and look['tail']:
             return (0, 0, 0), rot(ry=math.sin(t * q(6 / two_pi, seconds) * two_pi) * 0.35)
-        if anim in ('wingL', 'wingR') and look['wings']:
+        if anim in ('wingL', 'wingR') and flaps:
             big = look['hover'] > 0
             f = q((2.6 if big else 4.5) / two_pi, seconds)
             a = math.sin(t * f * two_pi) * (0.45 if big else 0.25)
             return (0, 0, 0), rot(rz=a if anim == 'wingL' else -a)
+        if anim == 'orbit':
+            return orbit(t)
         return None
 
+    cycles = walk_cycles(gait, height, seconds)
+
     def walk(name, anim, t):
-        # Two steps a second: a hop on each step, a side-to-side waddle, the
-        # head steadying against it, the tail and wings swinging along.
-        step = t * 2 * two_pi / 2  # radians, one hop per half second
+        # Walking at full stride (moving = 1), as CreatureView poses it:
+        # the idle bob and wag stop, Walk.pose takes over.
+        ph = t * cycles
+        p = walkpose.pose(gait, anim, ph, 1.0, height, legged)
+        rx, ry, rz, dx, dy = p
         if anim == 'body':
-            lift = height * (look['hover'] + 0.06 * abs(math.sin(step)))
-            return (0, 0, lift), rot(rx=-0.06, rz=math.sin(step) * 0.10)
-        if anim == 'head':
-            return (0, 0, 0), rot(rx=0.04 + 0.04 * math.sin(step * 2), rz=-math.sin(step) * 0.07)
-        if anim == 'tail':
-            return (0, 0, 0), rot(ry=math.sin(step) * 0.4)
-        if anim == 'ears':
-            return (0, 0, 0), rot(rx=0.12 * math.sin(step * 2))
-        if anim in ('wingL', 'wingR'):
-            a = 0.18 + 0.12 * math.sin(step * 2)
+            return (dx, 0, height * look['hover'] + dy), rot(rx, ry, rz)
+        if anim in ('wingL', 'wingR') and flaps:
+            big = look['hover'] > 0
+            rate = (2.6 if big else 4.5) * walkpose.wing_rate(gait, 1.0)
+            a = math.sin(t * q(rate / two_pi, seconds) * two_pi) * (0.45 if big else 0.25)
             return (0, 0, 0), rot(rz=a if anim == 'wingL' else -a)
-        return None
+        if anim == 'ears' and look['ears']:
+            return idle(name, anim, t)
+        if anim == 'orbit':
+            return orbit(t)
+        if p == walkpose.STILL:
+            return None
+        return (dx, 0, dy), rot(rx, ry, rz)
 
     return idle if clip == 'idle' else walk
 
@@ -255,9 +283,9 @@ def bake_clip(clip, c, meta, joints, height, glow_mats):
     look = LOOKS[c.rarity]
     seconds = meta['clips'][clip]['seconds']
     frames = int(seconds * FPS)
-    fn = pose_fn(clip, look, height, seconds)
+    fn = pose_fn(clip, look, height, seconds, meta)
     rest = {n: Vector(j.location) for n, j in joints.items()}
-    anims = {pm['name']: pm['anim'] for pm in meta['parts']}
+    anims = {pm['name']: walkpose.role(pm['name'], pm['anim']) for pm in meta['parts']}  # as Walk.role
     actions = {}
     for name, j in joints.items():
         j.animation_data_create()

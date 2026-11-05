@@ -5,8 +5,10 @@ glowing voxels, and Legendary and Godly creatures are huge, with many moving
 parts. Heights are in voxels; the game draws one voxel as VOXEL studs."""
 import math
 import os
-from voxkit import Creature, hexc
+from voxkit import Creature, Part, hexc
 import legends
+import godlies
+import rig
 
 VOXEL = 0.25  # studs per voxel in game
 HEIGHT = {'Common': 8, 'Uncommon': 10, 'Rare': 13, 'Ultra Rare': 16, 'Epic': 20, 'Legendary': 34, 'Godly': 42}
@@ -103,12 +105,178 @@ def pig_body(c, k, col, snout):
         tl.ell((xx * k, yy * k, zz * k), (r, r, r), col)
 
 
+def cow_body(c, k, col, snout, ear_col=None, tail_col=None):
+    """A calf for the finer Blender build: a long, deep, boxy body on
+    straight legs with dark hooves, a square head with a broad pink muzzle
+    and nostrils, short horn nubs, ears that stick out sideways, and a thin
+    tail with a dark tuft."""
+    body = c.part('body')
+    head = c.part('head', 'static', (0, -2.0 * k, 5.4 * k))
+    hoof = hexc('#3A3A4A')
+    cream = hexc('#F2E6C8')
+    nostril = hexc('#B8456A')
+    sc = snout or hexc('#FFB3C7')
+    ec = ear_col or col
+    # straight legs, a little apart, with dark hooves
+    lw = max(2, round(1.0 * k))
+    for sx in (-1, 1):
+        for ly in (-1.6 * k, 2.3 * k):
+            x0 = round(sx * 1.35 * k) - (lw if sx < 0 else 0)
+            y0 = round(ly)
+            body.box((x0, y0, 0), (x0 + lw - 1, y0 + lw - 1, round(2.0 * k)), col)
+            body.box((x0, y0, 0), (x0 + lw - 1, y0 + lw - 1, max(0, round(0.4 * k) - 1)), hoof)
+    # the body: long and deep with a flat back (a box with rounded edges)
+    body.ell((0, 0.4 * k, 3.4 * k), (2.1 * k, 3.4 * k, 1.75 * k), col)
+    body.box((round(-1.6 * k), round(-2.0 * k), round(2.4 * k)), (round(1.6 * k) - 1, round(2.8 * k), round(4.6 * k)), col)
+    # a square head with a broad muzzle across the bottom of the face
+    head.box((round(-1.5 * k), round(-4.0 * k), round(4.6 * k)), (round(1.5 * k) - 1, round(-1.4 * k), round(7.4 * k)), col)
+    head.ell((0, -2.7 * k, 6.0 * k), (1.75 * k, 1.5 * k, 1.6 * k), col)
+    head.box((round(-1.4 * k), round(-4.6 * k), round(4.4 * k)), (round(1.4 * k) - 1, round(-3.6 * k), round(5.6 * k)), sc)
+    nw = max(1, round(0.3 * k))
+    for sx in (-1, 1):
+        x = round(sx * 0.6 * k) - (nw if sx < 0 else 0)
+        for dx in range(nw):
+            for dz in range(max(1, round(0.4 * k))):
+                f = head.front(x + dx, round(5.0 * k) + dz)
+                if f:
+                    head.put(f, nostril)
+    es = max(1, round(0.5 * k))
+    eyes(c, head, max(1, round(0.75 * k)), round(6.3 * k), es)
+    # horn nubs on the crown, and ears straight out to the sides
+    earp = c.part('ears', 'static', (0, -2.6 * k, 7.0 * k))
+    top = round(7.4 * k) + 1
+    for sx in (-1, 1):
+        # stubby horn buds: wide at the base, a darker tip, not sticks
+        hx = round(sx * 1.05 * k) - (2 if sx < 0 else 0)
+        hy = round(-2.9 * k)
+        earp.box((hx, hy, top - 1), (hx + 1, hy + 1, top), cream)
+        earp.box((hx + (1 if sx < 0 else 0), hy, top + 1), (hx + (1 if sx < 0 else 0), hy + 1, top + 1), hexc('#D9C9A0'))
+        ex0 = round(1.5 * k) if sx > 0 else -round(1.5 * k) - round(1.3 * k)
+        earp.box((ex0, round(-2.6 * k), round(6.6 * k)), (ex0 + round(1.3 * k) - 1, round(-2.2 * k), round(7.1 * k)), ec)
+        # the pink inside of each ear, facing forward
+        earp.box((ex0 + (1 if sx > 0 else 0), round(-2.6 * k), round(6.7 * k)), (ex0 + round(1.3 * k) - 1 - (0 if sx > 0 else 1), round(-2.6 * k), round(7.0 * k)), sc)
+    # Holstein patches: a few big dark blobs on the body and one over an eye
+    pc = ear_col or hexc('#3A3A4A')
+    for (px, py, pz, r) in ((1.9, -0.6, 3.6, 1.15), (-1.6, 1.6, 3.9, 1.25), (0.4, 2.6, 4.7, 1.0), (-1.9, -1.4, 2.6, 0.8)):
+        body.paint(lambda p, cc, g, px=px, py=py, pz=pz, r=r: (pc, False) if cc == col and (
+            (p[0] + .5 - px * k) ** 2 + (p[1] + .5 - py * k) ** 2 + (p[2] + .5 - pz * k) ** 2) < (r * k) ** 2 else None)
+    head.paint(lambda p, cc, g: (pc, False) if cc == col and p[0] + .5 > 0.3 * k and p[2] + .5 > 6.0 * k and (
+        (p[0] + .5 - 1.1 * k) ** 2 + (p[2] + .5 - 6.9 * k) ** 2) < (0.95 * k) ** 2 else None)
+    # a thin tail hanging from the rump, ending in a dark tuft
+    tl = c.part('tail', 'static', (0, 3.6 * k, 4.4 * k))
+    tc = tail_col or col
+    for i in range(round(2.4 * k)):
+        tl.put((0, round(3.7 * k) + (1 if i < 2 else 0), round(4.4 * k) - i), tc)
+        tl.put((-1, round(3.7 * k) + (1 if i < 2 else 0), round(4.4 * k) - i), tc)
+    tl.ell((0, 3.9 * k, 4.4 * k - 2.6 * k), (0.45 * k, 0.45 * k, 0.6 * k), hoof)
+
+
+def bunny_body(c, k, col, belly=None, snout=None, ear_col=None, tail_col=None, lop=False, mane=None):
+    """A sitting rabbit for the finer Blender build, upright like a real one:
+    a round loaf of a body on big haunches, long hind feet flat on the
+    ground, slim front paws side by side, a round head with puffy cheeks, a
+    little Y nose and mouth, and a cotton tail. Ears stand tall and pink
+    inside, or for a lop hang from a crest on the crown, out past the cheeks
+    and down below the chin, spoon-wide with rounded ends."""
+    c.gait_hint = 'hop'
+    body = c.part('body')
+    head = c.part('head', 'static', (0, -0.9 * k, 6.0 * k))
+    pink = hexc('#FF9BB5')
+    nose = hexc('#F2789A')
+    bc = belly or col
+    ec = ear_col or col
+    shade = tuple(max(0, round(v * 0.9)) for v in col)
+    w = lambda v: max(2, round(v))  # noqa: E731  a width that never thins to one voxel
+    # long hind feet flat on the ground, pale toes in front
+    # (each foot its own leg part, hinged under its haunch, so it kicks back
+    # as the bunny hops)
+    fw = w(0.85 * k)
+    for sx in (-1, 1):
+        x0 = round(sx * 1.25 * k) - (fw if sx < 0 else 0)
+        foot = rig.leg_part(c, 'L' if sx < 0 else 'R', 1, 2, (sx * 1.3 * k, 0.6 * k, max(1, round(0.45 * k)) + 1))
+        foot.box((x0, round(-1.7 * k), 0), (x0 + fw - 1, round(1.5 * k), max(1, round(0.45 * k))), col)
+        foot.box((x0, round(-1.7 * k), 0), (x0 + fw - 1, round(-1.2 * k), max(1, round(0.45 * k))), bc)
+    # haunches: two round thighs over the feet
+    for sx in (-1, 1):
+        body.ell((sx * 1.3 * k, 0.6 * k, 1.5 * k), (0.95 * k, 1.45 * k, 1.25 * k), col)
+    # the body: a soft loaf, widest low down, leaning slightly back
+    body.ell((0, 0.45 * k, 2.4 * k), (1.85 * k, 1.85 * k, 1.9 * k), col)
+    body.ell((0, -0.15 * k, 3.9 * k), (1.45 * k, 1.4 * k, 1.5 * k), col)
+    # a pale chest and tummy
+    body.paint(lambda p, cc, g: (bc, False) if p[1] < -0.8 * k and abs(p[0] + .5) < 1.05 * k and 1.2 * k < p[2] < 5.0 * k else None)
+    # slim front paws side by side, from the chest to the ground
+    pw = w(0.55 * k)
+    for sx in (-1, 1):
+        x0 = round(sx * 0.35 * k) + (0 if sx > 0 else -pw) + (1 if sx > 0 else -1) * max(0, round(0.15 * k))
+        paw = rig.leg_part(c, 'L' if sx < 0 else 'R', 0, 2, (x0 + pw / 2, -1.75 * k, round(2.4 * k) + 1))
+        paw.box((x0, round(-2.0 * k), 0), (x0 + pw - 1, round(-1.5 * k), round(2.4 * k)), col)
+        paw.box((x0, round(-2.25 * k), 0), (x0 + pw - 1, round(-1.9 * k), max(1, round(0.35 * k))), bc)
+    # a round head on top, a little forward, with puffy cheeks
+    head.ell((0, -0.9 * k, 6.3 * k), (1.6 * k, 1.45 * k, 1.45 * k), col)
+    sc = snout or bc
+    for sx in (-1, 1):
+        head.ell((sx * 0.55 * k, -1.85 * k, 5.6 * k), (0.7 * k, 0.5 * k, 0.55 * k), sc)
+    # a small pink nose where the cheeks meet
+    # (the top row of the muzzle, two voxels wide: a small button, not a mouth)
+    zt = round(5.95 * k)
+    for x in (-1, 0):
+        f = head.front(x, zt)
+        if f:
+            head.put(f, nose)
+    es = max(2, round(0.8 * k)) if k >= 1.8 else max(1, round(0.5 * k))
+    eyes(c, head, max(1, round(0.95 * k)), round(6.5 * k), es)
+    if mane:  # a lionhead's fluffy ruff around the face
+        for a in range(32):
+            ang = a / 32 * 2 * math.pi
+            head.ell((math.cos(ang) * 1.65 * k, -0.4 * k, 6.2 * k + math.sin(ang) * 1.45 * k),
+                     (0.5 * k, 0.55 * k, 0.5 * k), mane, cond=lambda x, y, z: y > -1.4 * k)
+    earp = c.part('ears', 'static', (0, -0.9 * k, 7.6 * k))
+    ew = w(0.6 * k)
+    if lop:
+        # each ear starts at the top of the head and hangs flat beside the
+        # cheek, down past the chin: thin, wide front to back, rounded at
+        # the end, a shade darker at the tip; a low ridge joins them on top
+        dark = tuple(max(0, round(v * 0.88)) for v in ec)
+        earp.ell((0, -0.75 * k, 7.6 * k), (1.1 * k, 0.6 * k, 0.3 * k), ec)
+        path = [(1.15, 7.5), (1.6, 7.0), (1.8, 6.2), (1.85, 5.4), (1.85, 4.7)]
+        for sx in (-1, 1):
+            for i, (x, z) in enumerate(path):
+                ry = (0.55 + 0.08 * min(i, 3)) * k
+                earp.ell((sx * x * k, -0.85 * k, z * k), (0.32 * k, ry, 0.55 * k), ec)
+        earp.paint(lambda p, cc, g: (dark, False) if p[2] < 4.8 * k else None)
+    else:
+        # tall ears, pink inside (drawn both sides; the fine build mirrors the right)
+        # row by row: a straight ear a few voxels wide with a narrower top
+        # row and a pink stripe down its front
+        z0, z1 = round(7.3 * k), round(11.0 * k)
+        y0, y1 = round(-1.0 * k), round(-0.5 * k)
+        wd = max(3, round(1.4 * k))
+        for z in range(z0, z1 + 1):
+            t = (z - z0) / max(1, z1 - z0)
+            xs = round(0.55 * k)
+            lo, hi = (xs + 1, xs + wd - 2) if z == z1 else (xs, xs + wd - 1)
+            for x in range(lo, hi + 1):
+                for y in range(y0, y1 + 1):
+                    earp.put((x, y, z), ec)
+                    earp.put((-x - 1, y, z), ec)
+                if 0.2 < t < 0.85 and lo < x < hi:
+                    earp.put((x, y0, z), pink)
+                    earp.put((-x - 1, y0, z), pink)
+    # a round cotton tail low at the back
+    tl = c.part('tail', 'static', (0, 2.2 * k, 1.5 * k))
+    tl.ell((0, 2.35 * k, 1.6 * k), (0.7 * k, 0.6 * k, 0.7 * k), tail_col or bc)
+
+
 def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, tail='short', tail_col=None,
               mask=None, patches=None, horn=None, antlers=None, spines=None, mane=None, glow=None, wings=None,
-              fluffy=False, pig=False):
+              fluffy=False, pig=False, cow=False, bunny=False):
     k = H / 10.0
     if pig and getattr(c, 'fine', False):
         return pig_body(c, k, col, snout)
+    if cow and getattr(c, 'fine', False):
+        return cow_body(c, k, col, snout, ear_col, tail_col)
+    if bunny and getattr(c, 'fine', False):
+        return bunny_body(c, k, col, belly, snout, ear_col, tail_col, lop=ears == 'floppy', mane=mane)
     detailed = c.rarity not in ('Common',)
     body = c.part('body')
     head = c.part('head', 'head' if detailed else 'static', (0, -1.6 * k, 4.6 * k))
@@ -154,6 +322,17 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
             for i in range(max(2, round(1.8 * k))):
                 w = max(0, round((1.8 * k - i) * 0.35))
                 earp.box((round(bx - w), round(-2.4 * k), round(7.6 * k) + i), (round(bx + w), round(-2.4 * k) + max(0, round(0.4 * k)), round(7.6 * k) + i), ec)
+        elif ears == 'cat':  # short, wide-based triangles set on the head corners
+            n = max(3, round(1.6 * k) + 1)
+            y0 = round(-2.5 * k)
+            for i in range(n):
+                t = i / (n - 1)
+                w = (1.0 - t) * 0.85 * k  # tapers to a single-voxel tip
+                cx = bx * 1.1 + sx * t * 0.15 * k
+                z = round(7.2 * k) + i
+                earp.box((round(cx - w), y0, z), (round(cx + w), y0 + max(0, round(0.3 * k)), z), ec)
+                if k >= 1.2 and w >= 1.5 and i >= 1:  # pink inner ear on the front face
+                    earp.box((round(cx - w + 1), y0 - 1, z), (round(cx + w - 1), y0 - 1, z), BLUSH)
         elif ears == 'big':  # fennec
             for i in range(max(3, round(3.2 * k))):
                 w = max(0, round((3.2 * k - i) * 0.4))
@@ -264,13 +443,20 @@ def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tai
     eyes(c, head, max(1, round(0.7 * k)), round(6.9 * k), es)
     if k >= 1:
         blush(head, round(1.5 * k), round(6.0 * k))
-    for sx in (-1, 1):
-        x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
-        body.box((x - (max(1, round(0.3 * k)) - 1 if sx < 0 else 0), round(-0.8 * k), 0), (x + (max(1, round(0.3 * k)) - 1 if sx > 0 else 0), round(-0.2 * k), round(0.7 * k)), feet)
+    if not fine:
+        for sx in (-1, 1):
+            x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
+            body.box((x - (max(1, round(0.3 * k)) - 1 if sx < 0 else 0), round(-0.8 * k), 0), (x + (max(1, round(0.3 * k)) - 1 if sx > 0 else 0), round(-0.2 * k), round(0.7 * k)), feet)
     wc = wing or col
     if c.rarity in ('Common', 'Uncommon'):
-        for sx in (-1, 1):
-            body.ell((sx * 2.4 * k, 0.8 * k, 3.6 * k), (0.5 * k + .3, 1.4 * k, 1.4 * k), wc)
+        # Folded wings, each its own part hinged at the shoulder so it can
+        # flick out as the bird waddles. Only what shows outside the body
+        # is wing, so a wing that swings out leaves no hole behind it.
+        for sx, name in ((-1, 'wingL'), (1, 'wingR')):
+            wp = c.part(name, name, (sx * 2.2 * k, 0.8 * k, 4.6 * k))
+            wp.ell((sx * 2.4 * k, 0.8 * k, 3.6 * k), (0.5 * k + .3, 1.4 * k, 1.4 * k), wc)
+            for p in [p for p in wp.v if p in body.v]:
+                del wp.v[p]
     else:
         add_wings(c, k, wc, (0, 0.8 * k, 4.2 * k), span=wing_span, glow_edge=glow)
     if crest:
@@ -286,7 +472,34 @@ def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tai
             for x in range(-max(1, round(0.8 * k)) + (i // 2), max(1, round(0.8 * k)) - (i // 2)):
                 g = glow is not None and i >= round(1.2 * k)
                 tp.put((x, round(3.0 * k) + i, round(3.6 * k) + i // 2), (glow if g else tail), g)
+    if fine:
+        bird_legs(c, k, feet)
     return c
+
+
+def bird_legs(c, k, feet):
+    """The finer build stands a bird on two short legs, each its own part
+    hinged at the hip so it steps as the bird waddles: the bird is lifted
+    by the legs' height, and each leg is a shin with three toes forward."""
+    lift = max(2, round(0.6 * k))
+    for p in c.parts:
+        p.v = {(x, y, z + lift): v for (x, y, z), v in p.v.items()}
+        p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] + lift)
+    body = c.part('body')
+    w = max(1, round(0.25 * k))  # shin width
+    for sx in (-1, 1):
+        x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
+        x0, x1 = (x - w + 1, x) if sx < 0 else (x, x + w - 1)
+        y0 = round(-0.4 * k)
+        # the hip is where the shin meets the underside of the body
+        under = [z for (bx, by, z) in body.v if x0 <= bx <= x1 and y0 <= by < y0 + w]
+        top = min(under) if under else lift + 1
+        leg = rig.leg_part(c, 'L' if sx < 0 else 'R', 0, 1, ((x0 + x1 + 1) / 2, y0 + w / 2, top))
+        leg.box((x0, y0, 0), (x1, y0 + w - 1, top - 1), feet)
+        # toes: a wide flat foot reaching forward
+        t = max(1, round(0.35 * k))
+        leg.box((x0 - (t - 1 if sx < 0 else 0) - (1 if sx < 0 else 0), y0 - t - 1, 0),
+                (x1 + (t - 1 if sx > 0 else 0) + (1 if sx > 0 else 0), y0 + w - 1, 0), feet)
 
 
 def blob(c, H, kind, col, accent, glow=None):
@@ -300,6 +513,18 @@ def blob(c, H, kind, col, accent, glow=None):
         head.ell((0, -1.0 * k, 4.4 * k), (2.8 * k, 2.0 * k, 1.6 * k), col)
         for sx in (-1, 1):
             head.ell((sx * 1.5 * k, -1.4 * k, 5.9 * k), (0.9 * k, 0.9 * k, 0.9 * k), col)
+        # Legs, each its own part so it can hop: big folded back legs at the
+        # sides (a haunch and a long flat foot) and short front legs.
+        for sx in (-1, 1):
+            back = rig.leg_part(c, 'L' if sx < 0 else 'R', 1, 2, (sx * 2.3 * k, 1.2 * k, 2.2 * k))
+            back.ell((sx * 2.7 * k, 1.4 * k, 1.3 * k), (0.9 * k, 1.5 * k, 1.1 * k), col)
+            back.ell((sx * 2.9 * k, -0.2 * k, 0.3 * k), (0.7 * k, 1.1 * k, 0.3 * k + .2), accent)
+            front = rig.leg_part(c, 'L' if sx < 0 else 'R', 0, 2, (sx * 1.5 * k, -1.4 * k, 1.4 * k))
+            x = round(sx * 1.6 * k) - (1 if sx < 0 else 0)
+            w = max(0, round(0.25 * k))
+            front.box((min(x, x + sx * w), round(-1.8 * k), 0), (max(x, x + sx * w), round(-1.8 * k) + w, round(1.4 * k)), col)
+            front.box((min(x, x + sx * w) - (w if sx < 0 else 0), round(-2.0 * k) - w, 0),
+                      (max(x, x + sx * w) + (w if sx > 0 else 0), round(-1.8 * k), max(0, round(0.2 * k))), accent)
         eyes(c, head, max(1, round(1.0 * k)), round(5.8 * k), max(1, round(0.6 * k)))
         f = head.front(0, round(3.6 * k))
         if f and getattr(c, 'fine', False):
@@ -338,7 +563,10 @@ def blob(c, H, kind, col, accent, glow=None):
         else:
             eyes(c, head, max(1, round(0.4 * k)), round(2.6 * k), 1)
     elif kind == 'ladybug':
-        body.ell((0, 0.4 * k, 1.8 * k), (2.8 * k, 3.2 * k, 1.9 * k), accent)
+        # raised a little on six short legs, so it can be seen to walk
+        body.ell((0, 0.4 * k, 1.8 * k), (2.8 * k, 3.2 * k, 1.9 * k), accent, cond=lambda x, y, z: z >= round(0.5 * k))
+        import kit_pond
+        kit_pond.legs(body, k, [(1.3, -1.4), (1.5, 0.4), (1.3, 2.2)], INK, out=0.6, height=0.9, c=c)
         body.paint(lambda p, cc, g: (INK, False) if (abs(p[0] + .5) < 0.6 or ((p[0] * 3 + p[1] * 5) % 7 == 0 and p[2] > 1.8 * k)) else None)
         head.ell((0, -2.6 * k, 1.6 * k), (1.6 * k, 1.2 * k, 1.3 * k), INK)
         eyes(c, head, max(1, round(0.5 * k)), round(1.8 * k), 1)
@@ -361,8 +589,10 @@ def blob(c, H, kind, col, accent, glow=None):
         tl.ell((0, 5.0 * k, 2.4 * k), (0.5 * k, 2.0 * k, 1.2 * k), col)
         tl.paint(lambda p, cc, g: (accent, True) if p[2] >= 3.2 * k else None)
         for sx in (-1, 1):
-            for ly in (-1.0 * k, 2.4 * k):
-                body.box((round(sx * 1.6 * k) - (1 if sx < 0 else 0), round(ly), 0), (round(sx * 1.6 * k) - (1 if sx < 0 else 0), round(ly), round(0.8 * k)), col)
+            for i, ly in enumerate((-1.0 * k, 2.4 * k)):
+                x = round(sx * 1.6 * k) - (1 if sx < 0 else 0)
+                leg = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 2, (x + .5, round(ly) + .5, round(0.8 * k) + 1))
+                leg.box((x, round(ly), 0), (x, round(ly), round(0.8 * k)), col)
         blush(head, round(1.6 * k), round(3.0 * k))
     elif kind == 'turtle':
         shell = c.part('shell', 'static')
@@ -372,8 +602,11 @@ def blob(c, H, kind, col, accent, glow=None):
         head.ell((0, -3.4 * k, 2.6 * k), (1.3 * k, 1.2 * k, 1.2 * k), col)
         eyes(c, head, max(1, round(0.5 * k)), round(2.8 * k), max(1, round(0.4 * k)))
         for sx in (-1, 1):
-            for ly in (-1.4 * k, 2.6 * k):
-                body.box((round(sx * 2.0 * k) - (1 if sx < 0 else 0), round(ly), 0), (round(sx * 2.0 * k) - (1 if sx < 0 else 0) + (1 if k > 1 else 0) * sx, round(ly) + 1, round(0.9 * k)), col)
+            for i, ly in enumerate((-1.4 * k, 2.6 * k)):
+                x = round(sx * 2.0 * k) - (1 if sx < 0 else 0)
+                leg = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 2, (x + .5 + 0.5 * sx, round(ly) + 1, round(0.9 * k) + 1))
+                x2 = x + (1 if k > 1 else 0) * sx  # two voxels wide in the finer build (the left leg went missing before)
+                leg.box((min(x, x2), round(ly), 0), (max(x, x2), round(ly) + 1, round(0.9 * k)), col)
     return c
 
 
@@ -471,7 +704,7 @@ ROSTER = [
     # Common
     ('Chick', 'Common', lambda c, H: bird(c, H, P('#FFD93B'), belly=P('#FFE97A'))),
     ('Duckling', 'Common', lambda c, H: bird(c, H, P('#FFF06A'), beak=P('#FF8C1A'), belly=P('#FFF6A8'), bill=True)),
-    ('Bunny', 'Common', lambda c, H: quadruped(c, H, P('#F4F1EC'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='long', tail='short', tail_col=P('#FFFFFF'))),
+    ('Bunny', 'Common', lambda c, H: quadruped(c, H, P('#F4F1EC'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='long', tail='short', tail_col=P('#FFFFFF'), bunny=True)),
     ('Piglet', 'Common', lambda c, H: quadruped(c, H, P('#FFB3C7'), snout=P('#FF8FB1'), ears='pointy', tail='curly', pig=True)),
     ('Mouse', 'Common', lambda c, H: quadruped(c, H, P('#B8B8C8'), belly=P('#E6E6EE'), snout=P('#E6E6EE'), ears='round', ear_col=P('#FFB3C7'), tail='long', tail_col=P('#FFB3C7'))),
     ('Hamster', 'Common', lambda c, H: quadruped(c, H, P('#F2B05E'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='round', tail='short', fluffy=True)),
@@ -508,7 +741,7 @@ ROSTER = [
     # Godly
     ('GoldenGoose', 'Godly', legends.golden_goose),
     ('NebulaSerpent', 'Godly', legends.nebula_serpent),
-]
+] + godlies.ROSTER  # the Godlies from the master sheet (godlies.py)
 
 
 CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'games', 'hatchery-heist', 'config',
@@ -540,7 +773,13 @@ def in_game(cs):
 # Each creature's element (Ember, Glacial, Nature, Storm, ...). Elements roll
 # out once there are many creatures per element and tier (Alex, Nov 5); until
 # then every creature is 'plain'. A themed variant names its element here.
-ELEMENT = {}
+ELEMENT = dict(godlies.ELEMENT)
+
+# Showpieces drawn with smaller voxels than their tier in the Blender build:
+# the same size in studs, this many times more voxels each way. The in-game
+# boxes (VoxelArt) keep the tier's voxel. Alex, Nov 5: Godlies must be far
+# more detailed than everything else.
+FINER = {'NebulaSerpent': 1.6, **godlies.FINER}
 
 # Creatures added as data (tools/art/roster/*.json, see variants.py).
 import variants  # noqa: E402
@@ -557,7 +796,7 @@ def build_all(detail=None):
     out = []
     for species, rarity, fn in ROSTER:
         c = Creature(species, rarity)
-        mult = (detail or {}).get(rarity, 1)
+        mult = (detail or {}).get(rarity, 1) * (FINER.get(species, 1) if detail is not None else 1)
         c.detail = mult
         c.element = ELEMENT.get(species, 'plain')
         c.fine = detail is not None  # the Blender build, at any multiplier
@@ -575,10 +814,18 @@ def build_all(detail=None):
         # A voxel belongs to one part only: the later, more specific part
         # (head over body, ears over head) keeps it, so no two parts draw the
         # same spot and flicker against each other.
+        # Legs and wings are the exception: the body keeps the voxels they
+        # share with it, so a leg or wing that swings out leaves no hole.
         for i, part in enumerate(c.parts):
             for later in c.parts[i + 1:]:
                 for v in set(part.v) & set(later.v):
-                    del part.v[v]
+                    if part.name == 'body' and (later.name in rig.LEG_NAMES or later.name in ('wingL', 'wingR')):
+                        del later.v[v]
+                    else:
+                        del part.v[v]
         c.parts = [p for p in c.parts if p.v]
+        rig.split_legs(c, Part)  # walking legs, each its own part
+        if c.fine:
+            c.floating = rig.weld(c)  # no loose pieces in the meshes
         out.append(c)
     return out

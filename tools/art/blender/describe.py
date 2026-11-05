@@ -10,9 +10,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
-from creatures import HEIGHT, build_all  # noqa: E402
+from creatures import FINER, HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
+import rig  # noqa: E402
 
 RANK = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
 
@@ -26,6 +27,8 @@ VOXEL_STUDS = 0.1
 TIER_STUDS = {'Common': 2, 'Uncommon': 2.2, 'Rare': 2.4, 'Ultra Rare': 2.7, 'Epic': 3, 'Legendary': 3.4, 'Godly': 3.8}
 DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 
+
+ROBLOX_MESH_TRIS = 20000
 
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
 
@@ -50,7 +53,7 @@ def parent_of(part, parts):
         return None
     if part.name in ('eyes', 'ears'):
         return 'head'
-    if part.name in ('head', 'wingL', 'wingR', 'tail'):
+    if part.name in ('head', 'wingL', 'wingR', 'tail') or part.name.startswith('leg'):
         return 'body'  # a moving part rides the body, never another mover (no parent loops)
     scored = []
     for other in parts:
@@ -95,7 +98,7 @@ def r4(v):
 def creatures(tiers=None, only=None):
     cs = build_all(DETAIL)
     for c in cs:
-        c.voxel = VOXEL_STUDS
+        c.voxel = VOXEL_STUDS / FINER.get(c.species, 1)  # a showpiece's finer voxels
     if tiers:
         cs = [c for c in cs if c.rarity in tiers]
     if only:
@@ -116,7 +119,14 @@ def describe(c):
     for part in c.parts:
         pivot = voxmesh.to_game(part.pivot, centre, V)
         meshes, mlist = [], []
-        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of):
+        # where a leg meets the body, both sides are flat (hidden at rest)
+        if part.name == 'body':
+            flat = {v for o in c.parts if o.name.startswith('leg') for v in o.v}
+        elif part.name.startswith('leg'):
+            flat = set(next((o.v for o in c.parts if o.name == 'body'), ()))
+        else:
+            flat = ()
+        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of, flat=flat):
             if not md.tris:
                 continue
             name = f'{c.species}_{md.name}'
@@ -156,11 +166,18 @@ def describe(c):
             'lod1': lod_entry,
         })
     check_parents(c.species, {m['name']: m['parent'] for m in parts_meta})
+    # Roblox refuses a mesh over 20,000 triangles at upload; solid meshes are
+    # split below that, but a glow mesh (one per colour) is not
+    for pm in parts_meta:
+        for mm in pm['meshes']:
+            if mm['tris'] > ROBLOX_MESH_TRIS:
+                raise ValueError(f"{c.species}: mesh {mm['name']} has {mm['tris']} triangles, over Roblox's {ROBLOX_MESH_TRIS}")
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
         'id': c.species,
         'rarity': c.rarity,
         'element': getattr(c, 'element', 'plain'),
+        'gait': rig.gait(c),
         'heightStuds': round(size[1], 4),
         'sizeStuds': r4(size),
         'voxelStuds': round(V, 5),
@@ -170,7 +187,7 @@ def describe(c):
         'tris': total,
         'trisLod1': total_lod,
         'parts': parts_meta,
-        'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 1.0, 'loop': True}},
+        'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 2.0, 'loop': True}},
         'files': {'glb': f'{c.species}.glb', 'fbx': f'{c.species}.fbx', 'texture': f'{c.species}_palette.png'},
     }
     return meta, p, parts

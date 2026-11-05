@@ -6,7 +6,7 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | --- | --- |
 | `voxkit.py` | Parts, voxels and merging voxels into as few boxes as possible |
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
-| `legends.py` | The two Legendaries and two Godlies, built in far more detail |
+| `legends.py` | The two Legendaries and two Godlies, built in far more detail (`FINER` in `creatures.py` gives a showpiece smaller voxels in the Blender build) |
 | `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
 | `roster/master/master-list.json` | The master creature list: every creature planned, all seven tiers (`master_list.py` checks it) |
 | `master_list.py` | Checks the master list and lists what is left to build (`--todo [TIER]`, `--plans`) |
@@ -16,6 +16,8 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
+
+See `ANIMATION.md` for the rig and gait conventions every new creature follows (named leg, wing and fin parts; gaits).
 
 ## Adding a creature (as data)
 
