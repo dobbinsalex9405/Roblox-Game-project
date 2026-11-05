@@ -28,6 +28,8 @@ TIER_STUDS = {'Common': 2, 'Uncommon': 2.2, 'Rare': 2.4, 'Ultra Rare': 2.7, 'Epi
 DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 
 
+ROBLOX_MESH_TRIS = 20000
+
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
 
 
@@ -164,6 +166,12 @@ def describe(c):
             'lod1': lod_entry,
         })
     check_parents(c.species, {m['name']: m['parent'] for m in parts_meta})
+    # Roblox refuses a mesh over 20,000 triangles at upload; solid meshes are
+    # split below that, but a glow mesh (one per colour) is not
+    for pm in parts_meta:
+        for mm in pm['meshes']:
+            if mm['tris'] > ROBLOX_MESH_TRIS:
+                raise ValueError(f"{c.species}: mesh {mm['name']} has {mm['tris']} triangles, over Roblox's {ROBLOX_MESH_TRIS}")
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
         'id': c.species,

@@ -812,7 +812,7 @@ def nebula_serpent(c, H):
         span = r * (2.0 if kind == 'ringed' else 1.0)
         z = zc * k
         # clear of everything else at its height, with room for the head to turn
-        dist = max(reach(z - r - 2, z + r + 2) + span + 0.6 * k, 3.6 * k)
+        dist = max(reach(z - r - 2, z + r + 2) + span + 1.0 * k, 3.6 * k)
         centre = (mid_x + math.cos(ang) * dist, mid_y + math.sin(ang) * dist, z)
         mine = _ball_pts(centre, r)
         if kind == 'ringed':
@@ -849,7 +849,8 @@ def nebula_serpent(c, H):
             for p in mine:
                 crater = _vnoise(p[0], p[1], p[2], 0.3 * k, 61) > 0.7
                 orbit.put(p, hexc('#8E89A8') if crater else (hexc('#D6D2E6') if _hash(*p, 6) % 3 or not fine else hexc('#BEB9D2')))
-        taken.update(orbit.v)
+        # the worlds turn together, so they only need to be clear of the
+        # body (above) and of each other at rest, which their angles see to
     # four-point star crystals between the worlds
     for ang, zc in ((math.radians(20), 5.2), (math.radians(118), 3.0), (math.radians(205), 7.4), (math.radians(300), 4.6))[:4 if fine else 1]:
         z = zc * k
