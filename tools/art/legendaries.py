@@ -397,7 +397,7 @@ def magma_golem(c, H):
 
 
 def blaze_rhino(c, H):
-    plan('beast', c, H, {'col': '#8A7A80', 'belly': '#A89AA0', 'snout': '#A89AA0', 'horn': '#E8D8C8', 'glow': '#FF8A1A',
+    plan('beast', c, H, {'col': '#6E6268', 'belly': '#8A7E84', 'snout': '#8A7E84', 'horn': '#E8D8C8', 'glow': '#FF8A1A',
                          'accent': '#5A4A55'}, kind='heavy', horns='rhino', tail='whip')
     k = H / 10.0
     # armour plates over the back and shoulders
@@ -415,14 +415,23 @@ def blaze_rhino(c, H):
     # the flaming horn
     hp = c.part('horns')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(hp)
+    # ember veins glowing through the hide (legs and flanks, below the plates)
+    for name in ('body', 'legFL', 'legFR', 'legBL', 'legBR', 'head'):
+        p = part_or_none(c, name)
+        if p:
+            cracks(p, (P('#6E6268'),), FIRE[1], k, scale=1.4, width=0.28)
+    # the horn itself glows molten, darkest at the root and white-hot near the tip
+    hp.paint(lambda q, cc, g: (FIRE[min(3, int((q[2] - z0) / max(1, z1 - z0 + 1) * 3.2))], True))
     fl = c.part('hornflame', 'glow')
-    flame(fl, 0, y0 + 0.4 * k, z1 + 1, 2.0 * k, k, w=0.5)
+    flame(fl, 0, y0 + 0.4 * k, z1 + 1, 3.0 * k, k, w=0.75)
+    for sx in (1, -1):  # smaller tongues licking up either side
+        flame(fl, sx * 0.5 * k, y0 + 0.9 * k, z1 - 0.2 * k, 1.6 * k, k, w=0.4)
     return c
 
 
 def golden_sphinx(c, H):
     plan('beast', c, H, {'col': '#F2C14E', 'belly': '#FFE3A0', 'snout': '#FFE3A0', 'accent': '#E8A21A', 'glow': '#4FD8FF',
-                         'wing': '#FFE8B0'}, kind='cat', tail='lion', wings='feather')
+                         'wing': '#FFC21A'}, kind='cat', tail='lion', wings='feather')
     k = H / 10.0
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
@@ -439,8 +448,13 @@ def golden_sphinx(c, H):
                     if shell:
                         nemes.put((x, y, z), blue if (z // max(2, round(0.45 * k))) % 2 else GOLD)
     f = head.front(0, z1 - round(0.4 * k)) or head.front(-1, z1 - round(0.4 * k))
-    if f:
-        nemes.ell((0, f[1] - 0.2 * k, f[2]), (0.45 * k, 0.5 * k, 0.5 * k), P('#FF3B5C'), True)
+    if f:  # a ruby set in gold on the headdress band, above the brow
+        jz = z1 + 1
+        jy = min(q[1] for q in nemes.v if q[2] == jz) - 1 if any(q[2] == jz for q in nemes.v) else f[1]
+        for (dx, dz) in ((0, 0), (-1, 0), (0, -1), (-1, -1), (0, 1), (-1, 1), (1, 0), (-2, 0)):
+            rim = dx in (1, -2) or dz != 0 and False
+            nemes.put((dx, jy, jz + dz), GOLD if dx in (1, -2) else P('#E8102E'), dx not in (1, -2))
+        nemes.put((0, jy - 1, jz + 1), WHITE, True)
     # hieroglyph glow along the flanks
     body = c.part('body')
     body.paint(lambda p, cc, g: (BOLT, True) if abs(p[0] + .5) > 1.5 * k and cc in (P('#F2C14E'),) and
