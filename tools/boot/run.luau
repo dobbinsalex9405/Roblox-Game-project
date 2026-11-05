@@ -3,12 +3,16 @@
 -- client) scripts under Lune with a thin Roblox shim (tools/boot/shim.luau).
 --
 --   lune run tools/boot/run [game|all] [--built] [--no-build] [--studio]
---                           [--no-client] [--no-join] [--settle 2] [--verbose]
+--                           [--unpublished] [--no-client] [--no-join]
+--                           [--settle 2] [--verbose]
 --
 -- By default each game is built fresh into build/boot-<game>.rbxl. `--built`
 -- boots build/<game>.rbxl as tools/build.sh left it instead, so CI and the
 -- publish workflows check the exact file that gets uploaded (environment
 -- stamp included). `--no-build` reuses an earlier build/boot-<game>.rbxl.
+-- `--studio --unpublished` is a built file opened in Studio: RunService says
+-- Studio and every GetDataStore call throws, as it does in a place that was
+-- never published.
 --
 -- What it catches: a config assert that fails at start-up, a require that
 -- points nowhere, a nil index while the world is built or remotes are
@@ -175,6 +179,7 @@ local function bootGame(gameName: string, placePath: string)
 	Shim.reset()
 	Shim.side = "server"
 	Shim.studio = flags.studio == true
+	Shim.unpublished = flags.unpublished == true
 	Shim.quiet = true
 	Shim.install()
 	local game = roblox.deserializePlace(fs.readFile(placePath))
