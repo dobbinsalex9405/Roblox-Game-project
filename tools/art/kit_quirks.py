@@ -636,6 +636,169 @@ def aphid(c, H, col, col2, a=None):
         leg.put((X(xk + 1), yf, 0), dark)  # a little foot pointing out
 
 
+def _twig_leg(c, side, i, n, x, y, ztop, col, foot_col):
+    """A thin one-voxel twig leg straight down from ztop to the ground, with a
+    two-toed foot (one toe forward, one out), its own rig leg part; x is the
+    right-hand column, the left leg is its exact mirror."""
+    import rig
+    sx = 1 if side == 'R' else -1
+    X = (lambda v: v) if sx > 0 else (lambda v: -v - 1)
+    leg = rig.leg_part(c, side, i, n, (sx * (x + .5), y + .5, ztop + .5))
+    leg.v = {}
+    for z in range(0, ztop + 1):
+        leg.put((X(x), y, z), col)
+    leg.put((X(x), y - 1, 0), foot_col)
+    leg.put((X(x + 1), y, 0), foot_col)
+    return leg
+
+
+def cone_scales(c, H, col, col2, a=None):
+    """A pinecone body: staggered rows of scales, each a darker base and a
+    lighter tip that sticks out a voxel and points down; the body raised on
+    two thin twig legs. col is the twig colour, col2 the scale tips."""
+    import rig
+    k = H / 10.0
+    body = _find(c, 'body')
+    head = _find(c, 'head')
+    if not body or not body.v:
+        return
+    from collections import Counter
+    base = Counter(v[0] for v in body.v.values()).most_common(1)[0][0]
+    dark = _mix(base, INK, 0.5)
+    tipc = col2 or _mix(base, WHITE, 0.35)
+    lift = max(2, round(0.9 * k))
+    for p in c.parts:
+        if p.name not in rig.LEG_NAMES:
+            _shift(p, 0, 0, lift)
+    vox = body.v
+    zs = [p[2] for p in vox]
+    z0, z1 = min(zs), max(zs)
+    rowh = max(2, round(1.0 * k))
+    nsc = 7
+    hv = set(head.v) if head else set()
+    eyes_p = _find(c, 'eyes')
+    ez = (sum(p[2] for p in eyes_p.v) / len(eyes_p.v)) if eyes_p and eyes_p.v else z0 + 0.6 * (z1 - z0)
+    mid = _mix(base, tipc, 0.45)
+
+    def face(x, y, z):  # a clear oval round the eyes and mouth
+        return y < -0.8 * k and ((x + .5) / (1.7 * k)) ** 2 + ((z + .5 - ez + 0.5 * k) / (1.4 * k)) ** 2 < 1
+
+    def shade(part, x, y, z):
+        row = (z - z0) // rowh
+        th = math.atan2(x + .5, y + .5) / (2 * math.pi) * nsc + (0.5 if row % 2 else 0)
+        f = th - math.floor(th)
+        dz = (z - z0) % rowh
+        if f < 0.13 or f > 0.87:
+            return dark  # the gap between two scales
+        if dz == 0:
+            return tipc  # the scale's light lower lip
+        if dz == 1 and rowh > 2:
+            return mid
+        return base
+    for part in (body, head):
+        if not part:
+            continue
+        pv = part.v
+        for (x, y, z), (cc, g) in list(pv.items()):
+            if any(q not in vox and q not in hv for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z))):
+                if part is head and (cc != base or face(x, y, z)):
+                    continue
+                pv[(x, y, z)] = (shade(part, x, y, z), False)
+    # a tip sticking out under the middle of every scale (not over the face)
+    surf = [p for p in vox if any(q not in vox and q not in hv for q in ((p[0] + 1, p[1], p[2]), (p[0] - 1, p[1], p[2]), (p[0], p[1] + 1, p[2]), (p[0], p[1] - 1, p[2])))]
+    for (x, y, z) in surf + [p for p in hv if not face(*p)]:
+        row = (z - z0) // rowh
+        if (z - z0) % rowh or z >= z1 - 1 or z <= z0:
+            continue
+        th = math.atan2(x + .5, y + .5) / (2 * math.pi) * nsc + (0.5 if row % 2 else 0)
+        f = th - math.floor(th)
+        if abs(f - 0.5) > 0.14:
+            continue
+        r = math.hypot(x + .5, y + .5) or 1
+        ox, oy = (x + .5) / r, (y + .5) / r
+        q = (x + (1 if ox > 0.45 else -1 if ox < -0.45 else 0), y + (1 if oy > 0.45 else -1 if oy < -0.45 else 0), z)
+        if q in vox or q in hv or face(*q):
+            continue
+        body.put(q, tipc)
+    # twig legs under the body
+    old = [p for p in c.parts if p.name in rig.LEG_NAMES]
+    c.parts = [p for p in c.parts if p not in old]
+    ztop = z0 + 1
+    x = max(1, round(1.0 * k))
+    row = [p for p in vox if p[2] == z0]
+    y = round(sum(p[1] for p in row) / len(row)) if row else 0
+    _twig_leg(c, 'R', 0, 1, x, y, ztop, col, _mix(col, INK, 0.3))
+    _twig_leg(c, 'L', 0, 1, x, y, ztop, col, _mix(col, INK, 0.3))
+
+
+def diving_beetle(c, H, col, col2, a=None):
+    """A diving beetle: no horn, a gold rim right round the edge of the olive
+    shell, thin jointed front and middle legs, and the back pair flat, wide
+    oars with a pale fringe. col is the leg colour, col2 the fringe."""
+    import rig
+    k = H / 10.0
+    head = _find(c, 'head')
+    shell = _find(c, 'shell')
+    from collections import Counter
+    olive = Counter(v[0] for v in shell.v.values()).most_common(1)[0][0]
+    gold = [cv for cv in Counter(v[0] for v in shell.v.values()) if cv != olive]
+    gold = gold[0] if gold else hexc('#C9B44A')
+    # no horn: the gold block on the front of the head goes
+    for p, (cc, g) in list(head.v.items()):
+        if cc == gold:
+            del head.v[p]
+    # the shell: a dark seam down the middle, a gold rim round its edge
+    seam = _mix(olive, INK, 0.45)
+    for p, (cc, g) in list(shell.v.items()):
+        if cc == gold:
+            shell.v[p] = (seam, False)
+    foot = {(x, y) for (x, y, z) in shell.v}
+    low = {}
+    for (x, y, z) in shell.v:
+        low[(x, y)] = min(low.get((x, y), 99), z)
+    for (x, y, z) in list(shell.v):
+        edge = any(q not in foot for q in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+        if edge and z <= low[(x, y)] + 1:
+            shell.v[(x, y, z)] = (gold, False)
+    # legs
+    legc = col
+    fringe = col2 or hexc('#EDE6C4')
+    legs = sorted([p for p in c.parts if p.name in rig.LEG_NAMES], key=lambda p: (p.pivot[1], p.pivot[0]))
+    for leg in legs:
+        hx, hy, hz = leg.pivot
+        sx = 1 if hx >= 0 else -1
+        X = (lambda v: v) if sx > 0 else (lambda v: -v - 1)
+        xs = [abs(v[0] + .5) - .5 for v in leg.v] or [abs(hx)]
+        xi = int(min(xs))
+        y = math.floor(hy)
+        zt = max(2, int(hz) - 1)
+        leg.v = {}
+        back = leg.name.startswith('leg3')
+        if not back:
+            # thigh out, then a shin down and a little forward/back
+            xk = xi + max(2, round(1.0 * k))
+            for x in range(xi, xk + 1):
+                leg.put((X(x), y, zt), legc)
+            for z in range(0, zt + 1):
+                leg.put((X(xk), y, z), legc)
+            leg.put((X(xk + 1), y, 0), legc)
+        else:
+            # an oar: a short stalk, then a flat blade out to the side and
+            # back, three voxels wide, the trailing edge a pale fringe
+            xk = xi + 1
+            for x in range(xi, xk + 1):
+                leg.put((X(x), y, zt), legc)
+            for z in range(1, zt + 1):
+                leg.put((X(xk), y, z), legc)
+            L = max(4, round(2.4 * k))
+            for i in range(L):
+                for w in range(3):
+                    yy = y + i // 2 + w - 1
+                    leg.put((X(xk + i), yy, 1), legc if w < 2 else fringe)
+                leg.put((X(xk + i), y + i // 2 + 2, 1), fringe)
+            leg.put((X(xk), y, 0), legc)
+
+
 def drop_ears(c, H, col, col2, a=None):
     """Long floppy hound ears: from the top corners of the head each ear
     folds over and hangs flat against the side of the head, down past the
@@ -780,5 +943,7 @@ ACCESSORIES = {
     'many_legs': many_legs,
     'aphid': aphid,
     'drop_ears': drop_ears,
+    'cone_scales': cone_scales,
+    'diving_beetle': diving_beetle,
     'tidy': tidy,
 }
