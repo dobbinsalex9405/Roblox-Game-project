@@ -179,7 +179,7 @@ def describe(c):
         'tris': total,
         'trisLod1': total_lod,
         'parts': parts_meta,
-        'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 1.0, 'loop': True}},
+        'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 2.0, 'loop': True}},
         'files': {'glb': f'{c.species}.glb', 'fbx': f'{c.species}.fbx', 'texture': f'{c.species}_palette.png'},
     }
     return meta, p, parts

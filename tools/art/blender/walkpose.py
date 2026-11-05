@@ -6,7 +6,20 @@ creature exactly as the game does. Plain Python, no Blender.
 tests/WalkMirror.luau and Walk.spec.luau checks Walk.pose gives the same
 numbers, so the two can never drift apart. Change one, change the other."""
 import math
+import os
 import re
+
+CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'games', 'hatchery-heist',
+                      'config', 'atmosphere.luau')
+
+
+def wander_speed():
+    """Studs a second a creature walks (config/atmosphere.luau, wander.speed)."""
+    with open(CONFIG) as f:
+        m = re.search(r'wander = \{.*?\bspeed = ([0-9.]+)', f.read(), re.S)
+    if not m:
+        raise SystemExit(f'no wander.speed in {CONFIG}')
+    return float(m.group(1))
 
 GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover', 'swim')
 
