@@ -8,7 +8,9 @@ the ROSTER, so a new Common needs no code. One entry:
      "accessories": [{"kind": "bell", "color": "#E84855", "color2": "#FFD43B"}]}
 
 - **plan** is a body plan, and `colors` and `options` are its arguments
-  (PLANS below lists them). Colours are "#RRGGBB".
+  (PLANS below lists them). Colours are "#RRGGBB". The plans: quadruped,
+  bird, blob (frog, snail, ladybug, axolotl, turtle), bug (bee, butterfly,
+  beetle, caterpillar), crab and lizard (gecko, chameleon, iguana, bearded).
   kit_pond.py adds `critter` (dragonfly, ant, grasshopper, spider, firefly,
   pillbug, worm, slug, mantis) and `shore` (starfish, urchin, hermit,
   lobster, seal, walrus, newt, beaver, platypus); both take `kind`.
@@ -50,6 +52,7 @@ PLANS = {
     'blob': ({'col', 'accent'}, {'kind': {'frog', 'snail', 'ladybug', 'axolotl', 'turtle'}}),
     'bug': ({'col', 'accent', 'wing'}, {'kind': {'bee', 'butterfly', 'beetle', 'caterpillar'}}),
     'crab': ({'col', 'accent'}, {}),
+    'lizard': ({'col', 'accent', 'belly'}, {'kind': {'gecko', 'chameleon', 'iguana', 'bearded'}}),
 }
 # More plans, each kit in its own module so batches add plans without editing
 # the same lines: kit_pond (critter, shore).
@@ -98,7 +101,7 @@ def check(entry, where):
             bad(f'{sid}: {plan} has no option "{name}" (it has {sorted(options)})')
         if v not in options[name]:
             bad(f'{sid}: option {name} = {v!r}; allowed {sorted(map(str, options[name]))}')
-    if plan in ('blob', 'bug', 'critter', 'shore') and 'kind' not in entry.get('options', {}):
+    if plan in ('blob', 'bug', 'lizard', 'critter', 'shore') and 'kind' not in entry.get('options', {}):
         bad(f'{sid}: a {plan} needs options.kind')
     sh = entry.get('shape', {})
     for key in sh:
@@ -170,6 +173,8 @@ def builder(entry):
             kit.bug(c, H, opts['kind'], cols['col'], cols.get('accent', kit.INK), cols.get('wing'))
         elif plan == 'crab':
             kit.crab(c, H, cols['col'], cols.get('accent', cols['col']))
+        elif plan == 'lizard':
+            kit.lizard(c, H, opts['kind'], cols['col'], cols.get('accent', cols['col']), cols.get('belly'))
         elif plan in EXTRA_BUILDERS:
             EXTRA_BUILDERS[plan](c, H, dict(cols), opts)
         sh = entry.get('shape')
