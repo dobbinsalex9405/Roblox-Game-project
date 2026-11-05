@@ -577,10 +577,10 @@ do
 		"mounts",
 		"mount comes back on rejoin"
 	)
-	-- the ridden creature keeps its pad when a better one hatches into full pads
+	-- the ridden creature keeps its pad when a better one hatches onto a full tower
 	h2.data:update(p, function(d)
 		local list = {}
-		for i = 1, 20 do
+		for i = 1, 8 do
 			table.insert(list, {
 				uid = tostring(i),
 				speciesId = if i == 1 then "Chick" else "Turtle",
@@ -591,7 +591,7 @@ do
 			})
 		end
 		d.creatures = list
-		d.nextUid = 21
+		d.nextUid = 9
 		d.mountUid = "1"
 		d.incubators = { { slot = 1, eggId = "MeadowEgg", startedAt = 0, readyAt = 0, outcome = "Owlet" } }
 	end)
@@ -607,11 +607,7 @@ do
 	check(
 		chick.slot == 1 and stored == 1,
 		"mounts",
-		"the ridden Chick (weakest) kept its pad; a Turtle went to storage instead"
-	)
-	note(
-		"mounts/design",
-		"a weak ridden creature blocks a pad: the Owlet replaced an 8/s Turtle instead of the 1/s Chick, costing 7/s for as long as the player rides the Chick."
+		"the ridden Chick kept its pad; with floor 1 full, the new Owlet waits in the inventory (Place best moves it)"
 	)
 end
 
@@ -620,21 +616,21 @@ do
 	local h = Sim.new({ seed = 4242 })
 	local p = Fakes.player(901)
 	h.join(p)
-	-- fill 20 pads + 30 storage with Chicks, 12 slots, lots of coins
+	-- fill floor 1 (8 slots) and the inventory with Chicks, 12 slots, lots of coins
 	h.data:update(p, function(d)
 		local list = {}
-		for i = 1, 50 do
+		for i = 1, 8 + economy.storage.slots do
 			table.insert(list, {
 				uid = tostring(i),
 				speciesId = "Chick",
 				mutation = "None",
-				slot = if i <= 20 then i else nil,
+				slot = if i <= 8 then i else nil,
 				eggId = "BasicEgg",
 				hatchedAt = 0,
 			})
 		end
 		d.creatures = list
-		d.nextUid = 51
+		d.nextUid = 9 + economy.storage.slots
 		d.slots = 12
 	end)
 	give(h, p, 100000)
@@ -902,13 +898,13 @@ do
 				uid = tostring(i),
 				speciesId = "Chick",
 				mutation = "None",
-				slot = if i <= 20 then i else nil,
+				slot = if i <= 8 then i else nil,
 				eggId = "BasicEgg",
 				hatchedAt = 0,
 			})
 		end
 		d.creatures = list
-		d.nextUid = 51
+		d.nextUid = 9 + economy.storage.slots
 		d.slots = 6
 	end)
 	give(h, p, 50000)

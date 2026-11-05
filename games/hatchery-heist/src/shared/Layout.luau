@@ -4,6 +4,8 @@
 -- faces the yard. The server builds from these numbers and the client renders
 -- the conveyor from them, so both always agree.
 
+local Geometry = require("./Geometry")
+
 local Layout = {}
 
 Layout.PLOTS = 8 -- one per player; servers hold 8 (ops/SETUP.md)
@@ -19,7 +21,6 @@ Layout.FLOOR_WORLD_TOP = Layout.FLOOR_TOP + Layout.PLOT_Y -- the floor's top in 
 
 Layout.INCUBATOR_COLUMNS = 7
 Layout.INCUBATOR_POSITIONS = 14 -- economy.incubators.maxSlots + passBonusSlots
-Layout.PAD_COLUMNS = 5
 
 -- The belt runs along the front, from the left (-X) to the right (+X).
 Layout.BELT_START = Vector3.new(-26, 2.5, -26)
@@ -45,10 +46,37 @@ function Layout.incubator(slot: number): Vector3
 	return Vector3.new(-18 + column * 6, 1.5, -15 + row * 6)
 end
 
+-- Pad `index` across the whole tower (Geometry.pad): 1 to 8 on the ground
+-- floor, 9 to 16 on floor 2, and so on.
 function Layout.pad(index: number): Vector3
-	local column = (index - 1) % Layout.PAD_COLUMNS
-	local row = (index - 1) // Layout.PAD_COLUMNS
-	return Vector3.new(-20 + column * 10, 1.2, 0 + row * 7)
+	local x, z, height = Geometry.pad(index)
+	return Vector3.new(x, 1.2 + height, z)
+end
+
+-- Tower floor looks, floor 1 to 10 (themes in economy.tower.themes): the
+-- deck and the trim (railings, pillars) of the cozy apartment tower.
+-- Placeholder colours until the world thread's apartment art lands.
+Layout.FLOOR_LOOKS = {
+	{ deck = Color3.fromRGB(176, 128, 88), trim = Color3.fromRGB(214, 110, 80) }, -- Cozy Studio
+	{ deck = Color3.fromRGB(150, 105, 70), trim = Color3.fromRGB(120, 150, 110) }, -- Book Nook
+	{ deck = Color3.fromRGB(190, 160, 115), trim = Color3.fromRGB(90, 165, 95) }, -- Plant Sunroom
+	{ deck = Color3.fromRGB(215, 190, 160), trim = Color3.fromRGB(230, 140, 90) }, -- Bakery Kitchen
+	{ deck = Color3.fromRGB(120, 90, 70), trim = Color3.fromRGB(80, 140, 220) }, -- Games Lounge
+	{ deck = Color3.fromRGB(140, 100, 70), trim = Color3.fromRGB(235, 240, 250) }, -- Winter Cabin
+	{ deck = Color3.fromRGB(205, 180, 145), trim = Color3.fromRGB(230, 120, 150) }, -- Art Studio
+	{ deck = Color3.fromRGB(150, 170, 110), trim = Color3.fromRGB(110, 190, 140) }, -- Rooftop Garden
+	{ deck = Color3.fromRGB(50, 55, 95), trim = Color3.fromRGB(190, 180, 255) }, -- Starlit Observatory
+	{ deck = Color3.fromRGB(235, 215, 170), trim = Color3.fromRGB(255, 200, 90) }, -- Golden Sky Penthouse
+}
+
+-- Where each floor's elevator stop is, and the ladder up the right side,
+-- in the base's own space (y = 0: add the floor's top).
+Layout.ELEVATOR = Vector3.new(-20.5, 0, 20.5)
+Layout.LADDER = Vector3.new(25.2, 0, 14.5)
+
+-- The top of floor `floor`'s deck, in the base's own space.
+function Layout.floorTop(floor: number): number
+	return Layout.FLOOR_TOP + (floor - 1) * Geometry.FLOOR_HEIGHT
 end
 
 -- A point along the belt, `progress` from 0 (start) to 1 (end).
