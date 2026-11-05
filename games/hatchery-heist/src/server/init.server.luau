@@ -224,8 +224,8 @@ local ready: Actions.Actions = Actions.new({
 	notify = function(player: Player, text: string)
 		fire(Remotes["HH:Notice"], player, text)
 	end,
-	hatched = function(player: Player, speciesId: string, eggId: string)
-		fire(Remotes["HH:Hatched"], player, speciesId, eggId)
+	hatched = function(player: Player, speciesId: string, eggId: string, isNew: boolean)
+		fire(Remotes["HH:Hatched"], player, speciesId, eggId, isNew)
 	end,
 	welcome = function(player: Player, coins: number, readyEggs: number)
 		fire(Remotes["HH:WelcomeBack"], player, coins, readyEggs)

@@ -34,7 +34,7 @@ export type Options = {
 	plotOf: (player: any) -> number?,
 	-- Effects on the player.
 	notify: (player: any, text: string) -> (),
-	hatched: (player: any, speciesId: string, eggId: string) -> (),
+	hatched: (player: any, speciesId: string, eggId: string, isNew: boolean) -> (),
 	welcome: (player: any, coins: number, readyEggs: number) -> (),
 	mount: (player: any, speed: number?) -> (), -- speed nil = dismount
 }
@@ -156,6 +156,7 @@ function Actions.new(options: Options): Actions
 		local step: number? = nil
 		local mountSpeed: number? = nil
 		local ok = data:update(player, function(d: Hatchery.Data)
+			Hatchery.backfillFound(d)
 			earned = Hatchery.welcomeBack(d, now, perSecond(d, player), economyConfig)
 			for _, incubator in d.incubators do
 				if incubator.readyAt <= now then
@@ -279,10 +280,13 @@ function Actions.new(options: Options): Actions
 		local sold: { any } = {}
 		local step: number? = nil
 		local fullStep: number? = nil
+		local isNew = false
 		local now = options.now()
 		local ok, err = change(player, function(d, ledger)
 			local refusal: string?
+			local foundBefore = Hatchery.foundCount(d, config.creatures)
 			creature, refusal, sold = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
+			isNew = Hatchery.foundCount(d, config.creatures) > foundBefore
 			if creature then
 				step = Hatchery.markFirst(d, "FirstHatch", now)
 				if Hatchery.padsFull(d, economyConfig.creaturePads) then
@@ -295,7 +299,7 @@ function Actions.new(options: Options): Actions
 			onboarding(player, step)
 			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
-			options.hatched(player, creature.speciesId, creature.eggId)
+			options.hatched(player, creature.speciesId, creature.eggId, isNew)
 			if #sold > 0 then
 				local pending: SoldNotice = soldNotice[player]
 					or { at = -math.huge, count = 0, coins = 0, what = "" }

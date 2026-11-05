@@ -7,8 +7,15 @@
 -- confetti; Legendaries and Godlies shake the screen and linger.
 --
 -- A tap skips ahead: during the wobble it cracks the egg at once, and once the
--- creature is out it closes the reveal. Hatches that arrive meanwhile queue up
--- and play in turn.
+-- creature is out it closes the reveal. Holding the screen skips every reveal
+-- still waiting (a notice lists what hatched). Hatches that arrive meanwhile
+-- queue up and play in turn; waiting Commons and Uncommons that are already
+-- in the book share one reveal ("+3 more: Chick x2, Bunny"), so a player with
+-- a dozen incubators is not held up by a dozen Chick reveals.
+--
+-- The "1 in N" shown is the player's own odds from the server (OddsView, the
+-- same numbers as the odds card, boosts included), falling back to the egg's
+-- base odds only if those have not arrived.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +30,7 @@ local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
+local OddsView = require(script.Parent.OddsView)
 local Sfx = require(script.Parent.Sfx)
 
 local HatchReveal = {}
@@ -31,12 +39,14 @@ local QUEUE_MAX = 8 -- more waiting than this and the rest just get a notice
 local EGG_HEIGHT = 2.6 -- studs, in the reveal's own little world
 local EGG_VOXEL = 0.14
 local MIN_FRAME = 3.4 -- studs: the least the creature view shows, so Commons look small
+local HOLD_TO_SKIP = 0.6 -- seconds the screen is held to skip every reveal
+local GROUP_RANK = 2 -- waiting hatches up to Uncommon share one reveal
 local TAP_GRACE = 0.35 -- seconds after the creature appears before a tap closes it
 local FONT = Enum.Font.FredokaOne
 
 export type Reveal = {
 	-- Queues a reveal; false when the queue is full (the caller says it instead).
-	show: (speciesId: string, eggId: string) -> boolean,
+	show: (speciesId: string, eggId: string, isNew: boolean?) -> boolean,
 	-- True while a reveal is on screen.
 	busy: () -> boolean,
 }
@@ -144,7 +154,8 @@ local function textLabel(parent: Instance, name: string, height: number, color: 
 	return l
 end
 
-function HatchReveal.start(ctx: Context.Context): Reveal
+-- `notify` shows a short message (the HUD's notice), for skipped reveals.
+function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): Reveal
 	local player = Players.LocalPlayer
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatchReveal"
@@ -236,12 +247,17 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 	list.SortOrder = Enum.SortOrder.LayoutOrder
 	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	list.Parent = words
+	local newText = textLabel(words, "New", 24, Color3.fromRGB(120, 255, 140))
+	newText.LayoutOrder = 0
+	newText.Text = "NEW! Added to your Hatchery Book"
 	local rarityText = textLabel(words, "Rarity", 44, Color3.new(1, 1, 1))
 	rarityText.LayoutOrder = 1
 	local nameText = textLabel(words, "Species", 30, Color3.new(1, 1, 1))
 	nameText.LayoutOrder = 2
 	local infoText = textLabel(words, "Info", 22, Color3.fromRGB(255, 226, 120))
 	infoText.LayoutOrder = 3
+	local moreText = textLabel(words, "More", 20, Color3.fromRGB(225, 225, 240))
+	moreText.LayoutOrder = 4
 
 	local hint = textLabel(root, "Hint", 18, Color3.fromRGB(230, 230, 240))
 	hint.AnchorPoint = Vector2.new(0.5, 1)
@@ -267,11 +283,12 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 		hint.Size = UDim2.new(0.6, 0, 0, math.floor(18 * math.max(textScale, 0.8)))
 		stage.Size = UDim2.fromOffset(side, side)
 		local wordsWidth = math.min(screen.X - 32, 520)
-		words.Size = UDim2.fromOffset(wordsWidth / textScale, 100)
+		words.Size = UDim2.fromOffset(wordsWidth / textScale, 150)
 		words.Position = UDim2.new(0.5, 0, 0.42, side / 2 - side * 0.02)
 	end
 
-	local queue: { { speciesId: string, eggId: string } } = {}
+	type Hatch = { speciesId: string, eggId: string, isNew: boolean, more: { string }? }
+	local queue: { Hatch } = {}
 	local running = false
 
 	-- State of the reveal on screen.
@@ -290,7 +307,7 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 	local confetti: { Confetti } = {}
 	local shakeUntil = 0
 	local nextShakeSound = 0
-	local current: { speciesId: string, eggId: string }? = nil
+	local current: Hatch? = nil
 	local playNext: () -> ()
 
 	local function aim(target: Vector3, size: number, yaw: number, pitch: number)
@@ -387,6 +404,9 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 		local speciesId = current.speciesId
 		Sfx.play("eggCrack")
 		Sfx.play(if rank >= 6 then "revealLegend" elseif rank >= 4 then "revealBig" else "reveal")
+		if current.isNew then
+			Sfx.play("newEntry")
+		end
 
 		flash.BackgroundTransparency = if rank >= 4 then 0 else 0.25
 		TweenService
@@ -434,6 +454,7 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 			TweenInfo.new(if rank >= 5 then 0.6 else 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
 			{ Scale = textScale }
 		):Play()
+		hint.Text = if #queue > 0 then "Tap to continue  ·  hold to skip all" else "Tap to continue"
 		hint.TextTransparency = 1
 		TweenService
 			:Create(hint, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0.8), {
@@ -466,12 +487,69 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 		end)
 	end
 
+	local function rankOf(speciesId: string): number
+		local species = ctx.config.creatures.species[speciesId]
+		return Layout.rarityRank(if species then species.rarity else "Common")
+	end
+
+	-- A list like "Chick x2, Bunny" for a notice or the "+N more" line.
+	local function tally(ids: { string }): string
+		local counts: { [string]: number } = {}
+		local order: { string } = {}
+		for _, id in ids do
+			if counts[id] == nil then
+				counts[id] = 0
+				table.insert(order, id)
+			end
+			counts[id] += 1
+		end
+		local parts = {}
+		for _, id in order do
+			local name = Layout.displayName(id)
+			table.insert(parts, if counts[id] > 1 then `{name} x{counts[id]}` else name)
+		end
+		return table.concat(parts, ", ")
+	end
+
+	-- The player's own chance from the server's odds, else the egg's base odds.
+	local function chance(eggId: string, speciesId: string): string?
+		local shown = OddsView.oneIn(eggId, speciesId)
+		if shown then
+			return shown
+		end
+		for _, egg in ctx.config.eggs do
+			if egg.id == eggId then
+				for _, o in egg.outcomes do
+					if o.id == speciesId then
+						return Odds.formatOneIn(o.weight, egg.total)
+					end
+				end
+			end
+		end
+		return nil
+	end
+
 	function playNext()
 		local nextOne = table.remove(queue, 1)
 		if nextOne == nil then
 			running = false
 			gui.Enabled = false
 			return
+		end
+		-- Small hatches already in the book share this reveal.
+		if not nextOne.isNew and rankOf(nextOne.speciesId) <= GROUP_RANK then
+			local more: { string } = {}
+			local i = 1
+			while i <= #queue do
+				local q = queue[i]
+				if not q.isNew and rankOf(q.speciesId) <= GROUP_RANK then
+					table.insert(more, q.speciesId)
+					table.remove(queue, i)
+				else
+					i += 1
+				end
+			end
+			nextOne.more = more
 		end
 		running = true
 		current = nextOne
@@ -499,17 +577,16 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 			table.insert(info, `+{Layout.shortNumber(species.coinsPerSecond)} coins/s`)
 		end
 		if not ctx.restricted() then
-			for _, egg in ctx.config.eggs do
-				if egg.id == nextOne.eggId then
-					for _, o in egg.outcomes do
-						if o.id == nextOne.speciesId then
-							table.insert(info, Odds.formatOneIn(o.weight, egg.total))
-						end
-					end
-				end
+			local oneIn = chance(nextOne.eggId, nextOne.speciesId)
+			if oneIn then
+				table.insert(info, oneIn)
 			end
 		end
 		infoText.Text = table.concat(info, "  ·  ")
+		newText.Visible = nextOne.isNew
+		local more = nextOne.more
+		moreText.Visible = more ~= nil and #more > 0
+		moreText.Text = if more and #more > 0 then `+{#more} more: {tally(more)}` else ""
 		words.Visible = false
 
 		gui.Enabled = true
@@ -519,6 +596,56 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 		startedAt = os.clock()
 		nextShakeSound = startedAt
 	end
+
+	-- Holding the screen skips everything still waiting.
+	local holdingSince: number? = nil
+	dim.InputBegan:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
+			holdingSince = os.clock()
+		end
+	end)
+	dim.InputEnded:Connect(function(input: InputObject)
+		local kind = input.UserInputType
+		if kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.Touch then
+			holdingSince = nil
+		end
+	end)
+
+	local function skipAll()
+		holdingSince = nil
+		local skipped: { string } = {}
+		for _, q in queue do
+			table.insert(skipped, q.speciesId)
+			local extra: { string } = q.more or {}
+			for _, id in extra do
+				table.insert(skipped, id)
+			end
+		end
+		table.clear(queue)
+		if #skipped > 0 then
+			notify(`Also hatched: {tally(skipped)}`)
+		end
+		if phase == "wobble" then
+			crack(os.clock())
+		end
+		close()
+	end
+
+	-- Re-fit when the screen turns or resizes mid-reveal, so the words never
+	-- cover the hint.
+	local function watchCamera()
+		local cam = Workspace.CurrentCamera
+		if cam then
+			cam:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+				if running then
+					layout()
+				end
+			end)
+		end
+	end
+	watchCamera()
+	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
 
 	dim.Activated:Connect(function()
 		local now = os.clock()
@@ -534,6 +661,10 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 			return
 		end
 		local now = os.clock()
+		if holdingSince and now - holdingSince >= HOLD_TO_SKIP then
+			skipAll()
+			return
+		end
 		if phase == "wobble" then
 			local t = now - startedAt
 			local k = math.clamp(t / look.wobble, 0, 1)
@@ -606,11 +737,11 @@ function HatchReveal.start(ctx: Context.Context): Reveal
 	end)
 
 	return {
-		show = function(speciesId: string, eggId: string): boolean
+		show = function(speciesId: string, eggId: string, isNew: boolean?): boolean
 			if #queue >= QUEUE_MAX then
 				return false
 			end
-			table.insert(queue, { speciesId = speciesId, eggId = eggId })
+			table.insert(queue, { speciesId = speciesId, eggId = eggId, isNew = isNew == true })
 			if not running then
 				playNext()
 			end

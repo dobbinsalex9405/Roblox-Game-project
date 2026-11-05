@@ -137,6 +137,18 @@ never sold.
   middle; low fences and flower beds on each base; trees and a ring of hills.
   Background music from Roblox's licensed library, with a Music on/off button
   in the side menu.
+- **Hatch reveal** (`src/client/HatchReveal.luau`): every hatch plays on
+  screen. The egg wobbles, cracks, and the creature turns under its rarity,
+  name, income and the player's exact chance (same numbers as the odds card).
+  It grows with rarity (`CreatureLooks`: wobble, rays, confetti, shake,
+  hold). Tap skips ahead; holding skips every waiting reveal (a notice lists
+  them); waiting Commons and Uncommons already in the book share one reveal.
+- **Hatchery Book** (side menu): every species on a card by tier; owned ones
+  in colour, the rest as "???" silhouettes, each with its best egg and exact
+  chance. Every species ever owned adds `economy.book.incomePerSpecies`
+  (1%) income, so a full book is +33%. Kept in `data.found`.
+- **Sound effects** (`config/atmosphere.luau` `sounds`): named hooks; an id
+  of 0 is silent until one is picked by ear.
 
 ## Money
 
@@ -164,7 +176,9 @@ anyone else.
 ## Save data
 
 Version 1 is in `src/shared/DataTemplate.luau`. Changes go through a migration;
-nothing is ever removed.
+nothing is ever removed. `found` (Hatchery Book) was added to version 1
+without a migration: the core's reconcile fills it in as `{}`, and join
+back-fills it from the creatures the player owns.
 
 ## Status
 

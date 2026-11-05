@@ -33,7 +33,7 @@ function Sfx.play(name: string, pitch: number?)
 		sounds[name] = s
 		sound = s
 	end
-	assert(sound)
+	assert(sound, "the sound was just made")
 	sound.PlaybackSpeed = pitch or 1
 	sound.TimePosition = 0
 	sound:Play()

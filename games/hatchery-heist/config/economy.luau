@@ -44,6 +44,12 @@ return {
 	-- With the Auto-Collect pass, earnings move into coins this often (seconds).
 	autoCollectSeconds = 30,
 
+	-- Hatchery Book: every species a player has ever owned adds this much
+	-- income (0.01 = +1%), so a full book of 33 is +33%.
+	book = {
+		incomePerSpecies = 0.01,
+	},
+
 	-- Multiplier for the Double Coins pass.
 	doubleCoinsMultiplier = 2,
 

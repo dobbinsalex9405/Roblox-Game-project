@@ -25,6 +25,10 @@ DataTemplate.template = {
 	boosts = {}, -- { [boostId] = expiresAt }
 	receipts = {}, -- recent purchase ids, capped (core Receipts)
 	firsts = {}, -- { [moment] = unix seconds } for the onboarding funnel
+	-- Hatchery Book: { [speciesId] = unix seconds first owned }. Added after
+	-- launch of version 1; reconcile fills it in, and join back-fills it from
+	-- the creatures a player already has.
+	found = {},
 	stats = { raidsWon = 0, raidsLost = 0, playSeconds = 0 },
 	meta = { firstJoinAt = 0, lastJoinAt = 0, sessions = 0 }, -- written by the core on join
 }

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
+  flash, and the creature turns under its rarity, name, income and exact
+  chance, with rays, glow, confetti and screen shake as rarity rises. Tap to
+  skip ahead, hold to skip all; small repeat hatches share one reveal.
+- Hatchery Book in the side menu: all 33 creatures by tier, "???"
+  silhouettes until found, each with its best egg and odds. Every species
+  found adds +1% income.
+- Sound effect hooks for the egg, the reveal, the book and rewards (silent
+  until sounds are picked).
+
 - Creatures (Alex, Nov 5): 33 voxel creatures in seven tiers, from ten
   small Commons up to two huge Godlies, replacing the coloured balls. Each
   tier moves and shines more than the last: Commons bob and blink; Rares

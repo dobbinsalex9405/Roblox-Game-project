@@ -156,9 +156,11 @@ function Hud.start(ctx: Context.Context)
 		show(text)
 	end)
 	-- The reveal plays each hatch; a notice covers any it has no room for.
-	local reveal = HatchReveal.start(ctx)
-	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string, eggId: string)
-		if reveal.show(speciesId, eggId) then
+	local reveal = HatchReveal.start(ctx, function(text: string)
+		show(text, 6)
+	end)
+	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string, eggId: string, isNew: boolean)
+		if reveal.show(speciesId, eggId, isNew) then
 			return
 		end
 		local species = ctx.config.creatures.species[speciesId]

@@ -30,9 +30,26 @@ function OddsView.start(context: Context.Context)
 			end
 		end
 	end)
-	for eggId in ctx.config.economy.conveyor.weights do
-		CoreClient.requestOdds(eggId)
+	-- Every egg, not only the belt's: the hatch reveal shows the chance of
+	-- whatever hatched, from any egg.
+	for _, egg in ctx.config.eggs do
+		CoreClient.requestOdds(egg.id)
 	end
+end
+
+-- This player's chance of `outcomeId` from `eggId` as "1 in N", from the
+-- server's odds (boosts included); nil until they have arrived.
+function OddsView.oneIn(eggId: string, outcomeId: string): string?
+	local display = displays[eggId]
+	if display == nil or type(display.rows) ~= "table" then
+		return nil
+	end
+	for _, row in display.rows do
+		if row.id == outcomeId and type(row.oneIn) == "string" then
+			return row.oneIn
+		end
+	end
+	return nil
 end
 
 function OddsView.onChanged(listener: () -> ())

@@ -43,10 +43,11 @@ return function(Net: any, Schema: any)
 		),
 		-- A short message for the player (a refusal, a reward).
 		["HH:Notice"] = Net.toClient("HH:Notice", { text }),
-		-- An egg hatched: species id, and the egg it came from (for the reveal).
+		-- An egg hatched: species id, the egg it came from, and whether it is
+		-- new to the player's Hatchery Book (for the reveal).
 		["HH:Hatched"] = Net.toClient(
 			"HH:Hatched",
-			{ Schema.string({ maxLength = 50 }), Schema.string({ maxLength = 50 }) }
+			{ Schema.string({ maxLength = 50 }), Schema.string({ maxLength = 50 }), Schema.boolean() }
 		),
 		-- Coins earned while away, and eggs that finished hatching meanwhile.
 		["HH:WelcomeBack"] = Net.toClient(
