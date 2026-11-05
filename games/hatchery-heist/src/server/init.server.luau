@@ -190,8 +190,7 @@ local function onPlayerReady(player: Player)
 	end
 	player:SetAttribute("PaidRandomRestricted", not services.policy:paidRandomAllowed(player))
 	player.CharacterAdded:Connect(function(character: Model)
-		character:WaitForChild("HumanoidRootPart")
-		World.sendHome(player)
+		World.sendHomeOnSpawn(player, character)
 	end)
 	World.sendHome(player)
 	local loop = actions :: Actions.Actions

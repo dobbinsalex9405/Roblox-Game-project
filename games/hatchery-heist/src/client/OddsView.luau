@@ -182,8 +182,8 @@ end
 -- colour says it) and the exact percentage only. The card beside the Buy
 -- prompt always shows the full rows.
 local function fill(container: GuiObject, eggId: string, compact: boolean?)
-	-- The kiosk (20 pixels a stud) wants lines about 1.5 studs tall.
-	rowHeight = if compact then 30 else 22
+	-- Also the kiosk's line: nine fit a board (20 pixels a stud, 1.1 studs).
+	rowHeight = 22
 	for _, child in container:GetChildren() do
 		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
 			child:Destroy()

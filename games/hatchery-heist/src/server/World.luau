@@ -501,6 +501,21 @@ function World.sendHome(player: Player)
 	end
 end
 
+-- Sends a newly spawned character home once Roblox has placed it. Roblox
+-- puts a respawned character on the SpawnLocation after CharacterAdded, so
+-- a teleport made right away was undone and the player stayed in the plaza
+-- (Studio gate, Nov 5). Wait until it is in the world, then one more frame.
+function World.sendHomeOnSpawn(player: Player, character: Model)
+	character:WaitForChild("HumanoidRootPart")
+	if not character:IsDescendantOf(Workspace) then
+		character.AncestryChanged:Wait()
+	end
+	task.wait()
+	if player.Character == character and character:IsDescendantOf(Workspace) then
+		World.sendHome(player)
+	end
+end
+
 -- Puts the player in the yard just outside base `index`, facing away from it.
 function World.pushOut(player: Player, index: number)
 	local x, z = Geometry.outsideFront(index)

@@ -15,7 +15,7 @@ local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
 
--- The kiosk boards are 16 studs square: 320 pixels, nine 30-pixel lines.
+-- The kiosk boards are 16 x 11 studs: 320 x 220 pixels, nine 24-pixel lines.
 local KIOSK_PIXELS_PER_STUD = 20
 
 local Hud = {}
@@ -231,9 +231,9 @@ function Hud.start(ctx: Context.Context)
 				local pad = Instance.new("UIPadding")
 				pad.PaddingLeft = UDim.new(0, 12)
 				pad.PaddingRight = UDim.new(0, 12)
-				pad.PaddingTop = UDim.new(0, 10)
+				pad.PaddingTop = UDim.new(0, 2)
 				pad.Parent = holder
-				listLayout(holder, 4)
+				listLayout(holder, 2)
 				holder.Parent = g
 				g.Parent = ctx.player:WaitForChild("PlayerGui")
 				boardGuis[board] = g

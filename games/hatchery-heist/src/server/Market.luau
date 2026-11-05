@@ -22,10 +22,11 @@ local Market = {}
 -- Rail sections a lane needs: 15 degrees each round lane 1 (radius 22, the
 -- art's own); a wider lane takes more so each section keeps its length.
 local SECTION_DEGREES = 15
--- Big enough to read from the walk path (about 34 studs) on a phone: one egg
--- a board, one tier a line, each line about 1.7 studs tall (Studio gate).
-local KIOSK_HEIGHT = 14.5 -- the boards' middle; their bottom clears the Golden Egg
-local BOARD_SIZE = Vector2.new(16, 16)
+-- Readable from the walk path (about 34 studs) on a phone: one egg a board,
+-- one tier a line, each line about 1.2 studs tall; low enough that the HUD at
+-- the top of a phone screen does not cover it (Studio gates).
+local KIOSK_HEIGHT = 11.5 -- the boards' middle; their bottom (6) clears the nest
+local BOARD_SIZE = Vector2.new(16, 11)
 
 local function part(parent: Instance, props: { [string]: any }): Part
 	local p = Instance.new("Part")
