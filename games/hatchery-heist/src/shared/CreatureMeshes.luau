@@ -943,17 +943,85 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "scuttle",
 		height = 1.1,
 		size = { 1.8, 1.1, 1.1 },
-		tris = 7188,
-		trisLod1 = 696,
+		tris = 7828,
+		trisLod1 = 774,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
 				pivot = { 0, 0, 0.05 },
 				meshes = {
-					{ name = "Crab_body", center = { 0, 0.4517, 0 }, size = { 1.807, 0.9035, 1.107 } },
+					{ name = "Crab_body", center = { 0, 0.5018, 0 }, size = { 1.807, 0.8035, 1.107 } },
 				},
-				lod1 = { name = "Crab_body_lod1", center = { 0, 0.45, 0 }, size = { 1.8, 0.9, 1.1 } },
+				lod1 = { name = "Crab_body_lod1", center = { 0, 0.5, 0 }, size = { 1.8, 0.8, 1.1 } },
+			},
+			{
+				name = "leg3R",
+				anim = "leg3R",
+				parent = "body",
+				pivot = { 0.8, 0.3, 0.5 },
+				meshes = {
+					{ name = "Crab_leg3R", center = { 0.8, 0.1517, 0.5 }, size = { 0.207, 0.3035, 0.107 } },
+				},
+				lod1 = { name = "Crab_leg3R_lod1", center = { 0.8, 0.15, 0.5 }, size = { 0.2, 0.3, 0.1 } },
+			},
+			{
+				name = "leg3L",
+				anim = "leg3L",
+				parent = "body",
+				pivot = { -0.8, 0.3, 0.5 },
+				meshes = {
+					{ name = "Crab_leg3L", center = { -0.8, 0.1517, 0.5 }, size = { 0.207, 0.3035, 0.107 } },
+				},
+				lod1 = { name = "Crab_leg3L_lod1", center = { -0.8, 0.15, 0.5 }, size = { 0.2, 0.3, 0.1 } },
+			},
+			{
+				name = "leg2R",
+				anim = "leg2R",
+				parent = "body",
+				pivot = { 0.8, 0.3, 0.3 },
+				meshes = {
+					{ name = "Crab_leg2R", center = { 0.8, 0.1517, 0.3 }, size = { 0.207, 0.3035, 0.107 } },
+				},
+				lod1 = { name = "Crab_leg2R_lod1", center = { 0.8, 0.15, 0.3 }, size = { 0.2, 0.3, 0.1 } },
+			},
+			{
+				name = "leg2L",
+				anim = "leg2L",
+				parent = "body",
+				pivot = { -0.7643, 0.3, 0.3 },
+				meshes = {
+					{
+						name = "Crab_leg2L",
+						center = { -0.7017, 0.1517, 0.3 },
+						size = { 0.4035, 0.3035, 0.107 },
+					},
+				},
+				lod1 = { name = "Crab_leg2L_lod1", center = { -0.7, 0.15, 0.3 }, size = { 0.4, 0.3, 0.1 } },
+			},
+			{
+				name = "leg1R",
+				anim = "leg1R",
+				parent = "body",
+				pivot = { 0.8, 0.3, 0.1 },
+				meshes = {
+					{ name = "Crab_leg1R", center = { 0.8, 0.1517, 0.1 }, size = { 0.207, 0.3035, 0.107 } },
+				},
+				lod1 = { name = "Crab_leg1R_lod1", center = { 0.8, 0.15, 0.1 }, size = { 0.2, 0.3, 0.1 } },
+			},
+			{
+				name = "leg1L",
+				anim = "leg1L",
+				parent = "body",
+				pivot = { -0.7643, 0.3, 0.1 },
+				meshes = {
+					{
+						name = "Crab_leg1L",
+						center = { -0.7017, 0.1517, 0.1 },
+						size = { 0.4035, 0.3035, 0.107 },
+					},
+				},
+				lod1 = { name = "Crab_leg1L_lod1", center = { -0.7, 0.15, 0.1 }, size = { 0.4, 0.3, 0.1 } },
 			},
 			{
 				name = "head",
@@ -5429,7 +5497,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	Phoenix = {
 		assetId = 0,
 		rarity = "Legendary",
-		gait = "waddle",
+		gait = "hover",
 		height = 3.9,
 		size = { 4.6, 3.9, 3.7 },
 		tris = 30532,
