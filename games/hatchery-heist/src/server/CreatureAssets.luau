@@ -31,6 +31,9 @@ local function collect(loaded: Instance, speciesId: string): Model?
 			found[d.Name] = d
 		end
 	end
+	if entry.textureId <= 0 then
+		return nil -- no colours uploaded: grey meshes would be worse than boxes
+	end
 	local model = Instance.new("Model")
 	model.Name = speciesId
 	for _, part in entry.parts do
@@ -40,6 +43,14 @@ local function collect(loaded: Instance, speciesId: string): Model?
 				model:Destroy()
 				return nil
 			end
+			-- The colours are the uploaded palette image, never the importer's
+			-- own PBR textures (their TexturePacks fail to build).
+			for _, child in mp:GetChildren() do
+				if child:IsA("SurfaceAppearance") then
+					child:Destroy()
+				end
+			end
+			mp.TextureID = `rbxassetid://{entry.textureId}`
 			mp.Anchored = true
 			mp.Parent = model
 		end
