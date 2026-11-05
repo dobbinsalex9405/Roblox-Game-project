@@ -150,11 +150,17 @@ end
 local report = lib.report(outcome.results, function(s)
 	return serde.decode("json", s)
 end)
+for _, f in lib.coverage(report) do
+	table.insert(report.findings, f)
+end
 fs.writeFile(`build/cloud/{game}.json`, serde.encode("json", report, true))
+local covered =
+	`Started {report.started} server script(s); {report.parts} parts, {report.labels} labels and prompts, {report.spawns} spawn(s); {report.texts} HUD texts measured with Roblox's fonts.`
+print(covered)
 local lines = {
 	`# Real-engine check: {game}, Staging place version {version}`,
 	"",
-	`Started {report.started} server script(s); {report.parts} parts, {report.labels} labels and prompts, {report.spawns} spawn(s); {report.texts} HUD texts measured with Roblox's fonts.`,
+	covered,
 	"",
 }
 local failed = false

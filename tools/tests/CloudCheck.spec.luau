@@ -64,6 +64,15 @@ describe("cloud check", function()
 		expect(type(world.check)).toBe("function")
 	end)
 
+	it("a probe that checked nothing fails instead of passing", function()
+		local rules = {}
+		for _, f in lib.coverage({ started = 0, parts = 0 }) do
+			table.insert(rules, f.rule)
+		end
+		expect(rules).toEqual({ "engine.no-scripts", "engine.empty-world" })
+		expect(#lib.coverage({ started = 3, parts = 120 })).toBe(0)
+	end)
+
 	it("runs end to end against a fake Open Cloud: save, task, poll, logs, report", function()
 		local seen: { string } = {}
 		local polls = 0
@@ -122,6 +131,7 @@ describe("cloud check", function()
 		server:stop()
 		expect(result.stdout).toContain("REAL-ENGINE CHECK PASSED")
 		expect(result.stdout).toContain("[log] probe says hi")
+		expect(result.stdout).toContain("Started 3 server script(s); 10 parts")
 		expect(string.find(result.stdout, "test-key", 1, true)).toBeNil()
 		expect(seen[1]).toContain("POST /universes/v1/")
 		expect(seen[1]).toContain("/versions")
