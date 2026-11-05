@@ -15,6 +15,7 @@ local IncubatorLabel = require(Shared.IncubatorLabel)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
+local TowerView = require(script.Parent.TowerView)
 
 local BaseView = {}
 
@@ -124,6 +125,17 @@ function BaseView.start(ctx: Context.Context)
 			prompt(incubator, "Unlock", "Unlock", { hold = 0.5 }).Triggered:Connect(function()
 				ctx.fire(remotes["HH:BuySlot"])
 			end)
+		end
+
+		-- The tower's elevator stops: the owner opens the floor list.
+		local tower = model:WaitForChild("Tower") :: Folder
+		for _, floor in tower:GetChildren() do
+			local stop = floor:FindFirstChild("Elevator")
+			if stop then
+				prompt(stop, "Elevator", "Ride", { reach = 8 }).Triggered:Connect(function()
+					TowerView.elevator()
+				end)
+			end
 		end
 
 		for _, pad in (model:WaitForChild("Pads") :: Folder):GetChildren() do
@@ -321,6 +333,20 @@ function BaseView.start(ctx: Context.Context)
 				local canSteal = own ~= nil and not isOwn and taken and not shielded and not carrying
 				updateIncubators(model, isOwn, now)
 				updatePads(model, isOwn, canSteal)
+				local tower = model:FindFirstChild("Tower")
+				if tower then
+					for _, floor in tower:GetChildren() do
+						local stop = floor:FindFirstChild("Elevator")
+						if stop then
+							setPrompt(
+								stop,
+								"Elevator",
+								isOwn and (stop :: BasePart).Transparency < 1,
+								"Elevator"
+							)
+						end
+					end
+				end
 				updateDefenses(model, isOwn, canSteal, now)
 				if isOwn then
 					local collect = (model:FindFirstChild("CollectPad") :: Part):FindFirstChild("Collect")

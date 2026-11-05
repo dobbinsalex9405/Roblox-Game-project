@@ -282,6 +282,13 @@ function RaidService.start(d: Deps)
 			return
 		end
 		local px, pz = Geometry.pad(pad)
+		-- Pads on a floor above are reached by the ladder: the raider has to
+		-- stand on that floor, not under it.
+		local root = rootOf(player)
+		if root == nil or not Geometry.onFloorOfPad(pad, root.Position.Y - Layout.FLOOR_WORLD_TOP) then
+			d.notify(player, "Climb up to that floor first.")
+			return
+		end
 		local ok, why = d.raids:steal(player, pad, distanceTo(player, plot, { px, pz }))
 		if not ok and why then
 			d.notify(player, why)
