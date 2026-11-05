@@ -63,7 +63,7 @@ extra keys are listed with each):
 - **beak**: a bigger beak over the plan's. `style` big, curved, long.
 - **fan**: a peacock spider's fan raised at the back.
 - **leaf**: the body is a flat leaf with a color2 midrib and veins.
-- **beard**: a goat's beard under the chin (`length` in k).
+- **goatee**: a goat's beard under the chin, below a long snout (`length` in k).
 - **eyedisc**: a color disc round each eye (`disc` in k) with a big color2
   eye (`size` in k) and a glint: eyes that read on dark or busy faces.
 - **cicada**: turns the dragonfly critter into a cicada: wide head, big
@@ -1190,7 +1190,7 @@ def bigeyes(c, H, col, col2, a):
         head.v.pop((-x - 1, y, z), None)
 
 
-def beard(c, H, col, col2, a):
+def goatee(c, H, col, col2, a):
     """A little goat beard under the chin, `length` in k."""
     k = _k(H)
     head = head_of(c)
@@ -1506,7 +1506,7 @@ ACCESSORIES = {
     'wingset': wingset, 'boots': boots, 'stilts': stilts, 'carapace': carapace, 'skirt': skirt,
     'fluff': fluff, 'frizz': frizz, 'mushrooms': mushrooms, 'spikes': spikes, 'feelers': whiskers,
     'bigeyes': bigeyes, 'mouth': mouth, 'sweater': sweater, 'snowcap': snowcap, 'bristles': mohawk,
-    'crest': crest, 'beak': beak, 'fan': fan, 'leaf': leaf, 'eyedisc': eyedisc, 'cicada': cicada, 'beard': beard,
+    'crest': crest, 'beak': beak, 'fan': fan, 'leaf': leaf, 'eyedisc': eyedisc, 'cicada': cicada, 'goatee': goatee,
 }
 
 
