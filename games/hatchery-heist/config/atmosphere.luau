@@ -103,6 +103,65 @@ return {
 			clearAngle = 13, -- degrees round each farm spot kept free of trees
 			windmillTurnSeconds = 9, -- one full turn of the sails
 		},
+		-- The farm hub in the middle of the map: buildings and street props
+		-- from WorldArt.luau (kinds "building" and "hubprop", modelled in
+		-- tools/art/world/hub.py), around the Egg Market. Same angles as
+		-- `farm`: bases (and the paths to them) sit at 0, 45, 90 ..., so the
+		-- wedges between the paths are centred on 22.5, 67.5 .... Each piece
+		-- stands at `radius` studs from the centre and faces the centre
+		-- (its front, -Z, looks at the Golden Nest), turned `yaw` degrees
+		-- more when set. tests/HubLayout.spec.luau checks that every piece
+		-- exists, stays between the market and the bases, keeps off the
+		-- paths and the shop, and overlaps nothing else.
+		hub = {
+			innerRadius = 30, -- the belt's outer edge is about r29.2
+			outerRadius = 72, -- base fronts are at about r78
+			pathWidth = 10, -- the walkway along each base angle
+			-- The walk-in Robux shop (built by its own thread, ShopArt.luau):
+			-- only its footprint, so nothing here is placed on it.
+			-- Mirrors config/shophouse.luau (the shop thread owns it): walls 30
+			-- x 24; the eaves reach 0.8 past the sides, over the path edge.
+			shop = { angle = 22.5, radius = 62, width = 30, depth = 24 },
+			-- One arch over each path, where it leaves the market.
+			arch = { id = "MarketArch", radius = 31 },
+			-- Lamp posts beside every path where it leaves the market, `side`
+			-- studs off its centreline (further out the shop and the barn come
+			-- close to the paths, and they carry their own lanterns).
+			lamps = { id = "LampPost", radii = { 41 }, side = 6.5 },
+			-- A signpost at the market end of every path (left side).
+			signposts = { id = "Signpost", radius = 35, side = 7.5 },
+			pieces = {
+				-- 67.5: the Hatchery Barn, the hub's landmark, and the Book stand
+				{ id = "BookStand", angle = 67.5, radius = 37 },
+				{ id = "HatcheryBarn", angle = 67.5, radius = 56 },
+				-- 112.5: the Theme Stand by the market, two market stalls behind
+				{ id = "ThemeStand", angle = 112.5, radius = 37 },
+				{ id = "StallRed", angle = 106, radius = 54 },
+				{ id = "StallBlue", angle = 119, radius = 54 },
+				-- 157.5: the Daily Rewards mailbox, the well and the windmill
+				{ id = "Mailbox", angle = 157.5, radius = 35 },
+				{ id = "Well", angle = 149, radius = 44 },
+				{ id = "Windmill", angle = 157.5, radius = 57 },
+				-- 202.5: the notice board, the hen house, the egg cart and the silo
+				{ id = "NoticeBoard", angle = 202.5, radius = 35 },
+				{ id = "EggCart", angle = 194, radius = 45 },
+				{ id = "ChickenCoop", angle = 211, radius = 46 },
+				{ id = "Silo", angle = 202.5, radius = 60 },
+				-- 247.5: the flower stall, a planter and a haystack
+				{ id = "StallGreen", angle = 247.5, radius = 40 },
+				{ id = "FlowerPlanter", angle = 247.5, radius = 52 },
+				{ id = "HayStack", angle = 239, radius = 58 },
+				-- 292.5: a little green with benches and the duck pond
+				{ id = "Bench", angle = 286, radius = 42 },
+				{ id = "Bench", angle = 299, radius = 42 },
+				{ id = "DuckPond", angle = 292.5, radius = 57 },
+				-- 337.5: benches, the scarecrow and the vegetable patch
+				{ id = "Bench", angle = 331, radius = 42 },
+				{ id = "Bench", angle = 344, radius = 42 },
+				{ id = "Scarecrow", angle = 337.5, radius = 47 },
+				{ id = "VegetablePatch", angle = 337.5, radius = 57 },
+			},
+		},
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
