@@ -54,7 +54,7 @@ def call(method, url, key=None, body=None, ctype=None, soft=False):
             raise SystemExit(f'{method} {url.split("?")[0]} failed: HTTP {e.code} {text}')
 
 
-def multipart(request, path):
+def multipart(request, path, ctype='model/fbx'):
     b = uuid.uuid4().hex
     with open(path, 'rb') as f:
         data = f.read()
@@ -62,7 +62,7 @@ def multipart(request, path):
         f'--{b}\r\nContent-Disposition: form-data; name="request"\r\nContent-Type: application/json\r\n\r\n'.encode(),
         json.dumps(request).encode(), b'\r\n',
         (f'--{b}\r\nContent-Disposition: form-data; name="fileContent"; filename="{os.path.basename(path)}"\r\n'
-         'Content-Type: model/fbx\r\n\r\n').encode(),
+         f'Content-Type: {ctype}\r\n\r\n').encode(),
         data, f'\r\n--{b}--\r\n'.encode(),
     ]
     return b''.join(parts), f'multipart/form-data; boundary={b}'
@@ -126,6 +126,8 @@ def main():
     group = None if a.dry_run else owner_group(key)
     for sid in ids:
         fbx = os.path.join(a.dir, sid, f'{sid}.fbx')
+        if not os.path.isfile(os.path.join(a.dir, sid, f'{sid}_palette.png')):
+            raise SystemExit(f'{sid}: no {sid}_palette.png next to the fbx')
         have = data['models'].get(sid)
         if a.dry_run:
             print(f'{sid}: would {"update " + str(have["assetId"]) if have else "create"} from {fbx}')
@@ -143,8 +145,18 @@ def main():
             op = call('POST', f'{API}/assets', key, body, ctype)
         res = wait(op, key)
         asset = int(res.get('assetId') or have['assetId'])
-        data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId')}
-        print(f'{sid}: asset {asset}', flush=True)
+        # the colours: the palette image as its own asset, set as each
+        # MeshPart's TextureID by the game (the FBX carries no texture)
+        png = os.path.join(a.dir, sid, f'{sid}_palette.png')
+        body, ctype = multipart({
+            'assetType': 'Decal',
+            'displayName': f'HH {sid} palette',
+            'description': f'Hatchery Heist creature {sid} colours (tools/art/blender)',
+            'creationContext': {'creator': {'groupId': group}},
+        }, png, 'image/png')
+        tex = wait(call('POST', f'{API}/assets', key, body, ctype), key)
+        data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId'), 'textureId': int(tex['assetId'])}
+        print(f'{sid}: asset {asset}, texture {tex["assetId"]}', flush=True)
         with open(ASSETS, 'w') as f:  # after every upload, so a failure keeps the ids made so far
             json.dump(data, f, indent=1, sort_keys=True)
             f.write('\n')

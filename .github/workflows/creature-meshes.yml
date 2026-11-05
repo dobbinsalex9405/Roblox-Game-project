@@ -69,4 +69,5 @@ jobs:
           git push -u origin "$branch"
           gh pr create --draft --base "${{ github.ref_name }}" --head "$branch" \
             --title "Hatchery Heist: creature mesh asset ids" \
-            --body "Asset ids from the Upload creature meshes run ${{ github.run_id }}. Needs the visual playtest before merge (ops/ASSETS.md)."
+            --body "Asset ids from the Upload creature meshes run ${{ github.run_id }}. Needs the visual playtest before merge (ops/ASSETS.md)." \
+            || echo "::notice::Pushed $branch; Actions may not open PRs in this repo, so open one from it by hand."

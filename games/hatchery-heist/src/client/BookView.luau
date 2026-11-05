@@ -76,7 +76,7 @@ type Card = {
 	view: ViewportFrame,
 	camera: Camera,
 	model: Model?,
-	looks: { [BasePart]: { color: Color3, material: Enum.Material } },
+	looks: { [BasePart]: { color: Color3, material: Enum.Material, texture: string } },
 	name: TextLabel,
 	odds: TextLabel,
 	new: TextLabel,
@@ -105,10 +105,14 @@ local function showModel(card: Card, owned: boolean)
 	end
 	for _, p in model:GetDescendants() do
 		if p:IsA("BasePart") then
-			card.looks[p] = { color = p.Color, material = p.Material }
+			local texture = if p:IsA("MeshPart") then p.TextureID else ""
+			card.looks[p] = { color = p.Color, material = p.Material, texture = texture }
 			if not owned then
 				p.Color = SHADOW
 				p.Material = Enum.Material.SmoothPlastic
+				if p:IsA("MeshPart") then
+					p.TextureID = "" -- a texture draws over Color: the silhouette would show
+				end
 			end
 		end
 	end
@@ -388,6 +392,9 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			for part, look in card.looks do
 				part.Color = if owned then look.color else SHADOW
 				part.Material = if owned then look.material else Enum.Material.SmoothPlastic
+				if part:IsA("MeshPart") then
+					part.TextureID = if owned then look.texture else ""
+				end
 			end
 			card.name.Text = if owned then Layout.displayName(entry.speciesId) else "???"
 		end

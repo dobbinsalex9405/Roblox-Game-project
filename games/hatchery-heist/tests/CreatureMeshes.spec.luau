@@ -55,6 +55,9 @@ describe("Creature meshes", function()
 		local seen: { [string]: string } = {}
 		for id, m in CreatureMeshes do
 			expect(m.assetId).toBeAtLeast(0)
+			expect(m.textureId).toBeAtLeast(0)
+			-- an uploaded Model always comes with its palette image
+			expect(`{id} texture: {m.assetId == 0 or m.textureId > 0}`).toBe(`{id} texture: true`)
 			local names: { [string]: boolean } = {}
 			for _, part in m.parts do
 				names[part.name] = true
