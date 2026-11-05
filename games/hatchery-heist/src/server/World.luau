@@ -303,7 +303,6 @@ local function buildPlot(index: number): Model
 	billboard(rebirth, Vector3.new(0, 4.5, 0), UDim2.fromScale(8, 1.6), "Rebirth")
 	rebirth.Parent = model
 
-
 	local post = part({
 		Name = "Sign",
 		Size = Vector3.new(1, 8, 1),

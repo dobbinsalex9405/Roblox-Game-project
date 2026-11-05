@@ -77,7 +77,7 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels: 22 on the odds card, 16 on the board over the belt.
+-- Row height in pixels: 22 on the odds card, 16 on the Egg Market's kiosk.
 local rowHeight = 22
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
@@ -178,7 +178,7 @@ function OddsView.tiers(display: any): { { rarity: string, weight: number, perce
 end
 
 -- Fills `container` (which should have a UIListLayout) with one egg's odds.
--- `compact` is the board over the belt: names without the rarity word (the
+-- `compact` is the Egg Market's kiosk: names without the rarity word (the
 -- colour says it) and the exact percentage only. The card beside the Buy
 -- prompt always shows the full rows.
 local function fill(container: GuiObject, eggId: string, compact: boolean?)

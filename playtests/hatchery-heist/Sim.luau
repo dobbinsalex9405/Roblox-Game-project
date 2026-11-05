@@ -191,7 +191,7 @@ function Sim.new(options)
 			return h.sold
 		end,
 	})
-	function h.findOnBelt(player, eggId, maxProgress)
+	function h.findOnBelt(_player, eggId, maxProgress)
 		local taken = h.sold
 		for _, egg in Conveyor.onBelt(h.clock.now(), config.economy.conveyor) do
 			if egg.eggId == eggId and egg.progress < (maxProgress or 0.9) and not taken[egg.index] then

@@ -6,6 +6,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Guide = require(Shared.Guide)
@@ -46,7 +47,7 @@ local STEPS = {
 	{
 		icon = "🥚",
 		title = "Buy eggs",
-		body = "Eggs ride the conveyor belt at the front of your base. Walk up to one and buy it with coins.",
+		body = "Eggs ride the Egg Market in the middle of the map. Walk up to one and buy it with coins, before someone else does!",
 	},
 	{
 		icon = "🐣",
@@ -288,7 +289,11 @@ end
 local function findTarget(plot: Model, target: Guide.Target): BasePart?
 	local found: Instance? = nil
 	if target.kind == "Belt" then
-		found = plot:FindFirstChild("Belt")
+		-- The Egg Market's edge facing this base.
+		local market = Workspace:FindFirstChild("EggMarket")
+		local stops = market and market:FindFirstChild("Stops")
+		local index = plot:GetAttribute("PlotIndex")
+		found = stops and type(index) == "number" and stops:FindFirstChild(`Stop{index}`) or nil
 	elseif target.kind == "CollectPad" then
 		found = plot:FindFirstChild("CollectPad")
 	elseif target.kind == "Incubator" then
@@ -453,10 +458,6 @@ function GuideView.start(ctx: Context.Context): SideMenu
 				if target and attachToCharacter() then
 					-- Half the part's height in the world (incubators lie on their side).
 					local top = math.abs(target.CFrame:VectorToWorldSpace(target.Size).Y) / 2
-					if target.Name == "Belt" then
-						-- The middle of the belt, where the eggs are.
-						top += 1
-					end
 					toAttachment.Parent = target
 					toAttachment.WorldPosition = target.Position + Vector3.new(0, top + 0.5, 0)
 					arrow.Adornee = target
