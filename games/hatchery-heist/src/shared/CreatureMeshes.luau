@@ -2112,7 +2112,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Ladybug = {
 		assetId = 102641076306308,
-		textureId = 124793076082834,
+		textureId = 85694205731632,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 1.1,
