@@ -284,4 +284,27 @@ describe("Raids", function()
 		expect(Defenses.carrySpeed(32, raidsConfig)).toBe(32 * raidsConfig.carryMountFactor)
 		expect(Defenses.carrySpeed(nil, raidsConfig)).toBe(raidsConfig.carryWalkSpeed)
 	end)
+
+	-- Issue #49: with no guard, the guard loop got `false` instead of nil
+	-- and indexed it on every frame, which also stopped every later base's
+	-- guard from moving.
+	it("guardOf is nil, never false, when a base has no guard", function()
+		local species = require("../config/creatures").species
+		local d: any = {
+			creatures = { { uid = "1", speciesId = "Chick", mutation = "None", slot = 1 } },
+			guardUid = "",
+			mountUid = "",
+		}
+		expect(Defenses.guardOf(nil, species)).toBe(nil)
+		expect(Defenses.guardOf(d, species)).toBe(nil)
+		d.guardUid = "9" -- a guard that was sold or stolen
+		expect(Defenses.guardOf(d, species)).toBe(nil)
+		d.creatures[1].speciesId = "Retired" -- a species no longer in config
+		d.guardUid = "1"
+		expect(Defenses.guardOf(d, species)).toBe(nil)
+		d.creatures[1].speciesId = "Chick"
+		local creature, kind = Defenses.guardOf(d, species)
+		expect((creature :: any).uid).toBe("1")
+		expect(kind).toBe(species.Chick)
+	end)
 end)

@@ -39,8 +39,20 @@ local function gap(name: string)
 	Shim.gaps[name] = (Shim.gaps[name] or 0) + 1
 end
 
+-- Lune cannot set an object property (Adornee, PrimaryPart, ...) to nil,
+-- which Roblox allows, so that error says nothing about the game. It is shown
+-- as a warning instead (once per frame loop, counted), never as a bug.
+local SHIM_LIMITS = { "Failed to convert from 'nil' into 'Ref'" }
+
 local function record(where: string, message: any)
-	table.insert(Shim.errors, { where = where, message = tostring(message) })
+	local text = tostring(message)
+	for _, limit in SHIM_LIMITS do
+		if string.find(text, limit, 1, true) then
+			table.insert(Shim.output, `[warn] {where}: shim limit, not a game bug: {limit}`)
+			return
+		end
+	end
+	table.insert(Shim.errors, { where = where, message = text })
 end
 
 local function say(prefix: string, ...: any)

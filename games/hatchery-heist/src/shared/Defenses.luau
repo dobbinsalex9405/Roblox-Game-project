@@ -128,6 +128,24 @@ function Defenses.toggleGuard(d: Data, uid: string): (boolean, string?)
 	return true, nil
 end
 
+-- The base's guard and its species, or nil when there is none: no guard set,
+-- a guard uid that no longer matches a creature, or a species no longer in
+-- config. Always nil, never `false`, so callers can test it with `== nil`.
+function Defenses.guardOf(d: Data?, species: { [string]: any }): (any?, any?)
+	if d == nil or d.guardUid == "" then
+		return nil, nil
+	end
+	local creature = Hatchery.creatureByUid(d, d.guardUid)
+	if creature == nil then
+		return nil, nil
+	end
+	local kind = species[creature.speciesId]
+	if kind == nil then
+		return nil, nil
+	end
+	return creature, kind
+end
+
 -- Walk speed while carrying a stolen creature.
 function Defenses.carrySpeed(mountSpeed: number?, raids: any): number
 	if mountSpeed then

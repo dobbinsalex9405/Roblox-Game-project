@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed (#49): the server no longer throws an error every frame while a
+  base has no guard (every new player). The error also stopped every other
+  base's guard from moving, so guards now patrol and chase raiders again.
 - Creatures (Alex, Nov 5): 33 voxel creatures in seven tiers, from ten
   small Commons up to two huge Godlies, replacing the coloured balls. Each
   tier moves and shines more than the last: Commons bob and blink; Rares

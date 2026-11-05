@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The boot check runs a second of frames
+
+- After the join, the boot check fires RunService's per-frame signals 60
+  times on the server (Stepped, Heartbeat) and on the client (PreRender,
+  RenderStepped, Stepped, Heartbeat). Hatchery Heist's guard loop errored on
+  every frame for any player without a guard (#49, 16,862 errors in four
+  minutes on Staging) and nothing before publish ran a frame. Fixed frames
+  of 1/60 s; the check needs no real time to pass.
+- Lune cannot set an object property to nil (`box.Adornee = nil`), which
+  Roblox allows. That one error is shown as a counted warning, not a bug
+  (`SHIM_LIMITS` in `tools/boot/shim.luau`); Depthbound's pickaxe highlight
+  hits it every frame.
+
 ## 2026-11-05: Rarer odds and voxel creatures (Hatchery Heist)
 
 - **Odds tables may total more than 10,000.** `Odds` takes an optional

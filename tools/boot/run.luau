@@ -13,7 +13,8 @@
 -- What it catches: a config assert that fails at start-up, a require that
 -- points nowhere, a nil index while the world is built or remotes are
 -- registered, a start-up error on the client, a part built inside the
--- ground (the Baseplate). It cannot judge how anything
+-- ground (the Baseplate), and an error in a per-frame loop (it runs a
+-- second of frames on the server and on the client). It cannot judge how anything
 -- looks or plays; Studio still does that.
 --
 -- Exit code 1 when any game's server or client raised an error.
@@ -221,6 +222,30 @@ local function checkGround(game: any)
 	end
 end
 
+-- A second of frames: RunService's per-frame signals fire, so a loop that
+-- errors every frame (once 16,800 times in four minutes on a real server)
+-- fails the check here. Each signal's errors are recorded by Shim.
+local FRAMES = 60
+local FRAME_SIGNALS = {
+	server = { "Stepped", "Heartbeat" },
+	client = { "PreRender", "RenderStepped", "Stepped", "Heartbeat" },
+}
+
+local function runFrames(game: any, side: string)
+	local runService = game:GetService("RunService")
+	local dt = 1 / 60
+	for frame = 1, FRAMES do
+		for _, name in FRAME_SIGNALS[side] do
+			if name == "Stepped" then
+				runService[name]:Fire(frame * dt, dt)
+			else
+				runService[name]:Fire(dt)
+			end
+		end
+		task.wait()
+	end
+end
+
 -- One game: start the server, let a player join, start that player's client
 -- against the same tree (as a real client would see it), then let them leave.
 local function bootGame(gameName: string, placePath: string)
@@ -247,6 +272,8 @@ local function bootGame(gameName: string, placePath: string)
 	end
 	checkGround(game)
 	table.insert(ran, "ground check (nothing built inside the Baseplate)")
+	runFrames(game, "server")
+	table.insert(ran, `{FRAMES} server frames`)
 
 	local clientRan, clientErrors, clientOutput = nil, nil, nil
 	local serverStarted = #Shim.errors == 0
@@ -271,6 +298,8 @@ local function bootGame(gameName: string, placePath: string)
 		end
 		clientRan = runAll(game, clientScripts, "client start-up")
 		task.wait(settle)
+		runFrames(game, "client")
+		table.insert(clientRan, `{FRAMES} client frames`)
 		clientErrors, clientOutput = takeErrors(), takeOutput()
 		-- Back to the server for the leave.
 		Shim.side = "server"
