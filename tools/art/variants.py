@@ -40,6 +40,7 @@ with another. `python3 tools/art/variants.py` checks every file and lists
 the creatures; a mistake (an unknown plan, option or colour) names the file
 and the entry."""
 import glob
+import inspect
 import json
 import os
 import re
@@ -54,7 +55,7 @@ PLANS = {
     'quadruped': (
         {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines', 'glow', 'horn',
          'antlers', 'wings'},
-        {'ears': {'pointy', 'big', 'round', 'long', 'floppy'},
+        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy'},
          'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'flame', 'none'},
          'fluffy': {True, False}, 'pig': {True, False}, 'cow': {True, False}, 'bunny': {True, False}},
     ),
@@ -232,8 +233,8 @@ def builder(entry):
                     fn = EXTRA_ACCESSORIES[a['kind']]
                     args = (c, H, hexc(a['color']), hexc(a['color2']) if a.get('color2') else None)
                     # a kit accessory may take the roster entry too, for its own
-                    # settings: as a parameter named `a`
-                    fn(*args, a=a) if 'a' in fn.__code__.co_varnames[:fn.__code__.co_argcount] else fn(*args)
+                    # settings: as a parameter named `a` (positional or keyword-only)
+                    fn(*args, a=a) if 'a' in inspect.signature(fn).parameters else fn(*args)
                 else:
                     kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
         if entry.get('gait'):
