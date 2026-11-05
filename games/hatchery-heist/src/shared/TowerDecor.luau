@@ -10,7 +10,16 @@ local TowerDecor = {}
 
 export type Item = { prop: string, x: number, z: number, yaw: number, y: number, scale: number }
 export type Floor = { names: { string }, upgrades: { [number]: { Item } } }
-export type Config = { floors: { [number]: Floor } }
+export type Lighting = { brightness: number, range: number, color: { number }, neon: boolean }
+export type View = {
+	maxFloors: number,
+	phoneMaxFloors: number,
+	near: number,
+	far: number,
+	boxesPerFrame: number,
+	phoneBoxesPerFrame: number,
+}
+export type Config = { lighting: Lighting, view: View, floors: { [number]: Floor } }
 
 -- "0,2,4" -> { 0, 2, 4 } (floor 1 first). Anything that is not a whole
 -- number reads as 0, so a bad attribute shows a bare room, never an error.

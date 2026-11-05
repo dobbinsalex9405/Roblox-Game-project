@@ -10,8 +10,28 @@
 
 export type Item = { prop: string, x: number, z: number, yaw: number, y: number, scale: number }
 export type Floor = { names: { string }, upgrades: { [number]: { Item } } }
+export type Lighting = { brightness: number, range: number, color: { number }, neon: boolean }
+export type View = {
+	maxFloors: number,
+	phoneMaxFloors: number,
+	near: number,
+	far: number,
+	boxesPerFrame: number,
+	phoneBoxesPerFrame: number,
+}
 
-local towerDecor: { floors: { [number]: Floor } } = {
+local towerDecor: { lighting: Lighting, view: View, floors: { [number]: Floor } } = {
+	-- the ceiling lamps: one soft PointLight each; glowing boxes as Neon or not
+	lighting = { brightness = 0.4, range = 10, color = { 255, 228, 196 }, neon = false },
+	-- how much each client furnishes; phones keep fewer floors and build slower
+	view = {
+		maxFloors = 6,
+		phoneMaxFloors = 3,
+		near = 80,
+		far = 100,
+		boxesPerFrame = 400,
+		phoneBoxesPerFrame = 200,
+	},
 	floors = {
 		[1] = {
 			names = {},

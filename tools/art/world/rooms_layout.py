@@ -142,6 +142,24 @@ STARTER = [('BeanbagBed', 'L1'), ('WickerBasketBed', 'L2'), ('RubberBall', 'F2')
            ('FloorLamp', 'B1'), ('FoodBowlMat', 'R1'), ('PetWaterFountain', 'R2'),
            ('floor', 'StarterRug', 0, 10, 0, 1.0)]
 
+# The ceiling lamps' real lights (client/TowerDecorView). Indoors Roblox adds
+# every overlapping light and the game's bloom flares Neon, so the four lamps
+# stay soft: a 0.9 / 16-stud light on Neon washed the shop out white (#76).
+LIGHTING = {
+    'brightness': 0.4,  # each lamp's PointLight
+    'range': 10,  # studs; the four lamps sit 10 apart, so the pools just meet
+    'color': (255, 228, 196),  # a soft warm white
+    'neon': False,  # glowing boxes as Neon; off, they keep their colour
+}
+
+# How much each client furnishes (client/TowerDecorView). A full floor is
+# 800-1,400 boxes, so a phone keeps fewer floors and builds slower.
+VIEW = {
+    'maxFloors': 6, 'phoneMaxFloors': 3,  # floors furnished at once, nearest the camera first
+    'near': 80, 'far': 100,  # studs from the camera to a floor's middle: furnish, unfurnish
+    'boxesPerFrame': 400, 'phoneBoxesPerFrame': 200,
+}
+
 BOX = {}
 
 
@@ -309,8 +327,22 @@ def write():
         '',
         'export type Item = { prop: string, x: number, z: number, yaw: number, y: number, scale: number }',
         'export type Floor = { names: { string }, upgrades: { [number]: { Item } } }',
+        'export type Lighting = { brightness: number, range: number, color: { number }, neon: boolean }',
+        'export type View = {',
+        '\tmaxFloors: number,',
+        '\tphoneMaxFloors: number,',
+        '\tnear: number,',
+        '\tfar: number,',
+        '\tboxesPerFrame: number,',
+        '\tphoneBoxesPerFrame: number,',
+        '}',
         '',
-        'local towerDecor: { floors: { [number]: Floor } } = {',
+        'local towerDecor: { lighting: Lighting, view: View, floors: { [number]: Floor } } = {',
+        '\t-- the ceiling lamps: one soft PointLight each; glowing boxes as Neon or not',
+        f'\tlighting = {{ brightness = {lua_num(LIGHTING["brightness"])}, range = {lua_num(LIGHTING["range"])}, '
+        f'color = {{ {", ".join(str(c) for c in LIGHTING["color"])} }}, neon = {str(LIGHTING["neon"]).lower()} }},',
+        '\t-- how much each client furnishes; phones keep fewer floors and build slower',
+        '\tview = { ' + ', '.join(f'{k} = {lua_num(v)}' for k, v in VIEW.items()) + ' },',
         '\tfloors = {',
     ]
     for floor in range(1, 11):

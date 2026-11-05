@@ -125,6 +125,18 @@ describe("Tower decor", function()
 		end
 	end)
 
+	it("keeps the lamps soft and the phone load light", function()
+		-- a 0.9 / 16-stud light on Neon washed a room out white under bloom (#76)
+		local l = decor.lighting
+		expect(l.brightness > 0 and l.brightness <= 0.5).toBe(true)
+		expect(l.range >= 6 and l.range <= 12).toBe(true)
+		expect(l.neon).toBe(false)
+		local v = decor.view
+		expect(v.phoneMaxFloors >= 1 and v.phoneMaxFloors <= v.maxFloors).toBe(true)
+		expect(v.phoneBoxesPerFrame <= v.boxesPerFrame).toBe(true)
+		expect(v.near < v.far).toBe(true)
+	end)
+
 	it("reads the plot attributes forgivingly", function()
 		expect(TowerDecor.parseUpgrades("0,2,4")).toEqual({ 0, 2, 4 })
 		expect(TowerDecor.parseUpgrades("")).toEqual({})

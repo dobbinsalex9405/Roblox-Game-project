@@ -6,9 +6,12 @@
 -- client builds the rooms itself, so the server and other players carry
 -- none of it.
 --
--- A fully furnished floor is about 1,500 boxes, so only the floors nearest
--- the camera are furnished (at most MAX_FLOORS, built a few hundred boxes a
--- frame), and a floor's decor goes again once the camera is far away. When
+-- A fully furnished floor is 800 to 1,400 boxes, so only the floors nearest
+-- the camera are furnished (config towerDecor.view: 6, or 3 on a phone, built
+-- a few hundred boxes a frame), and a floor's decor goes again once the
+-- camera is far away. Ceiling lamps get one soft PointLight each and glowing
+-- boxes stay their colour (towerDecor.lighting), so a room reads cozy under
+-- the game's bloom, not white. When
 -- an owner buys an upgrade while the floor is furnished, the new pieces grow
 -- in with a sparkle.
 
@@ -26,12 +29,8 @@ local Sfx = require(script.Parent.Sfx)
 
 local TowerDecorView = {}
 
-local MAX_FLOORS = 6 -- floors furnished at once, nearest the camera first
-local NEAR, FAR = 80, 100 -- studs from the camera to a floor's middle: furnish, unfurnish
-local BOXES_PER_FRAME = 400
 local CHECK_EVERY = 0.25 -- seconds
 local GROW_TIME = 0.45
-local LIGHT_COLOR = Color3.fromRGB(255, 214, 160)
 
 type Group = { model: Model, boxes: number }
 
@@ -49,18 +48,31 @@ local function floorCentre(index: number, floor: number): Vector3
 	return (Layout.plotCFrame(index) * CFrame.new(0, Layout.floorTop(floor) + 4, 10)).Position
 end
 
--- Ceiling lights light the room: a warm point light in the first glowing box.
-local function addLight(model: Model)
+-- Glowing boxes: Neon, or (config lighting.neon off) their own colour, since
+-- the game's bloom flares Neon indoors. A ceiling lamp also lights the room
+-- with one soft PointLight in its first glowing box (or its first box).
+local function light(model: Model, lighting: TowerDecor.Lighting, lamp: boolean)
+	local holder: BasePart? = nil
 	for _, p in model:GetChildren() do
 		if p:IsA("BasePart") and p.Material == Enum.Material.Neon then
-			local light = Instance.new("PointLight")
-			light.Color = LIGHT_COLOR
-			light.Range = 16
-			light.Brightness = 0.9
-			light.Shadows = false
-			light.Parent = p
-			return
+			holder = holder or p
+			if not lighting.neon then
+				p.Material = Enum.Material.SmoothPlastic
+			end
 		end
+	end
+	if not lamp then
+		return
+	end
+	holder = holder or model:FindFirstChildWhichIsA("BasePart")
+	if holder then
+		local c = lighting.color
+		local l = Instance.new("PointLight")
+		l.Color = Color3.fromRGB(c[1], c[2], c[3])
+		l.Range = lighting.range
+		l.Brightness = lighting.brightness
+		l.Shadows = false
+		l.Parent = holder
 	end
 end
 
@@ -78,9 +90,7 @@ local function build(config: TowerDecor.Config, index: number, floor: number, gr
 		if prop then
 			prop.WorldPivot = origin
 			local art = WorldArt.props[item.prop]
-			if art and art.zone == "ceiling" then
-				addLight(prop)
-			end
+			light(prop, config.lighting, art ~= nil and art.zone == "ceiling")
 			boxes += #prop:GetChildren()
 			prop.Parent = model
 		end
@@ -157,6 +167,13 @@ end
 
 function TowerDecorView.start(config: TowerDecor.Config?)
 	local decor: TowerDecor.Config = config or require(ReplicatedStorage.GameConfig.towerDecor) :: any
+	-- a touch screen with no keyboard is a phone or tablet: fewer floors
+	local input = game:GetService("UserInputService")
+	local phone = input.TouchEnabled and not input.KeyboardEnabled
+	local view = decor.view
+	local MAX_FLOORS = if phone then view.phoneMaxFloors else view.maxFloors
+	local NEAR, FAR = view.near, view.far
+	local BOXES_PER_FRAME = if phone then view.phoneBoxesPerFrame else view.boxesPerFrame
 	local plots = Workspace:WaitForChild("Plots")
 	local folder = Instance.new("Folder")
 	folder.Name = "TowerDecor"
