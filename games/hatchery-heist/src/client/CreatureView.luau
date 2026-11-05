@@ -207,7 +207,8 @@ local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instanc
 	end
 	for _, part in entry.parts do
 		for _, mesh in part.meshes do
-			if not source:FindFirstChild(mesh.name) then
+			-- a glow accent the server could not load is left out (CreatureAssets)
+			if mesh.glow == nil and not source:FindFirstChild(mesh.name) then
 				return nil, nil
 			end
 		end
@@ -394,6 +395,9 @@ local function build(anchor: BasePart, speciesId: string)
 			local lod = part.lod1
 			local farReady = lod ~= nil and source:FindFirstChild(lod.name) ~= nil
 			for _, m in part.meshes do
+				if not source:FindFirstChild(m.name) then
+					continue -- a glow accent left out by the server
+				end
 				local piece = meshPiece(source, m, k, feet * CFrame.new(vec(m.center, k)))
 				weld(root, piece)
 				keep(piece, part.anim, if m.glow then (rgb(m.glow)) else nil)
@@ -572,6 +576,9 @@ function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (M
 		model.Name = speciesId
 		for _, part in mesh.parts do
 			for _, m in part.meshes do
+				if not source:FindFirstChild(m.name) then
+					continue -- a glow accent left out by the server
+				end
 				local piece = meshPiece(source, m, k, CFrame.new(vec(m.center, k)))
 				piece.Anchored = true
 				piece.Parent = model
