@@ -33,6 +33,7 @@ local CreatureAssets = require(script.CreatureAssets)
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
+local ShopHouse = require(script.ShopHouse)
 local Speed = require(script.Speed)
 local World = require(script.World)
 
@@ -48,6 +49,7 @@ local raw = {
 	raids = require(GameConfig.raids),
 	monetization = require(GameConfig.monetization),
 	atmosphere = require(GameConfig.atmosphere),
+	shophouse = require(GameConfig.shophouse),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -105,6 +107,7 @@ for index = 1, Layout.PLOTS do
 	assert(top > 0.05 and top <= 0.5, `base {index}'s floor top is at {top}, not a low lip above the grass`)
 end
 Scenery.build(Config.get("atmosphere"))
+ShopHouse.build(Config.get("shophouse"), monetization, Config.get("raids"))
 Mounts.start()
 CreatureAssets.start(log)
 

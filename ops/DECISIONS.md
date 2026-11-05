@@ -2,6 +2,34 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
+
+- **Alex asked (11:24Z) for an interior area for Robux spending.** One
+  storybook shop building in the yard, cream plaster and dark timber under a
+  red roof with cream trim (the hub's colours), a cross gable over the door
+  carrying the sign. Its spot, agreed with the hub-buildings thread: angle
+  22.5 (between the first two bases), radius 62, so it clears the paths that
+  run out along every base angle; door toward the Golden Nest.
+- **Every Shop-window item gets one display, and only those.** Coin packs
+  grow from a pouch (5K) to a sack, a chest and an overflowing hoard (200K,
+  "best value"), so bigger packs look bigger. Passes and the Shield sit on
+  red velvet. A Lune test fails if an item has no display or a display has
+  no item.
+- **No paid randomness on a display.** A display's prompt opens Roblox's
+  purchase prompt straight away, with no odds screen in between, so any item
+  with an odds table or `paidRandom` is refused by `ShopPlan` and stays in
+  the Shop window, which shows exact odds first. Today nothing random is
+  sold, so all eight items have displays.
+- **Prices on tags come from Roblox** (GetProductInfo), with the listing's
+  price until it answers; the purchase itself is the core shop's `Shop:Buy`
+  with source `GoldenEggShop`, so the scoreboard shows what the shop sells.
+- **Own generated module, shared placer.** The shop's props live in
+  `ShopArt.luau` (same format as WorldArt) so the shop, hub and world-asset
+  threads never fight over one generated file; `VoxelProp.register` lets the
+  polish thread's placer build them. No letters or numbers in the art: the
+  game shows WorldArt-format props mirrored left to right.
+- **Shell pieces collide, decor does not.** About 2,400 boxes in all.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150

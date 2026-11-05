@@ -421,6 +421,18 @@ return function(Schema: any, Odds: any)
 	end
 
 	-- Builds the Config.load input from the raw config modules.
+	Schemas.shophouse = Schema.record({
+		angle = Schema.number({ min = 0, max = 360 }),
+		radius = Schema.number({ min = 34, max = 70 }),
+		groundY = Schema.number({ min = -1, max = 2 }),
+		promptDistance = Schema.number({ min = 4, max = 14 }),
+		title = Schema.string({ maxLength = 30 }),
+		coinsHeader = Schema.string({ maxLength = 24 }),
+		passesHeader = Schema.string({ maxLength = 24 }),
+		lightScale = Schema.number({ min = 0, max = 3 }),
+		animateRange = Schema.number({ min = 0, max = 400 }),
+	})
+
 	function Schemas.sections(config: { [string]: any }): { [string]: Section }
 		local sections = {}
 		for name, value in config do
