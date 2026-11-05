@@ -65,7 +65,7 @@ describe("Hatchery Heist config", function()
 				for _, row in odds:display(egg.id, player).rows do
 					total += row.weight
 				end
-				expect(total).toBe(10000)
+				expect(total).toBe(egg.total or 10000)
 			end
 		end
 	end)

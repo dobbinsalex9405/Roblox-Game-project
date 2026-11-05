@@ -2,6 +2,31 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Rarer odds and voxel creatures (Hatchery Heist)
+
+- **Odds tables may total more than 10,000.** `Odds` takes an optional
+  `total` (a power of ten up to 10,000,000); left out it stays 10,000, so the
+  other games are unchanged. Hatchery Heist's eggs total 100,000 (Alex asked
+  for far rarer odds); percentages show as many decimals as the total needs
+  and every row also shows "1 in N". The fixed order for restricted players
+  is the same odds as a cycle (50,000 to 100,000 eggs), computed once per egg,
+  and the wait for a creature is a binary search.
+- **Creatures are client-built voxel models, not uploaded meshes.** Art is
+  Python (`tools/art`), merged into boxes and exported as Luau data; the
+  client builds Parts. This needs no Open Cloud asset key, diffs in review,
+  and lets parts move (Motor6Ds) and glow (Neon) per tier. A box may run
+  through voxels nobody can see, but never overlaps another on the outside
+  (coplanar faces flickered and caught shadow speckles in the render
+  check), and a voxel belongs to one part only. Budgets per tier are tested;
+  a Godly is at most 800 parts, fine for a 1 in 50,000 creature.
+- **The server's creature parts are invisible stand-ins.** The client
+  draws the model on them rather than hiding them locally, because the
+  camera rewrites `LocalTransparencyModifier` on character parts and a
+  hidden mount would reappear. `LookFade` carries ghost (ridden, guarding)
+  and gone (carried).
+- **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
+  number on its own line); CI re-runs the exporter and fails if it differs.
+
 ## 2026-11-04: Shop tabs, first-session guide and atmosphere (Hatchery Heist)
 
 - **The shared shop takes game tabs.** `CoreClient.addShopTab(name, render)`

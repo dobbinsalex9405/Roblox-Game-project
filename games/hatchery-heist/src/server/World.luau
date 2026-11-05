@@ -141,13 +141,13 @@ local function buildPlot(index: number): Model
 
 	local board = part({
 		Name = "OddsBoard",
-		Size = Vector3.new(30, 8, 0.4),
+		Size = Vector3.new(30, 12, 0.4),
 		CFrame = at(Layout.ODDS_BOARD),
 		Color = Color3.fromRGB(30, 30, 40),
 	})
 	board.Parent = model
 	-- Two legs and a wooden frame, so the board stands on the floor.
-	local boardBottom = Layout.ODDS_BOARD.Y - 4
+	local boardBottom = Layout.ODDS_BOARD.Y - 6
 	for _, x in { -14, 14 } do
 		local legHeight = boardBottom - Layout.FLOOR_TOP
 		part({
@@ -161,7 +161,7 @@ local function buildPlot(index: number): Model
 	end
 	part({
 		Name = "OddsBoardFrame",
-		Size = Vector3.new(31, 9, 0.3),
+		Size = Vector3.new(31, 13, 0.3),
 		CFrame = at(Layout.ODDS_BOARD + Vector3.new(0, 0, 0.35)),
 		Color = Color3.fromRGB(120, 85, 55),
 		Material = Enum.Material.Wood,
@@ -456,11 +456,16 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 				Name = "Creature",
 				Shape = Enum.PartType.Ball,
 				Size = Vector3.new(size, size, size),
-				CFrame = CFrame.new(pad.Position + Vector3.new(0, size / 2 + 0.2, 0)),
+				-- Facing the way the base faces: toward the yard.
+				CFrame = CFrame.new(pad.Position + Vector3.new(0, size / 2 + 0.2, 0)) * pad.CFrame.Rotation,
 				Color = Layout.rarityColor(species.rarity),
+				Transparency = 1,
 				CanCollide = false,
 			})
 			body:SetAttribute("Uid", c.uid)
+			-- An invisible stand-in: the client draws the voxel creature here
+			-- (CreatureView), sized and placed by this part.
+			body:SetAttribute("CreatureLook", c.speciesId)
 			local income = Hatchery.creatureIncome(c, config.creatures)
 			billboard(
 				body,
@@ -471,8 +476,12 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			body.Parent = pad
 			shown = body
 		end
-		-- Ridden, guarding (it patrols as its own model) or being carried off.
-		(shown :: Part).Transparency = if isCarried then 1 elseif riding or guarding then 0.75 else 0
+		-- Ridden, guarding (it patrols as its own model) or being carried off:
+		-- the client draws it faded, or not at all.
+		(shown :: Part):SetAttribute(
+			"LookFade",
+			if isCarried then 1 elseif riding or guarding then 0.75 else 0
+		)
 	end
 end
 
@@ -515,10 +524,12 @@ local function syncDefenses(model: Model, d: { [string]: any }?, config: any?, n
 				Name = "Creature",
 				Shape = Enum.PartType.Ball,
 				Size = Vector3.new(size, size, size),
-				CFrame = CFrame.new(p.Position + Vector3.new(0, size / 2 + 0.2, 0)),
+				CFrame = CFrame.new(p.Position + Vector3.new(0, size / 2 + 0.2, 0)) * p.CFrame.Rotation,
 				Color = Layout.rarityColor(species.rarity),
+				Transparency = 1,
 				CanCollide = false,
 			})
+			body:SetAttribute("CreatureLook", DECOY_LOOK)
 			billboard(
 				body,
 				Vector3.new(0, size / 2 + 1.5, 0),

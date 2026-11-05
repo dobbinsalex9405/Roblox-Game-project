@@ -160,3 +160,86 @@ describe("Odds", function()
 		expect(Odds.formatPercent(1234)).toBe("12.34%")
 	end)
 end)
+
+describe("Odds out of a larger total", function()
+	local RARE: Odds.TableDef = {
+		id = "RareEgg",
+		paid = false,
+		total = 100000,
+		outcomes = {
+			{ id = "Chick", weight = 92000 },
+			{ id = "Gosling", weight = 7980 },
+			{ id = "Dragonling", weight = 18 },
+			{ id = "Phoenix", weight = 2 },
+		},
+	}
+
+	it("accepts a power-of-ten total and checks the weights against it", function()
+		local odds = Odds.new()
+		odds:define(RARE)
+		expect(function()
+			odds:define({
+				id = "Short",
+				paid = false,
+				total = 100000,
+				outcomes = { { id = "A", weight = 9000 }, { id = "B", weight = 1000 } },
+			})
+		end).toThrow("must total exactly 100000")
+		expect(function()
+			odds:define({
+				id = "Odd",
+				paid = false,
+				total = 12345,
+				outcomes = { { id = "A", weight = 12345 } },
+			})
+		end).toThrow("power of ten")
+	end)
+
+	it("shows exact percentages with three decimals and a 1 in N reading", function()
+		local odds = Odds.new()
+		odds:define(RARE)
+		local display = odds:display("RareEgg", "p")
+		expect(display.total).toBe(100000)
+		local byId = {}
+		for _, row in display.rows do
+			byId[row.id] = row
+		end
+		expect(byId.Chick.percent).toBe("92.000%")
+		expect(byId.Phoenix.percent).toBe("0.002%")
+		expect(byId.Phoenix.oneIn).toBe("1 in 50,000")
+		expect(byId.Dragonling.oneIn).toBe("1 in 5,556")
+		expect(byId.Gosling.oneIn).toBe("1 in 12.5")
+		expect(byId.Chick.oneIn).toBe("1 in 1.1")
+	end)
+
+	it("rolls across the whole total, so the rarest outcome can still come up", function()
+		local picks = { 100000, 99999, 99998, 1 }
+		local i = 0
+		local odds = Odds.new({
+			randomInteger = function(min: number, max: number): number
+				expect(min).toBe(1)
+				expect(max).toBe(100000)
+				i += 1
+				return picks[i]
+			end,
+		})
+		odds:define(RARE)
+		expect(odds:roll("RareEgg", "p")).toBe("Phoenix")
+		expect(odds:roll("RareEgg", "p")).toBe("Phoenix")
+		expect(odds:roll("RareEgg", "p")).toBe("Dragonling")
+		expect(odds:roll("RareEgg", "p")).toBe("Chick")
+	end)
+
+	it("keeps boosted tables on the same total", function()
+		local odds = Odds.new()
+		odds:define(RARE)
+		odds:setBoosts("p", "RareEgg", { { id = "Luck", multipliers = { Phoenix = 2, Dragonling = 2 } } })
+		local sum = 0
+		for _, o in odds:effective("RareEgg", "p") do
+			sum += o.weight
+		end
+		expect(sum).toBe(100000)
+		expect(Odds.formatPercent(1, 1000000)).toBe("0.0001%")
+		expect(Odds.formatPercent(5, 100)).toBe("5%")
+	end)
+end)

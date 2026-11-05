@@ -62,7 +62,7 @@ function RaidService.changed(raider: Player)
 	local root = rootOf(raider)
 	if carry and root and character then
 		local species = deps.config.creatures.species[carry.speciesId]
-		local size = Layout.raritySize(if species then species.rarity else "Common")
+		local size = Layout.carrySize(if species then species.rarity else "Common")
 		local body = Instance.new("Part")
 		body.Name = "Carried"
 		body.Shape = Enum.PartType.Ball
@@ -72,6 +72,8 @@ function RaidService.changed(raider: Player)
 		body.CanQuery = false
 		body.CanTouch = false
 		body.Massless = true
+		body.Transparency = 1 -- the client draws the creature (CreatureView)
+		body:SetAttribute("CreatureLook", carry.speciesId)
 		body.CFrame = root.CFrame * CFrame.new(0, 3 + size / 2, 0)
 		local weld = Instance.new("WeldConstraint")
 		weld.Part0 = root
@@ -205,8 +207,10 @@ local function moveGuards(dt: number)
 			g.Material = Enum.Material.Neon
 			g.Anchored = true
 			g.CanCollide = false
-			g.Position = Vector3.new(px, Layout.FLOOR_TOP + size / 2, pz)
+			g.CFrame = CFrame.new(px, Layout.FLOOR_TOP + size / 2, pz) * (model:GetPivot()).Rotation
 			g:SetAttribute("Uid", creature.uid)
+			g.Transparency = 1 -- the client draws the creature (CreatureView)
+			g:SetAttribute("CreatureLook", creature.speciesId)
 			g.Parent = model
 			guards[plot] = g
 			guard = g
@@ -237,7 +241,9 @@ local function moveGuards(dt: number)
 			local nx, nz = here.X + dx / distance * step, here.Z + dz / distance * step
 			-- Guards stay on their own base.
 			if Geometry.inside(plot, nx, nz, size / 2) then
-				g.Position = Vector3.new(nx, here.Y, nz)
+				-- Face where it is heading.
+				local at = Vector3.new(nx, here.Y, nz)
+				g.CFrame = CFrame.lookAt(at, at + Vector3.new(dx, 0, dz))
 			end
 		end
 	end

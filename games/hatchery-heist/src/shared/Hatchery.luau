@@ -218,9 +218,11 @@ end
 -- cycle with each outcome exactly as often as its odds say (smooth weighted
 -- round robin), so a restricted player gets the expected mix, no more and no
 -- less. The next results are shown before purchase, so nothing about them is
--- random. A cycle is 10,000 / (the weights' greatest common divisor) eggs at
--- most, computed once per egg.
+-- random. A cycle is the egg's total (10,000 or 100,000) / (the weights'
+-- greatest common divisor) eggs at most, computed once per egg.
 local cycles: { [any]: { string } } = setmetatable({}, { __mode = "k" }) :: any
+-- positions[egg][outcomeId] = sorted 0-based places of that outcome in the cycle.
+local positions: { [any]: { [string]: { number } } } = setmetatable({}, { __mode = "k" }) :: any
 
 function Hatchery.fixedOrderCycle(egg: any): { string }
 	local cached = cycles[egg]
@@ -262,14 +264,43 @@ function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
 end
 
 -- How many more eggs of this kind until `outcomeId` hatches (0 = the next one).
+-- A binary search over the outcome's places in the cycle, so long cycles
+-- (100,000 eggs for the rarest tables) stay cheap to show on every refresh.
 function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: string): number?
 	local cycle = Hatchery.fixedOrderCycle(egg)
-	for ahead = 0, #cycle - 1 do
-		if cycle[((boughtBefore + ahead) % #cycle) + 1] == outcomeId then
-			return ahead
+	local byOutcome = positions[egg]
+	if byOutcome == nil then
+		byOutcome = {}
+		for index, id in cycle do
+			local list = byOutcome[id]
+			if list == nil then
+				list = {}
+				byOutcome[id] = list
+			end
+			table.insert(list, index - 1)
+		end
+		positions[egg] = byOutcome
+	end
+	local list = byOutcome[outcomeId]
+	if list == nil then
+		return nil
+	end
+	local n = #cycle
+	local at = boughtBefore % n
+	-- First place >= at, or wrap around to the first place.
+	local lo, hi = 1, #list
+	if list[hi] < at then
+		return list[1] + n - at
+	end
+	while lo < hi do
+		local mid = (lo + hi) // 2
+		if list[mid] < at then
+			lo = mid + 1
+		else
+			hi = mid
 		end
 	end
-	return nil
+	return list[lo] - at
 end
 
 -- Places a new creature: the first free pad, or, when every pad is full, the

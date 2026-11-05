@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Creatures (Alex, Nov 5): 33 voxel creatures in seven tiers, from ten
+  small Commons up to two huge Godlies, replacing the coloured balls. Each
+  tier moves and shines more than the last: Commons bob and blink; Rares
+  flap and flick their ears; Ultra Rares glow and sparkle; Epics stand in a
+  rarity ring; Legendaries hover in an aura; Godlies have orbiting lights
+  and a rainbow ring. A ridden creature is drawn up to 6 studs tall and a
+  carried one up to 4, and guards turn to face where they walk.
+- Odds are far rarer: every egg now rolls out of 100,000, so the rarest
+  hatch is 1 in 50,000, and the odds card shows each chance as a percentage
+  and as "1 in N". A new Moonlit Egg (40,000 coins, 5% of the belt) holds
+  the Moon Unicorn and a 1 in 50,000 Nebula Serpent.
+
 - First look (Alex's Nov 4 play test): a welcome screen on a new player's
   first join and a Guide button in a new side menu to reopen it; a goal line
   under the coin bar with a beam and arrow to the next thing to do (first

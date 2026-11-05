@@ -36,6 +36,44 @@ Eight bases sit in a ring around a shared yard; each player gets one.
    at most `offline.maxSeconds`; a welcome-back message says how much and how
    many eggs finished hatching.
 
+## Creatures and rarity (Alex, Nov 5 2026)
+
+33 species in seven tiers: **Common** (10), **Uncommon** (7), **Rare** (5),
+**Ultra Rare** (4), **Epic** (3), **Legendary** (2) and **Godly** (2). The
+lower the tier, the bigger the selection and the smaller the creature; the
+higher, the bigger, more detailed, more animated and more glowing
+(`src/shared/CreatureLooks.luau`):
+
+- Common: about 2 studs; bobs and blinks.
+- Uncommon: turns its head, wags its tail.
+- Rare: flicks its ears, flaps its wings.
+- Ultra Rare: glowing (Neon) markings, a soft light and sparkles.
+- Epic: about 5 studs, standing in a glowing rarity ring.
+- Legendary: about 9 studs, hovering in a bright aura, the most detailed
+  models in the game (Phoenix, Thunder Griffin).
+- Godly: about 11 studs, glowing cubes orbit it and its ring cycles through
+  the rainbow (Golden Goose, Nebula Serpent).
+
+Every creature is a voxel model made in `tools/art` (Python, rendered for
+review with Blender) and exported to `src/shared/VoxelArt.luau`. The server
+places an invisible stand-in part for each creature it shows (on a pad,
+ridden, guarding, carried, decoy) with a `CreatureLook` attribute; the
+client's `CreatureView` builds and animates the model on it. A ridden
+creature is drawn at most `Layout.MOUNT_MAX` studs tall, a carried one at
+most `Layout.CARRY_MAX`.
+
+Odds tables may total more than 10,000 (`total` in `config/eggs.luau`): the
+eggs total 100,000, so 1 = 0.001% (1 in 100,000). The odds card shows each
+row as a percentage and as "1 in N". The rarest belt hatch is a Godly at
+1 in 50,000 from the Moonlit Egg.
+
+| Egg | Price | Belt share | Best odds |
+| --- | ---: | ---: | --- |
+| Basic | 50 coins | 70% | Phoenix 1 in 50,000 |
+| Meadow | 2,500 coins | 25% | Thunder Griffin 1 in 33,333 |
+| Moonlit | 40,000 coins | 5% | Nebula Serpent 1 in 50,000 |
+| Premium | Robux (not on sale yet) | | Golden Goose 1 in 10,000 |
+
 ## Mounts (approved Nov 1, 2026)
 
 Ride any creature you own from its pad. Its species' `mountSpeed` sets your
@@ -109,8 +147,8 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
   decoy egg, belt eggs); Robux items are the second tab.
 - Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect.
 - Products: three coin packs, Shield Refill (adds `shieldSeconds`), Instant
-  Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare/Epic/Legendary
-  weights on the listed eggs).
+  Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare and better
+  weights on the listed eggs; the boosted table still totals exactly 100%).
 - Private servers.
 
 **Every egg is a paid random item** (coins can be bought with Robux): odds
@@ -118,7 +156,7 @@ screen before purchase, odds update live during a Luck Boost, PolicyService
 check on every purchase. Players for whom PolicyService restricts paid random
 items get the fixed order instead: each egg hatches a fixed repeating cycle
 in which every outcome comes exactly as often as its odds (a Basic Egg cycle
-is 50 eggs: 30 Chicks, 15 Ducklings, 4 Goslings, 1 Turtle). The odds card
+is 50,000 eggs, with one Phoenix in it). The odds card
 shows the next creature and how many eggs until each other one, so nothing
 they buy is random and they get no more and no fewer rare creatures than
 anyone else.

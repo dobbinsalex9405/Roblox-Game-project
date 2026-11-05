@@ -44,7 +44,7 @@ local function applyToCharacter(player: Player, character: Model)
 		return
 	end
 
-	local size = Layout.raritySize(ride.rarity) + 1
+	local size = Layout.mountSize(ride.rarity)
 	local hip = humanoid.HipHeight
 	humanoid:SetAttribute("BaseHipHeight", hip)
 	humanoid.HipHeight = hip + size
@@ -59,6 +59,8 @@ local function applyToCharacter(player: Player, character: Model)
 	body.CanQuery = false
 	body.CanTouch = false
 	body.Massless = true
+	body.Transparency = 1 -- the client draws the creature (CreatureView)
+	body:SetAttribute("CreatureLook", ride.speciesId)
 	-- Root centre sits HipHeight + half the root's height above the ground;
 	-- the mount's centre sits half its size above the ground.
 	body.CFrame = root.CFrame * CFrame.new(0, -(hip + root.Size.Y / 2 + size / 2), 0)
