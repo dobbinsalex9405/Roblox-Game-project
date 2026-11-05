@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Long Godlies (the Clockwork Leviathan, the Cosmic Whale) lie along their
+  three spots at full Godly height and pace up and down them, instead of
+  reaching into the spots in front and behind.
 - Creatures on your tower walk around their spot: they turn, walk, stop,
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,

@@ -70,11 +70,32 @@ end
 
 -- How far from its cell's centre a creature may stand, in studs, along the
 -- floor's row (x) and across it (z). `spots`: spots it takes (1 to 3);
--- `footprint`: its width in studs.
-function Walk.range(spots: number, footprint: number, margin: number): (number, number)
-	local rx = math.max(0, (spots * 10 - footprint) / 2 - margin)
-	local rz = math.max(0, (10 - footprint) / 2 - margin)
+-- `along`: its size along the row in studs; `across`: across it (the same
+-- as `along` for a creature that turns freely).
+function Walk.range(spots: number, along: number, margin: number, across: number?): (number, number)
+	local rx = math.max(0, (spots * 10 - along) / 2 - margin)
+	local rz = math.max(0, (10 - (across or along)) / 2 - margin)
 	return rx, rz
+end
+
+-- A creature too long for a spot's 10-stud depth (the Clockwork Leviathan,
+-- the Cosmic Whale: Godlies take three spots, 30 studs along the row) lies
+-- along its floor's row instead of turning freely (Godly thread, Nov 5).
+-- `width` and `depth` are its drawn size across and along its facing (art
+-- faces -Z). Returns the yaw it keeps, or nil for a creature that fits any
+-- way round:
+--   * pi/2: longer nose to tail than the depth allows; it keeps side-on
+--     and paces up and down the row, never turning end for end (turning on
+--     the spot would sweep its length across the spots in front and behind);
+--   * 0: wider than the depth allows; it faces the yard and sidesteps.
+function Walk.lie(width: number, depth: number, margin: number): number?
+	local room = 10 - 2 * margin
+	if depth > room and depth >= width then
+		return math.pi / 2
+	elseif width > room then
+		return 0
+	end
+	return nil
 end
 
 -- The elevator shaft fills each floor's back-left corner (base x -24..-17,
@@ -90,10 +111,11 @@ local SHAFT_CUT = 3
 function Walk.cell(
 	pad: number,
 	spots: number,
-	footprint: number,
-	margin: number
+	along: number,
+	margin: number,
+	across: number?
 ): (number, number, number, number)
-	local rx, rz = Walk.range(spots, footprint, margin)
+	local rx, rz = Walk.range(spots, along, margin, across)
 	if (pad - 1) % 8 + 1 ~= SHAFT_SPOT then
 		return 0, 0, rx, rz
 	end
@@ -135,16 +157,30 @@ end
 -- Segment k's plan. Each segment's rest yaw is the next one's start, so the
 -- creature never snaps round; segment k - 1 is planned without its own
 -- start, which only its turn uses.
-local function plan(seed: number, k: number, rx: number, rz: number, cfg: Config, startYaw: number?): Segment
+local function plan(
+	seed: number,
+	k: number,
+	rx: number,
+	rz: number,
+	cfg: Config,
+	startYaw: number?,
+	lie: number?
+): Segment
+	if lie then
+		rz = 0 -- it keeps to the row's centreline
+	end
 	local fx, fz = waypoint(seed, k - 1, rx, rz)
 	local tx, tz = waypoint(seed, k, rx, rz)
 	local dx, dz = tx - fx, tz - fz
 	local distance = math.sqrt(dx * dx + dz * dz)
-	local walkYaw = if distance > 1e-3 then Walk.yawOf(dx, dz) else (startYaw or 0)
+	-- A creature lying along its row keeps its heading (Walk.lie).
+	local walkYaw = if lie then lie elseif distance > 1e-3 then Walk.yawOf(dx, dz) else (startYaw or 0)
 	local free = cfg.segmentSeconds - cfg.turnSeconds
 	local walkSeconds = math.min(distance / cfg.speed, free * 0.7)
 	local stand = free - walkSeconds
-	local faceFront = stand >= cfg.faceFrontAfter + cfg.turnSeconds
+	-- A creature lying along its row never turns to face the yard: across
+	-- the row it would reach into the spots in front and behind.
+	local faceFront = lie == nil and stand >= cfg.faceFrontAfter + cfg.turnSeconds
 	return {
 		fromX = fx,
 		fromZ = fz,
@@ -167,15 +203,15 @@ export type State = {
 }
 
 -- Where the creature with `seed` is at server time `now`, in a cell of
--- half-size (rx, rz).
-function Walk.at(seed: number, rx: number, rz: number, now: number, cfg: Config): State
+-- half-size (rx, rz); `lie` from Walk.lie for a creature lying along its row.
+function Walk.at(seed: number, rx: number, rz: number, now: number, cfg: Config, lie: number?): State
 	local D = cfg.segmentSeconds
 	local offset = noise(seed, 999983) * D
 	local clock = now + offset
 	local k = math.floor(clock / D)
 	local u = clock - k * D
-	local previous = plan(seed, k - 1, rx, rz, cfg, nil)
-	local seg = plan(seed, k, rx, rz, cfg, previous.restYaw)
+	local previous = plan(seed, k - 1, rx, rz, cfg, nil, lie)
+	local seg = plan(seed, k, rx, rz, cfg, previous.restYaw, lie)
 	local T = cfg.turnSeconds
 	if u < T then
 		return {

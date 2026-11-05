@@ -104,7 +104,7 @@ type Visual = {
 -- server stood it (stand), its schedule's seed and how far it may stray.
 -- `plot` is the base the tower belongs to: your own tower is drawn and
 -- animated further than other players' (Studio gate stress test, Nov 5).
-type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number, plot: Model? }
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number, lie: number?, plot: Model? }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -273,7 +273,8 @@ local function build(anchor: BasePart, speciesId: string)
 	local meshFit = if mesh then fit(speciesId, mesh) else 1
 	local artHeight = if mesh then mesh.size[2] * meshFit else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
 	local native = if mesh then vec(mesh.size, meshFit) else vec((art :: VoxelArt.Art).size, VoxelArt.voxel)
-	local maxLength = Layout.PAD_LENGTH_MAX * anchor.Size.Y / Layout.raritySize(rarity)
+	local spots = slotsByRarity[rarity] or 1
+	local maxLength = (spots * 10 - Layout.ROW_MARGIN) * anchor.Size.Y / Layout.raritySize(rarity)
 	local k = ArtScale.drawScale(anchor.Size.Y, artHeight, math.max(native.X, native.Z), maxLength)
 	local s = VoxelArt.voxel * k
 	k *= meshFit
@@ -305,18 +306,22 @@ local function build(anchor: BasePart, speciesId: string)
 		local home = homes[anchor] or anchor.CFrame
 		homes[anchor] = home
 		local index = pad:GetAttribute("Pad")
-		local cx, cz, rx, rz = Walk.cell(
-			if type(index) == "number" then index else 1,
-			slotsByRarity[rarity] or 1,
-			math.max(size.X, size.Z),
-			wander.margin
-		)
+		-- Too long for the spot's depth: it lies along the row (Walk.lie).
+		local lie = Walk.lie(size.X, size.Z, wander.margin)
+		local along = if lie == math.pi / 2
+			then size.Z
+			elseif lie == 0 then size.X
+			else math.max(size.X, size.Z)
+		local across = if lie == math.pi / 2 then size.X elseif lie == 0 then size.Z else along
+		local cx, cz, rx, rz =
+			Walk.cell(if type(index) == "number" then index else 1, spots, along, wander.margin, across)
 		roam = {
 			home = home * CFrame.new(cx, 0, cz),
 			stand = home,
 			seed = Walk.seed(uid),
 			rx = rx,
 			rz = rz,
+			lie = lie,
 			plot = pad:FindFirstAncestorWhichIsA("Model"),
 		}
 	end
@@ -785,7 +790,7 @@ local function stroll(v: Visual, roam: Roam, serverNow: number)
 		v.anchor.CFrame = roam.stand
 		return
 	end
-	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander)
+	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander, roam.lie)
 	v.anchor.CFrame = roam.home * CFrame.new(at.x, 0, at.z) * CFrame.Angles(0, at.yaw, 0)
 	v.moving = at.moving
 	v.stepPhase = Walk.phase(v.gait, at.travelled, v.height)

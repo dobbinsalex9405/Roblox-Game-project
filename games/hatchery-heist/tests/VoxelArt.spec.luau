@@ -214,22 +214,23 @@ describe("Creature looks by tier", function()
 	end)
 
 	-- Godly thread, Nov 5: at 6 studs tall the Clockwork Leviathan is about 15
-	-- studs long, past its 10-deep spot. A long creature is scaled down
-	-- evenly until its length fits, keeping its proportions.
-	it("scales a long creature down to fit its spot, keeping its shape", function()
-		local height, length = 2, 5 -- native studs: 2.5 times as long as tall
-		local k = ArtScale.drawScale(6, height, length, 9.5)
-		expect(math.abs(length * k - 9.5) < 1e-9).toBe(true)
-		expect(math.abs((length * k) / (height * k) - 2.5) < 1e-9).toBe(true)
-		-- A short creature is untouched: as tall as its stand-in.
-		expect(ArtScale.drawScale(6, 2, 3, 9.5)).toBe(3)
-		-- Every creature drawn today fits its pad, even at Godly size (3.8).
+	-- studs long. It lies along its three spots' 30-stud row (Walk.lie) and
+	-- keeps its height; only a creature longer than the row (less 2 studs)
+	-- is scaled down, evenly, keeping its proportions.
+	it("keeps a long Godly's height and only shrinks one longer than its row", function()
+		-- The Leviathan: 6 tall, 15 long fits a 28-stud row as it is.
+		expect(ArtScale.drawScale(6, 6, 15, 28)).toBe(1)
+		-- A 40-stud serpent is scaled to the row, still 2.5 times as long as tall.
+		local k = ArtScale.drawScale(6, 6, 40, 28)
+		expect(math.abs(40 * k - 28) < 1e-9).toBe(true)
+		expect(math.abs((40 * k) / (6 * k) - 40 / 6) < 1e-9).toBe(true)
+		-- Every creature drawn today at Godly size (6 studs) fits a one-spot
+		-- row (8 studs), so none is shrunk.
 		for speciesId, art in VoxelArt.species do
-			local standIn = 3.8
 			local artHeight = art.size[2] * VoxelArt.voxel
 			local artLength = math.max(art.size[1], art.size[3]) * VoxelArt.voxel
-			local drawn = artLength * ArtScale.drawScale(standIn, artHeight, artLength, 9.5)
-			expect(drawn <= 9.5 + 1e-9 and "fits" or `{speciesId} is {drawn} long`).toBe("fits")
+			local k6 = ArtScale.drawScale(6, artHeight, artLength, 28)
+			expect(math.abs(artHeight * k6 - 6) < 1e-6 and "fits" or `{speciesId} shrank`).toBe("fits")
 		end
 	end)
 
