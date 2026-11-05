@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Fix: climbing the tower ladder from inside the tower no longer gets you
+  stuck under the next floor. Each floor has an opening beside the ladder
+  you climb through and step off onto.
+- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
+  phone.
+- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
+  no longer says "(Tower menu)".
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
