@@ -211,18 +211,19 @@ return {
 	creatureLod = {
 		farStuds = 30,
 	},
-	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
-	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
-	-- id 0 = silent until one is picked; the game works the same either way.
+	-- Sound effects: Roblox audio asset ids, free Creator Store audio, each
+	-- loaded in Studio and picked by title and length (Nov 5); Alex listens
+	-- on Staging and swaps any by ear. id 0 = silent; the game works the
+	-- same either way.
 	sounds = {
-		eggShake = { id = 0, volume = 0.5 }, -- the egg wobbles before it hatches
-		eggCrack = { id = 0, volume = 0.6 }, -- the shell breaks
-		reveal = { id = 0, volume = 0.5 }, -- Common to Rare appears
-		revealBig = { id = 0, volume = 0.7 }, -- Ultra Rare and Epic appear
-		revealLegend = { id = 0, volume = 0.8 }, -- Legendary and Godly appear
-		newEntry = { id = 0, volume = 0.5 }, -- a new creature in the Hatchery Book
-		reward = { id = 0, volume = 0.6 }, -- a daily reward claimed
-		click = { id = 0, volume = 0.4 }, -- a menu button
+		eggShake = { id = 9120784504, volume = 0.5 }, -- the egg wobbles before it hatches (0.3 s)
+		eggCrack = { id = 9113959343, volume = 0.6 }, -- the shell breaks (1.0 s)
+		reveal = { id = 90618709727045, volume = 0.5 }, -- Common to Rare appears (2.5 s)
+		revealBig = { id = 85188102085028, volume = 0.7 }, -- Ultra Rare and Epic appear (2.4 s)
+		revealLegend = { id = 1840076509, volume = 0.8 }, -- Legendary and Godly appear (2.3 s)
+		newEntry = { id = 73774648241042, volume = 0.4 }, -- a new creature in the Hatchery Book (4.2 s, kept soft)
+		reward = { id = 100288208393628, volume = 0.6 }, -- a reward claimed (1.4 s sparkle)
+		click = { id = 73629124033518, volume = 0.4 }, -- a menu button (0.2 s)
 	},
 	-- The apartment shells (WorldArt Tower*, tools/art/world/tower.py) the
 	-- client draws over each tower's grey box: your own and the nearest
