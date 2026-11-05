@@ -230,9 +230,12 @@ def eye_contrast(c):
         if not ring:
             continue
         cols = [ring[q].v[q][0] for q in ring]
-        if sum(_lum(col) for col in cols) / len(cols) >= DARK_FACE:
-            continue
-        sides.append((sx, side, dots, ring))
+        sides.append((sx, side, dots, ring, sum(_lum(col) for col in cols) / len(cols) < DARK_FACE))
+    # the eyes are a pair: when one needs the pass, both get it, so a face
+    # stays symmetric (a salamander's eye on its dark stripe, the other not)
+    if not any(dark for *_, dark in sides):
+        return
+    sides = [sd[:4] for sd in sides]
 
     def flat(qs):
         return {(q[0], q[2]) for q in qs}
@@ -283,41 +286,54 @@ def _shine_plan(eyes, face, sides, ink, lx):
     def corner(cells):
         return max(cells, key=lambda q: (q[1], q[0] * lx))
 
-    total, moves = 0, []
+    total, moves, small = 0, [], []
     for sx, side, dots, ring in sides:
         if any(eyes.v[q][0] == WHITE for q in eyes.v if side(q[0])):
             continue
         if len(dots) >= 2:
             top = max(dots, key=lambda q: (q[2], q[0] * lx, -q[1]))
             moves.append((top, None, WHITE))
+        else:
+            small.append((sx, side, dots[0]))
+    if not small:
+        return total, moves
+
+    # A one-voxel eye is too small to carry a shine, so it grows to a 2x2
+    # eye: outward and down by preference, but onto whichever side keeps it
+    # on its dark patch (a calf's eye patch, a raccoon's mask). Both eyes
+    # grow the same (mirrored) way, so the face stays symmetric.
+    def grow(sx, side, eye, rel):
+        x, y, z = eye
+        gx, gz = rel[0] * sx, rel[1]
+        if gx == -sx and any(abs(x + gx - q[0]) < 3 for q in ink if not side(q[0])):
+            return None  # growing inward would close the gap between the eyes
+        cells = [(x + gx, z), (x, z + gz), (x + gx, z + gz)]
+        spots = [_front(face, cx, cz, y) for cx, cz in cells]
+        if not all(spots) or any(sp[0] in eyes.v or sp[1].v[sp[0]][1] for sp in spots):
+            return None
+        square = {(x, z)} | set(cells)
+        rim = {(cx + dx, cz + dz) for cx, cz in square for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))} - square
+        shine = corner(square)
+        near = {(shine[0] + dx, shine[1] + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))}
+        # stay on the dark patch: a pale voxel around the eye swallows it,
+        # and one beside the shine merges with it, so that counts triple
+        pale = sum(pale_at(rx, rz, y) * (3 if (rx, rz) in near else 1) for rx, rz in rim)
+        return pale, spots, shine
+
+    best = None
+    for rank, rel in enumerate(((1, -1), (-1, -1), (1, 1), (-1, 1))):  # (outward, down) ...
+        plans = [grow(sx, side, eye, rel) for sx, side, eye in small]
+        if not all(plans):
             continue
-        # a one-voxel eye is too small to carry a shine, so it grows to a 2x2
-        # eye: outward and down by preference, but onto whichever side keeps
-        # it on the dark patch (a calf's eye patch, a raccoon's mask)
-        x, y, z = dots[0]
-        ink_rgb = eyes.v[dots[0]][0]
-        best = None
-        for rank, (gx, gz) in enumerate(((sx, -1), (-sx, -1), (sx, 1), (-sx, 1))):
-            if gx == -sx and any(abs(x + gx - q[0]) < 3 for q in ink if not side(q[0])):
-                continue  # growing inward would close the gap between the eyes
-            cells = [(x + gx, z), (x, z + gz), (x + gx, z + gz)]
-            spots = [_front(face, cx, cz, y) for cx, cz in cells]
-            if not all(spots) or any(sp[0] in eyes.v or sp[1].v[sp[0]][1] for sp in spots):
-                continue
-            square = {(x, z)} | set(cells)
-            rim = {(cx + dx, cz + dz) for cx, cz in square for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))} - square
-            shine = corner(square)
-            near = {(shine[0] + dx, shine[1] + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))}
-            # stay on the dark patch: a pale voxel around the eye swallows it,
-            # and one beside the shine merges with it, so that counts triple
-            pale = sum(pale_at(rx, rz, y) * (3 if (rx, rz) in near else 1) for rx, rz in rim)
-            if best is None or (pale, rank) < best[0]:
-                best = ((pale, rank), spots, shine)
-        if best is None:
-            continue
-        (pale, _), spots, shine = best
-        total += pale
-        for q, part in [((x, y, z), None)] + spots:
+        pale = sum(p[0] for p in plans)
+        if best is None or (pale, rank) < best[0]:
+            best = ((pale, rank), plans)
+    if best is None:
+        return total, moves
+    total += best[0][0]
+    for (sx, side, eye), (_, spots, shine) in zip(small, best[1]):
+        ink_rgb = eyes.v[eye][0]
+        for q, part in [(eye, None)] + spots:
             moves.append((q, part, WHITE if (q[0], q[2]) == shine else ink_rgb))
     return total, moves
 
