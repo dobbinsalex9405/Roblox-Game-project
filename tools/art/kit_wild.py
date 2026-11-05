@@ -1010,36 +1010,71 @@ def antenna(c, H, col, col2=None):
 
 
 def wraps(c, H, col, col2=None):
-    """Mummy bandages: diagonal wraps over the body, level wraps round the
-    head (col, darker gaps), the snout, nose and ears left bare so the
-    head reads, one eye wrapped over (the other peeks out), and a loose
-    bandage end trailing from the side of the head."""
+    """A mummy hamster: a round bandaged ball sitting low on tucked-away
+    legs, level wraps round the body and head (col) with paler gaps, the
+    snout and pink nose bare, two small round ears, ONE eye peeking out of
+    a gap (the other wrapped over), and a loose bandage end hanging from
+    the side of the head."""
     k = H / 10.0
-    w = max(2, round(0.7 * k))
-    gap = col2 or _dark(col, 0.3)
+    import rig
+    gap = col2 or _dark(col, 0.18)
     head = _head(c)
     body = kit._find(c, 'body')
     eyes = kit._find(c, 'eyes')
-    ez = min((q[2] for q in eyes.v), default=None) if eyes and eyes.v else None
+    # sit low: the legs become short nubs under the ball
+    zb = min(p[2] for p in body.v)
+    drop = max(0, zb - 1)
+    for p in c.parts:
+        if p.name in rig.LEG_NAMES:
+            p.v = {q: v for q, v in p.v.items() if q[2] <= 1}
+            p.pivot = (p.pivot[0], p.pivot[1], 2)
+        else:
+            p.v = {(x, y, z - drop): v for (x, y, z), v in p.v.items()}
+            p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] - drop)
+    right = sorted(q for q in eyes.v if q[0] >= 0) if eyes else []
+    ez = min(q[2] for q in right) if right else round(sum(q[2] for q in head.v) / len(head.v))
     fy = _front_y(head)
+    w = max(3, round(0.8 * k))
     for name in ('body', 'tail'):
         part = kit._find(c, name)
         if part:
-            part.paint(lambda p, cc, g: ((gap if ((p[2] + p[1] // 2) % w) == 0 else _dark(col, 0.1)), False))
-    (hlo, hhi) = _bounds(head)
+            part.paint(lambda p, cc, g: ((gap if (p[2] - ez) % w == 0 else _dark(col, 0.08)), False))
 
     def headwrap(p, cc, g):
         x, y, z = p
-        if ez is not None and z < ez and y <= fy + max(1, round(0.5 * k)):
+        if z < ez and y <= fy + max(1, round(0.5 * k)) and abs(x + .5) < 0.6 * k + 1:
             return None  # the snout and nose stay bare
-        return ((gap if z % w == 0 else _light(col, 0.12)), False)
+        return ((gap if (z - ez) % w == 0 else col), False)
 
     head.paint(headwrap)
-    if eyes:  # wrap over the left eye
-        for p in [p for p in eyes.v if p[0] < 0]:
-            del eyes.v[p]
-            head.put(p, _light(col, 0.12))
+    if eyes:
+        # one eye peeks out of the gap: a dark eye with a shine beside it;
+        # the other is wrapped over
+        x0 = min(q[0] for q in right) if right else 1
+        for q in list(eyes.v):
+            head.put(q, gap if q[2] == ez else col)
+        eyes.v = {}
+        for dx, cc in ((0, INK), (1, WHITE)):
+            f = head.front(x0 + dx, ez)
+            if f:
+                del head.v[f]
+                eyes.put(f, cc)
+    # two small round ears on top, hamster coloured with pink fronts
+    ears = kit._find(c, 'ears')
+    if ears:
+        (lo, hi) = _bounds(head)
+        ex = max(1, round((hi[0] - lo[0]) * 0.3))
+        ey = round((lo[1] + hi[1]) / 2) - 1
+        ears.v = {}
+        fur, pink = hexc('#F2B05E'), hexc('#FFB3C7')
+        for dx in (0, 1):
+            for dz in (0, 1):
+                ears.put((ex + dx, ey, hi[2] + dz), pink if dz == 0 and dx == 0 else fur)
+                ears.put((ex + dx, ey + 1, hi[2] + dz), fur)
+        for (x, y, z), v in list(ears.v.items()):
+            ears.v[(-x - 1, y, z)] = v
     # a loose bandage end hanging from the head's right side
+    (hlo, hhi) = _bounds(head)
     loose = c.part('bandage', 'static')
     xs = hhi[0] + 1
     yb = round((hlo[1] + hhi[1]) / 2)
@@ -1047,7 +1082,6 @@ def wraps(c, H, col, col2=None):
     for i in range(max(4, round(2.2 * k))):
         loose.put((xs + (i // 3), yb + i // 2, zt - i), col)
         loose.put((xs + (i // 3), yb + 1 + i // 2, zt - i), col)
-    del body
 
 
 def beetleshell(c, H, col, col2=None):
@@ -2069,29 +2103,26 @@ def teddy(c, H, col, col2=None):
         for q in list(eyes.v):
             head.v[q] = (base, False)
         eyes.v = {}
-        D = 4 if (max(q[0] for q in head.v) >= 5) else 2
+        D = 3 if (max(q[0] for q in head.v) >= 5) else 2
         x0 = 2
-        disc, hole = hexc('#2A1E1A'), hexc('#8A6A50')
+        disc, hole = hexc('#3AA39A'), hexc('#123A36')
         for dx in range(D):
             for dz in range(D):
-                if D == 4 and dx in (0, 3) and dz in (0, 3):
-                    continue  # a round button
-                f = head.front(x0 + dx, ez - D // 2 + 1 + dz)
+                f = head.front(x0 + dx, ez - D // 2 + dz)
                 if not f:
                     continue
-                del head.v[f]
-                if D == 4 and dx in (1, 2) and dz in (1, 2):
-                    cc = hole
-                elif (D == 4 and dx == 3 and dz == 2) or (D == 2 and dx == 1 and dz == 1):
+                if D == 3 and dz == 1 and dx in (0, 2):
+                    cc = hole  # two thread holes
+                elif (D == 3 and dx == 2 and dz == 2) or (D == 2 and dx == 1 and dz == 1):
                     cc = WHITE  # the button's shine
+                elif D == 2 and dx == 0 and dz == 0:
+                    cc = hole
                 else:
                     cc = disc
-                # the button stands a voxel proud of the face
+                # the button stands a voxel proud of the face, fur behind it
                 eyes.put((f[0], f[1] - 1, f[2]), cc)
-                head.put(f, disc)
         for (x, y, z), v in list(eyes.v.items()):
             head.v.pop((-x - 1, y, z), None)
-            head.v[(-x - 1, y + 1, z)] = head.v.get((x, y + 1, z), v)
             eyes.v[(-x - 1, y, z)] = v
     # two patches: one on the body's right side, one on the head's left
     stitch = _dark(col, 0.1)
@@ -2503,18 +2534,29 @@ def zigzagtail(c, H, col, col2=None):
         tail.v[(-x - 1, y, z)] = v
 
 
-def shineeyes(c, H, col=None, col2=None):
+def shineeyes(c, H, col=None, col2=None, a=None):
     """Two clearly separate 2 x 2 eyes on the head's front, each with a white
     shine in its top outer corner, never a bar or a mask: at least two
     voxels apart, the face showing between them. col, if given, is a bright
-    iris (for a dark face), with a dark pupil low on the inside."""
+    iris (for a dark face), with a dark pupil low on the inside.
+
+    Roster settings (all optional): "x0" the inner column of the right eye,
+    "dz" moves the eyes up or down, "style": "cat" for 3 x 3 glowing eyes
+    (col) with a one-voxel dark slit pupil down the middle and a shine."""
+    a = a or {}
     eyes = kit._find(c, 'eyes')
     head = _head(c)
-    if not eyes or not eyes.v or head is None:
+    if head is None:
         return
+    if not eyes:
+        eyes = c.part('eyes', 'blink', head.pivot)
     right = [q for q in eyes.v if q[0] >= 0]
     if not right:
-        return
+        # the plan's eyes were lost (a reshape can drop tiny ones): start from
+        # a spot on the face a little above the head's middle
+        (lo, hi) = _bounds(head)
+        zr = round(lo[2] + (hi[2] - lo[2]) * 0.6)
+        right = [head.front(2, zr) or (2, _front_y(head), zr)]
     fill = {}
     for q in list(eyes.v):  # put the face back where the old eyes were
         fill[q] = True
@@ -2522,16 +2564,25 @@ def shineeyes(c, H, col=None, col2=None):
     for q in fill:
         head.v[q] = (base, False)
     eyes.v = {}
-    x0 = max(1, min(q[0] for q in right))
-    z0 = min(q[2] for q in right)
-    if not (head.front(x0 + 1, z0 + 1) and head.front(x0, z0 + 1)):
+    x0 = a.get('x0', max(1, min(q[0] for q in right)))
+    z0 = min(q[2] for q in right) + a.get('dz', 0)
+    cat = a.get('style') == 'cat'
+    n = 3 if cat else 2
+    if not cat and 'dz' not in a and not (head.front(x0 + 1, z0 + 1) and head.front(x0, z0 + 1)):
         z0 -= 1
-    for dx in (0, 1):
-        for dz in (0, 1):
+    for dx in range(n):
+        for dz in range(n):
             f = head.front(x0 + dx, z0 + dz)
             if not f:
                 continue
-            if dx == 1 and dz == 1:
+            if cat:
+                if dx == 1:
+                    cc, g = INK, False  # the slit pupil
+                elif dx == 2 and dz == 2:
+                    cc, g = WHITE, True
+                else:
+                    cc, g = col, True
+            elif dx == 1 and dz == 1:
                 cc, g = WHITE, False
             elif col is None or col == INK:
                 cc, g = INK, False
