@@ -433,3 +433,17 @@ Setup was the same as gate 4: floors 2-4 built, 15 creatures given, then 320 ser
 Output has no "failed to load" line for any of the eight ids.
 
 **Side finding (not #101):** The trap pads (R "Set slime" 2K, E "Set snare" 5K) sit right beside Incubator 1. Standing at the incubator's front, E went to "Set snare" instead of "Hatch" (`101-hh-snare-prompt-beside-incubator.jpg`). The snare purchase was refused only because I had 400 coins. A richer player trying to hatch could spend 5K on a snare by mistake.
+
+## #97 polish @ e6a8671 (three eye-level boards round the Golden Nest)
+
+Each board is 26x7 studs, centred 4.5 studs up and 15 studs from the nest, facing outward. There are 14 labels per board, each about 1.0 stud tall.
+
+- **(1) Readability, phone 844x392, 34 studs out along Board3's normal, follow camera: FAIL.**
+  - With the follow camera (12 studs behind the character, 4 up), the board projects to viewport y 135-178. That is right behind the coin HUD (y 66-130) and the GOAL banner (y 138-176), so none of it shows (`97e-hh-board-34studs-phone-follow.jpg`).
+  - Even with the camera aimed straight at the board, it lands at y 164-206. The banner covers the top, and the eggs riding the belt ring (radius about 30, between the path and the board) cover the lower rows. Only a strip of the title and first rows shows (`97e-hh-board-34studs-phone-aimed.jpg`, `97e-hh-nest-facing-board.jpg`).
+  - At this distance one stud is about 6 px on phone, so a 1-stud line is about 6 px tall, too small to read even when uncovered.
+- **(2) Nest as the centrepiece: it reads as walled off when you face a board, and fine through the gaps.**
+  - Head-on, a board fills the middle of the ring and hides the whole nest (`97e-hh-nest-facing-board.jpg`).
+  - Looking through a gap between boards, the Golden Egg and the coloured eggs show clearly, framed by two dark boards (`97e-hh-nest-from-gap.jpg`).
+  - The boards sit inside the belt ring, so belt eggs pass in front of them all the time. From the path you see eggs, then a dark slab, then the nest only through the gaps.
+  - **Suggestion:** take the odds off the centre. Either put a small low sign at each of the 8 stops, outside the ring at eye level facing the path (1-2 tiers per line, bigger type), or rely on the existing tap-to-open odds card and keep one small "Odds" sign. Either way the ring and nest stay the clear centrepiece. If the boards stay: make them narrower (about 12 studs) with wide gaps, put the top at 5 studs or lower, and place them outside the belt so eggs don't pass in front.
