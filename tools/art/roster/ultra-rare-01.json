@@ -878,12 +878,12 @@
     "col": "#7A8094",
     "belly": "#C8CCD8",
     "snout": "#E6E8EE",
-    "ear_col": "#3A3A4A",
+    "ear_col": "#5A6074",
     "mask": "#2A2A3A",
     "tail_col": "#4A5064"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "round",
     "tail": "striped"
    },
    "accessories": [
@@ -894,6 +894,10 @@
     {
      "kind": "aura_sparks",
      "color": "#3FE0FF"
+    },
+    {
+     "kind": "ear_rims",
+     "color": "#E6E8EE"
     },
     {
      "kind": "mend",
@@ -908,11 +912,11 @@
    "rarity": "Ultra Rare",
    "plan": "quadruped",
    "colors": {
-    "col": "#8A5A3A",
+    "col": "#7A4E30",
     "belly": "#E8CFA8",
     "snout": "#E8CFA8",
     "ear_col": "#6B432A",
-    "tail_col": "#8A5A3A"
+    "tail_col": "#7A4E30"
    },
    "options": {
     "ears": "round",
@@ -921,11 +925,20 @@
    "shape": {
     "body": [
      0.85,
-     1.0,
-     0.85
-    ]
+     1.35,
+     0.8
+    ],
+    "head": 0.8
    },
    "accessories": [
+    {
+     "kind": "tiny_ears",
+     "color": "#5E3A22"
+    },
+    {
+     "kind": "otter_tail",
+     "color": "#6E4528"
+    },
     {
      "kind": "wave",
      "color": "#3FA8F0",
@@ -985,8 +998,8 @@
    "plan": "quadruped",
    "colors": {
     "col": "#F0283C",
-    "belly": "#FF6A7A",
-    "snout": "#FF6A7A",
+    "belly": "#F0283C",
+    "snout": "#F0283C",
     "ear_col": "#F0283C"
    },
    "options": {
@@ -1003,9 +1016,9 @@
    },
    "accessories": [
     {
-     "kind": "glow_color",
-     "color": "#FF6A7A",
-     "color2": "#FF8A96"
+     "kind": "jelly",
+     "color": "#F0283C",
+     "color2": "#FF9AA4"
     },
     {
      "kind": "mend",
@@ -1021,25 +1034,28 @@
    "plan": "quadruped",
    "colors": {
     "col": "#FFF8EE",
-    "snout": "#E8C8A8",
-    "ear_col": "#E8C8A8"
+    "snout": "#FFF8EE",
+    "ear_col": "#F6E8D8"
    },
    "options": {
     "ears": "floppy",
     "tail": "short",
     "fluffy": true
    },
-   "patterns": [
-    {
-     "kind": "tips",
-     "color": "#C8874A"
-    }
-   ],
    "accessories": [
     {
-     "kind": "sprinkles",
-     "color": "#FF9EC4",
-     "color2": "#FFE14D"
+     "kind": "sheep_ears",
+     "color": "#F6E8D8",
+     "color2": "#F7B8C8"
+    },
+    {
+     "kind": "pink_nose",
+     "color": "#F49AB2"
+    },
+    {
+     "kind": "toasted",
+     "color": "#C8843E",
+     "color2": "#E8BC84"
     },
     {
      "kind": "mend",
