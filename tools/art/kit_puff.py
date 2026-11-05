@@ -209,17 +209,20 @@ def _tadpole(c, H, k, body, head, cols, opts):
     col = cols['col']
     tail = c.part('tail', 'tail', (0, 2.0 * k, 2.0 * k))
     fin = cols.get('accent') or light(col, 0.3)
-    n = 9
+    # a flat tail fin two voxels thick, tall at the root and tapering to a
+    # point, with a gentle S along its length and a paler rim
+    y0 = round(1.8 * k)
+    n = max(6, round(5.5 * k))
+    zc0 = 2.0 * k
     for i in range(n):
         t = i / (n - 1)
-        r = (1.7 - 1.3 * t) * k
-        y = (2.0 + i * 0.75) * k
-        z = (2.0 + 0.5 * math.sin(t * math.pi * 1.5)) * k
-        x = 0.7 * k * math.sin(t * math.pi * 1.6)
-        # a flat fin: thin side to side, tall top to bottom, paler at the edge
-        tail.ell((x, y, z), (max(0.6, 0.45 * r), 0.55 * k + .3, r), col)
-        tail.ell((x, y, z), (max(0.6, 0.3 * r), 0.55 * k + .3, r * 1.25), fin,
-                 cond=lambda xx, yy, zz, z=z, r=r: abs(zz + .5 - z) > r * 0.8)
+        half = max(0.5, (1.5 * (1 - t) ** 0.8) * k)
+        zc = zc0 + 0.35 * k * math.sin(t * math.pi * 1.4)
+        lo, hi = math.floor(zc - half), math.ceil(zc + half) - 1
+        for z in range(max(0, lo), hi + 1):
+            rim = z in (max(0, lo), hi) and hi - lo >= 2
+            for x in (-1, 0):
+                tail.put((x, y0 + i, z), fin if rim else col)
     for p in list(tail.v):
         if p in body.v or p in head.v:
             del tail.v[p]
