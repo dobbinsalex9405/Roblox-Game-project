@@ -11,9 +11,9 @@ from voxmesh import TONES
 CELL = 4  # pixels per cell side
 COLS = 16  # cells per row
 FACE_TONE = (0.94, 0.98, 1.0, 1.04)  # one per tone variant
-RIM_TONE = 0.80
+RIM_TONE = 0.90
 GLOW_FACE_TONE = (0.97, 1.0, 1.0, 1.02)
-GLOW_RIM_TONE = 0.90
+GLOW_RIM_TONE = 0.95
 
 assert len(FACE_TONE) == TONES and len(GLOW_FACE_TONE) == TONES
 

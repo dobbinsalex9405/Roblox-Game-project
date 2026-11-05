@@ -31,8 +31,8 @@ DIRS = [  # (normal, tangent u, tangent v) with u x v = normal (outward)
 ]
 
 TONES = 4  # tone variants per colour for faces
-BEVEL = 0.14  # rim width, as a share of a voxel
-LIFT = 0.07  # how far the inner square stands off the face, in voxels
+BEVEL = 0.08  # rim width, as a share of a voxel
+LIFT = 0.035  # how far the inner square stands off the face, in voxels
 
 
 def tone_of(p, d):

@@ -37,17 +37,84 @@ def blush(head, x_off, z):
 
 # ---------------------------------------------------------------- body plans
 
+def pig_body(c, k, col, snout):
+    """A round piglet for the finer Blender build: a barrel body as wide as
+    it is tall, a big head set low on it, stubby legs, a flat disc snout with
+    nostrils, ears that fold forward and a curly tail."""
+    body = c.part('body')
+    head = c.part('head', 'static', (0, -1.8 * k, 4.2 * k))
+    dark = tuple(max(0, round(v * 0.86)) for v in col)
+    nostril = hexc('#B8456A')
+    # stubby legs, mostly hidden under the belly, with darker trotters
+    lw = max(2, round(1.1 * k))
+    for sx in (-1, 1):
+        for ly in (-1.5 * k, 1.8 * k):
+            x0 = round(sx * 1.55 * k) - (lw if sx < 0 else 0)
+            y0 = round(ly)
+            body.box((x0, y0, 0), (x0 + lw - 1, y0 + lw - 1, round(1.2 * k)), col)
+            body.box((x0, y0, 0), (x0 + lw - 1, y0 + lw - 1, max(0, round(0.35 * k) - 1)), dark)
+    # the barrel: wide, deep and round, sitting low
+    body.ell((0, 0.3 * k, 3.15 * k), (2.9 * k, 3.15 * k, 2.4 * k), col)
+    # a big round head, set low and pushed into the front of the barrel
+    head.ell((0, -2.6 * k, 4.8 * k), (2.3 * k, 1.95 * k, 2.1 * k), col)
+    # a flat disc snout that stands just proud of the face, two nostrils
+    sc = snout or col
+    head.ell((0, -4.5 * k, 4.3 * k), (1.2 * k, 0.6 * k, 0.9 * k), sc)
+    nw = max(1, round(0.3 * k))
+    nh = max(1, round(0.45 * k))
+    for sx in (-1, 1):
+        x = round(sx * 0.5 * k) - (nw if sx < 0 else 0)
+        for dx in range(nw):
+            for dz in range(nh):
+                f = head.front(x + dx, round(4.1 * k) + dz)
+                if f:
+                    head.put(f, nostril)
+    es = max(1, round(0.5 * k))
+    eyes(c, head, max(1, round(0.85 * k)), round(5.5 * k), es)
+    # ears: triangles that grow out of the crown (each column starts on the
+    # head's surface, so nothing floats) and lean forward at the tip
+    earp = c.part('ears', 'static', (0, -2.4 * k, 6.6 * k))
+    n = max(4, round(1.5 * k))
+    y0 = round(-2.1 * k)
+    for sx in (-1, 1):
+        bx = round(sx * 1.5 * k) - (1 if sx < 0 else 0)
+        wb = round((n - 1) * 0.75)
+        tops = [head.top(x, y) for x in range(bx - wb, bx + wb + 1) for y in (y0 - 1, y0)]
+        zb = min(t[2] for t in tops if t) + 1 if any(tops) else round(6.8 * k)
+        for x in range(bx - wb, bx + wb + 1):  # fill down to the head
+            for y in (y0 - 1, y0):
+                t = head.top(x, y)
+                for z in range((t[2] + 1) if t else zb, zb + 1):
+                    earp.put((x, y, z), col)
+        for i in range(n):
+            w = max(0, round((n - 1 - i) * 0.75))
+            lean = max(0, i - 1)
+            front = y0 - lean - (1 if i < 2 else 0)
+            for x in range(bx - w, bx + w + 1):
+                for y in range(front, y0 - lean + 1):
+                    # the inner ear (its front face) in the snout's pink
+                    inner = y == front and abs(x - bx) < w and i < n - 1
+                    earp.put((x, y, zb + 1 + i), sc if inner else col)
+    # a curly tail: overlapping beads, starting inside the rump so it joins
+    tl = c.part('tail', 'static', (0, 3.4 * k, 3.6 * k))
+    r = max(0.6, 0.42 * k)
+    for yy, zz, xx in ((3.2, 3.6, 0), (3.65, 3.9, 0.2), (3.9, 4.4, 0.35), (3.7, 4.85, 0.1), (3.45, 4.6, -0.15)):
+        tl.ell((xx * k, yy * k, zz * k), (r, r, r), col)
+
+
 def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, tail='short', tail_col=None,
               mask=None, patches=None, horn=None, antlers=None, spines=None, mane=None, glow=None, wings=None,
-              fluffy=False):
+              fluffy=False, pig=False):
     k = H / 10.0
+    if pig and getattr(c, 'fine', False):
+        return pig_body(c, k, col, snout)
     detailed = c.rarity not in ('Common',)
     body = c.part('body')
     head = c.part('head', 'head' if detailed else 'static', (0, -1.6 * k, 4.6 * k))
     # legs
-    # legs: the finer Blender build (detail > 1) gets sturdier legs, which
+    # legs: the finer Blender build (c.fine) gets sturdier legs, which
     # would round to one voxel otherwise; the in-game boxes keep theirs
-    lw = max(1, round(0.9 * k * (1.4 if getattr(c, 'detail', 1) > 1 else 1)))
+    lw = max(1, round(0.9 * k * (1.4 if getattr(c, 'fine', False) else 1)))
     for sx in (-1, 1):
         for ly in (-1.2 * k, 2.2 * k):
             x0 = round(sx * 1.3 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
@@ -59,7 +126,11 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
         body.paint(lambda p, cc, g: (belly, False) if p[2] < 2.8 * k and abs(p[0] + .5) < 1.3 * k and p[1] < 2 * k else None)
     head.ell((0, -2.4 * k, 6.0 * k), (2.3 * k, 2.1 * k, 2.1 * k), col)
     if snout:
-        head.ell((0, -4.3 * k, 5.2 * k), (1.1 * k, 0.9 * k, 0.8 * k), snout)
+        if getattr(c, 'fine', False):
+            # the finer build: a snout that barely stands proud of the face
+            head.ell((0, -4.0 * k, 5.2 * k), (1.0 * k, 0.65 * k, 0.75 * k), snout)
+        else:
+            head.ell((0, -4.3 * k, 5.2 * k), (1.1 * k, 0.9 * k, 0.8 * k), snout)
         f = head.front(0, round(5.6 * k)) or head.front(-1, round(5.6 * k))
         if f:
             head.put(f, INK)
@@ -168,7 +239,7 @@ def add_wings(c, k, colr, root, span=2.6, glow_edge=None, feather=None):
 def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tail=None, glow=None, big_eyes=False,
          tuft=False, feet=hexc('#FF9F1C'), wing_span=1.4, bill=False):
     k = H / 10.0
-    fine = getattr(c, 'detail', 1) > 1
+    fine = getattr(c, 'fine', False)
     if fine and beak == hexc('#FFB627'):
         beak = hexc('#FF9418')  # the finer build: a beak that stands out from yellow feathers
     body = c.part('body')
@@ -182,7 +253,10 @@ def bird(c, H, col, belly=None, beak=hexc('#FFB627'), wing=None, crest=None, tai
     if bill and fine:
         # a duck's bill: wide, flat and long
         bw = max(2, round(0.9 * k))
-        head.box((-bw, round(-3.2 * k) - max(2, round(1.0 * k)), round(5.8 * k)), (bw - 1, round(-3.0 * k), round(5.8 * k) + 1), beak)
+        head.box((-bw, round(-3.0 * k) - max(2, round(0.6 * k)), round(5.8 * k)), (bw - 1, round(-3.0 * k), round(5.8 * k) + 1), beak)
+    elif fine:
+        # a short beak, a little proud of the face
+        head.box((-bw, round(-3.0 * k) - max(1, round(0.35 * k)), round(6.0 * k)), (bw - 1, round(-3.0 * k), round(6.0 * k) + max(0, round(0.5 * k))), beak)
     else:
         head.box((-bw, round(-3.2 * k) - max(1, round(0.6 * k)), round(6.0 * k)), (bw - 1, round(-3.0 * k), round(6.0 * k) + max(0, round(0.5 * k))), beak)
     es = max(1, round((0.75 if big_eyes else 0.5) * k))
@@ -227,7 +301,7 @@ def blob(c, H, kind, col, accent, glow=None):
             head.ell((sx * 1.5 * k, -1.4 * k, 5.9 * k), (0.9 * k, 0.9 * k, 0.9 * k), col)
         eyes(c, head, max(1, round(1.0 * k)), round(5.8 * k), max(1, round(0.6 * k)))
         f = head.front(0, round(3.6 * k))
-        if f and getattr(c, 'detail', 1) > 1:
+        if f and getattr(c, 'fine', False):
             # the finer build smiles: a short mouth with its corners turned up
             w = round(1.0 * k)
             for x in range(-w, w):
@@ -246,7 +320,7 @@ def blob(c, H, kind, col, accent, glow=None):
         shell.ell((0, 1.2 * k, 3.6 * k), (1.6 * k, 2.6 * k, 2.6 * k), accent)
         shell.paint(lambda p, cc, g: (hexc('#B9862A'), False) if int(math.hypot(p[1] - 1.2 * k, p[2] - 3.6 * k) / max(1, 0.7 * k)) % 2 == 0 else None)
         head.ell((0, -3.6 * k, 2.4 * k), (1.2 * k, 1.0 * k, 1.4 * k), col)
-        fine = getattr(c, 'detail', 1) > 1
+        fine = getattr(c, 'fine', False)
         for sx in (-1, 1):
             x = round(sx * 0.7 * k) - (1 if sx < 0 else 0)
             head.box((x, round(-3.8 * k), round(3.6 * k)), (x, round(-3.8 * k), round(5.0 * k)), col)
@@ -397,7 +471,7 @@ ROSTER = [
     ('Chick', 'Common', lambda c, H: bird(c, H, P('#FFD93B'), belly=P('#FFE97A'))),
     ('Duckling', 'Common', lambda c, H: bird(c, H, P('#FFF06A'), beak=P('#FF8C1A'), belly=P('#FFF6A8'), bill=True)),
     ('Bunny', 'Common', lambda c, H: quadruped(c, H, P('#F4F1EC'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='long', tail='short', tail_col=P('#FFFFFF'))),
-    ('Piglet', 'Common', lambda c, H: quadruped(c, H, P('#FFB3C7'), snout=P('#FF8FB1'), ears='pointy', tail='curly')),
+    ('Piglet', 'Common', lambda c, H: quadruped(c, H, P('#FFB3C7'), snout=P('#FF8FB1'), ears='pointy', tail='curly', pig=True)),
     ('Mouse', 'Common', lambda c, H: quadruped(c, H, P('#B8B8C8'), belly=P('#E6E6EE'), snout=P('#E6E6EE'), ears='round', ear_col=P('#FFB3C7'), tail='long', tail_col=P('#FFB3C7'))),
     ('Hamster', 'Common', lambda c, H: quadruped(c, H, P('#F2B05E'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='round', tail='short', fluffy=True)),
     ('Frog', 'Common', lambda c, H: blob(c, H, 'frog', P('#6CCB5F'), P('#C8F2A8'))),
@@ -446,9 +520,10 @@ def build_all(detail=None):
         c = Creature(species, rarity)
         mult = (detail or {}).get(rarity, 1)
         c.detail = mult
+        c.fine = detail is not None  # the Blender build, at any multiplier
         fn(c, HEIGHT[rarity] * mult)
         c.voxel = VOXEL / mult
-        if mult > 1:
+        if c.fine:
             # The finer build mirrors ears exactly: the body plans place them
             # with rounding that can leave the left ear a voxel off.
             for part in c.parts:

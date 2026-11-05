@@ -10,17 +10,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
-from creatures import build_all  # noqa: E402
+from creatures import HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
 
 RANK = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
 
-# More, smaller voxels for the smaller tiers, at the same size in studs: a
-# 2-stud Common gets 16 voxels of height (room for eyes, cheeks, sturdy
-# legs) instead of the in-game boxes' 8. The showpieces are built huge
-# already, so they keep one voxel = 0.25 studs.
-DETAIL = {'Common': 2, 'Uncommon': 2, 'Rare': 2, 'Ultra Rare': 1.5, 'Epic': 1.5, 'Legendary': 1, 'Godly': 1}
+# Every tier is built from the same small voxel, VOXEL_STUDS, at its own
+# size in studs on a pad (TIER_STUDS, from the plan Alex reviews; Epic and up
+# are only a little bigger than Commons and take extra slots instead). The art
+# in creatures.py is drawn HEIGHT voxels tall, so each tier is built at
+# DETAIL times that: more voxels, same shape. The game scales a creature's
+# meshes to its stand-in, so a change here needs no game code.
+VOXEL_STUDS = 0.1
+TIER_STUDS = {'Common': 2, 'Uncommon': 2.2, 'Rare': 2.4, 'Ultra Rare': 2.7, 'Epic': 3, 'Legendary': 3.4, 'Godly': 3.8}
+DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 
 
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
@@ -76,6 +80,8 @@ def r4(v):
 
 def creatures(tiers=None, only=None):
     cs = build_all(DETAIL)
+    for c in cs:
+        c.voxel = VOXEL_STUDS
     if tiers:
         cs = [c for c in cs if c.rarity in tiers]
     if only:
