@@ -94,42 +94,43 @@ describe("Hatchery", function()
 		expect(d.nextUid).toBe(2)
 	end)
 
-	it("when pads are full, a better hatch takes the weakest pad and the ridden one stays", function()
+	it("places a new hatch on the highest floor with room, else in the inventory", function()
 		local d = fresh()
-		d.creatures = {
-			creature("1", "Chick", 1), -- weakest, but ridden
-			creature("2", "Duckling", 2),
-			creature("3", "Turtle", 3),
-		}
-		d.mountUid = "1"
-		d.nextUid = 4
-		table.insert(
-			d.incubators,
-			{ slot = 1, eggId = "MeadowEgg", startedAt = 0, readyAt = 0, outcome = "Owlet" }
-		)
-		local small = Util.deepCopy(economy)
-		small.creaturePads = 3
-		local owlet = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, small)
-		expect(owlet and owlet.slot).toBe(2)
-		expect(d.creatures[2].slot).toBeNil() -- Duckling went to storage
+		d.creatures = {}
+		for i = 1, 8 do
+			table.insert(d.creatures, creature(tostring(i), "Chick", i))
+		end
+		d.nextUid = 9
+		local function hatchOne(outcome: string): any
+			table.insert(
+				d.incubators,
+				{ slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = outcome }
+			)
+			return Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, economy)
+		end
+		-- Floor 1 is full: the new one waits in the inventory, nothing moves.
+		local owlet = hatchOne("Owlet")
+		expect(owlet and owlet.slot).toBeNil()
 		expect(d.creatures[1].slot).toBe(1)
-
-		table.insert(
-			d.incubators,
-			{ slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
-		)
-		local chick = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, small)
-		expect(chick and chick.slot).toBeNil() -- not better than anything placed
+		expect(Hatchery.padsFull(d, config.creatures, economy)).toBe(true)
+		-- With floor 2 built, the next lands up there.
+		d.floors = 2
+		local duck = hatchOne("Duckling")
+		expect(duck and duck.slot).toBe(9)
+		expect(Hatchery.padsFull(d, config.creatures, economy)).toBe(false)
 	end)
 
-	it("sells the weakest stored creature when storage overflows", function()
+	it("sells the weakest creature in the inventory when it overflows", function()
 		local d = fresh()
 		local tiny = Util.deepCopy(economy)
-		tiny.creaturePads = 1
 		tiny.storage.slots = 1
 		d.coins = 0
-		d.creatures = { creature("1", "Phoenix", 1), creature("2", "Turtle", nil) }
-		d.nextUid = 3
+		d.creatures = {}
+		for i = 1, 8 do
+			table.insert(d.creatures, creature(tostring(i), "Turtle", i))
+		end
+		table.insert(d.creatures, creature("9", "Turtle", nil))
+		d.nextUid = 10
 		table.insert(
 			d.incubators,
 			{ slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
@@ -139,7 +140,7 @@ describe("Hatchery", function()
 		expect(#sold).toBe(1)
 		expect(sold[1].speciesId).toBe("Chick")
 		expect(d.coins).toBe(config.creatures.species.Chick.coinsPerSecond * tiny.storage.sellSeconds)
-		expect(#d.creatures).toBe(2)
+		expect(#d.creatures).toBe(9)
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()
@@ -192,7 +193,7 @@ describe("Hatchery", function()
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 
-	it("rides only creatures on a pad", function()
+	it("rides only creatures on a floor", function()
 		local d = fresh()
 		d.creatures = {
 			{
@@ -214,7 +215,7 @@ describe("Hatchery", function()
 		}
 		local speed, why = Hatchery.ride(d, "2", config.creatures)
 		expect(speed).toBeNil()
-		expect(why).toBe("Only a creature on a pad can be ridden.")
+		expect(why).toBe("Only a creature on a floor can be ridden.")
 		expect(Hatchery.ride(d, "1", config.creatures)).toBe(config.creatures.species.Chick.mountSpeed)
 	end)
 

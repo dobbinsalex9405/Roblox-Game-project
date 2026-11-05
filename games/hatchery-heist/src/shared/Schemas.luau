@@ -52,7 +52,21 @@ return function(Schema: any, Odds: any)
 			travelSeconds = Schema.number({ min = 2, max = 120 }),
 			weights = Schema.map(id, Schema.integer({ min = 1 })),
 		}),
-		creaturePads = Schema.integer({ min = 1, max = 100 }),
+		tower = Schema.record({
+			floorPrices = Schema.array(Schema.integer({ min = 1 }), { minLength = 9, maxLength = 9 }),
+			floorBonus = Schema.number({ min = 0, max = 1 }),
+			startBonus = Schema.number({ min = 0, max = 1 }),
+			upgradeBonus = Schema.number({ min = 0, max = 1 }),
+			upgradeShares = Schema.array(
+				Schema.number({ min = 0, max = 10 }),
+				{ minLength = 4, maxLength = 4 }
+			),
+			slotsByRarity = Schema.map(
+				Schema.string({ maxLength = 20 }),
+				Schema.integer({ min = 1, max = 4 })
+			),
+			themes = Schema.array(Schema.string({ maxLength = 40 }), { minLength = 10, maxLength = 10 }),
+		}),
 		storage = Schema.record({
 			slots = Schema.integer({ min = 0, max = 200 }),
 			sellSeconds = Schema.number({ min = 0, max = 3600 }),

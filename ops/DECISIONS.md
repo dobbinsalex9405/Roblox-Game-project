@@ -30,6 +30,69 @@ Non-obvious choices, newest first, so a later session can trust them.
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
 
+## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
+
+- **The palette PNG is uploaded as an Image asset.** MeshPart.TextureID needs an
+  image id; a Decal id fails with "Asset type does not match requested type" and
+  the creature draws grey (Studio gate, #66). Open Cloud gives no stable way to
+  turn a decal id into its image id, so we never upload Decals for textures.
+- **luau.py writes `textureId = 0` unless assets.json marks it `textureType:
+  "Image"`**, so a wrong id draws the voxel boxes, never a grey mesh.
+- `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
+  palettes; models keep their ids.
+
+## 2026-11-05: The 10-floor tower (Hatchery Heist)
+
+- **A creature's spot is one number**, `creature.slot` = (floor − 1) × 8 +
+  spot, the first spot it covers. Old saves already had `slot` as a pad
+  number, so one field, one migration (`towerVersion`), and raids, the
+  guard and the client keep addressing creatures by pad.
+- **New hatches never swap.** The old rule (a better creature evicts the
+  weakest) would shuffle a player's hand-placed tower; it goes to the
+  highest floor with room, else the inventory, and Place best is one tap.
+- **Big creatures sit in one row** (Epic 2, Legendary and Godly 3 spots), so
+  a floor's two rows of 4 always fit one 3-spot creature plus one more.
+- **Floors and upgrades survive rebirth**: they are the long-term coin sink
+  that rebirth must not wipe, or 165M floors would never be bought twice.
+- **Inventory 150** (was 30): with only placed creatures earning, the
+  inventory is where a collection lives; overflow still sells the weakest.
+- **The raider must stand on the floor** (server checks height): the ladder
+  is the only way up for a raider, which gives owners time to react.
+## 2026-11-05: Hatchery Heist towers are cozy apartments, the farm is only the centre
+
+- **Alex's direction (10:52Z):** no farm theme on the towers; a farm in the
+  middle and each player's tower a cozy apartment building. Storybook Farm
+  stays for the shared centre (Golden Nest, belt, trees, farm decor).
+- **Ten apartment floors**, each a room theme that gets more magical going
+  up: Cozy studio, Book nook, Plant sunroom, Bakery kitchen, Games lounge,
+  Winter cabin, Art studio, Rooftop garden, Starlit observatory, Golden sky
+  penthouse. Outside, the building climbs from red brick through pastel
+  plaster with shutters to a trellis garden, a starry navy storey and a
+  white-and-gold penthouse with a domed roof, so a taller tower is visibly
+  richer from across the map.
+- **Shell as pieces on one anchor** (`tools/art/world/tower.py`): floor,
+  back, left, right and front of each storey, plus a roof; the game places
+  every piece at (base centre, floor height). Walls 0.8 thick so the inside
+  wallpaper and the outside facade both survive the Parts version. Elevator
+  and ladder keep their ids, restyled slate and brass, glass shaft, iron
+  fire escape.
+
+## 2026-11-05: Master creature list, 645 creatures (Hatchery Heist)
+
+- **Tier counts on one curve**: Common 200, Uncommon 140, Rare 100, Ultra
+  Rare 75, Epic 60, Legendary 50, Godly 20. Alex gave five of them and asked
+  for Uncommon to sit on the same curve; Epic, which Alex did not name but
+  the game has, gets the same treatment between Ultra Rare and Legendary.
+- **Every existing creature stays with its id and tier** (53 in the game,
+  122 more as roster data, all 152 Commons stay Common).
+- **The list lives in `tools/art/roster/master/`**, a subfolder, because
+  `variants.py` loads every `roster/*.json` as build entries.
+- **A cheap `puff` plan** (round body, stubby feet, a prop on top) carries
+  28 invented and garden-veggie creatures; other new plans: upright, drake,
+  fish, whale, octopus, dino, serpent, bat, jelly, griffin, ray, scorpion.
+- **Fish are on the list but flagged** (gait `swim`): no swim animation yet.
+- **Elements**: set from Rare up only; no effect until the element rollout.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150
