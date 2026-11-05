@@ -2,6 +2,27 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Master creature list, 445 creatures (Hatchery Heist)
+
+- **Alex's five counts map onto the game's seven tiers** so no tier is
+  dropped: Commons 200 = Common 150 + Uncommon 50; Rares 100 = Rare 100;
+  Ultra Rares 75 = Ultra Rare 45 + Epic 30; Legendaries 50; Godlys 20.
+  Stated at the top of the sheet for Alex to approve or change.
+- **Every existing creature stays with its id** (53 in the game, 122 more
+  as roster data). 22 roster Commons with flashier looks (lizards, parrots,
+  monkeys, Capybara, Firefly...) move up to Uncommon, which frees Common
+  slots for invented, mutant and bug Commons. Their roster files keep
+  `"rarity": "Common"` until a builder moves them; `master_list.py` lists
+  each as "move pending".
+- **The list lives in `tools/art/roster/master/`**, a subfolder, because
+  `variants.py` loads every `roster/*.json` as build entries.
+- **A cheap `puff` plan** (round body, stubby feet, a prop on top) carries
+  16 invented creatures across the tiers; other new plans: upright, drake,
+  fish, dino, whale, octopus, bat, serpent, ray, jelly, griffin, scorpion.
+- **Fish are on the list but flagged** (gait `swim`): no swim animation yet.
+- **Elements**: about a quarter of the list carries one, almost all Rare and
+  up; Common and Uncommon are plain. No effect until the element rollout.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150
