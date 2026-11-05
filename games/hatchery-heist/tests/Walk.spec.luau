@@ -130,7 +130,7 @@ describe("Walk gaits", function()
 	end)
 
 	it("lifts the body off the ground in a hop and waves it in a slither", function()
-		local hop = Walk.pose("hop", "body", 0.5, 1, 2, false)
+		local hop = Walk.pose("hop", "body", 0.3, 1, 2, false) -- the top of the hop
 		expect(hop.dy > 0.5).toBe(true)
 		local slither = Walk.pose("slither", "body", 0.25, 1, 2, false)
 		expect(math.abs(slither.ry) > 0.2).toBe(true)
@@ -149,5 +149,32 @@ describe("Walk gaits", function()
 	it("advances the step with distance, by each gait's stride", function()
 		expect(near(Walk.phase("trot", 1.8, 2), 1)).toBe(true)
 		expect(Walk.phase("scuttle", 1, 1) > Walk.phase("trot", 1, 1)).toBe(true)
+	end)
+end)
+
+describe("Walk poses over time", function()
+	it("never jumps between frames in any gait", function()
+		local anims = { "body", "head", "tail", "legFL", "legL", "leg1L" }
+		for _, gait in Walk.GAITS do
+			for _, anim in anims do
+				local last = Walk.pose(gait, anim, 0, 1, 2, true)
+				for i = 1, 400 do
+					local p = Walk.pose(gait, anim, i / 100, 1, 2, true)
+					for _, key in { "rx", "ry", "rz", "dx", "dy" } do
+						local d = math.abs((p :: any)[key] - (last :: any)[key])
+						if d > 0.15 then
+							error(`{gait} {anim} {key} jumps {d} at phase {i / 100}`)
+						end
+					end
+					last = p
+				end
+			end
+		end
+	end)
+
+	it("keeps planted feet on the ground: the body dips as legs swing out", function()
+		local spread = Walk.pose("trot", "body", 0.25, 1, 2, true)
+		local under = Walk.pose("trot", "body", 0, 1, 2, true)
+		expect(spread.dy < under.dy).toBe(true)
 	end)
 end)

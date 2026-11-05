@@ -236,6 +236,20 @@ export type Pose = {
 
 local STILL: Pose = { rx = 0, ry = 0, rz = 0, dx = 0, dy = 0 }
 
+-- How far a foot rises when its leg swings out by `angle`, for a leg about a
+-- third of the creature's height: the body drops this much to stay planted.
+local LEG_SHARE = 0.3
+local function dip(h: number, angle: number): number
+	return h * LEG_SHARE * (1 - math.cos(angle))
+end
+
+-- A hop spends this share of its cycle in the air, the rest crouched.
+local HOP_AIR = 0.6
+local function hopArc(phase: number): number
+	local u = phase % 1
+	return if u < HOP_AIR then math.sin(u / HOP_AIR * math.pi) else 0
+end
+
 -- A joint's walking pose: `phase` in step cycles, `moving` 0 to 1, `h` the
 -- creature's height, `legged` whether the creature has leg parts. Wings use
 -- `Walk.wingRate` instead. Returns STILL for joints the gait leaves alone.
@@ -255,43 +269,35 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			return { rx = 0.4 * moving * side * s, ry = 0, rz = 0, dx = 0, dy = 0 }
 		elseif gait == "hop" then
 			-- Legs push back on take-off and tuck in the air.
-			local u = phase % 1
-			return { rx = -0.7 * moving * math.sin(u * math.pi), ry = 0, rz = 0, dx = 0, dy = 0 }
+			return { rx = -0.7 * moving * hopArc(phase), ry = 0, rz = 0, dx = 0, dy = 0 }
 		end
 		return STILL
 	end
 	if anim == "body" then
 		if gait == "trot" then
-			-- Two small bobs per cycle (one per footfall), a slight rock; a
-			-- legless stand-in bounces higher so the steps still read.
-			local bob = (1 - math.cos(2 * a)) / 2
-			local lift = if legged then 0.03 else 0.08
-			return {
-				rx = 0.04 * moving * math.sin(2 * a),
-				ry = 0,
-				rz = 0,
-				dx = 0,
-				dy = h * lift * moving * bob,
-			}
+			-- Legs swung out reach less far down, so the body dips as they
+			-- spread and rises as they pass under it, twice a cycle. A
+			-- legless stand-in bounces instead, so its steps still read.
+			local pitch = 0.04 * moving * math.sin(2 * a)
+			if legged then
+				return { rx = pitch, ry = 0, rz = 0, dx = 0, dy = -dip(h, 0.55 * moving * s) }
+			end
+			local bounce = (1 - math.cos(2 * a)) / 2
+			return { rx = pitch, ry = 0, rz = 0, dx = 0, dy = h * 0.08 * moving * bounce }
 		elseif gait == "waddle" then
-			local bob = (1 - math.cos(2 * a)) / 2
-			return {
-				rx = 0,
-				ry = 0.06 * moving * s,
-				rz = 0.14 * moving * s,
-				dx = 0,
-				dy = h * 0.04 * moving * bob,
-			}
+			local dy = if legged
+				then -dip(h, 0.6 * moving * s)
+				else h * 0.04 * moving * (1 - math.cos(2 * a)) / 2
+			return { rx = 0, ry = 0.06 * moving * s, rz = 0.14 * moving * s, dx = 0, dy = dy }
 		elseif gait == "hop" then
+			-- Crouch nose down, spring up nose first, land.
 			local u = phase % 1
-			local arc = math.sin(u * math.pi)
-			return {
-				rx = -0.25 * moving * math.cos(u * math.pi),
-				ry = 0,
-				rz = 0,
-				dx = 0,
-				dy = h * 0.35 * moving * arc,
-			}
+			-- One smooth pitch through the whole cycle: nose up in the air, back
+			-- down through the crouch.
+			local pitch = if u < HOP_AIR
+				then -0.25 * math.cos(u / HOP_AIR * math.pi)
+				else 0.25 * math.cos((u - HOP_AIR) / (1 - HOP_AIR) * math.pi)
+			return { rx = pitch * moving, ry = 0, rz = 0, dx = 0, dy = h * 0.35 * moving * hopArc(phase) }
 		elseif gait == "scuttle" then
 			local jitter = (1 - math.cos(4 * a)) / 2
 			return { rx = 0, ry = 0.06 * moving * s, rz = 0, dx = 0, dy = h * 0.015 * moving * jitter }

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Creatures on your tower walk around their spot: they turn, walk, stop,
+  and turn to face you, the same for every player. They really walk: four
+  legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
+  snakes slither and flyers hover with faster wing beats.
+- Creatures more than one floor away from you are not drawn, so a full
+  tower stays smooth.
+
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
