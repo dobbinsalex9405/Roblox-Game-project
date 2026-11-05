@@ -1855,6 +1855,22 @@ def hermit_titan(c, H):
             if (x * 7 + z * 3) % 11 != 0:  # a few torn holes
                 ship.put((x, round(cy - 0.6 * k), z), P('#F2E6C8'))
     ship.put((0, round(cy), round(z0 + 5.9 * k)), P('#FF4D5E'))
+    # sunken treasure heaped in the hold, glowing gold, and seaweed trailing
+    # down the hull
+    hold = c.part('treasure', 'glow')
+    hold.ell((0, cy + 0.9 * k, z0 + 2.2 * k), (1.1 * k, 1.2 * k, 0.6 * k), GOLD, True)
+    hold.paint(lambda q, cc, g: (GOLD_L, True) if (q[0] * 3 + q[1] * 5 + q[2]) % 7 == 0 else None)
+    for q in [q for q in hold.v if q in ship.v]:
+        del hold.v[q]
+    weed = P('#2E9A5A')
+    for (sx, yy) in ((1, -1.2), (-1, 0.4), (1, 1.6), (-1, -0.2)):
+        y = round(cy + yy * k)
+        xs = [q[0] for q in ship.v if q[1] == y and q[2] == round(z0 + 2.2 * k)]
+        if not xs:
+            continue
+        x = max(xs) + 1 if sx > 0 else min(xs) - 1
+        for i in range(round(1.4 * k)):
+            ship.put((x + (sx if (i // 3) % 2 else 0), y, round(z0 + 2.2 * k) - i), weed)
     lan = c.part('lantern', 'glow')
     lan.ell((0, cy - 0.6 * k, z0 + 5.6 * k), (0.45 * k, 0.45 * k, 0.55 * k), P('#FFE14D'), True)
     for p in [p for p in ship.v if p in lan.v]:
