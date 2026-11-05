@@ -8,7 +8,9 @@ the ROSTER, so a new Common needs no code. One entry:
      "accessories": [{"kind": "bell", "color": "#E84855", "color2": "#FFD43B"}]}
 
 - **plan** is a body plan, and `colors` and `options` are its arguments
-  (PLANS below lists them). Colours are "#RRGGBB".
+  (PLANS below lists them). Colours are "#RRGGBB". The plans: quadruped,
+  bird, blob (frog, snail, ladybug, axolotl, turtle), bug (bee, butterfly,
+  beetle, caterpillar), crab and lizard (gecko, chameleon, iguana, bearded).
 - **shape** changes proportions: `"body": [width, length, height]` (0.8 to
   1.35 each) and `"head"` (0.8 to 1.3), so one plan makes many silhouettes.
 - **patterns** paint the body after it is built: spots, stripes, socks,
@@ -47,6 +49,7 @@ PLANS = {
     'blob': ({'col', 'accent'}, {'kind': {'frog', 'snail', 'ladybug', 'axolotl', 'turtle'}}),
     'bug': ({'col', 'accent', 'wing'}, {'kind': {'bee', 'butterfly', 'beetle', 'caterpillar'}}),
     'crab': ({'col', 'accent'}, {}),
+    'lizard': ({'col', 'accent', 'belly'}, {'kind': {'gecko', 'chameleon', 'iguana', 'bearded'}}),
 }
 PATTERNS = {'spots', 'stripes', 'socks', 'saddle', 'tips', 'back'}
 ACCESSORIES = {'beanie', 'bow', 'flower', 'sprout', 'scarf', 'bell', 'horns', 'beard'}
@@ -88,7 +91,7 @@ def check(entry, where):
             bad(f'{sid}: {plan} has no option "{name}" (it has {sorted(options)})')
         if v not in options[name]:
             bad(f'{sid}: option {name} = {v!r}; allowed {sorted(map(str, options[name]))}')
-    if plan in ('blob', 'bug') and 'kind' not in entry.get('options', {}):
+    if plan in ('blob', 'bug', 'lizard') and 'kind' not in entry.get('options', {}):
         bad(f'{sid}: a {plan} needs options.kind')
     sh = entry.get('shape', {})
     for key in sh:
@@ -160,6 +163,8 @@ def builder(entry):
             kit.bug(c, H, opts['kind'], cols['col'], cols.get('accent', kit.INK), cols.get('wing'))
         elif plan == 'crab':
             kit.crab(c, H, cols['col'], cols.get('accent', cols['col']))
+        elif plan == 'lizard':
+            kit.lizard(c, H, opts['kind'], cols['col'], cols.get('accent', cols['col']), cols.get('belly'))
         sh = entry.get('shape')
         if sh:
             kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))
