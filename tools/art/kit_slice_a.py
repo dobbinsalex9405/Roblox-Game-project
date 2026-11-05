@@ -402,3 +402,40 @@ def _fine_only(fn):
 
 
 ACCESSORIES['narrow_head'] = _fine_only(narrow_head)
+
+def beak_below_eyes(c, H, col=None, col2=None, a=None):
+    """Moves the beak part down so its top sits a voxel below the eyes: a big
+    dark beak whose root rises to eye height reads as a band across the
+    eyes (the kookaburra)."""
+    beak, eyes = _find(c, 'beak'), _find(c, 'eyes')
+    if beak is None or eyes is None or not beak.v or not eyes.v:
+        return
+    top = max(p[2] for p in beak.v)
+    ez = min(p[2] for p in eyes.v)
+    d = top - (ez - 2)
+    if d > 0:
+        beak.v = {(x, y, z - d): v for (x, y, z), v in beak.v.items()}
+
+
+ACCESSORIES['beak_below_eyes'] = beak_below_eyes
+
+def eye_spots(c, H, col, col2=None, a=None):
+    """Small pale spots just above and just below each eye (a coati's face),
+    in col, on the head's front."""
+    head, eyes = _find(c, 'head'), _find(c, 'eyes')
+    if head is None or eyes is None or not eyes.v:
+        return
+    for side in (1, -1):
+        ev = [p for p in eyes.v if (p[0] >= 0) == (side > 0)]
+        if not ev:
+            continue
+        xs = sorted({p[0] for p in ev})
+        z0, z1 = min(p[2] for p in ev), max(p[2] for p in ev)
+        for x in xs:
+            for z in (z1 + 2, z0 - 2):
+                f = head.front(x, z)
+                if f:
+                    head.put(f, col)
+
+
+ACCESSORIES['eye_spots'] = eye_spots
