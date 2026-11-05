@@ -276,11 +276,12 @@ def cracks(c, H, col, col2=None):
         if not surf:
             continue
         sset = set(surf)
-        starts = sorted(surf, key=lambda p: _hash(*p, 5))[:max(3, len(surf) // max(16, round(48 * k * k / 9)))]
+        salt = 5 + sum(col) % 97  # two crack layers in different colours take different paths
+        starts = sorted(surf, key=lambda p: _hash(*p, salt))[:max(3, len(surf) // max(16, round(48 * k * k / 9)))]
         steps = max(6, round(4.0 * k))
         for s in starts:
             p = s
-            h = _hash(*s, 9)
+            h = _hash(*s, 9 + salt)
             for i in range(steps):
                 if p[0] >= 0:
                     for q in (p, (p[0], p[1], p[2] + 1), (p[0], p[1] + 1, p[2])):
@@ -1849,6 +1850,68 @@ def feather_wings(c, H, col, col2=None, span=3.2, membrane=False):
                                math.floor(bot) - d // 2), tip if t > 0.5 else col)
 
 
+def raised_wings(c, H, col, col2=None, span=3.6, angle=60, tip_glow=False):
+    """Big feathered wings held half-raised (a griffin's, a pegasus's): they
+    rise from the shoulders up and out, with rows of feathers, long flight
+    feathers along the trailing edge and pale tips (col2). They flap
+    (wingL, wingR). Replaces any wings the plan drew."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body:
+        return
+    y0, y1 = _yrange(body)
+    zt = max(p[2] for p in body.v)
+    ry = y0 + (y1 - y0) * 0.33
+    rz = zt - 0.3 * k
+    tip = col2 or _light(col, 0.45)
+    a = math.radians(angle)
+    d = (math.cos(a), math.sin(a))      # along the arm, up and out
+    n = (math.sin(a), -math.cos(a))     # across the wing, out and down
+    L = span * k
+    rows = max(2, round(0.55 * k))
+    for sx, name in ((-1, 'wingL'), (1, 'wingR')):
+        w = c.part(name, name, (sx * 0.9 * k, ry, rz))
+        w.v = {}
+        x0 = 0.7 * k
+        steps = int(L * 3) + 1
+        for i in range(steps):
+            u = i / (steps - 1)
+            chord = (0.8 + 1.6 * math.sin(min(1.0, u * 1.15) * math.pi * 0.62)) * k
+            if u > 0.8:
+                chord *= 1.0 - (u - 0.8) * 2.2
+            for j in range(int(chord * 3) + 1):
+                v = j / 3.0
+                fx = x0 + u * L * d[0] + v * n[0]
+                fz = rz + u * L * d[1] + v * n[1]
+                vv = v / max(1.0, chord)
+                # feathers: darker bands across the wing, then pale tips
+                if u > 0.82 or vv > 0.88:
+                    colr, g = tip, tip_glow and u > 0.86
+                elif math.floor(v) % rows == 0 and vv > 0.3:
+                    colr, g = _dark(col, 0.14), False
+                else:
+                    colr, g = col, False
+                x = math.floor(fx)
+                X = x if sx > 0 else -x - 1
+                yb = math.floor(ry + vv * 0.6 * k)
+                for yy in (yb, yb + 1):
+                    w.v[(X, yy, math.floor(fz))] = (colr, g)
+        # long flight feathers hanging from the trailing edge
+        for i in range(1, 6):
+            u = 0.25 + 0.13 * i
+            chord = (0.8 + 1.6 * math.sin(min(1.0, u * 1.15) * math.pi * 0.62)) * k
+            if u > 0.8:
+                chord *= 1.0 - (u - 0.8) * 2.2
+            base = (x0 + u * L * d[0] + chord * n[0], rz + u * L * d[1] + chord * n[1])
+            for t in range(round(0.9 * k)):
+                fx, fz = base[0] + t * n[0] * 0.8, base[1] + t * n[1] * 0.9
+                x = math.floor(fx)
+                X = x if sx > 0 else -x - 1
+                yb = math.floor(ry + 0.6 * k)
+                for yy in (yb, yb + 1):
+                    w.v[(X, yy, math.floor(fz))] = (tip, False)
+
+
 def dragon_wings(c, H, col, col2=None):
     feather_wings(c, H, col, col2, span=3.0, membrane=True)
 
@@ -2038,19 +2101,34 @@ def _components(vox):
 def mend(c, H, col=None, col2=None):
     """Joins any piece of a part that came apart (a thin leg or tail drawn
     at a size where its rounding leaves a one-voxel gap) back to the rest of
-    that part, with a line in the colour of the piece."""
+    that part, with a line in the colour of the piece. Only small gaps are
+    closed: a part made of separate pieces on purpose (two eyes, two ears)
+    is left alone."""
     for part in c.parts:
-        if len(part.v) < 2:
+        if len(part.v) < 2 or part.name == 'eyes':
             continue
-        comps = _components(part.v)
-        main = set(comps[0])
-        for comp in comps[1:]:
-            a, b = min(((p, q) for p in comp for q in main),
-                       key=lambda pq: sum((pq[0][i] - pq[1][i]) ** 2 for i in range(3)))
+        comps = [set(cp) for cp in _components(part.v)]
+        if len(comps) < 2:
+            continue
+        # smallest pieces first: each joins the nearest other piece when it is a
+        # fragment (small and close); a piece about as big as its neighbour
+        # (the other ear, the other antler) is separate on purpose
+        for comp in sorted(comps, key=len)[:-1]:
+            others = [o for o in comps if o is not comp]
+            best = None
+            for o in others:
+                for p in comp:
+                    for q in o:
+                        d2 = sum((p[i] - q[i]) ** 2 for i in range(3))
+                        if best is None or d2 < best[0]:
+                            best = (d2, p, q, o)
+            d2, a, b, o = best
+            if not (d2 <= 9 or (len(comp) < 0.4 * len(o) and d2 <= 36)):
+                continue
             colr, g = part.v[a]
             line(part, (a[0] + .5, a[1] + .5, a[2] + .5), (b[0] + .5, b[1] + .5, b[2] + .5), colr, glow=g)
-            main |= comp
-
+            o |= comp
+            comps.remove(comp)
 
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes,
@@ -2077,7 +2155,7 @@ ACCESSORIES = {
     'headdress': headdress, 'hardhat': hardhat, 'lantern_pouch': lantern_pouch, 'lantern_belly': lantern_belly,
     'sun_crest': sun_crest, 'clover': clover, 'ribs': ribs, 'stripe': stripe, 'gloss': gloss,
     'paper_folds': paper_folds, 'stained_glass': stained_glass, 'tipped_wings': tipped_wings,
-    'feather_wings': feather_wings, 'dragon_wings': dragon_wings, 'bat_wings': bat_wings,
+    'feather_wings': feather_wings, 'raised_wings': raised_wings, 'dragon_wings': dragon_wings, 'bat_wings': bat_wings,
     'small_wings': small_wings, 'nightcap': nightcap,
 }
 
@@ -2116,19 +2194,12 @@ def griffin(c, H, col, head=None, beak=None, wing=None, talon=None, glow=None, t
         a = math.pi * i / 6
         ball(body, (math.cos(a) * 1.6 * k, y0 + 1.2 * k, 4.4 * k + math.sin(a) * 0.5 * k), (0.5 * k, 0.5 * k, 0.6 * k),
              _mix(head_col, col, 0.25))
-    feather_wings(c, H, wing or _mix(col, head_col, 0.4), glow or head_col, span=3.4)
+    raised_wings(c, H, wing or _mix(col, head_col, 0.4), glow or head_col, span=4.2, tip_glow=bool(glow))
     # tail tuft
     tl = _find(c, 'tail')
     if tl and tl.v:
         tip = _tail_tip(c)
         ball(tl, (0, tip[1], tip[2]), (0.55 * k, 0.6 * k, 0.55 * k), head_col)
-    if glow:
-        for name in ('wingL', 'wingR'):
-            w = _find(c, name)
-            if w:
-                xs = [abs(p[0] + .5) for p in w.v]
-                xm = max(xs)
-                w.paint(lambda p, cc, g: (glow, True) if abs(p[0] + .5) > xm - 0.6 * k else None)
     return c
 
 
