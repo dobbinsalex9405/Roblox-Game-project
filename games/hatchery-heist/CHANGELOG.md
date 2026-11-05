@@ -4,6 +4,12 @@
 
 - Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
   set with F (snare) or R (slime), with a short hold, from closer by.
+
+- Fix: a creature no longer stays blocky for a whole server when Roblox
+  turns away one of its model loads. Loads go a few at a time and retry,
+  and the server log says why a creature stayed on its blocks. A missing
+  glow accent (Ember Fox's glowing paws) no longer sends the whole creature
+  back to blocks.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
@@ -22,6 +28,12 @@
   and each floor has 4 upgrades with props you can see. 8 spots a floor:
   Epics take 2, Legendaries and Godlies 3. Ride the elevator or climb the
   ladder.
+- Every floor upgrade now furnishes the room: themed beds on all eight
+  spots, then a big rug, then glowing ceiling lights, then corner plants
+  and the floor's crest, each growing in with a sparkle. The Tower menu
+  shows what the next upgrade brings.
+- Fix: with a big income, Upgrade and Build taps in the Tower menu were
+  sometimes lost (the menu rebuilt itself every time coins went up).
 - Only creatures on a floor earn. The rest wait in your inventory (now 150,
   up from 30); "Your Creatures" moves them, and Place best fills the tower
   with your strongest. Old bases are placed best first on the next join.
@@ -37,6 +49,8 @@
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.
+- The wood now goes all the way round the ring, so no bare grass shows
+  behind the barn or the fields.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
