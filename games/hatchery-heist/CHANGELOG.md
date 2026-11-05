@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The apartment towers now look like apartments from outside: walls,
+  windows, balconies and a roof on every built floor of your tower and the
+  nearest towers (the rest keep their plain floors until you come close).
+- Fix: the ladder now stops at your top built floor, with a landing to step
+  off onto, instead of running past it.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
