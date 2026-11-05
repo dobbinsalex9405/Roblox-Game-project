@@ -31,6 +31,7 @@ local Schemas = require(Shared.Schemas)(Schema, Odds)
 
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
+local Scenery = require(script.Scenery)
 local Speed = require(script.Speed)
 local World = require(script.World)
 
@@ -45,6 +46,7 @@ local raw = {
 	eggs = require(GameConfig.eggs),
 	raids = require(GameConfig.raids),
 	monetization = require(GameConfig.monetization),
+	atmosphere = require(GameConfig.atmosphere),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -91,6 +93,7 @@ end
 local ids = Monetization.resolve(monetization, Build.environment)
 
 World.build()
+Scenery.build(Config.get("atmosphere"))
 Mounts.start()
 
 local services: CoreServer.Services

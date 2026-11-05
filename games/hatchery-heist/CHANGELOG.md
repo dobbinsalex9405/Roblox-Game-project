@@ -9,6 +9,18 @@
   file. The error queue, feedback and metrics stores no longer stop the
   server when DataStores are unavailable (an unpublished place); they warn
   once and save nothing. Live servers are unchanged.
+- First look (Alex's Nov 4 play test): a welcome screen on a new player's
+  first join and a Guide button in a new side menu to reopen it; a goal line
+  under the coin bar with a beam and arrow to the next thing to do (first
+  egg, hatch, collect, 4th incubator); a sunny sky with haze, clouds, bloom
+  and sun rays; a sandy yard with the Golden Nest, fences and flowers on
+  every base, trees and a ring of hills hiding the map's edge; background
+  music (tracks set in `config/atmosphere.luau`) with a Music on/off button.
+- Shop opens on a new Coins tab (incubator, shield, traps, decoy, belt
+  eggs), with Robux items on the second tab.
+- Prices one rung lower: Double Coins 149, Extra Incubators 99, and a new
+  80K Coins pack at 199 between the 30K and 200K packs.
+
 - Fix: the map was buried in the ground. The Baseplate was placed with a
   property Rojo drops when it builds the place, so it sat ten studs too high
   and covered every floor, pad and label. It is now placed with CFrame, and

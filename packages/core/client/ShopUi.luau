@@ -3,10 +3,15 @@
 -- game sells, with Robux prices from Roblox. Items with random results show
 -- their odds first; Buy stays off until the odds have been seen (the server
 -- checks this too). Buying opens Roblox's own purchase prompt.
+--
+-- A game can add its own tabs in front of the Robux one (ShopUi.addTab), for
+-- things bought with its in-game currency. The shop then opens on the first
+-- game tab, with Robux items one tab over.
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 
@@ -33,7 +38,22 @@ export type Hooks = {
 	onOdds: (listener: (display: any) -> ()) -> (),
 }
 
+export type TabApi = {
+	showRobux: () -> (), -- switch to the Robux tab
+}
+
+-- Fills `body` (already cleared) with the tab's content.
+export type TabRender = (body: ScrollingFrame, api: TabApi) -> ()
+
+type Tab = { name: string, render: TabRender }
+
+local ROBUX_TAB = "Robux"
+
 local ShopUi = {}
+
+local tabs: { Tab } = {}
+local onTabsChanged: (() -> ())? = nil
+local refreshShown: (() -> ())? = nil
 
 local prices: { [string]: string } = {}
 local fetching: { [string]: boolean } = {}
@@ -76,6 +96,22 @@ local function fetchPrices(entries: { Entry }, done: () -> ())
 	end
 end
 
+-- Adds a game tab before the Robux tab (call once per tab, in order).
+function ShopUi.addTab(name: string, render: TabRender)
+	assert(name ~= ROBUX_TAB, "the Robux tab is built in")
+	table.insert(tabs, { name = name, render = render })
+	if onTabsChanged then
+		onTabsChanged()
+	end
+end
+
+-- Redraws the open tab, e.g. after the player's coins change.
+function ShopUi.refresh()
+	if refreshShown then
+		refreshShown()
+	end
+end
+
 function ShopUi.start(hooks: Hooks)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "CoreShop"
@@ -88,12 +124,80 @@ function ShopUi.start(hooks: Hooks)
 	local oddsShown: { [string]: any } = {}
 	local window: Frame, body: ScrollingFrame
 	local notice: TextLabel
+	local tabBar: Frame? = nil
+	local selected = ROBUX_TAB
+	local render: () -> ()
 
 	local button = UiKit.topbarButton(gui, "Shop", 0, 72)
 	button.Visible = false
 
-	local function render()
+	local function selectTab(name: string)
+		selected = name
+		render()
+	end
+	local api: TabApi = {
+		showRobux = function()
+			selectTab(ROBUX_TAB)
+		end,
+	}
+
+	-- The tab row under the title, once the game has added a tab.
+	local function drawTabs()
+		if #tabs == 0 then
+			return
+		end
+		if tabBar == nil then
+			local bar = UiKit.row(window, 34)
+			bar.Name = "Tabs"
+			bar.Position = UDim2.fromOffset(10, 48)
+			bar.Size = UDim2.new(1, -20, 0, 34)
+			body.Position = UDim2.fromOffset(10, 90)
+			body.Size = UDim2.new(1, -20, 1, -100)
+			tabBar = bar
+		end
+		local bar = tabBar :: Frame
+		UiKit.clear(bar)
+		local names = {}
+		for _, tab in tabs do
+			table.insert(names, tab.name)
+		end
+		table.insert(names, ROBUX_TAB)
+		for index, name in names do
+			local tabButton =
+				UiKit.button(bar, name, 110, 32, if name == selected then UiKit.ACCENT else UiKit.MUTED)
+			tabButton.Name = `Tab{name}`
+			tabButton.LayoutOrder = index
+			tabButton.Activated:Connect(function()
+				selectTab(name)
+			end)
+		end
+		button.Visible = true
+	end
+
+	local function renderGameTab(): boolean
+		for _, tab in tabs do
+			if tab.name == selected then
+				UiKit.clear(body)
+				-- A broken game tab must not break the Robux tab; the error
+				-- still reaches the error queue.
+				local ok, err = pcall(function()
+					tab.render(body, api)
+				end)
+				if not ok then
+					task.spawn(error, err)
+				end
+				return true
+			end
+		end
+		return false
+	end
+
+	function render()
 		if not window.Visible then
+			return
+		end
+		drawTabs()
+		if renderGameTab() then
 			return
 		end
 		UiKit.clear(body)
@@ -153,23 +257,46 @@ function ShopUi.start(hooks: Hooks)
 	end)
 	notice = UiKit.label(body, "", 36)
 
+	onTabsChanged = function()
+		drawTabs()
+		render()
+	end
+	refreshShown = render
+	drawTabs()
+
 	button.Activated:Connect(function()
 		window.Visible = not window.Visible
 		if window.Visible then
+			-- Open on the game's own currency first; Robux is one tab over.
+			selected = if #tabs > 0 then tabs[1].name else ROBUX_TAB
 			ClientNet.fire(ShopRemotes["Shop:RequestCatalog"])
 			render()
 		end
 	end)
 
 	ClientNet.on(ShopRemotes["Shop:Catalog"], function(entries: { Entry })
+		-- Items not created on Roblox yet only show in Studio (for the test
+		-- panel); players never see a card they can't buy.
+		if not RunService:IsStudio() then
+			local live = {}
+			for _, entry in entries do
+				if entry.available then
+					table.insert(live, entry)
+				end
+			end
+			entries = live
+		end
 		catalog = entries
-		button.Visible = #entries > 0
+		button.Visible = #entries > 0 or #tabs > 0
 		render()
 		fetchPrices(entries, render)
 	end)
 	ClientNet.on(ShopRemotes["Shop:Notice"], function(text: string)
-		notice.Text = text
+		-- Purchase results belong to the Robux tab.
+		selected = ROBUX_TAB
 		window.Visible = true
+		render()
+		notice.Text = text
 	end)
 	hooks.onOdds(function(display: any)
 		if type(display) ~= "table" or type(display.tableId) ~= "string" then
