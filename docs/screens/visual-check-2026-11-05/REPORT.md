@@ -414,3 +414,22 @@ Setup was the same as gate 4: floors 2-4 built, 15 creatures given, then 320 ser
 - **Neighbour animation resumes up close: PASS.** Standing at (95, 3.3, -61) next to Plot8: all 39 of 39 creatures within 60 studs animate. Beyond 60 studs, 7 of 30 animate; these are probably within 60 of the camera, which sits about 12 studs behind the character.
 - **Own tower, all floors, from the ground floor: PASS.** 15/15 drawn (floor 2 1/1, floor 3 6/6, floor 4 8/8).
 - Output: nothing new. It shows the usual unpublished-place notes, the "being generated" notices for new mesh ids, and voxel-box fallbacks.
+
+## #101 sound ids @ 41001a7
+
+**PASS.** I can't hear audio, so this check reads Sound properties instead. A client watcher on SoundService logged every `Sfx_*` Sound once it was created and 0.25 s after each `Played`.
+
+| Slot | Triggered by | SoundId | Loaded | Length | Volume | Playing / TimePosition |
+|---|---|---|---|---|---|---|
+| click | Daily, Book, Daily close buttons | 73629124033518 | yes | 0.17 | 0.40 | playing, 0.15 at first play; finished by +0.25 s later (shorter than the sample) |
+| reward | Daily Claim (+250 coins) | 100288208393628 | yes | 1.35 | 0.60 | playing, 0.15 |
+| eggShake | Hatch (Basic Egg) | 9120784504 | yes | 0.30 | 0.50 | playing, 0.15 |
+| eggCrack | Hatch | 9113959343 | yes | 1.02 | 0.60 | playing, 0.17 |
+| reveal | Hatch (Chick, Common) | 90618709727045 | yes | 2.54 | 0.50 | playing, 0.04 |
+| newEntry | First Chick in the Book | 73774648241042 | yes | 4.20 | 0.40 | playing, 0.04 |
+| revealBig | not hatched (needs Ultra Rare/Epic); loaded and played directly | 85188102085028 | yes | 2.43 | - | playing, 0.30 |
+| revealLegend | not hatched; loaded and played directly | 1840076509 | yes | 2.25 | - | playing, 0.32 |
+
+Output has no "failed to load" line for any of the eight ids.
+
+**Side finding (not #101):** The trap pads (R "Set slime" 2K, E "Set snare" 5K) sit right beside Incubator 1. Standing at the incubator's front, E went to "Set snare" instead of "Hatch" (`101-hh-snare-prompt-beside-incubator.jpg`). The snare purchase was refused only because I had 400 coins. A richer player trying to hatch could spend 5K on a snare by mistake.
