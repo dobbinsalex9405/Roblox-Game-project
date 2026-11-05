@@ -558,11 +558,17 @@ end
 
 -- Meshes for a species just arrived: redraw its creatures with them.
 local function meshesArrived(model: Instance)
+	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
+	-- must not happen while iterating it.
+	local redraw: { BasePart } = {}
 	for anchor, v in visuals do
 		if v.species == model.Name and not v.meshed then
-			remove(anchor)
-			watch(anchor)
+			table.insert(redraw, anchor)
 		end
+	end
+	for _, anchor in redraw do
+		remove(anchor)
+		watch(anchor)
 	end
 end
 

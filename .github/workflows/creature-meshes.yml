@@ -28,6 +28,7 @@ jobs:
     environment: staging
     env:
       ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY_HATCHERY_HEIST }}
+      ONLY: ${{ inputs.only }} # used as "$ONLY", never pasted into a script
     steps:
       - uses: actions/checkout@v4
 
@@ -41,13 +42,13 @@ jobs:
       - name: Build the meshes
         run: |
           args=()
-          if [ -n "${{ inputs.only }}" ]; then args+=(--only "${{ inputs.only }}"); fi
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
           PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/blender/build.py "$RUNNER_TEMP/meshes" --no-render "${args[@]}"
 
       - name: Upload to Roblox
         run: |
           args=()
-          if [ -n "${{ inputs.only }}" ]; then args+=(--only "${{ inputs.only }}"); fi
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
           python3 tools/art/blender/upload.py "$RUNNER_TEMP/meshes" "${args[@]}"
 
       - name: Record the asset ids
