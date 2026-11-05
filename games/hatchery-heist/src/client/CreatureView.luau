@@ -623,14 +623,21 @@ local function animate(v: Visual, now: number, dt: number)
 			if walking then
 				pose *= walkPose(v, anim)
 			end
-		elseif (anim == "wingL" or anim == "wingR") and (look.moves.wings or v.gait == "hover") then
-			local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
-			pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+		elseif anim == "wingL" or anim == "wingR" then
+			if look.moves.wings or v.gait == "hover" then
+				local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
+				pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+			elseif walking then
+				-- Tiers that don't flap still move their wings with the gait.
+				pose = walkPose(v, anim)
+			else
+				continue
+			end
 		elseif anim == "orbit" then
 			-- Turns about its pivot's vertical axis (the Nebula Serpent's
 			-- planets), one turn every ORBIT_SECONDS.
 			pose = CFrame.Angles(0, t / ORBIT_SECONDS * 2 * math.pi, 0)
-		elseif Walk.isLeg(anim) then
+		elseif Walk.isLeg(anim) or anim == "finL" or anim == "finR" then
 			pose = walkPose(v, anim)
 		else
 			continue
