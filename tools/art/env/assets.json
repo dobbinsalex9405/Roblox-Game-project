@@ -1,32 +1,39 @@
 {
  "images": {
   "Grass": {
-   "assetId": 112320273350355,
-   "hash": "0c6e4d9fd934514c"
+   "assetId": 106077023630198,
+   "hash": "0c6e4d9fd934514c",
+   "type": "Image"
   },
   "SkyboxBk": {
-   "assetId": 136586341945218,
-   "hash": "af0a86908481223a"
+   "assetId": 128985330414166,
+   "hash": "af0a86908481223a",
+   "type": "Image"
   },
   "SkyboxDn": {
-   "assetId": 97140843426703,
-   "hash": "665f87d0b9677882"
+   "assetId": 128140607119609,
+   "hash": "665f87d0b9677882",
+   "type": "Image"
   },
   "SkyboxFt": {
-   "assetId": 80795920678386,
-   "hash": "0805d72f01a3a8be"
+   "assetId": 93341928666063,
+   "hash": "0805d72f01a3a8be",
+   "type": "Image"
   },
   "SkyboxLf": {
-   "assetId": 76702310583506,
-   "hash": "a7cb8fe5d6f6eae0"
+   "assetId": 88930197841273,
+   "hash": "a7cb8fe5d6f6eae0",
+   "type": "Image"
   },
   "SkyboxRt": {
-   "assetId": 105958960888635,
-   "hash": "7e9333a615cc1816"
+   "assetId": 117258909710940,
+   "hash": "7e9333a615cc1816",
+   "type": "Image"
   },
   "SkyboxUp": {
-   "assetId": 98205653565652,
-   "hash": "a6cec8789bd20189"
+   "assetId": 105110405849274,
+   "hash": "a6cec8789bd20189",
+   "type": "Image"
   }
  },
  "models": {

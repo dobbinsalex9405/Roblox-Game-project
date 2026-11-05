@@ -1616,13 +1616,13 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 		},
 	},
 	images = {
-		SkyboxBk = 0,
-		SkyboxDn = 0,
-		SkyboxFt = 0,
-		SkyboxLf = 0,
-		SkyboxRt = 0,
-		SkyboxUp = 0,
-		Grass = 0,
+		SkyboxBk = 128985330414166,
+		SkyboxDn = 128140607119609,
+		SkyboxFt = 93341928666063,
+		SkyboxLf = 88930197841273,
+		SkyboxRt = 117258909710940,
+		SkyboxUp = 105110405849274,
+		Grass = 106077023630198,
 	},
 }
 
