@@ -28,6 +28,7 @@ with another. `python3 tools/art/variants.py` checks every file and lists
 the creatures; a mistake (an unknown plan, option or colour) names the file
 and the entry."""
 import glob
+import importlib
 import json
 import os
 import re
@@ -54,15 +55,34 @@ PLANS = {
     'crab': ({'col', 'accent'}, {}),
     'lizard': ({'col', 'accent', 'belly'}, {'kind': {'gecko', 'chameleon', 'iguana', 'bearded'}}),
 }
-# More plans, each kit in its own module so batches add plans without editing
-# the same lines: kit_pond (critter, shore).
-sys.path.insert(0, HERE)
-import kit_pond  # noqa: E402
-
-PLANS.update(kit_pond.PLANS)
-EXTRA_BUILDERS = dict(kit_pond.BUILDERS)
 PATTERNS = {'spots', 'stripes', 'socks', 'saddle', 'tips', 'back'}
 ACCESSORIES = {'beanie', 'bow', 'flower', 'sprout', 'scarf', 'bell', 'horns', 'beard'}
+# More plans, patterns and accessories, each batch in its own kit_*.py so
+# parallel batches never edit the same lines. Every kit_*.py next to this
+# file is loaded in name order; a module may define any of:
+#   PLANS = {plan: ({colours}, {option: {values}})}   with
+#   BUILDERS = {plan: fn(c, H, cols, opts)}            (cols are rgb tuples)
+#   PATTERNS = {kind: fn(c, H, col, parts, p)}         (p: the roster dict)
+#   ACCESSORIES = {kind: fn(c, H, col, col2, a)}       (a: the roster dict)
+# A name another module already uses is an error, so two batches cannot
+# quietly replace each other's work.
+sys.path.insert(0, HERE)
+EXTRA_BUILDERS, EXTRA_PATTERNS, EXTRA_ACCESSORIES = {}, {}, {}
+for _path in sorted(glob.glob(os.path.join(HERE, 'kit_*.py'))):
+    _mod = importlib.import_module(os.path.basename(_path)[:-3])
+    for _table, _extra, _known in ((getattr(_mod, 'PLANS', {}), None, PLANS),
+                                   (getattr(_mod, 'PATTERNS', {}), EXTRA_PATTERNS, PATTERNS),
+                                   (getattr(_mod, 'ACCESSORIES', {}), EXTRA_ACCESSORIES, ACCESSORIES)):
+        for _name, _v in _table.items():
+            if _name in _known:
+                raise ImportError(f'{os.path.basename(_path)}: "{_name}" is already defined by another kit')
+            if _extra is None:
+                PLANS[_name] = _v
+            else:
+                _extra[_name] = _v
+                _known.add(_name)
+    EXTRA_BUILDERS.update(getattr(_mod, 'BUILDERS', {}))
+GAITS = {'trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover', 'swim'}
 HEX = re.compile(r'^#[0-9A-Fa-f]{6}$')
 ID = re.compile(r'^[A-Z][A-Za-z0-9]{1,23}$')
 
@@ -75,7 +95,8 @@ def check(entry, where):
     def bad(msg):
         raise RosterError(f'{where}: {msg}')
 
-    allowed = {'id', 'rarity', 'plan', 'colors', 'options', 'shape', 'patterns', 'accessories', 'element', 'note'}
+    allowed = {'id', 'rarity', 'plan', 'colors', 'options', 'shape', 'patterns', 'accessories', 'element', 'gait',
+               'note'}
     for key in entry:
         if key not in allowed:
             bad(f'unknown field "{key}" (fields: {", ".join(sorted(allowed))})')
@@ -101,7 +122,9 @@ def check(entry, where):
             bad(f'{sid}: {plan} has no option "{name}" (it has {sorted(options)})')
         if v not in options[name]:
             bad(f'{sid}: option {name} = {v!r}; allowed {sorted(map(str, options[name]))}')
-    if plan in ('blob', 'bug', 'lizard', 'critter', 'shore') and 'kind' not in entry.get('options', {}):
+    if 'gait' in entry and entry['gait'] not in GAITS:
+        bad(f'{sid}: gait must be one of {sorted(GAITS)}')
+    if 'kind' in options and 'kind' not in entry.get('options', {}):
         bad(f'{sid}: a {plan} needs options.kind')
     sh = entry.get('shape', {})
     for key in sh:
@@ -183,9 +206,19 @@ def builder(entry):
         if sh:
             kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))
         for p in entry.get('patterns', []):
-            kit.pattern(c, H, p['kind'], p['color'], tuple(p.get('parts', ['body'])))
+            fn = EXTRA_PATTERNS.get(p['kind'])
+            if fn:
+                fn(c, H, hexc(p['color']), tuple(p.get('parts', ['body'])), p)
+            else:
+                kit.pattern(c, H, p['kind'], p['color'], tuple(p.get('parts', ['body'])))
         for a in entry.get('accessories', []):
-            kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
+            fn = EXTRA_ACCESSORIES.get(a['kind'])
+            if fn:
+                fn(c, H, hexc(a['color']), hexc(a['color2']) if a.get('color2') else None, a)
+            else:
+                kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
+        if entry.get('gait'):
+            c.gait_hint = entry['gait']  # the master sheet's gait wins
         return c
 
     return build
