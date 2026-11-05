@@ -150,8 +150,9 @@ never sold.
 - **Daily Rewards** (side menu, "!" when one is waiting; opens by itself
   once a session for returning players): Day 1 to 7 once a UTC day, then
   round again; a missed day starts over. Each is so many seconds of income
-  with a floor (`economy.daily`), Day 7 the biggest (45 minutes, at least
-  3,500 coins). Kept in `data.daily`.
+  between a floor and a cap (`economy.daily`), Day 7 the biggest (45
+  minutes, at least 3,500 and at most 20,000 coins, a quarter of the 80K
+  Coins pack). Kept in `data.daily`.
 - **Farmyard** (`src/server/Farm.luau`, `atmosphere.scenery.farm`): outside
   the ring of bases, a red barn and silo, a windmill whose sails turn on each
   client, a duck pond, an animal pen and crop fields, among voxel trees and

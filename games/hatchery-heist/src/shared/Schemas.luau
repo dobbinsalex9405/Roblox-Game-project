@@ -64,6 +64,7 @@ return function(Schema: any, Odds: any)
 				Schema.record({
 					incomeSeconds = Schema.integer({ min = 0, max = 86400 }),
 					minCoins = Schema.integer({ min = 1 }),
+					maxCoins = Schema.integer({ min = 1 }),
 				}),
 				{ minLength = 1, maxLength = 14 }
 			),

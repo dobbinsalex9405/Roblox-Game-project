@@ -2,8 +2,9 @@
 -- Daily Rewards: one reward a day (UTC days), seven in a row. Claiming on
 -- the next day moves the streak on; missing a day starts it again at Day 1;
 -- after Day 7 it goes round again. Each reward is coins: so many seconds of
--- the player's income, but never less than a floor, so it matters to a new
--- player and a rich one alike (config/economy.luau `daily`).
+-- the player's income, but never less than a floor (so it matters to a new
+-- player) and never more than a cap (so it never undercuts the coin packs)
+-- (config/economy.luau `daily`).
 --
 -- Pure: time and income are arguments, so every rule is unit-tested.
 
@@ -54,7 +55,8 @@ end
 -- Coins for reward `day` at `perSecond` income.
 function Daily.amount(day: number, perSecond: number, config: any): number
 	local reward = config.rewards[day]
-	return math.max(reward.minCoins, math.floor(perSecond * reward.incomeSeconds))
+	local earned = math.max(reward.minCoins, math.floor(perSecond * reward.incomeSeconds))
+	return math.min(reward.maxCoins, earned)
 end
 
 -- Claims today's reward into the ledger. Returns the coins and the day, or

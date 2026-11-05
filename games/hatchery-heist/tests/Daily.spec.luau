@@ -61,12 +61,23 @@ describe("Daily Rewards", function()
 	end)
 
 	it("scales with income and never shrinks through the week", function()
-		expect(Daily.amount(1, 1000, config)).toBe(1000 * config.rewards[1].incomeSeconds)
+		-- Between the floor and the cap the reward follows income.
+		local first = config.rewards[1]
+		local mid = (first.minCoins + first.maxCoins) / 2 / first.incomeSeconds
+		expect(Daily.amount(1, mid, config)).toBe(math.floor(mid * first.incomeSeconds))
 		for i = 2, #config.rewards do
 			expect(config.rewards[i].minCoins).toBeAtLeast(config.rewards[i - 1].minCoins)
 			expect(config.rewards[i].incomeSeconds).toBeAtLeast(config.rewards[i - 1].incomeSeconds)
 		end
 		-- Day 7 is the big one, and no day is worth more than an hour of income.
 		expect(config.rewards[#config.rewards].incomeSeconds).toBeAtMost(3600)
+	end)
+
+	it("caps the reward for rich players", function()
+		-- At 200 coins a second Day 7 would be 540K uncapped.
+		for day, reward in config.rewards do
+			expect(Daily.amount(day, 200, config)).toBe(reward.maxCoins)
+			expect(Daily.amount(day, 1e9, config)).toBe(reward.maxCoins)
+		end
 	end)
 end)

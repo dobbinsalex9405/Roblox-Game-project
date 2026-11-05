@@ -110,6 +110,19 @@ describe("Hatchery Heist config", function()
 		expect(config.monetization.products.CoinPackBig.coins / high[5]).toBeAtLeast(5 * 60)
 	end)
 
+	it("keeps every daily reward at most a quarter of the 80K Coins pack", function()
+		local config = load()
+		local pack = config.monetization.products.CoinPackBig.coins
+		for day, reward in config.economy.daily.rewards do
+			expect(reward.maxCoins).toBeAtMost(pack * 0.25)
+			-- The floor sits below the cap, so income still counts in between.
+			expect(reward.minCoins).toBeAtMost(reward.maxCoins - 1)
+			if day > 1 then
+				expect(reward.maxCoins).toBeAtLeast(config.economy.daily.rewards[day - 1].maxCoins)
+			end
+		end
+	end)
+
 	it("never sells raid immunity", function()
 		for key in load().monetization.products do
 			expect(string.find(string.lower(key), "immun", 1, true)).toBeNil()

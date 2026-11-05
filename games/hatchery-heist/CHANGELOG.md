@@ -10,7 +10,8 @@
   silhouettes until found, each with its best egg and odds. Every species
   found adds +1% income.
 - Daily Rewards in the side menu: a seven-day streak of growing coin
-  rewards that scale with income; a missed day starts over.
+  rewards that scale with income up to a cap (Day 7 at most 20,000); a
+  missed day starts over.
 - Farmyard map: a red barn and silo, a turning windmill, a duck pond, an
   animal pen and crop fields around the ring of bases, with voxel trees and
   terraced hills in place of the round ones.
