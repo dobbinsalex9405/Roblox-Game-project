@@ -619,3 +619,26 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - Watched up close for 4 s: the Bunny moved up to 5.5 studs, with the body bobbing and the head, ears and tail separate. No part passes through another (`hop-main-bunny-walking.jpg`).
 - The checkered black/white look in the shot is the mesh texture mid-rewrite: Output says "being generated" during the upload run, which is expected. It isn't geometry overlap.
 - So the overlap Alex saw is probably in the 3D viewer's separate-leg animation. It will matter in game only once creatures ship with leg parts and a hop gait (e.g. after #74 and the animation work).
+
+## Staging player's-eye pass, published place 110929970966106 @ fca8d30
+
+**How:** the desktop Roblox Player opened but ignores synthetic mouse input (the "Ready to playtest?" Continue click never registered). So I opened the **published Staging place** in Studio (File > open from Roblox, place 110929970966106, build=fca8d30e4238) and played it at phone size (858x418). It's the same published content and the same remote assets; the difference is the Studio Test panel and no DataStores.
+
+**No blocking problems found.**
+- **Fresh join:** the welcome card appears; "Let's go!" goes to the base with the GOAL "Walk to the Egg Market…" (`stg-welcome-phone.jpg`, `stg-spawn-phone.jpg`).
+- **Egg Market:** bought Meadow (2.5K), Moonlit (15K) and Basic (50) eggs, and each went to an incubator.
+- **Hatches:**
+  - Fox Kit (Uncommon), Chipmunk (Common) and Kitten (Uncommon) all got the NEW reveal and were placed and earning (`stg-reveal-*.jpg`).
+  - All three render as voxel/checker in the reveal: their textures are mid-rewrite ("Asset content representation is being generated" for each new texture id). That's expected during the upload run.
+  - I didn't get a #117-new Common from a hatch. Through the Test panel I gave Bullfrog, CalicoKitten, Chinchilla, Cockatoo, CorgiPup, Ant and BearCub. All drew with MeshParts (3-5 each, 0 boxes).
+- **Book:**
+  - "Found 0/114", Common 0/91.
+  - Scrolling the full 2532 px canvas in 100 px steps found no card without a model.
+  - The last card (WalrusPup) shows a silhouette a moment after it scrolls into view (#114 behaviour, as on its gate) (`stg-book-114-end.jpg`).
+- **Tower:** built floor 2. 7 creatures walk on floors 1 and 2: in 5 s they moved 0.2 to 2.4 studs, with meshes (`stg-floor2-walkers.jpg`).
+- **Daily:** claimed Day 1.
+  - Staging amounts are 2K / 3K / 4.5K / 6.5K / 9K / 13K / 20K. They are round, but much larger than the 250-3.5K on the #112 branch. Check which config is intended.
+  - The side menu stays visible over the Daily window. Expected, because #112's hide fix isn't on main.
+- **Output (real findings, not the in-place rewrite):**
+  - `creature meshes did not load; drawing voxel boxes reason=mesh Hedgehog_ears missing from asset 83813792125695` and `NebulaSerpent_head missing from asset 133734762072662`: those two assets are missing a named part.
+  - Glow meshes are missing for CrystalStag, EmberFox, FrostWolf, MoonUnicorn and ThunderGriffin (wing glow2). Those creatures draw without glow.
