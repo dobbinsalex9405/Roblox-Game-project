@@ -439,3 +439,24 @@ def eye_spots(c, H, col, col2=None, a=None):
 
 
 ACCESSORIES['eye_spots'] = eye_spots
+
+def taller_spines(c, H, col, col2=None, a=None):
+    """Makes the plan's spine bumps (the `spines` colour) into short spikes:
+    each spine column grows `n` voxels (default 1) taller, the tip in col.
+    Cheap in triangles, so a creature near its budget can show spines over
+    a cup or shell rim (the Thimblehog)."""
+    a = a or {}
+    sp = _find(c, 'spines')
+    if sp is None or not sp.v:
+        return
+    n = a.get('n', 1)
+    tops = {}
+    for (x, y, z) in sp.v:
+        if z > tops.get((x, y), -99):
+            tops[(x, y)] = z
+    for (x, y), z in tops.items():
+        for i in range(1, n + 1):
+            sp.put((x, y, z + i), col)
+
+
+ACCESSORIES['taller_spines'] = taller_spines
