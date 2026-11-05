@@ -12,7 +12,14 @@
 
 export type Mesh = { name: string, center: { number }, size: { number }, glow: string? }
 export type Part = { name: string, anim: string, parent: string?, pivot: { number }, meshes: { Mesh } }
-export type Creature = { assetId: number, rarity: string, height: number, size: { number }, tris: number, parts: { Part } }
+export type Creature = {
+	assetId: number,
+	rarity: string,
+	height: number,
+	size: { number },
+	tris: number,
+	parts: { Part },
+}
 
 local CreatureMeshes: { [string]: Creature } = {
 	Bunny = {
@@ -54,7 +61,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.56, -0.4175 },
 				meshes = {
-					{ name = "Bunny_ears", center = { 0.0625, 1.875, -0.3125 }, size = { 0.8925, 0.7675, 0.2675 } },
+					{
+						name = "Bunny_ears",
+						center = { 0.0625, 1.875, -0.3125 },
+						size = { 0.8925, 0.7675, 0.2675 },
+					},
 				},
 			},
 			{
@@ -89,7 +100,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.16, -0.0175 },
 				meshes = {
-					{ name = "Chick_head", center = { 0, 1.375, -0.1875 }, size = { 0.7675, 0.7675, 1.0175 } },
+					{
+						name = "Chick_head",
+						center = { 0, 1.375, -0.1875 },
+						size = { 0.7675, 0.7675, 1.0175 },
+					},
 				},
 			},
 			{
@@ -98,7 +113,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.16, -0.0175 },
 				meshes = {
-					{ name = "Chick_eyes", center = { 0, 1.4375, -0.375 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Chick_eyes",
+						center = { 0, 1.4375, -0.375 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 		},
@@ -115,7 +134,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0.0625 },
 				meshes = {
-					{ name = "Duckling_body", center = { 0, 0.625, 0.1875 }, size = { 1.2675, 1.2675, 1.0175 } },
+					{
+						name = "Duckling_body",
+						center = { 0, 0.625, 0.1875 },
+						size = { 1.2675, 1.2675, 1.0175 },
+					},
 				},
 			},
 			{
@@ -124,7 +147,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.16, -0.0175 },
 				meshes = {
-					{ name = "Duckling_head", center = { 0, 1.375, -0.1875 }, size = { 0.7675, 0.7675, 1.0175 } },
+					{
+						name = "Duckling_head",
+						center = { 0, 1.375, -0.1875 },
+						size = { 0.7675, 0.7675, 1.0175 },
+					},
 				},
 			},
 			{
@@ -133,7 +160,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.16, -0.0175 },
 				meshes = {
-					{ name = "Duckling_eyes", center = { 0, 1.4375, -0.375 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Duckling_eyes",
+						center = { 0, 1.4375, -0.375 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 		},
@@ -159,7 +190,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.72, -0.4 },
 				meshes = {
-					{ name = "Frog_head", center = { 0, 0.9375, -0.1875 }, size = { 1.0175, 0.8925, 0.8925 } },
+					{
+						name = "Frog_head",
+						center = { 0, 0.9375, -0.1875 },
+						size = { 1.0175, 0.8925, 0.8925 },
+					},
 				},
 			},
 			{
@@ -168,7 +203,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.72, -0.4 },
 				meshes = {
-					{ name = "Frog_eyes", center = { 0, 1.1875, -0.4375 }, size = { 0.7675, 0.1425, 0.1425 } },
+					{
+						name = "Frog_eyes",
+						center = { 0, 1.1875, -0.4375 },
+						size = { 0.7675, 0.1425, 0.1425 },
+					},
 				},
 			},
 		},
@@ -194,7 +233,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.92, -0.2575 },
 				meshes = {
-					{ name = "Hamster_head", center = { 0, 1.1875, -0.5 }, size = { 1.0175, 0.8925, 0.8925 } },
+					{
+						name = "Hamster_head",
+						center = { 0, 1.1875, -0.5 },
+						size = { 1.0175, 0.8925, 0.8925 },
+					},
 				},
 			},
 			{
@@ -203,7 +246,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.92, -0.2575 },
 				meshes = {
-					{ name = "Hamster_eyes", center = { 0, 1.3125, -0.75 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Hamster_eyes",
+						center = { 0, 1.3125, -0.75 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -212,7 +259,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.56, -0.4175 },
 				meshes = {
-					{ name = "Hamster_ears", center = { 0, 1.5625, -0.375 }, size = { 0.7675, 0.3925, 0.3925 } },
+					{
+						name = "Hamster_ears",
+						center = { 0, 1.5625, -0.375 },
+						size = { 0.7675, 0.3925, 0.3925 },
+					},
 				},
 			},
 			{
@@ -221,7 +272,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.68, 0.7425 },
 				meshes = {
-					{ name = "Hamster_tail", center = { 0, 0.75, 0.8125 }, size = { 0.2675, 0.2675, 0.2675 } },
+					{
+						name = "Hamster_tail",
+						center = { 0, 0.75, 0.8125 },
+						size = { 0.2675, 0.2675, 0.2675 },
+					},
 				},
 			},
 		},
@@ -238,7 +293,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0 },
 				meshes = {
-					{ name = "Ladybug_body", center = { 0, 0.375, 0.125 }, size = { 1.0175, 0.7675, 1.2675 } },
+					{
+						name = "Ladybug_body",
+						center = { 0, 0.375, 0.125 },
+						size = { 1.0175, 0.7675, 1.2675 },
+					},
 				},
 			},
 			{
@@ -256,7 +315,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.72, -0.4 },
 				meshes = {
-					{ name = "Ladybug_eyes", center = { 0, 0.4375, -0.5625 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Ladybug_eyes",
+						center = { 0, 0.4375, -0.5625 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 		},
@@ -273,7 +336,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { -0.0625, 0, 0.0625 },
 				meshes = {
-					{ name = "Lamb_body", center = { -0.0625, 0.5, 0.1875 }, size = { 1.0175, 1.0175, 1.2675 } },
+					{
+						name = "Lamb_body",
+						center = { -0.0625, 0.5, 0.1875 },
+						size = { 1.0175, 1.0175, 1.2675 },
+					},
 				},
 			},
 			{
@@ -282,7 +349,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.0625, 0.92, -0.2575 },
 				meshes = {
-					{ name = "Lamb_head", center = { -0.0625, 1.1875, -0.5 }, size = { 1.0175, 0.8925, 0.8925 } },
+					{
+						name = "Lamb_head",
+						center = { -0.0625, 1.1875, -0.5 },
+						size = { 1.0175, 0.8925, 0.8925 },
+					},
 				},
 			},
 			{
@@ -291,7 +362,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0625, 0.92, -0.2575 },
 				meshes = {
-					{ name = "Lamb_eyes", center = { -0.0625, 1.3125, -0.75 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Lamb_eyes",
+						center = { -0.0625, 1.3125, -0.75 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -300,7 +375,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0625, 1.56, -0.4175 },
 				meshes = {
-					{ name = "Lamb_ears", center = { 0.0625, 1.3125, -0.3125 }, size = { 1.0175, 0.6425, 0.2675 } },
+					{
+						name = "Lamb_ears",
+						center = { 0.0625, 1.3125, -0.3125 },
+						size = { 1.0175, 0.6425, 0.2675 },
+					},
 				},
 			},
 			{
@@ -309,7 +388,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.0625, 0.68, 0.7425 },
 				meshes = {
-					{ name = "Lamb_tail", center = { -0.0625, 0.75, 0.8125 }, size = { 0.2675, 0.2675, 0.2675 } },
+					{
+						name = "Lamb_tail",
+						center = { -0.0625, 0.75, 0.8125 },
+						size = { 0.2675, 0.2675, 0.2675 },
+					},
 				},
 			},
 		},
@@ -335,7 +418,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.92, -0.445 },
 				meshes = {
-					{ name = "Mouse_head", center = { 0, 1.1875, -0.6875 }, size = { 1.0175, 0.8925, 0.8925 } },
+					{
+						name = "Mouse_head",
+						center = { 0, 1.1875, -0.6875 },
+						size = { 1.0175, 0.8925, 0.8925 },
+					},
 				},
 			},
 			{
@@ -344,7 +431,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.92, -0.445 },
 				meshes = {
-					{ name = "Mouse_eyes", center = { 0, 1.3125, -0.9375 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Mouse_eyes",
+						center = { 0, 1.3125, -0.9375 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -353,7 +444,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.56, -0.605 },
 				meshes = {
-					{ name = "Mouse_ears", center = { 0, 1.5625, -0.5625 }, size = { 0.7675, 0.3925, 0.3925 } },
+					{
+						name = "Mouse_ears",
+						center = { 0, 1.5625, -0.5625 },
+						size = { 0.7675, 0.3925, 0.3925 },
+					},
 				},
 			},
 			{
@@ -362,7 +457,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.68, 0.555 },
 				meshes = {
-					{ name = "Mouse_tail", center = { 0.0625, 0.8125, 0.8125 }, size = { 0.1425, 0.3925, 0.6425 } },
+					{
+						name = "Mouse_tail",
+						center = { 0.0625, 0.8125, 0.8125 },
+						size = { 0.1425, 0.3925, 0.6425 },
+					},
 				},
 			},
 		},
@@ -388,7 +487,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.92, -0.195 },
 				meshes = {
-					{ name = "Piglet_head", center = { 0, 1.1875, -0.4375 }, size = { 1.0175, 0.8925, 0.8925 } },
+					{
+						name = "Piglet_head",
+						center = { 0, 1.1875, -0.4375 },
+						size = { 1.0175, 0.8925, 0.8925 },
+					},
 				},
 			},
 			{
@@ -397,7 +500,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.92, -0.195 },
 				meshes = {
-					{ name = "Piglet_eyes", center = { 0, 1.3125, -0.6875 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Piglet_eyes",
+						center = { 0, 1.3125, -0.6875 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -406,7 +513,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.56, -0.355 },
 				meshes = {
-					{ name = "Piglet_ears", center = { 0.0625, 1.6875, -0.25 }, size = { 0.8925, 0.3925, 0.2675 } },
+					{
+						name = "Piglet_ears",
+						center = { 0.0625, 1.6875, -0.25 },
+						size = { 0.8925, 0.3925, 0.2675 },
+					},
 				},
 			},
 		},
@@ -423,7 +534,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0.0625 },
 				meshes = {
-					{ name = "Snail_body", center = { 0, 0.1875, -0.0625 }, size = { 0.5175, 0.3925, 1.5175 } },
+					{
+						name = "Snail_body",
+						center = { 0, 0.1875, -0.0625 },
+						size = { 0.5175, 0.3925, 1.5175 },
+					},
 				},
 			},
 			{
@@ -485,7 +600,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.15, -0.525 },
 				meshes = {
-					{ name = "FoxKit_eyes", center = { 0, 1.5625, -1.1875 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "FoxKit_eyes",
+						center = { 0, 1.5625, -1.1875 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -494,7 +613,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.95, -0.725 },
 				meshes = {
-					{ name = "FoxKit_ears", center = { 0.0625, 2.125, -0.625 }, size = { 0.8925, 0.5175, 0.2675 } },
+					{
+						name = "FoxKit_ears",
+						center = { 0.0625, 2.125, -0.625 },
+						size = { 0.8925, 0.5175, 0.2675 },
+					},
 				},
 			},
 			{
@@ -503,7 +626,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.85, 0.725 },
 				meshes = {
-					{ name = "FoxKit_tail", center = { 0, 0.9375, 0.9375 }, size = { 0.5175, 0.3925, 0.8925 } },
+					{
+						name = "FoxKit_tail",
+						center = { 0, 0.9375, 0.9375 },
+						size = { 0.5175, 0.3925, 0.8925 },
+					},
 				},
 			},
 		},
@@ -520,7 +647,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0.0625 },
 				meshes = {
-					{ name = "Gosling_body", center = { 0, 0.75, 0.1875 }, size = { 1.5175, 1.5175, 1.2675 } },
+					{
+						name = "Gosling_body",
+						center = { 0, 0.75, 0.1875 },
+						size = { 1.5175, 1.5175, 1.2675 },
+					},
 				},
 			},
 			{
@@ -529,7 +660,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.45, -0.0375 },
 				meshes = {
-					{ name = "Gosling_head", center = { 0, 1.75, -0.1875 }, size = { 1.0175, 1.0175, 1.2675 } },
+					{
+						name = "Gosling_head",
+						center = { 0, 1.75, -0.1875 },
+						size = { 1.0175, 1.0175, 1.2675 },
+					},
 				},
 			},
 			{
@@ -538,7 +673,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.45, -0.0375 },
 				meshes = {
-					{ name = "Gosling_eyes", center = { 0, 1.8125, -0.5 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Gosling_eyes",
+						center = { 0, 1.8125, -0.5 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 		},
@@ -555,7 +694,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0.125 },
 				meshes = {
-					{ name = "Hedgehog_body", center = { 0, 0.625, 0.25 }, size = { 1.5175, 1.2675, 1.5175 } },
+					{
+						name = "Hedgehog_body",
+						center = { 0, 0.625, 0.25 },
+						size = { 1.5175, 1.2675, 1.5175 },
+					},
 				},
 			},
 			{
@@ -564,7 +707,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.15, -0.275 },
 				meshes = {
-					{ name = "Hedgehog_head", center = { 0, 1.5, -0.5625 }, size = { 1.2675, 1.0175, 1.1425 } },
+					{
+						name = "Hedgehog_head",
+						center = { 0, 1.5, -0.5625 },
+						size = { 1.2675, 1.0175, 1.1425 },
+					},
 				},
 			},
 			{
@@ -573,7 +720,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.15, -0.275 },
 				meshes = {
-					{ name = "Hedgehog_eyes", center = { 0, 1.5625, -0.9375 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Hedgehog_eyes",
+						center = { 0, 1.5625, -0.9375 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -582,7 +733,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.95, -0.475 },
 				meshes = {
-					{ name = "Hedgehog_ears", center = { 0, 1.9375, -0.4375 }, size = { 1.0175, 0.3925, 0.3925 } },
+					{
+						name = "Hedgehog_ears",
+						center = { 0, 1.9375, -0.4375 },
+						size = { 1.0175, 0.3925, 0.3925 },
+					},
 				},
 			},
 			{
@@ -600,7 +755,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0, 0.125 },
 				meshes = {
-					{ name = "Hedgehog_spines", center = { 0, 1.25, 0.3125 }, size = { 0.7675, 0.2675, 1.1425 } },
+					{
+						name = "Hedgehog_spines",
+						center = { 0, 1.25, 0.3125 },
+						size = { 0.7675, 0.2675, 1.1425 },
+					},
 				},
 			},
 		},
@@ -617,7 +776,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.0625 },
 				meshes = {
-					{ name = "Kitten_body", center = { 0, 0.625, 0.0625 }, size = { 1.5175, 1.2675, 1.5175 } },
+					{
+						name = "Kitten_body",
+						center = { 0, 0.625, 0.0625 },
+						size = { 1.5175, 1.2675, 1.5175 },
+					},
 				},
 			},
 			{
@@ -635,7 +798,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.15, -0.4625 },
 				meshes = {
-					{ name = "Kitten_eyes", center = { 0, 1.5625, -1.125 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Kitten_eyes",
+						center = { 0, 1.5625, -1.125 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -644,7 +811,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.95, -0.6625 },
 				meshes = {
-					{ name = "Kitten_ears", center = { 0.0625, 2.125, -0.5625 }, size = { 0.8925, 0.5175, 0.2675 } },
+					{
+						name = "Kitten_ears",
+						center = { 0.0625, 2.125, -0.5625 },
+						size = { 0.8925, 0.5175, 0.2675 },
+					},
 				},
 			},
 			{
@@ -653,7 +824,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.85, 0.7875 },
 				meshes = {
-					{ name = "Kitten_tail", center = { 0, 1.0625, 0.9375 }, size = { 0.5175, 0.3925, 0.7675 } },
+					{
+						name = "Kitten_tail",
+						center = { 0, 1.0625, 0.9375 },
+						size = { 0.5175, 0.3925, 0.7675 },
+					},
 				},
 			},
 		},
@@ -688,7 +863,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.15, -0.275 },
 				meshes = {
-					{ name = "Puppy_eyes", center = { 0, 1.5625, -0.9375 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Puppy_eyes",
+						center = { 0, 1.5625, -0.9375 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -697,7 +876,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.95, -0.475 },
 				meshes = {
-					{ name = "Puppy_ears", center = { 0.125, 1.625, -0.375 }, size = { 1.2675, 0.7675, 0.2675 } },
+					{
+						name = "Puppy_ears",
+						center = { 0.125, 1.625, -0.375 },
+						size = { 1.2675, 0.7675, 0.2675 },
+					},
 				},
 			},
 			{
@@ -723,7 +906,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.0625 },
 				meshes = {
-					{ name = "Squirrel_body", center = { 0, 0.625, 0.0625 }, size = { 1.5175, 1.2675, 1.5175 } },
+					{
+						name = "Squirrel_body",
+						center = { 0, 0.625, 0.0625 },
+						size = { 1.5175, 1.2675, 1.5175 },
+					},
 				},
 			},
 			{
@@ -741,7 +928,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.15, -0.4625 },
 				meshes = {
-					{ name = "Squirrel_eyes", center = { 0, 1.5625, -1.125 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Squirrel_eyes",
+						center = { 0, 1.5625, -1.125 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -750,7 +941,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.95, -0.6625 },
 				meshes = {
-					{ name = "Squirrel_ears", center = { 0.0625, 2.125, -0.5625 }, size = { 0.8925, 0.5175, 0.2675 } },
+					{
+						name = "Squirrel_ears",
+						center = { 0.0625, 2.125, -0.5625 },
+						size = { 0.8925, 0.5175, 0.2675 },
+					},
 				},
 			},
 			{
@@ -776,7 +971,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0.0625 },
 				meshes = {
-					{ name = "Turtle_body", center = { 0.0625, 0.1875, 0.1875 }, size = { 1.3925, 0.3925, 1.5175 } },
+					{
+						name = "Turtle_body",
+						center = { 0.0625, 0.1875, 0.1875 },
+						size = { 1.3925, 0.3925, 1.5175 },
+					},
 				},
 			},
 			{
@@ -785,7 +984,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.9, -0.4375 },
 				meshes = {
-					{ name = "Turtle_head", center = { 0, 0.6875, -0.8125 }, size = { 0.7675, 0.6425, 0.5175 } },
+					{
+						name = "Turtle_head",
+						center = { 0, 0.6875, -0.8125 },
+						size = { 0.7675, 0.6425, 0.5175 },
+					},
 				},
 			},
 			{
@@ -794,7 +997,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0, 0.0625 },
 				meshes = {
-					{ name = "Turtle_shell", center = { 0, 0.6875, 0.25 }, size = { 1.5175, 0.8925, 1.6425 } },
+					{
+						name = "Turtle_shell",
+						center = { 0, 0.6875, 0.25 },
+						size = { 1.5175, 0.8925, 1.6425 },
+					},
 				},
 			},
 			{
@@ -803,7 +1010,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.9, -0.4375 },
 				meshes = {
-					{ name = "Turtle_eyes", center = { 0, 0.8125, -0.875 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{
+						name = "Turtle_eyes",
+						center = { 0, 0.8125, -0.875 },
+						size = { 0.5175, 0.1425, 0.1425 },
+					},
 				},
 			},
 		},
@@ -820,7 +1031,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { -0.0625, 0, -0.1875 },
 				meshes = {
-					{ name = "Fennec_body", center = { -0.0625, 0.8125, 0 }, size = { 1.5175, 1.6425, 1.8925 } },
+					{
+						name = "Fennec_body",
+						center = { -0.0625, 0.8125, 0 },
+						size = { 1.5175, 1.6425, 1.8925 },
+					},
 				},
 			},
 			{
@@ -829,7 +1044,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.0625, 1.495, -0.7075 },
 				meshes = {
-					{ name = "Fennec_head", center = { -0.0625, 1.9375, -1.0625 }, size = { 1.5175, 1.3925, 1.5175 } },
+					{
+						name = "Fennec_head",
+						center = { -0.0625, 1.9375, -1.0625 },
+						size = { 1.5175, 1.3925, 1.5175 },
+					},
 				},
 			},
 			{
@@ -838,7 +1057,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0625, 1.495, -0.7075 },
 				meshes = {
-					{ name = "Fennec_eyes", center = { -0.0625, 2.0625, -1.5 }, size = { 0.7675, 0.1425, 0.1425 } },
+					{
+						name = "Fennec_eyes",
+						center = { -0.0625, 2.0625, -1.5 },
+						size = { 0.7675, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -847,7 +1070,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0625, 2.535, -0.9675 },
 				meshes = {
-					{ name = "Fennec_ears", center = { 0, 2.875, -0.875 }, size = { 1.8925, 1.0175, 0.1425 } },
+					{
+						name = "Fennec_ears",
+						center = { 0, 2.875, -0.875 },
+						size = { 1.8925, 1.0175, 0.1425 },
+					},
 				},
 			},
 			{
@@ -856,7 +1083,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.0625, 1.105, 0.9175 },
 				meshes = {
-					{ name = "Fennec_tail", center = { -0.0625, 1.25, 1.25 }, size = { 0.5175, 0.5175, 1.1425 } },
+					{
+						name = "Fennec_tail",
+						center = { -0.0625, 1.25, 1.25 },
+						size = { 0.5175, 0.5175, 1.1425 },
+					},
 				},
 			},
 		},
@@ -900,7 +1131,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.52, 1.365, 0.385 },
 				meshes = {
-					{ name = "Owlet_wingL", center = { -0.875, 1.6875, 0.5 }, size = { 0.5175, 0.8925, 0.2675 } },
+					{
+						name = "Owlet_wingL",
+						center = { -0.875, 1.6875, 0.5 },
+						size = { 0.5175, 0.8925, 0.2675 },
+					},
 				},
 			},
 			{
@@ -909,7 +1144,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0.52, 1.365, 0.385 },
 				meshes = {
-					{ name = "Owlet_wingR", center = { 0.875, 1.6875, 0.5 }, size = { 0.5175, 0.8925, 0.2675 } },
+					{
+						name = "Owlet_wingR",
+						center = { 0.875, 1.6875, 0.5 },
+						size = { 0.5175, 0.8925, 0.2675 },
+					},
 				},
 			},
 			{
@@ -918,7 +1157,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, 0.125 },
 				meshes = {
-					{ name = "Owlet_crest", center = { 0, 2.875, 0.1875 }, size = { 0.2675, 0.2675, 0.6425 } },
+					{
+						name = "Owlet_crest",
+						center = { 0, 2.875, 0.1875 },
+						size = { 0.2675, 0.2675, 0.6425 },
+					},
 				},
 			},
 		},
@@ -935,7 +1178,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0.125 },
 				meshes = {
-					{ name = "PandaCub_body", center = { 0, 0.875, 0.3125 }, size = { 1.5175, 1.7675, 1.8925 } },
+					{
+						name = "PandaCub_body",
+						center = { 0, 0.875, 0.3125 },
+						size = { 1.5175, 1.7675, 1.8925 },
+					},
 				},
 			},
 			{
@@ -944,7 +1191,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.495, -0.395 },
 				meshes = {
-					{ name = "PandaCub_head", center = { 0, 1.9375, -0.75 }, size = { 1.5175, 1.3925, 1.5175 } },
+					{
+						name = "PandaCub_head",
+						center = { 0, 1.9375, -0.75 },
+						size = { 1.5175, 1.3925, 1.5175 },
+					},
 				},
 			},
 			{
@@ -953,7 +1204,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.495, -0.395 },
 				meshes = {
-					{ name = "PandaCub_eyes", center = { 0, 2.0625, -1.1875 }, size = { 0.7675, 0.1425, 0.1425 } },
+					{
+						name = "PandaCub_eyes",
+						center = { 0, 2.0625, -1.1875 },
+						size = { 0.7675, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -962,7 +1217,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 2.535, -0.655 },
 				meshes = {
-					{ name = "PandaCub_ears", center = { 0, 2.5625, -0.5625 }, size = { 1.5175, 0.6425, 0.3925 } },
+					{
+						name = "PandaCub_ears",
+						center = { 0, 2.5625, -0.5625 },
+						size = { 1.5175, 0.6425, 0.3925 },
+					},
 				},
 			},
 			{
@@ -971,7 +1230,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.105, 1.23 },
 				meshes = {
-					{ name = "PandaCub_tail", center = { 0, 1.1875, 1.3125 }, size = { 0.5175, 0.3925, 0.3925 } },
+					{
+						name = "PandaCub_tail",
+						center = { 0, 1.1875, 1.3125 },
+						size = { 0.5175, 0.3925, 0.3925 },
+					},
 				},
 			},
 		},
@@ -1006,7 +1269,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.885, -0.005 },
 				meshes = {
-					{ name = "Penguin_eyes", center = { 0, 2.3125, -0.5625 }, size = { 0.7675, 0.1425, 0.1425 } },
+					{
+						name = "Penguin_eyes",
+						center = { 0, 2.3125, -0.5625 },
+						size = { 0.7675, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -1015,7 +1282,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.52, 1.365, 0.385 },
 				meshes = {
-					{ name = "Penguin_wingL", center = { -0.875, 1.6875, 0.5 }, size = { 0.5175, 0.8925, 0.2675 } },
+					{
+						name = "Penguin_wingL",
+						center = { -0.875, 1.6875, 0.5 },
+						size = { 0.5175, 0.8925, 0.2675 },
+					},
 				},
 			},
 			{
@@ -1024,7 +1295,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0.52, 1.365, 0.385 },
 				meshes = {
-					{ name = "Penguin_wingR", center = { 0.875, 1.6875, 0.5 }, size = { 0.5175, 0.8925, 0.2675 } },
+					{
+						name = "Penguin_wingR",
+						center = { 0.875, 1.6875, 0.5 },
+						size = { 0.5175, 0.8925, 0.2675 },
+					},
 				},
 			},
 		},
@@ -1041,7 +1316,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.125 },
 				meshes = {
-					{ name = "Raccoon_body", center = { 0, 0.8125, 0.0625 }, size = { 1.5175, 1.6425, 1.8925 } },
+					{
+						name = "Raccoon_body",
+						center = { 0, 0.8125, 0.0625 },
+						size = { 1.5175, 1.6425, 1.8925 },
+					},
 				},
 			},
 			{
@@ -1059,7 +1338,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.495, -0.645 },
 				meshes = {
-					{ name = "Raccoon_eyes", center = { 0, 2.0625, -1.4375 }, size = { 0.7675, 0.1425, 0.1425 } },
+					{
+						name = "Raccoon_eyes",
+						center = { 0, 2.0625, -1.4375 },
+						size = { 0.7675, 0.1425, 0.1425 },
+					},
 				},
 			},
 			{
@@ -1068,7 +1351,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 2.535, -0.905 },
 				meshes = {
-					{ name = "Raccoon_ears", center = { 0.0625, 2.8125, -0.75 }, size = { 1.3925, 0.6425, 0.2675 } },
+					{
+						name = "Raccoon_ears",
+						center = { 0.0625, 2.8125, -0.75 },
+						size = { 1.3925, 0.6425, 0.2675 },
+					},
 				},
 			},
 			{
@@ -1103,7 +1390,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.44, -1.3 },
 				meshes = {
-					{ name = "Axolotl_head", center = { 0, 1.3333, -1.4167 }, size = { 2.0233, 1.3567, 1.5233 } },
+					{
+						name = "Axolotl_head",
+						center = { 0, 1.3333, -1.4167 },
+						size = { 2.0233, 1.3567, 1.5233 },
+					},
 				},
 			},
 			{
@@ -1112,7 +1403,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, -0.5 },
 				meshes = {
-					{ name = "Axolotl_gills_glow", center = { 0, 1.75, -1.25 }, size = { 2.69, 1.19, 0.19 }, glow = "FF4FA3" },
+					{
+						name = "Axolotl_gills_glow",
+						center = { 0, 1.75, -1.25 },
+						size = { 2.69, 1.19, 0.19 },
+						glow = "FF4FA3",
+					},
 				},
 			},
 			{
@@ -1147,8 +1443,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.1667 },
 				meshes = {
-					{ name = "EmberFox_body", center = { 0, 1.0892, 0.0833 }, size = { 2.0233, 1.845, 2.19 } },
-					{ name = "EmberFox_body_glow", center = { 0, 0.0775, 0.25 }, size = { 2.0233, 0.1783, 1.8567 }, glow = "FFB627" },
+					{
+						name = "EmberFox_body",
+						center = { 0, 1.0892, 0.0833 },
+						size = { 2.0233, 1.845, 2.19 },
+					},
+					{
+						name = "EmberFox_body_glow",
+						center = { 0, 0.0775, 0.25 },
+						size = { 2.0233, 0.1783, 1.8567 },
+						glow = "FFB627",
+					},
 				},
 			},
 			{
@@ -1157,7 +1462,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.84, -0.8067 },
 				meshes = {
-					{ name = "EmberFox_head", center = { 0, 2.3333, -1.25 }, size = { 2.0233, 1.69, 1.8567 } },
+					{
+						name = "EmberFox_head",
+						center = { 0, 2.3333, -1.25 },
+						size = { 2.0233, 1.69, 1.8567 },
+					},
 				},
 			},
 			{
@@ -1175,7 +1484,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 3.12, -1.1267 },
 				meshes = {
-					{ name = "EmberFox_ears", center = { 0.0833, 3.3333, -1 }, size = { 1.8567, 0.69, 0.3567 } },
+					{
+						name = "EmberFox_ears",
+						center = { 0.0833, 3.3333, -1 },
+						size = { 1.8567, 0.69, 0.3567 },
+					},
 				},
 			},
 			{
@@ -1185,7 +1498,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				pivot = { 0, 1.36, 1.1933 },
 				meshes = {
 					{ name = "EmberFox_tail", center = { 0, 1.75, 1.3333 }, size = { 0.69, 0.8567, 1.0233 } },
-					{ name = "EmberFox_tail_glow", center = { 0, 1.8333, 2.0058 }, size = { 0.69, 0.69, 0.345 }, glow = "FFD43B" },
+					{
+						name = "EmberFox_tail_glow",
+						center = { 0, 1.8333, 2.0058 },
+						size = { 0.69, 0.69, 0.345 },
+						glow = "FFD43B",
+					},
 				},
 			},
 		},
@@ -1202,8 +1520,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.0833 },
 				meshes = {
-					{ name = "FrostWolf_body", center = { 0, 1.0892, 0.1667 }, size = { 2.0233, 1.845, 2.19 } },
-					{ name = "FrostWolf_body_glow", center = { 0, 0.0775, 0.3333 }, size = { 2.0233, 0.1783, 1.8567 }, glow = "7FDBFF" },
+					{
+						name = "FrostWolf_body",
+						center = { 0, 1.0892, 0.1667 },
+						size = { 2.0233, 1.845, 2.19 },
+					},
+					{
+						name = "FrostWolf_body_glow",
+						center = { 0, 0.0775, 0.3333 },
+						size = { 2.0233, 0.1783, 1.8567 },
+						glow = "7FDBFF",
+					},
 				},
 			},
 			{
@@ -1212,7 +1539,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.84, -0.7233 },
 				meshes = {
-					{ name = "FrostWolf_head", center = { 0, 2.3333, -1.1667 }, size = { 2.0233, 1.69, 1.8567 } },
+					{
+						name = "FrostWolf_head",
+						center = { 0, 2.3333, -1.1667 },
+						size = { 2.0233, 1.69, 1.8567 },
+					},
 				},
 			},
 			{
@@ -1221,7 +1552,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.84, -0.7233 },
 				meshes = {
-					{ name = "FrostWolf_eyes", center = { 0, 2.5833, -1.6667 }, size = { 1.0233, 0.19, 0.19 } },
+					{
+						name = "FrostWolf_eyes",
+						center = { 0, 2.5833, -1.6667 },
+						size = { 1.0233, 0.19, 0.19 },
+					},
 				},
 			},
 			{
@@ -1230,7 +1565,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 3.12, -1.0433 },
 				meshes = {
-					{ name = "FrostWolf_ears", center = { 0.0833, 3.3333, -0.9167 }, size = { 1.8567, 0.69, 0.3567 } },
+					{
+						name = "FrostWolf_ears",
+						center = { 0.0833, 3.3333, -0.9167 },
+						size = { 1.8567, 0.69, 0.3567 },
+					},
 				},
 			},
 			{
@@ -1248,7 +1587,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, -0.0833 },
 				meshes = {
-					{ name = "FrostWolf_mane_glow", center = { 0, 2.5, -0.0833 }, size = { 0.3567, 1.69, 0.69 }, glow = "7FDBFF" },
+					{
+						name = "FrostWolf_mane_glow",
+						center = { 0, 2.5, -0.0833 },
+						size = { 0.3567, 1.69, 0.69 },
+						glow = "7FDBFF",
+					},
 				},
 			},
 		},
@@ -1265,7 +1609,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.1667 },
 				meshes = {
-					{ name = "StormHawk_body", center = { 0, 1.25, 0.0833 }, size = { 2.0233, 2.5233, 1.8567 } },
+					{
+						name = "StormHawk_body",
+						center = { 0, 1.25, 0.0833 },
+						size = { 2.0233, 2.5233, 1.8567 },
+					},
 				},
 			},
 			{
@@ -1283,7 +1631,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 2.32, -0.3267 },
 				meshes = {
-					{ name = "StormHawk_eyes", center = { 0, 2.9167, -1.0833 }, size = { 1.0233, 0.19, 0.19 } },
+					{
+						name = "StormHawk_eyes",
+						center = { 0, 2.9167, -1.0833 },
+						size = { 1.0233, 0.19, 0.19 },
+					},
 				},
 			},
 			{
@@ -1292,8 +1644,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.64, 1.68, 0.1533 },
 				meshes = {
-					{ name = "StormHawk_wingL", center = { -1.0833, 1.9108, 0.3333 }, size = { 0.8567, 0.845, 0.3567 } },
-					{ name = "StormHawk_wingL_glow", center = { -1.1667, 2.25, 0.3333 }, size = { 1.0233, 0.5233, 0.3567 }, glow = "7FDBFF" },
+					{
+						name = "StormHawk_wingL",
+						center = { -1.0833, 1.9108, 0.3333 },
+						size = { 0.8567, 0.845, 0.3567 },
+					},
+					{
+						name = "StormHawk_wingL_glow",
+						center = { -1.1667, 2.25, 0.3333 },
+						size = { 1.0233, 0.5233, 0.3567 },
+						glow = "7FDBFF",
+					},
 				},
 			},
 			{
@@ -1302,8 +1663,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0.64, 1.68, 0.1533 },
 				meshes = {
-					{ name = "StormHawk_wingR", center = { 1.0833, 1.9108, 0.3333 }, size = { 0.8567, 0.845, 0.3567 } },
-					{ name = "StormHawk_wingR_glow", center = { 1.1667, 2.25, 0.3333 }, size = { 1.0233, 0.5233, 0.3567 }, glow = "7FDBFF" },
+					{
+						name = "StormHawk_wingR",
+						center = { 1.0833, 1.9108, 0.3333 },
+						size = { 0.8567, 0.845, 0.3567 },
+					},
+					{
+						name = "StormHawk_wingR_glow",
+						center = { 1.1667, 2.25, 0.3333 },
+						size = { 1.0233, 0.5233, 0.3567 },
+						glow = "7FDBFF",
+					},
 				},
 			},
 			{
@@ -1312,7 +1682,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, -0.1667 },
 				meshes = {
-					{ name = "StormHawk_crest_glow", center = { 0, 3.6667, -0.0833 }, size = { 0.3567, 0.3567, 0.8567 }, glow = "7FDBFF" },
+					{
+						name = "StormHawk_crest_glow",
+						center = { 0, 3.6667, -0.0833 },
+						size = { 0.3567, 0.3567, 0.8567 },
+						glow = "7FDBFF",
+					},
 				},
 			},
 			{
@@ -1321,8 +1696,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.36, 1.0333 },
 				meshes = {
-					{ name = "StormHawk_tail", center = { 0, 1.6667, 1.2442 }, size = { 0.69, 0.3567, 0.5117 } },
-					{ name = "StormHawk_tail_glow", center = { 0, 1.75, 1.5892 }, size = { 0.3567, 0.19, 0.1783 }, glow = "7FDBFF" },
+					{
+						name = "StormHawk_tail",
+						center = { 0, 1.6667, 1.2442 },
+						size = { 0.69, 0.3567, 0.5117 },
+					},
+					{
+						name = "StormHawk_tail_glow",
+						center = { 0, 1.75, 1.5892 },
+						size = { 0.3567, 0.19, 0.1783 },
+						glow = "7FDBFF",
+					},
 				},
 			},
 		},
@@ -1339,8 +1723,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { -0.0833, 0, 0.25 },
 				meshes = {
-					{ name = "CrystalStag_body", center = { -0.0833, 1.3392, 0.5833 }, size = { 2.69, 2.345, 3.0233 } },
-					{ name = "CrystalStag_body_glow", center = { -0.0833, 0.0775, 0.8333 }, size = { 2.69, 0.1783, 2.5233 }, glow = "7FF2FF" },
+					{
+						name = "CrystalStag_body",
+						center = { -0.0833, 1.3392, 0.5833 },
+						size = { 2.69, 2.345, 3.0233 },
+					},
+					{
+						name = "CrystalStag_body_glow",
+						center = { -0.0833, 0.0775, 0.8333 },
+						size = { 2.69, 0.1783, 2.5233 },
+						glow = "7FF2FF",
+					},
 				},
 			},
 			{
@@ -1349,7 +1742,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.0833, 2.3, -0.55 },
 				meshes = {
-					{ name = "CrystalStag_head", center = { -0.0833, 3, -1.1667 }, size = { 2.3567, 2.0233, 2.5233 } },
+					{
+						name = "CrystalStag_head",
+						center = { -0.0833, 3, -1.1667 },
+						size = { 2.3567, 2.0233, 2.5233 },
+					},
 				},
 			},
 			{
@@ -1358,7 +1755,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0833, 2.3, -0.55 },
 				meshes = {
-					{ name = "CrystalStag_eyes", center = { -0.0833, 3.4167, -1.6667 }, size = { 1.3567, 0.5233, 0.5233 } },
+					{
+						name = "CrystalStag_eyes",
+						center = { -0.0833, 3.4167, -1.6667 },
+						size = { 1.3567, 0.5233, 0.5233 },
+					},
 				},
 			},
 			{
@@ -1367,7 +1768,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0833, 3.9, -0.95 },
 				meshes = {
-					{ name = "CrystalStag_ears", center = { 0, 4.25, -0.75 }, size = { 2.19, 0.8567, 0.3567 } },
+					{
+						name = "CrystalStag_ears",
+						center = { 0, 4.25, -0.75 },
+						size = { 2.19, 0.8567, 0.3567 },
+					},
 				},
 			},
 			{
@@ -1376,7 +1781,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.0833, 1.7, 1.95 },
 				meshes = {
-					{ name = "CrystalStag_tail", center = { -0.0833, 1.8333, 2.0833 }, size = { 0.69, 0.69, 0.69 } },
+					{
+						name = "CrystalStag_tail",
+						center = { -0.0833, 1.8333, 2.0833 },
+						size = { 0.69, 0.69, 0.69 },
+					},
 				},
 			},
 			{
@@ -1385,7 +1794,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.0833, 4, -0.85 },
 				meshes = {
-					{ name = "CrystalStag_antlers_glow", center = { 0, 4.6667, -0.8333 }, size = { 4.19, 1.69, 0.19 }, glow = "7FF2FF" },
+					{
+						name = "CrystalStag_antlers_glow",
+						center = { 0, 4.6667, -0.8333 },
+						size = { 4.19, 1.69, 0.19 },
+						glow = "7FF2FF",
+					},
 				},
 			},
 		},
@@ -1402,7 +1816,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.25 },
 				meshes = {
-					{ name = "Dragonling_body", center = { 0, 1.25, 0.0833 }, size = { 2.69, 2.5233, 3.0233 } },
+					{
+						name = "Dragonling_body",
+						center = { 0, 1.25, 0.0833 },
+						size = { 2.69, 2.5233, 3.0233 },
+					},
 				},
 			},
 			{
@@ -1411,7 +1829,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 2.3, -1.05 },
 				meshes = {
-					{ name = "Dragonling_head", center = { 0, 3, -1.6667 }, size = { 2.3567, 2.0233, 2.5233 } },
+					{
+						name = "Dragonling_head",
+						center = { 0, 3, -1.6667 },
+						size = { 2.3567, 2.0233, 2.5233 },
+					},
 				},
 			},
 			{
@@ -1420,7 +1842,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 2.3, -1.05 },
 				meshes = {
-					{ name = "Dragonling_eyes", center = { 0, 3.4167, -2.1667 }, size = { 1.3567, 0.5233, 0.5233 } },
+					{
+						name = "Dragonling_eyes",
+						center = { 0, 3.4167, -2.1667 },
+						size = { 1.3567, 0.5233, 0.5233 },
+					},
 				},
 			},
 			{
@@ -1429,7 +1855,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 3.9, -1.45 },
 				meshes = {
-					{ name = "Dragonling_ears", center = { 0.0833, 4.25, -1.25 }, size = { 2.19, 0.8567, 0.3567 } },
+					{
+						name = "Dragonling_ears",
+						center = { 0.0833, 4.25, -1.25 },
+						size = { 2.19, 0.8567, 0.3567 },
+					},
 				},
 			},
 			{
@@ -1438,7 +1868,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.7, 1.45 },
 				meshes = {
-					{ name = "Dragonling_tail", center = { 0.0833, 2, 2.1667 }, size = { 0.19, 0.69, 1.5233 } },
+					{
+						name = "Dragonling_tail",
+						center = { 0.0833, 2, 2.1667 },
+						size = { 0.19, 0.69, 1.5233 },
+					},
 				},
 			},
 			{
@@ -1447,8 +1881,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.8, 2.3, 0.05 },
 				meshes = {
-					{ name = "Dragonling_wingL", center = { -1.4942, 2.6608, 0.25 }, size = { 1.345, 1.0117, 0.3567 } },
-					{ name = "Dragonling_wingL_glow", center = { -1.5833, 3, 0.25 }, size = { 1.5233, 0.69, 0.3567 }, glow = "FFB627" },
+					{
+						name = "Dragonling_wingL",
+						center = { -1.4942, 2.6608, 0.25 },
+						size = { 1.345, 1.0117, 0.3567 },
+					},
+					{
+						name = "Dragonling_wingL_glow",
+						center = { -1.5833, 3, 0.25 },
+						size = { 1.5233, 0.69, 0.3567 },
+						glow = "FFB627",
+					},
 				},
 			},
 			{
@@ -1457,8 +1900,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0.8, 2.3, 0.05 },
 				meshes = {
-					{ name = "Dragonling_wingR", center = { 1.4942, 2.6608, 0.25 }, size = { 1.345, 1.0117, 0.3567 } },
-					{ name = "Dragonling_wingR_glow", center = { 1.5833, 3, 0.25 }, size = { 1.5233, 0.69, 0.3567 }, glow = "FFB627" },
+					{
+						name = "Dragonling_wingR",
+						center = { 1.4942, 2.6608, 0.25 },
+						size = { 1.345, 1.0117, 0.3567 },
+					},
+					{
+						name = "Dragonling_wingR_glow",
+						center = { 1.5833, 3, 0.25 },
+						size = { 1.5233, 0.69, 0.3567 },
+						glow = "FFB627",
+					},
 				},
 			},
 			{
@@ -1467,7 +1919,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0, -0.25 },
 				meshes = {
-					{ name = "Dragonling_spines_glow", center = { 0, 2.3333, 0.5 }, size = { 0.3567, 0.69, 1.8567 }, glow = "FFB627" },
+					{
+						name = "Dragonling_spines_glow",
+						center = { 0, 2.3333, 0.5 },
+						size = { 0.3567, 0.69, 1.8567 },
+						glow = "FFB627",
+					},
 				},
 			},
 			{
@@ -1476,8 +1933,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, -0.25 },
 				meshes = {
-					{ name = "Dragonling_horns", center = { 0, 4.0775, -0.9167 }, size = { 1.3567, 0.5117, 0.3567 } },
-					{ name = "Dragonling_horns_glow", center = { 0, 4.5058, -0.75 }, size = { 1.3567, 0.345, 0.3567 }, glow = "FFE8B0" },
+					{
+						name = "Dragonling_horns",
+						center = { 0, 4.0775, -0.9167 },
+						size = { 1.3567, 0.5117, 0.3567 },
+					},
+					{
+						name = "Dragonling_horns_glow",
+						center = { 0, 4.5058, -0.75 },
+						size = { 1.3567, 0.345, 0.3567 },
+						glow = "FFE8B0",
+					},
 				},
 			},
 		},
@@ -1494,8 +1960,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, 0 },
 				meshes = {
-					{ name = "MoonUnicorn_body", center = { 0, 1.3392, 0.3333 }, size = { 2.69, 2.345, 3.0233 } },
-					{ name = "MoonUnicorn_body_glow", center = { 0, 0.0775, 0.5833 }, size = { 2.69, 0.1783, 2.5233 }, glow = "E3C9FF" },
+					{
+						name = "MoonUnicorn_body",
+						center = { 0, 1.3392, 0.3333 },
+						size = { 2.69, 2.345, 3.0233 },
+					},
+					{
+						name = "MoonUnicorn_body_glow",
+						center = { 0, 0.0775, 0.5833 },
+						size = { 2.69, 0.1783, 2.5233 },
+						glow = "E3C9FF",
+					},
 				},
 			},
 			{
@@ -1504,7 +1979,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 2.3, -0.8 },
 				meshes = {
-					{ name = "MoonUnicorn_head", center = { 0, 3, -1.4167 }, size = { 2.3567, 2.0233, 2.5233 } },
+					{
+						name = "MoonUnicorn_head",
+						center = { 0, 3, -1.4167 },
+						size = { 2.3567, 2.0233, 2.5233 },
+					},
 				},
 			},
 			{
@@ -1513,7 +1992,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 2.3, -0.8 },
 				meshes = {
-					{ name = "MoonUnicorn_eyes", center = { 0, 3.4167, -1.9167 }, size = { 1.3567, 0.5233, 0.5233 } },
+					{
+						name = "MoonUnicorn_eyes",
+						center = { 0, 3.4167, -1.9167 },
+						size = { 1.3567, 0.5233, 0.5233 },
+					},
 				},
 			},
 			{
@@ -1522,7 +2005,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 3.9, -1.2 },
 				meshes = {
-					{ name = "MoonUnicorn_ears", center = { 0.0833, 4.25, -1 }, size = { 2.19, 0.8567, 0.3567 } },
+					{
+						name = "MoonUnicorn_ears",
+						center = { 0.0833, 4.25, -1 },
+						size = { 2.19, 0.8567, 0.3567 },
+					},
 				},
 			},
 			{
@@ -1531,7 +2018,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 1.7, 1.7 },
 				meshes = {
-					{ name = "MoonUnicorn_tail", center = { 0, 2.4167, 2.0833 }, size = { 1.0233, 2.19, 1.19 } },
+					{
+						name = "MoonUnicorn_tail",
+						center = { 0, 2.4167, 2.0833 },
+						size = { 1.0233, 2.19, 1.19 },
+					},
 				},
 			},
 			{
@@ -1540,7 +2031,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 4, -1.7 },
 				meshes = {
-					{ name = "MoonUnicorn_horn_glow", center = { 0, 4.5833, -1.75 }, size = { 0.69, 1.5233, 0.5233 }, glow = "FFD43B" },
+					{
+						name = "MoonUnicorn_horn_glow",
+						center = { 0, 4.5833, -1.75 },
+						size = { 0.69, 1.5233, 0.5233 },
+						glow = "FFD43B",
+					},
 				},
 			},
 			{
@@ -1549,7 +2045,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, 0 },
 				meshes = {
-					{ name = "MoonUnicorn_mane_glow", center = { 0, 3.1667, -0.0833 }, size = { 0.3567, 2.0233, 0.8567 }, glow = "C9A3FF" },
+					{
+						name = "MoonUnicorn_mane_glow",
+						center = { 0, 3.1667, -0.0833 },
+						size = { 0.3567, 2.0233, 0.8567 },
+						glow = "C9A3FF",
+					},
 				},
 			},
 		},
@@ -1567,8 +2068,18 @@ local CreatureMeshes: { [string]: Creature } = {
 				pivot = { 0, 0, -1.375 },
 				meshes = {
 					{ name = "Phoenix_body", center = { 0, 2.625, -0.875 }, size = { 4.035, 5.285, 3.535 } },
-					{ name = "Phoenix_body_glow", center = { 0.2587, 4.3838, 0.5088 }, size = { 0.5175, 0.7675, 0.2675 }, glow = "FFE14D" },
-					{ name = "Phoenix_body_glow2", center = { 0, 3.125, -2.6338 }, size = { 1, 1.25, 0.0175 }, glow = "FFF6B0" },
+					{
+						name = "Phoenix_body_glow",
+						center = { 0.2587, 4.3838, 0.5088 },
+						size = { 0.5175, 0.7675, 0.2675 },
+						glow = "FFE14D",
+					},
+					{
+						name = "Phoenix_body_glow2",
+						center = { 0, 3.125, -2.6338 },
+						size = { 1, 1.25, 0.0175 },
+						glow = "FFF6B0",
+					},
 				},
 			},
 			{
@@ -1596,8 +2107,18 @@ local CreatureMeshes: { [string]: Creature } = {
 				pivot = { 0, 7.31, -1.885 },
 				meshes = {
 					{ name = "Phoenix_crest", center = { 0, 7.25, -1.875 }, size = { 2.035, 1.035, 1.035 } },
-					{ name = "Phoenix_crest_glow", center = { 0, 8.3837, -1.5 }, size = { 2.035, 1.7675, 1.285 }, glow = "FFE14D" },
-					{ name = "Phoenix_crest_glow2", center = { 0, 9.125, -0.5 }, size = { 1.535, 1.285, 1.285 }, glow = "FFF6B0" },
+					{
+						name = "Phoenix_crest_glow",
+						center = { 0, 8.3837, -1.5 },
+						size = { 2.035, 1.7675, 1.285 },
+						glow = "FFE14D",
+					},
+					{
+						name = "Phoenix_crest_glow2",
+						center = { 0, 9.125, -0.5 },
+						size = { 1.535, 1.285, 1.285 },
+						glow = "FFF6B0",
+					},
 				},
 			},
 			{
@@ -1606,9 +2127,23 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 1.445, 4.5, -0.865 },
 				meshes = {
-					{ name = "Phoenix_wingR", center = { 3.2412, 5.25, -0.625 }, size = { 3.5175, 4.035, 0.535 } },
-					{ name = "Phoenix_wingR_glow", center = { 4.3838, 5.375, -0.625 }, size = { 2.2675, 3.785, 0.535 }, glow = "FFE14D" },
-					{ name = "Phoenix_wingR_glow2", center = { 5.625, 5.75, -0.625 }, size = { 0.285, 2.035, 0.535 }, glow = "FFF6B0" },
+					{
+						name = "Phoenix_wingR",
+						center = { 3.2412, 5.25, -0.625 },
+						size = { 3.5175, 4.035, 0.535 },
+					},
+					{
+						name = "Phoenix_wingR_glow",
+						center = { 4.3838, 5.375, -0.625 },
+						size = { 2.2675, 3.785, 0.535 },
+						glow = "FFE14D",
+					},
+					{
+						name = "Phoenix_wingR_glow2",
+						center = { 5.625, 5.75, -0.625 },
+						size = { 0.285, 2.035, 0.535 },
+						glow = "FFF6B0",
+					},
 				},
 			},
 			{
@@ -1617,9 +2152,23 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -1.445, 4.5, -0.865 },
 				meshes = {
-					{ name = "Phoenix_wingL", center = { -3.2412, 5.25, -0.625 }, size = { 3.5175, 4.035, 0.535 } },
-					{ name = "Phoenix_wingL_glow", center = { -4.3838, 5.375, -0.625 }, size = { 2.2675, 3.785, 0.535 }, glow = "FFE14D" },
-					{ name = "Phoenix_wingL_glow2", center = { -5.625, 5.75, -0.625 }, size = { 0.285, 2.035, 0.535 }, glow = "FFF6B0" },
+					{
+						name = "Phoenix_wingL",
+						center = { -3.2412, 5.25, -0.625 },
+						size = { 3.5175, 4.035, 0.535 },
+					},
+					{
+						name = "Phoenix_wingL_glow",
+						center = { -4.3838, 5.375, -0.625 },
+						size = { 2.2675, 3.785, 0.535 },
+						glow = "FFE14D",
+					},
+					{
+						name = "Phoenix_wingL_glow2",
+						center = { -5.625, 5.75, -0.625 },
+						size = { 0.285, 2.035, 0.535 },
+						glow = "FFF6B0",
+					},
 				},
 			},
 			{
@@ -1629,8 +2178,18 @@ local CreatureMeshes: { [string]: Creature } = {
 				pivot = { 0, 2.38, 0.495 },
 				meshes = {
 					{ name = "Phoenix_tail", center = { 0, 1.75, 1.625 }, size = { 3.035, 2.035, 3.035 } },
-					{ name = "Phoenix_tail_glow", center = { 0, 1.875, 3.125 }, size = { 3.535, 1.785, 2.035 }, glow = "FFE14D" },
-					{ name = "Phoenix_tail_glow2", center = { 0, 3.625, 3.75 }, size = { 4.035, 1.785, 1.785 }, glow = "FFF6B0" },
+					{
+						name = "Phoenix_tail_glow",
+						center = { 0, 1.875, 3.125 },
+						size = { 3.535, 1.785, 2.035 },
+						glow = "FFE14D",
+					},
+					{
+						name = "Phoenix_tail_glow2",
+						center = { 0, 3.625, 3.75 },
+						size = { 4.035, 1.785, 1.785 },
+						glow = "FFF6B0",
+					},
 				},
 			},
 		},
@@ -1647,7 +2206,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.875 },
 				meshes = {
-					{ name = "ThunderGriffin_body", center = { 0, 2.125, -0.375 }, size = { 3.535, 4.285, 5.035 } },
+					{
+						name = "ThunderGriffin_body",
+						center = { 0, 2.125, -0.375 },
+						size = { 3.535, 4.285, 5.035 },
+					},
 				},
 			},
 			{
@@ -1656,7 +2219,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0, -0.875 },
 				meshes = {
-					{ name = "ThunderGriffin_ruff", center = { 0, 3.625, -1.375 }, size = { 3.535, 2.785, 1.035 } },
+					{
+						name = "ThunderGriffin_ruff",
+						center = { 0, 3.625, -1.375 },
+						size = { 3.535, 2.785, 1.035 },
+					},
 				},
 			},
 			{
@@ -1665,7 +2232,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 4.76, -2.405 },
 				meshes = {
-					{ name = "ThunderGriffin_head", center = { 0, 5.625, -3.5 }, size = { 3.035, 2.785, 3.785 } },
+					{
+						name = "ThunderGriffin_head",
+						center = { 0, 5.625, -3.5 },
+						size = { 3.035, 2.785, 3.785 },
+					},
 				},
 			},
 			{
@@ -1674,7 +2245,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 4.76, -2.405 },
 				meshes = {
-					{ name = "ThunderGriffin_eyes", center = { 0, 6.125, -4.125 }, size = { 2.035, 0.785, 0.535 } },
+					{
+						name = "ThunderGriffin_eyes",
+						center = { 0, 6.125, -4.125 },
+						size = { 2.035, 0.785, 0.535 },
+					},
 				},
 			},
 			{
@@ -1683,7 +2258,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 6.8, -2.915 },
 				meshes = {
-					{ name = "ThunderGriffin_ears", center = { 0, 7.375, -2.25 }, size = { 2.535, 1.285, 0.785 } },
+					{
+						name = "ThunderGriffin_ears",
+						center = { 0, 7.375, -2.25 },
+						size = { 2.535, 1.285, 0.785 },
+					},
 				},
 			},
 			{
@@ -1692,9 +2271,23 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 1.53, 4.25, -0.365 },
 				meshes = {
-					{ name = "ThunderGriffin_wingR", center = { 3.1162, 4.9912, -0.125 }, size = { 3.2675, 4.0175, 0.535 } },
-					{ name = "ThunderGriffin_wingR_glow", center = { 3.5, 5.5088, -0.125 }, size = { 4.035, 3.5175, 0.535 }, glow = "4FD8FF" },
-					{ name = "ThunderGriffin_wingR_glow2", center = { 4.3838, 5.1162, -0.125 }, size = { 2.2675, 3.2675, 0.535 }, glow = "D8FBFF" },
+					{
+						name = "ThunderGriffin_wingR",
+						center = { 3.1162, 4.9912, -0.125 },
+						size = { 3.2675, 4.0175, 0.535 },
+					},
+					{
+						name = "ThunderGriffin_wingR_glow",
+						center = { 3.5, 5.5088, -0.125 },
+						size = { 4.035, 3.5175, 0.535 },
+						glow = "4FD8FF",
+					},
+					{
+						name = "ThunderGriffin_wingR_glow2",
+						center = { 4.3838, 5.1162, -0.125 },
+						size = { 2.2675, 3.2675, 0.535 },
+						glow = "D8FBFF",
+					},
 				},
 			},
 			{
@@ -1703,9 +2296,23 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -1.53, 4.25, -0.365 },
 				meshes = {
-					{ name = "ThunderGriffin_wingL", center = { -3.1162, 4.9912, -0.125 }, size = { 3.2675, 4.0175, 0.535 } },
-					{ name = "ThunderGriffin_wingL_glow", center = { -3.5, 5.5088, -0.125 }, size = { 4.035, 3.5175, 0.535 }, glow = "4FD8FF" },
-					{ name = "ThunderGriffin_wingL_glow2", center = { -4.3838, 5.1162, -0.125 }, size = { 2.2675, 3.2675, 0.535 }, glow = "D8FBFF" },
+					{
+						name = "ThunderGriffin_wingL",
+						center = { -3.1162, 4.9912, -0.125 },
+						size = { 3.2675, 4.0175, 0.535 },
+					},
+					{
+						name = "ThunderGriffin_wingL_glow",
+						center = { -3.5, 5.5088, -0.125 },
+						size = { 4.035, 3.5175, 0.535 },
+						glow = "4FD8FF",
+					},
+					{
+						name = "ThunderGriffin_wingL_glow2",
+						center = { -4.3838, 5.1162, -0.125 },
+						size = { 2.2675, 3.2675, 0.535 },
+						glow = "D8FBFF",
+					},
 				},
 			},
 			{
@@ -1714,9 +2321,23 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 2.89, 2.015 },
 				meshes = {
-					{ name = "ThunderGriffin_tail", center = { 0, 3.375, 2.8662 }, size = { 0.535, 1.785, 2.5175 } },
-					{ name = "ThunderGriffin_tail_glow", center = { 0, 4, 4.6338 }, size = { 1.535, 1.535, 1.5175 }, glow = "4FD8FF" },
-					{ name = "ThunderGriffin_tail_glow2", center = { 0, 4.5088, 5 }, size = { 0.5, 0.0175, 0.25 }, glow = "D8FBFF" },
+					{
+						name = "ThunderGriffin_tail",
+						center = { 0, 3.375, 2.8662 },
+						size = { 0.535, 1.785, 2.5175 },
+					},
+					{
+						name = "ThunderGriffin_tail_glow",
+						center = { 0, 4, 4.6338 },
+						size = { 1.535, 1.535, 1.5175 },
+						glow = "4FD8FF",
+					},
+					{
+						name = "ThunderGriffin_tail_glow2",
+						center = { 0, 4.5088, 5 },
+						size = { 0.5, 0.0175, 0.25 },
+						glow = "D8FBFF",
+					},
 				},
 			},
 		},
@@ -1733,8 +2354,16 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { 0, 0, -0.125 },
 				meshes = {
-					{ name = "GoldenGoose_body_1", center = { 0, 2.625, 0.5 }, size = { 5.035, 5.285, 5.285 } },
-					{ name = "GoldenGoose_body_2", center = { 0, 6.8838, 0.125 }, size = { 3.535, 3.7675, 5.035 } },
+					{
+						name = "GoldenGoose_body_1",
+						center = { 0, 2.625, 0.5 },
+						size = { 5.035, 5.285, 5.285 },
+					},
+					{
+						name = "GoldenGoose_body_2",
+						center = { 0, 6.8838, 0.125 },
+						size = { 3.535, 3.7675, 5.035 },
+					},
 				},
 			},
 			{
@@ -1743,7 +2372,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0, -0.125 },
 				meshes = {
-					{ name = "GoldenGoose_nest", center = { 0.125, 0.25, -3.75 }, size = { 3.785, 0.535, 3.785 } },
+					{
+						name = "GoldenGoose_nest",
+						center = { 0.125, 0.25, -3.75 },
+						size = { 3.785, 0.535, 3.785 },
+					},
 				},
 			},
 			{
@@ -1752,8 +2385,18 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0, -3.905 },
 				meshes = {
-					{ name = "GoldenGoose_egg_glow", center = { 0, 1.625, -3.875 }, size = { 2.035, 2.785, 2.035 }, glow = "FFC72E" },
-					{ name = "GoldenGoose_egg_glow2", center = { 0.6338, 2.3838, -4.5088 }, size = { 0.7675, 0.7675, 0.7675 }, glow = "FFF7C2" },
+					{
+						name = "GoldenGoose_egg_glow",
+						center = { 0, 1.625, -3.875 },
+						size = { 2.035, 2.785, 2.035 },
+						glow = "FFC72E",
+					},
+					{
+						name = "GoldenGoose_egg_glow2",
+						center = { 0.6338, 2.3838, -4.5088 },
+						size = { 0.7675, 0.7675, 0.7675 },
+						glow = "FFF7C2",
+					},
 				},
 			},
 			{
@@ -1771,7 +2414,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 8.4, -1.595 },
 				meshes = {
-					{ name = "GoldenGoose_eyes", center = { 0, 10.125, -2.75 }, size = { 2.035, 0.785, 0.785 } },
+					{
+						name = "GoldenGoose_eyes",
+						center = { 0, 10.125, -2.75 },
+						size = { 2.035, 0.785, 0.785 },
+					},
 				},
 			},
 			{
@@ -1780,12 +2427,42 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 10.92, -1.7 },
 				meshes = {
-					{ name = "GoldenGoose_crown_glow", center = { -0.6338, 11.125, -0.7412 }, size = { 0.2675, 0.25, 0.2675 }, glow = "3FA9FF" },
-					{ name = "GoldenGoose_crown_glow2", center = { -0.625, 11.125, -2.25 }, size = { 0.285, 0.25, 0.285 }, glow = "3FE08A" },
-					{ name = "GoldenGoose_crown_glow3", center = { 0.125, 10.8663, -1.5 }, size = { 2.285, 0.2675, 2.285 }, glow = "E8A21A" },
-					{ name = "GoldenGoose_crown_glow4", center = { 0.8838, 11.125, -0.7412 }, size = { 0.2675, 0.25, 0.2675 }, glow = "FF3B5C" },
-					{ name = "GoldenGoose_crown_glow5", center = { 0.125, 11.5, -1.5 }, size = { 2.285, 1, 2.285 }, glow = "FFC72E" },
-					{ name = "GoldenGoose_crown_glow6", center = { 0.125, 12.1337, -1.5 }, size = { 2.285, 0.2675, 2.285 }, glow = "FFF7C2" },
+					{
+						name = "GoldenGoose_crown_glow",
+						center = { -0.6338, 11.125, -0.7412 },
+						size = { 0.2675, 0.25, 0.2675 },
+						glow = "3FA9FF",
+					},
+					{
+						name = "GoldenGoose_crown_glow2",
+						center = { -0.625, 11.125, -2.25 },
+						size = { 0.285, 0.25, 0.285 },
+						glow = "3FE08A",
+					},
+					{
+						name = "GoldenGoose_crown_glow3",
+						center = { 0.125, 10.8663, -1.5 },
+						size = { 2.285, 0.2675, 2.285 },
+						glow = "E8A21A",
+					},
+					{
+						name = "GoldenGoose_crown_glow4",
+						center = { 0.8838, 11.125, -0.7412 },
+						size = { 0.2675, 0.25, 0.2675 },
+						glow = "FF3B5C",
+					},
+					{
+						name = "GoldenGoose_crown_glow5",
+						center = { 0.125, 11.5, -1.5 },
+						size = { 2.285, 1, 2.285 },
+						glow = "FFC72E",
+					},
+					{
+						name = "GoldenGoose_crown_glow6",
+						center = { 0.125, 12.1337, -1.5 },
+						size = { 2.285, 0.2675, 2.285 },
+						glow = "FFF7C2",
+					},
 				},
 			},
 			{
@@ -1794,8 +2471,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 2.1, 5.25, 0.82 },
 				meshes = {
-					{ name = "GoldenGoose_wingR", center = { 4.2412, 6.125, 0.875 }, size = { 4.5175, 5.285, 0.535 } },
-					{ name = "GoldenGoose_wingR_glow", center = { 5.8838, 6.125, 0.875 }, size = { 3.2675, 4.785, 0.535 }, glow = "FFF7C2" },
+					{
+						name = "GoldenGoose_wingR",
+						center = { 4.2412, 6.125, 0.875 },
+						size = { 4.5175, 5.285, 0.535 },
+					},
+					{
+						name = "GoldenGoose_wingR_glow",
+						center = { 5.8838, 6.125, 0.875 },
+						size = { 3.2675, 4.785, 0.535 },
+						glow = "FFF7C2",
+					},
 				},
 			},
 			{
@@ -1804,8 +2490,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -2.1, 5.25, 0.82 },
 				meshes = {
-					{ name = "GoldenGoose_wingL", center = { -4.2412, 6.125, 0.875 }, size = { 4.5175, 5.285, 0.535 } },
-					{ name = "GoldenGoose_wingL_glow", center = { -5.8838, 6.125, 0.875 }, size = { 3.2675, 4.785, 0.535 }, glow = "FFF7C2" },
+					{
+						name = "GoldenGoose_wingL",
+						center = { -4.2412, 6.125, 0.875 },
+						size = { 4.5175, 5.285, 0.535 },
+					},
+					{
+						name = "GoldenGoose_wingL_glow",
+						center = { -5.8838, 6.125, 0.875 },
+						size = { 3.2675, 4.785, 0.535 },
+						glow = "FFF7C2",
+					},
 				},
 			},
 			{
@@ -1814,7 +2509,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 3.78, 2.815 },
 				meshes = {
-					{ name = "GoldenGoose_tail", center = { 0, 4.375, 4.375 }, size = { 2.035, 1.285, 2.535 } },
+					{
+						name = "GoldenGoose_tail",
+						center = { 0, 4.375, 4.375 },
+						size = { 2.035, 1.285, 2.535 },
+					},
 				},
 			},
 		},
@@ -1831,11 +2530,34 @@ local CreatureMeshes: { [string]: Creature } = {
 				anim = "body",
 				pivot = { -0.125, 0.25, 0.5 },
 				meshes = {
-					{ name = "NebulaSerpent_body_1", center = { 0.375, 2.3662, 0.75 }, size = { 6.535, 4.7675, 7.535 } },
-					{ name = "NebulaSerpent_body_2", center = { -0.625, 6.5, -0.5 }, size = { 6.035, 4.035, 5.535 } },
-					{ name = "NebulaSerpent_body_glow", center = { 1.25, 2.625, 1.8838 }, size = { 4.785, 4.785, 4.7675 }, glow = "6FF2FF" },
-					{ name = "NebulaSerpent_body_glow2", center = { -0.25, 3.5, 1.2588 }, size = { 5.785, 5.5, 6.0175 }, glow = "FFE6FF" },
-					{ name = "NebulaSerpent_body_glow3", center = { 0.6338, 3.875, 1.2588 }, size = { 5.5175, 7.285, 6.5175 }, glow = "FFFFFF" },
+					{
+						name = "NebulaSerpent_body_1",
+						center = { 0.375, 2.3662, 0.75 },
+						size = { 6.535, 4.7675, 7.535 },
+					},
+					{
+						name = "NebulaSerpent_body_2",
+						center = { -0.625, 6.5, -0.5 },
+						size = { 6.035, 4.035, 5.535 },
+					},
+					{
+						name = "NebulaSerpent_body_glow",
+						center = { 1.25, 2.625, 1.8838 },
+						size = { 4.785, 4.785, 4.7675 },
+						glow = "6FF2FF",
+					},
+					{
+						name = "NebulaSerpent_body_glow2",
+						center = { -0.25, 3.5, 1.2588 },
+						size = { 5.785, 5.5, 6.0175 },
+						glow = "FFE6FF",
+					},
+					{
+						name = "NebulaSerpent_body_glow3",
+						center = { 0.6338, 3.875, 1.2588 },
+						size = { 5.5175, 7.285, 6.5175 },
+						glow = "FFFFFF",
+					},
 				},
 			},
 			{
@@ -1844,7 +2566,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.125, 8.02, -0.55 },
 				meshes = {
-					{ name = "NebulaSerpent_head", center = { -0.125, 9.125, -1.75 }, size = { 4.035, 3.285, 5.535 } },
+					{
+						name = "NebulaSerpent_head",
+						center = { -0.125, 9.125, -1.75 },
+						size = { 4.035, 3.285, 5.535 },
+					},
 				},
 			},
 			{
@@ -1853,8 +2579,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.125, 8.02, -0.55 },
 				meshes = {
-					{ name = "NebulaSerpent_eyes", center = { -0.125, 10.125, -1.875 }, size = { 2.535, 0.285, 0.285 } },
-					{ name = "NebulaSerpent_eyes_glow", center = { -0.125, 9.875, -2.375 }, size = { 2.535, 0.785, 0.785 }, glow = "6FF2FF" },
+					{
+						name = "NebulaSerpent_eyes",
+						center = { -0.125, 10.125, -1.875 },
+						size = { 2.535, 0.285, 0.285 },
+					},
+					{
+						name = "NebulaSerpent_eyes_glow",
+						center = { -0.125, 9.875, -2.375 },
+						size = { 2.535, 0.785, 0.785 },
+						glow = "6FF2FF",
+					},
 				},
 			},
 			{
@@ -1863,9 +2598,24 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { -0.125, 10.33, -0.34 },
 				meshes = {
-					{ name = "NebulaSerpent_horns_glow", center = { -0.125, 8.125, -3.25 }, size = { 6.035, 0.785, 1.035 }, glow = "6FF2FF" },
-					{ name = "NebulaSerpent_horns_glow2", center = { -0.125, 10.375, 0 }, size = { 3.535, 1.285, 1.535 }, glow = "E04FD0" },
-					{ name = "NebulaSerpent_horns_glow3", center = { -0.125, 11.125, 1.25 }, size = { 4.035, 0.785, 1.535 }, glow = "FFE6FF" },
+					{
+						name = "NebulaSerpent_horns_glow",
+						center = { -0.125, 8.125, -3.25 },
+						size = { 6.035, 0.785, 1.035 },
+						glow = "6FF2FF",
+					},
+					{
+						name = "NebulaSerpent_horns_glow2",
+						center = { -0.125, 10.375, 0 },
+						size = { 3.535, 1.285, 1.535 },
+						glow = "E04FD0",
+					},
+					{
+						name = "NebulaSerpent_horns_glow3",
+						center = { -0.125, 11.125, 1.25 },
+						size = { 4.035, 0.785, 1.535 },
+						glow = "FFE6FF",
+					},
 				},
 			},
 			{
@@ -1874,9 +2624,24 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { -0.125, 0.25, 0.5 },
 				meshes = {
-					{ name = "NebulaSerpent_crest_glow", center = { -0.2588, 5.625, 0.625 }, size = { 5.2675, 4.785, 5.285 }, glow = "9A2FB8" },
-					{ name = "NebulaSerpent_crest_glow2", center = { 0.0088, 5.6162, 0.625 }, size = { 5.2675, 4.7675, 5.285 }, glow = "E04FD0" },
-					{ name = "NebulaSerpent_crest_glow3", center = { 0, 6.1338, 0.625 }, size = { 5.285, 4.2675, 5.285 }, glow = "FFE6FF" },
+					{
+						name = "NebulaSerpent_crest_glow",
+						center = { -0.2588, 5.625, 0.625 },
+						size = { 5.2675, 4.785, 5.285 },
+						glow = "9A2FB8",
+					},
+					{
+						name = "NebulaSerpent_crest_glow2",
+						center = { 0.0088, 5.6162, 0.625 },
+						size = { 5.2675, 4.7675, 5.285 },
+						glow = "E04FD0",
+					},
+					{
+						name = "NebulaSerpent_crest_glow3",
+						center = { 0, 6.1338, 0.625 },
+						size = { 5.285, 4.2675, 5.285 },
+						glow = "FFE6FF",
+					},
 				},
 			},
 		},

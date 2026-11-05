@@ -30,6 +30,19 @@ def vec(v):
     return '{ ' + ', '.join(num(x) for x in v) + ' }'
 
 
+WIDTH = 110  # stylua.toml column_width; tabs count 4
+
+
+def table_lines(depth, fields, trail=','):
+    """A table of `fields` as StyLua would lay it out: on one line when it
+    fits in WIDTH, otherwise one field a line, so the file is already
+    formatted and `stylua --check` agrees with it."""
+    one = '\t' * depth + '{ ' + ', '.join(fields) + ' }' + trail
+    if len(one.expandtabs(4)) <= WIDTH:
+        return [one]
+    return ['\t' * depth + '{'] + ['\t' * (depth + 1) + f + ',' for f in fields] + ['\t' * depth + '}' + trail]
+
+
 def assets():
     if not os.path.exists(ASSETS):
         return {}
@@ -63,7 +76,14 @@ def write():
         '',
         'export type Mesh = { name: string, center: { number }, size: { number }, glow: string? }',
         'export type Part = { name: string, anim: string, parent: string?, pivot: { number }, meshes: { Mesh } }',
-        'export type Creature = { assetId: number, rarity: string, height: number, size: { number }, tris: number, parts: { Part } }',
+        'export type Creature = {',
+        '\tassetId: number,',
+        '\trarity: string,',
+        '\theight: number,',
+        '\tsize: { number },',
+        '\ttris: number,',
+        '\tparts: { Part },',
+        '}',
         '',
         'local CreatureMeshes: { [string]: Creature } = {',
     ]
@@ -84,8 +104,10 @@ def write():
             L.append(f'\t\t\t\tpivot = {vec(p["pivot"])},')
             L.append('\t\t\t\tmeshes = {')
             for ms in p['meshes']:
-                glow = f', glow = "{ms["color"]}"' if ms['kind'] == 'glow' else ''
-                L.append(f'\t\t\t\t\t{{ name = "{ms["name"]}", center = {vec(ms["center"])}, size = {vec(ms["size"])}{glow} }},')
+                fields = [f'name = "{ms["name"]}"', f'center = {vec(ms["center"])}', f'size = {vec(ms["size"])}']
+                if ms['kind'] == 'glow':
+                    fields.append(f'glow = "{ms["color"]}"')
+                L += table_lines(5, fields)
             L.append('\t\t\t\t},')
             L.append('\t\t\t},')
         L.append('\t\t},')

@@ -42,9 +42,13 @@ describe("Creature meshes", function()
 			expect(`{id} has a body: {names.body == true}`).toBe(`{id} has a body: true`)
 			for _, part in m.parts do
 				local label = `{id}.{part.name}`
-				expect(table.find(ANIMS, part.anim) ~= nil and part.anim or `{label}: {part.anim}`).toBe(part.anim)
+				expect(table.find(ANIMS, part.anim) ~= nil and part.anim or `{label}: {part.anim}`).toBe(
+					part.anim
+				)
 				if part.parent then
-					expect(names[part.parent] and part.parent or `{label}: no {part.parent}`).toBe(part.parent)
+					expect(names[part.parent] and part.parent or `{label}: no {part.parent}`).toBe(
+						part.parent
+					)
 				end
 				expect(#part.pivot).toBe(3)
 				expect(#part.meshes).toBeAtLeast(1)
