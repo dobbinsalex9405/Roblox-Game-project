@@ -19,6 +19,9 @@ kit.accessory:
 - **eye_ring**: a light ring around each eye on a dark face.
 - **speckles**: small scattered light dots all over.
 
+- **button_eye**: one big sewn-on button for an eye (a sock puppet's).
+- **knit_head**: knitted bands across the head (a sock's cuff).
+
 Each is fn(c, H, color, color2, a) (variants.py's kit hook): colours are RGB
 tuples, color2 may be None, `a` is the roster entry's accessory dict.
 Same art frame as kit.py (x right, y back, front is -y, z up), k = H / 10."""
@@ -332,6 +335,55 @@ def droopy_ears(c, H, color, color2=None, a=None):
                  cond=lambda x, y, z, sx=sx: (x + .5) * sx >= half - 0.5 * k)
 
 
-ACCESSORIES = {'droopy_ears': droopy_ears, 'ridge': ridge, 'third_eye': third_eye, 'butter': butter, 'twin_tail': twin_tail, 'fringe': fringe,
+def button_eye(c, H, color, color2=None, a=None):
+    """One big round sewn-on button for an eye (a sock puppet's): a disc in
+    color with two thread holes (color2, default dark) over the right eye.
+    The other eye is closed (painted over in the face's colour)."""
+    k = H / 10.0
+    col = _rgb(color)
+    hole = _rgb(color2, INK)
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or eyes is None or not eyes.v:
+        return
+    base = _main_colour(head)
+    right = [p for p in eyes.v if p[0] >= 0]
+    if not right:
+        return
+    cx = sum(p[0] for p in right) / len(right) + .5
+    cz = sum(p[2] for p in right) / len(right) + .5
+    r = max(1.6, 0.9 * k)
+    for p in list(eyes.v):
+        eyes.v[p] = (base, False)  # closed: the button covers one, the other is shut
+    bt = c.part('button', 'static')
+    for x in range(int(cx - r) - 1, int(cx + r) + 2):
+        for z in range(int(cz - r) - 1, int(cz + r) + 2):
+            if (x + .5 - cx) ** 2 + (z + .5 - cz) ** 2 > r * r:
+                continue
+            f = head.front(x, z)
+            if not f:
+                continue
+            centre = abs(x + .5 - cx) < 1.0 and abs(z + .5 - cz) < 1.0
+            for e in eyes.v:
+                if (e[0], e[2]) == (x, z):
+                    f = e if e[1] < f[1] else f
+            holes = centre and (x + z) % 2 == 0
+            bt.put((f[0], f[1] - 1, f[2]), hole if holes else col)
+
+
+def knit_head(c, H, color, color2=None, a=None):
+    """Knitted bands across the head, top to bottom, alternating its own
+    colour and color (a sock's cuff)."""
+    k = H / 10.0
+    col = _rgb(color)
+    head = _find(c, 'head')
+    if head is None or not head.v:
+        return
+    w = max(1, round(0.6 * k))
+    zlo = min(p[2] for p in head.v)
+    head.paint(lambda p, cc, g: (col, False) if not g and ((p[2] - zlo) // w) % 2 == 1 else None)
+
+
+ACCESSORIES = {'button_eye': button_eye, 'knit_head': knit_head, 'droopy_ears': droopy_ears, 'ridge': ridge, 'third_eye': third_eye, 'butter': butter, 'twin_tail': twin_tail, 'fringe': fringe,
                'shag': shag, 'long_snout': long_snout, 'streaks': streaks, 'cap': cap, 'eye_ring': eye_ring,
                'speckles': speckles}
