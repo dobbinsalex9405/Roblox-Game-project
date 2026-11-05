@@ -384,6 +384,115 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
     return c
 
 
+def hedgehog(c, H, col, face, spine, tip):
+    """A hedgehog: a cream face and belly, a pointed snout with a dark nose
+    tip, and a thick coat of spines over the whole back and the top of the
+    head, standing out in spiky tufts (paler tips)."""
+    quadruped(c, H, col, ears='none', tail='short')
+    k = H / 10.0
+    head, body = c.part('head'), c.part('body')
+    # low to the ground: everything down, the legs cut short (3+ voxels left)
+    drop = max(0, round(1.6 * k) + 1 - 3) if k < 2 else round(0.5 * k)
+    for p in c.parts:
+        p.v = {(x, y, z - drop): v for (x, y, z), v in p.v.items() if z - drop >= 0}
+        p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] - drop)
+    # the pointed snout: a long cone out of the lower face, narrowing to a
+    # small dark nose at its tip
+    ln = max(4, round(2.0 * k))
+    zc = 5.4 * k - drop
+    yf = min(p[1] for p in head.v if abs(p[0] + .5) < 1 and abs(p[2] - zc) < 1)
+    for i in range(ln + 1):
+        r = max(0.55, (1.05 - 0.8 * i / ln) * k)
+        for x in range(-math.ceil(r), math.ceil(r)):
+            for z in range(math.floor(zc - r), math.ceil(zc + r) + 1):
+                if math.hypot(x + .5, z + .5 - zc) <= r:
+                    head.put((x, yf - i, z), face)
+    tipy = min(p[1] for p in head.v)
+    for p in [p for p in head.v if p[1] == tipy]:
+        head.put(p, INK)
+    # the spine coat: everything above the flank on the body, and the head
+    # behind the eyes, thickened one voxel and painted dark (into the parts
+    # themselves, so no hidden faces), then rows of short spikes standing out
+    # up and back with pale tips
+    others = set()
+    for p in c.parts:
+        if p.name not in ('body', 'head'):
+            others |= set(p.v)
+    cover = [(body, lambda q: q[2] > 1.9 * k - drop and q[1] > -2.6 * k, False),
+             (head, lambda q: q[2] > 6.95 * k - drop or (q[1] > -2.6 * k and q[2] > 4.8 * k - drop), False)]
+    coat = []
+    for part, ok, thick in cover:
+        add = {}
+        for (x, y, z) in list(part.v):
+            if not ok((x, y, z)):
+                continue
+            for d in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 1)):
+                q = (x + d[0], y + d[1], z + d[2])
+                if q in body.v or q in head.v or q in others:
+                    continue
+                add[q] = d
+        if thick:
+            for q in add:
+                part.put(q, spine)
+            coat += [(part, q, d) for q, d in add.items()]
+        else:
+            coat += [(part, (q[0] - d[0], q[1] - d[1], q[2] - d[2]), d) for q, d in add.items()]
+        part.paint(lambda p, cc, g, ok=ok: (spine, False) if ok(p) and cc != INK else None)
+    sp = c.part('spines', 'static')
+    for part, q, d in coat:
+        if q[0] < 0 or (q[0] + 2 * q[1] + 3 * q[2]) % 4 or not getattr(c, 'fine', False):
+            continue  # (the in-game boxes keep to the painted coat: box budget)
+        # a spike: one voxel out along the surface and one back, pale-tipped
+        s1 = (q[0] + d[0], q[1] + d[1] + 1, q[2] + d[2])
+        if s1 in body.v or s1 in head.v or s1 in others:
+            continue
+        sp.put(s1, tip)
+    for (x, y, z), v in list(sp.v.items()):
+        sp.v[(-x - 1, y, z)] = v
+
+
+def kitten(c, H, col, belly, stripe, ear_in):
+    """A kitten: short triangular cat ears with pink insides, tabby stripes
+    on the brow and back, and a plain tail curving up behind."""
+    quadruped(c, H, col, belly=belly, snout=belly, ears='none', tail='none')
+    k = H / 10.0
+    head, body = c.part('head'), c.part('body')
+    # tabby: an M of thin stripes on the brow, bands over the back (the
+    # finer build only: the in-game boxes keep to a box budget)
+    if not getattr(c, 'fine', False):
+        stripe = col
+    head.paint(lambda p, cc, g: (stripe, False) if p[2] > 7.0 * k and p[1] < -2.2 * k and abs(p[0] + .5) < 1.6 * k
+               and int(abs(p[0] + .5)) % 2 == 0 else None)
+    w = max(1, round(0.45 * k))
+    body.paint(lambda p, cc, g: (stripe, False) if p[2] > 3.6 * k and cc != belly and (p[1] // w) % 3 == 0 else None)
+    # triangular ears: a wide base narrowing to a point, a pink inside
+    earp = c.part('ears', 'static', (0, -2.4 * k, 7.8 * k))
+    top = max(p[2] for p in head.v if abs(p[0] + .5 - 1.3 * k) < 1 and abs(p[1] + 2.4 * k) < 1.5)
+    hgt = max(3, round(1.7 * k))
+    base = max(2, round(0.85 * k))
+    y0 = round(-2.6 * k)
+    for sx in (-1, 1):
+        cx = 1.3 * k
+        for i in range(hgt):
+            half = base * (1 - i / hgt)
+            for xx in range(math.floor(cx - half), math.ceil(cx + half)):
+                for y in (y0, y0 + 1) if getattr(c, 'fine', False) else (y0,):
+                    x = xx if sx > 0 else -xx - 1
+                    inner = y == y0 and i < hgt - 1 and abs(xx + .5 - cx) < half - 0.9
+                    earp.put((x, y, top + i), ear_in if inner else col)
+    # a plain tail, out and curving up
+    tl = c.part('tail', 'tail', (0, 3.4 * k, 3.4 * k))
+    r = max(0.6, 0.38 * k)
+    n = 16 if getattr(c, 'fine', False) else 5  # the in-game boxes: a box budget
+    for i in range(n):
+        t = i / (n - 1)
+        ang = t * math.pi * 0.6
+        cy, cz = 3.4 * k + 1.8 * k * math.sin(ang), 3.6 * k + 2.6 * k * (1 - math.cos(ang)) + 0.6 * k * t
+        tl.ell((0, cy, cz), (r, r, r), col)
+    for q in [q for q in tl.v if q in body.v]:
+        del tl.v[q]
+
+
 def add_wings(c, k, colr, root, span=2.6, glow_edge=None, feather=None):
     for sx, name in ((-1, 'wingL'), (1, 'wingR')):
         w = c.part(name, name, (sx * 1.6 * k, root[1], root[2]))
@@ -646,10 +755,10 @@ ROSTER = [
     ('Gosling', 'Uncommon', lambda c, H: bird(c, H, P('#D8D2B0'), belly=P('#F1EBD0'), beak=P('#3A3A4A'))),
     ('Turtle', 'Uncommon', lambda c, H: blob(c, H, 'turtle', P('#9BD36A'), P('#4FA84A'))),
     ('FoxKit', 'Uncommon', lambda c, H: quadruped(c, H, P('#FF8A3D'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='pointy', ear_col=P('#3A2A2A'), tail='fox')),
-    ('Hedgehog', 'Uncommon', lambda c, H: quadruped(c, H, P('#E8C9A0'), snout=P('#F6E3C8'), ears='round', tail='short', spines=P('#7A5230'))),
+    ('Hedgehog', 'Uncommon', lambda c, H: hedgehog(c, H, P('#E8C9A0'), P('#F6E3C8'), P('#5A3A24'), P('#A9825C'))),
     ('Squirrel', 'Uncommon', lambda c, H: quadruped(c, H, P('#C9763A'), belly=P('#FFE3BF'), snout=P('#FFE3BF'), ears='pointy', tail='bushy')),
     ('Puppy', 'Uncommon', lambda c, H: quadruped(c, H, P('#E3B27A'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='floppy', ear_col=P('#8A5A33'), tail='short')),
-    ('Kitten', 'Uncommon', lambda c, H: quadruped(c, H, P('#9AA3B5'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='pointy', ear_col=P('#FFB3C7'), tail='striped', tail_col=P('#9AA3B5'))),
+    ('Kitten', 'Uncommon', lambda c, H: kitten(c, H, P('#9AA3B5'), P('#FFFFFF'), P('#6E7688'), P('#FFB3C7'))),
     # Rare
     ('Raccoon', 'Rare', lambda c, H: quadruped(c, H, P('#9A9AA8'), belly=P('#D8D8E0'), snout=P('#F0F0F4'), ears='pointy', ear_col=P('#3A3A4A'), tail='striped', mask=P('#2A2A3A'))),
     ('Penguin', 'Rare', lambda c, H: bird(c, H, P('#2A2F45'), belly=P('#FFFFFF'), beak=P('#FFB627'), wing=P('#1F2335'))),
