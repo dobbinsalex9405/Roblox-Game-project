@@ -8,10 +8,12 @@
 -- income bonus. Cards found since the book was last opened say NEW, and the
 -- side-menu button counts them.
 --
--- Built for hundreds of cards: a tab's cards are plain frames, and only the
--- ones on screen (and a row either side) get a ViewportFrame and a 3D model,
--- made when the card scrolls near and destroyed when it leaves, so a long
--- Common page never has more than a few dozen ViewportFrames alive.
+-- Built for hundreds of cards: the page is sized for the whole tab, but only
+-- the cards on screen (and a row either side) exist. A small pool of card
+-- frames is moved to whichever cards scroll into view (BookGrid), each with
+-- its ViewportFrame and 3D model made when it arrives and destroyed when it
+-- leaves, and only those cards are repainted when the player's data changes.
+-- A 200-card tab costs the same as a 20-card one.
 -- Opened from the side menu; the server keeps the book (data.found).
 
 local Players = game:GetService("Players")
@@ -21,6 +23,7 @@ local Workspace = game:GetService("Workspace")
 local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
+local BookGrid = require(Shared.BookGrid)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
@@ -35,6 +38,9 @@ local GOLD = Color3.fromRGB(255, 210, 63)
 local SHADOW = Color3.fromRGB(16, 16, 26)
 local FONT = Enum.Font.FredokaOne
 local CARD = Vector2.new(104, 150)
+local GRID: BookGrid.Spec = { width = CARD.X, height = CARD.Y, gap = 8 }
+local OVERSCAN = 1 -- rows drawn beyond the view each way, so scrolling never shows a gap
+local PAD_TOP, PAD_SIDE, PAD_BOTTOM = 4, 4, 8
 local RED = Color3.fromRGB(230, 60, 60)
 
 export type Menu = {
@@ -71,10 +77,13 @@ local function text(parent: Instance, name: string, value: string, size: number,
 	return l
 end
 
+-- One pooled card frame, showing `entry` while it is bound to a place on
+-- the page.
 type Card = {
 	frame: Frame,
-	entry: Book.Entry,
-	view: ViewportFrame?, -- only while the card is near the screen
+	border: UIStroke,
+	entry: Book.Entry?,
+	view: ViewportFrame?,
 	model: Model?,
 	looks: { [BasePart]: { color: Color3, material: Enum.Material, texture: string } },
 	name: TextLabel,
@@ -88,16 +97,14 @@ type Tab = {
 	button: TextButton,
 	label: TextLabel,
 	dot: Frame,
-	grid: Frame?,
-	cards: { Card },
 	entries: { Book.Entry },
 }
 
 -- Puts a creature's model in a card and points the camera at it. A creature
 -- not found yet is darkened BEFORE it goes in the card, so it never shows in
 -- colour, not even for a frame (Studio gate, Nov 5).
-local function showModel(card: Card, owned: boolean)
-	local model, size = CreatureView.staticModel(card.entry.speciesId)
+local function showModel(card: Card, entry: Book.Entry, owned: boolean)
+	local model, size = CreatureView.staticModel(entry.speciesId)
 	card.looks = {}
 	card.found = owned
 	if model == nil then
@@ -233,16 +240,15 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	body.Position = UDim2.fromOffset(10, 146)
 	body.Size = UDim2.new(1, -20, 1, -154)
 	body.CanvasSize = UDim2.fromScale(0, 0)
-	body.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	body.ScrollBarThickness = 6
 	body.BorderSizePixel = 0
-	local pad = Instance.new("UIPadding")
-	pad.PaddingTop = UDim.new(0, 4)
-	pad.PaddingBottom = UDim.new(0, 8)
-	pad.PaddingLeft = UDim.new(0, 4)
-	pad.PaddingRight = UDim.new(0, 4)
-	pad.Parent = body
 	body.Parent = window
+	-- The page: as tall as the whole tab, holding only the pooled cards.
+	local page = Instance.new("Frame")
+	page.Name = "Cards"
+	page.BackgroundTransparency = 1
+	page.Position = UDim2.fromOffset(PAD_SIDE, PAD_TOP)
+	page.Parent = body
 
 	local function fit()
 		local cam = Workspace.CurrentCamera
@@ -289,8 +295,6 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 				button = button,
 				label = label,
 				dot = dot,
-				grid = nil,
-				cards = {},
 				entries = {},
 			}
 			tabOf[entry.rarity] = tab
@@ -301,90 +305,82 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 
 	local current: Tab? = nil
 	local seenAt = 0 -- the book's last opening, as it stood when this one began
+	local columns = 1
+	local bound: { [number]: Card } = {} -- the current tab's cards in view, by index
+	local pool: { Card } = {} -- card frames not in use
 
-	-- A tab's cards, built the first time it is shown: frames only, no models.
-	local function buildTab(tab: Tab)
-		local grid = Instance.new("Frame")
-		grid.Name = `Cards{tab.rarity}`
-		grid.BackgroundTransparency = 1
-		grid.Size = UDim2.fromScale(1, 0)
-		grid.AutomaticSize = Enum.AutomaticSize.Y
-		local layout = Instance.new("UIGridLayout")
-		layout.CellSize = UDim2.fromOffset(CARD.X, CARD.Y)
-		layout.CellPadding = UDim2.fromOffset(8, 8)
-		layout.SortOrder = Enum.SortOrder.LayoutOrder
-		layout.Parent = grid
-		grid.Parent = body
-		tab.grid = grid
-		local color = Layout.rarityColor(tab.rarity)
-		for i, entry in tab.entries do
-			local frame = Instance.new("Frame")
-			frame.Name = entry.speciesId
-			frame.LayoutOrder = i
-			frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
-			corner(frame, 12)
-			stroke(frame, color, 2)
-			frame.Parent = grid
+	local function makeCard(): Card
+		local frame = Instance.new("Frame")
+		frame.Size = UDim2.fromOffset(CARD.X, CARD.Y)
+		frame.Visible = false
+		corner(frame, 12)
+		local border = Instance.new("UIStroke")
+		border.Thickness = 2
+		border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		border.Parent = frame
+		frame.Parent = page
 
-			local name = text(frame, "Species", "", 14)
-			name.Position = UDim2.fromOffset(4, CARD.X - 6)
-			name.Size = UDim2.new(1, -8, 0, 18)
-			name.TextScaled = true
-			local cap = Instance.new("UITextSizeConstraint")
-			cap.MaxTextSize = 14
-			cap.Parent = name
-			local odds = text(frame, "Odds", "", 13, Color3.fromRGB(255, 226, 120))
-			odds.Position = UDim2.fromOffset(2, CARD.X + 12)
-			odds.Size = UDim2.new(1, -4, 0, 32)
-			odds.TextWrapped = true
-			odds.TextYAlignment = Enum.TextYAlignment.Top
+		local name = text(frame, "Species", "", 14)
+		name.Position = UDim2.fromOffset(4, CARD.X - 6)
+		name.Size = UDim2.new(1, -8, 0, 18)
+		name.TextScaled = true
+		local cap = Instance.new("UITextSizeConstraint")
+		cap.MaxTextSize = 14
+		cap.Parent = name
+		local odds = text(frame, "Odds", "", 13, Color3.fromRGB(255, 226, 120))
+		odds.Position = UDim2.fromOffset(2, CARD.X + 12)
+		odds.Size = UDim2.new(1, -4, 0, 32)
+		odds.TextWrapped = true
+		odds.TextYAlignment = Enum.TextYAlignment.Top
 
-			local new = text(frame, "NewBadge", "NEW", 13)
-			new.BackgroundTransparency = 0
-			new.BackgroundColor3 = RED
-			new.Position = UDim2.fromOffset(4, 4)
-			new.Size = UDim2.fromOffset(40, 20)
-			new.ZIndex = 2
-			new.Visible = false
-			corner(new, 8)
+		local new = text(frame, "NewBadge", "NEW", 13)
+		new.BackgroundTransparency = 0
+		new.BackgroundColor3 = RED
+		new.Position = UDim2.fromOffset(4, 4)
+		new.Size = UDim2.fromOffset(40, 20)
+		new.ZIndex = 2
+		new.Visible = false
+		corner(new, 8)
 
-			table.insert(tab.cards, {
-				frame = frame,
-				entry = entry,
-				view = nil,
-				model = nil,
-				looks = {},
-				name = name,
-				odds = odds,
-				new = new,
-				found = nil,
-			})
-		end
+		return {
+			frame = frame,
+			border = border,
+			entry = nil,
+			view = nil,
+			model = nil,
+			looks = {},
+			name = name,
+			odds = odds,
+			new = new,
+			found = nil,
+		}
 	end
 
-	-- Models only for the cards on screen and a row either side.
-	local function cull()
-		local tab = current
-		if tab == nil or not gui.Enabled then
+	-- A card back to the pool: model gone, frame hidden.
+	local function release(index: number)
+		local card = bound[index]
+		if card == nil then
 			return
 		end
-		local d = ctx.data()
-		local found = if d then d.found or {} else {}
-		local top = body.AbsolutePosition.Y - CARD.Y
-		local bottom = body.AbsolutePosition.Y + body.AbsoluteSize.Y + CARD.Y
-		for _, card in tab.cards do
-			local y = card.frame.AbsolutePosition.Y
-			local near = y + CARD.Y >= top and y <= bottom
-			if near and card.model == nil then
-				showModel(card, found[card.entry.speciesId] ~= nil)
-			elseif not near and card.model then
-				dropModel(card)
-			end
+		bound[index] = nil
+		dropModel(card)
+		card.entry = nil
+		card.found = nil
+		card.frame.Visible = false
+		table.insert(pool, card)
+	end
+
+	local function releaseAll()
+		for index in bound do
+			release(index)
 		end
 	end
 
 	local function paintCard(card: Card, found: { [string]: any }, restricted: boolean)
 		local entry = card.entry
+		if entry == nil then
+			return
+		end
 		local owned = found[entry.speciesId] ~= nil
 		if card.found ~= owned then
 			card.found = owned
@@ -415,6 +411,62 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 	end
 
+	-- Sizes the page for the current tab at the page's width.
+	local function layout()
+		local tab = current
+		local count = if tab then #tab.entries else 0
+		columns = BookGrid.columns(body.AbsoluteWindowSize.X - 2 * PAD_SIDE, GRID)
+		local height = BookGrid.height(count, columns, GRID)
+		page.Size = UDim2.new(1, -2 * PAD_SIDE, 0, height)
+		body.CanvasSize = UDim2.fromOffset(0, height + PAD_TOP + PAD_BOTTOM)
+		for index, card in bound do
+			local x, y = BookGrid.position(index, columns, GRID)
+			card.frame.Position = UDim2.fromOffset(x, y)
+		end
+	end
+
+	-- Binds pooled cards to the cards in view (and a row either side) and
+	-- returns the rest to the pool.
+	local function cull()
+		local tab = current
+		if tab == nil or not gui.Enabled then
+			return
+		end
+		local first, last = BookGrid.visible(
+			#tab.entries,
+			columns,
+			GRID,
+			body.CanvasPosition.Y - PAD_TOP,
+			body.AbsoluteWindowSize.Y,
+			OVERSCAN
+		)
+		for index in bound do
+			if index < first or index > last then
+				release(index)
+			end
+		end
+		local d = ctx.data()
+		local found = if d then d.found or {} else {}
+		local restricted = ctx.restricted()
+		for index = first, last do
+			if bound[index] == nil then
+				local entry = tab.entries[index]
+				local card = table.remove(pool) or makeCard()
+				card.entry = entry
+				local color = Layout.rarityColor(entry.rarity)
+				card.frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
+				card.border.Color = color
+				local x, y = BookGrid.position(index, columns, GRID)
+				card.frame.Position = UDim2.fromOffset(x, y)
+				card.frame.Name = entry.speciesId
+				showModel(card, entry, found[entry.speciesId] ~= nil)
+				paintCard(card, found, restricted)
+				card.frame.Visible = true
+				bound[index] = card
+			end
+		end
+	end
+
 	local function refresh()
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
@@ -439,9 +491,10 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			tab.button.BackgroundColor3 = if selected
 				then color:Lerp(SHADOW, 0.25)
 				else color:Lerp(SHADOW, 0.7)
-			for _, card in tab.cards do
-				paintCard(card, found, restricted)
-			end
+		end
+		-- Only the cards in view exist, so only they are repainted.
+		for _, card in bound do
+			paintCard(card, found, restricted)
 		end
 		local bonus = Book.bonus(found, species, bookConfig)
 		local pct = math.floor(bonus * 1000 + 0.5) / 10
@@ -451,24 +504,19 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	end
 
 	local function selectTab(tab: Tab)
-		if current and current ~= tab then
-			for _, card in current.cards do
-				dropModel(card)
-			end
-			if current.grid then
-				current.grid.Visible = false
-			end
+		if current ~= tab then
+			releaseAll()
 		end
 		current = tab
-		if tab.grid == nil then
-			buildTab(tab)
-		end
-		(tab.grid :: Frame).Visible = true
 		body.CanvasPosition = Vector2.zero
+		layout()
 		refresh()
 		cull()
-		-- Layout settles a frame later; cull again once it has.
-		task.defer(cull)
+		-- The window's size settles a frame later; lay out again once it has.
+		task.defer(function()
+			layout()
+			cull()
+		end)
 	end
 
 	for _, tab in tabs do
@@ -478,7 +526,10 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end)
 	end
 	body:GetPropertyChangedSignal("CanvasPosition"):Connect(cull)
-	body:GetPropertyChangedSignal("AbsoluteSize"):Connect(cull)
+	body:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(function()
+		layout()
+		cull()
+	end)
 
 	-- The side-menu button counts the NEW cards.
 	local button: TextButton
@@ -523,11 +574,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			end
 		else
 			gui.Enabled = false
-			if current then
-				for _, card in current.cards do
-					dropModel(card)
-				end
-			end
+			releaseAll()
 			-- Anything found while the book was open has now been seen.
 			if newCount() > 0 then
 				ctx.fire(ctx.remotes["HH:BookSeen"])
