@@ -32,6 +32,7 @@ import props  # noqa: E402
 import decor  # noqa: E402,F401
 import apartment  # noqa: E402,F401
 import tower  # noqa: E402,F401
+import rooms  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 
@@ -50,11 +51,16 @@ def folder_of(p):
         if not p.floor:
             return 'World/Hatchery Heist/Farm centre'
         return f'Decor and props/Hatchery Heist/{p.floor:02d} {THEMES[p.floor - 1]}'
+    if p.kind == 'room':
+        return f'Decor and props/Hatchery Heist/Tower interiors/{p.floor:02d} {THEMES[p.floor - 1]}'
     if p.kind == 'tower':
         if not p.floor:
             return 'World/Hatchery Heist/Apartment tower/Roof'
         return f'World/Hatchery Heist/Apartment tower/Floor {p.floor:02d} {THEMES[p.floor - 1]}'
     return FOLDER.get(p.kind, 'World/Hatchery Heist/Other')
+
+
+HEAVY_TRIS = 600_000
 
 
 def reset():
@@ -213,12 +219,26 @@ def build_one(pid, out, designs, fast, worldart):
     lo, hi = bounds(obs)
     size = hi - lo
     tris = sum(len(o.data.polygons) for o in obs) * 2
-    # glb: turned to face -Z
-    root.rotation_euler = (0, 0, math.pi)
-    bpy.context.view_layer.update()
-    export_glb(os.path.join(d, f'{pid}.glb'), coll)
-    root.rotation_euler = (0, 0, 0)
-    bpy.context.view_layer.update()
+    # glb: turned to face -Z. A big flat prop (a 40-stud rug) makes a pillow
+    # mesh of millions of triangles, too heavy for the 3D viewer: those ship
+    # their Parts version instead, which is what the game shows anyway.
+    glb_from = 'mesh'
+    if tris > HEAVY_TRIS and pid in worldart:
+        glb_from = 'parts'
+        light = bpy.data.collections.new(pid + '_light')
+        s.collection.children.link(light)
+        pob = parts_prop(dict(worldart[pid], id=pid), light, {})
+        pob.rotation_euler = (0, 0, math.pi)
+        bpy.context.view_layer.update()
+        export_glb(os.path.join(d, f'{pid}.glb'), light)
+        for ob in list(light.objects):
+            bpy.data.objects.remove(ob)
+    else:
+        root.rotation_euler = (0, 0, math.pi)
+        bpy.context.view_layer.update()
+        export_glb(os.path.join(d, f'{pid}.glb'), coll)
+        root.rotation_euler = (0, 0, 0)
+        bpy.context.view_layer.update()
     co = stage(s, size, fast)
     aim(co, lo, hi)
     render(s, os.path.join(d, 'hero.png'), 360 if fast else 640)
@@ -232,7 +252,7 @@ def build_one(pid, out, designs, fast, worldart):
         render(s, os.path.join(d, 'parts.png'), 360 if fast else 640)
     meta = dict(id=pid, game='Hatchery Heist', kind=p.kind, direction='Storybook Farm centre, cozy apartment towers', note=p.note,
                 sizeStuds=[round(size.x, 2), round(size.z, 2), round(size.y, 2)], voxelStuds=vkit.VOX, meshTris=tris,
-                partsVoxelStuds=worldart.get(pid, {}).get('voxel'),
+                partsVoxelStuds=worldart.get(pid, {}).get('voxel'), glbFrom=glb_from,
                 partsBoxes=sum(len(pp['boxes']) // 7 for pp in worldart.get(pid, {}).get('parts', [])),
                 parts=[x[0] for x in p.parts])
     if p.floor:

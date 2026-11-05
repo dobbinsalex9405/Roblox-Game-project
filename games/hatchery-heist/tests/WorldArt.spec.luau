@@ -21,6 +21,7 @@ local BUDGET: { [string]: number } = {
 	plaque = 20,
 	decor = 80,
 	tower = 260,
+	room = 120,
 }
 local ANIMS =
 	{ "static", "slide", "spin", "sway", "bob", "flicker", "pulse", "roll", "rock", "turn", "drip", "glint" }

@@ -13,6 +13,9 @@ plain Python with numpy.
 | `props.py` | Trees, eggs, pedestal, belt, Golden Nest, elevator, ladder, plaque |
 | `decor.py` | Farm-centre decor, and the decor of floors 8 to 10 |
 | `apartment.py` | Apartment decor of floors 1 to 7 (4 zones: cozy, toys, lighting, food) |
+| `rooms.py` | The upgrade path inside every floor: beds, rugs, ceiling lights, corner plants and crests (kind `room`) |
+| `rooms_layout.py` | Where every upgrade's pieces go on each floor, with the space checks; writes `config/towerDecor.luau` |
+| `roomscene.py` | Renders one floor at each upgrade level, and the five side by side |
 | `tower.py` | The apartment shell: floor, back, left, right and front of each floor, and the roof |
 | `export.py` | Writes `games/hatchery-heist/src/shared/WorldArt.luau` |
 | `build.py` | Draco `.glb` meshes, renders, `meta.json`, 3D viewer copies |
@@ -22,10 +25,12 @@ plain Python with numpy.
 
 ## Changing a prop
 
-1. Edit `props.py`, `decor.py`, `apartment.py` or `tower.py`. Animated pieces are their own part; the
+1. Edit `props.py`, `decor.py`, `apartment.py`, `rooms.py` or `tower.py`. Animated pieces are their own part; the
    part's `anim` says how the game moves it (`slide`, `spin`, `sway`, `bob`,
    `flicker`, `pulse`, `roll`, `rock`, `turn`, `drip`, `glint`).
 2. `python3 tools/art/world/export.py` and commit `WorldArt.luau` with it.
+   `--only` writes just those props (handy for a quick look), so always end
+   with a full export before committing or rendering a scene.
    `lune run tools/test/run WorldArt` checks it is well formed and within
    each kind's box budget.
 3. Look at it:
@@ -56,4 +61,28 @@ has a doorway at z 12.5..16.5 for the ladder outside at x 25.2.
 ```sh
 PYTHONPATH=/opt/bpy python3 tools/art/world/towerscene.py cutaway build/world/cutaway.png
 PYTHONPATH=/opt/bpy python3 tools/art/world/towerscene.py room build/world/room.png --floor 4
+```
+
+## The upgrade path inside the tower
+
+Each of a floor's four upgrades adds one room-wide layer and the zone props
+from `apartment.py` / `decor.py`: 1 beds on all eight pads (the grey pads
+hide), 2 a 40 x 20 rug under the pad grid, 3 four ceiling lights with real
+lights, 4 four corner plants and a crest on the back wall. Floor 1 is a
+fixed starter room. The names players see ("Next: Reading lamps") are in
+`rooms_layout.py`, and the game furnishes the floors near the camera on the
+client (`src/client/TowerDecorView.luau`). Plan:
+`/mnt/project-files/plans/hatchery-heist/apartment-upgrade-path.md`.
+
+Space rules, checked by `rooms_layout.py` and `tests/TowerDecor.spec.luau`:
+creatures wander their pad cells (x -20..20, z 0..20), so only flat beds and
+the rug go there and lights hang above 8.5; nothing in the elevator shaft or
+in front of its door; nothing standing within 2 studs of the ladder opening
+(x 21..24, z 12.5..16.5) and flat pieces half a stud from it; nothing in
+front of the windows or over the pictures.
+
+```sh
+python3 tools/art/world/rooms_layout.py          # check and write config/towerDecor.luau
+stylua games/hatchery-heist/config/towerDecor.luau
+PYTHONPATH=/opt/bpy python3 tools/art/world/roomscene.py build/world/path --floor 4 --fast
 ```

@@ -19,6 +19,7 @@ local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local Tower = require(Shared.Tower)
+local TowerDecor = require(Shared.TowerDecor)
 
 local Context = require(script.Parent.Context)
 local Sfx = require(script.Parent.Sfx)
@@ -191,6 +192,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	local playerGui = player:WaitForChild("PlayerGui")
 	local economy = ctx.config.economy
 	local themes = economy.tower.themes
+	local decor: TowerDecor.Config = require(ReplicatedStorage.GameConfig.towerDecor) :: any
 
 	------------------------------------------------------------------ Tower
 	local towerGui, towerFrame, floorList, fitTower = window("TowerMenu", "Your Tower", 22)
@@ -230,12 +232,14 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			local detail = ""
 			if built then
 				local m = Tower.multiplier(d, floor, economy)
+				local ups = Tower.upgrades(d, floor)
+				local nextName = TowerDecor.nextName(decor, floor, ups)
 				detail = if floor == 1
 					then "Ground floor  x1.00"
-					else `{times(m)} of {times(Tower.fullMultiplier(floor, economy))}  ·  upgrades {Tower.upgrades(
-						d,
-						floor
-					)}/{#economy.tower.upgradeShares}`
+					elseif
+						nextName
+					then `{times(m)} of {times(Tower.fullMultiplier(floor, economy))}  ·  Next: {nextName} ({ups}/{#economy.tower.upgradeShares})`
+					else `{times(m)}  ·  Fully furnished`
 			else
 				detail =
 					`{times(Tower.multiplier({ floorUpgrades = {} }, floor, economy))} when built, up to {times(

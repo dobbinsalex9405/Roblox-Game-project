@@ -27,6 +27,7 @@ import props  # noqa: E402
 import decor  # noqa: E402,F401  (registers more props)
 import apartment  # noqa: E402,F401
 import tower  # noqa: E402,F401
+import rooms  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 OUT = os.path.join(ROOT, 'games', 'hatchery-heist', 'src', 'shared', 'WorldArt.luau')
