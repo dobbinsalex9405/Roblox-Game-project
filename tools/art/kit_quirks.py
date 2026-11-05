@@ -540,8 +540,10 @@ def many_legs(c, H, col, col2, a=None):
         # the hip sits inside the body, the knee out and up, the foot out on the ground:
         # every leg the same size, front to back, so all six pairs visibly step.
         # The right leg is drawn and the left is its exact mirror.
-        x0 = math.floor(half - 0.6 * k)   # inside the body
-        x1 = math.floor(half + 0.5 * k)   # the knee, out at the side
+        # (never past the middle line, where the head end of the body is
+        # narrow, so the left and right legs never overlap)
+        x0 = max(1, math.floor(half - 0.6 * k))   # inside the body
+        x1 = x0 + max(2, round(1.1 * k))          # the knee, out at the side
         yi = math.floor(y)
         hip = (x0 + .5, yi + 1, hz + 1)
         right = rig.leg_part(c, 'R', i, n, hip)
@@ -556,44 +558,143 @@ def many_legs(c, H, col, col2, a=None):
 
 
 def aphid(c, H, col, col2, a=None):
-    """Turns a ladybug-shaped blob into an aphid: the shell all one soft
-    colour (no spots or seam), a green head, and the two little tubes an
-    aphid has on its back end."""
+    """Redraws a ladybug-shaped blob as an aphid: a soft pear-shaped body
+    (narrow at the front, round at the back), a small darker head with long
+    thin antennae swept back over the body, the two little tubes an aphid has
+    on its back end, and six thin legs bent outwards at the knee that hold the
+    body up off the ground so they are seen stepping."""
+    import rig
+    import creatures
     k = H / 10.0
     body = _find(c, 'body')
     head = _find(c, 'head')
-    for p, (cc, g) in list(body.v.items()):
-        if cc == INK:
-            body.v[p] = (col, False)
-    tube = col2 or _mix(col, INK, 0.3)
-    if head:
-        head.paint(lambda p, cc, g: (tube, False) if cc == INK else None)
-    ys = [p[1] for p in body.v]
-    yb = max(ys) - round(1.0 * k)
-    top = _surface_top(body.v)
+    dark = col2 or _mix(col, INK, 0.3)
+    body.v = {}
+    head.v = {}
+    eyes_p = _find(c, 'eyes')
+    if eyes_p:
+        eyes_p.v = {}
+    # pear: a big round back end, higher than the narrower front
+    zc = 2.7 * k
+    body.ell((0, 1.0 * k, zc + 0.2 * k), (1.9 * k, 2.0 * k, 1.6 * k), col)
+    body.ell((0, -1.1 * k, zc - 0.2 * k), (1.25 * k, 1.4 * k, 1.05 * k), col)
+    shade = _mix(col, dark, 0.45)
+    body.paint(lambda p, cc, g: (shade, False) if p[2] + .5 < zc - 1.0 * k else None)
+    # head: small, darker, tucked under the front of the body
+    head.pivot = (0, -2.4 * k, zc)
+    head.ell((0, -2.7 * k, zc - 0.3 * k), (1.05 * k, 0.95 * k, 0.9 * k), dark)
+    creatures.eyes(c, head, max(1, round(0.35 * k)), round(zc), max(1, round(0.4 * k)))
+    # antennae: one voxel thick, a step up from the brow, then swept back
+    # and out past the sides of the body, drooping at the tips
+    zt = max(p[2] for p in head.v)
     for sx in (-1, 1):
-        x = round(sx * 0.9 * k) - (1 if sx < 0 else 0)
-        z = top.get((x, yb), max(top.values()) - 1)
-        _line(body, (x + .5, yb + .5, z + .5), (x + .5, yb + 0.6 * k + .5, z + 1.2 * k + .5), tube)
-    # stand it up on six sturdy legs that show: the body is raised three
-    # voxels and each leg (2 x 2) runs from under the shell out to a foot
-    # beside it, so the legs are seen stepping from every side
-    import rig
-    lift = 3
-    legs = [p for p in c.parts if p.name in rig.LEG_NAMES]
-    hips = [(leg.pivot, leg) for leg in legs]
-    for p in c.parts:
-        if p.name not in rig.LEG_NAMES:
-            _shift(p, 0, 0, lift)
-    for (hx, hy, hz), leg in hips:
-        sx = 1 if hx >= 0 else -1
+        def X(x):
+            return x if sx > 0 else -x - 1
+        x0 = round(0.4 * k)
+        y0 = round(-3.0 * k)
+        z1 = zt + 1
+        head.put((X(x0), y0, zt + 1), dark)
+        head.put((X(x0), y0, zt + 2), dark)
+        z1 = zt + 2
+        _line(head, (X(x0) + .5, y0 + .5, z1 + .5), (X(round(2.4 * k)) + .5, round(0.6 * k) + .5, z1 + .5), dark)
+        xe, ye = X(round(2.4 * k)), round(0.6 * k)
+        head.put((xe, ye + 1, z1), dark)
+        head.put((xe, ye + 1, z1 - 1), dark)
+        # the two tubes on the back end: short, up and back
+        bx = X(round(0.8 * k))
+        top = _surface_top(body.v)
+        yb = round(2.0 * k)
+        zb = top.get((bx, yb), round(zc + 1.2 * k))
+        for z in range(zb + 1, zb + 1 + max(2, round(0.7 * k))):
+            body.put((bx, yb, z), dark)
+        body.put((bx, yb + 1, zb + max(2, round(0.7 * k))), dark)
+    # legs: thin, straight out from under the body to a knee, then straight
+    # down to the foot (bent outwards at the knee, like an insect's); front
+    # legs step forward, back legs back
+    legs = sorted([p for p in c.parts if p.name in rig.LEG_NAMES], key=lambda p: (p.pivot[1], p.pivot[0]))
+    ys = sorted({round(l.pivot[1], 3) for l in legs})
+    spots = [(-1.3, -1), (0.3, 0), (1.8, 1)]
+    zk = round(zc - 0.6 * k)
+    for leg in legs:
+        sx = 1 if leg.pivot[0] >= 0 else -1
+        i = min(2, ys.index(round(leg.pivot[1], 3)))
+        hy, reach = spots[i]
+        y = round(hy * k)
+
+        def X(x):
+            return x if sx > 0 else -x - 1
+        xh, xk = round(0.9 * k), round(2.3 * k)
         leg.v = {}
-        hip = (hx, hy, hz + lift)
-        leg.pivot = hip
-        knee = (hx + sx * 0.7 * k, hy, lift + 0.5)
-        foot = (hx + sx * 1.0 * k, hy, 0.5)
-        _rod(leg, (hx - sx * 0.3 * k, hy, hip[2] - 0.5), knee, tube, 2)
-        _rod(leg, knee, foot, tube, 2)
+        leg.pivot = (sx * (xh + .5), y + .5, zk - 0.5)
+        for x in range(xh, xk + 1):
+            leg.put((X(x), y, zk), dark)
+        yf = y + reach * max(1, round(0.5 * k))
+        for yy in range(min(y, yf), max(y, yf) + 1):
+            leg.put((X(xk), yy, zk), dark)
+        for z in range(0, zk + 1):
+            leg.put((X(xk), yf, z), dark)
+        leg.put((X(xk + 1), yf, 0), dark)  # a little foot pointing out
+
+
+def drop_ears(c, H, col, col2, a=None):
+    """Long floppy hound ears: from the top corners of the head each ear
+    folds over and hangs flat against the side of the head, down past the
+    jaw, with a rounded tip that flares out a little (a beagle). col is the
+    ear colour (col2, if given, the tip)."""
+    k = H / 10.0
+    head = _find(c, 'head')
+    ears = _find(c, 'ears')
+    if not head or not head.v:
+        return
+    if ears is None:
+        ears = c.part('ears', 'static', head.pivot)
+    ec = col
+    if ears.v:  # keep the plan's ear colour
+        from collections import Counter
+        ec = Counter(v[0] for v in ears.v.values()).most_common(1)[0][0]
+    ears.v = {}
+    tip = col2 or ec
+    hv = head.v
+    zs = [p[2] for p in hv]
+    ys = [p[1] for p in hv]
+    ztop, zbot = max(zs), min(zs)
+    yc = (min(ys) + max(ys)) / 2
+    w = max(2, round(1.3 * k))
+    y0 = round(yc + 0.1 * k)  # a little behind the eyes
+    zt = ztop - max(1, round(0.5 * k))
+    zb = zbot - max(2, round(1.2 * k))
+    for sx in (-1, 1):
+        last = None
+        for z in range(zt, zb - 1, -1):
+            row = [p[0] for p in hv if p[2] == z and y0 <= p[1] < y0 + w]
+            if sx < 0:
+                row = [-x - 1 for x in row]
+            side = (max(row) + 1) if row else None
+            if last is None:
+                x = side if side is not None else 0
+                first = x
+            else:  # never curls in under the jaw; flares out at the tip
+                x = max(last, side if side is not None else last)
+            if z == zb and last is not None:  # the tip turns out a little
+                x = last + 1
+            last = x
+            n = w
+            if z == zb:
+                n = w - 2  # rounded tip
+            for t in range(2):
+                for dy in range(n):
+                    xx = x + t
+                    yy = y0 + dy + (1 if z == zb else 0)
+                    if sx < 0:
+                        xx = -xx - 1
+                    ears.put((xx, yy, z), tip if z <= zb + 1 else ec)
+        # the fold: a short flap lying on the top corner of the head, so the
+        # ear grows out of the head instead of standing beside it
+        row = [p[0] for p in hv if p[2] == zt and y0 <= p[1] < y0 + w]
+        xs = [x if sx > 0 else -x - 1 for x in row] or [first]
+        for xx in range(max(xs) - max(1, round(0.6 * k)), first + 2):
+            for dy in range(w):
+                ears.put((xx if sx > 0 else -xx - 1, y0 + dy, zt + 1), ec)
 
 
 def tidy(c, H, col, col2, a=None):
@@ -678,5 +779,6 @@ ACCESSORIES = {
     'book': book,
     'many_legs': many_legs,
     'aphid': aphid,
+    'drop_ears': drop_ears,
     'tidy': tidy,
 }
