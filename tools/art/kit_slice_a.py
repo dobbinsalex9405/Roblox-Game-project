@@ -77,4 +77,38 @@ def puffer(c, H, col, col2=None, a=None):
                   edge=col2 or myth.light(col, 0.3), lean=0.6)
 
 
-ACCESSORIES = {'ape_arms': ape_arms, 'puffer': puffer}
+def eye_bridge(c, H, col, col2=None, a=None):
+    """Splits two big eyes, or an eye mask, that meet over the nose into
+    two (a tarsier's, a loris's, a kookaburra's): a strip `width` (in k,
+    default 0.6) down the middle of the face, from below the eyes to above
+    them, goes back to fur in `col`. Big dark eyes joined across the nose
+    read as sunglasses at 2 studs."""
+    a = a or {}
+    k = H / 10.0 * (1.4 if c.rarity in ('Godly',) else 1.0)
+    head = _find(c, 'head')
+    e = _find(c, 'eyes')
+    if not head or not head.v or not e or not e.v:
+        return
+    w = a.get('width', 0.6) * k
+    zs = [p[2] for p in e.v]
+    z0, z1 = min(zs) - 1, max(zs) + 1
+    for p in [p for p in e.v if abs(p[0] + .5) < w]:
+        del e.v[p]
+        head.put(p, col)
+    for x in {p[0] for p in head.v if abs(p[0] + .5) < w}:
+        for z in range(z0, z1 + 1):
+            f = head.front(x, z)
+            if f:
+                head.put(f, col)
+    # an eye that lost its shine to the bridge gets it back, in its upper
+    # inner corner
+    WHITE = (255, 255, 255)
+    for side in (-1, 1):
+        ev = [p for p in e.v if (p[0] >= 0) == (side > 0)]
+        if len(ev) >= 4 and not any(e.v[p][0] == WHITE for p in ev):
+            zt = max(p[2] for p in ev)
+            p = min((p for p in ev if p[2] >= zt - 1), key=lambda p: (abs(p[0] + .5), -p[2]))
+            e.put(p, WHITE)
+
+
+ACCESSORIES = {'ape_arms': ape_arms, 'puffer': puffer, 'eye_bridge': eye_bridge}
