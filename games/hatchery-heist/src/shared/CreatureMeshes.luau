@@ -669,8 +669,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.8 },
-		tris = 9968,
-		trisLod1 = 812,
+		tris = 10072,
+		trisLod1 = 820,
 		parts = {
 			{
 				name = "body",
@@ -737,9 +737,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.08, -0.4 },
 				meshes = {
-					{ name = "Calf_eyes", center = { 0, 1.3518, -0.75 }, size = { 0.607, 0.1035, 0.107 } },
+					{ name = "Calf_eyes", center = { 0, 1.4018, -0.75 }, size = { 0.607, 0.2035, 0.107 } },
 				},
-				lod1 = { name = "Calf_eyes_lod1", center = { 0, 1.35, -0.75 }, size = { 0.6, 0.1, 0.1 } },
+				lod1 = { name = "Calf_eyes_lod1", center = { 0, 1.4, -0.75 }, size = { 0.6, 0.2, 0.1 } },
 			},
 			{
 				name = "ears",
