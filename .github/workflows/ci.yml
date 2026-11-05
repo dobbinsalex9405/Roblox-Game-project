@@ -42,15 +42,16 @@ jobs:
       - name: Tests (Lune)
         run: lune run tools/test/run
 
-      # VoxelArt.luau is generated from tools/art; a hand edit or a stale
-      # export fails here.
+      # VoxelArt.luau and CreatureMeshes.luau are generated from tools/art; a
+      # hand edit or a stale export fails here.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Creature art is exported (tools/art)
         run: |
           python3 tools/art/export.py
-          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau
+          python3 tools/art/blender/luau.py
+          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau games/hatchery-heist/src/shared/CreatureMeshes.luau
 
       - name: Build every game (Rojo)
         run: tools/build.sh all
