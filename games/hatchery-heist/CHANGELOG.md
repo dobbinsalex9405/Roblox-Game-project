@@ -38,6 +38,9 @@
   hatch is 1 in 50,000, and the odds card shows each chance as a percentage
   and as "1 in N". A new Moonlit Egg (15,000 coins, 5% of the belt) holds
   the Moon Unicorn and a 1 in 50,000 Nebula Serpent.
+- Studio test panel: "Give a creature" adds any species by id, placed on a
+  free pad like a hatch, so rides and the guard walk can be checked in
+  Studio straight away. Studio only; a live server never runs it.
 - Fixed (#49): a server error on every frame while any base had no guard
   (every new player), which also stopped every other base's guard from
   moving. The boot check now plays 30 frames, so per-frame errors fail CI.

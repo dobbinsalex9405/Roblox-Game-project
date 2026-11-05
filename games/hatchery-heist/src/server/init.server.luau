@@ -246,6 +246,25 @@ local ready: Actions.Actions = Actions.new({
 })
 actions = ready
 
+-- Studio test panel: give any creature, so guard walks and rides can be
+-- checked without hatching the right egg first.
+do
+	local speciesIds = {}
+	for id in config.creatures.species do
+		table.insert(speciesIds, id)
+	end
+	table.sort(speciesIds)
+	services.addTestAction(
+		"creature",
+		"Give a creature (on a free pad, ready to ride or guard)",
+		speciesIds,
+		function(player: Player, speciesId: string): string
+			local _, text = ready:grantCreature(player, speciesId)
+			return text
+		end
+	)
+end
+
 local notify = function(player: Player, text: string)
 	fire(Remotes["HH:Notice"], player, text)
 end

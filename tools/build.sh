@@ -3,6 +3,7 @@
 #   tools/build.sh hatchery-heist
 #   tools/build.sh all
 #   BUILD_ENVIRONMENT=staging tools/build.sh hatchery-heist
+#   BUILD_OUT=build/audit-places tools/build.sh all   # another output folder
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -15,6 +16,7 @@ case "$environment" in
 	dev | staging | production) ;;
 	*) echo "BUILD_ENVIRONMENT must be dev, staging or production, not '$environment'" >&2; exit 2 ;;
 esac
+out="${BUILD_OUT:-build}"
 
 # Runs in a subshell so the EXIT trap restores this game's stamp file however
 # the build ends (success, failure or Ctrl-C), before the next game starts.
@@ -28,9 +30,9 @@ build_game() (
 	cp "$stamp" "$backup"
 	trap 'cp "$backup" "$stamp"; rm -f "$backup"' EXIT
 	printf -- '--!strict\n-- Written by tools/build.sh. Do not edit.\nreturn { commit = "%s", environment = "%s" }\n' "$commit" "$environment" > "$stamp"
-	mkdir -p build
-	rojo build "$dir" --output "build/$game.rbxl"
-	echo "Built build/$game.rbxl at $commit for $environment"
+	mkdir -p "$out"
+	rojo build "$dir" --output "$out/$game.rbxl"
+	echo "Built $out/$game.rbxl at $commit for $environment"
 )
 
 if [[ "${1:-}" == "all" ]]; then
