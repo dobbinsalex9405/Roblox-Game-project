@@ -1048,8 +1048,9 @@ def raincloud(c, H, col, col2=None, a=None):
 def _raincloud_float(c, k, col, col2):
     """A raincloud floating over the head: its underside is 5 voxels above
     the top of the head, it overhangs both sides, and 4 thin drips (col2)
-    with a round drop hang from the overhang, every voxel at least 5 steps
-    (Manhattan) from the head, so the weld pass leaves it floating."""
+    with a round drop hang from the overhang, clear of the head. It is an
+    "orbit" part, so the weld pass and the loose-piece check leave it
+    floating, and it turns slowly in place over the head."""
     y, zt = _crown(c)
     eyes = _find(c, 'eyes')
     solid = set()
@@ -1057,11 +1058,13 @@ def _raincloud_float(c, k, col, col2):
         if p.name not in ('cloud', 'raindrops'):
             solid |= set(p.v)
     ztop = max(q[2] for q in solid)
-    R = 2.1 * k
+    R = 1.7 * k
     zb = ztop + 5
-    cloud = c.part('cloud', 'static')
+    cloud = c.part('cloud', 'orbit')
     cloud.v = {}
-    puffs(cloud, (0, y + 0.3 * k, zb + 0.9 * R * 0.6), R, col, n=7, seed=8, flat=0.6)
+    cy, cz = y + 0.3 * k, zb + 0.9 * R * 0.6
+    cloud.pivot = (0, cy, cz)
+    puffs(cloud, (0, cy, cz), R, col, n=6, seed=8, flat=0.6)
     right = {q: v for q, v in cloud.v.items() if q[0] >= 0}
     cloud.v = dict(right)
     for (x, yy, z), v in right.items():
@@ -1070,7 +1073,7 @@ def _raincloud_float(c, k, col, col2):
     for q in list(cloud.v):
         if (q[0], q[1], q[2] - 1) not in cloud.v:
             cloud.v[q] = (shade, False)
-    drops = c.part('raindrops', 'glow')
+    drops = cloud  # one piece with the cloud, so the drips turn with it
 
     def clear(q):
         return all(abs(q[0] - s[0]) + abs(q[1] - s[1]) + abs(q[2] - s[2]) >= 5
