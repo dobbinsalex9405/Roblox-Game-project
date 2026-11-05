@@ -195,3 +195,21 @@ PASS with two layout findings.
 - Phone 844x392 looking into the wood: 60 fps in all four directions.
 - Output: no "nature meshes did not load" and no texture-type errors. One warning: grass texture
   95042477743332 "Asset content representation is being generated" (still processing on Roblox).
+
+## Gate: #76 at 5dc6ed9 (Golden Egg Shop)
+
+FAIL on readability (lighting); everything else passes.
+- Placement PASS: GoldenEggShop at angle 22.5°, radius 61.6, 32x21x28. Its front (LookVector) faces
+  the nest. Nothing else overlaps its box (`76-hh-shop-outside`).
+- Layout PASS: 8 displays. Coin packs on one wall (5K, 30K, 80K, 200K), Auto-Collect, Extra
+  Incubators, Double Coins and Shield Refill on the other. A Hamster shopkeeper stands behind the
+  counter. "Coins" and "Passes & Shield" wall signs.
+- Buy PASS: the prompt reads "80K Coins / Buy for R$ 199" (E, no hold). Pressing it opened the
+  Roblox "Buy item 80K Coins 199 / test purchase" window, which I closed with its X. Output logged
+  "[Shop] purchase prompted key=CoinPackBig ... source=GoldenEggShop".
+- Walking in and out: no getting stuck.
+- **FAIL, overexposed inside:** 78 Neon parts, 10 PointLights and bloom (Intensity 0.35, Threshold
+  1.6) on pale wood wash the room out to white and yellow. The price-tag cards (2.5x1.5 studs with
+  4 text lines) and the wall signs show as blank white with faint text, so you can't read them
+  (`76-hh-shop-coin-wall`, `76-hh-shop-counter`). From outside, the shop looks good.
+- Output: no game errors.
