@@ -528,6 +528,17 @@ def build_one(c, out_root, do_render, fast):
     return meta
 
 
+def to_designs(src, library, c):
+    """Copy a built creature into the shared design library that Alex's 3D
+    viewer reads: the glb (with its clips), meta.json and the renders."""
+    import shutil
+    dest = os.path.join(library, 'Creatures', 'Hatchery Heist', c.rarity, c.species)
+    os.makedirs(dest, exist_ok=True)
+    for name in os.listdir(src):
+        if name.endswith(('.glb', '.png', '.gif', '.json')) and not name.endswith('_palette.png'):
+            shutil.copyfile(os.path.join(src, name), os.path.join(dest, name))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('out')
@@ -535,6 +546,8 @@ def main():
     ap.add_argument('--only')
     ap.add_argument('--no-render', action='store_true')
     ap.add_argument('--fast', action='store_true')
+    ap.add_argument('--designs', help='also copy each creature into this design library '
+                    '(<dir>/Creatures/Hatchery Heist/<Tier>/<Species>/: glb, meta, renders)')
     a = ap.parse_args()
     out = os.path.abspath(a.out)
     os.makedirs(out, exist_ok=True)
@@ -544,6 +557,8 @@ def main():
         m = build_one(c, out, not a.no_render, a.fast)
         print(f"{c.species:16s} {c.rarity:10s} {m['tris']:6d} tris  {len(m['parts'])} parts", flush=True)
         metas.append(m)
+        if a.designs:
+            to_designs(os.path.join(out, c.species), a.designs, c)
     path = os.path.join(out, 'manifest.json')
     old = {}
     if os.path.exists(path):
