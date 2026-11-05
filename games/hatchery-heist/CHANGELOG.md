@@ -11,6 +11,8 @@
 - A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
   longer also gets the generic rainbow cubes.
 - Crabs and lobsters with up to six legs a side walk on all of them.
+- Godlies stand about three times as tall as a Common (6 studs), across
+  their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
 
