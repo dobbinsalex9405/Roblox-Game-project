@@ -207,7 +207,7 @@ local function moveGuards(dt: number)
 			g.Material = Enum.Material.Neon
 			g.Anchored = true
 			g.CanCollide = false
-			g.CFrame = CFrame.new(px, Layout.FLOOR_TOP + size / 2, pz) * (model:GetPivot()).Rotation
+			g.CFrame = CFrame.new(px, Layout.FLOOR_WORLD_TOP + size / 2, pz) * (model:GetPivot()).Rotation
 			g:SetAttribute("Uid", creature.uid)
 			g.Transparency = 1 -- the client draws the creature (CreatureView)
 			g:SetAttribute("CreatureLook", creature.speciesId)

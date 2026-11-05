@@ -2,6 +2,27 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+
+## 2026-11-05: Hatchery Heist floor height and music fades
+
+- **Bases are lowered, not rebuilt.** Alex found the 1-stud floor step "way
+  too high". The whole base's frame moves down 0.7 studs (`Layout.PLOT_Y`),
+  so the floor is a 0.3-stud deck (0.1 above the plaza) and every position
+  inside a base keeps its old numbers. The floor is 0.4 studs thick so its
+  centre stays above the ground for the boot check's buried-part rule, and
+  the server asserts at start-up that every floor top is between 0.05 and
+  0.5 studs, so CI's boot check fails if it creeps back up.
+- **Music never jumps in.** It used to start whenever the first track
+  finished loading, with a 2 s fade that is half volume after half a second,
+  which startled Alex. Now it waits until the player has spawned, rises
+  over 4 s on a Sine-in curve (quiet at first), crossfades 3 s between
+  tracks before each ends, and the Music button fades over 2 s. The numbers
+  are in `atmosphere.music`.
+- **No typed symbols outside the fonts.** The goal line's "➜" and the guide
+  arrow's "▼" are not in the game fonts and showed as boxes. The goal line
+  has a drawn gold "GOAL" tag and the arrow is two frames. Emoji are fine:
+  Roblox draws them with its emoji font.
+
 ## 2026-11-05: Hatch reveal and Hatchery Book (Hatchery Heist)
 
 - **The book's reward is income, not luck.** Each species found adds +1%

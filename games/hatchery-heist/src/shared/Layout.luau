@@ -9,7 +9,13 @@ local Layout = {}
 Layout.PLOTS = 8 -- one per player; servers hold 8 (ops/SETUP.md)
 Layout.RING_RADIUS = 110
 Layout.PLOT_SIZE = 64
-Layout.FLOOR_TOP = 1 -- the floor's top surface, in studs above the baseplate
+Layout.FLOOR_TOP = 1 -- the floor's top surface, in the base's own space
+-- Each base's own space sits this far below the ground, so the floor shows
+-- only a low lip above the grass (0.3 studs; the plaza is at 0.2). The
+-- numbers inside a base stay as they were and everything moves together.
+Layout.PLOT_Y = -0.7
+Layout.FLOOR_THICKNESS = 0.4 -- thin enough that the floor's centre stays above the ground
+Layout.FLOOR_WORLD_TOP = Layout.FLOOR_TOP + Layout.PLOT_Y -- the floor's top in the world
 
 Layout.INCUBATOR_COLUMNS = 7
 Layout.INCUBATOR_POSITIONS = 14 -- economy.incubators.maxSlots + passBonusSlots
@@ -29,7 +35,8 @@ Layout.SPAWN = Vector3.new(0, 4, 24)
 function Layout.plotCFrame(index: number): CFrame
 	local angle = (index - 1) / Layout.PLOTS * 2 * math.pi
 	local position = Vector3.new(math.cos(angle), 0, math.sin(angle)) * Layout.RING_RADIUS
-	return CFrame.lookAt(position, Vector3.zero)
+	local drop = Vector3.new(0, Layout.PLOT_Y, 0)
+	return CFrame.lookAt(position + drop, drop)
 end
 
 function Layout.incubator(slot: number): Vector3

@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Each base's floor now sits just above the grass (a 0.3-stud deck instead
+  of a 1-stud step), with everything on it lowered to match.
+- Music fades in gently once you have spawned instead of starting at a
+  random moment, crossfades between tracks, and fades on the Music button.
+- The goal line's arrow showed as a missing-glyph box; it now has a gold
+  "GOAL" tag, and the arrow over the goal is drawn instead of typed.
 - Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
   flash, and the creature turns under its rarity, name, income and exact
   chance, with rays, glow, confetti and screen shake as rarity rises. Tap to

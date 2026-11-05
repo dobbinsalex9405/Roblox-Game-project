@@ -71,7 +71,10 @@ return {
 		-- playtest: Beautiful Morning, Mellow Landscape, Castle Reel.
 		tracks = { 1846167658, 1842262737, 1845861718 },
 		volume = 0.25,
-		fadeSeconds = 2,
+		fadeSeconds = 2, -- the Music button fades it out and in
+		startDelaySeconds = 1, -- after the player first spawns
+		startFadeSeconds = 4, -- from silence at join, slow at first
+		crossfadeSeconds = 3, -- each track fades into the next
 	},
 	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
 	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
