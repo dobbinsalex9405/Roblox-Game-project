@@ -25,11 +25,11 @@ local BUDGET: { [string]: number } = {
 
 local nature = atmosphere.scenery.nature
 
-local function always(_: number): boolean
+local function always(_: number, _: number): boolean
 	return true
 end
 
-local function plan(clear: ((number) -> boolean)?)
+local function plan(clear: ((number, number) -> boolean)?)
 	return NaturePlan.plan(nature :: any, Layout.PLOTS, clear or always, {
 		{ x = 320, z = 0, top = 60, width = 40 },
 		{ x = 0, z = 320, top = 60, width = 40 },
@@ -105,8 +105,13 @@ describe("Nature art", function()
 	end)
 
 	it("only names models that exist in the config", function()
-		for _, id in nature.gapTrees do
-			expect(EnvArt.models[id] ~= nil and id or `gapTrees: no model {id}`).toBe(id)
+		expect(EnvArt.models[nature.hillPine] ~= nil and "ok" or `hillPine: no model {nature.hillPine}`).toBe(
+			"ok"
+		)
+		for _, list in { nature.gap.trees, nature.gap.bushes } do
+			for _, id in list do
+				expect(EnvArt.models[id] ~= nil and id or `gap: no model {id}`).toBe(id)
+			end
 		end
 		for species in nature.wood.species do
 			expect(#NaturePlan.sizesOf(species) > 0 and species or `wood: no models for {species}`).toBe(
@@ -117,6 +122,28 @@ describe("Nature art", function()
 end)
 
 describe("Nature plan", function()
+	it("frames every gap with two small trees and keeps the pines on the hills", function()
+		local perGap: { [number]: number } = {}
+		for _, spot in plan() do
+			if string.sub(spot.model, 1, 8) == "StarPine" then
+				expect(spot.y > 0 and "hill" or `{spot.model} on flat ground at {spot.x}, {spot.z}`).toBe(
+					"hill"
+				)
+			end
+			for _, id in nature.gap.trees do
+				local r = math.sqrt(spot.x * spot.x + spot.z * spot.z)
+				if spot.model == id and math.abs(r - nature.gap.radius) < 0.01 then
+					local degrees = math.deg(math.atan2(spot.z, spot.x)) % 360
+					local gap = math.floor(degrees / 45) + 1
+					perGap[gap] = (perGap[gap] or 0) + 1
+				end
+			end
+		end
+		for gap = 1, Layout.PLOTS do
+			expect(perGap[gap] or 0).toBe(2)
+		end
+	end)
+
 	it("is the same every time", function()
 		local a, b = plan(), plan()
 		expect(#a).toBe(#b)
@@ -133,8 +160,9 @@ describe("Nature plan", function()
 			local kind = EnvArt.models[spot.model].kind
 			counts[kind] = (counts[kind] or 0) + 1
 		end
-		-- gap trees + the wood + one pine on every other hill (two hills here, so one)
-		expect(counts.tree).toBe(Layout.PLOTS + nature.wood.count + 1)
+		-- two gap trees per gap + the wood + one pine on every other hill
+		-- (two hills here, so one)
+		expect(counts.tree).toBe(Layout.PLOTS * 2 + nature.wood.count + 1)
 		expect(counts.rock).toBe(nature.scatter.rocks)
 		expect(counts.grass).toBe(nature.scatter.tufts)
 	end)
@@ -157,18 +185,16 @@ describe("Nature plan", function()
 		end
 	end)
 
-	it("keeps trees apart and respects the farm's clear angles", function()
-		local blocked = function(angle: number): boolean
-			local degrees = math.deg(angle) % 360
-			return not (degrees > 10 and degrees < 35)
+	it("keeps trees apart and keeps off the farm", function()
+		-- a farm piece in the first gap (22.5 degrees, 186 out), 32 studs clear
+		local fx, fz = math.cos(math.rad(22.5)) * 186, math.sin(math.rad(22.5)) * 186
+		local function clear(x: number, z: number): boolean
+			return math.sqrt((x - fx) ^ 2 + (z - fz) ^ 2) >= 32
 		end
 		local trees = {}
-		for _, spot in plan(blocked) do
-			local degrees = math.deg(math.atan2(spot.z, spot.x)) % 360
+		for _, spot in plan(clear) do
 			if spot.y == 0 then
-				expect(blocked(math.rad(degrees)) and spot.model or `{spot.model} at {degrees} degrees`).toBe(
-					spot.model
-				)
+				expect(clear(spot.x, spot.z) and spot.model or `{spot.model} on the farm`).toBe(spot.model)
 			end
 			if spot.tree then
 				table.insert(trees, spot)

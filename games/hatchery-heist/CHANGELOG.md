@@ -7,6 +7,13 @@
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.
+- Fix: climbing the tower ladder from inside the tower no longer gets you
+  stuck under the next floor. Each floor has an opening beside the ladder
+  you climb through and step off onto.
+- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
+  phone.
+- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
+  no longer says "(Tower menu)".
 - The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
@@ -40,6 +47,10 @@
   (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
   long hind feet and rounder faces; the Lop Bunny's ears hang beside its
   cheeks.
+- Small trees and a bush now frame each piece of the farm between the
+  bases, the wood grows behind the farm too, and the Star Pines stand on
+  the hills (one on every other hill) instead of on flat grass.
+
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala

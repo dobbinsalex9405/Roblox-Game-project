@@ -1,14 +1,14 @@
 --!strict
--- Where Hatchery Heist's outdoor nature goes: one tree in each gap between
--- neighbouring bases, a wood of mixed trees round the outside of the ring,
+-- Where Hatchery Heist's outdoor nature goes: a small tree on each side of
+-- every gap between neighbouring bases (framing the farm there), a wood of mixed trees round the outside of the ring,
 -- pines on the hills, and bushes, rocks, flower patches, grass tufts and
 -- mushroom rings scattered through it. Pure and seeded, so every server
 -- (and the tests) plan the same world. Models come from EnvArt
 -- (tools/art/env); numbers from config/atmosphere.luau `scenery.nature`.
 --
 -- Angles are radians round the ring (0 = +X, as Layout.plotCFrame), radii
--- in studs from the centre. `clear(angle)` says whether an angle is free
--- (the farm keeps its spots clear).
+-- in studs from the centre. `clear(x, z)` says whether a point on the
+-- ground is free (the farm keeps its spots clear).
 
 local EnvArt = require("./EnvArt")
 
@@ -24,8 +24,7 @@ export type Spot = {
 
 export type Config = {
 	seed: number,
-	gapTrees: { string },
-	gapRadius: number,
+	gap: { trees: { string }, bushes: { string }, radius: number, degrees: number },
 	wood: {
 		count: number,
 		radiusMin: number,
@@ -45,6 +44,7 @@ export type Config = {
 		mushroomRings: number,
 	},
 	hillPines: number,
+	hillPine: string,
 }
 
 export type Hill = { x: number, z: number, top: number, width: number }
@@ -107,7 +107,7 @@ end
 function NaturePlan.plan(
 	config: Config,
 	plots: number,
-	clear: (number) -> boolean,
+	clear: (number, number) -> boolean,
 	hills: { Hill }?
 ): { Spot }
 	local r = rng(config.seed)
@@ -139,12 +139,26 @@ function NaturePlan.plan(
 		table.insert(taken, { x = x, z = z, r = if tree then footprint * 0.6 else footprint })
 	end
 
-	-- one tree in each gap between neighbouring bases
+	-- a small tree each side of every gap between neighbouring bases, and a
+	-- bush at the foot of one of them (the side alternates round the ring)
+	local g = config.gap
 	for index = 1, plots do
-		local angle = (index - 0.5) / plots * math.pi * 2
-		if clear(angle) then
-			local model = config.gapTrees[(index - 1) % #config.gapTrees + 1]
-			add(model, math.cos(angle) * config.gapRadius, math.sin(angle) * config.gapRadius, 1, true)
+		local middle = (index - 0.5) / plots * math.pi * 2
+		local model = g.trees[(index - 1) % #g.trees + 1]
+		for side = -1, 1, 2 do
+			local angle = middle + side * math.rad(g.degrees)
+			local x, z = math.cos(angle) * g.radius, math.sin(angle) * g.radius
+			if clear(x, z) then
+				add(model, x, z, r.range(0.95, 1.1), true)
+				if #g.bushes > 0 and side == (if index % 2 == 0 then 1 else -1) then
+					-- just outside the tree's trunk, a little further out
+					local bush = g.bushes[(index - 1) % #g.bushes + 1]
+					local bx, bz = math.cos(angle) * (g.radius + 6), math.sin(angle) * (g.radius + 6)
+					if clear(bx, bz) and free(bx, bz, EnvArt.models[bush].size[1] * 0.5) then
+						add(bush, bx, bz, r.range(0.95, 1.15), false)
+					end
+				end
+			end
 		end
 	end
 
@@ -155,10 +169,10 @@ function NaturePlan.plan(
 	while placed < w.count and tries < w.count * 30 do
 		tries += 1
 		local angle = r.range(0, math.pi * 2)
-		if not clear(angle) then
+		local radius = r.range(w.radiusMin, w.radiusMax)
+		if not clear(math.cos(angle) * radius, math.sin(angle) * radius) then
 			continue
 		end
-		local radius = r.range(w.radiusMin, w.radiusMax)
 		local t = (radius - w.radiusMin) / math.max(w.radiusMax - w.radiusMin, 1)
 		local sizes = NaturePlan.sizesOf(weighted(r, w.species))
 		if #sizes == 0 then
@@ -185,9 +199,11 @@ function NaturePlan.plan(
 				break
 			end
 			if i % 2 == 1 then
-				local sizes = NaturePlan.sizesOf("StarPine")
-				if #sizes > 0 then
-					add(sizes[#sizes], hill.x, hill.z, math.clamp(hill.width / 40, 0.9, 1.3), true, hill.top)
+				-- the medium pine, scaled up: from the hills' distance the large
+				-- one's extra detail is never seen, only its triangles
+				local model = config.hillPine
+				if EnvArt.models[model] then
+					add(model, hill.x, hill.z, math.clamp(hill.width / 30, 1.2, 1.7), true, hill.top)
 					n += 1
 				end
 			end
@@ -202,11 +218,11 @@ function NaturePlan.plan(
 		while done < count and attempts < count * 20 do
 			attempts += 1
 			local angle = r.range(0, math.pi * 2)
-			if not clear(angle) then
-				continue
-			end
 			local radius = r.range(s.radiusMin, s.radiusMax)
 			local x, z = math.cos(angle) * radius, math.sin(angle) * radius
+			if not clear(x, z) then
+				continue
+			end
 			local model = models[r.int(1, #models)]
 			if EnvArt.models[model] == nil then
 				continue

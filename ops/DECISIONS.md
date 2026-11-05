@@ -2,6 +2,38 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Hatchery Heist farm hub: buildings and layout
+
+- **What:** 25 hub props in `tools/art/world/hub.py` (kinds `building` and
+  `hubprop`, zone `hub`), exported into `WorldArt.luau` like every other
+  world prop: Hatchery Barn (the landmark), Silo, Windmill, Well, Chicken
+  Coop, three market stalls, Theme Stand, Book stand, Market Arch, Duck
+  Pond, Vegetable Patch, Haystack, Scarecrow, and street props (picket
+  fence, gate, rail fence, lamp post, signpost, Daily Rewards mailbox,
+  notice board, bench, planter, path stones, egg cart). Shop building and
+  interior belong to the shop thread (`ShopArt.luau`); grass, sky and
+  trees to the environment thread.
+- **Layout lives in config** (`atmosphere.luau` `scenery.hub`), as angle and
+  radius round the Golden Nest, each piece facing the centre. Bases and
+  their paths are on 0, 45, 90 ...; the wedges between are centred on
+  22.5 + 45k. Market arches on the base angles at r31, Book stand, mailbox
+  and notice board by the market (r35 to r37), buildings r37 to r66, all
+  inside r30 to r72 (belt edge r29.2, base fronts r78). Path width 10 is
+  assumed. The shop's plot (22.5°, r62, 30 x 24, from the shop thread's
+  `shophouse.luau`) is mirrored so nothing lands on it. The barn, windmill
+  and silo replace `Farm.luau`'s outer farm (the polish thread wires the
+  hub in and removes the outer farm).
+- **`tests/HubLayout.spec.luau`** turns each footprint to face the centre
+  and fails if a piece leaves r30 to r72, touches a path, the shop or
+  another piece, lamp or signpost. Move things in config and the test says
+  what collides.
+- **Budgets:** a `building` may use up to 700 boxes (the barn uses ~640 at
+  0.4-stud voxels; it is one landmark), `hubprop` 80. Every hub prop
+  together, as laid out, is about 4,500 Parts.
+- **Signs are blank:** stalls, the Theme Stand, Book stand, arch, silo and
+  notice board carry a blank cream face; the game writes the text
+  (SurfaceGui), at the prop's `anchor` (the face centre).
+
 ## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
 
 - **Alex asked (11:24Z) for an interior area for Robux spending.** One
@@ -30,6 +62,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
 
+
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 
 - **The palette PNG is uploaded as an Image asset.** MeshPart.TextureID needs an
@@ -40,6 +73,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   "Image"`**, so a wrong id draws the voxel boxes, never a grey mesh.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
+
 
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
@@ -58,6 +92,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   inventory is where a collection lives; overflow still sells the weakest.
 - **The raider must stand on the floor** (server checks height): the ladder
   is the only way up for a raider, which gives owners time to react.
+
 ## 2026-11-05: Hatchery Heist towers are cozy apartments, the farm is only the centre
 
 - **Alex's direction (10:52Z):** no farm theme on the towers; a farm in the
@@ -100,6 +135,16 @@ Non-obvious choices, newest first, so a later session can trust them.
   face, a Texture or a TextureID draws nothing ("Asset type does not match",
   found on #66's gate). upload.py checks the type that comes back and
   luau.py writes 0 for anything not recorded as an Image.
+- **The farm clears circles, not wedges** (gate follow-up). Trees once kept
+  13 degrees each side of every farm piece clear at every distance, which
+  emptied the gaps between bases (each holds a farm piece) and the wood
+  behind them. Now each piece keeps `farm.clearRadius` studs round itself
+  clear, a small tree stands on each side of every gap's farm piece (a bush
+  at the foot of one), and the wood fills in behind.
+- **Star Pines only on the hills** (gate follow-up): on flat grass in the
+  wood they read as random, on the hilltops as landmarks. Every other hill
+  gets one, the medium model scaled up (the large one's detail is never
+  seen from there), so 11 hill pines cost about what 6 large ones did.
 - **Uploads ride the creature workflow** (`art = nature`): a new workflow
   cannot be started until it is on main, and the ids are committed back onto
   the branch that ran it so they arrive in the same PR.
