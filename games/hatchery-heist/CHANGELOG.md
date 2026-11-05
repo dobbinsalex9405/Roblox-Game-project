@@ -4,6 +4,13 @@
 
 - Phones: shop buttons are 40 px tall (thumb-sized), and every shop card
   reads top to bottom (name, description, price, button).
+- Fixed (#49): a server error on every frame while any base had no guard
+  (every new player), which also stopped every other base's guard from
+  moving. The boot check now plays 30 frames, so per-frame errors fail CI.
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
 - First look (Alex's Nov 4 play test): a welcome screen on a new player's
   first join and a Guide button in a new side menu to reopen it; a goal line
   under the coin bar with a beam and arrow to the next thing to do (first

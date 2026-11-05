@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
 - Fix: the map was buried in the ground. The Baseplate was placed with a
   property Rojo drops when it builds the place, so it sat ten studs too high
   and covered every floor, pad and label. It is now placed with CFrame, and

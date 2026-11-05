@@ -14,7 +14,7 @@ local Movement = require(ReplicatedStorage.Core.Movement)
 local Util = require(ReplicatedStorage.Core.Util)
 local Shared = ReplicatedStorage.Shared
 local Geometry = require(Shared.Geometry)
-local Hatchery = require(Shared.Hatchery)
+local Defenses = require(Shared.Defenses)
 local Layout = require(Shared.Layout)
 local Raids = require(Shared.Raids)
 
@@ -179,11 +179,10 @@ local function moveGuards(dt: number)
 	local raidsConfig = deps.config.raids
 	for plot = 1, Layout.PLOTS do
 		local owner = World.ownerOfIndex(plot)
-		local d = owner and deps.data:get(owner)
-		local creature = d and d.guardUid ~= "" and Hatchery.creatureByUid(d, d.guardUid)
-		local species = creature and deps.config.creatures.species[creature.speciesId]
+		local d = if owner then deps.data:get(owner) else nil
+		local creature, species = Defenses.guardOf(d, deps.config.creatures.species)
 		local guard = guards[plot]
-		if species == nil or owner == nil then
+		if creature == nil or species == nil or owner == nil then
 			if guard then
 				guard:Destroy()
 				guards[plot] = nil
