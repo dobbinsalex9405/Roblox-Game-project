@@ -1175,31 +1175,40 @@ def sentinel(c, H, cols, opts):
                 _sym(body, x + max(0, round(0.15 * k)), y, z, col)
     # the head: small and round with a tapered snout
     hz = hip + 5.4 * k
-    head.ell((0, -0.3 * k, hz), (1.4 * k, 1.15 * k, 1.05 * k), col)
+    head.ell((0, -0.3 * k, hz), (1.6 * k, 1.15 * k, 1.05 * k), col)
     head.ell((0, -1.2 * k, hz - 0.35 * k), (0.55 * k, 0.75 * k, 0.5 * k), belly)
     f = head.front(0, round(hz - 0.2 * k))
     if f:
-        _sym(head, 0, f[1], f[2], INK)
+        _sym(head, 0, f[1], f[2], INK)  # a small dark nose tip
     es = max(1, round(0.4 * k))
     ez = round(hz + 0.05 * k)
-    # eyes one column out from the middle (on the face, whatever the
-    # detail), so the two middle columns stay light between the patches
+    # the eyes two columns out from the middle, so light fur shows between
+    # each eye patch and the muzzle, and wider between the two patches
     xs = [p[0] for p in head.v if p[2] == ez and p[0] >= 0]
-    eyes(c, head, max(0, min(1, max(xs) - es + 1)), ez, es)
-    # a dark patch around each eye, never towards the middle, and a glint
+    ex = max(0, min(2, max(xs) - es + 1))
+    eyes(c, head, ex, ez, es)
     e = _find(c, 'eyes')
-    ring = {(p[0], p[2]) for p in e.v}
-    for p, (cc, g) in list(head.v.items()):
-        near = [(x, z) for (x, z) in ring if 0 <= abs(p[0] + .5) - abs(x + .5) <= 1 and abs(p[2] - z) <= 1 and (p[0] >= 0) == (x >= 0)]
-        if near and p[1] < -0.6 * k and cc != INK:
-            head.v[p] = (patch, g)
     if _fine(c):
-        # the glint: a white voxel just outside each eye, on the face
+        # each patch a small teardrop running down from its eye, and a
+        # white glint beside the eye on the outer side
+        cells = [(ex, ez - 1), (ex + 1, ez - 1), (ex, ez - 2)]
+        for side in (1, -1):
+            for (x, z) in cells:
+                xx = x if side > 0 else _mx(x)
+                f = head.front(xx, z)
+                if f and f[1] < -0.6 * k and head.v[f][0] != INK:
+                    head.v[f] = (patch, False)
+            for gx in (ex + 1, ex - 1):  # outside the eye if the face is wide enough, else inside
+                xx = gx if side > 0 else _mx(gx)
+                f = head.front(xx, ez)
+                if gx >= 0 and f and f[1] < -0.6 * k:
+                    head.v[f] = (WHITE, False)
+                    break
+    else:
         for p in e.v:
-            x = p[0] + (1 if p[0] >= 0 else -1)
-            f = head.front(x, p[2])
-            if f and abs(f[1] - p[1]) <= 1:
-                head.v[f] = (WHITE, False)
+            f = head.front(p[0], p[2] - 1)
+            if f and head.v[f][0] != INK:
+                head.v[f] = (patch, False)
     # small dark ears low on the sides
     ep = c.part('ears', 'static', head.pivot)
     r = max(1.0, 0.35 * k)
