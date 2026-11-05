@@ -45,7 +45,7 @@ dict, its extra keys are the settings named below):
 - **leaf**: a big cut leaf held in the jaws, over the back (a leafcutter
   ant's), vein color2.
 - **mandibles**: big antler jaws (a stag beetle's), the little horn removed.
-- **feelers**: the head's ink antennae replaced by two short thin ones in
+- **short_feelers**: the head's ink antennae replaced by two short thin ones in
   color; color2 paints a stripe over the head.
 - **chameleon**: a tall casque, turret eyes on the sides and a tail rolled
   in a spiral (colour: casque; color2: eye turrets).
@@ -1299,5 +1299,5 @@ ACCESSORIES = {
     'membrane': membrane, 'tear_marks': tear_marks, 'claw_arms': claw_arms, 'ring_tail': ring_tail,
     'poms': poms, 'beak': beak, 'cheeks': cheeks, 'face': face, 'hood': hood, 'throat_bars': throat_bars,
     'plume': plume, 'lift_legs': lift_legs, 'fold_wings': fold_wings, 'leaf': leaf, 'mandibles': mandibles,
-    'feelers': feelers, 'chameleon': chameleon, 'symmetry': symmetry,
+    'short_feelers': feelers, 'chameleon': chameleon, 'symmetry': symmetry,
 }
