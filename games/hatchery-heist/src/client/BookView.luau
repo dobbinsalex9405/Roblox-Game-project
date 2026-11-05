@@ -438,7 +438,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		fill.Size = UDim2.fromScale(if total > 0 then have / total else 0, 1)
 	end
 
-	local function select(tab: Tab)
+	local function selectTab(tab: Tab)
 		if current and current ~= tab then
 			for _, card in current.cards do
 				dropModel(card)
@@ -462,7 +462,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	for _, tab in tabs do
 		tab.button.Activated:Connect(function()
 			Sfx.play("click")
-			select(tab)
+			selectTab(tab)
 		end)
 	end
 	body:GetPropertyChangedSignal("CanvasPosition"):Connect(cull)
@@ -504,7 +504,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 				end
 			end
 			if pick then
-				select(pick)
+				selectTab(pick)
 			end
 			if newCount() > 0 then
 				ctx.fire(ctx.remotes["HH:BookSeen"])
