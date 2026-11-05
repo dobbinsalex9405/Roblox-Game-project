@@ -13,6 +13,7 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
 | `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |
 | `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
+| `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
 
@@ -34,6 +35,9 @@ and keep its id, tier, plan, gait and element.
    lists the id. Until then `export.py` and `blender/luau.py` leave it out
    of the generated files and say so, so CI stays green. After adding the
    config line, re-run both and commit the generated files.
+5. `python3 tools/art/check.py` must end in `RESULT: PASS` before the PR
+   goes to review; send the reviewer its table of new creatures, the head
+   commit and the renders.
 
 ## Changing a creature
 

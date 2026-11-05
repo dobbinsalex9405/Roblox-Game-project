@@ -6,8 +6,8 @@
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
   snakes slither and flyers hover with faster wing beats.
-- Creatures more than one floor away from you are not drawn, so a full
-  tower stays smooth.
+- Inside a tower, creatures more than one floor from you are not drawn,
+  so a full tower stays smooth; from the yard every floor shows.
 - A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
   longer also gets the generic rainbow cubes.
 - Crabs and lobsters with up to six legs a side walk on all of them.
@@ -15,6 +15,13 @@
   their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
+- Fix: climbing the tower ladder from inside the tower no longer gets you
+  stuck under the next floor. Each floor has an opening beside the ladder
+  you climb through and step off onto.
+- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
+  phone.
+- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
+  no longer says "(Tower menu)".
 - The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
@@ -38,6 +45,9 @@
   and three sizes, with bushes, mossy rocks, flowers, grass and glowing
   mushroom rings, pines on the hills, a painted storybook sky with voxel
   clouds and floating islands, and a grass texture on the ground.
+- Small trees and a bush now frame each piece of the farm between the
+  bases, the wood grows behind the farm too, and the Star Pines stand on
+  the hills (one on every other hill) instead of on flat grass.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,

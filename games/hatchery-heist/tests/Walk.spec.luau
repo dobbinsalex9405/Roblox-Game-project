@@ -201,3 +201,18 @@ describe("Walk poses over time", function()
 		expect(spread.dy < under.dy).toBe(true)
 	end)
 end)
+
+describe("Walk culling", function()
+	-- Coordinator's gate question, Nov 5: from the yard the upper floors
+	-- looked empty because every tower culled by floor, even from outside.
+	it("shows every floor of a tower to someone outside it", function()
+		expect(Walk.culled(false, 9, 60, cfg)).toBe(false)
+		expect(Walk.culled(false, 0, cfg.cullOutsideStuds + 1, cfg)).toBe(true)
+	end)
+
+	it("inside a tower, draws only the floors near yours", function()
+		expect(Walk.culled(true, 0, 5, cfg)).toBe(false)
+		expect(Walk.culled(true, cfg.cullFloors, 5, cfg)).toBe(false)
+		expect(Walk.culled(true, cfg.cullFloors + 1, 5, cfg)).toBe(true)
+	end)
+end)
