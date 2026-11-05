@@ -59,7 +59,7 @@ local function collect(loaded: Instance, speciesId: string): (Model?, string?, s
 				model:Destroy()
 				return nil, `mesh {mesh.name} missing from asset {entry.assetId}`, nil
 			end
-			assert(mp)
+			assert(mp, "mesh part checked above")
 			-- The colours are the uploaded palette image, never the importer's
 			-- own PBR textures (their TexturePacks fail to build).
 			for _, child in mp:GetChildren() do
