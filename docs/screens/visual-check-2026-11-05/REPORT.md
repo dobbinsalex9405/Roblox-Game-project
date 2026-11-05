@@ -488,3 +488,23 @@ Worked without trouble: welcome "Let's go", goal banner steps, buying a Basic Eg
 - **Nest from the path: PASS.** With the centre boards gone, the Golden Egg and the coloured eggs show clearly above the ring. The 8 signs are small, low and outside the belt, and don't hide the nest (`97f-hh-nest-from-path.jpg`).
 - **Moved hub stands: not checkable in the world.** BookStand, ThemeStand, Mailbox and NoticeBoard exist only in the layout data and WorldArt; no instance with those names is built in this place. Only `HubLayout.spec` covers their spacing.
 - **Suggestions for the signs:** use fewer, bigger lines at about 1 stud or more of text, for example egg name and price on line 1, then "Rare 1 in 125 · Epic 1 in 5.6K · Legendary 1 in 50K" on two lines. Put the sign where the follow camera sees it past the character: on the left post, or raised so its face sits at about 5-7 studs, above the character's head and below the banner band. Alternatively keep the tiers in the tap-to-open odds card and have the sign show just the egg name, price and the rarest odds.
+
+## Roster to game: 61 new Commons, 4 patches on main f82fdd9
+
+The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with `git am` on a detached f82fdd9. The local head is bcbaf74: same patches, different committer, so the hash differs from ad38a11. The build reports `build=bcbaf74e6004`, and creatures.luau has 91 Commons, up from 30. Phone 844x392.
+
+**PASS.**
+- **Hatches:** 5 eggs (4 Meadow, 1 Basic). They gave Piglet (existing, Basic), **Skunk (new)**, **Dragonfly (new)**, Toad (existing) and **Lobster (new)**.
+  - Each new Common got the "NEW! Added to your Hatchery Book" reveal with "1 in 77.6", was placed on a pad, and earns.
+  - All three new Commons draw with their **meshes**, not voxel boxes: MeshParts Skunk 5, Dragonfly 5, Lobster 4. No "drawing voxel boxes" line for any new species.
+  - Their texture ids (Skunk 135003881643824, Dragonfly 98674226874925, Lobster 88648848823375) log "Asset content representation is being generated" in Studio. Expect them to look plain until Roblox finishes processing (`roster-hh-reveal-skunk.jpg`, `roster-hh-reveal-dragonfly.jpg`, `roster-hh-yard-new-commons.jpg`).
+- **Book:**
+  - Header "Found 3/114", Common tab "3/91".
+  - The grid holds 91 cards, each at least 104x150 px.
+  - It scrolls on phone to the last card (canvas 2532 px in a 198 px window) (`roster-hh-book-common-91-top.jpg`, `-end.jpg`).
+- **Odds unchanged from main:**
+  - Basic: 92 / 7 / 0.8 / 0.18 / 0.018 / 0.002 %.
+  - Meadow: 67 / 31 / 1.7 / 0.28 / 0.017 / 0.003 %.
+  - Moonlit: 58 / 38 / 3.7 / 0.29 / 0.008 / 0.002 %.
+  - The per-creature "1 in N" for a new Meadow Common is 77.6.
+- **Output:** nothing new beyond the texture-processing notices.
