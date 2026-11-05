@@ -97,6 +97,8 @@ def split_legs(c, Part):
     body = next((p for p in c.parts if p.name == 'body'), None)
     if body is None or not body.v:
         return []
+    if gait_hint(c) == 'slither':
+        return []  # arms or a foot it glides on, not legs (a starfish, a slug)
     zs = [p[2] for p in body.v]
     z0, top = min(zs), max(zs)
     if z0 > 0 or _slab_pieces(body.v, z0) < 2:
@@ -105,22 +107,54 @@ def split_legs(c, Part):
     limit = z0 + max(1, int((top - z0 + 1) * MAX_HIP))
     while hip + 1 < limit and _slab_pieces(body.v, hip + 1) >= 2:
         hip += 1
-    # Feet: the separate pieces of the bottom slab. Every low voxel goes to
-    # the foot below it, or the nearest one, so legs that touch higher up
-    # (a front and a back leg side by side) still come apart.
-    feet = _plan_pieces({(x, y) for (x, y, z) in body.v if z == z0})
-    # toes a voxel or two from their foot (webbed feet) are the same foot
+    # Feet: the separate pieces of the bottom slab, or of the slab above it
+    # when that one has more (a cricket's hind legs dip a voxel lower than
+    # its other four). Every low voxel goes to the foot below it, or the
+    # nearest one, so legs that touch higher up (a front and a back leg side
+    # by side) still come apart.
+    base = z0
+    if hip > z0 and _slab_pieces(body.v, z0 + 1) > _slab_pieces(body.v, z0):
+        base = z0 + 1
+    feet = _plan_pieces({(x, y) for (x, y, z) in body.v if z == base})
+    if base > z0:  # a belly just off the ground spans the middle: not a leg
+        feet = [f for f in feet if not (min(x for x, _ in f) < 0 <= max(x for x, _ in f))]
+    if base > z0:  # the lower tips belong to the feet above them
+        tips = _plan_pieces({(x, y) for (x, y, z) in body.v if z == z0})
+        feet = [f for f in feet if not any(f & t for t in tips)] + [
+            set().union(t, *[f for f in feet if f & t]) for t in tips]
+    # Toes are one foot: pieces close together that also join within a short
+    # ankle above the ground (webbed feet). Separate thin legs that stand
+    # close (a spider's, an ant's) only meet at the body, so they stay apart.
+    ankle = {}
+    for i, piece in enumerate(_pieces({p for p in body.v if p[2] <= min(base + 2, hip)})):
+        for (x, y, z) in piece:
+            ankle.setdefault((x, y), i)
     merged = True
     while merged:
         merged = False
         for i in range(len(feet)):
             for j in range(i + 1, len(feet)):
-                if min((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 for a in feet[i] for b in feet[j]) <= 6.25:
+                same = {ankle.get(cell) for cell in feet[i]} & {ankle.get(cell) for cell in feet[j]} - {None}
+                if same and min((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 for a in feet[i] for b in feet[j]) <= 6.25:
                     feet[i] = feet[i] | feet.pop(j)
                     merged = True
                     break
             if merged:
                 break
+    # A bird's toes lying flat in front of its leg (nothing above them)
+    # belong to that leg: a goose's webbed foot, not a leg of its own.
+    # Only winged creatures: a lobster's or cricket's short legs stay legs.
+    winged = any(p.name in ('wingL', 'wingR') for p in c.parts)
+    above = {(x, y) for (x, y, z) in body.v if z == base + 1}
+    flat = [f for f in feet if not (f & above)]
+    standing = [f for f in feet if f & above]
+    if winged and flat and len(standing) >= 2:
+        for f in flat:
+            fx = sum(x for x, _ in f) / len(f)
+            side = [g for g in standing if (sum(x for x, _ in g) / len(g) < -0.5) == (fx < -0.5)] or standing
+            near = min(side, key=lambda g: min((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 for a in f for b in g))
+            near |= f
+        feet = standing
     if len(feet) < 2:
         return []
     owner = {}
@@ -169,6 +203,9 @@ def split_legs(c, Part):
             else:
                 for i, piece in enumerate(sorted(pieces, key=lambda q: centre(q)[1])[:6]):
                     groups[f'leg{i + 1}{side}'] = [piece]
+    left = sum(1 for name in groups if name.endswith('L'))
+    if left * 2 != len(groups):  # every creature this rig builds is symmetric
+        raise ValueError(f'{c.species}: legs {sorted(groups)} are not in left/right pairs')
     names = []
     for name in sorted(groups):
         vox = set().union(*groups[name])
@@ -187,6 +224,7 @@ GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover')
 # How a creature moves when its legs alone don't say: hand-made creatures by
 # species, roster creatures by plan and kind (variants.py sets c.gait_hint).
 SPECIES_GAIT = {
+    'Phoenix': 'hover',
     'Frog': 'hop', 'Toad': 'hop', 'Snail': 'slither', 'Ladybug': 'scuttle', 'Turtle': 'scuttle',
     'Axolotl': 'scuttle', 'NebulaSerpent': 'hover',
 }
@@ -194,19 +232,26 @@ KIND_GAIT = {
     'frog': 'hop', 'snail': 'slither', 'ladybug': 'scuttle', 'axolotl': 'scuttle', 'turtle': 'scuttle',
     'bee': 'hover', 'butterfly': 'hover', 'beetle': 'scuttle', 'caterpillar': 'slither', 'crab': 'scuttle',
     'gecko': 'trot', 'chameleon': 'trot', 'iguana': 'trot', 'bearded': 'trot',
-    'worm': 'slither', 'slug': 'slither', 'urchin': 'slither', 'pillbug': 'scuttle', 'ant': 'scuttle',
-    'spider': 'scuttle', 'firefly': 'scuttle', 'mantis': 'scuttle', 'hermit': 'scuttle', 'lobster': 'scuttle',
-    'dragonfly': 'hover', 'grasshopper': 'hop',
+    # kit_pond critters and shore animals
+    'dragonfly': 'hover', 'firefly': 'hover', 'ant': 'scuttle', 'grasshopper': 'hop', 'spider': 'scuttle',
+    'mantis': 'scuttle', 'pillbug': 'scuttle', 'worm': 'slither', 'slug': 'slither', 'starfish': 'slither',
+    'urchin': 'scuttle', 'hermit': 'scuttle', 'lobster': 'scuttle', 'newt': 'trot', 'platypus': 'trot',
+    'seal': 'waddle', 'walrus': 'waddle',
 }
 # Legendary and Godly creatures float (CreatureLooks hover), so they fly.
 FLYING_TIERS = ('Legendary', 'Godly')
+
+
+def gait_hint(c):
+    """The gait named for this species or its kind, if any."""
+    return SPECIES_GAIT.get(c.species) or getattr(c, 'gait_hint', None)
 
 
 def gait(c):
     """trot, waddle, hop, scuttle, slither or hover."""
     if c.rarity in FLYING_TIERS:
         return 'hover'
-    g = SPECIES_GAIT.get(c.species) or getattr(c, 'gait_hint', None)
+    g = gait_hint(c)
     if g:
         return g
     legs = [p for p in c.parts if p.name.startswith('leg')]

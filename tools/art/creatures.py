@@ -187,11 +187,14 @@ def bunny_body(c, k, col, belly=None, snout=None, ear_col=None, tail_col=None, l
     shade = tuple(max(0, round(v * 0.9)) for v in col)
     w = lambda v: max(2, round(v))  # noqa: E731  a width that never thins to one voxel
     # long hind feet flat on the ground, pale toes in front
+    # (each foot its own leg part, hinged under its haunch, so it kicks back
+    # as the bunny hops)
     fw = w(0.85 * k)
     for sx in (-1, 1):
         x0 = round(sx * 1.25 * k) - (fw if sx < 0 else 0)
-        body.box((x0, round(-1.7 * k), 0), (x0 + fw - 1, round(1.5 * k), max(1, round(0.45 * k))), col)
-        body.box((x0, round(-1.7 * k), 0), (x0 + fw - 1, round(-1.2 * k), max(1, round(0.45 * k))), bc)
+        foot = rig.leg_part(c, 'L' if sx < 0 else 'R', 1, 2, (sx * 1.3 * k, 0.6 * k, max(1, round(0.45 * k)) + 1))
+        foot.box((x0, round(-1.7 * k), 0), (x0 + fw - 1, round(1.5 * k), max(1, round(0.45 * k))), col)
+        foot.box((x0, round(-1.7 * k), 0), (x0 + fw - 1, round(-1.2 * k), max(1, round(0.45 * k))), bc)
     # haunches: two round thighs over the feet
     for sx in (-1, 1):
         body.ell((sx * 1.3 * k, 0.6 * k, 1.5 * k), (0.95 * k, 1.45 * k, 1.25 * k), col)
@@ -204,8 +207,9 @@ def bunny_body(c, k, col, belly=None, snout=None, ear_col=None, tail_col=None, l
     pw = w(0.55 * k)
     for sx in (-1, 1):
         x0 = round(sx * 0.35 * k) + (0 if sx > 0 else -pw) + (1 if sx > 0 else -1) * max(0, round(0.15 * k))
-        body.box((x0, round(-2.0 * k), 0), (x0 + pw - 1, round(-1.5 * k), round(2.4 * k)), col)
-        body.box((x0, round(-2.25 * k), 0), (x0 + pw - 1, round(-1.9 * k), max(1, round(0.35 * k))), bc)
+        paw = rig.leg_part(c, 'L' if sx < 0 else 'R', 0, 2, (x0 + pw / 2, -1.75 * k, round(2.4 * k) + 1))
+        paw.box((x0, round(-2.0 * k), 0), (x0 + pw - 1, round(-1.5 * k), round(2.4 * k)), col)
+        paw.box((x0, round(-2.25 * k), 0), (x0 + pw - 1, round(-1.9 * k), max(1, round(0.35 * k))), bc)
     # a round head on top, a little forward, with puffy cheeks
     head.ell((0, -0.9 * k, 6.3 * k), (1.6 * k, 1.45 * k, 1.45 * k), col)
     sc = snout or bc

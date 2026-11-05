@@ -316,9 +316,11 @@ def shore(c, H, kind, col, accent=None, belly=None):
         cz, r = 2.8 * k, 2.4 * k
         head.ell((0, 0, cz), (r, r, r), col)
         for sx in (-1, 1):
-            for y in (-0.8, 0.8):
+            for i, y in enumerate((-0.8, 0.8)):
                 x = round(sx * 1.0 * k)
-                body.box((x if sx > 0 else _mx(x), round(y * k), 0), (x if sx > 0 else _mx(x), round(y * k), round(0.6 * k)), belly or col)
+                x = x if sx > 0 else _mx(x)
+                foot = _leg(c, sx, i, 2, (x + .5, round(y * k) + .5, round(0.6 * k) + 1))
+                foot.box((x, round(y * k), 0), (x, round(y * k), round(0.6 * k)), belly or col)
         sp = c.part('spines', 'static')
         n = 46
         for i in range(n):

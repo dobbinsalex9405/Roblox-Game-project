@@ -441,41 +441,17 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hop",
 		height = 2.3,
 		size = { 0.8, 2.3, 1.1 },
-		tris = 7668,
-		trisLod1 = 656,
+		tris = 7900,
+		trisLod1 = 666,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
 				pivot = { 0, 0, -0.05 },
 				meshes = {
-					{ name = "Bunny_body", center = { 0, 0.6018, 0 }, size = { 0.807, 1.0035, 0.907 } },
+					{ name = "Bunny_body", center = { 0, 0.6018, 0.05 }, size = { 0.807, 1.0035, 0.807 } },
 				},
-				lod1 = { name = "Bunny_body_lod1", center = { 0, 0.6, 0 }, size = { 0.8, 1, 0.9 } },
-			},
-			{
-				name = "legR",
-				anim = "legR",
-				parent = "body",
-				pivot = { 0.2794, 0.1, -0.0647 },
-				meshes = {
-					{ name = "Bunny_legR", center = { 0.25, 0.05, -0.05 }, size = { 0.307, 0.1, 0.807 } },
-				},
-				lod1 = { name = "Bunny_legR_lod1", center = { 0.25, 0.05, -0.05 }, size = { 0.3, 0.1, 0.8 } },
-			},
-			{
-				name = "legL",
-				anim = "legL",
-				parent = "body",
-				pivot = { -0.2794, 0.1, -0.0647 },
-				meshes = {
-					{ name = "Bunny_legL", center = { -0.25, 0.05, -0.05 }, size = { 0.307, 0.1, 0.807 } },
-				},
-				lod1 = {
-					name = "Bunny_legL_lod1",
-					center = { -0.25, 0.05, -0.05 },
-					size = { 0.3, 0.1, 0.8 },
-				},
+				lod1 = { name = "Bunny_body_lod1", center = { 0, 0.6, 0.05 }, size = { 0.8, 1, 0.8 } },
 			},
 			{
 				name = "head",
@@ -486,6 +462,54 @@ local CreatureMeshes: { [string]: Creature } = {
 					{ name = "Bunny_head", center = { 0, 1.2517, -0.25 }, size = { 0.607, 0.5035, 0.607 } },
 				},
 				lod1 = { name = "Bunny_head_lod1", center = { 0, 1.25, -0.25 }, size = { 0.6, 0.5, 0.6 } },
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.26, 0.2, 0.07 },
+				meshes = {
+					{ name = "Bunny_legBL", center = { -0.3, 0.1017, 0 }, size = { 0.207, 0.2035, 0.707 } },
+				},
+				lod1 = { name = "Bunny_legBL_lod1", center = { -0.3, 0.1, 0 }, size = { 0.2, 0.2, 0.7 } },
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.26, 0.2, 0.07 },
+				meshes = {
+					{ name = "Bunny_legBR", center = { 0.3, 0.1017, 0 }, size = { 0.207, 0.2035, 0.707 } },
+				},
+				lod1 = { name = "Bunny_legBR_lod1", center = { 0.3, 0.1, 0 }, size = { 0.2, 0.2, 0.7 } },
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.2, 0.6, -0.4 },
+				meshes = {
+					{
+						name = "Bunny_legFL",
+						center = { -0.2, 0.3018, -0.35 },
+						size = { 0.207, 0.6035, 0.207 },
+					},
+				},
+				lod1 = { name = "Bunny_legFL_lod1", center = { -0.2, 0.3, -0.35 }, size = { 0.2, 0.6, 0.2 } },
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.2, 0.6, -0.4 },
+				meshes = {
+					{
+						name = "Bunny_legFR",
+						center = { 0.2, 0.3018, -0.35 },
+						size = { 0.207, 0.6035, 0.207 },
+					},
+				},
+				lod1 = { name = "Bunny_legFR_lod1", center = { 0.2, 0.3, -0.35 }, size = { 0.2, 0.6, 0.2 } },
 			},
 			{
 				name = "eyes",
@@ -2303,45 +2327,17 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hop",
 		height = 1.6,
 		size = { 0.8, 1.6, 1.1 },
-		tris = 7672,
-		trisLod1 = 818,
+		tris = 7904,
+		trisLod1 = 828,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
 				pivot = { 0, 0, -0.05 },
 				meshes = {
-					{ name = "LopBunny_body", center = { 0, 0.6018, 0 }, size = { 0.807, 1.0035, 0.907 } },
+					{ name = "LopBunny_body", center = { 0, 0.6018, 0.05 }, size = { 0.807, 1.0035, 0.807 } },
 				},
-				lod1 = { name = "LopBunny_body_lod1", center = { 0, 0.6, 0 }, size = { 0.8, 1, 0.9 } },
-			},
-			{
-				name = "legR",
-				anim = "legR",
-				parent = "body",
-				pivot = { 0.2794, 0.1, -0.0647 },
-				meshes = {
-					{ name = "LopBunny_legR", center = { 0.25, 0.05, -0.05 }, size = { 0.307, 0.1, 0.807 } },
-				},
-				lod1 = {
-					name = "LopBunny_legR_lod1",
-					center = { 0.25, 0.05, -0.05 },
-					size = { 0.3, 0.1, 0.8 },
-				},
-			},
-			{
-				name = "legL",
-				anim = "legL",
-				parent = "body",
-				pivot = { -0.2794, 0.1, -0.0647 },
-				meshes = {
-					{ name = "LopBunny_legL", center = { -0.25, 0.05, -0.05 }, size = { 0.307, 0.1, 0.807 } },
-				},
-				lod1 = {
-					name = "LopBunny_legL_lod1",
-					center = { -0.25, 0.05, -0.05 },
-					size = { 0.3, 0.1, 0.8 },
-				},
+				lod1 = { name = "LopBunny_body_lod1", center = { 0, 0.6, 0.05 }, size = { 0.8, 1, 0.8 } },
 			},
 			{
 				name = "head",
@@ -2356,6 +2352,66 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 				},
 				lod1 = { name = "LopBunny_head_lod1", center = { 0, 1.25, -0.25 }, size = { 0.6, 0.5, 0.6 } },
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.26, 0.2, 0.07 },
+				meshes = {
+					{
+						name = "LopBunny_legBL",
+						center = { -0.3, 0.1017, 0 },
+						size = { 0.207, 0.2035, 0.707 },
+					},
+				},
+				lod1 = { name = "LopBunny_legBL_lod1", center = { -0.3, 0.1, 0 }, size = { 0.2, 0.2, 0.7 } },
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.26, 0.2, 0.07 },
+				meshes = {
+					{ name = "LopBunny_legBR", center = { 0.3, 0.1017, 0 }, size = { 0.207, 0.2035, 0.707 } },
+				},
+				lod1 = { name = "LopBunny_legBR_lod1", center = { 0.3, 0.1, 0 }, size = { 0.2, 0.2, 0.7 } },
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.2, 0.6, -0.4 },
+				meshes = {
+					{
+						name = "LopBunny_legFL",
+						center = { -0.2, 0.3018, -0.35 },
+						size = { 0.207, 0.6035, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "LopBunny_legFL_lod1",
+					center = { -0.2, 0.3, -0.35 },
+					size = { 0.2, 0.6, 0.2 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.2, 0.6, -0.4 },
+				meshes = {
+					{
+						name = "LopBunny_legFR",
+						center = { 0.2, 0.3018, -0.35 },
+						size = { 0.207, 0.6035, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "LopBunny_legFR_lod1",
+					center = { 0.2, 0.3, -0.35 },
+					size = { 0.2, 0.6, 0.2 },
+				},
 			},
 			{
 				name = "eyes",
