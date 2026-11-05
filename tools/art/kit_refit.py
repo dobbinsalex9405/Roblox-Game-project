@@ -1269,7 +1269,9 @@ def fiddler(c, H, cols, opts):
         y = math.floor(cy - 1.0 * k) - i
         for x in range(math.floor(cx - 0.45 * k), math.ceil(cx + 0.35 * k)):
             for dz in range(th):
-                cp.put((x, y, math.floor(cz + 0.35 * k) + dz - (1 if i == fl - 1 else 0)), claw)
+                cp.put((x, y, math.floor(cz + 0.35 * k) + dz), claw)
+                if i == fl - 1:  # the tip hooks down, joined face to face
+                    cp.put((x, y, math.floor(cz + 0.35 * k) + dz - 1), claw)
                 if i < fl - 1:
                     cp.put((x, y, math.floor(cz - 0.75 * k) + dz), _dark(claw, 0.15))
     # three legs a side, out from under the shell and down
