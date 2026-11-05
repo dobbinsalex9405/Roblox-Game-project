@@ -21,6 +21,7 @@ relative path (`require("./Log")`); everything else requires them by instance
 | 14 | `Metrics` | Daily counters per game (players, new, D1/D7 returns, play time, Robux by product and pass, payers), merged into the `Metrics` DataStore once a minute from live servers only; read by the scoreboard (`ops/METRICS.md`). | `Metrics.spec` |
 | 12 | `ErrorReporter` | Errors grouped by signature, at most one queue write per server per minute. | `ErrorReporter.spec` |
 | 15 | `Feedback` (+ `client/FeedbackUi`) | Every game gets a top-bar Feedback button: Bug / Idea / Other, text, optional fun rating. Server checks, rate-limits and filters it, stores only filtered text, tags it with build, device, session, game context and recent client errors, and writes at most once per server per minute to the `Feedback` DataStore. See `ops/FEEDBACK.md`. | `Feedback.spec`, `tools/tests/FeedbackTool.spec`, each game's `FeedbackContext.spec` |
+| – | `Stores` | Opens a DataStore for the error queue, feedback and metrics sinks; where DataStores are unavailable (an unpublished place in Studio) it warns once per store and the sink saves nothing, so the server still starts. | `Stores.spec`, boot check `--studio --unpublished` |
 
 Still to come, per the plan: 9 Plots (with Hatchery Heist M2), 10 Events,
 13 UI kit and AgeCheck (with M5), plus movement checks (M4).

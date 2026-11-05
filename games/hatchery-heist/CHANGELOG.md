@@ -5,6 +5,9 @@
 - Creatures can now be drawn as polished Blender voxel meshes with bevelled
   cubes and twice the detail; until their meshes are uploaded they look as
   before.
+- Fixed: an incubator could keep saying "Ready!" after its egg hatched.
+- The odds card and the odds board use one text size per list, so long
+  names no longer show smaller than their neighbours.
 - Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
   flash, and the creature turns under its rarity, name, income and exact
   chance, with rays, glow, confetti and screen shake as rarity rises. Tap to
@@ -32,7 +35,13 @@
   hatch is 1 in 50,000, and the odds card shows each chance as a percentage
   and as "1 in N". A new Moonlit Egg (15,000 coins, 5% of the belt) holds
   the Moon Unicorn and a 1 in 50,000 Nebula Serpent.
-
+- Fixed (#49): a server error on every frame while any base had no guard
+  (every new player), which also stopped every other base's guard from
+  moving. The boot check now plays 30 frames, so per-frame errors fail CI.
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
 - First look (Alex's Nov 4 play test): a welcome screen on a new player's
   first join and a Guide button in a new side menu to reopen it; a goal line
   under the coin bar with a beam and arrow to the next thing to do (first
