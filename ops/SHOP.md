@@ -70,6 +70,11 @@ item with id 0, a pass already owned, and a paid random item for restricted
 players. It also refuses a random item whose odds the player has not seen in
 the last 10 minutes; the shop's "Show odds" button counts.
 
+Hatchery Heist's **Golden Egg Shop** (a walk-in shop in the yard,
+`src/server/ShopHouse.luau`) puts every item of the catalog on a display
+with a Buy prompt that fires `Shop:Buy(kind, key, "GoldenEggShop")`. Items
+with an odds table are never put on a display (`src/shared/ShopPlan.luau`).
+
 A game's own Buy button (outside the shop screen) fires
 `Shop:Buy(kind, key, "<PlaceName>")` with a PascalCase name of at most 24
 characters, such as `HudRefill`, so the scoreboard shows where Robux is spent
