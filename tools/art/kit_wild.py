@@ -401,26 +401,60 @@ def giraffepatches(c, H, col, col2=None):
 
 
 def banana(c, H, col, col2=None):
-    """A banana held up in one hand (a baby gorilla's snack), glowing softly,
-    brown (col2) at the ends."""
+    """A banana gripped in the right fist (a baby gorilla's snack): a fat
+    crescent held out forward, curving up, glowing softly, brown (col2) at
+    the stalk and the tip."""
     k = H / 10.0
     body = kit._find(c, 'body')
     (lo, hi) = _bounds(body)
     side = [p for p in body.v if p[0] >= hi[0] - 1]
     hz = min(p[2] for p in side) if side else lo[2]
     hy = min(p[1] for p in side) if side else lo[1]
-    hx = hi[0] - round(0.4 * k)
+    hx = hi[0] - round(0.6 * k)
     part = c.part('banana', 'static')
-    n = max(8, round(4.0 * k))
+    n = max(10, round(5.0 * k))
     end = col2 or hexc('#6A4A22')
+    y = hy - 0.3 * k
+    z0 = hz + 0.7 * k
     for i in range(n):
         t = i / (n - 1)
-        # a crescent: up from the fist, bowing forward, the tip curling back
-        y = hy - 0.2 * k - math.sin(t * math.pi) * 0.9 * k
-        z = hz + 0.3 * k + t * 2.4 * k
-        r = 0.22 * k + .35
-        tip = t < 0.08 or t > 0.92
-        part.ell((hx + .5, y, z), (r, r, r), end if tip else col, not tip)
+        # held up out of the fist, bowing outward: a crescent seen from the front
+        x = hx + .5 + math.sin(t * math.pi) * 0.8 * k + t * 0.3 * k
+        z = z0 + t * 2.6 * k
+        r = (0.16 + 0.22 * math.sin(t * math.pi)) * k + .3
+        tip = t < 0.06 or t > 0.94
+        part.ell((x, y, z), (r, r, r), end if tip else col, False)
+    # a soft glowing shine along the outer curve
+    for q in list(part.v):
+        if part.v[q][0] == col and (q[0] + 1, q[1], q[2]) not in part.v and (q[0], q[1] - 1, q[2]) not in part.v:
+            part.v[q] = (_light(col, 0.35), True)
+
+
+def knucklearms(c, H, col, col2=None):
+    """Long arms that reach the ground, for a knuckle-walker: the arms (the
+    body voxels out past the legs) run down to the floor and end in dark
+    knuckles (col)."""
+    k = H / 10.0
+    body = kit._find(c, 'body')
+    legs = [p for p in c.parts if p.name.startswith('leg')]
+    lx = max((abs(v[0] + .5) for p in legs for v in p.v), default=0)
+    arm = [v for v in body.v if abs(v[0] + .5) > lx + .5]
+    if not arm:
+        return
+    low = {}
+    for (x, y, z) in arm:
+        if z < low.get((x, y), 99):
+            low[(x, y)] = z
+    fist = max(1, round(0.5 * k))
+    bottom = min(low.values()) + max(1, round(0.5 * k))
+    for (x, y), z in low.items():
+        if z > bottom:
+            continue  # the shoulders' outer edge, not the hands
+        cc = body.v[(x, y, z)][0]
+        for zz in range(0, z):
+            body.put((x, y, zz), col if zz < fist else cc)
+        for zz in range(0, min(z, fist)):
+            body.put((x, y, zz), col)
 
 
 def ossicones(c, H, col, col2=None):
@@ -1673,21 +1707,35 @@ def bigwings(c, H, col, col2=None):
 
 
 def wingtails(c, H, col, col2=None):
-    """Long trailing tails off the hind wings (a luna moth's), glowing at
-    the ends."""
+    """Long trailing tails off the hind wings (a luna moth's): two voxels
+    wide at the root, tapering, trailing about a body length behind and
+    below, ending in a glowing (col2) teardrop."""
     k = H / 10.0
-    for sx, name in ((-1, 'wingL'), (1, 'wingR')):
+    for sx, name in ((1, 'wingR'),):
         w = kit._find(c, name)
         if not w or not w.v:
             continue
-        zs = [p[2] for p in w.v]
-        low = [p for p in w.v if p[2] == min(zs)]
-        p0 = max(low, key=lambda p: p[0] * sx)
         ys = [p[1] for p in w.v]
-        n = max(round(2.2 * k), round((max(ys) - min(ys)) * 0.9))  # about the body's length
+        back = [p for p in w.v if p[1] >= max(ys) - 1]
+        p0 = min(back, key=lambda p: (p[2], -p[0]))
+        body = kit._find(c, 'body')
+        blen = (max(p[1] for p in body.v) - min(p[1] for p in body.v) + 1) if body and body.v else 4 * k
+        n = max(round(2.4 * k), round(blen * 1.1))
+        tip = col2 or _light(col, 0.3)
         for i in range(n):
-            pt = (p0[0] + sx * (i // 5), p0[1] + (i * 2) // 3, p0[2] - 1 - i // 3)
-            w.put(pt, col2 if i >= n - max(1, round(0.5 * k)) and col2 else col, bool(col2) and i >= n - max(1, round(0.5 * k)))
+            t = i / (n - 1)
+            x = p0[0] + 0.3 * k * t
+            y = p0[1] + 1 + i
+            z = max(1, p0[2] - round(t * 1.6 * k))
+            wide = 2 if t < 0.55 else 1
+            for d in range(wide):
+                w.put((math.floor(x) - d, y, z), col)
+        end = (math.floor(p0[0] + 0.3 * k), p0[1] + n, max(1, p0[2] - round(1.6 * k)))
+        w.ell((end[0] + .5, end[1] + 0.5 * k, end[2] + .5), (0.45 * k, 0.7 * k, 0.3 * k + .3), tip, True)
+    wr, wl = kit._find(c, 'wingR'), kit._find(c, 'wingL')
+    if wr and wl:
+        right = {p: v for p, v in wr.v.items()}
+        wl.v = {(-x - 1, y, z): v for (x, y, z), v in right.items()}
 
 
 def clearwings(c, H, col, col2=None):
@@ -2077,7 +2125,75 @@ def _h(*a):
     return v
 
 
+def nostrils(c, H, col, col2=None):
+    """Two nostrils (col) on the front of the muzzle: the head's frontmost
+    layer, a row above its middle."""
+    k = H / 10.0
+    head = _head(c)
+    if head is None or not head.v:
+        return
+    fy = min(p[1] for p in head.v)
+    front = [p for p in head.v if p[1] == fy]
+    zs = sorted(p[2] for p in front)
+    z = zs[len(zs) // 2]
+    dx = max(1, round(0.3 * k))
+    for x in (dx, -dx - 1):
+        q = (x, fy, z)
+        if q not in head.v:
+            q = head.front(x, z)
+        if q:
+            head.v[q] = (col, False)
+
+
+def glinteyes(c, H, col, col2=None):
+    """Bigger eyes that read on a grey face: each eye grows to 2 x 2 (out
+    and up) with a white glint in its top outer corner, ringed in col."""
+    eyes = kit._find(c, 'eyes')
+    head = _head(c)
+    if not eyes or head is None:
+        return
+    for (x, y, z), v in list(eyes.v.items()):
+        if x < 0:
+            continue
+        for q, cc in (((x + 1, y, z), INK), ((x, y, z + 1), INK), ((x + 1, y, z + 1), WHITE)):
+            f = head.front(q[0], q[2]) or q
+            head.v.pop(f, None)
+            eyes.v[f] = (cc, False)
+    for (x, y, z), v in list(eyes.v.items()):
+        if x >= 0:
+            head.v.pop((-x - 1, y, z), None)
+            eyes.v[(-x - 1, y, z)] = v
+    eyering(c, H, col)
+
+
+def mantisantennae(c, H, col, col2=None):
+    """A mantis's antennae: thin (one voxel), dark (col), springing from the
+    crown and angled forward and out. Replaces the plan's upright ones."""
+    k = H / 10.0
+    head = _head(c)
+    if head is None:
+        return
+    top = round(7.2 * k)
+    old = [p for p, (cc, g) in head.v.items() if p[2] >= top and cc != head.v.get((p[0], p[1], p[2] - 1), (None,))[0] or p[2] >= top + 1]
+    shell = {p for p in head.v if p[2] < top}
+    for p in old:
+        if p not in shell:
+            del head.v[p]
+    z0 = max(p[2] for p in head.v)
+    n = max(5, round(2.6 * k))
+    for i in range(n):
+        t = i / (n - 1)
+        x = round(0.4 * k + t * 1.6 * k)
+        y = round(-1.9 * k - t * 2.0 * k)
+        z = z0 + 1 + round(t * 1.5 * k - t * t * 0.5 * k)
+        head.put((x, y, z), col)
+        head.put((-x - 1, y, z), col)
+
+
 ACCESSORIES = {
+    'glinteyes': glinteyes, 'mantisantennae': mantisantennae,
+    'nostrils': nostrils,
+    'knucklearms': knucklearms,
     'clockshell': clockshell,
     'mirrorbody': mirrorbody, 'hoverwings': hoverwings,
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'giraffepatches': giraffepatches, 'banana': banana, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,

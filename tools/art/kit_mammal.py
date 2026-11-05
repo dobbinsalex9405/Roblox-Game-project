@@ -79,20 +79,30 @@ def _legs(c, k, spots, hz, w, col, foot=None, foot_h=0.3, paint=None):
             left.v[(-qx - 1, qy, qz)] = v
 
 
-def _side_eyes(c, head, y, z, tall=2):
-    """Eyes on the sides of the head (a camel's): the outermost head voxels
-    at depth y, rows z.. z + tall - 1, the top one with a white shine."""
+def _side_eyes(c, head, y, z, brow=None):
+    """Eyes on the sides of the head (a camel's): the outermost head voxel at
+    depth y, row z, is the eye; the one just in front of it is a white
+    glint, and the two above are a lighter brow."""
     e = c.part('eyes', 'blink', head.pivot)
-    for dz in range(tall):
-        row = [p for p in head.v if p[1] == y and p[2] == z + dz and p[0] >= 0]
-        if not row:
-            continue
+    row = [p for p in head.v if p[1] == y and p[2] == z and p[0] >= 0]
+    if row:
         q = max(row)
         del head.v[q]
-        e.put(q, WHITE if dz == tall - 1 and tall >= 2 else INK)
+        e.put(q, INK)
+        g = (q[0], q[1] - 1, q[2])
+        if g in head.v:
+            del head.v[g]
+            e.put(g, WHITE)
+        if brow is not None:
+            for b in ((q[0], q[1], q[2] + 1), (q[0], q[1] - 1, q[2] + 1)):
+                if b in head.v:
+                    head.v[b] = (brow, False)
     for (x, yy, zz), v in list(e.v.items()):
         head.v.pop((-x - 1, yy, zz), None)
         e.v[(-x - 1, yy, zz)] = v
+    for (x, yy, zz), v in list(head.v.items()):
+        if x >= 0 and brow is not None and v == (brow, False):
+            head.v[(-x - 1, yy, zz)] = v
 
 
 def _ears_round(c, k, x, y, z, r, col, pivot):
@@ -147,7 +157,7 @@ def _camel(c, k, cols):
     zt = max(p[2] for p in head.v if p[1] == fy)
     for x in (round(0.25 * k), -round(0.25 * k) - 1):
         head.put((x, fy, zt), INK)
-    _side_eyes(c, head, round(-3.25 * k), round(7.9 * k))
+    _side_eyes(c, head, round(-3.1 * k), round(7.9 * k), brow=_light(col, 0.35))
     # a glowing bell on a collar where the neck leaves the chest
     red = hexc('#C8463A')
     head.paint(lambda p, cc, g: (red, False) if abs(p[1] + .5 + 2.15 * k) < 0.25 * k + .5 and 5.0 * k < p[2] < 6.4 * k else None)
