@@ -1,6 +1,6 @@
 {
-  "note": "Hatchery Heist master creature list: every creature planned for the game, all seven tiers. Proposal written Nov 5 2026 for Alex's approval; builder threads build from this file in batches once approved. Check it with: python3 tools/art/master_list.py",
-  "approval": "pending",
+  "note": "Hatchery Heist master creature list: every creature planned for the game, all seven tiers. Approved by Alex Nov 5 2026 11:53Z; builder threads build from this file in batches once approved. Check it with: python3 tools/art/master_list.py",
+  "approval": "approved",
   "targets": {"Common": 200, "Uncommon": 140, "Rare": 100, "Ultra Rare": 75, "Epic": 60, "Legendary": 50, "Godly": 20},
   "tierCurve": "Alex's counts (Common 200, Rare 100, Ultra Rare 75, Legendary 50, Godly 20) with Uncommon and Epic set on the same curve between their neighbours (Alex, Nov 5 11:47Z)",
   "fields": {"id": "CamelCase, at most 24 characters, unique; existing ids never change", "status": "in-game (in config/creatures.luau), designed (roster data, not in the game yet), rework (in game, model being redone), new (to build)", "plan": "body plan, with the kind in brackets; plans not in tools/art yet: puff, upright, bat, fish, jelly, octopus, whale, ray, drake, serpent, dino, griffin (hand-built legends today), critter (scorpion)", "gait": "trot, waddle, hop, scuttle, slither, hover; swim is new (no swim animation yet)", "element": "Ember, Glacial, Nature, Storm or plain (elements are deferred; the field is set now)"},
