@@ -4217,7 +4217,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Owlet = {
 		assetId = 127514852994147,
-		textureId = 77104127245807,
+		textureId = 80637934406246,
 		rarity = "Rare",
 		gait = "waddle",
 		height = 2.5,
