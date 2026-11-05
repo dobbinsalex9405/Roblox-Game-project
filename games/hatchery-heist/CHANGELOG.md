@@ -16,6 +16,7 @@
   snakes slither and flyers hover with faster wing beats.
 - Creatures whose models have no separate legs walk with their whole body:
   they rock from foot to foot, nod, bounce and swing their tails and ears.
+- Legendaries and Godlies float clearly above their spots.
 - Inside a tower, creatures more than one floor from you are not drawn,
   so a full tower stays smooth; from the yard every floor shows.
 - A Godly with its own orbiting pieces (the Nebula Serpent's planets) no

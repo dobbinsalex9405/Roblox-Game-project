@@ -465,4 +465,19 @@ function Walk.culled(inside: boolean, floorsApart: number, distance: number, con
 	return distance > config.cullOutsideStuds
 end
 
+-- The joint a part animates as. Exported meshes tag many heads, tails and
+-- ears "static" (they don't move standing still), but they still nod and
+-- swing while walking, so a static part named head, tail or ears walks as
+-- one (Studio gate, Nov 5: those parts stayed at 0 degrees).
+local WALKS_BY_NAME: { [string]: boolean } = { head = true, tail = true, ears = true }
+function Walk.role(name: string, anim: string): string
+	if name == "body" then
+		return "body"
+	end
+	if anim == "static" and WALKS_BY_NAME[name] then
+		return name
+	end
+	return anim
+end
+
 return Walk

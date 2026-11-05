@@ -312,8 +312,8 @@ local function build(anchor: BasePart, speciesId: string)
 			math.max(size.X, size.Z),
 			wander.margin
 		)
-		local px, _, pz = Geometry.pad(if type(index) == "number" then index else 1)
-		local tower = (pad :: BasePart).CFrame * CFrame.new(-px, 0, -pz)
+		local tower = (pad :: BasePart).CFrame
+			* CFrame.new(Geometry.toBase(if type(index) == "number" then index else 1))
 		roam = {
 			home = home * CFrame.new(cx, 0, cz),
 			stand = home,
@@ -413,7 +413,10 @@ local function build(anchor: BasePart, speciesId: string)
 				piece.Parent = nil
 				table.insert(v.far, piece)
 			end
-			table.insert(joints, { name = part.name, anim = part.anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	else
 		local voxel = art :: VoxelArt.Art
@@ -441,8 +444,10 @@ local function build(anchor: BasePart, speciesId: string)
 				weld(root, box)
 				keep(box, part.anim, if entry.glow then entry.color else nil)
 			end
-			local anim = if part.name == "body" then "body" else part.anim
-			table.insert(joints, { name = part.name, anim = anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	end
 	-- Joints: the body hangs from the ball, everything else from its parent.
