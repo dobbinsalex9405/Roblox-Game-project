@@ -1,10 +1,16 @@
 --!strict
 -- The Hatchery Book (the pet index): every creature in the game on a card,
--- grouped by rarity. Creatures the player has owned show in colour with
+-- one tab per rarity tier. Creatures the player has owned show in colour with
 -- their name; the rest are dark silhouettes marked "???", so there is always
 -- something to chase. Each card shows the best egg for it and the exact
--- chance (the same numbers as the odds card), hidden where paid random items are
--- restricted. The header counts the book ("Found 7/33") and its income bonus.
+-- chance (the same numbers as the odds card), hidden where paid random items
+-- are restricted. The header counts the book ("Found 7/53") and its capped
+-- income bonus. Cards found since the book was last opened say NEW, and the
+-- side-menu button counts them.
+--
+-- Built for hundreds of cards: a tab's cards are plain frames, and only the
+-- ones on screen (and a row either side) hold a 3D model, so a long Common
+-- page never has more than a few dozen ViewportFrames alive.
 -- Opened from the side menu; the server keeps the book (data.found).
 
 local Players = game:GetService("Players")
@@ -28,6 +34,7 @@ local GOLD = Color3.fromRGB(255, 210, 63)
 local SHADOW = Color3.fromRGB(16, 16, 26)
 local FONT = Enum.Font.FredokaOne
 local CARD = Vector2.new(104, 150)
+local RED = Color3.fromRGB(230, 60, 60)
 
 export type Menu = {
 	add: (name: string, text: string, onClick: () -> ()) -> TextButton,
@@ -66,15 +73,60 @@ end
 type Card = {
 	frame: Frame,
 	entry: Book.Entry,
+	view: ViewportFrame,
+	camera: Camera,
 	model: Model?,
 	looks: { [BasePart]: { color: Color3, material: Enum.Material } },
 	name: TextLabel,
 	odds: TextLabel,
+	new: TextLabel,
 	found: boolean?,
 }
 
+type Tab = {
+	rarity: string,
+	button: TextButton,
+	label: TextLabel,
+	dot: Frame,
+	grid: Frame?,
+	cards: { Card },
+	entries: { Book.Entry },
+}
+
+-- Puts a creature's model in a card and points the camera at it.
+local function showModel(card: Card)
+	local model, size = CreatureView.staticModel(card.entry.speciesId)
+	card.looks = {}
+	card.found = nil -- re-apply the silhouette or colours
+	if model == nil then
+		return
+	end
+	for _, p in model:GetDescendants() do
+		if p:IsA("BasePart") then
+			card.looks[p] = { color = p.Color, material = p.Material }
+		end
+	end
+	model.Parent = card.view
+	local fitSize = math.max(size.X, size.Y, size.Z)
+	local distance = (fitSize / 2) / math.tan(math.rad(15)) * 1.2
+	local target = Vector3.new(0, size.Y / 2, 0)
+	local offset = CFrame.Angles(0, math.rad(-28), 0) * CFrame.Angles(math.rad(-12), 0, 0)
+	card.camera.CFrame = CFrame.lookAt(target + offset * Vector3.new(0, 0, -distance), target)
+	card.model = model
+end
+
+local function dropModel(card: Card)
+	if card.model then
+		card.model:Destroy()
+		card.model = nil
+		card.looks = {}
+	end
+end
+
 function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
+	local species = ctx.config.creatures.species
+	local bookConfig = ctx.config.economy.book
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatcheryBook"
 	gui.ResetOnSpawn = false
@@ -109,7 +161,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	corner(close, 10)
 	close.Parent = window
 
-	local summary = text(window, "Summary", "", 18)
+	local summary = text(window, "Summary", "", 17)
 	summary.Position = UDim2.fromOffset(16, 46)
 	summary.Size = UDim2.new(1, -32, 0, 22)
 	summary.TextXAlignment = Enum.TextXAlignment.Left
@@ -128,20 +180,40 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	corner(fill, 6)
 	fill.Parent = bar
 
+	-- One tab per tier, scrolling sideways on a narrow phone.
+	local tabBar = Instance.new("ScrollingFrame")
+	tabBar.Name = "Tabs"
+	tabBar.BackgroundTransparency = 1
+	tabBar.Position = UDim2.fromOffset(12, 94)
+	tabBar.Size = UDim2.new(1, -24, 0, 46)
+	tabBar.CanvasSize = UDim2.fromScale(0, 0)
+	tabBar.AutomaticCanvasSize = Enum.AutomaticSize.X
+	tabBar.ScrollingDirection = Enum.ScrollingDirection.X
+	tabBar.ScrollBarThickness = 4
+	tabBar.BorderSizePixel = 0
+	local tabList = Instance.new("UIListLayout")
+	tabList.FillDirection = Enum.FillDirection.Horizontal
+	tabList.SortOrder = Enum.SortOrder.LayoutOrder
+	tabList.Padding = UDim.new(0, 6)
+	tabList.Parent = tabBar
+	local tabPad = Instance.new("UIPadding")
+	tabPad.PaddingTop = UDim.new(0, 4)
+	tabPad.PaddingLeft = UDim.new(0, 4)
+	tabPad.PaddingRight = UDim.new(0, 4)
+	tabPad.Parent = tabBar
+	tabBar.Parent = window
+
 	local body = Instance.new("ScrollingFrame")
 	body.Name = "Pages"
 	body.BackgroundTransparency = 1
-	body.Position = UDim2.fromOffset(10, 96)
-	body.Size = UDim2.new(1, -20, 1, -104)
+	body.Position = UDim2.fromOffset(10, 146)
+	body.Size = UDim2.new(1, -20, 1, -154)
 	body.CanvasSize = UDim2.fromScale(0, 0)
 	body.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	body.ScrollBarThickness = 6
 	body.BorderSizePixel = 0
-	local list = Instance.new("UIListLayout")
-	list.SortOrder = Enum.SortOrder.LayoutOrder
-	list.Padding = UDim.new(0, 6)
-	list.Parent = body
 	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 4)
 	pad.PaddingBottom = UDim.new(0, 8)
 	pad.PaddingLeft = UDim.new(0, 4)
 	pad.PaddingRight = UDim.new(0, 4)
@@ -155,45 +227,76 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	end
 
 	local entries = Book.entries(ctx.config.creatures, ctx.config.eggs, Layout.RARITIES)
-	local cards: { Card } = {}
-	local tierCounts: { [string]: TextLabel } = {}
-	local built = false
-
-	-- Built on first open: one card per species, a heading per tier.
-	local function build()
-		built = true
-		local order = 0
-		local lastRarity = ""
-		local grid: Frame? = nil
-		for _, entry in entries do
-			if entry.rarity ~= lastRarity then
-				lastRarity = entry.rarity
-				order += 1
-				local heading = text(body, `Tier{entry.rank}`, string.upper(entry.rarity), 20)
-				heading.TextColor3 = Layout.rarityColor(entry.rarity)
-				heading.TextXAlignment = Enum.TextXAlignment.Left
-				heading.Size = UDim2.new(1, 0, 0, 26)
-				heading.LayoutOrder = order
-				tierCounts[entry.rarity] = heading
-				order += 1
-				local g = Instance.new("Frame")
-				g.Name = `Cards{entry.rank}`
-				g.BackgroundTransparency = 1
-				g.Size = UDim2.fromScale(1, 0)
-				g.AutomaticSize = Enum.AutomaticSize.Y
-				g.LayoutOrder = order
-				local layout = Instance.new("UIGridLayout")
-				layout.CellSize = UDim2.fromOffset(CARD.X, CARD.Y)
-				layout.CellPadding = UDim2.fromOffset(8, 8)
-				layout.SortOrder = Enum.SortOrder.LayoutOrder
-				layout.Parent = g
-				g.Parent = body
-				grid = g
-			end
+	local tabs: { Tab } = {}
+	local tabOf: { [string]: Tab } = {}
+	for _, entry in entries do
+		local tab = tabOf[entry.rarity]
+		if tab == nil then
 			local color = Layout.rarityColor(entry.rarity)
+			local button = Instance.new("TextButton")
+			button.Name = `Tab{entry.rank}`
+			button.LayoutOrder = entry.rank
+			button.Size = UDim2.fromOffset(0, 36)
+			button.AutomaticSize = Enum.AutomaticSize.X
+			button.Text = ""
+			button.BackgroundColor3 = color:Lerp(SHADOW, 0.7)
+			corner(button, 10)
+			stroke(button, color, 2)
+			local bpad = Instance.new("UIPadding")
+			bpad.PaddingLeft = UDim.new(0, 12)
+			bpad.PaddingRight = UDim.new(0, 12)
+			bpad.Parent = button
+			button.Parent = tabBar
+			local label = text(button, "Label", entry.rarity, 15)
+			label.Size = UDim2.fromScale(0, 1)
+			label.AutomaticSize = Enum.AutomaticSize.X
+			-- A red dot while the tier has NEW cards.
+			local dot = Instance.new("Frame")
+			dot.Name = "New"
+			dot.AnchorPoint = Vector2.new(0.5, 0.5)
+			dot.Position = UDim2.new(1, 10, 0, -2)
+			dot.Size = UDim2.fromOffset(12, 12)
+			dot.BackgroundColor3 = RED
+			dot.Visible = false
+			corner(dot, 6)
+			dot.Parent = button
+			tab = {
+				rarity = entry.rarity,
+				button = button,
+				label = label,
+				dot = dot,
+				grid = nil,
+				cards = {},
+				entries = {},
+			}
+			tabOf[entry.rarity] = tab
+			table.insert(tabs, tab)
+		end
+		table.insert(tab.entries, entry)
+	end
+
+	local current: Tab? = nil
+	local seenAt = 0 -- the book's last opening, as it stood when this one began
+
+	-- A tab's cards, built the first time it is shown: frames only, no models.
+	local function buildTab(tab: Tab)
+		local grid = Instance.new("Frame")
+		grid.Name = `Cards{tab.rarity}`
+		grid.BackgroundTransparency = 1
+		grid.Size = UDim2.fromScale(1, 0)
+		grid.AutomaticSize = Enum.AutomaticSize.Y
+		local layout = Instance.new("UIGridLayout")
+		layout.CellSize = UDim2.fromOffset(CARD.X, CARD.Y)
+		layout.CellPadding = UDim2.fromOffset(8, 8)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+		layout.Parent = grid
+		grid.Parent = body
+		tab.grid = grid
+		local color = Layout.rarityColor(tab.rarity)
+		for i, entry in tab.entries do
 			local frame = Instance.new("Frame")
 			frame.Name = entry.speciesId
-			frame.LayoutOrder = #cards + 1
+			frame.LayoutOrder = i
 			frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
 			corner(frame, 12)
 			stroke(frame, color, 2)
@@ -212,41 +315,83 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			camera.Parent = view
 			view.CurrentCamera = camera
 
-			local model, size = CreatureView.staticModel(entry.speciesId)
-			local looks: { [BasePart]: { color: Color3, material: Enum.Material } } = {}
-			if model then
-				for _, p in model:GetDescendants() do
-					if p:IsA("BasePart") then
-						looks[p] = { color = p.Color, material = p.Material }
-					end
-				end
-				model.Parent = view
-				local fitSize = math.max(size.X, size.Y, size.Z)
-				local distance = (fitSize / 2) / math.tan(math.rad(15)) * 1.2
-				local target = Vector3.new(0, size.Y / 2, 0)
-				local offset = CFrame.Angles(0, math.rad(-28), 0) * CFrame.Angles(math.rad(-12), 0, 0)
-				camera.CFrame = CFrame.lookAt(target + offset * Vector3.new(0, 0, -distance), target)
-			end
-
 			local name = text(frame, "Species", "", 14)
 			name.Position = UDim2.fromOffset(4, CARD.X - 6)
 			name.Size = UDim2.new(1, -8, 0, 18)
 			name.TextScaled = true
+			local cap = Instance.new("UITextSizeConstraint")
+			cap.MaxTextSize = 14
+			cap.Parent = name
 			local odds = text(frame, "Odds", "", 13, Color3.fromRGB(255, 226, 120))
 			odds.Position = UDim2.fromOffset(2, CARD.X + 12)
 			odds.Size = UDim2.new(1, -4, 0, 32)
 			odds.TextWrapped = true
 			odds.TextYAlignment = Enum.TextYAlignment.Top
 
-			table.insert(cards, {
+			local new = text(frame, "NewBadge", "NEW", 13)
+			new.BackgroundTransparency = 0
+			new.BackgroundColor3 = RED
+			new.Position = UDim2.fromOffset(4, 4)
+			new.Size = UDim2.fromOffset(40, 20)
+			new.ZIndex = 2
+			new.Visible = false
+			corner(new, 8)
+
+			table.insert(tab.cards, {
 				frame = frame,
 				entry = entry,
-				model = model,
-				looks = looks,
+				view = view,
+				camera = camera,
+				model = nil,
+				looks = {},
 				name = name,
 				odds = odds,
+				new = new,
 				found = nil,
 			})
+		end
+	end
+
+	-- Models only for the cards on screen and a row either side.
+	local function cull()
+		local tab = current
+		if tab == nil or not gui.Enabled then
+			return
+		end
+		local top = body.AbsolutePosition.Y - CARD.Y
+		local bottom = body.AbsolutePosition.Y + body.AbsoluteSize.Y + CARD.Y
+		for _, card in tab.cards do
+			local y = card.frame.AbsolutePosition.Y
+			local near = y + CARD.Y >= top and y <= bottom
+			if near and card.model == nil then
+				showModel(card)
+			elseif not near and card.model then
+				dropModel(card)
+			end
+		end
+	end
+
+	local function paintCard(card: Card, found: { [string]: any }, restricted: boolean)
+		local entry = card.entry
+		local owned = found[entry.speciesId] ~= nil
+		if card.found ~= owned then
+			card.found = owned
+			-- Not found yet: a dark silhouette, glow and all switched off.
+			for part, look in card.looks do
+				part.Color = if owned then look.color else SHADOW
+				part.Material = if owned then look.material else Enum.Material.SmoothPlastic
+			end
+			card.name.Text = if owned then Layout.displayName(entry.speciesId) else "???"
+		end
+		card.new.Visible = Book.isNew(found, entry.speciesId, seenAt)
+		if entry.eggId and not restricted then
+			-- The player's own odds (boosts included) once the server sent
+			-- them, so the book never disagrees with the odds card.
+			local oneIn = OddsView.oneIn(entry.eggId, entry.speciesId)
+				or Odds.formatOneIn(entry.weight, entry.total)
+			card.odds.Text = `{Layout.displayName(entry.eggId)}\n{oneIn}`
+		else
+			card.odds.Text = ""
 		end
 	end
 
@@ -254,75 +399,153 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
 		local restricted = ctx.restricted()
-		local total, have = 0, 0
-		local perTier: { [string]: { have: number, total: number } } = {}
-		for _, card in cards do
-			local entry = card.entry
-			local owned = found[entry.speciesId] ~= nil
-			total += 1
-			local tier = perTier[entry.rarity] or { have = 0, total = 0 }
-			perTier[entry.rarity] = tier
-			tier.total += 1
-			if owned then
-				have += 1
-				tier.have += 1
-			end
-			if card.found ~= owned then
-				card.found = owned
-				-- Not found yet: a dark silhouette, glow and all switched off.
-				for part, look in card.looks do
-					part.Color = if owned then look.color else SHADOW
-					part.Material = if owned then look.material else Enum.Material.SmoothPlastic
+		local counts = Book.tiers(found, species)
+		local have, total = 0, 0
+		for _, tab in tabs do
+			local tier = counts[tab.rarity] or { have = 0, total = 0 }
+			have += tier.have
+			total += tier.total
+			tab.label.Text = `{tab.rarity}  {tier.have}/{tier.total}`
+			local anyNew = false
+			for _, entry in tab.entries do
+				if Book.isNew(found, entry.speciesId, seenAt) then
+					anyNew = true
+					break
 				end
-				card.name.Text = if owned then Layout.displayName(entry.speciesId) else "???"
 			end
-			if entry.eggId and not restricted then
-				-- The player's own odds (boosts included) once the server sent
-				-- them, so the book never disagrees with the odds card.
-				local oneIn = OddsView.oneIn(entry.eggId, entry.speciesId)
-					or Odds.formatOneIn(entry.weight, entry.total)
-				card.odds.Text = `{Layout.displayName(entry.eggId)}\n{oneIn}`
-			else
-				card.odds.Text = ""
-			end
-		end
-		for rarity, heading in tierCounts do
-			local tier = perTier[rarity]
-			if tier then
-				heading.Text = `{string.upper(rarity)}  {tier.have}/{tier.total}`
+			tab.dot.Visible = anyNew
+			local selected = tab == current
+			local color = Layout.rarityColor(tab.rarity)
+			tab.button.BackgroundColor3 = if selected
+				then color:Lerp(SHADOW, 0.25)
+				else color:Lerp(SHADOW, 0.7)
+			for _, card in tab.cards do
+				paintCard(card, found, restricted)
 			end
 		end
-		local bonus = if d then math.floor(have * ctx.config.economy.book.incomePerSpecies * 100 + 0.5) else 0
-		summary.Text = `Found {have}/{total}  ·  Income +{bonus}%`
+		local bonus = Book.bonus(found, species, bookConfig)
+		local pct = math.floor(bonus * 1000 + 0.5) / 10
+		local cap = math.floor(bookConfig.maxBonus * 1000 + 0.5) / 10
+		summary.Text = `Found {have}/{total}  ·  Income +{pct}% (max +{cap}%)`
 		fill.Size = UDim2.fromScale(if total > 0 then have / total else 0, 1)
 	end
 
+	local function select(tab: Tab)
+		if current and current ~= tab then
+			for _, card in current.cards do
+				dropModel(card)
+			end
+			if current.grid then
+				current.grid.Visible = false
+			end
+		end
+		current = tab
+		if tab.grid == nil then
+			buildTab(tab)
+		end
+		(tab.grid :: Frame).Visible = true
+		body.CanvasPosition = Vector2.zero
+		refresh()
+		cull()
+		-- Layout settles a frame later; cull again once it has.
+		task.defer(cull)
+	end
+
+	for _, tab in tabs do
+		tab.button.Activated:Connect(function()
+			Sfx.play("click")
+			select(tab)
+		end)
+	end
+	body:GetPropertyChangedSignal("CanvasPosition"):Connect(cull)
+	body:GetPropertyChangedSignal("AbsoluteSize"):Connect(cull)
+
+	-- The side-menu button counts the NEW cards.
+	local button: TextButton
+	local badge = Instance.new("TextLabel")
+
+	local function newCount(): number
+		local d = ctx.data()
+		if d == nil then
+			return 0
+		end
+		return Book.newCount(d.found, species, d.bookSeenAt or 0)
+	end
+
 	local function setOpen(open: boolean)
-		if open and not built then
-			build()
-		end
 		if open then
+			local d = ctx.data()
+			seenAt = if d then d.bookSeenAt or 0 else 0
 			fit()
-			refresh()
+			gui.Enabled = true
+			-- Open on the first tier with NEW cards, else where the player was.
+			local pick = current or tabs[1]
+			if d then
+				for _, tab in tabs do
+					local hasNew = false
+					for _, entry in tab.entries do
+						if Book.isNew(d.found, entry.speciesId, seenAt) then
+							hasNew = true
+							break
+						end
+					end
+					if hasNew then
+						pick = tab
+						break
+					end
+				end
+			end
+			if pick then
+				select(pick)
+			end
+			if newCount() > 0 then
+				ctx.fire(ctx.remotes["HH:BookSeen"])
+			end
+		else
+			gui.Enabled = false
+			if current then
+				for _, card in current.cards do
+					dropModel(card)
+				end
+			end
+			-- Anything found while the book was open has now been seen.
+			if newCount() > 0 then
+				ctx.fire(ctx.remotes["HH:BookSeen"])
+			end
 		end
-		gui.Enabled = open
 	end
 
 	close.Activated:Connect(function()
 		Sfx.play("click")
 		setOpen(false)
 	end)
-	menu.add("Book", "📗 Book", function()
+	button = menu.add("Book", "📗 Book", function()
 		Sfx.play("click")
 		setOpen(not gui.Enabled)
 	end)
-	local function refreshIfOpen()
+	badge.Name = "Badge"
+	badge.AnchorPoint = Vector2.new(0.5, 0.5)
+	badge.Position = UDim2.fromOffset(4, 4)
+	badge.Size = UDim2.fromOffset(24, 22)
+	badge.BackgroundColor3 = RED
+	badge.Font = FONT
+	badge.TextSize = 15
+	badge.TextColor3 = Color3.new(1, 1, 1)
+	badge.Visible = false
+	corner(badge, 11)
+	badge.Parent = button
+
+	local function onChange()
+		local n = newCount()
+		badge.Visible = n > 0 and not gui.Enabled
+		badge.Text = if n > 9 then "9+" else tostring(n)
 		if gui.Enabled then
 			refresh()
 		end
 	end
-	ctx.onData(refreshIfOpen)
-	OddsView.onChanged(refreshIfOpen)
+	ctx.onData(onChange)
+	OddsView.onChanged(onChange)
+	gui:GetPropertyChangedSignal("Enabled"):Connect(onChange)
 end
 
 return BookView

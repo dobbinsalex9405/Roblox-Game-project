@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Hatchery Book: one tab per tier, NEW on creatures found since you last
+  looked (and a count on the Book button), and only on-screen cards draw a
+  3D model, so the book stays quick as the roster grows.
+- The book's income bonus is capped: a full book is +25% however many
+  creatures there are (it was +1% per creature, +33% at 33).
+
 - Eggs roll a rarity tier first, then a creature from that tier, so adding
   creatures never changes the chance of any other tier. Creatures in a tier
   now share its chance evenly.

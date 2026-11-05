@@ -123,6 +123,29 @@ describe("Hatchery Heist config", function()
 		end
 	end)
 
+	-- A per-species book bonus grew with the roster (+1% each would be +150%
+	-- at 150 Commons); the capped bonus splits a fixed total between tiers.
+	it("caps the Hatchery Book bonus with a share for every tier that has creatures", function()
+		local config = load()
+		local book = config.economy.book
+		expect(book.maxBonus).toBeAtMost(0.25)
+		local sum = 0
+		for rarity, share in book.tierShare do
+			sum += share
+			local members = 0
+			for _, s in config.creatures.species do
+				if s.rarity == rarity then
+					members += 1
+				end
+			end
+			expect(members > 0 and rarity or `no {rarity} creatures for its book share`).toBe(rarity)
+		end
+		expect(sum).toBeCloseTo(1, 1e-9)
+		for id, s in config.creatures.species do
+			expect(book.tierShare[s.rarity] ~= nil and id or `{id}: no book share for {s.rarity}`).toBe(id)
+		end
+	end)
+
 	it("never sells raid immunity", function()
 		for key in load().monetization.products do
 			expect(string.find(string.lower(key), "immun", 1, true)).toBeNil()

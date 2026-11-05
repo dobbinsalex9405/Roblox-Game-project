@@ -270,7 +270,14 @@ describe("Hatchery", function()
 		expect(Hatchery.noteFound(d, "Chick", 20)).toBe(false)
 		expect(d.found.Chick).toBe(10)
 		expect(Hatchery.foundCount(d, config.creatures)).toBe(1)
-		local per = economy.book.incomePerSpecies
+		-- One Common of N: the Common share of the capped bonus, split N ways.
+		local commons = 0
+		for _, s in config.creatures.species do
+			if s.rarity == "Common" then
+				commons += 1
+			end
+		end
+		local per = economy.book.maxBonus * economy.book.tierShare.Common / commons
 		expect(Hatchery.bookBonus(d, config)).toBe(per)
 		expect(Hatchery.incomePerSecond(d, config, NO_PERKS)).toBe(1 * (1 + per))
 		-- Unknown ids (a species since removed) never count.

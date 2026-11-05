@@ -1,6 +1,7 @@
 --!strict
 -- Whole sessions through the real core services and Actions: the M2 bar is
 -- "10 minutes of play survive a rejoin".
+local Book = require("../src/shared/Book")
 local Creatures = require("../src/shared/Creatures")
 local Fakes = require("../../../packages/core/tests/Fakes")
 local Harness = require("./Harness")
@@ -307,6 +308,22 @@ describe("Hatchery Heist sessions", function()
 		h.wait(player, 86400)
 		expect((h.actions:claimDaily(player))).toBe(true)
 		expect(h.get(player).daily.streak).toBe(2)
+	end)
+
+	it("opening the Hatchery Book clears its NEW cards", function()
+		local h = Harness.new()
+		local player = Fakes.player(10)
+		h.join(player)
+		h.actions:change(player, function(d)
+			d.found.Chick = h.clock.now()
+			return nil
+		end)
+		local d = h.get(player)
+		expect(Book.newCount(d.found, config.creatures.species, d.bookSeenAt)).toBe(1)
+		h.wait(player, 5)
+		h.actions:seeBook(player)
+		d = h.get(player)
+		expect(Book.newCount(d.found, config.creatures.species, d.bookSeenAt)).toBe(0)
 	end)
 end)
 

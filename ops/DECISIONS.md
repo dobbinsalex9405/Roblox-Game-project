@@ -19,6 +19,20 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
   the repo: designs are for looking at before anything is decided, and big
   .glb files do not belong in git.
+## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
+
+- **A full book is +25%, fixed.** +1% per species would be +150% at 150
+  Commons and break the coin-pack ratios. Each tier owns a share (Common
+  20%, Uncommon to Epic 15% each, Legendary and Godly 10% each) split evenly
+  between its creatures, so a new Common lowers each Common's part. Players
+  who had +N% from a near-full 33-creature book now see at most +25%; at 33
+  creatures that was an 8-point cut for a full book, accepted before launch.
+- **NEW is "found after the book was last opened"** (`data.bookSeenAt`, set
+  by the server on `HH:BookSeen`), not a per-card seen list: one number,
+  nothing to migrate, and the card stays NEW for the whole visit it is first
+  shown in.
+- **Only on-screen cards hold a model** (a row either side): the book never
+  has more than a few dozen ViewportFrames alive, whatever the tab size.
 
 ## 2026-11-05: Creature meshes v2 (Hatchery Heist)
 
