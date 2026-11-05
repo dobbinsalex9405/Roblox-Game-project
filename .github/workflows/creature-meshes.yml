@@ -28,6 +28,7 @@ jobs:
     environment: staging
     env:
       ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY_HATCHERY_HEIST }}
+      ROBLOX_GROUP_ID: ${{ vars.ROBLOX_GROUP_ID }} # optional; otherwise looked up from the Staging universe
       ONLY: ${{ inputs.only }} # used as "$ONLY", never pasted into a script
     steps:
       - uses: actions/checkout@v4

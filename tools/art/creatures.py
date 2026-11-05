@@ -4,6 +4,7 @@ parts, a bob), Rares get moving ears, tails and wings, Ultra Rare and up get
 glowing voxels, and Legendary and Godly creatures are huge, with many moving
 parts. Heights are in voxels; the game draws one voxel as VOXEL studs."""
 import math
+import os
 from voxkit import Creature, hexc
 import legends
 
@@ -510,10 +511,42 @@ ROSTER = [
 ]
 
 
+CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'games', 'hatchery-heist', 'config',
+                      'creatures.luau')
+
+
+def game_species():
+    """The species ids in the game's config (config/creatures.luau). Art for
+    a creature the config does not list yet is built and rendered, but stays
+    out of the game's generated files until the game side adds it."""
+    import re
+    with open(CONFIG) as f:
+        text = f.read()
+    # the `species = { ... }` block: from its line to the next line that
+    # closes a table one tab in; each species is a key two tabs in, whether
+    # StyLua keeps its table on one line or wraps it
+    block = re.search(r'^\tspecies = \{\n(.*?)^\t\}', text, re.M | re.S)
+    if not block:
+        raise SystemExit(f'no species block in {CONFIG}')
+    return set(re.findall(r'^\t\t(\w+) = \{', block.group(1), re.M))
+
+
+def in_game(cs):
+    """(kept, left out): `cs` split by whether the game config lists them."""
+    ids = game_species()
+    return [c for c in cs if c.species in ids], [c.species for c in cs if c.species not in ids]
+
+
 # Each creature's element (Ember, Glacial, Nature, Storm, ...). Elements roll
 # out once there are many creatures per element and tier (Alex, Nov 5); until
 # then every creature is 'plain'. A themed variant names its element here.
 ELEMENT = {}
+
+# Creatures added as data (tools/art/roster/*.json, see variants.py).
+import variants  # noqa: E402
+
+ROSTER += variants.roster_entries()
+ELEMENT.update(variants.elements())
 
 
 def build_all(detail=None):

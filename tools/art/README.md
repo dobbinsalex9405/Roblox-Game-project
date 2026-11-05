@@ -1,14 +1,33 @@
 # Creature art
 
-Hatchery Heist's 33 creatures as voxel models, in plain Python.
+Hatchery Heist's creatures as voxel models, in plain Python.
 
 | File | What it is |
 | --- | --- |
 | `voxkit.py` | Parts, voxels and merging voxels into as few boxes as possible |
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
 | `legends.py` | The two Legendaries and two Godlies, built in far more detail |
+| `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
+| `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
+| `kit.py` | The variant kit: bug and crab plans, `shape`, patterns, accessories |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
+
+## Adding a creature (as data)
+
+1. Add one line to a file in `roster/` (a new file per batch, so batches
+   never collide). The fields are in `variants.py`'s docstring:
+   `{"id": "Calf", "rarity": "Common", "plan": "quadruped", "colors": {...},
+   "options": {...}, "shape": {"body": [1.2, 1.15, 1.05], "head": 1.05},
+   "patterns": [...], "accessories": [...]}`.
+2. `python3 tools/art/variants.py` checks every entry and names the file
+   and entry of any mistake.
+3. Look at it:
+   `PYTHONPATH=/opt/bpy python3 tools/art/blender/lineup.py out.png --only Calf,Foal --angle 35`.
+4. The game picks it up once `games/hatchery-heist/config/creatures.luau`
+   lists the id. Until then `export.py` and `blender/luau.py` leave it out
+   of the generated files and say so, so CI stays green. After adding the
+   config line, re-run both and commit the generated files.
 
 ## Changing a creature
 

@@ -2,6 +2,7 @@
 
     PYTHONPATH=/opt/bpy python3 tools/art/blender/lineup.py out.png --tier Common
     PYTHONPATH=/opt/bpy python3 tools/art/blender/lineup.py out.png --all
+    PYTHONPATH=/opt/bpy python3 tools/art/blender/lineup.py out.png --only Calf,Foal
 
 Same meshes as build.py, in their rest pose."""
 import argparse
@@ -25,13 +26,19 @@ def main():
     ap.add_argument('out')
     ap.add_argument('--tier', action='append')
     ap.add_argument('--all', action='store_true')
+    ap.add_argument('--only', help='comma separated ids, drawn in this order')
     ap.add_argument('--samples', type=int, default=48)
+    ap.add_argument('--angle', type=float, default=0, help='turn the camera this many degrees (3/4 view: 35)')
     a = ap.parse_args()
-    cs = creatures(None if a.all else a.tier)
-    cs.sort(key=lambda c: RANK.index(c.rarity))
+    only = a.only.split(',') if a.only else None
+    cs = creatures(None if a.all or only else a.tier, set(only) if only else None)
+    if only:
+        cs.sort(key=lambda c: only.index(c.species))
+    if not only:
+        cs.sort(key=lambda c: RANK.index(c.rarity))
     s = build.reset()
     tmp = tempfile.mkdtemp(prefix='lineup-')
-    x, tallest, gap = 0.0, 0.0, 0.5
+    x, tallest, gap = 0.0, 0.0, 0.5 + 2.0 * math.sin(math.radians(a.angle))
     for c in cs:
         coll = bpy.data.collections.new(c.species)
         s.collection.children.link(coll)
@@ -47,13 +54,14 @@ def main():
     s.cycles.samples = a.samples
     cam = co.data
     cam.type = 'ORTHO'
-    cam.ortho_scale = width + 1.0
+    turn = math.radians(a.angle)
+    cam.ortho_scale = width * math.cos(turn) + 1.0 + 3.0 * math.sin(turn)
     target = Vector((width / 2, 0, tallest * 0.45))
-    eye = target + Vector((0, 40, 40 * math.tan(math.radians(14))))
+    eye = target + Vector((40 * math.sin(turn), 40 * math.cos(turn), 40 * math.tan(math.radians(14))))
     co.location = eye
     co.rotation_euler = (target - eye).to_track_quat('-Z', 'Y').to_euler()
     s.render.resolution_x = 2000
-    s.render.resolution_y = max(500, int(2000 * (tallest * 1.35 + 0.8) / (width + 1.0)))
+    s.render.resolution_y = max(500, int(2000 * (tallest * 1.35 + 0.8) / cam.ortho_scale))
     s.render.filepath = os.path.abspath(a.out)
     bpy.ops.render.render(write_still=True)
 
