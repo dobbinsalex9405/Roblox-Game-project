@@ -22,20 +22,53 @@ Eight bases sit in a ring around a shared yard; each player gets one.
    was bought, by the saved clock, so it keeps going while the player is away.
 3. **Hatch.** What an egg hatches is decided and paid for at purchase (a paid
    roll from the odds table, or the fixed order below) and revealed at hatch.
-   The creature takes the first free pad (20 pads); when all are full, a
-   better creature takes the weakest one's pad and the weaker one goes to
-   storage (30 slots). When storage overflows, the weakest stored creature
-   sells for `storage.sellSeconds` of its income.
+   The creature goes to the highest owned floor of the tower with room for
+   it, otherwise to the inventory (150 slots, `storage.slots`). When the
+   inventory overflows, the weakest stored creature sells for
+   `storage.sellSeconds` of its income. Only creatures on a floor earn.
 4. **Coins.** Placed creatures earn `coinsPerSecond` × mutation × rebirth bonus
    (× Double Coins pass) into an uncollected pile. Step on the collect pad to
    bank it, or own Auto-Collect to bank it every `autoCollectSeconds`.
 5. **Rebirth.** At the rebirth stand: costs `rebirth.baseCost`, each rebirth
    `costGrowth` times the last; resets coins, the pile and creatures (kept in
    the save's `rebirthArchive`) for +25% income per rebirth. Eggs in
-   incubators and bought slots stay.
+   incubators, bought slots, tower floors and floor upgrades stay.
 6. **Offline.** On rejoin, the pile gains `offline.rate` of normal income for
    at most `offline.maxSeconds`; a welcome-back message says how much and how
    many eggs finished hatching.
+
+## The tower (Alex, Nov 5 2026)
+
+Each base is a cozy apartment-style tower of 10 floors (`economy.tower`,
+`Geometry`, `Tower`); the farm is only the centrepiece in the middle of the
+map (Alex, Nov 5). Floors: 1 Cozy Studio, 2 Book Nook, 3 Plant Sunroom,
+4 Bakery Kitchen, 5 Games Lounge, 6 Winter Cabin, 7 Art Studio, 8 Rooftop
+Garden, 9 Starlit Observatory, 10 Golden Sky Penthouse.
+Floor 1 is free; each next floor costs `floorPrices` (25K, 75K, 225K, 675K,
+2M, 6M, 18M, 55M, 165M) and must be built in order. A floor has 8 spots in a
+4 by 2 grid. A creature takes 1 spot up to Ultra Rare, 2 for Epic and 3 for
+Legendary and Godly (`slotsByRarity`), side by side in one row.
+
+- **Multiplier.** Creatures on floor 1 earn x1. Floor f from 2 earns
+  1 + `floorBonus` × (f − 2) + `startBonus`, plus `upgradeBonus` per upgrade,
+  so a new floor starts just above the floor below at full upgrades. Fully
+  upgraded, floor f earns 1 + 0.25 × (f − 1): x1.25 on floor 2 up to x3.25
+  on floor 10.
+- **Upgrades.** 4 per floor from floor 2, bought in order: Cozy spots, Toys,
+  Lighting, Food and water, at 20/35/50/75% of that floor's price
+  (`upgradeShares`). Each shows a prop on the floor.
+- **Placing.** A new creature goes to the highest floor with room, otherwise
+  to the inventory; nothing is swapped out. "Your Creatures" (🐾 Pets) moves
+  any creature to a floor or back to the inventory; Place best fills the
+  tower from the top floor down by income per spot, leaving the ridden
+  creature and the guard where they are.
+- **Getting up.** An elevator in one corner (stand at a stop, pick an owned
+  floor; the server checks you are at the elevator and own the floor) and a
+  ladder on the opposite side. Raiders climb the ladder: a steal is refused
+  unless the raider stands on that creature's floor.
+- **Old saves** (before the tower) are placed best first once on join, with
+  the mount and the guard cleared; every join then tidies the save so no two
+  creatures overlap and none sits on a floor the player doesn't own.
 
 ## Creatures and rarity (Alex, Nov 5 2026)
 
@@ -89,7 +122,7 @@ roll out with a much larger roster.
 
 ## Mounts (approved Nov 1, 2026)
 
-Ride any creature you own from its pad. Its species' `mountSpeed` sets your
+Ride any creature you own from its floor. Its species' `mountSpeed` sets your
 walk speed (16 on foot; rarer is faster). The ridden creature keeps earning,
 is saved (`mountUid`) and comes back after a respawn or rejoin. The server
 checks ride speed with the movement check (see Raids).
@@ -130,7 +163,7 @@ Defenses, bought and placed on the owner's own base:
   trap spot looks the same to raiders; only the owner sees which is which.
 - **Decoy eggs** on 3 spots, for coins: look like a creature to raiders;
   picking one up stuns the raider, alerts the owner and uses it up.
-- **One guard**: any creature on a pad can guard (not while ridden). It chases
+- **One guard**: any creature on a floor can guard (not while ridden). It chases
   raiders it can see on the base at a share of its mount speed and takes the
   creature back on contact.
 
@@ -241,7 +274,7 @@ adds new ones from playtests, feedback ideas and what worked elsewhere.
   message; eggs finished while away earn nothing until hatched.
 - **depth**: rebirth takes all leftover coins; keep the surplus or warn first.
   Slots 10 to 12 cost more than the first rebirths: re-space the slot curve.
-- **depth**: batch the "Storage is full" notices (14 in 5 minutes) into one.
+- **depth**: batch the "Inventory is full" notices (14 in 5 minutes) into one.
 - **return**: show the offline earnings as a reward moment with the number,
   not a passing notice.
 - **monetization**: list the Premium Egg with its odds (M5, paid random:
