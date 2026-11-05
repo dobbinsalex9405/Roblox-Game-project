@@ -15,12 +15,18 @@
 -- in a rarity ring; Legendaries hover in a bright aura; Godlies add orbiting
 -- lights and a rainbow ring. The ball's `LookFade` attribute says when a
 -- creature is a ghost (0.75: ridden or guarding) or gone (1: carried off).
+--
+-- The creature you ride yourself fills most of your camera, so it keeps its
+-- colours but drops its glow: no neon, no light, no sparkles and no ring.
+-- Everyone else still sees it shine.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local ArtScale = require(Shared.ArtScale)
 local CreatureLooks = require(Shared.CreatureLooks)
 local Layout = require(Shared.Layout)
 local VoxelArt = require(Shared.VoxelArt)
@@ -30,6 +36,12 @@ local CreatureView = {}
 local ATTRIBUTE = "CreatureLook"
 local ANIMATE_RANGE = 160 -- studs from the camera; further creatures hold still
 local RING_TRANSPARENCY = 0.45
+local LIGHT_BRIGHTNESS = 1 -- was 1.5 to 2.5 pulsing: a base of Legendaries washed out
+
+-- A glow colour at `neon` of its full brightness (CreatureLooks.neon).
+local function dim(color: Color3, neon: number): Color3
+	return color:Lerp(Color3.new(0, 0, 0), 1 - neon)
+end
 
 type Motor = { motor: Motor6D, anim: string }
 type Glow = { part: Part, color: Color3 }
@@ -135,8 +147,13 @@ local function build(anchor: BasePart, speciesId: string)
 	end
 	local look = CreatureLooks[art.rarity] or CreatureLooks.Common
 	-- Studs per voxel: the art's own size on a pad, scaled with the ball when
-	-- the server draws it smaller (ridden or carried overhead).
-	local s = VoxelArt.voxel * anchor.Size.Y / Layout.raritySize(art.rarity)
+	-- the server draws it smaller (ridden or carried overhead), and then small
+	-- enough that the whole art, crest and all, fits inside the ball.
+	local s = VoxelArt.voxel
+		* ArtScale.drawScale(anchor.Size.Y, Layout.raritySize(art.rarity), art.size[2] * VoxelArt.voxel)
+	-- Your own mount fills your camera: no glow on it for you.
+	local character = Players.LocalPlayer.Character
+	local ownMount = character ~= nil and anchor.Name == "Mount" and anchor:IsDescendantOf(character)
 	local height = art.size[2] * s
 	local feet = anchor.CFrame * CFrame.new(0, -anchor.Size.Y / 2, 0)
 
@@ -195,9 +212,10 @@ local function build(anchor: BasePart, speciesId: string)
 				feet * CFrame.new((x + sx / 2) * s, (y + sy / 2) * s, (z + sz / 2) * s)
 			)
 			box.Color = entry.color
-			if entry.glow then
+			if entry.glow and not ownMount then
 				box.Material = Enum.Material.Neon
-				table.insert(v.glow, { part = box, color = entry.color })
+				box.Color = dim(entry.color, look.neon)
+				table.insert(v.glow, { part = box, color = box.Color })
 			end
 			weld(root, box)
 			box.Parent = model
@@ -225,7 +243,7 @@ local function build(anchor: BasePart, speciesId: string)
 	local width = math.max(art.size[1], art.size[3]) * s
 	local centre = feet * CFrame.new(0, height / 2, 0)
 
-	if look.ring then
+	if look.ring and not ownMount then
 		local ring = visualPart(
 			"Ring",
 			Vector3.new(0.12, width * 0.95, width * 0.95),
@@ -233,13 +251,13 @@ local function build(anchor: BasePart, speciesId: string)
 		)
 		ring.Shape = Enum.PartType.Cylinder
 		ring.Material = Enum.Material.Neon
-		ring.Color = rarityColor
+		ring.Color = dim(rarityColor, look.neon)
 		weld(anchor, ring)
 		ring.Parent = model
 		v.ring = ring
 	end
 
-	if look.light > 0 or look.particles > 0 then
+	if (look.light > 0 or look.particles > 0) and not ownMount then
 		local aura = visualPart("Aura", Vector3.new(width, height, width), centre)
 		aura.Transparency = 1
 		weld(roots.body or anchor, aura)
@@ -248,7 +266,7 @@ local function build(anchor: BasePart, speciesId: string)
 			local light = Instance.new("PointLight")
 			light.Color = glowColor or rarityColor
 			light.Range = look.light
-			light.Brightness = 1.5
+			light.Brightness = LIGHT_BRIGHTNESS
 			light.Shadows = false
 			light.Parent = aura
 			v.light = light
@@ -274,7 +292,7 @@ local function build(anchor: BasePart, speciesId: string)
 		end
 	end
 
-	if look.orbit > 0 then
+	if look.orbit > 0 and not ownMount then
 		local hub = visualPart("Orbit", Vector3.new(0.05, 0.05, 0.05), feet * CFrame.new(0, height * 0.55, 0))
 		hub.Transparency = 1
 		hub.Parent = model
@@ -297,7 +315,7 @@ local function build(anchor: BasePart, speciesId: string)
 					* CFrame.Angles(a, a, 0)
 			)
 			orb.Material = Enum.Material.Neon
-			orb.Color = Color3.fromHSV(i / look.orbit, 0.7, 1)
+			orb.Color = Color3.fromHSV(i / look.orbit, 0.7, look.neon)
 			weld(hub, orb)
 			orb.Parent = model
 			table.insert(v.orbiters, orb)
@@ -430,19 +448,19 @@ local function animate(v: Visual, now: number)
 	if look.pulse then
 		local k = 0.5 + 0.5 * math.sin(t * 2.2)
 		for _, g in v.glow do
-			g.part.Color = g.color:Lerp(Color3.new(1, 1, 1), 0.3 * k)
+			g.part.Color = g.color:Lerp(Color3.new(1, 1, 1), 0.3 * k * look.neon)
 		end
 		if v.light then
-			v.light.Brightness = 1 + 1.5 * k
+			v.light.Brightness = LIGHT_BRIGHTNESS * (0.8 + 0.6 * k)
 		end
 	end
 	if look.shimmer then
 		local hue = (t * 0.12) % 1
 		if v.ring then
-			v.ring.Color = Color3.fromHSV(hue, 0.65, 1)
+			v.ring.Color = Color3.fromHSV(hue, 0.65, look.neon)
 		end
 		for i, orb in v.orbiters do
-			orb.Color = Color3.fromHSV((hue + i / #v.orbiters) % 1, 0.7, 1)
+			orb.Color = Color3.fromHSV((hue + i / #v.orbiters) % 1, 0.7, look.neon)
 		end
 	end
 	if v.orbit then
