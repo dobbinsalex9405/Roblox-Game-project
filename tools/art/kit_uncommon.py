@@ -35,6 +35,8 @@ extra keys are listed with each):
   train, plume, pinwheel, drip; `rings: true` bands
   it in color2.
 - **wingset**: wings that flap, as wingL/wingR. `style` feather or bat.
+- **wingfold**: folded wings sweep forward round the body, their tips
+  `forward` voxels further forward per voxel down (default 0.5).
 - **boots**: on every foot. `style` feather (fluffy) or rain (a boot with a
   color2 rim).
 - **stilts**: longer legs: lifts the creature `length` (in k) and stretches
@@ -44,7 +46,9 @@ extra keys are listed with each):
   back, head top and tail); color2 the seams.
 - **skirt**: long shaggy fur hanging from the body's sides (a yak's),
   `length` its bottom's height in k, `from` where it starts (0 belly to
-  1 back, default 0.45), `sides: true` down the flanks only.
+  1 back, default 0.45), `sides: true` down the flanks only, `strands`
+  a list of colours for darker and lighter hanging strands, `solid: true`
+  a filled coat (holes where the legs swing).
 - **fluff**: `style` fur (a fuzzy coat taking the colours under it, or
   color with `solid: true`; `head: true` too, `layers` thick) or popcorn
   (puffs in color and color2).
@@ -74,7 +78,8 @@ extra keys are listed with each):
 Patterns (roster `patterns`, `{"kind", "color", "parts"?, ...}`):
 
 - **face** the front of the head (`depth`, 0 to 1); **cap** the top of the
-  head (`depth`); **mask** a band across the eyes; **zebrastripe** wavy stripes
+  head (`depth`; `nape` runs it further down the back of the head, `soft:
+  true` blends its edge in a half-tone band); **mask** a band across the eyes; **zebrastripe** wavy stripes
   over body, head and legs; **streak** a band along each side (`z`, 0
   bottom to 1 top); **rosettes** ring spots; **flecks** small speckles
   (`density` %); **sash** a diagonal band; **rainbow** bands of colour
@@ -85,7 +90,8 @@ Patterns (roster `patterns`, `{"kind", "color", "parts"?, ...}`):
   dripping down; **sheen** glints on the top surfaces; **half** the left
   half; **ends** the far end of a part (`frac`, e.g. wing tips); **rim** the
   bottom edge; **trim** shaves a small nub off the top of a dome (`max`
-  voxels a layer)."""
+  voxels a layer); **strands** long hair in vertical runs of one tone
+  (`density` %, `seed`; run twice for darker and lighter strands)."""
 import math
 from collections import Counter
 
@@ -792,6 +798,28 @@ def tailset(c, H, col, col2, a):
         t.put((0, round(ry), round(rz)), col)
 
 
+def wingfold(c, H, col, col2, a):
+    """Folded wings sweep forward: each wing's lower voxels move forward
+    (`forward` voxels per voxel down from the shoulder, default 0.5), so the
+    tips wrap round the body's side."""
+    f = a.get('forward', 0.5)
+    taken = set()
+    for p in c.parts:
+        if p.name not in ('wingL', 'wingR'):
+            taken |= set(p.v)
+    for name in ('wingL', 'wingR'):
+        w = _find(c, name)
+        if not w:
+            continue
+        top = max(q[2] for q in w.v)
+        moved = {}
+        for (x, y, z), v in w.v.items():
+            q = (x, y - round((top - z) * f), z)
+            if q not in taken:
+                moved[q] = v
+        w.v = moved
+
+
 def wingset(c, H, col, col2, a):
     k = _k(H)
     style = a.get('style', 'feather')
@@ -951,10 +979,19 @@ def skirt(c, H, col, col2, a):
         xs = [x for (x, y) in sil]
         half = (max(xs) - min(xs) + 1) / 2
         ring = {(x, y) for (x, y) in ring if abs(x + .5) >= half * 0.6}
-    for (x, y) in ring:
-        zs = round(a.get('length', 0.9) * k) + _hash(x // 2, y // 2, 31) % 2
+    cols = [col] + ([hexc(c2) if isinstance(c2, str) else c2 for c2 in a.get('strands', [])] if a.get('strands') else [])
+    cells = ring
+    bodyv = set(body.v)
+    if a.get('solid'):  # a filled coat down to the hem, holes where the legs swing
+        legxy = {(x, y) for p in c.parts if p.name.startswith('leg') for (x, y, z) in p.v}
+        cells = (ring | sil) - legxy
+    for (x, y) in cells:
+        j = a.get('jag', 2)
+        zs = round(a.get('length', 0.9) * k) + _hash(x // j, y // j, 31) % (a.get('shag', 1) + 1)
+        cc = cols[_hash(x, y, 37) % len(cols)] if (x, y) in ring else col
         for z in range(zs, zm + 1):
-            s.put((x, y, z), col)
+            if (x, y, z) not in bodyv:
+                s.put((x, y, z), cc)
 
 
 def fluff(c, H, col, col2, a):
@@ -1512,7 +1549,7 @@ def leaf(c, H, col, col2, a):
 ACCESSORIES = {
     'cup': cup, 'mitten': mitten, 'shell': shell, 'ball': ball_acc, 'pot': pot, 'bubble': bubble,
     'tusks': tusks, 'snout': snout, 'hornset': hornset, 'earset': earset, 'tailset': tailset,
-    'wingset': wingset, 'boots': boots, 'stilts': stilts, 'carapace': carapace, 'skirt': skirt,
+    'wingset': wingset, 'wingfold': wingfold, 'boots': boots, 'stilts': stilts, 'carapace': carapace, 'skirt': skirt,
     'fluff': fluff, 'frizz': frizz, 'mushrooms': mushrooms, 'spikes': spikes, 'feelers': whiskers,
     'bigeyes': bigeyes, 'mouth': mouth, 'sweater': sweater, 'snowcap': snowcap, 'bristles': mohawk,
     'crest': crest, 'beak': beak, 'fan': fan, 'leaf': leaf, 'eyedisc': eyedisc, 'cicada': cicada, 'goatee': goatee,
@@ -1548,7 +1585,21 @@ def p_face(c, H, col, parts, p):
 def p_cap(c, H, col, parts, p):
     head = head_of(c)
     lo, hi = bounds(head.v)
-    _paint(head, lambda q: q[2] >= hi[2] - (hi[2] - lo[2]) * p.get('depth', 0.3), col)
+    depth, nape = p.get('depth', 0.3), p.get('nape', 0)
+    ym = (lo[1] + hi[1]) / 2
+
+    def edge(q):
+        # the cap's lower edge, lower behind (down the nape) when nape > 0
+        back = max(0.0, (q[1] - ym) / max(1, hi[1] - ym))
+        return hi[2] - (hi[2] - lo[2]) * (depth + nape * back)
+
+    if p.get('soft'):
+        # a soft wash: a half-tone band under the cap's edge
+        band = max(1, round(_k(H) * 0.35))
+        for q, (cc, g) in list(head.v.items()):
+            if not g and cc not in (INK, WHITE) and edge(q) - band <= q[2] < edge(q):
+                head.v[q] = (mix(cc, col, 0.5), False)
+    _paint(head, lambda q: q[2] >= edge(q), col)
 
 
 def p_mask(c, H, col, parts, p):
@@ -1624,6 +1675,14 @@ def p_flecks(c, H, col, parts, p):
     dens = p.get('density', 12)
     for part in _targets(c, parts):
         _paint(part, lambda q: _hash(*q, 23) % 100 < dens, col)
+
+
+def p_strands(c, H, col, parts, p):
+    # long hair: whole vertical runs of one tone (the hash skips z), so a
+    # shaggy coat reads as strands, not as speckle
+    dens = p.get('density', 18)
+    for part in _targets(c, parts):
+        _paint(part, lambda q: _hash(q[0], q[1] // 2, p.get('seed', 41)) % 100 < dens, col)
 
 
 def p_sash(c, H, col, parts, p):
@@ -1798,5 +1857,5 @@ PATTERNS = {
     'face': p_face, 'cap': p_cap, 'mask': p_mask, 'zebrastripe': p_zebra, 'streak': p_streak, 'rosettes': p_rosettes,
     'flecks': p_flecks, 'sash': p_sash, 'rainbow': p_rainbow, 'sprinkles': p_sprinkles, 'swirl': p_swirl,
     'ribs': p_ribs, 'stitches': p_stitches, 'facets': p_facets, 'drips': p_drips, 'sheen': p_sheen,
-    'half': p_half, 'ends': p_ends, 'rim': p_rim, 'trim': p_trim,
+    'half': p_half, 'ends': p_ends, 'rim': p_rim, 'trim': p_trim, 'strands': p_strands,
 }
