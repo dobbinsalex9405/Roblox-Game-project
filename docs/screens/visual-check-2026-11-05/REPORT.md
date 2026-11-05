@@ -447,3 +447,13 @@ Each board is 26x7 studs, centred 4.5 studs up and 15 studs from the nest, facin
   - Looking through a gap between boards, the Golden Egg and the coloured eggs show clearly, framed by two dark boards (`97e-hh-nest-from-gap.jpg`).
   - The boards sit inside the belt ring, so belt eggs pass in front of them all the time. From the path you see eggs, then a dark slab, then the nest only through the gaps.
   - **Suggestion:** take the odds off the centre. Either put a small low sign at each of the 8 stops, outside the ring at eye level facing the path (1-2 tiers per line, bigger type), or rely on the existing tap-to-open odds card and keep one small "Odds" sign. Either way the ring and nest stay the clear centrepiece. If the boards stay: make them narrower (about 12 studs) with wide gaps, put the top at 5 studs or lower, and place them outside the belt so eggs don't pass in front.
+
+## #106 trap prompts @ be70e4a
+
+**PASS.**
+- **Hatch beats traps:** in front of Incubator 1 (91, 3.3, 18), the same spot where E set a snare on 41001a7, only the Hatch prompt shows (`106-hh-hatch-only-prompt-phone.jpg`). The trap prompts there are 9.0 studs away and out of their 5-stud range. Pressing E hatched the egg: the onboarding step and new creature appeared, coins were unchanged, and no trap event fired.
+- **Trap prompts:** Snare is F and Slime is R, each with HoldDuration 0.6 and MaxActivationDistance 5.
+  - At 6.2 studs from Trap1 neither shows. At 3.5 studs both show (PromptShown logged).
+  - A tap of F gave HoldBegan with no trigger. Holding R for 0.9 s triggered Slime; the server refused it for coins (174 < 2K).
+- **Phone 844x392:** Hatch and the two trap prompts are separate cards, each about 150x60 px. Slime and Snare stack in two rows with distinct key badges (`106-hh-trap-prompts-close-phone.jpg`).
+- **Stray prompts:** the only other enabled prompts in reach around the incubators are the belt Buy prompts (E, range 10), which appear and disappear as eggs pass. At the incubator front Hatch is nearer (4.7 against 7.5 or more) and is the one shown. Decoy "Place" prompts (E) are out of range there.
