@@ -773,6 +773,9 @@ FINER = {'NebulaSerpent': 1.6}
 import variants  # noqa: E402
 
 ROSTER += variants.roster_entries()
+# Every Godly added as data is a showpiece: 1.6x finer voxels, like the serpent
+# (ops/DECISIONS.md, Nov 5).
+FINER.update({sid: 1.6 for sid, rarity, _ in ROSTER if rarity == 'Godly' and sid not in FINER and sid != 'GoldenGoose'})
 ELEMENT.update(variants.elements())
 
 
