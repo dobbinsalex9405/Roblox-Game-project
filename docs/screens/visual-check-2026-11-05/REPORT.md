@@ -123,3 +123,24 @@ strip ends at 790). Output: no errors.
 
 Small note: unfound cards in the top three rows show only egg and odds, with no "???" name line;
 "???" appears from row 4 down (and on desktop). Not a spoiler, just inconsistent.
+
+## Gate: #66 at ddfd832
+
+FAIL.
+- **Spoiler:** unfound Book cards keep each creature's real TextureID and only set Color dark.
+  A MeshPart's texture covers its Color, so once a texture loads the unfound card shows the
+  creature in full colour (`66-hh-book-spoiler`: all 20 unfound cards in colour). Before the
+  textures load the cards are grey, not dark (`66-hh-book-before-textures`).
+- **Missing names:** the Species label is blank on found cards (Chick, Calf...) and on most
+  unfound cards ("???" only on 6 of 30).
+- **Textures:** 5 creature textures fail to load: Mouse 125942249841390, Fawn 123184545739625,
+  Toad 110360095487934, Koala 138011394882264, Crab 112487715406458. About 18 more report "Asset
+  content representation is being generated" (still processing on Roblox's side), so the first
+  hatch showed a grey, untextured Lop Bunny that got its colours a few seconds later.
+- **Output:** 21 MessageErrors "Failed to upload TexturePack ... Referenced Asset N is NOT found ...
+  PBR textures may not be visible".
+- PASS: all 53 meshes load (MeshParts with MeshIds, none blank). Sizes match the tier steps (Common
+  2.0, Uncommon 2.2, Rare 2.4, Ultra Rare 2.7, Epic 3.0, Legendary 3.4, Godly 3.8). Feet sit on the
+  pad (Legendary and Godly hover 0.3-0.45 by design). Voxel style is the same across tiers with no
+  z-fighting seen. Phoenix ride 4.4 studs, 17 MeshParts, no glow, rider seated. Hatch reveal
+  shows the mesh. The creature is on its pad 0.23 s after the hatch press.
