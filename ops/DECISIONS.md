@@ -21,9 +21,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   say which way each face points; the top cap depends on height only and the
   seams follow one shared mirrored shape. Painted features sit at 10 to 31
   degrees, above the 9 degree hill line.
-- **Images upload as Decals; the game resolves a decal id to its image**
-  (InsertService) and otherwise uses the id as an image, because Open Cloud
-  answers with one or the other.
+- **Images upload as Image assets, never Decals.** A Decal id on a Sky
+  face, a Texture or a TextureID draws nothing ("Asset type does not match",
+  found on #66's gate). upload.py checks the type that comes back and
+  luau.py writes 0 for anything not recorded as an Image.
 - **Uploads ride the creature workflow** (`art = nature`): a new workflow
   cannot be started until it is on main, and the ids are committed back onto
   the branch that ran it so they arrive in the same PR.

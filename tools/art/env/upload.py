@@ -1,13 +1,15 @@
 """Uploads Hatchery Heist's outdoor nature to Roblox through Open Cloud: one
-Model asset per nature model (its .fbx) and one image asset per skybox face
-and for the grass tile. Records the ids in tools/art/env/assets.json; then
+Model asset per nature model (its .fbx) and one Image asset per skybox face
+and for the grass tile (never a Decal: Sky faces and Textures need an image
+id, and a decal id draws nothing). Records the ids in tools/art/env/assets.json; then
 luau.py writes them into EnvArt.luau.
 
     python3 tools/art/env/upload.py MODELS_DIR IMAGES_DIR [--only PuffOakL,SkyboxFt] [--dry-run]
 
 MODELS_DIR is build.py's output (MODELS_DIR/<id>/<id>.fbx); IMAGES_DIR holds
 SkyboxBk.png ... SkyboxUp.png and Grass.png (sky.py and grass.py). Anything
-whose content has not changed since its last upload is skipped. A model
+whose content has not changed since its last upload is skipped (an image
+not recorded as an Image is uploaded again). A model
 already uploaded gets a new version of the same asset, so its id never
 changes; a changed image becomes a new image (Roblox images have no
 versions).
@@ -127,20 +129,23 @@ def main():
             raise SystemExit(f'{name}: no {png}')
         h = digest(path=png)
         have = data['images'].get(name)
-        if have and have.get('hash') == h:
+        if have and have.get('hash') == h and have.get('type') == 'Image':
             print(f'{name}: unchanged ({have["assetId"]})')
             continue
         if a.dry_run:
             print(f'{name}: would upload {png}')
             continue
         body, ctype = multipart({
-            'assetType': 'Decal',
+            'assetType': 'Image',
             'displayName': f'HH {name}',
             'description': f'Hatchery Heist {name} (tools/art/env)',
             'creationContext': {'creator': {'groupId': group}},
         }, png, 'image/png')
         res = cloud.wait(cloud.call('POST', f'{cloud.API}/assets', key, body, ctype), key)
-        data['images'][name] = {'assetId': int(res['assetId']), 'hash': h}
+        kind = str(res.get('assetType', ''))
+        if 'IMAGE' not in kind.upper():
+            raise SystemExit(f'{name}: came back as {kind or "an unknown type"}, not an Image')
+        data['images'][name] = {'assetId': int(res['assetId']), 'hash': h, 'type': 'Image'}
         print(f'{name}: asset {res["assetId"]}', flush=True)
         save(data)
     if not a.dry_run:

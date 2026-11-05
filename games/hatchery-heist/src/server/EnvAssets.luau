@@ -99,21 +99,10 @@ local function collect(loaded: Instance, modelId: string): Model?
 	return model
 end
 
--- The image a decal or image asset id shows. An Open Cloud "Decal" upload
--- may answer with the decal's id; a decal loads as a Decal whose Texture is
--- the image. Anything else is used as an image id as it is.
+-- An uploaded Image asset as a content id. The images are Image assets
+-- (tools/art/env/upload.py): a Decal id on a Sky face or Texture draws
+-- nothing, so EnvArt leaves anything else at 0.
 function EnvAssets.image(id: number): string
-	local ok, loaded = pcall(function()
-		return InsertService:LoadAsset(id)
-	end)
-	if ok and typeof(loaded) == "Instance" then
-		local decal = loaded:FindFirstChildWhichIsA("Decal", true)
-		local texture = if decal then decal.Texture else nil
-		loaded:Destroy()
-		if texture and texture ~= "" then
-			return texture
-		end
-	end
 	return `rbxassetid://{id}`
 end
 

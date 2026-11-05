@@ -109,7 +109,9 @@ def write():
     lines.append('\t},')
     lines.append('\timages = {')
     for k in IMAGES:
-        aid = assets.get('images', {}).get(k, {}).get('assetId', 0)
+        entry = assets.get('images', {}).get(k, {})
+        # only Image assets: a Decal id on a Sky face or Texture draws nothing
+        aid = entry.get('assetId', 0) if entry.get('type') == 'Image' else 0
         assert isinstance(aid, int), f'assets.json: bad asset id for {k}'
         lines.append(f'\t\t{k} = {aid},')
     lines.append('\t},')
