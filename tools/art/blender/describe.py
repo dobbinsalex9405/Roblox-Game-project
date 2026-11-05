@@ -30,6 +30,18 @@ DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
 
 
+def check_parents(species, parents):
+    """Every part's chain of parents must end at the body: a loop (head on a
+    wing, the wing on the head) draws the creature as one stray cube."""
+    for name in parents:
+        seen, at = {name}, parents[name]
+        while at is not None:
+            if at in seen or at not in parents:
+                raise ValueError(f'{species}: part {name} has a parent loop or a missing parent ({at})')
+            seen.add(at)
+            at = parents[at]
+
+
 def parent_of(part, parts):
     """export.parent_of, the same answer, faster on the finer voxels: the
     moving part this one touches most, ties broken by the nearest voxel and
@@ -38,6 +50,8 @@ def parent_of(part, parts):
         return None
     if part.name in ('eyes', 'ears'):
         return 'head'
+    if part.name in ('head', 'wingL', 'wingR', 'tail'):
+        return 'body'  # a moving part rides the body, never another mover (no parent loops)
     scored = []
     for other in parts:
         if other is part or other.name not in MOVERS:
@@ -141,6 +155,7 @@ def describe(c):
             'meshes': mlist,
             'lod1': lod_entry,
         })
+    check_parents(c.species, {m['name']: m['parent'] for m in parts_meta})
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
         'id': c.species,
