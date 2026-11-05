@@ -235,6 +235,14 @@ return function(Schema: any, Odds: any)
 			contrast = Schema.number({ min = -1, max = 1 }),
 			tint = rgb,
 		}),
+		wander = Schema.record({
+			speed = Schema.number({ min = 0.5, max = 10 }),
+			segmentSeconds = Schema.number({ min = 2, max = 60 }),
+			turnSeconds = Schema.number({ min = 0.1, max = 3 }),
+			faceFrontAfter = Schema.number({ min = 0, max = 30 }),
+			margin = Schema.number({ min = 0, max = 4 }),
+			cullFloors = Schema.integer({ min = 0, max = 10 }),
+		}),
 		scenery = Schema.check(
 			Schema.record({
 				hillRadius = Schema.number({ min = 200, max = 1000 }),
