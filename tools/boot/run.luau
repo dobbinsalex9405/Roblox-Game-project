@@ -3,7 +3,7 @@
 -- client) scripts under Lune with a thin Roblox shim (tools/boot/shim.luau).
 --
 --   lune run tools/boot/run [game|all] [--built] [--no-build] [--studio]
---                           [--no-client] [--no-join] [--settle 2] [--verbose]
+--                           [--no-client] [--no-join] [--settle 2] [--frames 30] [--verbose]
 --
 -- By default each game is built fresh into build/boot-<game>.rbxl. `--built`
 -- boots build/<game>.rbxl as tools/build.sh left it instead, so CI and the
@@ -12,8 +12,10 @@
 --
 -- What it catches: a config assert that fails at start-up, a require that
 -- points nowhere, a nil index while the world is built or remotes are
--- registered, a start-up error on the client. It cannot judge how anything
--- looks or plays; Studio still does that.
+-- registered, a start-up error on the client, and an error in code that runs
+-- every frame (after the join it plays --frames frames, default 30, on the
+-- server and then on the client, with a brand-new player's save). It cannot
+-- judge how anything looks or plays; Studio still does that.
 --
 -- Exit code 1 when any game's server or client raised an error.
 
@@ -30,8 +32,8 @@ do
 	local i = 1
 	while i <= #args do
 		local a = args[i]
-		if a == "--settle" then
-			flags.settle = tonumber(args[i + 1])
+		if a == "--settle" or a == "--frames" then
+			flags[string.sub(a, 3)] = tonumber(args[i + 1])
 			i += 2
 		elseif string.sub(a, 1, 2) == "--" then
 			flags[string.sub(a, 3)] = true
@@ -44,6 +46,7 @@ do
 end
 
 local settle = flags.settle or 2
+local frames = flags.frames or 30
 local games: { string } = {}
 if #positional == 0 or positional[1] == "all" then
 	for _, name in fs.readDir("games") do
@@ -89,9 +92,20 @@ local function report(game: string, side: string, scripts: { string })
 	for _, name in scripts do
 		print(`   ran {name}`)
 	end
+	-- An error in per-frame code repeats every frame: show it once, counted.
+	local errorCounts: { [string]: number } = {}
+	local errorOrder: { string } = {}
 	for _, err in Shim.errors do
 		failed = true
-		print(`[BUG] {game} {side} ({err.where}): {err.message}`)
+		local line = `[BUG] {game} {side} ({err.where}): {err.message}`
+		if errorCounts[line] == nil then
+			table.insert(errorOrder, line)
+		end
+		errorCounts[line] = (errorCounts[line] or 0) + 1
+	end
+	for _, line in errorOrder do
+		local count = errorCounts[line]
+		print(if count > 1 then `{line} (x{count})` else line)
 	end
 	-- Identical lines (a warning from a loop) are shown once with a count;
 	-- tracebacks are cut to their first lines.
@@ -192,6 +206,11 @@ local function bootGame(gameName: string, placePath: string)
 		players.PlayerAdded:Fire(player)
 		task.wait(settle * 2)
 		table.insert(ran, "join of one player")
+		-- A new player has the default save (no guard, no mount, empty pads),
+		-- the state most per-frame code forgets about.
+		Shim.stepFrames(frames)
+		task.wait(settle)
+		table.insert(ran, `{frames} frames with that player in`)
 	end
 
 	local clientRan, clientErrors, clientOutput = nil, nil, nil
@@ -217,6 +236,9 @@ local function bootGame(gameName: string, placePath: string)
 		end
 		clientRan = runAll(game, clientScripts, "client start-up")
 		task.wait(settle)
+		Shim.stepFrames(frames, true)
+		task.wait(settle)
+		table.insert(clientRan, `{frames} frames`)
 		clientErrors, clientOutput = takeErrors(), takeOutput()
 		-- Back to the server for the leave.
 		Shim.side = "server"
