@@ -15,8 +15,10 @@ local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
 
--- The kiosk boards are 16 x 11 studs: 320 x 220 pixels, nine 24-pixel lines.
+-- The odds boards are 26 x 7 studs: 520 x 140 pixels, two columns of five
+-- 24-pixel lines.
 local KIOSK_PIXELS_PER_STUD = 20
+local KIOSK_LINES = 5
 
 local Hud = {}
 
@@ -190,12 +192,12 @@ function Hud.start(ctx: Context.Context)
 	listLayout(card, 8)
 	local cardEgg: string? = nil
 
-	-- The Egg Market's kiosk: four boards over the Golden Nest. Everyone sees
-	-- their title; this client draws its own odds (fixed order for a
-	-- restricted player) over them, one egg a board (Board1 the first egg,
-	-- and round again), so the lines are big enough to read from the path.
+	-- The Egg Market's odds boards round the Golden Nest. Everyone sees their
+	-- title; this client draws its own odds (fixed order for a restricted
+	-- player) over them, one egg a board (Board1 the first egg), in two
+	-- columns of five lines so they are big enough to read from the path.
 	local boardGuis: { [BasePart]: SurfaceGui } = {}
-	local boardGui: SurfaceGui? = nil -- set once the kiosk is found
+	local boardGui: SurfaceGui? = nil -- set once the boards are found
 	local function renderBoard()
 		local market = Workspace:FindFirstChild("EggMarket")
 		local boards = market and market:FindFirstChild("Boards")
@@ -222,7 +224,7 @@ function Hud.start(ctx: Context.Context)
 				g.Face = Enum.NormalId.Front
 				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 				g.PixelsPerStud = KIOSK_PIXELS_PER_STUD
-				g.LightInfluence = 0 -- readable under the kiosk's roof
+				g.LightInfluence = 0 -- readable in shade
 				g.Adornee = board
 				local holder = Instance.new("Frame")
 				holder.Name = "Holder"
@@ -231,9 +233,15 @@ function Hud.start(ctx: Context.Context)
 				local pad = Instance.new("UIPadding")
 				pad.PaddingLeft = UDim.new(0, 12)
 				pad.PaddingRight = UDim.new(0, 12)
-				pad.PaddingTop = UDim.new(0, 2)
+				pad.PaddingTop = UDim.new(0, 3)
 				pad.Parent = holder
-				listLayout(holder, 2)
+				local grid = Instance.new("UIGridLayout")
+				grid.FillDirection = Enum.FillDirection.Vertical
+				grid.FillDirectionMaxCells = KIOSK_LINES
+				grid.SortOrder = Enum.SortOrder.LayoutOrder
+				grid.CellSize = UDim2.new(0.5, -10, 0, OddsView.KIOSK_LINE)
+				grid.CellPadding = UDim2.fromOffset(20, 2)
+				grid.Parent = holder
 				holder.Parent = g
 				g.Parent = ctx.player:WaitForChild("PlayerGui")
 				boardGuis[board] = g

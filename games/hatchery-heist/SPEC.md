@@ -20,7 +20,7 @@ Eight bases sit in a ring around a shared yard; each player gets one.
    refuses the rest ("Someone else got that egg first.") and every player
    sees it leave its pedestal. The server sells only within `buyReach` of
    the egg. The odds card for that egg is on screen while the Buy prompt is,
-   and the kiosk over the Golden Nest lists every market egg's odds by tier. The card's "See every creature"
+   and an eye-level board per egg round the Golden Nest lists its odds by tier. The card's "See every creature"
    button lists each creature's exact chance. Buy stays off until the odds are known.
 2. **Incubators.** 3 to start, more for coins (`economy.incubators.slotCosts`),
    +2 with the Extra Incubators pass. An egg hatches `hatchSeconds` after it

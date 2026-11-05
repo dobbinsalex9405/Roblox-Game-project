@@ -77,8 +77,11 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels: 22 on the odds card, 16 on the Egg Market's kiosk.
+-- Row height in pixels: 22 on the odds card, KIOSK_LINE on the odds boards.
 local rowHeight = 22
+
+-- A line on the Egg Market's odds boards (20 pixels a stud: 1.2 studs).
+OddsView.KIOSK_LINE = 24
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
 	local frame = Instance.new("Frame")
@@ -118,6 +121,11 @@ local function sameTextSize(container: GuiObject)
 	local pad = container:FindFirstChildOfClass("UIPadding")
 	if pad then
 		width -= pad.PaddingLeft.Offset + pad.PaddingRight.Offset
+	end
+	-- In a grid (the odds boards) a line is one cell wide, not the whole width.
+	local first = container:FindFirstChild("Row0")
+	if container:FindFirstChildOfClass("UIGridLayout") and first and first:IsA("GuiObject") then
+		width = first.AbsoluteSize.X
 	end
 	local labelWidth = width / 2 - 2
 	if labelWidth <= 0 then
@@ -177,15 +185,15 @@ function OddsView.tiers(display: any): { { rarity: string, weight: number, perce
 	return out
 end
 
--- Fills `container` (which should have a UIListLayout) with one egg's odds.
--- `compact` is the Egg Market's kiosk: names without the rarity word (the
+-- Fills `container` (with a UIListLayout, or a UIGridLayout on the odds
+-- boards) with one egg's odds.
+-- `compact` is the Egg Market's odds boards: names without the rarity word (the
 -- colour says it) and the exact percentage only. The card beside the Buy
 -- prompt always shows the full rows.
 local function fill(container: GuiObject, eggId: string, compact: boolean?)
-	-- Also the kiosk's line: nine fit a board (20 pixels a stud, 1.1 studs).
-	rowHeight = 22
+	rowHeight = if compact then OddsView.KIOSK_LINE else 22
 	for _, child in container:GetChildren() do
-		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+		if not child:IsA("UIGridStyleLayout") and not child:IsA("UIPadding") then
 			child:Destroy()
 		end
 	end

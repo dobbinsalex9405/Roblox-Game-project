@@ -1,10 +1,9 @@
 --!strict
 -- The Egg Market's fixed parts (Alex's plan, Nov 5): the round belt's rails
 -- in the voxel style (WorldArt BeltRail sections round both lanes), the dark
--- bed under the slats, the odds kiosk over the Golden Nest (four boards,
--- one per side, one egg each, that each player's client fills with their
--- own odds) and
--- one invisible stop facing each base, where the guide's arrow points.
+-- bed under the slats, the odds boards round the Golden Nest (one per egg,
+-- that each player's client fills with their own odds) and one invisible
+-- stop facing each base, where the guide's arrow points.
 --
 -- The moving parts (slats, pedestals and eggs) are the client's
 -- (ConveyorView): they follow a schedule everyone shares (shared/Conveyor),
@@ -16,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local Layout = require(Shared.Layout)
 local VoxelProp = require(Shared.VoxelProp)
+local economy = require(ReplicatedStorage.GameConfig.economy) :: any
 
 local Market = {}
 
@@ -23,10 +23,11 @@ local Market = {}
 -- art's own); a wider lane takes more so each section keeps its length.
 local SECTION_DEGREES = 15
 -- Readable from the walk path (about 34 studs) on a phone: one egg a board,
--- one tier a line, each line about 1.2 studs tall; low enough that the HUD at
+-- its tiers in two columns of 1.3-stud lines, top at 8 studs so the HUD at
 -- the top of a phone screen does not cover it (Studio gates).
-local KIOSK_HEIGHT = 11.5 -- the boards' middle; their bottom (6) clears the nest
-local BOARD_SIZE = Vector2.new(16, 11)
+local BOARD_SIZE = Vector2.new(26, 7)
+local BOARD_BOTTOM = 1 -- studs above the ground, on two legs
+local BOARD_RADIUS = 15 -- from the centre: clear of the nest, corners inside the lanes
 
 local function part(parent: Instance, props: { [string]: any }): Part
 	local p = Instance.new("Part")
@@ -88,38 +89,28 @@ local function rails(parent: Instance)
 	end
 end
 
--- Four boards under a roof over the Golden Nest. Everyone sees the title;
+-- The odds boards: one per egg, standing round the Golden Nest at eye level
+-- and facing out, each a wide board with its tiers in two columns. On a
+-- phone the HUD covers whatever stands 8 to 15 studs up from the walk path,
+-- so the boards stay below that (Studio gates). Everyone sees the title;
 -- each client draws its own odds over it (Hud).
-local function kiosk(parent: Instance)
+local function boards(parent: Instance)
 	local folder = Instance.new("Folder")
 	folder.Name = "Boards"
 	folder.Parent = parent
 	local wood = Color3.fromRGB(120, 85, 55)
-	local roofY = KIOSK_HEIGHT + BOARD_SIZE.Y / 2 + 0.8
-	-- Four posts just outside the nest hold a roof; the boards hang under it.
-	local corner = BOARD_SIZE.X / 2 + 0.6
-	for _, xz in { { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } } do
-		part(parent, {
-			Name = "KioskPost",
-			Size = Vector3.new(1, roofY, 1),
-			CFrame = CFrame.new(xz[1] * corner, roofY / 2, xz[2] * corner),
-			Color = wood,
-			Material = Enum.Material.Wood,
-		})
+	local count = 0
+	for _ in economy.conveyor.weights do
+		count += 1
 	end
-	part(parent, {
-		Name = "KioskRoof",
-		Size = Vector3.new(BOARD_SIZE.X + 3, 0.8, BOARD_SIZE.X + 3),
-		CFrame = CFrame.new(0, roofY + 0.4, 0),
-		Color = Color3.fromRGB(196, 72, 60),
-	})
-	local half = BOARD_SIZE.X / 2 + 0.2
-	for side = 0, 3 do
-		local yaw = side * math.pi / 2
-		local frame = CFrame.Angles(0, yaw, 0) * CFrame.new(0, KIOSK_HEIGHT, -half)
+	local centreY = BOARD_BOTTOM + BOARD_SIZE.Y / 2
+	for side = 1, count do
+		-- Turned so no board stands across base 1's path (angle 0).
+		local yaw = (side - 0.5) / count * 2 * math.pi
+		local frame = CFrame.Angles(0, yaw, 0) * CFrame.new(0, centreY, -BOARD_RADIUS)
 		-- The board's front (-Z) faces outward, away from the nest.
 		local board = part(folder, {
-			Name = `Board{side + 1}`,
+			Name = `Board{side}`,
 			Size = Vector3.new(BOARD_SIZE.X, BOARD_SIZE.Y, 0.3),
 			CFrame = frame,
 			Color = Color3.fromRGB(30, 30, 40),
@@ -131,6 +122,16 @@ local function kiosk(parent: Instance)
 			Color = wood,
 			Material = Enum.Material.Wood,
 		})
+		for _, x in { -1, 1 } do
+			part(parent, {
+				Name = "BoardLeg",
+				Size = Vector3.new(0.6, BOARD_BOTTOM + 0.3, 0.6),
+				CFrame = frame
+					* CFrame.new(x * (BOARD_SIZE.X / 2 - 1), -BOARD_SIZE.Y / 2 - BOARD_BOTTOM / 2 + 0.15, 0.4),
+				Color = wood,
+				Material = Enum.Material.Wood,
+			})
+		end
 		local face = Instance.new("SurfaceGui")
 		face.Name = "Title"
 		face.Face = Enum.NormalId.Front
@@ -174,7 +175,7 @@ function Market.build(): Model
 	local model = Instance.new("Model")
 	model.Name = "EggMarket"
 	rails(model)
-	kiosk(model)
+	boards(model)
 	stops(model)
 	model.Parent = Workspace
 	return model

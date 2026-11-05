@@ -3,7 +3,7 @@
 -- (shared/Conveyor) and the server clock, so no egg positions are ever sent
 -- over the network: the belt's slats travelling round both lanes, and each
 -- egg on its own pedestal, bobbing and slowly turning. The rails, bed and
--- odds kiosk are the server's (server/Market).
+-- odds boards are the server's (server/Market).
 --
 -- Every egg has a Buy prompt; showing it opens the odds card, and it stays
 -- off until the odds are known. Whoever buys an egg first gets it: the
