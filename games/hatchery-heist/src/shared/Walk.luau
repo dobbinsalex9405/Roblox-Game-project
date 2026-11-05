@@ -75,6 +75,30 @@ function Walk.range(spots: number, footprint: number, margin: number): (number, 
 	return rx, rz
 end
 
+-- The elevator shaft fills each floor's back-left corner (base x -24..-17,
+-- z 17..24), 3 studs into the cell of spot 5 (back row, left column). A
+-- creature whose cell starts there wanders 3 studs less on that side and
+-- that end, so it never walks into the shaft.
+local SHAFT_SPOT = 5
+local SHAFT_CUT = 3
+
+-- A creature's wander area on its floor: the centre's offset from where it
+-- stands (along the row, across it) and the half-ranges, for one starting
+-- on pad `pad` (counted across the tower) and taking `spots` spots.
+function Walk.cell(
+	pad: number,
+	spots: number,
+	footprint: number,
+	margin: number
+): (number, number, number, number)
+	local rx, rz = Walk.range(spots, footprint, margin)
+	if (pad - 1) % 8 + 1 ~= SHAFT_SPOT then
+		return 0, 0, rx, rz
+	end
+	local half = SHAFT_CUT / 2
+	return half, -half, math.max(0, rx - half), math.max(0, rz - half)
+end
+
 -- The yaw (about Y) that faces a creature drawn facing -Z along (dx, dz).
 function Walk.yawOf(dx: number, dz: number): number
 	return math.atan2(-dx, -dz)
