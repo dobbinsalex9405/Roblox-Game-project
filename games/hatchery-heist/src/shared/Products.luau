@@ -27,6 +27,38 @@ local function short(n: number): string
 	return tostring(n)
 end
 
+-- A number rounded down to its first three digits (123,456 -> 123,000),
+-- so a pack's amount reads cleanly and only changes when income really does.
+local function three(n: number): number
+	if n < 1000 then
+		return math.floor(n)
+	end
+	local unit = 10 ^ (math.floor(math.log10(n)) - 2)
+	return math.floor(n / unit) * unit
+end
+
+-- What a coin pack gives a player earning `incomePerSecond` right now: its
+-- fixed coins, or its `incomeMinutes` of that income, whichever is more.
+function Products.packCoins(
+	product: { coins: number, incomeMinutes: number? },
+	incomePerSecond: number
+): number
+	local minutes = product.incomeMinutes or 0
+	return math.max(product.coins, three(math.max(0, incomePerSecond) * 60 * minutes))
+end
+
+-- "1.25M", "80K", "5,000"-style short amounts for a pack's name.
+function Products.short(n: number): string
+	if n >= 1e9 then
+		return `{three(n) / 1e9}B`
+	elseif n >= 1e6 then
+		return `{three(n) / 1e6}M`
+	elseif n >= 1e3 then
+		return `{three(n) / 1e3}K`
+	end
+	return tostring(n)
+end
+
 function Products.catalog(monetization: any, raids: any): { CatalogItem }
 	local products = monetization.products
 	local catalog: { CatalogItem } = {}

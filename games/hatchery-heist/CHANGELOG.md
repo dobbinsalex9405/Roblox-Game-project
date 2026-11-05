@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Coin packs grow with you: each gives its fixed coins or 5, 20, 45 or 100
+  minutes of what you earn now, whichever is more. The shop shows your exact
+  amount.
+
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),

@@ -223,7 +223,11 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
 - The shop opens on its **Coins** tab (next incubator, free shield, traps,
   decoy egg, belt eggs); Robux items are the second tab.
 - Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect.
-- Products: three coin packs, Shield Refill (adds `shieldSeconds`), Instant
+- Products: four coin packs, each giving its fixed coins or
+  `incomeMinutes` of the buyer's income right now, whichever is more (5, 20,
+  45 and 100 minutes; `Products.packCoins`). The shop shows each player
+  their own exact amount and a purchase never gives less than was shown.
+  Shield Refill (adds `shieldSeconds`), Instant
   Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare and better
   weights on the listed eggs; the boosted table still totals exactly 100%).
 - Private servers.

@@ -374,7 +374,29 @@ net:on(Remotes["HH:Dismount"], function(player: Player)
 	ready:dismount(player)
 end)
 
-require(script.Shop).register(services, Config, ids)
+local Shop = require(script.Shop)
+local function incomeOf(player: Player): number?
+	local d = services.data:get(player)
+	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
+end
+Shop.register(services, Config, ids, incomeOf)
+-- The shop's coin packs scale with income: resend a player's catalog when
+-- one of their pack amounts changes.
+local packsShown: { [Player]: string } = {}
+local function refreshPacks(player: Player)
+	local income = incomeOf(player)
+	if income == nil then
+		return
+	end
+	local amounts = Shop.packAmounts(Config, income)
+	if packsShown[player] ~= amounts then
+		packsShown[player] = amounts
+		services.shop:refresh(player)
+	end
+end
+Players.PlayerRemoving:Connect(function(player)
+	packsShown[player] = nil
+end)
 
 -- Income tick: adds earnings to each player's pending pile, runs Auto-Collect
 -- and redraws bases (a pass bought mid-session can unlock incubators, a
@@ -386,6 +408,7 @@ task.spawn(function()
 			if services.data:isLoaded(player) and World.plotOf(player) then
 				ready:tick(player)
 				syncBase(player)
+				refreshPacks(player)
 			end
 		end
 	end

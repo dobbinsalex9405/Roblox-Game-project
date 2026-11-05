@@ -303,6 +303,7 @@ return function(Schema: any, Odds: any)
 			Schema.record({
 				id = productId,
 				coins = Schema.optional(Schema.integer({ min = 1 })),
+				incomeMinutes = Schema.optional(Schema.number({ min = 5, max = 600 })),
 			})
 		),
 		-- Ids per experience (see packages/core/src/Monetization.luau).
@@ -426,6 +427,9 @@ return function(Schema: any, Odds: any)
 					)
 				end
 				usedIds[product.id] = key
+			end
+			if string.match(key, "^CoinPack") and product.incomeMinutes == nil then
+				table.insert(problems, `monetization.products.{key} needs incomeMinutes`)
 			end
 			if string.match(key, "^CoinPack") and product.coins == nil then
 				table.insert(problems, `monetization.products.{key}: coin packs need coins`)
