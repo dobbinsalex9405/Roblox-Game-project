@@ -9,11 +9,12 @@
 -- side-menu button counts them.
 --
 -- Built for hundreds of cards: the page is sized for the whole tab, but only
--- the cards on screen (and a row either side) exist. A small pool of card
--- frames is moved to whichever cards scroll into view (BookGrid), each with
--- its ViewportFrame and 3D model made when it arrives and destroyed when it
--- leaves, and only those cards are repainted when the player's data changes.
--- A 200-card tab costs the same as a 20-card one.
+-- the cards on screen (and a couple of rows either side: config/atmosphere
+-- book) exist. A small pool of card frames is moved to whichever cards
+-- scroll into view (BookGrid), each with its ViewportFrame and 3D model made
+-- when it arrives and destroyed when it leaves, and only those cards are
+-- repainted when the player's data changes. A 200-card tab costs the same
+-- as a 20-card one.
 -- Opened from the side menu; the server keeps the book (data.found).
 
 local Players = game:GetService("Players")
@@ -39,7 +40,6 @@ local SHADOW = Color3.fromRGB(16, 16, 26)
 local FONT = Enum.Font.FredokaOne
 local CARD = Vector2.new(104, 150)
 local GRID: BookGrid.Spec = { width = CARD.X, height = CARD.Y, gap = 8 }
-local OVERSCAN = 1 -- rows drawn beyond the view each way, so scrolling never shows a gap
 local PAD_TOP, PAD_SIDE, PAD_BOTTOM = 4, 4, 8
 local RED = Color3.fromRGB(230, 60, 60)
 
@@ -158,6 +158,8 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
 	local species = ctx.config.creatures.species
 	local bookConfig = ctx.config.economy.book
+	-- Rows drawn past each edge of the view (config/atmosphere book).
+	local overscan = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book.overscanRows :: number
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatcheryBook"
 	gui.ResetOnSpawn = false
@@ -320,6 +322,19 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		border.Parent = frame
 		frame.Parent = page
 
+		-- The picture's dark well, under the creature's ViewportFrame: a
+		-- card never shows a bare gap while its picture draws its first frame.
+		local well = Instance.new("Frame")
+		well.Name = "Well"
+		well.BackgroundColor3 = SHADOW
+		well.BackgroundTransparency = 0.45
+		well.BorderSizePixel = 0
+		well.Position = UDim2.fromOffset(4, 4)
+		well.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
+		well.ZIndex = 0 -- under the picture, the name and the NEW badge
+		corner(well, 10)
+		well.Parent = frame
+
 		local name = text(frame, "Species", "", 14)
 		name.Position = UDim2.fromOffset(4, CARD.X - 6)
 		name.Size = UDim2.new(1, -8, 0, 18)
@@ -425,8 +440,8 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 	end
 
-	-- Binds pooled cards to the cards in view (and a row either side) and
-	-- returns the rest to the pool.
+	-- Binds pooled cards to the cards in view (and `overscan` rows either
+	-- side) and returns the rest to the pool.
 	local function cull()
 		local tab = current
 		if tab == nil or not gui.Enabled then
@@ -438,7 +453,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			GRID,
 			body.CanvasPosition.Y - PAD_TOP,
 			body.AbsoluteWindowSize.Y,
-			OVERSCAN
+			overscan
 		)
 		for index in bound do
 			if index < first or index > last then

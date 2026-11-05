@@ -369,8 +369,13 @@ return function(Schema: any, Odds: any)
 			waitSeconds = Schema.number({ min = 1, max = 10 }),
 		}),
 		-- The guide's arrow and beam (client/GuideView).
+		-- The Hatchery Book's drawn-ahead rows (client/BookView).
+		book = Schema.record({
+			overscanRows = Schema.integer({ min = 1, max = 4 }),
+		}),
 		guide = Schema.record({
 			arrivedStuds = Schema.number({ min = 2, max = 30 }),
+			playerList = Schema.boolean(),
 		}),
 		music = Schema.record({
 			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),

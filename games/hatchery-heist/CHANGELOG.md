@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Fix: on desktop, Roblox's player list no longer sits on top of the Guide
+  button (clicks opened "Examine Avatar"); the game has no leaderboard, so
+  the list is off.
+- The "YOUR HATCHERY" banner floats higher over your base sign, clear of the
+  next floor's price label, so the two no longer read as one crowded line.
+- Hatchery Book: cards two rows ahead are drawn before they scroll in, and
+  each card has a dark picture well, so a fast flick never shows empty cards.
+
 - Fix: the side menu (Guide, Book, Tower, Pets, Daily, Music) no longer
   disappears for good after the welcome card; only an open window hides it.
 - Fix: tapping Build or Upgrade twice no longer buys the next upgrade. The

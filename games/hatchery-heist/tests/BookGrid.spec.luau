@@ -6,6 +6,7 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local SPEC = { width = 104, height = 150, gap = 8 }
+local atmosphere = require("../config/atmosphere")
 
 describe("Book grid", function()
 	it("fits whole cards across the page, at least one", function()
@@ -56,5 +57,25 @@ describe("Book grid", function()
 		expect(first > 1).toBe(true)
 		first, last = BookGrid.visible(0, 6, SPEC, 0, 380, 1)
 		expect(last < first).toBe(true)
+	end)
+
+	it("draws two rows ahead, so a row has its picture before it scrolls in", function()
+		-- Studio gate (Nov 5): after a fast flick a new row showed empty
+		-- cards for a moment, while each new ViewportFrame drew its first
+		-- frame. Cards two rows past either edge are already drawn.
+		local overscan = atmosphere.book.overscanRows
+		expect(overscan >= 2).toBe(true)
+		local count, columns, view = 200, 6, 380
+		local row = SPEC.height + SPEC.gap
+		for scroll = 0, 3000, 53 do
+			local first, last = BookGrid.visible(count, columns, SPEC, scroll, view, overscan)
+			for i = 1, count do
+				local _, y = BookGrid.position(i, columns, SPEC)
+				local ahead = y < scroll + view + 2 * row and y + SPEC.height > scroll - 2 * row
+				if ahead and y >= 0 then
+					expect(i >= first and i <= last).toBe(true)
+				end
+			end
+		end
 	end)
 end)
