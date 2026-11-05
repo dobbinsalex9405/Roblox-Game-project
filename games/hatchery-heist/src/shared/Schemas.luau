@@ -220,6 +220,14 @@ return function(Schema: any, Odds: any)
 			moonAngularSize = Schema.number({ min = 0, max = 60 }),
 			starCount = Schema.integer({ min = 0, max = 5000 }),
 		}),
+		skybox = Schema.record({
+			cloudCover = unit,
+			atmosphereDensity = unit,
+			haze = Schema.number({ min = 0, max = 10 }),
+		}),
+		ground = Schema.record({
+			grassTileStuds = Schema.number({ min = 4, max = 256 }),
+		}),
 		clouds = Schema.record({
 			cover = unit,
 			density = unit,
@@ -239,10 +247,34 @@ return function(Schema: any, Odds: any)
 			Schema.record({
 				hillRadius = Schema.number({ min = 200, max = 1000 }),
 				hillCount = Schema.integer({ min = 0, max = 60 }),
-				treeCount = Schema.integer({ min = 0, max = 120 }),
-				treeRadiusMin = Schema.number({ min = 160, max = 250 }),
-				treeRadiusMax = Schema.number({ min = 160, max = 250 }),
 				seed = Schema.integer(),
+				nature = Schema.record({
+					seed = Schema.integer({ min = 1 }),
+					gapTrees = Schema.array(Schema.string({ minLength = 1, maxLength = 40 }), {
+						minLength = 1,
+						maxLength = 8,
+					}),
+					gapRadius = Schema.number({ min = 146, max = 250 }),
+					wood = Schema.record({
+						count = Schema.integer({ min = 0, max = 150 }),
+						radiusMin = Schema.number({ min = 150, max = 300 }),
+						radiusMax = Schema.number({ min = 150, max = 300 }),
+						scaleMin = Schema.number({ min = 0.5, max = 2 }),
+						scaleMax = Schema.number({ min = 0.5, max = 2 }),
+						minSpacing = Schema.number({ min = 0, max = 40 }),
+						species = Schema.map(Schema.string({ maxLength = 40 }), Schema.number({ min = 0 })),
+					}),
+					scatter = Schema.record({
+						radiusMin = Schema.number({ min = 146, max = 300 }),
+						radiusMax = Schema.number({ min = 146, max = 300 }),
+						bushes = Schema.integer({ min = 0, max = 200 }),
+						rocks = Schema.integer({ min = 0, max = 200 }),
+						flowers = Schema.integer({ min = 0, max = 200 }),
+						tufts = Schema.integer({ min = 0, max = 400 }),
+						mushroomRings = Schema.integer({ min = 0, max = 60 }),
+					}),
+					hillPines = Schema.integer({ min = 0, max = 60 }),
+				}),
 				farm = Schema.record({
 					barn = farmSpot,
 					windmill = farmSpot,
@@ -255,8 +287,14 @@ return function(Schema: any, Odds: any)
 				}),
 			}),
 			function(v: any): (boolean, string?)
-				if v.treeRadiusMax < v.treeRadiusMin then
-					return false, "treeRadiusMax must be at least treeRadiusMin"
+				if v.nature.wood.radiusMax < v.nature.wood.radiusMin then
+					return false, "nature.wood.radiusMax must be at least radiusMin"
+				end
+				if v.nature.wood.scaleMax < v.nature.wood.scaleMin then
+					return false, "nature.wood.scaleMax must be at least scaleMin"
+				end
+				if v.nature.scatter.radiusMax < v.nature.scatter.radiusMin then
+					return false, "nature.scatter.radiusMax must be at least radiusMin"
 				end
 				return true
 			end
