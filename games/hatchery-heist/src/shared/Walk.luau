@@ -77,6 +77,30 @@ function Walk.range(spots: number, footprint: number, margin: number): (number, 
 	return rx, rz
 end
 
+-- The elevator shaft fills each floor's back-left corner (base x -24..-17,
+-- z 17..24), 3 studs into the cell of spot 5 (back row, left column). A
+-- creature whose cell starts there wanders 3 studs less on that side and
+-- that end, so it never walks into the shaft.
+local SHAFT_SPOT = 5
+local SHAFT_CUT = 3
+
+-- A creature's wander area on its floor: the centre's offset from where it
+-- stands (along the row, across it) and the half-ranges, for one starting
+-- on pad `pad` (counted across the tower) and taking `spots` spots.
+function Walk.cell(
+	pad: number,
+	spots: number,
+	footprint: number,
+	margin: number
+): (number, number, number, number)
+	local rx, rz = Walk.range(spots, footprint, margin)
+	if (pad - 1) % 8 + 1 ~= SHAFT_SPOT then
+		return 0, 0, rx, rz
+	end
+	local half = SHAFT_CUT / 2
+	return half, -half, math.max(0, rx - half), math.max(0, rz - half)
+end
+
 -- The yaw (about Y) that faces a creature drawn facing -Z along (dx, dz).
 function Walk.yawOf(dx: number, dz: number): number
 	return math.atan2(-dx, -dz)
@@ -232,6 +256,10 @@ local LEG_SETS: { [string]: number } = {
 	leg6L = -1,
 }
 
+-- Gaits whose numbered (sideways) legs swing about Y; hop and hover keep
+-- their own leg poses.
+local SIDEWAYS_GAITS: { [string]: boolean } = { scuttle = true, trot = true, waddle = true }
+
 -- Bug, crab and spider legs (leg1L..leg6R) stick out sideways, so they swing
 -- about the vertical axis; +1 for the right side, -1 for the left, so both
 -- reach forward on a positive swing.
@@ -282,7 +310,7 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 	local side = LEG_SETS[anim]
 	if side then
 		local out = sideways(anim)
-		if out and (gait == "scuttle" or gait == "trot" or gait == "waddle") then
+		if out and SIDEWAYS_GAITS[gait] then
 			-- Swing forward and back about the hip, lifting the foot (a roll
 			-- that raises the leg's outer end) while it swings forward.
 			local lift = math.max(0, side * math.cos(a))
@@ -366,6 +394,9 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			return { rx = 0, ry = 0.5 * moving * math.sin(a - 1.2), rz = 0, dx = 0, dy = 0 }
 		elseif gait == "swim" then
 			return { rx = 0, ry = 0.55 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
+		elseif gait == "hover" then
+			-- a flyer's tail streams and sways behind it
+			return { rx = 0.1 * moving, ry = 0.25 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
 		end
 	elseif anim == "wingL" or anim == "wingR" then
 		if gait == "waddle" then
