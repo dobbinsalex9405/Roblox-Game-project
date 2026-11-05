@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Glowing paw soles and other small glowing bits on creatures no longer go
+  missing after upload: each glow piece is now a closed shape.
+- Creature legs, tails and little bug legs that only touched the body at a
+  corner no longer look like they float: every loose piece is now joined to
+  the body.
 
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
@@ -46,6 +51,7 @@
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
   and dark unlit price tags that stay readable in the lit room.
+
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.
@@ -67,6 +73,7 @@
   and three sizes, with bushes, mossy rocks, flowers, grass and glowing
   mushroom rings, pines on the hills, a painted storybook sky with voxel
   clouds and floating islands, and a grass texture on the ground.
+
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.
@@ -81,6 +88,10 @@
   (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
   long hind feet and rounder faces; the Lop Bunny's ears hang beside its
   cheeks.
+- Small trees and a bush now frame each piece of the farm between the
+  bases, the wood grows behind the farm too, and the Star Pines stand on
+  the hills (one on every other hill) instead of on flat grass.
+
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala

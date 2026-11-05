@@ -127,12 +127,18 @@ def _dot(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 
-def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
+def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False):
     """Flat faces (no pillow) for the visible skin of `vox` ({(x, y, z):
     (rgb, glow)}), with neighbouring faces of one colour on one plane merged
     into rectangles (greedy meshing). keep(rgb, glow) picks which voxels get
     faces (all of them hide faces). step > 1 first merges step^3 blocks of
-    voxels into one (the most common colour wins), for a far LOD."""
+    voxels into one (the most common colour wins), for a far LOD.
+
+    closed: also make the faces where a kept voxel meets one that is not
+    kept, so the mesh is a closed shell. Glow meshes need it: Roblox's
+    importer drops an open one-voxel slab (glowing paw soles at ground level
+    vanished from four uploaded creatures). Those faces sit against the solid
+    mesh, which leaves its own face there out, so nothing new shows."""
     if step > 1:
         blocks = {}
         for p, col in vox.items():
@@ -148,7 +154,8 @@ def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
     for d, (n, u, v) in enumerate(DIRS):
         planes = {}
         for p, col in grid.items():
-            if (p[0] + n[0], p[1] + n[1], p[2] + n[2]) in grid:
+            q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
+            if q in grid and not (closed and keep and not keep(*grid[q])):
                 continue
             if keep and not keep(*col):
                 continue
@@ -248,6 +255,6 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=()):
     # would be invisible: they are flat and greedy-merged instead.
     for k, rgb in enumerate(sorted(glow_faces)):
         m = flat_mesh(part.v, centre, voxel, cell_of, f'{part.name}_glow' + ('' if k == 0 else str(k + 1)),
-                      keep=lambda c, g, rgb=rgb: g and c == rgb)
+                      keep=lambda c, g, rgb=rgb: g and c == rgb, closed=True)
         out.append(('glow', rgb, m))
     return out
