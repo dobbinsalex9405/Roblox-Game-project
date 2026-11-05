@@ -541,3 +541,26 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - Cause: GuideView's new loop hides the menu while *any* enabled ScreenGui has DisplayOrder 20-49. CoreFeedback (20), CoreShop (30) and CoreTestPanel (35) are always enabled because they hold the top-bar buttons.
   - CoreFeedback and CoreShop exist on live servers too, so this would ship.
   - Fix: test each window's own `Window.Visible` (or keep an explicit list of the HH windows), not `ScreenGui.Enabled`.
+
+## #111 @ 37850b9 (tower shells, ladder stop)
+
+**PASS.** Phone 844x392. The visual half was done with Studio in front.
+
+- **Own tower shell:**
+  - With floor 1 only, it reads as a brick apartment with a roof (`111-hh-own-shell-floor1.jpg`).
+  - After building floors 2-4 it shows four storeys plus the roof. Parts per storey: 452 / 437 / 525 / 365, roof 217 (`111-hh-own-shell-4floors.jpg`).
+  - The insides read as rooms on the ground floor and floor 4 (`111-hh-ground-floor-inside.jpg`, `111-hh-floor4-inside.jpg`).
+- **No ground-floor flicker.** Sampled 30 times over 3 s: 452 storey-1 shell parts visible every time, grey-box count steady at 8, shell count steady.
+- **Ladder:**
+  - With 1 floor, the ladder top is 2.2 and the landing is non-colliding.
+  - With 2 floors: ladder 0.2 to 14.2, landing at 12.2 solid.
+  - With 4 floors: ladder top 38.2, landing at 36.2. It stops at the top built floor and moves up after each build.
+- **Deck creatures:** 8 given creatures sit on floor 4 and stand still for 15 s at 60 fps. That's expected: walking (#83) isn't on this branch (no Walk.luau on f82fdd9, 37850b9 or main). The leg/body hop check has to wait for a build with #83.
+- **Neighbour shells:**
+  - Neighbour towers were set server-side to TowerFloors 10, plus 320 creature clones.
+  - Shells are drawn for own (1,996 parts) plus the 3 nearest: Plot2 and Plot8 at 84 studs, and Plot7, each 4,728 parts. Plot3 stays without a shell (`111-hh-neighbour-plot2-shell.jpg`).
+  - Plot3's floors 2-10 aren't really built, because the plot is unowned, so its clone creatures float. That comes from my setup, not the PR.
+- **Phone fps, standing in the yard with 4 full neighbours:**
+  - Neighbours as 10-storey shells: 55.6 / 56.2 / 59.0 / 58.9 / 56.5 (median 56.5).
+  - Neighbour shells dropped back to 1 storey: 57.1 / 58.6 / 58.9 / 58.9 / 55.8 (median 58.6).
+  - So full neighbour shells cost about 2 fps. Client memory: 1,263 MB.
