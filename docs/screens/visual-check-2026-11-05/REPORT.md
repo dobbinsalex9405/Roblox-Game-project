@@ -346,3 +346,13 @@ PASS. Every Build tap on floors 2-10 registered, as did all 4 Upgrade taps on ea
 furnished" (`91b-hh-floors5-10-furnished`); floor 10 used real mouse clicks. Standing on each of
 floors 5-10, all 4 decor groups load, and no furniture part sits in the ladder opening
 (`91b-hh-penthouse`).
+
+## Re-gate 3: #83 at 7746760
+
+Mixed. **Walking PASS:** parts now move against the body while walking: Bunny ears 18°, tail 27°,
+head 8°; Calf ears 17°, tail 26°, head 8°; Chick and Duckling head 8°. **Own tower FAIL:** standing
+on my own ground floor inside the tower, floor 2 (4 creatures) shows but ALL of floors 3 and 4 are
+hidden (11 creatures). That's worse than gate 2. From the yard all 15 show. **Hover:** the Godlies
+float with their lowest point 0.94 (Golden Goose) and 0.98 (Nebula Serpent) above the pad,
+including the bob; no Legendary was placed this run. Phone fps 60. No game errors (the 4
+voxel-box notes are from #94, which this branch doesn't contain).
