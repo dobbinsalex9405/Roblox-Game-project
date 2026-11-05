@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+- Creatures on your tower walk around their spot: they turn, walk, stop,
+  and turn to face you, the same for every player. They really walk: four
+  legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
+  snakes slither and flyers hover with faster wing beats.
+- Creatures whose models have no separate legs walk with their whole body:
+  they rock from foot to foot, nod, bounce and swing their tails and ears.
+- Legendaries and Godlies float clearly above their spots.
+- Every floor's creatures show, inside your tower and from the yard. Other
+  players' towers show their creatures within 100 studs (your neighbours
+  either side) and only move them within 60, so a full server stays smooth
+  on a phone.
+- A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
+  longer also gets the generic rainbow cubes.
+- Crabs and lobsters with up to six legs a side walk on all of them.
+- Godlies stand about three times as tall as a Common (6 studs), across
+  their three spots.
+- Creature meshes more than 30 studs away draw their lighter far version,
+  so a busy yard of detailed Godlies stays smooth.
+
 - Fix: a creature no longer stays blocky for a whole server when Roblox
   turns away one of its model loads. Loads go a few at a time and retry,
   and the server log says why a creature stayed on its blocks. A missing
