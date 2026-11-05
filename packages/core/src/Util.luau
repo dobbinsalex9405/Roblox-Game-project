@@ -69,6 +69,26 @@ function Util.try(fn: (...any) -> ...any, ...: any): (boolean, string?)
 	return false, tostring(err)
 end
 
+-- Calls `fn` until it succeeds, waiting `delays[i]` seconds (through `sleep`,
+-- task.wait in the game) after the i-th failure; gives up after #delays + 1
+-- tries. Returns (value, nil) on success, or (nil, last error) when every
+-- try failed. For calls that fail now and then on Roblox's side (asset
+-- loads under throttling), never for game logic.
+function Util.retry<T>(fn: () -> T, delays: { number }, sleep: (number) -> ()): (T?, string?)
+	local lastErr = "no tries"
+	for i = 1, #delays + 1 do
+		local ok, value = pcall(fn)
+		if ok then
+			return value, nil
+		end
+		lastErr = tostring(value)
+		if i <= #delays then
+			sleep(delays[i])
+		end
+	end
+	return nil, lastErr
+end
+
 -- Short, stable hash (djb2, 32 bit) as 8 hex characters. Not cryptographic.
 function Util.hash(text: string): string
 	local h = 5381
