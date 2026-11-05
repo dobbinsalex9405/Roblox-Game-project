@@ -77,7 +77,7 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels: 22 on the odds card, 16 on the board over the belt.
+-- Row height in pixels on the odds card.
 local rowHeight = 22
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
@@ -177,12 +177,9 @@ function OddsView.tiers(display: any): { { rarity: string, weight: number, perce
 	return out
 end
 
--- Fills `container` (which should have a UIListLayout) with one egg's odds.
--- `compact` is the board over the belt: names without the rarity word (the
--- colour says it) and the exact percentage only. The card beside the Buy
--- prompt always shows the full rows.
-local function fill(container: GuiObject, eggId: string, compact: boolean?)
-	rowHeight = if compact then 16 else 22
+-- Fills `container` (which should have a UIListLayout) with one egg's odds:
+-- the card beside the Buy prompt.
+local function fill(container: GuiObject, eggId: string)
 	for _, child in container:GetChildren() do
 		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
 			child:Destroy()
@@ -239,34 +236,119 @@ local function fill(container: GuiObject, eggId: string, compact: boolean?)
 			container,
 			i + 1,
 			tier.rarity,
-			if compact then tier.percent else `{tier.percent} · {tier.oneIn}`,
+			`{tier.percent} · {tier.oneIn}`,
 			Layout.rarityColor(tier.rarity),
 			false
 		)
 	end
-	if not compact then
-		local button = Instance.new("TextButton")
-		button.Name = "SeeEvery"
-		button.LayoutOrder = 100
-		button.Size = UDim2.new(1, 0, 0, 30)
-		button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
-		button.Font = FONT
-		button.TextSize = 15
-		button.TextColor3 = Color3.new(1, 1, 1)
-		button.Text = "See every creature"
-		local c = Instance.new("UICorner")
-		c.CornerRadius = UDim.new(0, 8)
-		c.Parent = button
-		button.Activated:Connect(function()
-			OddsView.openList(eggId)
-		end)
-		button.Parent = container
-	end
+	local button = Instance.new("TextButton")
+	button.Name = "SeeEvery"
+	button.LayoutOrder = 100
+	button.Size = UDim2.new(1, 0, 0, 30)
+	button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
+	button.Font = FONT
+	button.TextSize = 15
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Text = "See every creature"
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 8)
+	c.Parent = button
+	button.Activated:Connect(function()
+		OddsView.openList(eggId)
+	end)
+	button.Parent = container
 end
 
-function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
-	fill(container, eggId, compact)
+function OddsView.render(container: GuiObject, eggId: string)
+	fill(container, eggId)
 	sameTextSize(container)
+end
+
+-- The odds sign beside each Egg Market stop (Studio gate, Nov 5): three
+-- big lines, readable from 10 studs on a phone. The egg's name and price,
+-- then its two rarest tiers with their exact "1 in N". The odds card beside
+-- the Buy prompt has every tier. `size` is the sign's face in pixels; every
+-- line gets one text size, the largest that fits. A player under the
+-- fixed-order rule sees that instead of chances.
+OddsView.SIGN_PIXELS_PER_STUD = 40
+OddsView.SIGN_TIERS = 2
+
+function OddsView.signLines(eggId: string): { { text: string, color: Color3 } }
+	local egg = Hatchery.eggById(ctx.config.eggs, eggId)
+	if egg == nil then
+		return {}
+	end
+	local price = if egg.priceCoins then ` · {Layout.shortNumber(egg.priceCoins)}` else ""
+	local lines = { { text = `{Layout.displayName(egg.id)}{price}`, color = Color3.fromRGB(255, 210, 63) } }
+	if ctx.restricted() then
+		local grey = Color3.fromRGB(220, 220, 220)
+		table.insert(lines, { text = "Set order, no chance", color = grey })
+		table.insert(lines, { text = "Tap an egg to see it", color = grey })
+		return lines
+	end
+	local rarest: { string } = {}
+	for i = #Eggs.RARITIES, 1, -1 do
+		local rarity = Eggs.RARITIES[i]
+		if egg.tiers and egg.tiers[rarity] and #rarest < OddsView.SIGN_TIERS then
+			table.insert(rarest, 1, rarity)
+		end
+	end
+	local display = displays[eggId]
+	for _, rarity in rarest do
+		local oneIn = "..."
+		if display then
+			for _, tier in OddsView.tiers(display) do
+				if tier.rarity == rarity then
+					oneIn = tier.oneIn
+				end
+			end
+		end
+		table.insert(lines, { text = `{rarity} {oneIn}`, color = Layout.rarityColor(rarity) })
+	end
+	return lines
+end
+
+function OddsView.renderSign(container: GuiObject, eggId: string, size: Vector2)
+	container:ClearAllChildren()
+	local lines = OddsView.signLines(eggId)
+	if #lines == 0 then
+		return
+	end
+	local margin = 8
+	local width = size.X - 2 * margin
+	local line = math.floor((size.Y - 2 * margin) / #lines)
+	local labels: { TextLabel } = {}
+	for i, entry in lines do
+		local l = Instance.new("TextLabel")
+		l.Name = `Line{i}`
+		l.BackgroundTransparency = 1
+		l.Position = UDim2.fromOffset(margin, margin + (i - 1) * line)
+		l.Size = UDim2.fromOffset(width, line)
+		l.Font = Enum.Font.GothamBold
+		l.TextColor3 = entry.color
+		l.TextStrokeTransparency = 0.3
+		l.Text = entry.text
+		l.Parent = container
+		table.insert(labels, l)
+	end
+	local textSize = line - 2
+	local bounds = Vector2.new(10000, 10000)
+	while textSize > 8 do
+		local fits = true
+		for _, l in labels do
+			if TextService:GetTextSize(l.Text, textSize, l.Font, bounds).X > width - 4 then
+				fits = false
+				break
+			end
+		end
+		if fits then
+			break
+		end
+		textSize -= 1
+	end
+	for _, l in labels do
+		l.TextSize = textSize
+	end
 end
 
 local function corner(parent: Instance, radius: number)

@@ -45,7 +45,7 @@ function Guide.next(d: Hatchery.Data, economy: any, now: number, money: (number)
 	if firsts.FirstEggBought == nil and #d.incubators == 0 then
 		return {
 			id = "BuyEgg",
-			text = "Walk to the conveyor belt and buy an egg",
+			text = "Walk to the Egg Market in the middle and buy an egg",
 			target = { kind = "Belt" },
 		}
 	end

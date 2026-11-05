@@ -222,7 +222,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Bunny", "Chick", "Chipmunk" })
+		expect(outcomes).toEqual({ "Gosling", "Turtle", "Bunny" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -253,7 +253,8 @@ describe("Hatchery Heist sessions", function()
 		h.join(player)
 		expect(h.buy(player, "MeadowEgg")).toBeFalsy() -- 50 coins, egg costs 2500
 		expect(h.get(player).coins).toBe(economy.startingCoins)
-		expect(h.notices[#h.notices]).toBe("Not enough coins.")
+		-- Says which egg it was and which egg the player can afford.
+		expect(h.notices[#h.notices]).toBe("Not enough coins: a Meadow Egg costs 2.5K. Basic Eggs cost 50.")
 
 		local index = h.findOnBelt("BasicEgg") :: number
 		expect(h.actions:buyEgg(player, index)).toBe(true)
