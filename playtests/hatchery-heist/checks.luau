@@ -47,7 +47,7 @@ do
 			table.insert(text, `{r.id} {r.percent}`)
 		end
 		check(
-			total == 10000 and disp.paid,
+			total == (egg.total or 10000) and disp.paid,
 			"odds",
 			`{egg.id} shows {table.concat(text, ", ")} (paid={disp.paid}, total {total})`
 		)
@@ -68,7 +68,7 @@ do
 		table.insert(text, `{r.id} {r.percent}`)
 	end
 	check(
-		total == 10000 and #disp.boosts == 1,
+		total == (meadow.total or 10000) and #disp.boosts == 1,
 		"odds",
 		`boosted MeadowEgg shows {table.concat(text, ", ")} with boosts={table.concat(disp.boosts, ",")}`
 	)
@@ -111,7 +111,7 @@ do
 	for _, o in egg.outcomes do
 		local share = (counts[o.id] or 0) / #cycle
 		table.insert(parts, string.format("%s %d/%d", o.id, counts[o.id] or 0, #cycle))
-		if math.abs(share - o.weight / 10000) > 1e-9 then
+		if math.abs(share - o.weight / (egg.total or 10000)) > 1e-9 then
 			matches = false
 		end
 	end
@@ -261,16 +261,17 @@ do
 		d.nextUid = 2
 	end)
 	local before = h.get(p).coins
+	local rate = config.creatures.species.Phoenix.coinsPerSecond
 	h.wait(60)
 	local d = h.get(p)
-	check(d.pendingCoins == 600 * 60, "income", `Phoenix earns 600/s: pile after 60s = {d.pendingCoins}`)
+	check(d.pendingCoins == rate * 60, "income", `Phoenix earns {rate}/s: pile after 60s = {d.pendingCoins}`)
 	check(
-		h.actions:collect(p) and h.get(p).coins == before + 36000,
+		h.actions:collect(p) and h.get(p).coins == before + rate * 60,
 		"collect",
-		`collect moved 36000 coins into the wallet (now {h.get(p).coins})`
+		`collect moved {rate * 60} coins into the wallet (now {h.get(p).coins})`
 	)
 	check(
-		h.actions:collect(p) and h.get(p).coins == before + 36000,
+		h.actions:collect(p) and h.get(p).coins == before + rate * 60,
 		"collect",
 		"collecting again moves nothing and is not an error"
 	)
@@ -392,17 +393,21 @@ do
 	local dBefore = h.store.saved["Player_601"]
 	local pendingBefore = dBefore.pendingCoins
 	local coinsBefore = dBefore.coins
-	-- 1 hour away: 20/s * 3600 * 0.5 = 36000
+	-- 1 hour away at half rate
+	local penguin = config.creatures.species.Penguin.coinsPerSecond
+	-- The Penguin is the one species in the Hatchery Book: +1 book bonus.
+	local book = 1 + economy.book.incomePerSpecies
+	local away = math.floor(penguin * book * 3600 * economy.offline.rate)
 	local h2 = Sim.new({ store = h.store, start = h.clock.now() + 3600 })
 	h2.join(p)
 	local d = h2.get(p)
 	check(
-		d.pendingCoins == pendingBefore + 36000,
+		d.pendingCoins == pendingBefore + away,
 		"offline",
-		`1h away with a Penguin (20/s): +{d.pendingCoins - pendingBefore} to the pile (expected 36000 = 50% rate)`
+		`1h away with a Penguin ({penguin}/s): +{d.pendingCoins - pendingBefore} to the pile (expected {away} = 50% rate, book +1%)`
 	)
 	check(
-		h2.welcomes[1] and h2.welcomes[1].coins == 36000 and h2.welcomes[1].ready == 2,
+		h2.welcomes[1] and h2.welcomes[1].coins == away and h2.welcomes[1].ready == 2,
 		"offline",
 		`welcome back: {h2.welcomes[1].coins} coins, {h2.welcomes[1].ready} eggs ready`
 	)
@@ -483,19 +488,20 @@ do
 			},
 		}
 	end)
+	local turtle = config.creatures.species.Turtle.coinsPerSecond
 	h2.wait(120)
 	check(
-		h2.get(q).coins == economy.startingCoins and h2.get(q).pendingCoins == 8 * 120,
+		h2.get(q).coins == economy.startingCoins and h2.get(q).pendingCoins == turtle * 120,
 		"auto-collect",
-		"without the pass the pile only grows (960 after 120s)"
+		`without the pass the pile only grows ({turtle * 120} after 120s)`
 	)
 	-- Double Coins
 	h2.perksOf[q] = { doubleCoins = true, extraIncubators = false, autoCollect = false }
 	h2.wait(10)
 	check(
-		h2.get(q).pendingCoins == 960 + 160,
+		h2.get(q).pendingCoins == turtle * 120 + turtle * 2 * 10,
 		"passes",
-		"Double Coins doubles income from the next tick (+160 in 10s on a Turtle)"
+		`Double Coins doubles income from the next tick (+{turtle * 2 * 10} in 10s on a Turtle)`
 	)
 end
 
@@ -665,10 +671,24 @@ do
 			netFromEggs / 600
 		)}/s) on top of pad income ({padIncome}/s). Basic egg costs 50 but its hatch sells for 60/120/300/480 (60s of income): expected value 105.6 coins per egg.`
 	)
-	-- Meadow: EV of sell
+	-- What each coin egg's hatch is worth if storage sells it, on average.
+	local worth = {}
+	for _, egg in config.eggs do
+		if egg.priceCoins then
+			local ev = 0
+			for _, o in egg.outcomes do
+				local c = { speciesId = o.id, mutation = "None" }
+				ev += Hatchery.sellValue(c, config.creatures, economy) * o.weight / (egg.total or 10000)
+			end
+			table.insert(
+				worth,
+				`{egg.id} ({egg.priceCoins}) sells for {string.format("%.0f", ev)} on average`
+			)
+		end
+	end
 	note(
 		"economy/exploit",
-		"MeadowEgg (2500) sells on overflow for 300/480/1200/2100 => EV 525, so only Basic eggs are a money printer; the loop also upgrades the pad roster for free (every Turtle hatched replaces a Chick)."
+		`{table.concat(worth, "; ")}. Overflow sells the weakest stored creature, so the loop above is the real test.`
 	)
 end
 

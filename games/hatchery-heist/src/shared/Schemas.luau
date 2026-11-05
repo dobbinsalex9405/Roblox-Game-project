@@ -59,6 +59,19 @@ return function(Schema: any, Odds: any)
 		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
 		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
+		daily = Schema.record({
+			rewards = Schema.array(
+				Schema.record({
+					incomeSeconds = Schema.integer({ min = 0, max = 86400 }),
+					minCoins = Schema.integer({ min = 1 }),
+					maxCoins = Schema.integer({ min = 1 }),
+				}),
+				{ minLength = 1, maxLength = 14 }
+			),
+		}),
+		book = Schema.record({
+			incomePerSpecies = Schema.number({ min = 0, max = 0.1 }),
+		}),
 		offline = Schema.record({
 			rate = Schema.number({ min = 0, max = 1 }),
 			maxSeconds = Schema.integer({ min = 0, max = 24 * 60 * 60 }),
@@ -70,7 +83,15 @@ return function(Schema: any, Odds: any)
 			species = Schema.map(
 				id,
 				Schema.record({
-					rarity = Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
+					rarity = Schema.oneOf({
+						"Common",
+						"Uncommon",
+						"Rare",
+						"Ultra Rare",
+						"Epic",
+						"Legendary",
+						"Godly",
+					}),
 					coinsPerSecond = Schema.number({ min = 0 }),
 					mountSpeed = Schema.number({ min = 16, max = 60 }),
 				}),
@@ -92,6 +113,8 @@ return function(Schema: any, Odds: any)
 			priceCoins = Schema.optional(Schema.integer({ min = 1 })),
 			productKey = Schema.optional(id),
 			hatchSeconds = Schema.integer({ min = 0, max = 24 * 60 * 60 }),
+			-- What the weights add up to (a power of ten; 10,000 when left out).
+			total = Schema.optional(Schema.integer({ min = 100, max = 10000000 })),
 			outcomes = Schema.array(
 				Schema.record({ id = id, weight = Schema.integer({ min = 1 }) }),
 				{ minLength = 1 }
@@ -139,6 +162,10 @@ return function(Schema: any, Odds: any)
 	local channel = Schema.integer({ min = 0, max = 255 })
 	local rgb = Schema.array(channel, { minLength = 3, maxLength = 3 })
 	local unit = Schema.number({ min = 0, max = 1 })
+	local farmSpot = Schema.record({
+		angle = Schema.number({ min = 0, max = 360 }),
+		radius = Schema.number({ min = 150, max = 260 }),
+	})
 	Schemas.atmosphere = Schema.record({
 		lighting = Schema.record({
 			clockTime = Schema.number({ min = 0, max = 24 }),
@@ -187,6 +214,16 @@ return function(Schema: any, Odds: any)
 				treeRadiusMin = Schema.number({ min = 160, max = 250 }),
 				treeRadiusMax = Schema.number({ min = 160, max = 250 }),
 				seed = Schema.integer(),
+				farm = Schema.record({
+					barn = farmSpot,
+					windmill = farmSpot,
+					pond = farmSpot,
+					pen = farmSpot,
+					fields = Schema.array(Schema.number({ min = 0, max = 360 }), { maxLength = 8 }),
+					fieldRadius = Schema.number({ min = 160, max = 260 }),
+					clearAngle = Schema.number({ min = 0, max = 45 }),
+					windmillTurnSeconds = Schema.number({ min = 1, max = 120 }),
+				}),
 			}),
 			function(v: any): (boolean, string?)
 				if v.treeRadiusMax < v.treeRadiusMin then
@@ -200,6 +237,13 @@ return function(Schema: any, Odds: any)
 			volume = Schema.number({ min = 0, max = 1 }),
 			fadeSeconds = Schema.number({ min = 0, max = 10 }),
 		}),
+		sounds = Schema.map(
+			Schema.string({ maxLength = 30 }),
+			Schema.record({
+				id = Schema.integer({ min = 0 }),
+				volume = unit,
+			})
+		),
 	})
 
 	-- Name, Robux price and description of each pass and product on Roblox
@@ -245,7 +289,7 @@ return function(Schema: any, Odds: any)
 				durationSeconds = Schema.integer({ min = 1 }),
 				eggs = Schema.array(id, { minLength = 1 }),
 				rarityMultipliers = Schema.map(
-					Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
+					Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }),
 					Schema.number({ min = 0.01, max = 100 })
 				),
 			})
@@ -281,6 +325,7 @@ return function(Schema: any, Odds: any)
 			local ok, err = pcall(Odds.validate, {
 				id = egg.id,
 				paid = egg.productKey ~= nil,
+				total = egg.total,
 				outcomes = egg.outcomes,
 			})
 			if not ok then

@@ -142,32 +142,43 @@ describe("Hatchery", function()
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()
-		for _, check in { { egg = "BasicEgg", cycle = 50 }, { egg = "MeadowEgg", cycle = 100 } } do
-			local egg = Hatchery.eggById(config.eggs, check.egg)
+		for _, eggId in { "BasicEgg", "MeadowEgg", "MoonlitEgg", "PremiumEgg" } do
+			local egg = Hatchery.eggById(config.eggs, eggId)
+			local cycle = Hatchery.fixedOrderCycle(egg)
+			local total = egg.total or 10000
 			local counts: { [string]: number } = {}
-			for i = 0, check.cycle - 1 do
-				local id = Hatchery.fixedOrderOutcome(egg, i)
+			for _, id in cycle do
 				counts[id] = (counts[id] or 0) + 1
-				-- The cycle repeats, so the shown next outcome never changes meaning.
-				expect(Hatchery.fixedOrderOutcome(egg, i + check.cycle)).toBe(id)
 			end
 			for _, o in egg.outcomes do
-				expect(counts[o.id]).toBe(o.weight * check.cycle // 10000)
+				expect(counts[o.id]).toBe(o.weight * #cycle // total)
+			end
+			-- The cycle repeats, so the shown next outcome never changes meaning.
+			for _, i in { 0, 1, 2, 777 } do
+				expect(Hatchery.fixedOrderOutcome(egg, i + #cycle)).toBe(Hatchery.fixedOrderOutcome(egg, i))
+			end
+			-- The shown wait always lands on that outcome.
+			for _, o in egg.outcomes do
+				for _, from in { 0, 5, #cycle - 1 } do
+					local wait = Hatchery.fixedOrderWait(egg, from, o.id) :: number
+					expect(Hatchery.fixedOrderOutcome(egg, from + wait)).toBe(o.id)
+					for ahead = 0, math.min(wait, 200) - 1 do
+						expect(Hatchery.fixedOrderOutcome(egg, from + ahead) ~= o.id).toBe(true)
+					end
+				end
 			end
 		end
-		-- The rarest Basic outcome comes once in 50, not once in 4.
+		-- The rarest Basic outcome (a Phoenix, 1 in 50,000) comes exactly once a cycle.
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
+		expect(#Hatchery.fixedOrderCycle(basic)).toBe(50000)
 		local first = {}
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "Chick", "Duckling", "Chick", "Chick" })
-		expect(#Hatchery.fixedOrderCycle(basic)).toBe(50)
+		expect(first).toEqual({ "Chick", "Duckling", "Bunny", "Piglet" })
 		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(0)
 		expect(Hatchery.fixedOrderWait(basic, 0, "Duckling")).toBe(1)
-		local turtle = Hatchery.fixedOrderWait(basic, 0, "Turtle") :: number
-		expect(Hatchery.fixedOrderOutcome(basic, turtle)).toBe("Turtle")
-		expect(Hatchery.fixedOrderWait(basic, 0, "Phoenix")).toBeNil()
+		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 
 	it("rides only creatures on a pad", function()
@@ -247,6 +258,46 @@ describe("Hatchery", function()
 		local d = fresh()
 		d.creatures = { creature("1", "Chick", 1), creature("2", "Phoenix", nil) }
 		expect(Hatchery.incomePerSecond(d, config, NO_PERKS)).toBe(1)
+	end)
+
+	it("the Hatchery Book notes each species once and adds income", function()
+		local d = fresh()
+		d.creatures = { creature("1", "Chick", 1) }
+		expect(Hatchery.bookBonus(d, config)).toBe(0)
+		expect(Hatchery.noteFound(d, "Chick", 10)).toBe(true)
+		expect(Hatchery.noteFound(d, "Chick", 20)).toBe(false)
+		expect(d.found.Chick).toBe(10)
+		expect(Hatchery.foundCount(d, config.creatures)).toBe(1)
+		local per = economy.book.incomePerSpecies
+		expect(Hatchery.bookBonus(d, config)).toBe(per)
+		expect(Hatchery.incomePerSecond(d, config, NO_PERKS)).toBe(1 * (1 + per))
+		-- Unknown ids (a species since removed) never count.
+		Hatchery.noteFound(d, "NotACreature", 5)
+		expect(Hatchery.foundCount(d, config.creatures)).toBe(1)
+	end)
+
+	it("hatching and receiving fill the book; join back-fills older saves", function()
+		local d = fresh()
+		d.creatures = { creature("1", "Chick", 1), creature("2", "Phoenix", nil) }
+		d.found = nil -- a save from before the book
+		expect(Hatchery.backfillFound(d)).toBe(2)
+		expect(Hatchery.backfillFound(d)).toBe(0)
+		expect(Hatchery.foundCount(d, config.creatures)).toBe(2)
+
+		local e = fresh()
+		e.incubators = { { slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 5, outcome = "Bunny" } }
+		local hatched = Hatchery.hatch(e, ledger(e), 1, 7, config.creatures, economy)
+		expect(hatched ~= nil).toBe(true)
+		expect(e.found.Bunny).toBe(7)
+		Hatchery.receive(
+			e,
+			ledger(e),
+			{ speciesId = "Raccoon", mutation = "None", eggId = "BasicEgg", hatchedAt = 3 },
+			config.creatures,
+			economy
+		)
+		expect(e.found.Raccoon).toBe(3)
+		expect(Hatchery.foundCount(e, config.creatures)).toBe(2)
 	end)
 
 	it("first-time moments return their step once", function()

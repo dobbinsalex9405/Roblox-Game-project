@@ -18,6 +18,7 @@ return function(Net: any, Schema: any)
 		["HH:Hatch"] = Net.toServer("HH:Hatch", { slot }, { count = 6, window = 1 }),
 		["HH:BuySlot"] = Net.toServer("HH:BuySlot", {}, { count = 2, window = 1 }),
 		["HH:Collect"] = Net.toServer("HH:Collect", {}, { count = 2, window = 1 }),
+		["HH:ClaimDaily"] = Net.toServer("HH:ClaimDaily", {}, { count = 1, window = 1 }),
 		["HH:Rebirth"] = Net.toServer("HH:Rebirth", {}, { count = 1, window = 2 }),
 		["HH:Ride"] = Net.toServer("HH:Ride", { uid }, { count = 2, window = 1 }),
 		["HH:Dismount"] = Net.toServer("HH:Dismount", {}, { count = 2, window = 1 }),
@@ -43,8 +44,12 @@ return function(Net: any, Schema: any)
 		),
 		-- A short message for the player (a refusal, a reward).
 		["HH:Notice"] = Net.toClient("HH:Notice", { text }),
-		-- An egg hatched: species id.
-		["HH:Hatched"] = Net.toClient("HH:Hatched", { Schema.string({ maxLength = 50 }) }),
+		-- An egg hatched: species id, the egg it came from, and whether it is
+		-- new to the player's Hatchery Book (for the reveal).
+		["HH:Hatched"] = Net.toClient(
+			"HH:Hatched",
+			{ Schema.string({ maxLength = 50 }), Schema.string({ maxLength = 50 }), Schema.boolean() }
+		),
 		-- Coins earned while away, and eggs that finished hatching meanwhile.
 		["HH:WelcomeBack"] = Net.toClient(
 			"HH:WelcomeBack",

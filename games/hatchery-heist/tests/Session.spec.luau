@@ -207,7 +207,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Chick", "Duckling", "Chick" })
+		expect(outcomes).toEqual({ "Chick", "Duckling", "Bunny" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -291,6 +291,22 @@ describe("Hatchery Heist sessions", function()
 		)
 		local progression = h.eventsOf("progression")
 		expect(progression[#progression][1]).toBe("Rebirth")
+	end)
+
+	it("claims the daily reward once a day through the server", function()
+		local h = Harness.new()
+		local player = Fakes.player(9)
+		h.join(player)
+		local before = h.get(player).coins
+		expect((h.actions:claimDaily(player))).toBe(true)
+		local reward = economy.daily.rewards[1].minCoins
+		expect(h.get(player).coins).toBe(before + reward)
+		expect(h.lastNotice(player)).toBe(`Day 1 reward: +{reward} coins!`)
+		expect((h.actions:claimDaily(player))).toBe(false)
+		expect(h.get(player).coins).toBe(before + reward)
+		h.wait(player, 86400)
+		expect((h.actions:claimDaily(player))).toBe(true)
+		expect(h.get(player).daily.streak).toBe(2)
 	end)
 end)
 
