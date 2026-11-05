@@ -1177,34 +1177,41 @@ def sentinel(c, H, cols, opts):
     hz = hip + 5.4 * k
     head.ell((0, -0.3 * k, hz), (1.6 * k, 1.15 * k, 1.05 * k), col)
     head.ell((0, -1.2 * k, hz - 0.35 * k), (0.55 * k, 0.75 * k, 0.5 * k), belly)
-    f = head.front(0, round(hz - 0.2 * k))
-    if f:
-        _sym(head, 0, f[1], f[2], INK)  # a small dark nose tip
     es = max(1, round(0.4 * k))
     ez = round(hz + 0.05 * k)
+    # a small dark nose tip; in the fine build it sits on the muzzle two
+    # rows under the eyes, so it never joins them into a band
+    f = head.front(0, ez - 2 if _fine(c) else round(hz - 0.2 * k))
+    if f:
+        _sym(head, 0, f[1], f[2], INK)
     # the eyes two columns out from the middle, so light fur shows between
     # each eye patch and the muzzle, and wider between the two patches
     xs = [p[0] for p in head.v if p[2] == ez and p[0] >= 0]
     ex = max(0, min(2, max(xs) - es + 1))
-    eyes(c, head, ex, ez, es)
-    e = _find(c, 'eyes')
     if _fine(c):
-        # each patch a small teardrop running down from its eye, and a
-        # white glint beside the eye on the outer side
-        cells = [(ex, ez - 1), (ex + 1, ez - 1), (ex, ez - 2)]
+        # each eye two voxels tall with a white shine on top (#96), one
+        # column in from the side, and a small dark teardrop patch running
+        # down and out from it; light fur stays between the patches and
+        # between each patch and the muzzle
+        ex = max(0, min(1, max(xs) - 1))
+        e = c.part('eyes', 'blink', head.pivot)
         for side in (1, -1):
-            for (x, z) in cells:
-                xx = x if side > 0 else _mx(x)
+            xx = ex if side > 0 else _mx(ex)
+            for z, cc in ((ez, WHITE), (ez - 1, INK)):
                 f = head.front(xx, z)
-                if f and f[1] < -0.6 * k and head.v[f][0] != INK:
+                if f:
+                    del head.v[f]
+                    e.put(f, cc)
+                    if z == ez and (xx, f[1], z + 1) not in head.v:
+                        head.put((xx, f[1], z + 1), col)  # a brow over the eye
+            px = ex + 1 if side > 0 else _mx(ex + 1)
+            for z in (ez - 1, ez - 2):
+                f = head.front(px, z)
+                if f and head.v[f][0] != INK:
                     head.v[f] = (patch, False)
-            for gx in (ex + 1, ex - 1):  # outside the eye if the face is wide enough, else inside
-                xx = gx if side > 0 else _mx(gx)
-                f = head.front(xx, ez)
-                if gx >= 0 and f and f[1] < -0.6 * k:
-                    head.v[f] = (WHITE, False)
-                    break
     else:
+        eyes(c, head, ex, ez, es)
+        e = _find(c, 'eyes')
         for p in e.v:
             f = head.front(p[0], p[2] - 1)
             if f and head.v[f][0] != INK:
