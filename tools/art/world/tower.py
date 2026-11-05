@@ -47,7 +47,8 @@ T = 0.8  # wall thickness: inside half wallpaper, outside half facade, so both s
 IN_BACK, IN_LEFT, IN_RIGHT = 22.0, -23.2, 23.2  # inside faces of the walls, on the 0.4 grid
 SKIN = 0.4
 SHAFT = (-24.0, -17.0, 17.0, 24.0)  # x0, x1, y0, y1
-LADDER_DOOR = (12.5, 16.5, 8.0)  # y0, y1, height
+LADDER_DOOR = (12.5, 16.5, H)  # y0, y1, height: open floor to ceiling
+LADDER_HOLE = (21.0, 24.0, 12.5, 16.5)  # x0, x1, y0, y1: deck opening on floors 2-10 (Geometry.LADDER_HOLE_MIN/MAX)
 INNER, OUTER = -0.35, 1.3  # wall-local depth range: trims inside, sills and flower boxes outside
 
 THEMES = ['Cozy studio', 'Book nook', 'Plant sunroom', 'Bakery kitchen', 'Games lounge', 'Winter cabin', 'Art studio',
@@ -293,14 +294,14 @@ def picture(g, n, cu, z=5.0):
 
 
 def door(g, n, u0, u1, h):
+    """the ladder opening: open from the floor to the ceiling, so players
+    climbing the outside ladder step straight through (the slab above has
+    its hole beside it, LADDER_HOLE); trim posts only on either side"""
     o = OUT[n]
-    g.carve((u0, INNER, 0), (u1, OUTER, h))
+    g.carve((u0, INNER, 0), (u1, OUTER, H + 0.3))
     trim = C(o['trim'])
-    g.box((u0 - 0.35, -0.15, 0), (u0, T + 0.2, h + 0.35), trim)
-    g.box((u1, -0.15, 0), (u1 + 0.35, T + 0.2, h + 0.35), trim)
-    g.box((u0 - 0.35, -0.15, h), (u1 + 0.35, T + 0.2, h + 0.35), trim)
-    # little hood over the fire-escape door
-    g.box((u0 - 0.6, T, h + 0.35), (u1 + 0.6, T + 1.1, h + 0.6), C(o.get('shutter', o['trim'])))
+    g.box((u0 - 0.35, -0.15, 0), (u0, T + 0.2, H), trim)
+    g.box((u1, -0.15, 0), (u1 + 0.35, T + 0.2, H), trim)
 
 
 def wall(n, u0, u1, wins, doorway=None):
@@ -383,7 +384,7 @@ WALLS = {
 NOTES = {
     'Back': 'back wall, {} outside, {} inside; three windows; stops at the elevator shaft (x -17)',
     'Left': 'left wall, {} outside, {} inside; two windows; stops at the elevator shaft (base z 17)',
-    'Right': 'right wall, {} outside, {} inside; the doorway at base z 12.5..16.5 is where the outside ladder comes in',
+    'Right': 'right wall, {} outside, {} inside; open floor to ceiling at base z 12.5..16.5 where the outside ladder comes in',
 }
 LOOK = {1: 'red brick', 2: 'red brick', 3: 'red brick', 4: 'butter-yellow plaster with teal shutters',
         5: 'mint plaster with pink shutters', 6: 'sky-blue plaster with navy shutters and snowy sills',
@@ -414,6 +415,8 @@ def slab(p, n, z0=-0.6, top=None):
     g.box((W0 + 0.3, D0 + 0.3, z0 + 0.15), (W1, D1, 0), pick(['#D8D2C8', '#CFC8BD'], 61))
     g.box((W0 + 0.3, D0 + 0.3, -0.2), (W1 - 0.3, D1 - 0.3, 0), top or i['floor'])
     g.carve((SHAFT[0], SHAFT[2], z0 - 1), (SHAFT[1], SHAFT[3] + 1, 1))
+    if n >= 2:
+        g.carve((LADDER_HOLE[0] - 0.1, LADDER_HOLE[2] - 0.1, z0 - 1), (LADDER_HOLE[1] + 1, LADDER_HOLE[3] + 0.1, 1))
     # front lip under the balcony rail
     g.box((W0, D0 - 0.25, z0), (W1, D0 + 0.05, z0 + 0.25), edge)
     p.anchor = (0, 0, 0)
@@ -423,7 +426,8 @@ def _floor_prop(n):
     def fn(p):
         slab(p, n)
     prop(f'TowerFloor{n}', 'tower', (W0, D0 - 0.25, -0.6), (W1, D1, 0), budget=60, floor=n,
-         note=f'floor slab, {THEMES[n - 1].lower()} floor finish; hole for the elevator shaft in the back-left corner. '
+         note=f'floor slab, {THEMES[n - 1].lower()} floor finish; hole for the elevator shaft in the back-left corner'
+              + (' and the ladder opening at x 21..24, base z 12.5..16.5. ' if n >= 2 else '. ') +
               'Top face is the walking height. Anchor: base centre at this floor\'s walking height.')(fn)
 
 

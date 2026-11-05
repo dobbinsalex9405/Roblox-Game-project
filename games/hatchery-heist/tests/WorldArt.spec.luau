@@ -126,6 +126,49 @@ describe("World art", function()
 		expect(roof ~= nil and roof.anchor ~= nil).toBe(true)
 	end)
 
+	it("keeps the ladder's way up clear in every storey", function()
+		-- Base-local studs: the deck opening beside the ladder on floors 2-10
+		-- (Geometry.LADDER_HOLE_MIN/MAX) and the strip the ladder climbs.
+		local function blocks(
+			id: string,
+			x0: number,
+			x1: number,
+			z0: number,
+			z1: number,
+			y0: number,
+			y1: number
+		): string?
+			local prop = WorldArt.props[id]
+			local anchor = prop.anchor :: { number }
+			for _, part in prop.parts do
+				local b = part.boxes
+				for i = 1, #b, 7 do
+					local bx0, by0, bz0 =
+						(b[i] - anchor[1]) * prop.voxel,
+						(b[i + 1] - anchor[2]) * prop.voxel,
+						(b[i + 2] - anchor[3]) * prop.voxel
+					local bx1, by1, bz1 =
+						bx0 + b[i + 3] * prop.voxel, by0 + b[i + 4] * prop.voxel, bz0 + b[i + 5] * prop.voxel
+					if bx0 < x1 and bx1 > x0 and bz0 < z1 and bz1 > z0 and by0 < y1 and by1 > y0 then
+						return `{id} has a box at x {bx0}..{bx1}, y {by0}..{by1}, z {bz0}..{bz1}`
+					end
+				end
+			end
+			return nil
+		end
+		for floor = 1, 10 do
+			for _, piece in { "Floor", "Back", "Left", "Right", "Front" } do
+				local id = `Tower{piece}{floor}`
+				-- the opening through the slab and the walls above it
+				local hole = blocks(id, 21.1, 23.9, 12.6, 16.4, if floor >= 2 then -0.7 else 0.05, 11.4)
+				expect(hole or id).toBe(id)
+				-- the 2-stud strip outside the right wall the ladder climbs in
+				local strip = blocks(id, 24.05, 26.2, 13.5, 15.5, -0.7, 11.4)
+				expect(strip or id).toBe(id)
+			end
+		end
+	end)
+
 	it("has decor for every floor's four upgrade zones", function()
 		for floor = 1, 10 do
 			local zones: { [string]: boolean } = {}
