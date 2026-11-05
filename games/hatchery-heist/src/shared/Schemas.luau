@@ -59,6 +59,15 @@ return function(Schema: any, Odds: any)
 		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
 		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
+		daily = Schema.record({
+			rewards = Schema.array(
+				Schema.record({
+					incomeSeconds = Schema.integer({ min = 0, max = 86400 }),
+					minCoins = Schema.integer({ min = 1 }),
+				}),
+				{ minLength = 1, maxLength = 14 }
+			),
+		}),
 		book = Schema.record({
 			incomePerSpecies = Schema.number({ min = 0, max = 0.1 }),
 		}),

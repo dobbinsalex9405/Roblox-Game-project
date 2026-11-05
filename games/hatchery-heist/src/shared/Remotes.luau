@@ -18,6 +18,7 @@ return function(Net: any, Schema: any)
 		["HH:Hatch"] = Net.toServer("HH:Hatch", { slot }, { count = 6, window = 1 }),
 		["HH:BuySlot"] = Net.toServer("HH:BuySlot", {}, { count = 2, window = 1 }),
 		["HH:Collect"] = Net.toServer("HH:Collect", {}, { count = 2, window = 1 }),
+		["HH:ClaimDaily"] = Net.toServer("HH:ClaimDaily", {}, { count = 1, window = 1 }),
 		["HH:Rebirth"] = Net.toServer("HH:Rebirth", {}, { count = 1, window = 2 }),
 		["HH:Ride"] = Net.toServer("HH:Ride", { uid }, { count = 2, window = 1 }),
 		["HH:Dismount"] = Net.toServer("HH:Dismount", {}, { count = 2, window = 1 }),

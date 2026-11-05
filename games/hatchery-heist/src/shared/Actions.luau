@@ -10,6 +10,7 @@
 -- testable without Roblox.
 
 local Conveyor = require("./Conveyor")
+local Daily = require("./Daily")
 local Eggs = require("./Eggs")
 local Hatchery = require("./Hatchery")
 
@@ -47,6 +48,7 @@ export type Actions = {
 	hatch: (self: Actions, player: any, slot: number) -> (boolean, string?),
 	buySlot: (self: Actions, player: any) -> (boolean, string?),
 	collect: (self: Actions, player: any) -> (boolean, string?),
+	claimDaily: (self: Actions, player: any) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
@@ -340,6 +342,25 @@ function Actions.new(options: Options): Actions
 		end)
 		if ok then
 			onboarding(player, step)
+		end
+		return ok, err
+	end
+
+	-- Daily Rewards: today's coins, once a UTC day (shared/Daily.luau).
+	function actions.claimDaily(_self: Actions, player: any): (boolean, string?)
+		local coins: number? = nil
+		local day = 0
+		local ok, err = change(player, function(d, ledger)
+			local paid, result =
+				Daily.claim(d, ledger, options.now(), perSecond(d, player), economyConfig.daily)
+			if paid == nil then
+				return result :: string
+			end
+			coins, day = paid, result :: number
+			return nil
+		end)
+		if ok and coins then
+			options.notify(player, `Day {day} reward: +{coins} coins!`)
 		end
 		return ok, err
 	end

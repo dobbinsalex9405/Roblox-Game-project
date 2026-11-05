@@ -9,6 +9,8 @@
 - Hatchery Book in the side menu: all 33 creatures by tier, "???"
   silhouettes until found, each with its best egg and odds. Every species
   found adds +1% income.
+- Daily Rewards in the side menu: a seven-day streak of growing coin
+  rewards that scale with income; a missed day starts over.
 - Sound effect hooks for the egg, the reveal, the book and rewards (silent
   until sounds are picked).
 

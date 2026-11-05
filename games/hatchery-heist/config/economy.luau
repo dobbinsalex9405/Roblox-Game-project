@@ -44,6 +44,20 @@ return {
 	-- With the Auto-Collect pass, earnings move into coins this often (seconds).
 	autoCollectSeconds = 30,
 
+	-- Daily Rewards, Day 1 to 7 (then round again; a missed day starts over).
+	-- Each is `incomeSeconds` of the player's income, at least `minCoins`.
+	daily = {
+		rewards = {
+			{ incomeSeconds = 300, minCoins = 250 },
+			{ incomeSeconds = 450, minCoins = 400 },
+			{ incomeSeconds = 600, minCoins = 600 },
+			{ incomeSeconds = 900, minCoins = 900 },
+			{ incomeSeconds = 1200, minCoins = 1300 },
+			{ incomeSeconds = 1500, minCoins = 1800 },
+			{ incomeSeconds = 2700, minCoins = 3500 },
+		},
+	},
+
 	-- Hatchery Book: every species a player has ever owned adds this much
 	-- income (0.01 = +1%), so a full book of 33 is +33%.
 	book = {

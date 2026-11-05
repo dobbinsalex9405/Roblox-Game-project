@@ -147,6 +147,11 @@ never sold.
   in colour, the rest as "???" silhouettes, each with its best egg and exact
   chance. Every species ever owned adds `economy.book.incomePerSpecies`
   (1%) income, so a full book is +33%. Kept in `data.found`.
+- **Daily Rewards** (side menu, "!" when one is waiting; opens by itself
+  once a session for returning players): Day 1 to 7 once a UTC day, then
+  round again; a missed day starts over. Each is so many seconds of income
+  with a floor (`economy.daily`), Day 7 the biggest (45 minutes, at least
+  3,500 coins). Kept in `data.daily`.
 - **Sound effects** (`config/atmosphere.luau` `sounds`): named hooks; an id
   of 0 is silent until one is picked by ear.
 

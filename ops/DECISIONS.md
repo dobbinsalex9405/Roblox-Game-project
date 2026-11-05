@@ -14,6 +14,10 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **The reveal and the book show the server's odds for the player** (the
   odds card's numbers, boosts included), using config odds only until the
   server's arrive, so the three can never disagree.
+- **Daily rewards are coins scaled to income, with a floor.** Fixed
+  amounts are worthless after an hour of play; free eggs would need a free
+  incubator and a paid-random-item policy check. Days are UTC days so the
+  server's check is simple and the same everywhere.
 - **Waiting small hatches share one reveal.** Commons and Uncommons already
   in the book group into "+N more"; anything new or Rare and up keeps its
   own reveal. Holding the screen skips everything waiting and lists it in a
