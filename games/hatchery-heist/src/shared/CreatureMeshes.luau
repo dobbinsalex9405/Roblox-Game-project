@@ -605,7 +605,7 @@ local CreatureMeshes: { [string]: Creature } = {
 					{
 						name = "Butterfly_head",
 						center = { 0, 0.7017, -0.396 },
-						size = { 0.6, 0.7875, 0.499 },
+						size = { 0.591, 0.7875, 0.499 },
 					},
 				},
 				lod1 = { name = "Butterfly_head_lod1", center = { 0, 0.7, -0.4 }, size = { 0.6, 0.8, 0.5 } },
