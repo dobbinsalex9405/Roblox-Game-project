@@ -18,13 +18,13 @@ Non-obvious choices, newest first, so a later session can trust them.
   Cosmic Whale) may carry its moons above its back; the added height counts.
 - **Long or wide bodies are drawn a little smaller** (Solar Lion, Omega
   Chimera, Magma Behemoth, World Turtle, Crystal Hydra, the dragons) to stay
-  inside 100k triangles; round floaters a little bigger (Cosmic Whale,
-  Crystal Swan, Hurricane Roc) so their voxels match the rest once the game
-  scales every Godly to 6 studs.
-- **Long bodies stand up to fit a 3-spot area**: the Clockwork Leviathan
-  rises in a U (head high at the front, flukes high at the back) and the
-  Cosmic Whale swims nose-up (godly_common.tilt), so neither is longer than
-  the 10-stud depth once scaled.
+  inside 100k triangles; long, low or round bodies a little bigger (Cosmic
+  Whale, Clockwork Leviathan, Crystal Swan, Hurricane Roc) so their voxels
+  match the rest once the game scales every Godly to 6 studs tall.
+- **The swimmers swim level** (the strict review: they must read as a whale):
+  the Clockwork Leviathan and the Cosmic Whale are long and low, their
+  orbits ride above the back, and once scaled to 6 studs tall they are about
+  8 and 10.5 studs long, inside the 30 x 10 three-spot area.
 - **They hover** (rig: Legendary and Godly always hover); legs, tentacles
   (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
   so the hover pose tucks and paddles them.
