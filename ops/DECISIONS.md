@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+
+## 2026-11-05: Long Godlies fit their spot by length (Hatchery Heist)
+
+- A creature is drawn as tall as its tier's size, unless that makes its
+  longest side across the ground longer than `Layout.PAD_LENGTH_MAX` (9.5
+  studs, a spot is 10 deep). Then the whole art is scaled down evenly until
+  that side fits (`ArtScale.drawScale`). It keeps its proportions, so the
+  Clockwork Leviathan still reads as several times longer than it is tall;
+  it just stands a little lower than other Godlies. Chosen over hovering
+  swimmers higher or diagonally (they would still overhang the
+  neighbouring spots) and over per-creature bounds (one more number to set
+  on every new creature). Ridden or carried, the cap scales with the size.
+
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
 - **What:** 25 hub props in `tools/art/world/hub.py` (kinds `building` and

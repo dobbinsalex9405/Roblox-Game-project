@@ -213,6 +213,26 @@ describe("Creature looks by tier", function()
 		end
 	end)
 
+	-- Godly thread, Nov 5: at 6 studs tall the Clockwork Leviathan is about 15
+	-- studs long, past its 10-deep spot. A long creature is scaled down
+	-- evenly until its length fits, keeping its proportions.
+	it("scales a long creature down to fit its spot, keeping its shape", function()
+		local height, length = 2, 5 -- native studs: 2.5 times as long as tall
+		local k = ArtScale.drawScale(6, height, length, 9.5)
+		expect(math.abs(length * k - 9.5) < 1e-9).toBe(true)
+		expect(math.abs((length * k) / (height * k) - 2.5) < 1e-9).toBe(true)
+		-- A short creature is untouched: as tall as its stand-in.
+		expect(ArtScale.drawScale(6, 2, 3, 9.5)).toBe(3)
+		-- Every creature drawn today fits its pad, even at Godly size (3.8).
+		for speciesId, art in VoxelArt.species do
+			local standIn = 3.8
+			local artHeight = art.size[2] * VoxelArt.voxel
+			local artLength = math.max(art.size[1], art.size[3]) * VoxelArt.voxel
+			local drawn = artLength * ArtScale.drawScale(standIn, artHeight, artLength, 9.5)
+			expect(drawn <= 9.5 + 1e-9 and "fits" or `{speciesId} is {drawn} long`).toBe("fits")
+		end
+	end)
+
 	-- Studio gate, Nov 5: the Butterfly's head rode on its left wing and the
 	-- wing on its head, and it drew as one dark cube. Every part's chain of
 	-- parents must end at the body.

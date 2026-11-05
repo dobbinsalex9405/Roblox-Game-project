@@ -126,6 +126,13 @@ function Layout.raritySize(rarity: string): number
 	return RARITY_SIZES[rarity] or RARITY_SIZES.Common
 end
 
+-- The longest a creature is drawn across the ground on its pad (studs):
+-- a spot is 10 deep, so a long Godly (the Clockwork Leviathan, the Cosmic
+-- Whale) is scaled down evenly to fit rather than reach into its
+-- neighbours (ArtScale.drawScale). Ridden or carried, the cap scales with
+-- the creature's size.
+Layout.PAD_LENGTH_MAX = 9.5
+
 -- A ridden creature is one stud taller than on its pad, up to 6 studs, so a
 -- Legendary still fits through the yard and its rider stays on screen.
 Layout.MOUNT_MAX = 6

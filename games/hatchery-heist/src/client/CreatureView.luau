@@ -232,7 +232,9 @@ local function build(anchor: BasePart, speciesId: string)
 	-- same art height into the ball.
 	local meshFit = if mesh then fit(speciesId, mesh) else 1
 	local artHeight = if mesh then mesh.size[2] * meshFit else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
-	local k = ArtScale.drawScale(anchor.Size.Y, artHeight)
+	local native = if mesh then vec(mesh.size, meshFit) else vec((art :: VoxelArt.Art).size, VoxelArt.voxel)
+	local maxLength = Layout.PAD_LENGTH_MAX * anchor.Size.Y / Layout.raritySize(rarity)
+	local k = ArtScale.drawScale(anchor.Size.Y, artHeight, math.max(native.X, native.Z), maxLength)
 	local s = VoxelArt.voxel * k
 	k *= meshFit
 	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)
