@@ -14,6 +14,7 @@ plain Python with numpy.
 | `decor.py` | Farm-centre decor, and the decor of floors 8 to 10 |
 | `apartment.py` | Apartment decor of floors 1 to 7 (4 zones: cozy, toys, lighting, food) |
 | `tower.py` | The apartment shell: floor, back, left, right and front of each floor, and the roof |
+| `hub.py` | The farm hub around the Egg Market: barn, silo, windmill, well, coop, stalls, Theme Stand, Book stand, arch, pond, veg patch, haystack, scarecrow, and street props (fences, lamps, signs, mailbox, benches) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/WorldArt.luau` |
 | `build.py` | Draco `.glb` meshes, renders, `meta.json`, 3D viewer copies |
 | `partsheet.py` | One render of every prop's Parts version |
@@ -22,6 +23,7 @@ plain Python with numpy.
 | `shopexport.py` | Writes `games/hatchery-heist/src/shared/ShopArt.luau` (props + layout) and `build/world/shopart.json` |
 | `shopbuild.py` | The shop's `.glb` files, renders, `meta.json` and viewer copies (World/Hatchery Heist/Golden Egg Shop) |
 | `shopscene.py` | Review renders of the whole shop: outside, inside, each display wall, the counter, the door |
+| `hubscene.py` | The hub as `atmosphere.luau` `scenery.hub` lays it out (Parts versions): an overview and eye-level shots |
 | `towerscene.py` | Review renders (map overview, ten-floor cutaway, one room) and the whole tower as one `.glb` |
 
 ## Changing a prop
@@ -78,3 +80,16 @@ python3 tools/art/world/shopbuild.py build/world/shop --whole --designs /mnt/pro
 Every display stands for one Robux item of the Shop window (`ShopPlan`
 checks both ways). No letters or numbers in the art: the game shows props
 mirrored left to right, so text goes on the signs as SurfaceGui text.
+
+## The farm hub
+
+`hub.py` holds the hub's props; where they stand is config, not art:
+`games/hatchery-heist/config/atmosphere.luau` `scenery.hub` (angle and
+radius round the Golden Nest, each piece facing the centre).
+`lune run tools/test/run HubLayout` checks the layout fits (no piece on a
+path, the shop's plot or another piece). To see it:
+
+```sh
+python3 tools/art/world/export.py
+PYTHONPATH=/opt/bpy python3 tools/art/world/hubscene.py build/hubscene
+```

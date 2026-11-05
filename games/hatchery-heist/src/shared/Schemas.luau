@@ -261,11 +261,17 @@ return function(Schema: any, Odds: any)
 				seed = Schema.integer(),
 				nature = Schema.record({
 					seed = Schema.integer({ min = 1 }),
-					gapTrees = Schema.array(Schema.string({ minLength = 1, maxLength = 40 }), {
-						minLength = 1,
-						maxLength = 8,
+					gap = Schema.record({
+						trees = Schema.array(Schema.string({ minLength = 1, maxLength = 40 }), {
+							minLength = 1,
+							maxLength = 8,
+						}),
+						bushes = Schema.array(Schema.string({ minLength = 1, maxLength = 40 }), {
+							maxLength = 8,
+						}),
+						radius = Schema.number({ min = 146, max = 250 }),
+						degrees = Schema.number({ min = 0, max = 22 }),
 					}),
-					gapRadius = Schema.number({ min = 146, max = 250 }),
 					wood = Schema.record({
 						count = Schema.integer({ min = 0, max = 150 }),
 						radiusMin = Schema.number({ min = 150, max = 300 }),
@@ -285,6 +291,7 @@ return function(Schema: any, Odds: any)
 						mushroomRings = Schema.integer({ min = 0, max = 60 }),
 					}),
 					hillPines = Schema.integer({ min = 0, max = 60 }),
+					hillPine = Schema.string({ minLength = 1, maxLength = 40 }),
 				}),
 				farm = Schema.record({
 					barn = farmSpot,
@@ -293,9 +300,44 @@ return function(Schema: any, Odds: any)
 					pen = farmSpot,
 					fields = Schema.array(Schema.number({ min = 0, max = 360 }), { maxLength = 8 }),
 					fieldRadius = Schema.number({ min = 160, max = 260 }),
-					clearAngle = Schema.number({ min = 0, max = 45 }),
+					clearRadius = Schema.number({ min = 0, max = 80 }),
 					windmillTurnSeconds = Schema.number({ min = 1, max = 120 }),
 				}),
+				-- The farm hub (tests/HubLayout.spec.luau checks the fit).
+				hub = Schema.optional(Schema.record({
+					innerRadius = Schema.number({ min = 20, max = 60 }),
+					outerRadius = Schema.number({ min = 40, max = 100 }),
+					pathWidth = Schema.number({ min = 4, max = 30 }),
+					shop = Schema.record({
+						angle = Schema.number({ min = 0, max = 360 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+						width = Schema.number({ min = 1, max = 60 }),
+						depth = Schema.number({ min = 1, max = 60 }),
+					}),
+					arch = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+					}),
+					lamps = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radii = Schema.array(Schema.number({ min = 20, max = 100 }), { maxLength = 8 }),
+						side = Schema.number({ min = 0, max = 30 }),
+					}),
+					signposts = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+						side = Schema.number({ min = 0, max = 30 }),
+					}),
+					pieces = Schema.array(
+						Schema.record({
+							id = Schema.string({ maxLength = 40 }),
+							angle = Schema.number({ min = 0, max = 360 }),
+							radius = Schema.number({ min = 20, max = 100 }),
+							yaw = Schema.optional(Schema.number({ min = -360, max = 360 })),
+						}),
+						{ maxLength = 80 }
+					),
+				})),
 			}),
 			function(v: any): (boolean, string?)
 				if v.nature.wood.radiusMax < v.nature.wood.radiusMin then
