@@ -367,6 +367,8 @@ function GuideView.start(ctx: Context.Context): SideMenu
 		end
 	end)
 
+	local arrivedStuds = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).guide.arrivedStuds
+
 	-- The beam from the player to the goal, and an arrow over it.
 	local fromAttachment: Attachment? = nil
 	local toAttachment = Instance.new("Attachment")
@@ -455,7 +457,14 @@ function GuideView.start(ctx: Context.Context): SideMenu
 				goal.Visible = true
 				goalText.Text = step.text
 				local target = step.target and findTarget(plot, step.target)
-				if target and attachToCharacter() then
+				local from = attachToCharacter()
+				local arrived = false
+				local root = from and from.Parent
+				if target and root and root:IsA("BasePart") then
+					local flat = (target.Position - root.Position) * Vector3.new(1, 0, 1)
+					arrived = flat.Magnitude <= arrivedStuds
+				end
+				if target and from and not arrived then
 					-- Half the part's height in the world (incubators lie on their side).
 					local top = math.abs(target.CFrame:VectorToWorldSpace(target.Size).Y) / 2
 					toAttachment.Parent = target

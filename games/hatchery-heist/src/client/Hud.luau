@@ -189,6 +189,15 @@ function Hud.start(ctx: Context.Context)
 	card.Visible = false
 	listLayout(card, 8)
 	local cardEgg: string? = nil
+	-- Smaller on a phone held sideways, so the card leaves the egg and its
+	-- Buy prompt in view (Studio gate, Nov 5): 75% at 392 px tall.
+	local cardScale = Instance.new("UIScale")
+	cardScale.Parent = card
+	local function fitCard()
+		local cam = Workspace.CurrentCamera
+		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
+		cardScale.Scale = math.clamp(screen.Y / 520, 0.75, 1)
+	end
 
 	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
 	-- title; this client draws its own odds (fixed order for a restricted
@@ -313,6 +322,7 @@ function Hud.start(ctx: Context.Context)
 	return {
 		showOdds = function(eggId: string)
 			cardEgg = eggId
+			fitCard()
 			renderCard()
 			card.Visible = true
 		end,

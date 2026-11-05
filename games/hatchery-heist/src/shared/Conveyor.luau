@@ -111,4 +111,13 @@ function Conveyor.canBuy(index: number, now: number, config: ConveyorConfig): bo
 	return now >= appears - Conveyor.TOLERANCE and now <= appears + config.travelSeconds + Conveyor.TOLERANCE
 end
 
+-- Whether an egg costing `price` shows its Buy prompt to a player holding
+-- `coins`, when the cheapest egg on sale costs `cheapest`. The belt keeps
+-- moving, so the nearest prompt is often a dearer egg (Studio gate, Nov 5):
+-- a player sees Buy only on eggs they can afford, unless they can afford
+-- none, so pressing Buy still tells them what eggs cost.
+function Conveyor.offered(price: number, coins: number, cheapest: number): boolean
+	return coins >= price or coins < cheapest
+end
+
 return Conveyor

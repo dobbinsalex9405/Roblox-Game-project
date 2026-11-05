@@ -221,9 +221,10 @@ describe("Farm hub layout", function()
 		end
 	end)
 
-	it("stands each market odds sign low, off the belt and the path, facing the path", function()
+	it("stands each market odds sign raised, off the belt and the path, facing the path", function()
 		local sign = Geometry.MARKET_SIGN
-		expect(sign.bottom + sign.height + sign.frame <= 5).toBe(true)
+		-- Over a player's shoulders and under the phone HUD (Studio gate).
+		expect(sign.bottom >= 3.5 and sign.bottom + sign.height + sign.frame <= 7.5).toBe(true)
 		local beltEdge = 27.5 + 3.2 / 2 -- Layout.MARKET_LANES[2] + MARKET_WIDTH / 2
 		for index, r in marketSigns() do
 			for _, v in r.corners do

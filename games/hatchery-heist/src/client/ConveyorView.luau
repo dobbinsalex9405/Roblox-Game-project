@@ -104,6 +104,24 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 		end
 	end
 
+	-- Prices, and the cheapest coin egg on the belt (Conveyor.offered).
+	local prices: { [string]: number } = {}
+	local cheapest = math.huge
+	for eggId in belt.weights do
+		local info = Hatchery.eggById(ctx.config.eggs, eggId)
+		if info and info.priceCoins then
+			prices[eggId] = info.priceCoins
+			cheapest = math.min(cheapest, info.priceCoins)
+		end
+	end
+	local coins = 0
+	do
+		local d = ctx.data()
+		if d then
+			coins = d.coins
+		end
+	end
+
 	local function refreshPrompt(egg: Egg)
 		local i = egg.index
 		egg.prompt.Enabled = not egg.hidden
@@ -111,6 +129,7 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 			and not waiting[i]
 			and not sold[i]
 			and OddsView.ready(egg.eggId)
+			and Conveyor.offered(prices[egg.eggId] or 0, coins, cheapest)
 	end
 
 	-- Shows the egg again after a refusal (or no answer), unless it is gone.
@@ -260,6 +279,14 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 	OddsView.onChanged(function()
 		for _, egg in shown do
 			refreshPrompt(egg)
+		end
+	end)
+	ctx.onData(function(d: { [string]: any })
+		if d.coins ~= coins then
+			coins = d.coins
+			for _, egg in shown do
+				refreshPrompt(egg)
+			end
 		end
 	end)
 

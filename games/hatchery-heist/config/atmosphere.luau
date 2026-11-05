@@ -157,7 +157,7 @@ return {
 				{ id = "ChickenCoop", angle = 211, radius = 46 },
 				{ id = "Silo", angle = 202.5, radius = 60 },
 				-- 247.5: the flower stall, a planter and a haystack
-				{ id = "StallGreen", angle = 247.5, radius = 40 },
+				{ id = "StallGreen", angle = 247.5, radius = 42 },
 				{ id = "FlowerPlanter", angle = 247.5, radius = 52 },
 				{ id = "HayStack", angle = 239, radius = 58 },
 				-- 292.5: a little green with benches and the duck pond
@@ -171,6 +171,12 @@ return {
 				{ id = "VegetablePatch", angle = 337.5, radius = 57 },
 			},
 		},
+	},
+	-- The guide's gold arrow and beam hide once you are this close (studs,
+	-- flat) to where they point, so they never sit on top of the Buy prompt
+	-- you came for (Studio gate, Nov 5).
+	guide = {
+		arrivedStuds = 8,
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only

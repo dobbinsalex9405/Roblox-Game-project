@@ -92,15 +92,19 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Eggs, pedestals and slats are client-only** and move together in one
   `BulkMoveTo` each frame (about 1,900 small parts); the pedestal is three
   boxes instead of the art's 48 to keep that number down. Eggs are pooled.
-- **Odds on a small sign at each stop, not boards in the middle** (Studio
-  gate, Nov 5): boards big enough to read from the path hid the Golden Nest
-  and still failed on a phone. Each stop gets an 8.6 x 4.2-stud sign beside
-  its arch, frame top at 5 studs, turned 20 degrees toward the path players
-  walk in on: one belt egg's name and "1 in N" per tier, the next egg every
-  4 seconds. A table of all three eggs at once needed 0.33-stud type, too
-  small on a phone; one egg at a time gets half as much again. The odds card beside the Buy prompt keeps
-  the full detail. To make room, the four hub pieces nearest the market
-  (Book stand, Theme stand, mailbox, notice board) stand 4 studs further out.
+- **Odds on a sign at each stop, not boards in the middle** (Studio gates,
+  Nov 5): boards big enough to read from the path hid the Golden Nest and
+  still failed on a phone, and a full tier table on a small sign was too
+  small too. Each stop gets a 10 x 3.3-stud sign beside its arch's left post,
+  face 3.9 to 7.2 studs up so the follow camera sees it over the character,
+  turned 20 degrees toward the path in. Three lines in about 1-stud type:
+  the egg and its price, then its two rarest tiers' exact "1 in N", the next
+  egg every 4 seconds. The odds card beside the Buy prompt keeps every tier.
+  To make room, the five hub pieces nearest the market (Book stand, Theme
+  stand, mailbox, notice board, flower stall) stand 2 to 4 studs further out.
+- **Buy only where you can pay**: the belt's nearest prompt was often a
+  dearer egg, so a player sees Buy only on eggs they can afford, unless they
+  can afford none (then pressing Buy says what eggs cost).
 - **One placer for WorldArt props** (`shared/VoxelProp`), with `register`
   for other generated prop modules (the shop's), so every thread places
   props the same way.

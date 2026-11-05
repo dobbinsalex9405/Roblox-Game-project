@@ -85,7 +85,7 @@ local function rails(parent: Instance)
 end
 
 -- The odds signs, one beside each stop (Geometry.MARKET_SIGN): a dark face in
--- a wooden frame on two legs. Everyone sees the title; each client draws its
+-- a wooden frame on two posts. Everyone sees the title; each client draws its
 -- own odds over it (Hud).
 local function signs(parent: Instance)
 	local folder = Instance.new("Folder")

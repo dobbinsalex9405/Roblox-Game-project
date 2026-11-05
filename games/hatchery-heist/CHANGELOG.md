@@ -19,8 +19,12 @@
   round belt in the middle of the map carries eggs for everyone, on two
   lanes turning opposite ways, each egg on its own pedestal. Whoever buys an
   egg first gets it. Moonlit Eggs come along three times as often (the mix
-  is now 55% Basic, 30% Meadow, 15% Moonlit), and a small sign beside
-  each stop shows each egg's chances in turn, tier by tier, as "1 in N".
+  is now 55% Basic, 30% Meadow, 15% Moonlit), and a sign beside each
+  stop shows each egg in turn: its price and its rarest chances, in big
+  type. Pressing Buy on an egg you can't afford says which egg it was and
+  what the cheapest egg costs, and Buy only shows on eggs you can afford
+  (unless you can afford none). On a phone the odds card is smaller, and the
+  guide's gold arrow steps aside once you reach the market.
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),

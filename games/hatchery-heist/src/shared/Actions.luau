@@ -247,6 +247,18 @@ function Actions.new(options: Options): Actions
 		soldNotice[player] = nil
 	end
 
+	-- The cheapest coin egg the market sells.
+	local function cheapestEgg(): any?
+		local best: any? = nil
+		for eggId in economyConfig.conveyor.weights do
+			local e = Hatchery.eggById(config.eggs, eggId)
+			if e and e.priceCoins and (best == nil or e.priceCoins < best.priceCoins) then
+				best = e
+			end
+		end
+		return best
+	end
+
 	function actions.buyEgg(_self: Actions, player: any, index: number): (boolean, string?)
 		local plot = options.plotOf(player)
 		if plot == nil then
@@ -293,6 +305,9 @@ function Actions.new(options: Options): Actions
 				extraIncubators = perks.extraIncubators,
 			})
 			local incubator, refusal = Hatchery.buyEgg(d, ledger, egg, slots, options.now(), pick)
+			if refusal == "Not enough coins." then
+				refusal = Hatchery.shortOfCoins(egg, cheapestEgg())
+			end
 			if incubator then
 				step = Hatchery.markFirst(d, "FirstEggBought", options.now())
 			end

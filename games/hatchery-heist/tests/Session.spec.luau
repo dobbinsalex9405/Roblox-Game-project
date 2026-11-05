@@ -253,7 +253,8 @@ describe("Hatchery Heist sessions", function()
 		h.join(player)
 		expect(h.buy(player, "MeadowEgg")).toBeFalsy() -- 50 coins, egg costs 2500
 		expect(h.get(player).coins).toBe(economy.startingCoins)
-		expect(h.notices[#h.notices]).toBe("Not enough coins.")
+		-- Says which egg it was and which egg the player can afford.
+		expect(h.notices[#h.notices]).toBe("Not enough coins: a Meadow Egg costs 2.5K. Basic Eggs cost 50.")
 
 		local index = h.findOnBelt("BasicEgg") :: number
 		expect(h.actions:buyEgg(player, index)).toBe(true)

@@ -264,97 +264,79 @@ function OddsView.render(container: GuiObject, eggId: string)
 	sameTextSize(container)
 end
 
--- The odds sign beside each Egg Market stop: one egg's name and, for each
--- tier it can hatch, its exact "1 in N". Nothing else: the odds card beside
--- the Buy prompt has the full detail. `size` is the sign's face in pixels;
--- every line gets one text size, the largest that fits. A player under the
+-- The odds sign beside each Egg Market stop (Studio gate, Nov 5): three
+-- big lines, readable from 10 studs on a phone. The egg's name and price,
+-- then its two rarest tiers with their exact "1 in N". The odds card beside
+-- the Buy prompt has every tier. `size` is the sign's face in pixels; every
+-- line gets one text size, the largest that fits. A player under the
 -- fixed-order rule sees that instead of chances.
 OddsView.SIGN_PIXELS_PER_STUD = 40
+OddsView.SIGN_TIERS = 2
 
-local function signLabel(
-	parent: Instance,
-	text: string,
-	x: number,
-	y: number,
-	w: number,
-	h: number
-): TextLabel
-	local l = Instance.new("TextLabel")
-	l.BackgroundTransparency = 1
-	l.Position = UDim2.fromOffset(x, y)
-	l.Size = UDim2.fromOffset(w, h)
-	l.Font = Enum.Font.GothamBold
-	l.TextColor3 = Color3.new(1, 1, 1)
-	l.TextStrokeTransparency = 0.4
-	l.Text = text
-	l.Parent = parent
-	return l
+function OddsView.signLines(eggId: string): { { text: string, color: Color3 } }
+	local egg = Hatchery.eggById(ctx.config.eggs, eggId)
+	if egg == nil then
+		return {}
+	end
+	local price = if egg.priceCoins then ` · {Layout.shortNumber(egg.priceCoins)}` else ""
+	local lines = { { text = `{Layout.displayName(egg.id)}{price}`, color = Color3.fromRGB(255, 210, 63) } }
+	if ctx.restricted() then
+		local grey = Color3.fromRGB(220, 220, 220)
+		table.insert(lines, { text = "Set order, no chance", color = grey })
+		table.insert(lines, { text = "Tap an egg to see it", color = grey })
+		return lines
+	end
+	local rarest: { string } = {}
+	for i = #Eggs.RARITIES, 1, -1 do
+		local rarity = Eggs.RARITIES[i]
+		if egg.tiers and egg.tiers[rarity] and #rarest < OddsView.SIGN_TIERS then
+			table.insert(rarest, 1, rarity)
+		end
+	end
+	local display = displays[eggId]
+	for _, rarity in rarest do
+		local oneIn = "..."
+		if display then
+			for _, tier in OddsView.tiers(display) do
+				if tier.rarity == rarity then
+					oneIn = tier.oneIn
+				end
+			end
+		end
+		table.insert(lines, { text = `{rarity} {oneIn}`, color = Layout.rarityColor(rarity) })
+	end
+	return lines
 end
 
 function OddsView.renderSign(container: GuiObject, eggId: string, size: Vector2)
 	container:ClearAllChildren()
-	local egg = Hatchery.eggById(ctx.config.eggs, eggId)
-	if egg == nil then
+	local lines = OddsView.signLines(eggId)
+	if #lines == 0 then
 		return
 	end
-	local lines: { { left: string, right: string, color: Color3 } } = {}
-	if ctx.restricted() then
-		local grey = Color3.fromRGB(220, 220, 220)
-		table.insert(lines, { left = "Set order,", right = "", color = grey })
-		table.insert(lines, { left = "no chance:", right = "", color = grey })
-		table.insert(lines, { left = "tap an egg", right = "", color = grey })
-	else
-		local display = displays[eggId]
-		for _, rarity in Eggs.RARITIES do
-			if egg.tiers and egg.tiers[rarity] then
-				local text = "..."
-				if display then
-					text = "-"
-					for _, tier in OddsView.tiers(display) do
-						if tier.rarity == rarity then
-							text = tier.oneIn
-						end
-					end
-				end
-				table.insert(lines, { left = rarity, right = text, color = Layout.rarityColor(rarity) })
-			end
-		end
-	end
-
 	local margin = 8
 	local width = size.X - 2 * margin
-	local line = math.floor((size.Y - 2 * margin) / (#lines + 1))
-	local half = width / 2
-	local cells: { { label: TextLabel, width: number } } = {}
-	local function cell(
-		text: string,
-		x: number,
-		y: number,
-		w: number,
-		color: Color3,
-		align: Enum.TextXAlignment
-	)
-		local l = signLabel(container, text, margin + x, margin + y, w, line)
-		l.TextColor3 = color
-		l.TextXAlignment = align
-		table.insert(cells, { label = l, width = w - 4 })
-	end
-	cell(Layout.displayName(egg.id), 0, 0, width, Color3.fromRGB(255, 210, 63), Enum.TextXAlignment.Center)
+	local line = math.floor((size.Y - 2 * margin) / #lines)
+	local labels: { TextLabel } = {}
 	for i, entry in lines do
-		if entry.right == "" then
-			cell(entry.left, 0, i * line, width, entry.color, Enum.TextXAlignment.Center)
-		else
-			cell(entry.left, 0, i * line, half, entry.color, Enum.TextXAlignment.Left)
-			cell(entry.right, half, i * line, half, entry.color, Enum.TextXAlignment.Right)
-		end
+		local l = Instance.new("TextLabel")
+		l.Name = `Line{i}`
+		l.BackgroundTransparency = 1
+		l.Position = UDim2.fromOffset(margin, margin + (i - 1) * line)
+		l.Size = UDim2.fromOffset(width, line)
+		l.Font = Enum.Font.GothamBold
+		l.TextColor3 = entry.color
+		l.TextStrokeTransparency = 0.3
+		l.Text = entry.text
+		l.Parent = container
+		table.insert(labels, l)
 	end
-
 	local textSize = line - 2
 	local bounds = Vector2.new(10000, 10000)
 	while textSize > 8 do
 		local fits = true
-		for _, c in cells do
-			if TextService:GetTextSize(c.label.Text, textSize, c.label.Font, bounds).X > c.width then
+		for _, l in labels do
+			if TextService:GetTextSize(l.Text, textSize, l.Font, bounds).X > width - 4 then
 				fits = false
 				break
 			end
@@ -364,8 +346,8 @@ function OddsView.renderSign(container: GuiObject, eggId: string, size: Vector2)
 		end
 		textSize -= 1
 	end
-	for _, c in cells do
-		c.label.TextSize = textSize
+	for _, l in labels do
+		l.TextSize = textSize
 	end
 end
 

@@ -344,6 +344,10 @@ return function(Schema: any, Odds: any)
 				return true
 			end
 		),
+		-- The guide's arrow and beam (client/GuideView).
+		guide = Schema.record({
+			arrivedStuds = Schema.number({ min = 2, max = 30 }),
+		}),
 		music = Schema.record({
 			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),
 			volume = Schema.number({ min = 0, max = 1 }),

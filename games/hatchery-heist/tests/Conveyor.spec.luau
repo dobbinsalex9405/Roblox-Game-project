@@ -71,4 +71,14 @@ describe("Conveyor", function()
 		expect(Conveyor.canBuy(index, appears + belt.travelSeconds + 5, belt)).toBe(false)
 		expect(Conveyor.canBuy(index, appears - 10, belt)).toBe(false)
 	end)
+
+	it("offers Buy only on eggs you can afford, unless you can afford none", function()
+		-- 60 coins, cheapest egg 50: the 50 egg shows Buy, the 2,500 egg does not.
+		expect(Conveyor.offered(50, 60, 50)).toBe(true)
+		expect(Conveyor.offered(2500, 60, 50)).toBe(false)
+		expect(Conveyor.offered(2500, 2500, 50)).toBe(true)
+		-- 20 coins: every egg shows Buy, so pressing it says what eggs cost.
+		expect(Conveyor.offered(50, 20, 50)).toBe(true)
+		expect(Conveyor.offered(2500, 20, 50)).toBe(true)
+	end)
 end)
