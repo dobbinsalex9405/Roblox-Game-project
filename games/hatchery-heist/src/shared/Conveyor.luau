@@ -18,6 +18,7 @@ export type ConveyorConfig = {
 	travelSeconds: number,
 	lanes: number,
 	buyReach: number,
+	signSeconds: number,
 	weights: { [string]: number },
 }
 

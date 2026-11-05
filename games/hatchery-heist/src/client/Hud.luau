@@ -17,8 +17,6 @@ local OddsView = require(script.Parent.OddsView)
 
 -- The odds boards are 26 x 7 studs: 520 x 140 pixels, two columns of five
 -- 24-pixel lines.
-local KIOSK_PIXELS_PER_STUD = 20
-local KIOSK_LINES = 5
 
 local Hud = {}
 
@@ -192,67 +190,82 @@ function Hud.start(ctx: Context.Context)
 	listLayout(card, 8)
 	local cardEgg: string? = nil
 
-	-- The Egg Market's odds boards round the Golden Nest. Everyone sees their
+	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
 	-- title; this client draws its own odds (fixed order for a restricted
-	-- player) over them, one egg a board (Board1 the first egg), in two
-	-- columns of five lines so they are big enough to read from the path.
-	local boardGuis: { [BasePart]: SurfaceGui } = {}
-	local boardGui: SurfaceGui? = nil -- set once the boards are found
+	-- player) over them: one belt egg at a time, cheapest first, the next
+	-- every `conveyor.signSeconds` (all signs together).
+	local signGuis: { [BasePart]: SurfaceGui } = {}
+	local signGui: SurfaceGui? = nil -- set once the signs are found
+	local signPage = 1
 	local function renderBoard()
 		local market = Workspace:FindFirstChild("EggMarket")
-		local boards = market and market:FindFirstChild("Boards")
-		if boards == nil then
+		local signs = market and market:FindFirstChild("Signs")
+		if signs == nil then
 			return
 		end
+		local eggs = ctx.config.eggs
 		local ids = {}
 		for eggId in ctx.config.economy.conveyor.weights do
 			table.insert(ids, eggId)
 		end
-		table.sort(ids)
-		for _, board in boards:GetChildren() do
-			if not board:IsA("BasePart") then
+		table.sort(ids, function(a, b)
+			local ea, eb = Hatchery.eggById(eggs, a), Hatchery.eggById(eggs, b)
+			local pa = if ea then ea.priceCoins or 0 else 0
+			local pb = if eb then eb.priceCoins or 0 else 0
+			if pa ~= pb then
+				return pa < pb
+			end
+			return a < b
+		end)
+		if #ids == 0 then
+			return
+		end
+		local pps = OddsView.SIGN_PIXELS_PER_STUD
+		for _, sign in signs:GetChildren() do
+			if not sign:IsA("BasePart") then
 				continue
 			end
-			local title = board:FindFirstChild("Title")
+			local title = sign:FindFirstChild("Title")
 			if title and title:IsA("SurfaceGui") then
 				title.Enabled = false
 			end
-			local sg: SurfaceGui? = boardGuis[board]
+			local sg: SurfaceGui? = signGuis[sign]
 			if sg == nil then
 				local g = Instance.new("SurfaceGui")
-				g.Name = `Odds{board.Name}`
+				g.Name = `Odds{sign.Name}`
 				g.Face = Enum.NormalId.Front
 				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-				g.PixelsPerStud = KIOSK_PIXELS_PER_STUD
+				g.PixelsPerStud = pps
 				g.LightInfluence = 0 -- readable in shade
-				g.Adornee = board
+				g.Adornee = sign
 				local holder = Instance.new("Frame")
 				holder.Name = "Holder"
 				holder.Size = UDim2.fromScale(1, 1)
 				holder.BackgroundTransparency = 1
-				local pad = Instance.new("UIPadding")
-				pad.PaddingLeft = UDim.new(0, 12)
-				pad.PaddingRight = UDim.new(0, 12)
-				pad.PaddingTop = UDim.new(0, 3)
-				pad.Parent = holder
-				local grid = Instance.new("UIGridLayout")
-				grid.FillDirection = Enum.FillDirection.Vertical
-				grid.FillDirectionMaxCells = KIOSK_LINES
-				grid.SortOrder = Enum.SortOrder.LayoutOrder
-				grid.CellSize = UDim2.new(0.5, -10, 0, OddsView.KIOSK_LINE)
-				grid.CellPadding = UDim2.fromOffset(20, 2)
-				grid.Parent = holder
 				holder.Parent = g
 				g.Parent = ctx.player:WaitForChild("PlayerGui")
-				boardGuis[board] = g
-				boardGui = g
+				signGuis[sign] = g
+				signGui = g
 				sg = g
 			end
 			local holder = (sg :: SurfaceGui):FindFirstChild("Holder") :: Frame
-			local side = tonumber(string.match(board.Name, "%d+")) or 1
-			OddsView.render(holder, ids[(side - 1) % #ids + 1], true)
+			OddsView.renderSign(
+				holder,
+				ids[(signPage - 1) % #ids + 1],
+				Vector2.new(sign.Size.X, sign.Size.Y) * pps
+			)
 		end
 	end
+
+	task.spawn(function()
+		while true do
+			task.wait(ctx.config.economy.conveyor.signSeconds)
+			signPage += 1
+			if signGui then
+				renderBoard()
+			end
+		end
+	end)
 
 	local function renderCard()
 		if cardEgg then
@@ -290,7 +303,7 @@ function Hud.start(ctx: Context.Context)
 					else `Uncollected: {Layout.shortNumber(pile)}`
 			end
 			updateBanner()
-			if boardGui == nil then
+			if signGui == nil then
 				renderBoard()
 			end
 			task.wait(0.2)

@@ -2,8 +2,9 @@
 -- The farm hub's layout (config/atmosphere.luau scenery.hub) must fit the
 -- map: every piece is a real WorldArt prop, sits between the Egg Market and
 -- the bases, keeps off the paths to the bases and the shop's plot, and
--- overlaps no other piece, lamp or signpost. Footprints come from each
+-- overlaps no other piece, lamp, signpost or market odds sign. Footprints come from each
 -- prop's size, turned to face the centre as the game places them.
+local Geometry = require("../src/shared/Geometry")
 local WorldArt = require("../src/shared/WorldArt")
 local atmosphere = require("../config/atmosphere")
 local shophouse = require("../config/shophouse")
@@ -120,6 +121,24 @@ local function streetProps(): { Rect }
 	return out
 end
 
+-- The Egg Market's odds sign beside each stop (Geometry.marketSign), with
+-- its legs behind the face.
+local function marketSigns(): { Rect }
+	local sign = Geometry.MARKET_SIGN
+	local out = {}
+	for index = 1, Geometry.PLOTS do
+		local cx, cz, fx, fz, ax, az = Geometry.marketSign(index)
+		local w = sign.width / 2 + sign.frame
+		-- 0.15 in front of the face's centre to `depth` behind it.
+		local corners = {}
+		for _, k in { { -1, 0.15 }, { 1, 0.15 }, { 1, 0.15 - sign.depth }, { -1, 0.15 - sign.depth } } do
+			table.insert(corners, { cx + ax * k[1] * w + fx * k[2], cz + az * k[1] * w + fz * k[2] })
+		end
+		table.insert(out, { name = `market sign {index}`, corners = corners })
+	end
+	return out
+end
+
 describe("Farm hub layout", function()
 	it("names real hub props", function()
 		local ids = { hub.arch.id, hub.lamps.id, hub.signposts.id }
@@ -171,6 +190,9 @@ describe("Farm hub layout", function()
 		for _, r in streetProps() do
 			table.insert(others, r)
 		end
+		for _, r in marketSigns() do
+			table.insert(others, r)
+		end
 		for _, r in others do
 			expect(overlaps(shop, r) and `{r.name} is on the shop` or r.name).toBe(r.name)
 		end
@@ -179,6 +201,9 @@ describe("Farm hub layout", function()
 	it("overlaps nothing else", function()
 		local all = pieces()
 		for _, r in streetProps() do
+			table.insert(all, r)
+		end
+		for _, r in marketSigns() do
 			table.insert(all, r)
 		end
 		local arch = WorldArt.props[hub.arch.id]
@@ -193,6 +218,28 @@ describe("Farm hub layout", function()
 				local hit = overlaps(a, b)
 				expect(hit and `{a.name} overlaps {b.name}` or "clear").toBe("clear")
 			end
+		end
+	end)
+
+	it("stands each market odds sign low, off the belt and the path, facing the path", function()
+		local sign = Geometry.MARKET_SIGN
+		expect(sign.bottom + sign.height + sign.frame <= 5).toBe(true)
+		local beltEdge = 27.5 + 3.2 / 2 -- Layout.MARKET_LANES[2] + MARKET_WIDTH / 2
+		for index, r in marketSigns() do
+			for _, v in r.corners do
+				local d = math.sqrt(v[1] * v[1] + v[2] * v[2])
+				expect(d >= beltEdge + 0.5 and r.name or `{r.name} reaches r{d}, onto the belt`).toBe(r.name)
+			end
+			local clear = pathClearance(r)
+			expect(clear >= hub.pathWidth / 2 and r.name or `{r.name} is {clear} studs from a path's centre`).toBe(
+				r.name
+			)
+			-- Its face looks out, turned toward its stop's path.
+			local a = (index - 1) / Geometry.PLOTS * 2 * math.pi
+			local _, _, fx, fz = Geometry.marketSign(index)
+			local outward = fx * math.cos(a) + fz * math.sin(a)
+			local toPath = -(fx * -math.sin(a) + fz * math.cos(a))
+			expect(outward > 0.9 and toPath > 0.2).toBe(true)
 		end
 	end)
 end)

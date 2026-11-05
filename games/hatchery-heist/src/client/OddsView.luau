@@ -77,11 +77,8 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels: 22 on the odds card, KIOSK_LINE on the odds boards.
+-- Row height in pixels on the odds card.
 local rowHeight = 22
-
--- A line on the Egg Market's odds boards (20 pixels a stud: 1.2 studs).
-OddsView.KIOSK_LINE = 24
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
 	local frame = Instance.new("Frame")
@@ -121,11 +118,6 @@ local function sameTextSize(container: GuiObject)
 	local pad = container:FindFirstChildOfClass("UIPadding")
 	if pad then
 		width -= pad.PaddingLeft.Offset + pad.PaddingRight.Offset
-	end
-	-- In a grid (the odds boards) a line is one cell wide, not the whole width.
-	local first = container:FindFirstChild("Row0")
-	if container:FindFirstChildOfClass("UIGridLayout") and first and first:IsA("GuiObject") then
-		width = first.AbsoluteSize.X
 	end
 	local labelWidth = width / 2 - 2
 	if labelWidth <= 0 then
@@ -185,15 +177,11 @@ function OddsView.tiers(display: any): { { rarity: string, weight: number, perce
 	return out
 end
 
--- Fills `container` (with a UIListLayout, or a UIGridLayout on the odds
--- boards) with one egg's odds.
--- `compact` is the Egg Market's odds boards: names without the rarity word (the
--- colour says it) and the exact percentage only. The card beside the Buy
--- prompt always shows the full rows.
-local function fill(container: GuiObject, eggId: string, compact: boolean?)
-	rowHeight = if compact then OddsView.KIOSK_LINE else 22
+-- Fills `container` (which should have a UIListLayout) with one egg's odds:
+-- the card beside the Buy prompt.
+local function fill(container: GuiObject, eggId: string)
 	for _, child in container:GetChildren() do
-		if not child:IsA("UIGridStyleLayout") and not child:IsA("UIPadding") then
+		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
 			child:Destroy()
 		end
 	end
@@ -248,34 +236,137 @@ local function fill(container: GuiObject, eggId: string, compact: boolean?)
 			container,
 			i + 1,
 			tier.rarity,
-			if compact then tier.percent else `{tier.percent} · {tier.oneIn}`,
+			`{tier.percent} · {tier.oneIn}`,
 			Layout.rarityColor(tier.rarity),
 			false
 		)
 	end
-	if not compact then
-		local button = Instance.new("TextButton")
-		button.Name = "SeeEvery"
-		button.LayoutOrder = 100
-		button.Size = UDim2.new(1, 0, 0, 30)
-		button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
-		button.Font = FONT
-		button.TextSize = 15
-		button.TextColor3 = Color3.new(1, 1, 1)
-		button.Text = "See every creature"
-		local c = Instance.new("UICorner")
-		c.CornerRadius = UDim.new(0, 8)
-		c.Parent = button
-		button.Activated:Connect(function()
-			OddsView.openList(eggId)
-		end)
-		button.Parent = container
-	end
+	local button = Instance.new("TextButton")
+	button.Name = "SeeEvery"
+	button.LayoutOrder = 100
+	button.Size = UDim2.new(1, 0, 0, 30)
+	button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
+	button.Font = FONT
+	button.TextSize = 15
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Text = "See every creature"
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 8)
+	c.Parent = button
+	button.Activated:Connect(function()
+		OddsView.openList(eggId)
+	end)
+	button.Parent = container
 end
 
-function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
-	fill(container, eggId, compact)
+function OddsView.render(container: GuiObject, eggId: string)
+	fill(container, eggId)
 	sameTextSize(container)
+end
+
+-- The odds sign beside each Egg Market stop: one egg's name and, for each
+-- tier it can hatch, its exact "1 in N". Nothing else: the odds card beside
+-- the Buy prompt has the full detail. `size` is the sign's face in pixels;
+-- every line gets one text size, the largest that fits. A player under the
+-- fixed-order rule sees that instead of chances.
+OddsView.SIGN_PIXELS_PER_STUD = 40
+
+local function signLabel(
+	parent: Instance,
+	text: string,
+	x: number,
+	y: number,
+	w: number,
+	h: number
+): TextLabel
+	local l = Instance.new("TextLabel")
+	l.BackgroundTransparency = 1
+	l.Position = UDim2.fromOffset(x, y)
+	l.Size = UDim2.fromOffset(w, h)
+	l.Font = Enum.Font.GothamBold
+	l.TextColor3 = Color3.new(1, 1, 1)
+	l.TextStrokeTransparency = 0.4
+	l.Text = text
+	l.Parent = parent
+	return l
+end
+
+function OddsView.renderSign(container: GuiObject, eggId: string, size: Vector2)
+	container:ClearAllChildren()
+	local egg = Hatchery.eggById(ctx.config.eggs, eggId)
+	if egg == nil then
+		return
+	end
+	local lines: { { left: string, right: string, color: Color3 } } = {}
+	if ctx.restricted() then
+		local grey = Color3.fromRGB(220, 220, 220)
+		table.insert(lines, { left = "Set order,", right = "", color = grey })
+		table.insert(lines, { left = "no chance:", right = "", color = grey })
+		table.insert(lines, { left = "tap an egg", right = "", color = grey })
+	else
+		local display = displays[eggId]
+		for _, rarity in Eggs.RARITIES do
+			if egg.tiers and egg.tiers[rarity] then
+				local text = "..."
+				if display then
+					text = "-"
+					for _, tier in OddsView.tiers(display) do
+						if tier.rarity == rarity then
+							text = tier.oneIn
+						end
+					end
+				end
+				table.insert(lines, { left = rarity, right = text, color = Layout.rarityColor(rarity) })
+			end
+		end
+	end
+
+	local margin = 8
+	local width = size.X - 2 * margin
+	local line = math.floor((size.Y - 2 * margin) / (#lines + 1))
+	local half = width / 2
+	local cells: { { label: TextLabel, width: number } } = {}
+	local function cell(
+		text: string,
+		x: number,
+		y: number,
+		w: number,
+		color: Color3,
+		align: Enum.TextXAlignment
+	)
+		local l = signLabel(container, text, margin + x, margin + y, w, line)
+		l.TextColor3 = color
+		l.TextXAlignment = align
+		table.insert(cells, { label = l, width = w - 4 })
+	end
+	cell(Layout.displayName(egg.id), 0, 0, width, Color3.fromRGB(255, 210, 63), Enum.TextXAlignment.Center)
+	for i, entry in lines do
+		if entry.right == "" then
+			cell(entry.left, 0, i * line, width, entry.color, Enum.TextXAlignment.Center)
+		else
+			cell(entry.left, 0, i * line, half, entry.color, Enum.TextXAlignment.Left)
+			cell(entry.right, half, i * line, half, entry.color, Enum.TextXAlignment.Right)
+		end
+	end
+
+	local textSize = line - 2
+	local bounds = Vector2.new(10000, 10000)
+	while textSize > 8 do
+		local fits = true
+		for _, c in cells do
+			if TextService:GetTextSize(c.label.Text, textSize, c.label.Font, bounds).X > c.width then
+				fits = false
+				break
+			end
+		end
+		if fits then
+			break
+		end
+		textSize -= 1
+	end
+	for _, c in cells do
+		c.label.TextSize = textSize
+	end
 end
 
 local function corner(parent: Instance, radius: number)

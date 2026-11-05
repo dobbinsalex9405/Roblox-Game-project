@@ -137,20 +137,22 @@ return {
 			lamps = { id = "LampPost", radii = { 41 }, side = 6.5 },
 			-- A signpost at the market end of every path (left side).
 			signposts = { id = "Signpost", radius = 35, side = 7.5 },
+			-- The pieces nearest the market stand back from it (r39 and up)
+			-- so the odds sign beside each stop (Layout.marketSign) has room.
 			pieces = {
 				-- 67.5: the Hatchery Barn, the hub's landmark, and the Book stand
-				{ id = "BookStand", angle = 67.5, radius = 37 },
+				{ id = "BookStand", angle = 67.5, radius = 41 },
 				{ id = "HatcheryBarn", angle = 67.5, radius = 56 },
 				-- 112.5: the Theme Stand by the market, two market stalls behind
-				{ id = "ThemeStand", angle = 112.5, radius = 37 },
+				{ id = "ThemeStand", angle = 112.5, radius = 41 },
 				{ id = "StallRed", angle = 106, radius = 54 },
 				{ id = "StallBlue", angle = 119, radius = 54 },
 				-- 157.5: the Daily Rewards mailbox, the well and the windmill
-				{ id = "Mailbox", angle = 157.5, radius = 35 },
+				{ id = "Mailbox", angle = 157.5, radius = 39 },
 				{ id = "Well", angle = 149, radius = 44 },
 				{ id = "Windmill", angle = 157.5, radius = 57 },
 				-- 202.5: the notice board, the hen house, the egg cart and the silo
-				{ id = "NoticeBoard", angle = 202.5, radius = 35 },
+				{ id = "NoticeBoard", angle = 202.5, radius = 39 },
 				{ id = "EggCart", angle = 194, radius = 45 },
 				{ id = "ChickenCoop", angle = 211, radius = 46 },
 				{ id = "Silo", angle = 202.5, radius = 60 },

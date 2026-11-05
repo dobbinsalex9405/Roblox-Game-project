@@ -108,10 +108,22 @@ end
 
 -- The point of the market's outer edge that faces base `index`: where the
 -- guide's arrow leads a new player.
+local function stopRadius(): number
+	return Layout.MARKET_LANES[#Layout.MARKET_LANES] + Layout.MARKET_WIDTH / 2 + 1.5
+end
+
 function Layout.marketStop(index: number): Vector3
 	local angle = (index - 1) / Layout.PLOTS * 2 * math.pi
-	local radius = Layout.MARKET_LANES[#Layout.MARKET_LANES] + Layout.MARKET_WIDTH / 2 + 1.5
-	return Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius + Vector3.new(0, 1.5, 0)
+	return Vector3.new(math.cos(angle), 0, math.sin(angle)) * stopRadius() + Vector3.new(0, 1.5, 0)
+end
+
+-- The odds sign at each market stop (Geometry.MARKET_SIGN): its face, whose
+-- front (-Z) is the side with the odds.
+function Layout.marketSign(index: number): CFrame
+	local sign = Geometry.MARKET_SIGN
+	local cx, cz, fx, fz = Geometry.marketSign(index)
+	local centre = Vector3.new(cx, sign.bottom + sign.height / 2, cz)
+	return CFrame.lookAt(centre, centre + Vector3.new(fx, 0, fz))
 end
 
 -- The seven tiers, lowest first, and the studio's rarity colours (the voxel

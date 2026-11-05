@@ -19,9 +19,8 @@
   round belt in the middle of the map carries eggs for everyone, on two
   lanes turning opposite ways, each egg on its own pedestal. Whoever buys an
   egg first gets it. Moonlit Eggs come along three times as often (the mix
-  is now 55% Basic, 30% Meadow, 15% Moonlit), and the odds are on
-  eye-level boards round the Golden Nest, one egg a board in big type you
-  can read from the path.
+  is now 55% Basic, 30% Meadow, 15% Moonlit), and a small sign beside
+  each stop shows each egg's chances in turn, tier by tier, as "1 in N".
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),

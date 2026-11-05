@@ -33,6 +33,9 @@ return {
 		-- How far from an egg (studs, flat) the server still sells it: the Buy
 		-- prompt's 10 plus how far an egg rides in the latency allowance.
 		buyReach = 20,
+		-- The odds sign beside each stop shows one egg at a time, the next
+		-- every this many seconds (cheapest first), so its type stays big.
+		signSeconds = 4,
 		weights = { BasicEgg = 55, MeadowEgg = 30, MoonlitEgg = 15 },
 	},
 

@@ -52,6 +52,7 @@ return function(Schema: any, Odds: any)
 			travelSeconds = Schema.number({ min = 2, max = 120 }),
 			lanes = Schema.integer({ min = 1, max = 2 }),
 			buyReach = Schema.number({ min = 10, max = 60 }),
+			signSeconds = Schema.number({ min = 1, max = 30 }),
 			weights = Schema.map(id, Schema.integer({ min = 1 })),
 		}),
 		tower = Schema.record({
