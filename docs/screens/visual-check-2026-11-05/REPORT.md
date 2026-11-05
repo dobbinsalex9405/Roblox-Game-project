@@ -564,3 +564,22 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - Neighbours as 10-storey shells: 55.6 / 56.2 / 59.0 / 58.9 / 56.5 (median 56.5).
   - Neighbour shells dropped back to 1 storey: 57.1 / 58.6 / 58.9 / 58.9 / 55.8 (median 58.6).
   - So full neighbour shells cost about 2 fps. Client memory: 1,263 MB.
+
+## #114 + #115 @ 82ccd64 (Book viewports near screen, virtualization)
+
+**PASS, with one note.**
+- **Phone 844x392:** Common tab, 6 columns, 0/30. Silhouettes are dark, "???", egg name and "1 in N" are correct (`115-hh-book-common-phone.jpg`).
+- **Scrolling:** a scripted scroll top-to-bottom in 60 px steps and back up in 90 px steps, one frame each, found every visible card with its text and a ViewportFrame holding its model. No blank or stale cards.
+- **Tabs:** Godly → Rare → Common and back gives the same canvas and 12/12 cards complete.
+- **Desktop maximised (1350x684):** still 6 columns, no blanks, and it re-flowed after the resize.
+- **Note:**
+  - Right after a very fast scroll (4 jumps of 140 px in about 0.1 s), the row that just came into view **draws empty for well under 1 s** before the silhouettes appear (`115-hh-book-blank-row-right-after-fast-scroll.jpg`). They're filled by +1 s (`115-hh-book-filled-1s-after-scroll.jpg`).
+  - The data side is complete during that moment (models and camera already in the ViewportFrame), so this is the first render of a ViewportFrame that has just become visible. A player flicking the list will see a brief blank flash on the new row.
+- I couldn't test a 200-card tab: on this build the largest tab is Common at 30 cards.
+
+## #116 @ 36b2f56 (floor label slack)
+
+**PASS, with one note.**
+- "Floor 2: 25K coins" over the ghost floor uses TextScaled and fits. The text takes 528 of the 1034 px label width, leaving clear space at both ends (`116-hh-floor2-label-close.jpg`).
+- The label is a BillboardGui at (120, 13.8, 1.5). There's no floor plaque on an unbuilt floor, so it can't overlap one.
+- **Note:** from the yard at spawn, it sits right beside the "⭐ YOUR HATCHERY ⭐" billboard (offset 10 above the sign at 140, 4.3, 0), and the two read as one line: "★ YOUR HATCHERY ★ Floor 2: 25K coins" (`116-hh-floor2-label-spawn.jpg`). Not an overlap, but crowded.
