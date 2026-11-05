@@ -111,4 +111,53 @@ def eye_bridge(c, H, col, col2=None, a=None):
             e.put(p, WHITE)
 
 
-ACCESSORIES = {'ape_arms': ape_arms, 'puffer': puffer, 'eye_bridge': eye_bridge}
+def lion_spines(c, H, col, col2=None, a=None):
+    """A lionfish's venomous spines: the solid dorsal fin becomes a crest of
+    separate spines along the back, tallest at the front, and each side fin
+    a fan of long rays, all banded in col and col2 (red and white)."""
+    a = a or {}
+    k = H / 10.0 * 1.4
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    col2 = col2 or (255, 255, 255)
+    band = max(1, round(0.35 * k))
+
+    def ray(part, x0, y0, z0, dx, dy, dz, n):
+        for i in range(n):
+            cc = col if (i // band) % 2 == 0 else col2
+            part.put((round(x0 + dx * i), round(y0 + dy * i), round(z0 + dz * i)), cc)
+
+    dorsal = _find(c, 'dorsal')
+    if dorsal:
+        c.parts.remove(dorsal)
+    sp = c.part('dorsal', 'static')
+    top = {}
+    for (x, y, z) in body.v:
+        if x in (-1, 0):
+            top[y] = max(top.get(y, -1), z)
+    ys = sorted(top)
+    y0, y1 = ys[0] + 1, ys[-1] - 1
+    L = a.get('length', 1.0)
+    for y in range(y0, y1 + 1, 2):
+        t = (y - y0) / max(1, y1 - y0)
+        n = max(3, round((3.2 - 1.8 * t) * k * L))
+        for x in (-1, 0):
+            ray(sp, x, y, top[y] + 1, 0, 0.35, 1, n)
+    for name, sx in (('finL', -1), ('finR', 1)):
+        f = _find(c, name)
+        if not f or not f.v:
+            continue
+        xs = [p[0] for p in f.v]
+        xr = min(xs) if sx < 0 else max(xs)
+        root = [p for p in f.v if p[0] == (max(xs) if sx < 0 else min(xs))]
+        ry = sum(p[1] for p in root) / len(root)
+        rz = sum(p[2] for p in root) / len(root)
+        rx = root[0][0]
+        f.v = {}
+        n = max(4, round(2.2 * k * L))
+        for dy, dz in ((0.55, 0.15), (0.45, -0.35), (0.25, 0.6)):
+            ray(f, rx, ry, rz, sx * 0.8, dy, dz, n)
+
+
+ACCESSORIES = {'ape_arms': ape_arms, 'puffer': puffer, 'eye_bridge': eye_bridge, 'lion_spines': lion_spines}
