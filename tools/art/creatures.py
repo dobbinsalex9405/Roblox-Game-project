@@ -699,9 +699,20 @@ def P(h):
     return hexc(h)
 
 
+
+def _legacy(c, H, accs):
+    """Applies kit_legacy accessories (the strict review's signature fixes)
+    to a creature from the list below: (kind, colour, colour2, options)."""
+    import kit_legacy
+    for kind, col, col2, opts in accs:
+        kit_legacy.ACCESSORIES[kind](c, H, hexc(col), hexc(col2) if col2 else None, dict(opts, kind=kind))
+    return c
+
 ROSTER = [
     # Common
-    ('Chick', 'Common', lambda c, H: bird(c, H, P('#FFD93B'), belly=P('#FFE97A'))),
+    ('Chick', 'Common', lambda c, H: _legacy(bird(c, H, P('#FFD93B'), belly=P('#FFE97A')), H,
+                                             [('bird_beak', '#FF9418', None, {'style': 'small'}),
+                                              ('tidy2', '#000000', None, {})])),
     ('Duckling', 'Common', lambda c, H: bird(c, H, P('#FFF06A'), beak=P('#FF8C1A'), belly=P('#FFF6A8'), bill=True)),
     ('Bunny', 'Common', lambda c, H: quadruped(c, H, P('#F4F1EC'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='long', tail='short', tail_col=P('#FFFFFF'), bunny=True)),
     ('Piglet', 'Common', lambda c, H: quadruped(c, H, P('#FFB3C7'), snout=P('#FF8FB1'), ears='pointy', tail='curly', pig=True)),
@@ -709,7 +720,10 @@ ROSTER = [
     ('Hamster', 'Common', lambda c, H: quadruped(c, H, P('#F2B05E'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='round', tail='short', fluffy=True)),
     ('Frog', 'Common', lambda c, H: blob(c, H, 'frog', P('#6CCB5F'), P('#C8F2A8'))),
     ('Snail', 'Common', lambda c, H: blob(c, H, 'snail', P('#CFE8A8'), P('#E9B949'))),
-    ('Lamb', 'Common', lambda c, H: quadruped(c, H, P('#FFFDF5'), snout=P('#3A3A4A'), ears='floppy', ear_col=P('#3A3A4A'), tail='short', fluffy=True)),
+    ('Lamb', 'Common', lambda c, H: _legacy(quadruped(c, H, P('#FFFDF5'), snout=P('#3A3A4A'), ears='floppy', ear_col=P('#3A3A4A'), tail='short', fluffy=True), H,
+                                            [('wool', '#FFFDF5', '#F2EEE4', {}),
+                                             ('ears2', '#F2E8DC', '#F5C6C6', {'style': 'side', 'size': 0.75}),
+                                             ('tidy2', '#000000', None, {})])),
     ('Ladybug', 'Common', lambda c, H: blob(c, H, 'ladybug', P('#1B1B2F'), P('#FF4D5E'))),
     # Uncommon
     ('Gosling', 'Uncommon', lambda c, H: bird(c, H, P('#D8D2B0'), belly=P('#F1EBD0'), beak=P('#3A3A4A'))),
