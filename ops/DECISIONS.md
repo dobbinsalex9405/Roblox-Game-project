@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Games start without DataStores (Studio)
+
+- A built `.rbxl` opened in Studio is an unpublished place, where
+  `GetDataStore` throws. The error queue, feedback and metrics sinks opened
+  their stores unguarded while CoreServer started, so every game's server
+  died at start-up in Studio. They now open stores through
+  `Core.Stores.open`, which returns nil with one warning per store, and
+  their writers then report failure without touching a store. Live servers
+  always get their store, so nothing changes there.
+- CI boots every built game a second time with `--studio --unpublished`
+  (GetDataStore throws the Studio message), so this cannot come back. Player
+  saves are ProfileStore's own concern: it switches to its mock store.
+
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
 - `rojo build` does not write a part's `Position` into the place file, so the
