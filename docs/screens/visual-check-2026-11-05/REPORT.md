@@ -364,3 +364,11 @@ voxel-box notes are from #94, which this branch doesn't contain).
 - **First spawn: PASS.** The player joins at their own base (plot-local 0, 3.2, 24). The SpawnLocation is now at (52, 0.1, 0), off the belt, Transparency 1, with no decals. Nothing shows in the lane (`97c-hh-spawn-plate-area-phone.jpg`).
 - **Respawn: FINDING.** After the character died (killed from the server), it stayed at the plaza SpawnLocation (53, 3, 1) for 6 s and was not sent home. `CharacterAdded -> World.sendHome` is the same code as on main f82fdd9, so this is probably an existing ordering race (the teleport runs before Roblox places the character) and not caused by #97. Because the plate is now off the belt, a respawned player lands next to the Golden Egg Shop, not on the belt.
 - Output: nothing new. It shows the usual unpublished-place DataStore notes, the 203785492 notice, and voxel-box fallbacks.
+
+## #98 coin packs @ fce2140
+
+**PASS.**
+- **Zero income:** the Robux tab shows 5K / 30K / 80K / 200K Coins, each labelled "N coins right away" (`98-hh-robux-tab-zero-income.jpg`). A Test-panel buy of CoinPackSmall logged `amount=5000 balance=5200 reason=IAP:CoinPackSmall`.
+- **Income +876/s** (CrystalStag, EmberFox, FrostWolf and Dragonling given): the tab shows 263K / 1.05M / 2.36M / 5.26M Coins, each labelled "...: N minutes of what you earn now" (`98-hh-robux-tab-876ps.jpg`). The exact values would be 262,800 / 1,051,200 / 2,365,200 / 5,256,000; the shop rounds them to 3 significant figures.
+- **Grants match what the shop shows exactly:** Small `amount=263000` and Medium `amount=1050000`. The grant is the rounded amount that was displayed, not the unrounded one.
+- Output: nothing new.
