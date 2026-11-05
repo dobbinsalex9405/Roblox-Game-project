@@ -525,9 +525,9 @@ local CreatureMeshes: { [string]: Creature } = {
 	Snail = {
 		assetId = 0,
 		rarity = "Common",
-		height = 1.25,
-		size = { 0.75, 1.25, 1.625 },
-		tris = 5240,
+		height = 1.375,
+		size = { 0.75, 1.375, 1.625 },
+		tris = 5440,
 		parts = {
 			{
 				name = "body",
@@ -547,7 +547,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.72, -0.3375 },
 				meshes = {
-					{ name = "Snail_head", center = { 0, 0.75, -0.625 }, size = { 0.5175, 1.0175, 0.3925 } },
+					{
+						name = "Snail_head",
+						center = { 0, 0.8125, -0.625 },
+						size = { 0.5175, 1.1425, 0.3925 },
+					},
 				},
 			},
 			{
@@ -565,7 +569,7 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.72, -0.3375 },
 				meshes = {
-					{ name = "Snail_eyes", center = { 0, 0.5625, -0.75 }, size = { 0.5175, 0.1425, 0.1425 } },
+					{ name = "Snail_eyes", center = { 0, 1.3125, -0.75 }, size = { 0.5175, 0.1425, 0.1425 } },
 				},
 			},
 		},

@@ -474,8 +474,8 @@ def render_clip(s, co, meta, clip, frames, out_dir, fast):
     tmp = tempfile.mkdtemp(prefix='hhclip-')
     try:
         aim(co, meta, 30)
-        step = 3 if fast else 2  # 10 or 15 frames a second in the gif
-        s.render.resolution_x = s.render.resolution_y = 200 if fast else 300
+        step = 3  # 10 frames a second in the gif
+        s.render.resolution_x = s.render.resolution_y = 200 if fast else 280
         s.cycles.samples = 8 if fast else 16
         n = 0
         for f in range(1, frames + 1, step):

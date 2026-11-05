@@ -219,7 +219,15 @@ def blob(c, H, kind, col, accent, glow=None):
             head.ell((sx * 1.5 * k, -1.4 * k, 5.9 * k), (0.9 * k, 0.9 * k, 0.9 * k), col)
         eyes(c, head, max(1, round(1.0 * k)), round(5.8 * k), max(1, round(0.6 * k)))
         f = head.front(0, round(3.6 * k))
-        if f:
+        if f and getattr(c, 'detail', 1) > 1:
+            # the finer build smiles: a short mouth with its corners turned up
+            w = round(1.0 * k)
+            for x in range(-w, w):
+                corner = x in (-w, w - 1)
+                g = head.front(x, round(3.6 * k) + (1 if corner else 0))
+                if g:
+                    head.put(g, INK)
+        elif f:
             for x in range(-round(1.0 * k), round(1.0 * k)):
                 g = head.front(x, round(3.6 * k))
                 if g:
@@ -230,11 +238,22 @@ def blob(c, H, kind, col, accent, glow=None):
         shell.ell((0, 1.2 * k, 3.6 * k), (1.6 * k, 2.6 * k, 2.6 * k), accent)
         shell.paint(lambda p, cc, g: (hexc('#B9862A'), False) if int(math.hypot(p[1] - 1.2 * k, p[2] - 3.6 * k) / max(1, 0.7 * k)) % 2 == 0 else None)
         head.ell((0, -3.6 * k, 2.4 * k), (1.2 * k, 1.0 * k, 1.4 * k), col)
+        fine = getattr(c, 'detail', 1) > 1
         for sx in (-1, 1):
             x = round(sx * 0.7 * k) - (1 if sx < 0 else 0)
             head.box((x, round(-3.8 * k), round(3.6 * k)), (x, round(-3.8 * k), round(5.0 * k)), col)
-            head.put((x, round(-3.8 * k), round(5.0 * k) + 1), INK)
-        eyes(c, head, max(1, round(0.4 * k)), round(2.6 * k), 1)
+            if fine:
+                # the finer build has its eyes on the stalks: white eyeballs
+                # with ink pupils that blink, and a blush on its cheeks
+                y, z = round(-3.8 * k), round(5.0 * k) + 1
+                head.box((x, y, z), (x, y + 1, z + 1), WHITE)
+                c.part('eyes', 'blink', head.pivot).put((x, y - 1, z + 1), INK)
+            else:
+                head.put((x, round(-3.8 * k), round(5.0 * k) + 1), INK)
+        if fine:
+            blush(head, round(0.8 * k), round(2.2 * k))
+        else:
+            eyes(c, head, max(1, round(0.4 * k)), round(2.6 * k), 1)
     elif kind == 'ladybug':
         body.ell((0, 0.4 * k, 1.8 * k), (2.8 * k, 3.2 * k, 1.9 * k), accent)
         body.paint(lambda p, cc, g: (INK, False) if (abs(p[0] + .5) < 0.6 or ((p[0] * 3 + p[1] * 5) % 7 == 0 and p[2] > 1.8 * k)) else None)
