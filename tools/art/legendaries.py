@@ -1162,24 +1162,102 @@ def lotus_koi(c, H):
 
 
 def mantis_queen(c, H):
-    import kit_pond
-    kit_pond.critter(c, H, 'mantis', P('#FFC8E0'), P('#FF8FBF'), P('#FFE6F2'))
+    """An orchid mantis queen: a wide petal-pink abdomen low behind, a slim
+    thorax rising to a triangular head with big bulging side eyes, the two
+    raptorial forelegs folded up in front (the praying pose), four walking
+    legs with petal lobes, and the crown of crystal petals."""
+    import rig
+    from voxkit import Part
     k = H / 10.0
-    # orchid petals on the legs and a crown of petals
-    for p in c.parts:
-        if p.name.startswith('leg'):
-            p.paint(lambda q, cc, g: (P('#FFE6F2'), False) if q[2] % 2 == 0 else None)
-    head = c.part('head')
-    (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
-    cr = c.part('crown', 'glow', ((x0 + x1) / 2, (y0 + y1) / 2, z1))
-    cx, cy = (x0 + x1 + 1) / 2 - 0.5, (y0 + y1) / 2
-    t = top_of(head, math.floor(cx), math.floor(cy)) or z1
-    cr.ell((cx, cy, t + 0.5), (0.85 * k, 0.85 * k, 0.6), GOLD, True)
-    cr.ell((cx, cy, t + 1.5), (0.75 * k, 0.75 * k, 0.6), GOLD_D, False)
+    pink, petal, rim, deep = P('#FFC8E0'), P('#FFE6F2'), P('#FF8FBF'), P('#E86AA8')
+    body = c.part('body')
+    # abdomen: wide and low, tipped up at the back, banded
+    for i in range(13):
+        s2 = i / 12
+        y = 0.4 * k + s2 * 3.4 * k
+        z = 2.6 * k + s2 * 0.9 * k
+        r = (0.75 + 0.75 * math.sin(min(1.0, s2 * 1.25) * math.pi * 0.9)) * k
+        body.ell((0, y, z), (r * 1.05, 0.7 * k, r * 0.62), pink)
+    body.paint(lambda q, cc, g: (rim, False) if cc == pink and q[1] > 0.9 * k and (q[1] % max(2, round(0.7 * k))) == 0 else None)
+    # petal lobes on the abdomen's sides, as the orchid mantis has
+    for side in (1, -1):
+        for (y, z) in ((1.6 * k, 3.0 * k), (2.8 * k, 3.4 * k)):
+            body.ell((side * 1.35 * k - (0.5 if side < 0 else 0), y, z), (0.55 * k, 0.75 * k, 0.28 * k), petal)
+    # the slim thorax rising up and forward
+    rod(body, (0, 0.6 * k, 2.8 * k), (0, -0.9 * k, 5.7 * k), 0.55 * k, pink)
+    body.ell((0, 0.3 * k, 3.0 * k), (0.8 * k, 0.9 * k, 0.75 * k), pink)
+    # the raptorial forelegs, folded up in front of the chest: coxa down,
+    # femur back up with spines, tibia folded down against it
+    arms = Part('arms')
+    sh = (0.55 * k, -1.0 * k, 5.0 * k)
+    knee = (0.75 * k, -2.1 * k, 4.1 * k)
+    wrist = (0.75 * k, -2.7 * k, 5.9 * k)
+    claw = (0.7 * k, -2.25 * k, 4.6 * k)
+    rod(arms, sh, knee, 0.24 * k, pink)
+    rod(arms, knee, wrist, 0.3 * k, deep)  # the big raptorial femur
+    rod(arms, wrist, claw, 0.7, rim)
+    for t in (0.3, 0.55, 0.8):  # spines along the femur
+        p0 = tuple(knee[j] + (wrist[j] - knee[j]) * t for j in range(3))
+        arms.put((math.floor(p0[0]), math.floor(p0[1]) + 2, math.floor(p0[2])), petal)
+    for (x, y, z), v in arms.v.items():
+        body.v[(x, y, z)] = v
+        body.v[(-1 - x, y, z)] = v
+    # four thin walking legs splayed wide, knees high, a petal lobe on each thigh
+    for i, ly in enumerate((0.1 * k, 1.4 * k)):
+        tmp = Part('tmp')
+        hip = (0.6 * k, ly, 2.7 * k)
+        knee2 = (2.1 * k, ly + (-0.5 if i == 0 else 0.6) * k, 3.9 * k)
+        foot = (3.3 * k, ly + (-1.4 if i == 0 else 1.6) * k, 0.4)
+        rod(tmp, hip, knee2, 0.75, pink)
+        rod(tmp, knee2, foot, 0.7, rim)
+        tmp.ell(tuple(hip[j] + (knee2[j] - hip[j]) * 0.55 for j in range(3)), (0.5 * k, 0.4 * k, 0.6), petal)
+        for side in ('R', 'L'):
+            sx = 1 if side == 'R' else -1
+            lp = rig.leg_part(c, side, i, 2, (sx * hip[0], hip[1], hip[2] + 1))
+            for (x, y, z), v in tmp.v.items():
+                lp.v[(x if sx > 0 else -1 - x, y, z)] = v
+    # the triangular head: wide at the top, coming to a point at the mouth
+    head = c.part('head', 'head', (0, -1.0 * k, 5.7 * k))
+    hz0, hz1 = 5.6 * k, 7.3 * k
+    for z in range(round(hz0), round(hz1) + 1):
+        t = (z - hz0) / (hz1 - hz0)
+        w = 0.35 * k + 1.0 * k * t
+        head.ell((0, -1.3 * k, z + .5), (w, 0.55 * k, 0.5), pink)
+    f = head.front(0, round(hz0) + 1)
+    if f:
+        head.put((f[0], f[1] - 1, f[2]), deep)
+        head.put((-1 - f[0], f[1] - 1, f[2]), deep)
+    # big bulging eyes on the head's top corners, each with a glint
+    eyes = c.part('eyes', 'blink', head.pivot)
+    er = 0.58 * k
+    for side in (1, -1):
+        ex = side * 1.3 * k - (0.5 if side < 0 else 0)
+        tmp = Part('e')
+        tmp.ell((1.3 * k, -1.35 * k, hz1 - 0.2 * k), (er, er, er), P('#B0207A'))
+        for (x, y, z), v in tmp.v.items():
+            xx = x if side > 0 else -1 - x
+            eyes.put((xx, y, z), v[0])
+        gx = math.floor(1.3 * k) if side > 0 else -1 - math.floor(1.3 * k)
+        gf = min((q for q in eyes.v if q[0] == gx and q[2] == math.floor(hz1)), key=lambda q: q[1], default=None)
+        if gf:
+            eyes.put(gf, WHITE)
+    # antennae
+    for side in (1, -1):
+        pts = curve((0.3 * k, -1.6 * k, hz1), (1.1 * k, -2.6 * k, hz1 + 1.6 * k), 8, (0, 0, 0.4 * k))
+        for (x, y, z) in pts:
+            xx = math.floor(x) if side > 0 else -1 - math.floor(x)
+            head.put((xx, math.floor(y), math.floor(z)), rim)
+    # the crown of crystal petals
+    cr = c.part('crown', 'glow', (0, -1.3 * k, hz1))
+    cx, cy = 0.0, -1.3 * k
+    t = top_of(head, 0, math.floor(cy)) or round(hz1)
+    cr.ell((cx, cy, t + 0.5), (0.85 * k, 0.6 * k, 0.6), GOLD, True)
+    cr.ell((cx, cy, t + 1.5), (0.75 * k, 0.5 * k, 0.6), GOLD_D, False)
     for a in range(6):
         ang = a / 6 * math.pi * 2
-        crystal(cr, cx + math.cos(ang) * 0.6 * k, cy + math.sin(ang) * 0.6 * k, t + 2, 1.6 * k, 0.4 * k, P('#FF3D9A'), P('#FFD0EA'),
-                lean=(math.cos(ang) * 0.35, math.sin(ang) * 0.35))
+        crystal(cr, cx + math.cos(ang) * 0.6 * k, cy + math.sin(ang) * 0.4 * k, t + 2, 1.1 * k, 0.36 * k, P('#FF3D9A'), P('#FF7AC8'),
+                lean=(math.cos(ang) * 0.35, math.sin(ang) * 0.25))
+    c.gait_hint = 'trot'
     return c
 
 
@@ -1281,20 +1359,144 @@ def storm_ram(c, H):
     return c
 
 
+def raptor_wing(c, k, root, length, cols, tip, edge, fingers=5):
+    """A broad raptor wing pair held half-spread: the leading edge runs out
+    and a little back, rising then levelling; long feathers hang from it,
+    and the primaries at the end split into fingers with jagged glowing
+    tips. Right wing drawn, left wing its mirror (so the rig sees a pair)."""
+    rx, ry, rz = root
+    L = round(length * k)
+    w = c.part('wingR', 'wingR', (rx, ry, rz))
+    for i in range(L):
+        t = i / max(1, L - 1)
+        x = round(rx) + i
+        y = round(ry + t * 1.0 * k)
+        top = rz + round(1.3 * k * math.sin(min(1.0, t * 1.6) * math.pi * 0.5) - max(0.0, t - 0.6) * 0.8 * k)
+        prim = t > 0.62
+        if prim:  # fingered primaries: long feather, a gap, long feather
+            slot = (i - round(0.62 * (L - 1))) % 3
+            flen = round((2.7 - 0.5 * (t - 0.62) / 0.38) * k) if slot != 2 else round(0.5 * k)
+        else:
+            flen = round((1.4 + 1.2 * math.sin(t / 0.62 * math.pi * 0.5)) * k)
+            if i % 2:
+                flen -= max(1, round(0.3 * k))  # toothed feather ends
+        for dz in range(max(2, flen)):
+            d = dz / max(1, flen - 1)
+            if dz == 0:
+                col, g = edge, False
+            elif prim and d > 0.72 and flen > round(1.0 * k):
+                col, g = tip, True
+            elif i % 3 == 0 and dz > 1:
+                col, g = cols[0], False  # a darker line between feathers
+            elif d > 0.78:
+                col, g = cols[2], False
+            elif d > 0.4 or t > 0.45:
+                col, g = cols[1], False
+            else:
+                col, g = cols[0], False
+            for dy in range(2):
+                w.put((x, y + dy, top - dz), col, g)
+        if prim and flen > round(1.5 * k):  # a jagged notch in each lightning tip
+            w.put((x, y, top - flen), tip, True)
+    wl = c.part('wingL', 'wingL', (-rx, ry, rz))
+    wl.v = {(-1 - x, y, z): v for (x, y, z), v in w.v.items()}
+
+
 def tempest_eagle(c, H):
-    k, lift = grand_bird(c, H, P('#5A4A8A'), P('#E8ECF8'), P('#FFC21A'), P('#4A3A7A'),
-                         (P('#4A3A7A'), P('#6A5AAA'), P('#9AB8FF')), BOLT_HOT, crest=P('#E8ECF8'), feet=P('#FFC21A'),
-                         big_eyes=False, edge=BOLT)
-    head = c.part('head')
-    head.paint(lambda p, cc, g: (WHITE, False) if cc == P('#5A4A8A') else None)  # a white eagle head
-    # lightning feathers on the wings
-    for name in ('wingL', 'wingR'):
-        w = c.part(name)
-        w.paint(lambda p, cc, g: (BOLT, True) if not g and (abs(p[0] + .5) + p[2] * 0.5) % round(2.0 * k) < 1 else None)
+    """A storm eagle in a raptor's pose: the body angled forward over
+    yellow taloned legs, a white head with a heavy brow and a hooked gold
+    beak, broad half-spread wings (each longer than the body) whose
+    primaries end in jagged lightning-yellow tips, a fanned tail, and the
+    wind ring about it."""
+    import rig
+    from voxkit import Part
+    k = H / 10.0
+    plum, plumD, plumL, chest = P('#4A3A7A'), P('#33275A'), P('#7A6AB8'), P('#E8ECF8')
+    BOLTY = P('#FFD400')
+    lift = 0
+    # legs: feathered thighs, yellow shanks, dark talons
+    for side in ('R', 'L'):
+        sx = 1 if side == 'R' else -1
+        tmp = Part('tmp')
+        hx, hy, hz = 0.75 * k, 0.4 * k, 2.6 * k
+        tmp.ell((hx, hy, hz - 0.2 * k), (0.55 * k, 0.6 * k, 0.6 * k), plum)
+        rod(tmp, (hx, hy - 0.1 * k, hz - 0.6 * k), (hx, hy - 0.2 * k, 0.6 * k), 0.26 * k, P('#FFC21A'))
+        for dx, dy in ((0, -1), (0.6, -0.8), (-0.6, -0.8), (0, 0.7)):
+            rod(tmp, (hx, hy - 0.2 * k, 0.5), (hx + dx * 0.55 * k, hy - 0.2 * k + dy * 0.6 * k, 0.5), 0.6, P('#2A2238'))
+        lp = rig.leg_part(c, side, 0, 1, (sx * hx, hy, hz + 1))
+        for (x, y, z), v in tmp.v.items():
+            lp.v[(x if sx > 0 else -1 - x, y, z)] = v
+    # the body: angled forward, deep chest in front, tapering to the tail
+    body = c.part('body')
+    for i in range(15):
+        s2 = i / 14
+        y = -1.2 * k + s2 * 3.2 * k
+        z = 5.0 * k - s2 * 1.5 * k
+        r = (1.45 - 0.75 * s2 ** 1.4) * k
+        body.ell((0, y, z), (r, r * 0.95, r * 0.9), plum)
+    body.paint(lambda q, cc, g: (chest, False) if q[1] < -0.9 * k and abs(q[0] + .5) < 1.0 * k and q[2] < 5.4 * k else None)
+    body.paint(lambda q, cc, g: (plumL, False) if cc == chest and q[2] % 3 == 0 else None)
+    body.paint(lambda q, cc, g: (plumD, False) if cc == plum and q[2] < 3.6 * k else None)
+    # the tail fan: white with a storm-blue bar and a glowing yellow edge
+    tail = c.part('tail', 'tail', (0, 1.8 * k, 3.4 * k))
+    for i in range(round(1.9 * k)):
+        s2 = i / max(1, round(1.9 * k) - 1)
+        half = 0.45 * k + s2 * 0.8 * k
+        for x in range(-math.ceil(half), math.ceil(half)):
+            if abs(x + .5) > half:
+                continue
+            col, g = (chest, False) if s2 < 0.6 else (plumL, False) if s2 < 0.8 else (BOLTY, True)
+            for dz in range(2):
+                tail.put((x, round(1.8 * k + i), round(3.3 * k - s2 * 1.2 * k) + dz), col, g)
+    # the head: white, a heavy brow, a hooked gold beak, fierce amber eyes
+    head = c.part('head', 'head', (0, -1.7 * k, 5.7 * k))
+    hy, hz = -2.35 * k, 6.4 * k
+    head.ell((0, hy, hz), (1.05 * k, 1.15 * k, 1.0 * k), WHITE)
+    head.ell((0, hy + 0.6 * k, hz - 0.7 * k), (1.0 * k, 0.9 * k, 0.8 * k), WHITE)
+    f = head.front(0, round(hz - 0.1 * k))
+    bk = Part('bk')
+    by0 = f[1] if f else round(hy - 1.0 * k)
+    for i in range(round(1.0 * k)):  # out from the face, then hooking down
+        w2 = max(1, round(0.4 * k * (1 - i / (1.4 * k))))
+        for x in range(-w2, w2):
+            for dz in range(-1, 1 if i < 0.6 * k else 0):
+                bk.put((x, by0 - 1 - i, round(hz - 0.1 * k) + dz), GOLD)
+    tipy = by0 - round(1.0 * k)
+    for dz in range(round(0.6 * k)):
+        bk.put((-1, tipy, round(hz - 0.1 * k) - 1 - dz), GOLD_D)
+        bk.put((0, tipy, round(hz - 0.1 * k) - 1 - dz), GOLD_D)
+    for q, v in bk.v.items():
+        head.v[q] = v
+    eyes = c.part('eyes', 'blink', head.pivot)
+    ez = round(hz + 0.1 * k)
+    for side in (1, -1):
+        for dx in range(2):
+            x = round(0.45 * k) + dx if side > 0 else -(round(0.45 * k) + dx) - 1
+            for dz in range(2):
+                f2 = head.front(x, ez + dz)
+                if f2:
+                    del head.v[f2]
+                    pupil = dx == 0 and dz == 0
+                    eyes.put(f2, INK if pupil else P('#FFA010'), not pupil)
+        # the brow: a dark ledge over the eye, lower toward the beak (the glare)
+        for dx in range(-1, 3):
+            x = round(0.45 * k) + dx if side > 0 else -(round(0.45 * k) + dx) - 1
+            zz = ez + 2 + (1 if dx >= 2 else 0)
+            f3 = head.front(x, zz)
+            if f3:
+                head.put((f3[0], f3[1] - 1, f3[2]), plumD)
+                head.put(f3, plumD)
+    # a lightning crest swept back from the crown
+    cr = c.part('crest', 'glow', head.pivot)
+    t0 = top_of(head, 0, round(hy)) or round(hz + 1.0 * k)
+    bolt(cr, (-0.5, hy + 0.1 * k, t0), (-0.5, hy + 1.7 * k, t0 + 1.2 * k), BOLTY, zig=0.9, r=0.6)
+    # broad half-spread wings, each longer than the body
+    raptor_wing(c, k, (1.1 * k, -0.4 * k, round(5.6 * k)), 4.6, (plumD, plum, plumL), BOLTY, plumL)
     # the wind ring
     wr = orbit_part(c, 'windring', (0, 0.6 * k, 4 * k + lift))
     ring(wr, 0, 0.6 * k, 2.6 * k + lift, 4.2 * k, P('#C8F4FF'), True, thick=0.6, tilt=-0.2)
     ring(wr, 0, 0.6 * k, 2.6 * k + lift + 1, 3.6 * k, P('#E8FCFF'), True, thick=0.5, tilt=-0.2)
+    c.gait_hint = 'waddle'
     return c
 
 
@@ -1376,18 +1578,47 @@ def zephyr_fox(c, H):
     drop(c, 'tail')
     bz = 3.8 * k
     tail = c.part('tail', 'tail', (0, 3.6 * k, bz + 0.6 * k))
-    # three swirling wind tails that curl at the tips
-    for j, side in enumerate((-1, 0, 1)):
-        pts = []
-        for i in range(24):
-            s = i / 23
-            ang = s * math.pi * 1.6
-            pts.append((side * (0.4 + 1.4 * s) * k, 3.6 * k + s * 2.4 * k + math.sin(ang) * 0.6 * k,
-                        bz + 0.6 * k + s * 2.8 * k + math.cos(ang) * 0.6 * k - 0.6 * k, (0.5 + 0.35 * math.sin(s * math.pi)) * k))
-        sweep(tail, pts, lambda s: P('#9AE6D8') if s < 0.5 else (P('#C8FFF4') if s < 0.85 else P('#E8FFFA')), lambda s: s >= 0.85)
+    # three wind tails: each sweeps back and up, then curls into a spiral,
+    # fur at the root, paling to mint and a glowing teal curl at the tip.
+    # The side tails lean out (so the curls face the hero camera) and are
+    # mirrored exactly.
+    fur, mint, curl = P('#9AE6D8'), P('#C8FFF4'), P('#3FE0C8')
+
+    def wind_tail(phi, size):
+        out = []
+        cu, cv = 1.7 * k * size, 1.7 * k * size
+        r0 = math.hypot(cu, cv)
+        th0 = math.atan2(-cv, -cu)
+        n = 40
+        for i in range(n + 1):
+            s2 = i / n
+            th = th0 + s2 * 2 * math.pi * 1.45
+            r = r0 * (1 - 0.86 * s2)
+            u, v = cu + r * math.cos(th), cv + r * math.sin(th)
+            x = math.sin(phi) * u
+            y = 3.6 * k + math.cos(phi) * u
+            z = bz + 0.6 * k + v
+            out.append((x, y, z, max(0.6, (0.4 - 0.24 * s2) * k * size), s2))
+        return out
+    for phi, size in ((0.0, 1.0), (0.95, 0.75)):
+        pts = wind_tail(phi, size)
+        tmp = {}
+        from voxkit import Part
+        tp = Part('t')
+        sweep(tp, [(x, y, z, r) for (x, y, z, r, _) in pts],
+              lambda s2: fur if s2 < 0.3 else (mint if s2 < 0.72 else curl), lambda s2: s2 >= 0.72)
+        for (x, y, z), v in tp.v.items():
+            if phi == 0.0:
+                tail.v[(x, y, z)] = v
+            else:
+                tail.v[(x, y, z)] = v
+                tail.v[(-1 - x, y, z)] = v
+    # the middle tail must be symmetric too
+    for (x, y, z), v in list(tail.v.items()):
+        tail.v.setdefault((-1 - x, y, z), v)
     # wind swirls on its flanks
     body = c.part('body')
-    body.paint(lambda p, cc, g: (P('#E8FFFA'), True) if abs(p[0] + .5) > 1.6 * k and ((p[1] + 2 * p[2]) % round(1.6 * k) == 0) and cc == P('#9AE6D8') else None)
+    body.paint(lambda p, cc, g: (P('#3FE0C8'), True) if abs(p[0] + .5) > 1.6 * k and ((p[1] + 2 * p[2]) % round(1.6 * k) == 0) and cc == P('#9AE6D8') else None)
     return c
 
 
@@ -1558,10 +1789,65 @@ def spectral_wolf(c, H):
     return c
 
 
+def _horse_head(c, k, col, muzzle, nostril, iris):
+    """Swaps the hoof plan's round head for a horse's: a skull with a long
+    muzzle running down and forward, nostrils at its end, big eyes on the
+    sides of the skull and pointed ears standing up."""
+    head = c.part('head')
+    (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
+    hy, hz = (y0 + y1 + 1) / 2, (z0 + z1 + 1) / 2
+    head.v = {}
+    head.ell((0, hy + 0.3 * k, hz + 0.25 * k), (1.15 * k, 1.2 * k, 1.1 * k), col)
+    for i in range(11):
+        s2 = i / 10
+        y = hy - 0.4 * k - s2 * 1.9 * k
+        z = hz - 0.05 * k - s2 * 0.75 * k
+        head.ell((0, y, z), ((0.95 - 0.15 * s2) * k, 0.6 * k, (0.85 - 0.12 * s2) * k), col if s2 < 0.55 else muzzle)
+    f0 = min(q[1] for q in head.v)
+    nz = round(hz - 0.6 * k)
+    for x in (round(0.35 * k), -round(0.35 * k) - 1):
+        f = head.front(x, nz)
+        if f:
+            head.put(f, nostril)
+    mz = round(hz - 1.15 * k)
+    for x in range(-round(0.4 * k), round(0.4 * k)):
+        f = head.front(x, mz)
+        if f:
+            head.put(f, nostril)
+    # big eyes on the sides of the skull, a shine in each
+    eyes = c.part('eyes')
+    eyes.v = {}
+    ey, ez = round(hy - 0.55 * k), round(hz + 0.05 * k)
+    es = max(2, round(0.45 * k))
+    for side in (1, -1):
+        for dy in range(es):
+            for dz in range(es + 1):
+                y, z = ey + dy, ez + dz
+                xs = [q[0] for q in head.v if q[1] == y and q[2] == z]
+                if not xs:
+                    continue
+                x = max(xs) if side > 0 else min(xs)
+                del head.v[(x, y, z)]
+                shine = dz == es and dy == 0
+                eyes.put((x, y, z), WHITE if shine else iris)
+    # pointed ears standing up from the crown
+    ears = c.part('ears')
+    ears.v = {}
+    top = max(q[2] for q in head.v)
+    for i in range(round(1.4 * k)):
+        w = max(1, round(0.5 * k * (1 - i / (1.4 * k))))
+        for dx in range(w):
+            for dy in range(max(1, w - 1)):
+                x = round(0.55 * k) + dx
+                ears.put((x, round(hy + 0.3 * k) + dy, top - 1 + i), col if dx else muzzle)
+                ears.put((-1 - x, round(hy + 0.3 * k) + dy, top - 1 + i), col if dx else muzzle)
+
+
 def starlight_pegasus(c, H):
     plan('beast', c, H, {'col': '#F4F0FF', 'belly': '#FFFFFF', 'snout': '#FFE6F2', 'accent': '#2A2A6A', 'horn': '#FFE14D',
                          'glow': '#FFF6B0', 'wing': '#E8E0FF'}, kind='hoof', mane='crest', tail='bushy', wings='feather')
     k = H / 10.0
+    _horse_head(c, k, P('#F4F0FF'), P('#FFE6F2'), P('#C86A9A'), INK)
     for name in ('mane', 'tail'):
         p = part_or_none(c, name)
         if p:
