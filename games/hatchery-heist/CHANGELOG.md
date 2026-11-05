@@ -13,6 +13,9 @@
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
   and dark unlit price tags that stay readable in the lit room.
+- Coin packs grow with you: each gives its fixed coins or 5, 20, 45 or 100
+  minutes of what you earn now, whichever is more. The shop shows your exact
+  amount.
 
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
