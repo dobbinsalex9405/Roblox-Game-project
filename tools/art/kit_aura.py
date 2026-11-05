@@ -317,7 +317,8 @@ def ice(c, H, col, col2=None):
         L = (2.6 + 0.7 * ((i + 1) % 2)) * k
         x = 0.5 * k * sx
         shard(part, (x, y, z - 0.6 * k), (0.5 * sx, 0.25, 1), L, 0.8 * k, col, col2)
-        shard(part, (-x, y + 0.7 * k, z - 0.6 * k), (-0.55 * sx, 0.3, 1), L * 0.7, 0.65 * k, col, col2)
+        if i % 2 == 0:
+            shard(part, (-x, y + 0.7 * k, z - 0.6 * k), (-0.55 * sx, 0.3, 1), L * 0.7, 0.65 * k, col, col2)
 
 
 def ice_crown(c, H, col, col2=None):
@@ -428,8 +429,8 @@ def leaves(c, H, col, col2=None):
     k = H / 10.0
     rib = col2 or _dark(col, 0.25)
     part = c.part('leaves', 'static')
-    for i, (y, z) in enumerate(_spine(c, 4, 0.15, 0.85)):
-        L = (2.7 - 0.3 * abs(i - 1.5)) * k
+    for i, (y, z) in enumerate(_spine(c, 3, 0.2, 0.8)):
+        L = (2.8 - 0.3 * abs(i - 1)) * k
         for sx in (-1, 1):
             leaf(part, (sx * 0.3 * k, y, z - 0.4 * k), (sx * 0.7, 0.35, 0.65), L, 0.7 * k, col, rib)
 
@@ -548,7 +549,7 @@ def moss(c, H, col, col2=None):
         for (x, y), z in tops.items():
             if z < zt - 1.4 * k or x < 0:
                 continue
-            h = 1 + (_hash(x // 2, y // 2, 13) % max(2, round(0.5 * k)))
+            h = 1 + (_hash(x // 3, y // 3, 13) % 2)
             for i in range(h):
                 colr = col2 if (col2 and i == h - 1 and _hash(x, y, 2) % 9 == 0) else col
                 part.put((x, y, z + 1 + i), colr)
@@ -917,16 +918,16 @@ def wave(c, H, col, col2=None):
     y0, y1 = _yrange(body)
     w = c.part('wave', 'static')
     cy = (y0 + y1) / 2
-    w.ell((0, cy + 0.4 * k, lift * 0.5), (2.6 * k, (y1 - y0) / 2 + 1.2 * k, lift * 0.6 + .3), col,
+    w.ell((0, cy + 0.4 * k, lift * 0.5), (2.2 * k, (y1 - y0) / 2 + 0.9 * k, lift * 0.6 + .3), col,
           cond=lambda X, Y, Z: Z < lift)
     # the curl rising behind and over
-    for i in range(12):
-        t = i / 11
-        a = math.pi * 1.25 * t
-        y = y1 + 0.8 * k - math.sin(a) * 1.2 * k
-        z = lift * 0.5 + (1 - math.cos(a)) * 1.5 * k
-        r = (0.95 - 0.45 * t) * k
-        w.ell((0, y, z), (2.2 * k * (1 - 0.3 * t), r, r), col2 if t > 0.75 else col)
+    for i in range(8):
+        t = i / 7
+        a = math.pi * 1.2 * t
+        y = y1 + 0.6 * k - math.sin(a) * 1.0 * k
+        z = lift * 0.5 + (1 - math.cos(a)) * 1.2 * k
+        r = (0.7 - 0.3 * t) * k
+        w.ell((0, y, z), (1.3 * k * (1 - 0.3 * t), r, r), col2 if t > 0.75 else col)
     for p in list(w.v):
         if (p[0], p[1], p[2] + 1) not in w.v and _hash(*p, 61) % 3 == 0:
             w.put(p, col2)
@@ -1265,7 +1266,7 @@ def gears(c, H, col, col2=None):
     if x is None:
         return
     part = c.part('gears', 'static')
-    R = 1.5 * k
+    R = 1.1 * k
     for sx in (1, -1):
         cx = x + 1 if sx > 0 else _mx(x) - 1
         gear(part, (cx, yc, zc), 'x', R, 8, col, col2 or _dark(col, 0.3))
@@ -1296,14 +1297,8 @@ def cog_spines(c, H, col, col2=None):
     """Little cogs standing up along the back instead of spines."""
     k = H / 10.0
     part = c.part('gears', 'static')
-    for i, (y, z) in enumerate(_spine(c, 5, 0.1, 0.9)):
-        for sx in (-1, 1):
-            if i % 2 == (sx > 0):
-                continue
-            gear(part, (sx * 1.0 * k - (1 if sx < 0 else 0), y, z + 0.1 * k), 'x', 1.2 * k, 6, col,
-                 col2 or _dark(col, 0.3), depth=2)
     for y, z in _spine(c, 3, 0.2, 0.8):
-        gear(part, (-1, y, z + 0.9 * k), 'x', 1.4 * k, 7, col, col2 or _dark(col, 0.3), depth=2)
+        gear(part, (-1, y, z + 0.8 * k), 'x', 1.2 * k, 7, col, col2 or _dark(col, 0.3), depth=2)
 
 
 def rivets(c, H, col, col2=None):
@@ -1615,11 +1610,10 @@ def headdress(c, H, col, col2=None):
     yf = min(ys)
     zm = min(zs) + (max(zs) - min(zs)) * 0.45
     w = max(1, round(0.4 * k))
-    hood = c.part('headdress', 'static', head.pivot)
     for (x, y, z) in _surface(head):
         if y > yf + 0.9 * k and z >= zm:
-            hood.put((x + (1 if x >= 0 else -1), y, z + (1 if z >= max(zs) - 1 else 0)),
-                     stripe if (z // w) % 2 else col)
+            head.put((x, y, z), stripe if (z // w) % 2 else col)
+    hood = c.part('headdress', 'static', head.pivot)
     # lappets falling in front of the shoulders
     for sx in (-1, 1):
         x0 = round(sx * 1.6 * k) - (1 if sx < 0 else 0)
@@ -1911,7 +1905,7 @@ def spikes(c, H, col, col2=None):
     ys = [p[1] for p in body.v]
     cy = (min(ys) + max(ys)) / 2
     part = c.part('spines', 'static')
-    step = max(2, round(0.9 * k))
+    step = max(3, round(1.7 * k))
     for (x, y, z) in _surface(body):
         if z < zm or x < 0 or x % step or y % step or (z + x) % 2:
             continue
