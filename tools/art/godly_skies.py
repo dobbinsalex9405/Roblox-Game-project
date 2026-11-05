@@ -39,38 +39,58 @@ def gear(col, col2, glow=False, teeth=10):
 
 
 def drake(c, k, fine, col, belly, *, wing_cols, wing_tip, wing_edge=None, membrane=True, horn=WHITE,
-          body_z=4.3, head_at=(-3.4, 7.6)):
-    """A dragon frame: body, four legs, a neck, a horned head with a snout
-    and a long tail; wings raised. Returns (body, head, head centre)."""
+          body_z=3.8, head_at=(-4.3, 8.2), span=4.6, rise=3.0, chord=2.8):
+    """A dragon frame: body, four legs, a long neck, a dragon head (long
+    snout, jaw line with fangs, brow ridges, horns swept back) and a long
+    tail; big wings raised and spread. Returns (body, head, head centre)."""
     b = c.part('body')
-    b.ell((0, 0.6 * k, body_z * k), (1.6 * k, 2.6 * k, 1.5 * k), col)
-    b.ell((0, -1.2 * k, (body_z + 0.3) * k), (1.55 * k, 1.4 * k, 1.5 * k), col)
+    b.ell((0, 0.6 * k, body_z * k), (1.55 * k, 2.6 * k, 1.45 * k), col)
+    b.ell((0, -1.2 * k, (body_z + 0.3) * k), (1.5 * k, 1.4 * k, 1.5 * k), col)
     if belly is not None:
         b.paint(lambda p, cc, g: (belly, False) if p[2] < (body_z - 0.7) * k else None)
     from godly_common import four_legs
-    four_legs(c, k, -1.3, 2.1, 1.05, body_z - 0.6, 0.7, 0.5, col, paw=col, claw=WHITE)
+    four_legs(c, k, -1.2, 2.0, 1.15, body_z - 0.5, 0.82, 0.6, col, paw=col, claw=WHITE, splay=0.3)  # low, splayed reptile legs
     hy, hz = head_at
-    limb(b, (0, -1.7 * k, (body_z + 0.8) * k), (0, (hy + 0.9) * k, (hz - 0.6) * k), 0.95 * k, 0.75 * k, col)
-    h = c.part('head', 'head', (0, (hy + 0.8) * k, (hz - 0.7) * k))
-    h.ell((0, hy * k, hz * k), (1.1 * k, 1.2 * k, 1.0 * k), col)
-    h.ell((0, (hy - 1.2) * k, (hz - 0.25) * k), (0.75 * k, 1.05 * k, 0.6 * k), col)
-    for sx in (1, -1):  # nostrils
-        f = front_at(h, round(sx * 0.3 * k) - (1 if sx < 0 else 0), round((hz - 0.05) * k))
+    # a long neck curving up and forward
+    neck = [bez((0, -1.7 * k, (body_z + 0.8) * k), (0, -2.6 * k, (body_z + 3.4) * k), (0, (hy + 0.8) * k, (hz - 0.3) * k), s_)
+            for s_ in (i / 23 for i in range(24))]
+    for i, q in enumerate(neck):
+        r = (0.95 - 0.3 * i / 23) * k
+        b.ell(q, (r, r, r), col)
+    c.neck_pts = neck
+    h = c.part('head', 'head', (0, (hy + 0.8) * k, (hz - 0.3) * k))
+    h.ell((0, hy * k, hz * k), (1.0 * k, 1.05 * k, 0.88 * k), col)  # skull
+    h.ell((0, (hy - 1.35) * k, (hz - 0.1) * k), (0.62 * k, 1.15 * k, 0.5 * k), col)  # long snout
+    jaw = _shade(col, 0.78)
+    h.ell((0, (hy - 1.1) * k, (hz - 0.62) * k), (0.55 * k, 1.1 * k, 0.26 * k), jaw)  # lower jaw
+    for p in list(h.v):  # the jaw line
+        if abs(p[2] + .5 - (hz - 0.42) * k) < 0.6 and p[1] < (hy - 0.4) * k:
+            x, y, z = p
+            if (x, y - 1, z) not in h.v or (x + 1, y, z) not in h.v or (x - 1, y, z) not in h.v:
+                h.put(p, INK)
+    for sx in (1, -1):
+        fx = round(sx * 0.35 * k) - (1 if sx < 0 else 0)
+        f = front_at(h, fx, round((hz - 0.42) * k))
         if f:
-            h.put(f, INK)
-        # swept horns
-        pts = [(sx * (0.55 + 0.4 * s) * k, (hy + 0.4 + 1.3 * s) * k, (hz + 0.7 + 0.9 * s - 0.4 * s * s) * k,
-                max(0.55, (0.3 - 0.18 * s) * k)) for s in (i / 11 for i in range(12))]
-        tube(h, pts, lambda s: horn)
-    wing(c, k, (1.1, 0.0, body_z + 1.1), 4.0, 2.6, 2.6 if membrane else 2.0, wing_cols, wing_tip, edge=wing_edge,
+            for dz in range(max(2, round(0.3 * k))):
+                h.put((f[0], f[1], f[2] - dz), WHITE)  # fangs
+        f = front_at(h, round(sx * 0.25 * k) - (1 if sx < 0 else 0), round((hz + 0.15) * k))
+        if f:
+            h.put(f, INK)  # nostrils
+        h.ell((sx * 0.55 * k, (hy - 0.55) * k, (hz + 0.62) * k), (0.42 * k, 0.55 * k, 0.18 * k), jaw)  # brow ridge
+        pts = [(sx * (0.5 + 0.55 * s_) * k, (hy + 0.3 + 2.0 * s_) * k, (hz + 0.6 + 0.9 * s_ - 0.35 * s_ * s_) * k,
+                max(0.55, (0.32 - 0.22 * s_) * k)) for s_ in (i / 15 for i in range(16))]
+        tube(h, pts, lambda s_: horn)
+    wing(c, k, (1.0, 0.1, body_z + 1.0), span, rise, chord, wing_cols, wing_tip, edge=wing_edge,
          thick=2, membrane=membrane, ribs=_shade(wing_cols[0], 0.7) if membrane else None, glow_tip=not membrane)
     t = c.part('tail', 'tail', (0, 3.0 * k, body_z * k))
     pts = []
-    for i in range(30):
-        s = i / 29
-        q = bez((0, 3.0 * k, body_z * k), (0.3 * k, 5.6 * k, (body_z - 1.2) * k), (0.9 * k, 6.4 * k, 1.4 * k), s)
-        pts.append((*q, max(0.55, (0.85 - 0.65 * s) * k)))
-    tube(t, pts, lambda s: col)
+    for i in range(40):
+        s_ = i / 39
+        q = bez((0, 3.0 * k, body_z * k), (0.2 * k, 6.4 * k, (body_z - 0.6) * k), (2.4 * k, 6.2 * k, 1.2 * k), s_)
+        pts.append((*q, max(0.55, (0.9 - 0.7 * s_) * k)))
+    tube(t, pts, lambda s_: col)
+    c.tail_pts = pts  # for plated segments
     return b, h, (0, hy * k, hz * k)
 
 
@@ -81,8 +101,8 @@ def eclipse_dragon(c, H):
     moonlit silver, with a glowing eclipse ring on its chest; a sun and a
     moon circle it."""
     k, fine = ctx(c, H * 0.9)
-    gold, goldL, goldD = C('#FFB627'), C('#FFD86B'), C('#D9881A')
-    silver, silverL, silverD = C('#C9CFE6'), C('#ECEFFA'), C('#8E96B8')
+    gold, goldL, goldD = C('#FFB21A'), C('#FFD45A'), C('#E0820F')
+    silver, silverL, silverD = C('#8E9CD0'), C('#C3CCEE'), C('#5E6AA8')
     b, h, (hx, hy, hz) = drake(c, k, fine, gold, None, wing_cols=(goldD, gold, goldL), wing_tip=C('#FFF0A0'),
                                horn=C('#FFF6D8'))
 
@@ -102,24 +122,24 @@ def eclipse_dragon(c, H):
     # scale shimmer and stars on the moon side
     sparkle(b, (WHITE, C('#BFE3FF')), 120, 51, fine, only=lambda p, cc: p[0] < 0)
     sparkle(b, (C('#FFF6B0'),), 160, 52, fine, only=lambda p, cc: p[0] >= 0)
-    proud_eyes(c, h, [(0.55 * k, hz + 0.2 * k)], 0.4 * k, 0.36 * k, C('#FF7A1A'), ring=INK, pupil=INK,
-               lid=goldD, iris2=C('#FFD43B'), slit=True, behind=hy - 1.1 * k)
+    proud_eyes(c, h, [(0.6 * k, hz + 0.25 * k)], 0.36 * k, 0.32 * k, C('#FF7A1A'), ring=INK, pupil=INK,
+               lid=goldD, iris2=C('#FFD43B'), slit=True, behind=hy * 1.0 - 0.75 * k)
     eyes = c.part('eyes')
     eyes.paint(lambda p, cc, g: ((C('#5CC8FF'), True) if p[0] < 0 and cc == C('#FF7A1A') else ((C('#BFE3FF'), True) if p[0] < 0 and cc == C('#FFD43B') else None)))
     # the eclipse on its chest: a dark disc in a glowing corona
     ring = c.part('eclipse', 'glow', (0, -2.6 * k, 4.9 * k))
     cz, cy = 4.9 * k, None
-    for x in range(-round(0.9 * k), round(0.9 * k) + 1):
-        for z in range(round(cz - 0.9 * k), round(cz + 0.9 * k) + 1):
-            d = math.hypot(x + .5, z + .5 - cz) / (0.9 * k)
+    for x in range(-round(1.1 * k), round(1.1 * k) + 1):
+        for z in range(round(cz - 1.1 * k), round(cz + 1.1 * k) + 1):
+            d = math.hypot(x + .5, z + .5 - cz) / (1.0 * k)
             if d > 1:
                 continue
             f = front_at(b, x, z)
             if f:
-                if d < 0.62:
-                    b.put(f, C('#1B1B2F'))
+                if d < 0.5:
+                    ring.put((f[0], f[1] - 1, f[2]), C('#2A2457'), False)  # the moon's disc, raised
                 else:
-                    ring.put((f[0], f[1] - 1, f[2]), C('#FFE45C') if d < 0.82 else C('#FF9A1A'), True)
+                    ring.put((f[0], f[1] - 1, f[2]), C('#FFF0A0') if d < 0.7 else C('#FFB21A'), True)
     tidy(c)
     orbit_ring(c, k, [(0, 5.0, 0.8, ball(C('#FFB21A'), C('#FFE45C'), glow=True, bands=True, fine=fine)),
                       (180, 5.4, 0.7, ball(C('#D8DDF0'), C('#A8AECB'), speck=C('#9AA0C0'), seed=11, fine=fine))]
@@ -135,11 +155,41 @@ def mecha_dragon(c, H):
     circle it."""
     k, fine = ctx(c, H * 0.9)
     steel, steelL, steelD, red, redD = C('#9AA6B8'), C('#C3CCDA'), C('#5E6878'), C('#E8304A'), C('#A81E32')
-    jet, jetL, core = C('#FF7A1A'), C('#FFD84A'), C('#5CE1FF')
+    core = C('#5CE1FF')
     b, h, (hx, hy, hz) = drake(c, k, fine, steel, steelD, wing_cols=(steelD, steel, steelL), wing_tip=red,
-                               membrane=False, horn=red)
+                               membrane=False, horn=steelL)
+    # plated segments along the neck and tail: a dark seam every few
+    # points, red plates on alternate segments' top
+    t = c.part('tail')
+
+    def plates(part, pts, every, red_top):
+        def seg(p, cc, g):
+            if g or cc not in (steel, steelD):
+                return None
+            i = min(range(len(pts)), key=lambda j: (pts[j][0] - p[0] - .5) ** 2 + (pts[j][1] - p[1] - .5) ** 2
+                    + (pts[j][2] - p[2] - .5) ** 2)
+            if i % every == 0:
+                return (_shade(steelD, 0.8), False)
+            if red_top(p, pts[i]) and (i // every) % 2 == 0:
+                return (red, False)
+            return (steel if (i // every) % 2 else steelL, False)
+        part.paint(seg)
+    plates(t, [q[:3] for q in c.tail_pts], 4, lambda p, q: p[2] + .5 > q[2])
+    plates_n = c.neck_pts
+    nk = lambda p: p[1] < -1.6 * k and p[2] > 4.6 * k  # the neck's voxels in the body part
+    for p in [p for p in b.v if nk(p)]:
+        cc, g = b.v[p]
+        if g or cc not in (steel, steelD):
+            continue
+        i = min(range(len(plates_n)), key=lambda j: sum((plates_n[j][a] - p[a] - .5) ** 2 for a in range(3)))
+        if i % 3 == 0:
+            b.v[p] = (_shade(steelD, 0.8), False)
+        elif p[1] + .5 < plates_n[i][1] - 0.2 * k:  # the throat side
+            b.v[p] = (steelD, False)
+        else:
+            b.v[p] = ((red if (i // 3) % 2 == 0 else steel), False)
     for part in c.parts:
-        if part.name == 'body' or part.name.startswith('leg') or part.name == 'tail':
+        if part.name == 'body' or part.name.startswith('leg'):
             # armour panels: red plates on top, steel below, panel seams
             part.paint(lambda p, cc, g: (red, False) if not g and p[2] > 5.0 * k and cc == steel else None)
             if fine:
@@ -156,7 +206,9 @@ def mecha_dragon(c, H):
             if f:
                 h.put(f, INK)
                 eyes.put((f[0], f[1] - 1, f[2]), core if (x + z) % 4 else WHITE, True)
-    h.paint(lambda p, cc, g: (red, False) if cc == steel and p[2] > hz + 0.5 * k else None)
+    # armoured snout: a red stripe down the top of the snout, steel elsewhere
+    h.paint(lambda p, cc, g: (red, False) if cc == steel and abs(p[0] + .5) < 0.3 * k and p[2] > hz + 0.25 * k
+            and p[1] < hy - 0.6 * k else None)
     # reactor core
     rc = c.part('core', 'glow', (0, -2.5 * k, 4.6 * k))
     for x in range(-round(0.7 * k), round(0.7 * k) + 1):
@@ -165,13 +217,21 @@ def mecha_dragon(c, H):
             f = front_at(b, x, z)
             if f and d <= 1:
                 rc.put((f[0], f[1] - 1, f[2]), WHITE if d < 0.35 else (core if d < 0.75 else C('#2E86E8')), True)
-    # thrusters under each wing root
-    for sx, name in ((1, 'wingR'), (-1, 'wingL')):
+    # thruster nozzles on each wing's trailing (lower, rear) edge, glowing
+    # blue out of the back
+    blue, blueL = C('#2E9BFF'), C('#BFF0FF')
+    for name in ('wingR', 'wingL'):
         w = c.part(name)
-        tx, ty, tz = sx * 2.4 * k, 1.0 * k, 5.4 * k
-        w.ell((tx, ty, tz), (0.42 * k, 0.6 * k, 0.42 * k), steelD)
-        w.ell((tx, ty + 0.65 * k, tz), (0.3 * k, 0.25 * k, 0.3 * k), jet, True)
-        w.ell((tx, ty + 0.9 * k, tz), (0.18 * k, 0.25 * k, 0.18 * k), jetL, True)
+        xs = sorted({p[0] for p in w.v}, key=abs)
+        for frac in (0.3, 0.62):
+            x = xs[min(len(xs) - 1, int(frac * len(xs)))]
+            col_v = [p for p in w.v if p[0] == x]
+            lo = min(p[2] for p in col_v)
+            y = max(p[1] for p in col_v if p[2] <= lo + 1)
+            cx, cy, cz = x + .5, y + 0.2 * k, lo + 0.45 * k
+            w.ell((cx, cy, cz), (0.36 * k, 0.55 * k, 0.36 * k), steelD)
+            w.ell((cx, cy + 0.45 * k, cz), (0.27 * k, 0.2 * k, 0.27 * k), blue, True)
+            w.ell((cx, cy + 0.62 * k, cz), (0.15 * k, 0.15 * k, 0.15 * k), blueL, True)
     tidy(c)
 
     def drone(part, centre, r):
@@ -611,10 +671,12 @@ def thunder_kraken(c, H):
     for part in (b, hd):
         gradient(part, [tealD, teal, tealL], 3.2 * k, 8.8 * k, fine)
     hd.paint(lambda p, cc, g: (C('#5CE1FF'), True) if p[2] > 5.6 * k and _hash(p[0] // 3, p[1] // 3, p[2] // 3, 4) % 9 == 0 else None)
-    proud_eyes(c, hd, [(0.85 * k, 5.0 * k)], 0.55 * k, 0.5 * k, bolt, ring=INK, pupil=INK, lid=tealD,
-               iris2=C('#FF9A1A'), slit=True, behind=-1.9 * k)
+    proud_eyes(c, hd, [(1.15 * k, 5.85 * k)], 0.62 * k, 0.7 * k, bolt, ring=INK, pupil=INK, lid=tealD,
+               iris2=C('#FF9A1A'), behind=-2.2 * k, pupil_r=0.08)
     for sx in (1, -1):  # fierce brows
-        hd.ell((sx * 0.85 * k, -1.55 * k, 5.65 * k), (0.6 * k, 0.4 * k, 0.16 * k), tealD)
+        f = front_at(hd, round(sx * 1.15 * k), round(6.75 * k))
+        if f:
+            hd.ell((sx * 1.15 * k, f[1] - 0.1 * k, 6.75 * k), (0.7 * k, 0.35 * k, 0.18 * k), tealD)
     # six tentacles: leg1..leg3 each side, curling out and down
     for i, ang in enumerate((-55, 0, 55)):
         for sx, sd in ((1, 'R'), (-1, 'L')):
@@ -633,15 +695,20 @@ def thunder_kraken(c, H):
             tube(lp, pts, lambda s: teal)
             gradient(lp, [tealD, teal], 0.2 * k, 3.6 * k, fine)
             # suckers underneath, lightning zig-zag on top
-            lp.paint(lambda p, cc, g: (sucker, False) if fine and p[2] < 1.2 * k and _hash(*p, 7) % 3 == 0 else None)
-            zig = []
-            for j, (x, y, z, r) in enumerate(pts[2:22]):
-                off = (0.6 if (j // 2) % 2 else -0.6) * r
-                zig.append((math.floor(x + off * 0.5), math.floor(y + off), math.floor(z + r)))
-            for q in zig:
-                lp.put(q, bolt, True)
-                if fine:
-                    lp.put((q[0], q[1], q[2] + 1), boltL, True)
+            # a lightning bolt crackling along the top of the tentacle: a
+            # zig-zag two voxels wide, sitting on the skin
+            prev = None
+            for j, (x, y, z, r) in enumerate(pts[1:24]):
+                off = (0.55 if (j // 3) % 2 else -0.55) * r
+                top_ = max([q[2] for q in lp.v if q[0] == math.floor(x + off * 0.4) and q[1] == math.floor(y + off)] or [math.floor(z + r)])
+                q = (math.floor(x + off * 0.4), math.floor(y + off), top_ + 1)
+                pts_line = [q] if prev is None else [tuple(round(prev[i] + (q[i] - prev[i]) * t / 4) for i in range(3)) for t in range(5)]
+                for qq in pts_line:
+                    for dx in (0, 1):
+                        lp.put((qq[0] + dx, qq[1], qq[2]), bolt, True)
+                    if fine:
+                        lp.put((qq[0], qq[1], qq[2] + 1), boltL, True)
+                prev = q
             for q in [q for q in lp.v if q[2] < 0]:
                 del lp.v[q]
     tidy(c)
@@ -661,105 +728,125 @@ def thunder_kraken(c, H):
 # ------------------------------------------------------------ Clockwork Leviathan
 
 def clockwork_leviathan(c, H):
-    """A brass whale-serpent built of plates and gears: a riveted body coiling
-    in an S above the ground, a furnace heart glowing through a porthole, a
-    grille mouth, gear wheels turning on its flanks, flippers and a fluked
-    tail; cogs circle it."""
-    k, fine = ctx(c, H)
+    """A brass whale-serpent built of gear-plated segments: a long body that
+    swims level with a gentle wave, a whale head with a grille mouth and lamp
+    eyes, a furnace heart glowing through a grille on each side of its chest,
+    gear wheels on its flanks, copper fin plates and a dorsal gear fin down
+    its back, flippers and wide flukes; cogs circle above its back."""
+    k, fine = ctx(c, H * 1.1)  # long and low: drawn bigger so its voxels match the rest at 6 studs
     brass, brassL, brassD, copper = C('#C9922E'), C('#E8B85A'), C('#8A6020'), C('#B8662E')
-    steel, fire, fireL = C('#6A7080'), C('#FF7A1A'), C('#FFD84A')
+    steel, steelD, fire, fireL = C('#6A7080'), C('#3E4250'), C('#FF7A1A'), C('#FFD84A')
     b = c.part('body')
-    # spine: from the head at the front, back in an S, rising off the ground
+    # spine: head at the front (-y), a long body with a slow wave, tail rising
     spine = []
-    for i in range(60):
-        s = i / 59
-        x = math.sin(s * math.pi * 2.0) * 0.35 * k
-        y = (-1.4 + 3.6 * s) * k
-        z = (2.6 + 11.0 * (1.25 * s - 0.55) ** 2 - 0.8 * s) * k
-        r = (1.7 * (1 - s) ** 0.75 + 0.35) * k
-        spine.append((x, y, z, r))
-    for x, y, z, r in spine:
-        b.ell((x, y, z), (r, r * 0.8, r * 0.9), brass)
-    # plate seams and rivets
+    n = 64
+    for i in range(n):
+        s_ = i / (n - 1)
+        y = (-2.6 + 5.6 * s_ - 0.6 * max(0.0, s_ - 0.7) / 0.3) * k
+        z = (3.4 + 0.5 * math.sin(s_ * math.pi * 1.6 + 0.3) + 1.1 * max(0.0, s_ - 0.62) ** 1.4 * 3.9) * k
+        r = (1.75 * (1 - s_) ** 0.8 + 0.3) * k
+        spine.append((0.0, y, z, r))
+    # segments: each a slightly flattened ring, with a groove between
+    for i, (x, y, z, r) in enumerate(spine):
+        b.ell((x, y, z), (r, 0.5 * k, r * 0.88), brass)
     if fine:
-        b.paint(lambda p, cc, g: (brassD, False) if cc == brass and p[1] % round(0.85 * k) == 0 else None)
-        b.paint(lambda p, cc, g: (brassL, False) if cc == brass and p[1] % round(0.85 * k) == 2 and p[2] % 3 == 0 else None)
-    gradient(b, [brassD, brass, brassL], 2.0 * k, 7.0 * k, fine, keep=(brassD, brassL) if fine else ())
-    b.paint(lambda p, cc, g: (copper, False) if p[2] < 3.4 * k and p[1] < 1.0 * k else None)  # copper belly
-    # furnace heart: a porthole on the chest
-    hx_, hz_ = spine[10][0], spine[10][2]
-    port = c.part('furnace', 'glow', (hx_, spine[10][1], hz_))
-    for x in range(round(hx_ - 0.9 * k), round(hx_ + 0.9 * k) + 1):
-        for z in range(round(hz_ - 1.2 * k), round(hz_ + 0.6 * k) + 1):
-            d = math.hypot(x + .5 - hx_, z + .5 - (hz_ - 0.3 * k)) / (0.85 * k)
-            if d > 1:
-                continue
-            f = front_at(b, x, z, behind=spine[6][1])
-            if not f:
-                continue
-            if d > 0.8:
-                b.put(f, steel)
-            else:
-                port.put((f[0], f[1] - 1, f[2]), fireL if d < 0.4 else fire, True)
-    # gear wheels on the flanks
+        seg = 0.95 * k
+        b.paint(lambda p, cc, g: (brassD, False) if cc == brass and ((p[1] + .5 + 3.2 * k) % seg) < 1.0 else None)
+        b.paint(lambda p, cc, g: (brassL, False) if cc == brass and ((p[1] + .5 + 3.2 * k) % seg) < 2.0 and p[2] % 4 == 0 else None)  # rivets
+    gradient(b, [brassD, brass, brassL], 1.8 * k, 5.6 * k, fine, keep=(brassD, brassL) if fine else ())
+    b.paint(lambda p, cc, g: (copper, False) if p[2] < 2.6 * k and p[1] < 2.0 * k else None)  # copper belly plates
+    # the furnace heart: a round grille on each side of the chest, fire behind
+    port = c.part('furnace', 'glow', spine[12][:3])
+    _, py, pz, pr = spine[12]
     for sx in (1, -1):
-        for at in (22, 38):
+        for y in range(round(py - 1.0 * k), round(py + 1.0 * k) + 1):
+            for z in range(round(pz - 1.0 * k), round(pz + 1.0 * k) + 1):
+                d = math.hypot(y + .5 - py, z + .5 - pz) / (0.95 * k)
+                if d > 1:
+                    continue
+                xs = [q[0] for q in b.v if q[1] == y and q[2] == z]
+                if not xs:
+                    continue
+                xo = max(xs) if sx > 0 else min(xs)
+                if d > 0.82:
+                    b.put((xo, y, z), steel)
+                elif (z % 3 == 0) and d < 0.82:
+                    b.put((xo, y, z), steelD)  # grille bars
+                else:
+                    port.put((xo + sx, y, z), fireL if d < 0.45 else fire, True)
+    # gear wheels on the flanks, facing out
+    for sx in (1, -1):
+        for at, gr in ((26, 0.75), (40, 0.6)):
             x, y, z, r = spine[at]
-            g_ = gear(steel, brassL, teeth=8)
-            tmp = type('P', (), {})()
-            tmp.pivot = (x - sx * 10, y, 0)
-            tmp.v = {}
-            tmp.put = lambda q, col, glow=False, tmp=tmp: tmp.v.__setitem__(q, (col, glow))
-            g_(tmp, (x + sx * r * 0.95, y, z), 0.8 * k)
-            for q, v in tmp.v.items():
-                if q not in b.v:
-                    b.v[q] = v
+            for gy in range(-math.ceil(gr * k) - 1, math.ceil(gr * k) + 2):
+                for gz in range(-math.ceil(gr * k) - 1, math.ceil(gr * k) + 2):
+                    d = math.hypot(gy + .5, gz + .5)
+                    ang = math.atan2(gz + .5, gy + .5)
+                    outer = gr * k + (0.9 if math.cos(ang * 8) > 0.2 else 0)
+                    if d > outer or d < gr * k * 0.3:
+                        continue
+                    xs = [q[0] for q in b.v if q[1] == round(y + gy) and q[2] == round(z + gz)]
+                    if not xs:
+                        continue
+                    xo = (max(xs) if sx > 0 else min(xs)) + sx
+                    b.put((xo, round(y + gy), round(z + gz)), brassL if d > gr * k * 0.8 or d < gr * k * 0.45 else steel)
     # head: a blunt whale head with a grille mouth and lamp eyes
-    h = c.part('head', 'head', (spine[4][0], spine[4][1], spine[4][2]))
     x0, y0, z0, r0 = spine[0]
-    h.ell((x0, y0 - 0.5 * k, z0), (1.75 * k, 1.4 * k, 1.65 * k), brass)
-    gradient(h, [brassD, brass, brassL], z0 - 1.8 * k, z0 + 1.8 * k, fine)
-    for x in range(round(x0 - 1.2 * k), round(x0 + 1.2 * k)):
-        for z in range(round(z0 - 1.1 * k), round(z0 - 0.4 * k)):
+    h = c.part('head', 'head', spine[5][:3])
+    h.ell((0, y0 - 0.4 * k, z0 + 0.1 * k), (1.8 * k, 1.5 * k, 1.7 * k), brass)
+    h.ell((0, y0 - 1.3 * k, z0 - 0.4 * k), (1.4 * k, 0.9 * k, 1.1 * k), brass)
+    gradient(h, [brassD, brass, brassL], z0 - 1.6 * k, z0 + 1.8 * k, fine)
+    for x in range(round(-1.1 * k), round(1.1 * k)):
+        for z in range(round(z0 - 1.25 * k), round(z0 - 0.45 * k)):
             f = front_at(h, x, z)
             if f:
-                h.put(f, INK if x % 2 == 0 else steel)  # grille
-    proud_eyes(c, h, [(x0 + 0.95 * k, z0 + 0.45 * k)], 0.42 * k, 0.42 * k, fireL, ring=steel, pupil=fire,
-               lid=brassD, iris2=fire, behind=y0 - 1.5 * k)
-    # smokestack on the crown
-    st = c.part('stack', 'static', (x0, y0, z0 + 1.6 * k))
-    for z in range(round(z0 + 1.4 * k), round(z0 + 2.5 * k)):
-        st.ell((x0, y0 + 0.2 * k, z + 0.5), (0.4 * k, 0.4 * k, 0.5), steel if z < z0 + 2.3 * k else INK)
-    # flippers
+                h.put(f, steelD if x % 2 == 0 else steel)  # the grille mouth
+    proud_eyes(c, h, [(0.95 * k, z0 + 0.55 * k)], 0.45 * k, 0.45 * k, fireL, ring=steel, pupil=fire,
+               lid=brassD, iris2=fire, behind=y0 - 1.6 * k)
+    # flippers, mirrored
     for sx, name in ((1, 'finR'), (-1, 'finL')):
-        x, y, z, r = spine[14]
-        fp = c.part(name, name, (x + sx * r * 0.8, y, z - 0.5 * k))
-        for i in range(round(1.4 * k)):
-            s = i / (1.4 * k)
-            for dy in range(-round((0.6 - 0.3 * s) * k), round((0.6 - 0.3 * s) * k) + 1):
-                fp.put((round(x + sx * (r * 0.8 + i)) - (1 if sx < 0 else 0), round(y + dy + s * 0.6 * k), round(z - 0.5 * k - s * 1.2 * k)), brassL if dy % 3 else brassD)
-    # fluked tail
-    t = c.part('tail', 'tail', spine[-6][:3])
-    xe, ye, ze, _ = spine[-1]
+        _, y, z, r = spine[16]
+        fp = c.part(name, name, (sx * r * 0.85, y, z - 0.4 * k))
+        for i in range(round(1.6 * k)):
+            s_ = i / (1.6 * k)
+            fp.ell((sx * (r * 0.85 + i), y + s_ * 0.8 * k, z - 0.4 * k - s_ * 1.0 * k), (0.6, (0.6 - 0.3 * s_) * k, 0.2 * k),
+                   brassL if i % 4 else brassD)
+    # wide flukes
+    t = c.part('tail', 'tail', spine[-8][:3])
+    _, ye, ze, _ = spine[-1]
     for sx in (1, -1):
-        t.ell((xe + sx * 0.9 * k, ye + 0.3 * k, ze + 0.2 * k), (1.0 * k, 0.45 * k, 0.24 * k), copper)
-        t.ell((xe + sx * 1.5 * k, ye + 0.5 * k, ze + 0.3 * k), (0.4 * k, 0.3 * k, 0.22 * k), brassL)
-    # copper fin plates down the back
-    fins = c.part('crest', 'static', spine[20][:3])
-    for at in range(8, 52, 6):
-        x, y, z, r = spine[at]
-        L = round((0.9 - 0.008 * at) * k)
+        t.ell((sx * 0.95 * k, ye + 0.35 * k, ze + 0.1 * k), (1.05 * k, 0.5 * k, 0.24 * k), copper)
+        t.ell((sx * 1.6 * k, ye + 0.6 * k, ze + 0.15 * k), (0.42 * k, 0.32 * k, 0.22 * k), brassL)
+    # copper fin plates down the back and a dorsal gear fin in the middle
+    fins = c.part('crest', 'static', spine[24][:3])
+    for at in range(10, 58, 5):
+        _, y, z, r = spine[at]
+        if 26 <= at <= 34:
+            continue
+        L = round((0.85 - 0.006 * at) * k)
         for j in range(L):
-            w = max(0, round((0.45 - 0.4 * j / L) * k))
+            w = max(0, round((0.4 - 0.35 * j / L) * k))
             for dy in range(-w, w + 1):
-                fins.put((math.floor(x), math.floor(y + dy - j * 0.4), math.floor(z + r * 0.88 + j)), copper if j < L - 1 else brassL)
+                fins.put((0, math.floor(y + dy - j * 0.4), math.floor(z + r * 0.86 + j)), copper if j < L - 1 else brassL)
+                fins.put((-1, math.floor(y + dy - j * 0.4), math.floor(z + r * 0.86 + j)), copper if j < L - 1 else brassL)
+    _, gy0, gz0, gr0 = spine[30]
+    G = 1.0 * k
+    for gy in range(-math.ceil(G) - 1, math.ceil(G) + 2):
+        for gz in range(0, math.ceil(G) + 2):
+            d = math.hypot(gy + .5, gz + .5)
+            ang = math.atan2(gz + .5, gy + .5)
+            outer = G + (0.9 if math.cos(ang * 10) > 0.2 else 0)
+            if d > outer or (G * 0.35 < d < G * 0.7 and abs(math.sin(ang * 2)) > 0.45):
+                continue
+            for x in (0, -1):
+                fins.put((x, round(gy0 + gy), round(gz0 + gr0 * 0.75 + gz)), brassL if d > G * 0.8 else steel)
     for q in [q for q in fins.v if q in b.v]:
         del fins.v[q]
-    # the body never touches the ground: brass struts? no - it hovers (Godly)
     tidy(c)
-    orbit_ring(c, k, [(30, 3.0, 0.62, gear(brass, brassL)), (150, 5.6, 0.55, gear(copper, brassL)),
-                      (270, 3.8, 0.6, gear(steel, brassL, glow=False))]
-               + ([(90, 7.0, 0.32, star4(fireL, fire)), (210, 7.2, 0.32, star4(fireL, fire))] if fine else []))
+    orbit_ring(c, k, [(30, 6.0, 0.55, gear(brass, brassL)), (150, 6.2, 0.5, gear(copper, brassL)),
+                      (270, 6.0, 0.55, gear(steel, brassL))]
+               + ([(90, 6.6, 0.3, star4(fireL, fire)), (210, 6.6, 0.3, star4(fireL, fire))] if fine else []),
+               margin=0.4)
     return c
 
 

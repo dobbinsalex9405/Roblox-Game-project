@@ -122,7 +122,7 @@ def front_at(part, x, z, behind=None):
 
 
 def proud_eyes(c, head, centres, rx, rz, iris, ring=INK, pupil=INK, lid=None, glow=True, shine=WHITE,
-               behind=None, slit=False, iris2=None):
+               behind=None, slit=False, iris2=None, pupil_r=0.2):
     """Big eyes that stand one voxel proud of the face, in their own `blink`
     part: the face under each eye turns `lid` colour, so a blink shows a
     closed lid. `centres` are (x, z) of the right eye's centre; the left
@@ -147,7 +147,7 @@ def proud_eyes(c, head, centres, rx, rz, iris, ring=INK, pupil=INK, lid=None, gl
                     if slit:
                         pup = abs(dx) < 0.2 and abs(dz) < 0.8
                     else:
-                        pup = dx * dx + (dz + 0.1) ** 2 < 0.2
+                        pup = dx * dx + (dz + 0.1) ** 2 < pupil_r
                     shn = 0.2 < dz < 0.75 and -0.65 < dx * sx < -0.15
                     if shn:
                         col, g = shine, True
@@ -302,7 +302,7 @@ def orbit_ring(c, k, items, margin=0.9):
             z = want + dz
             # a piece may ride above the body (a halo of moons over a whale's
             # back); the height it adds counts towards the sweep limit
-            if z - r < bottom + 0.4 * r or z + r > top + 2.5 * r:
+            if z - r < bottom + 0.4 * r or z + r > top + 3.5 * r:
                 continue
             height = max(cur_top, math.ceil(z + r + 1)) - bottom
             dist = reach(z - r - 1, z + r + 1) + r + margin * k
