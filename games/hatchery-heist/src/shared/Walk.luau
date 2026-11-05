@@ -29,8 +29,7 @@ export type Config = {
 	turnSeconds: number, -- turning on the spot before a walk
 	faceFrontAfter: number, -- stand this long, then turn to the yard
 	margin: number, -- studs kept clear of the cell's edge
-	cullFloors: number, -- inside a tower, creatures more floors than this from you are not drawn
-	cullOutsideStuds: number, -- outside, creatures farther than this are not drawn
+	cullStuds: number, -- tower creatures farther than this from you are not drawn
 }
 
 export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover" | "swim"
@@ -455,14 +454,11 @@ function Walk.floorAt(above: number, floorHeight: number): number
 	return math.max(1, math.floor((above + 1) / floorHeight) + 1)
 end
 
--- Whether a tower creature is left undrawn. Inside its tower the decks hide
--- other floors, so only floors near yours are drawn; from outside (the yard,
--- another base) every floor shows, up to `cullOutsideStuds` away.
-function Walk.culled(inside: boolean, floorsApart: number, distance: number, config: Config): boolean
-	if inside then
-		return math.floor(floorsApart + 0.5) > config.cullFloors
-	end
-	return distance > config.cullOutsideStuds
+-- Whether a tower creature is left undrawn: only by distance, so every
+-- floor of a tower near you shows, your own tower included (Studio gate,
+-- Nov 5: culling by floor left whole floors looking empty).
+function Walk.culled(distance: number, config: Config): boolean
+	return distance > config.cullStuds
 end
 
 -- The joint a part animates as. Exported meshes tag many heads, tails and

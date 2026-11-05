@@ -35,7 +35,6 @@ local Shared = ReplicatedStorage.Shared
 local ArtScale = require(Shared.ArtScale)
 local CreatureLooks = require(Shared.CreatureLooks)
 local CreatureMeshes = require(Shared.CreatureMeshes)
-local Geometry = require(Shared.Geometry)
 local Layout = require(Shared.Layout)
 local VoxelArt = require(Shared.VoxelArt)
 local Walk = require(Shared.Walk)
@@ -46,8 +45,6 @@ local wander = atmosphere.wander :: Walk.Config
 local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
 local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
 local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
-local FLOOR_HEIGHT = Geometry.FLOOR_HEIGHT
-local TOWER_MIN, TOWER_MAX = Geometry.TOWER_MIN, Geometry.TOWER_MAX
 
 local CreatureView = {}
 
@@ -105,9 +102,7 @@ type Visual = {
 
 -- A floor creature's cell: the middle of its wander area (home), where the
 -- server stood it (stand), its schedule's seed and how far it may stray.
--- `tower` is the creature's base frame (its tower's footprint is
--- Geometry.TOWER_MIN..TOWER_MAX in it), for telling inside from outside.
-type Roam = { home: CFrame, stand: CFrame, tower: CFrame, seed: number, rx: number, rz: number }
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -312,12 +307,9 @@ local function build(anchor: BasePart, speciesId: string)
 			math.max(size.X, size.Z),
 			wander.margin
 		)
-		local tower = (pad :: BasePart).CFrame
-			* CFrame.new(Geometry.toBase(if type(index) == "number" then index else 1))
 		roam = {
 			home = home * CFrame.new(cx, 0, cz),
 			stand = home,
-			tower = tower,
 			seed = Walk.seed(uid),
 			rx = rx,
 			rz = rz,
@@ -858,9 +850,8 @@ function CreatureView.start()
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		local now = os.clock()
 		local serverNow = Workspace:GetServerTimeNow()
-		-- Inside a tower, its creatures more than `cullFloors` floors from you
-		-- are not drawn (the decks hide them, and a full tower is 80); from
-		-- outside every floor shows, up to `cullOutsideStuds` away.
+		-- Tower creatures farther than `cullStuds` from you are not drawn;
+		-- every floor of a tower nearby shows, your own included (Studio gate).
 		local character = Players.LocalPlayer.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		for anchor, v in visuals do
@@ -870,17 +861,8 @@ function CreatureView.start()
 			end
 			local roam = v.roam
 			if roam then
-				local inside, apart, away = false, 0, 0
-				if root then
-					local p = roam.tower:PointToObjectSpace(root.Position)
-					inside = p.X >= TOWER_MIN[1] - 1
-						and p.X <= TOWER_MAX[1] + 1
-						and p.Z >= TOWER_MIN[2] - 1
-						and p.Z <= TOWER_MAX[2] + 1
-					apart = math.abs(roam.home.Position.Y - root.Position.Y) / FLOOR_HEIGHT
-					away = (roam.home.Position - root.Position).Magnitude
-				end
-				setCulled(v, Walk.culled(inside, apart, away, wander))
+				local away = if root then (roam.home.Position - root.Position).Magnitude else 0
+				setCulled(v, Walk.culled(away, wander))
 				if v.culled then
 					continue
 				end
