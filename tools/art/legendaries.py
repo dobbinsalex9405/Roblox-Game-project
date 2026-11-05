@@ -678,8 +678,8 @@ def crystal_triceratops(c, H):
 
 
 def frost_wyvern(c, H):
-    plan('drake', c, H, {'col': '#BFE6FF', 'belly': '#F4FBFF', 'accent': '#7FB8E8', 'glow': '#9FE7FF', 'horn': '#E6FBFF',
-                         'wing': '#9FD8F8'}, kind='wyvern', wings='bat', horns='swept')
+    plan('drake', c, H, {'col': '#4A8FE0', 'belly': '#DFF4FF', 'accent': '#2A5FB0', 'glow': '#4FD0FF', 'horn': '#E6FBFF',
+                         'wing': '#2A5FB0'}, kind='wyvern', wings='bat', horns='swept')
     k = H / 10.0
     # icicles hanging from the wings' lower edge
     for name in ('wingL', 'wingR'):
@@ -689,10 +689,19 @@ def frost_wyvern(c, H):
             if (x, y) not in lows or z < lows[(x, y)]:
                 lows[(x, y)] = z
         for (x, y), z in lows.items():
-            if x % 3 == 0 and y == min(yy for (xx, yy) in lows if xx == x):
-                n = 1 + (abs(x) * 7) % max(2, round(0.9 * k))
+            if x % 2 == 0 and y == min(yy for (xx, yy) in lows if xx == x):
+                n = round(0.5 * k) + (abs(x) * 7) % max(2, round(0.9 * k))
                 for i in range(n):
-                    w.put((x, y, z - 1 - i), ICE_L, True)
+                    w.put((x, y, z - 1 - i), ICE_L if i >= n - 2 else P('#4FC8FF'), True)
+    # ice shards along the spine
+    body = c.part('body')
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
+    sh = c.part('shards', 'glow')
+    for i in range(5):
+        y = by0 + (by1 - by0) * (0.15 + 0.17 * i)
+        t = top_of(body, 0, round(y))
+        if t is not None:
+            crystal(sh, 0, round(y), t, (1.4 - 0.15 * i) * k, 0.4 * k, P('#4FC8FF'), ICE_L, lean=(0, 0.15))
     # frost breath: a glowing mouth and a puff of crystals before it
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
@@ -719,12 +728,12 @@ def verdant_wyrm(c, H):
     fl = c.part('flowers', 'glow')
     seen = set()
     for (x, y, z) in pts:
-        key = (x // max(2, round(0.9 * k)), y // max(2, round(0.9 * k)))
+        key = (x // max(2, round(1.4 * k)), y // max(2, round(1.4 * k)))
         if key in seen:
             continue
         seen.add(key)
-        petal = (BLOSSOM, P('#FFE14D'), P('#C9A3FF'))[len(seen) % 3]
-        flower(fl, x, y, z + 1, k * 0.9, petal=petal, heart=GOLD, glow=True)
+        petal = (P('#FF5FA0'), P('#FFD400'), P('#A86AFF'))[len(seen) % 3]
+        flower(fl, x, y, z + 1, k * 1.3, petal=petal, heart=GOLD, glow=True)
     sp.v = {}
     # leafy horns
     head = c.part('head')
@@ -1191,24 +1200,41 @@ def mirror_cat(c, H):
             continue
         p.paint(lambda q, cc, g: (WHITE, False) if cc == P('#C8D0DC') and (q[2] + q[1] // 2) % 6 == 0 else (
             (P('#8A96A8'), False) if cc == P('#C8D0DC') and (q[2] + q[1] // 2) % 6 == 3 else None))
-    c.part('eyes').paint(lambda q, cc, g: (P('#2EE8C8'), True) if cc != WHITE else None)
+    # gem eyes: emerald, cut by a dark cat's slit, with the white glint kept
+    eyes = c.part('eyes')
+    eyes.paint(lambda q, cc, g: (P('#12D69A'), True) if cc != WHITE else None)
+    for side in (1, -1):
+        xs = sorted({q[0] for q in eyes.v if (q[0] >= 0) == (side > 0)})
+        if xs:
+            mid = xs[len(xs) // 2]
+            eyes.paint(lambda q, cc, g: (P('#0A3A2E'), False) if q[0] == mid and cc != WHITE else None)
     # the floating mirror, in a gold frame, circling it
     mir = orbit_part(c, 'mirror', (0, 0, 5 * k))
     mx0, my0, mz0 = 3.4 * k, -0.6 * k, 6.6 * k
+    glass, glass_d = P('#DCE8F8'), P('#AFC4E0')
     for x in range(-round(1.2 * k), round(1.2 * k) + 1):
         for z in range(-round(1.6 * k), round(1.6 * k) + 1):
             d = (x / (1.2 * k)) ** 2 + (z / (1.6 * k)) ** 2
-            if d <= 1:
-                frame = d > 0.7
-                mir.put((round(mx0), round(my0 + x), round(mz0 + z)), GOLD if frame else P('#BFF4FF'), not frame or True)
-                mir.put((round(mx0) + 1, round(my0 + x), round(mz0 + z)), GOLD_D)
+            if d > 1:
+                continue
+            frame = d > 0.68
+            for dx in (0, 1, 2):  # silver glass both faces, so it reads as a mirror from any side
+                if frame:
+                    col, g = (GOLD if dx != 1 else GOLD_D), dx != 1
+                elif dx == 1:
+                    col, g = GOLD_D, False
+                else:
+                    streak = abs((x - z * 0.6) - 0.3 * k) < 0.35 * k
+                    col, g = (WHITE, True) if streak else (glass if (x + z) % 4 else glass_d, False)
+                mir.put((round(mx0) + dx, round(my0 + x), round(mz0 + z)), col, g)
     # a gem on the cat's brow
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
-    f = head.front(0, z1 - round(0.6 * k)) or head.front(-1, z1 - round(0.6 * k))
+    f = head.front(0, z1 - round(0.25 * k)) or head.front(-1, z1 - round(0.25 * k))
     if f:
         gem = c.part('gem', 'glow', head.pivot)
-        gem.ell((f[0] + .5 - 0.5, f[1] - 0.5, f[2]), (0.5 * k, 0.6, 0.5 * k), P('#2EE8C8'), True)
+        for (dx, dz) in ((0, 0), (-1, 0), (0, 1), (-1, 1), (0, -1), (-1, -1)):
+            gem.put((f[0] + dx, f[1] - 1, f[2] + dz), P('#12D69A') if dz < 1 else P('#7FFFD8'), True)
     return c
 
 
@@ -1425,22 +1451,43 @@ def arcane_tortoise(c, H):
         if p.name in ('shell', 'body'):
             p.paint(lambda q, cc, g: (P('#7FE6FF'), True) if cc == P('#4A5A8A') and (
                 (q[0] + q[1]) % round(1.4 * k) == 0 or (q[0] - q[1]) % round(1.4 * k) == 0) and q[2] > 2.2 * k else None)
-    # the floating spellbook, open, circling above its shell
+    # the floating spellbook: a thick purple tome lying open in a shallow V,
+    # cream pages ruled with purple script and a glowing sigil hovering
+    # over it, circling above its shell
     bk = orbit_part(c, 'spellbook', (0, 0, 6 * k))
-    bx, by, bz = 2.6 * k, 0, 6.6 * k
+    bx, by, bz = 2.4 * k, 0, 6.6 * k
+    pw, pd = round(1.5 * k), round(2.0 * k)
+    cover, cover_d, page = P('#7A2EC8'), P('#4A1A88'), P('#FFF3D6')
     for side in (1, -1):
-        for x in range(round(1.4 * k)):
-            for y in range(round(1.8 * k)):
-                z = bz + x * 0.3
-                bk.put((round(bx + side * x) - (1 if side < 0 else 0), round(by + y - 0.9 * k), round(z)), P('#FFF6E0'))
-                bk.put((round(bx + side * x) - (1 if side < 0 else 0), round(by + y - 0.9 * k), round(z) - 1), P('#7A2EC8'))
-    for y in range(round(1.8 * k)):
-        bk.put((round(bx) - 1, round(by + y - 0.9 * k), round(bz) - 1), P('#5A1EA8'))
-        bk.put((round(bx), round(by + y - 0.9 * k), round(bz) - 1), P('#5A1EA8'))
-    # glowing letters rising from the pages
-    for i in range(3):
-        bk.put((round(bx + 0.4 * k), round(by - 0.4 * k + i), round(bz + 1 + i)), P('#7FE6FF'), True)
-        bk.put((round(bx - 0.6 * k), round(by + i), round(bz + 1 + i)), P('#C9A3FF'), True)
+        for x in range(pw + 1):
+            X = round(bx + side * x) - (1 if side < 0 else 0)
+            z = round(bz + x * 0.35)
+            for y in range(-1, pd + 1):
+                Y = round(by) + y - pd // 2
+                edge = x == pw or y in (-1, pd)
+                bk.put((X, Y, z - 1), cover_d if edge else cover)
+                bk.put((X, Y, z - 2), cover_d)
+                if not edge:
+                    bk.put((X, Y, z), P('#6A3AA8') if (y % 3 == 1 and 1 <= x < pw - 1) else page)
+    for y in range(-1, pd + 1):  # the spine
+        for dz in (1, 2, 3):
+            bk.put((round(bx) - 1, round(by) + y - pd // 2, round(bz) - dz), cover_d)
+            bk.put((round(bx), round(by) + y - pd // 2, round(bz) - dz), cover_d)
+    # a glowing rune on each page, and a twist of glowing letters rising
+    # off the right-hand page
+    for side in (1, -1):
+        x = round(pw * 0.5)
+        X = round(bx + side * x) - (1 if side < 0 else 0)
+        z = round(bz + x * 0.35)
+        col = P('#2EE8FF') if side > 0 else P('#C96AFF')
+        for (dx, dy) in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+            bk.put((X + dx, round(by) + dy, z), col, True)
+    x = round(pw * 0.5)
+    X = round(bx + x)
+    z = round(bz + x * 0.35)
+    for i in range(1, 5):
+        bk.put((X + (i // 2) % 2, round(by), z + i), P('#2EE8FF') if i % 2 else P('#C96AFF'), True)
+        bk.put((X + (i // 2) % 2 - 1 + 1, round(by), z + i - 1 if i > 1 else z + i), P('#2EE8FF'), True)
     # a wizard's star on its head
     head = part_or_none(c, 'head')
     if head:
