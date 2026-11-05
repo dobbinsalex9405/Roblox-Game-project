@@ -6715,7 +6715,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	NebulaSerpent = {
 		assetId = 133734762072662,
-		textureId = 101809606487460,
+		textureId = 96467455306922,
 		rarity = "Godly",
 		gait = "hover",
 		height = 4.1875,
