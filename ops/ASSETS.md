@@ -12,11 +12,13 @@ broken upload never breaks a hatch.
    ROSTER line.
 2. **In-game boxes.** `python3 tools/art/export.py` writes
    `src/shared/VoxelArt.luau`. This works at once and needs no upload.
-3. **Meshes.** `tools/art/blender/build.py` turns the same voxels, at twice
-   the detail for the small tiers, into bevelled voxel meshes. It writes
+3. **Meshes.** `tools/art/blender/build.py` turns the same voxels, rebuilt
+   at one voxel size for every tier (0.1 stud, Alex's pick), into bevelled
+   voxel meshes plus a flat far version (`*_lod1`) of every part. It writes
    `.fbx` and `.glb` files, the palette texture, `meta.json` and review
-   renders. Renders for Alex go in project files under
-   `art/hatchery-heist/blender/<id>/`.
+   renders. `--designs /mnt/project-files/designs` also copies each creature
+   into the design library Alex browses in the 3D viewer
+   (`Creatures/Hatchery Heist/<Tier>/<Species>/`).
 4. **Upload.** Start the **Upload creature meshes** workflow by hand. It
    builds the meshes, uploads each creature's `.fbx` as a Model asset, and
    opens a draft PR that records the asset ids in
@@ -58,7 +60,11 @@ again with that group's key. Production then needs its own ids (see
 
 - Meshes are at most 18,000 triangles each. Roblox allows 20,000; bigger
   parts are split.
-- A Common is about 6,000 to 8,000 triangles in all. Legendaries and Godlies
-  are 40,000 to 65,000. Mesh render fidelity stays Automatic, so distant
-  creatures use fewer triangles.
+- Close up (LOD0), a creature is at most 15,000 triangles for Common to Rare,
+  20,000 for Ultra Rare, 28,000 for Epic and 40,000 for Legendary and Godly
+  (`CreatureMeshes.spec`). Today: Commons 5,500 to 10,800, Godlies 32,000 to
+  37,000. Undersides and glowing faces (Neon shows no bevel) are flat.
+- Far away (past 30 studs) the game draws LOD1: flat, greedy-merged faces, at
+  most 4,000 triangles a creature (most about 1,000). This keeps a floor of 8
+  to 10 creatures light on a phone.
 - The palette textures are tiny (64 × 16 to 64 × 64 pixels).

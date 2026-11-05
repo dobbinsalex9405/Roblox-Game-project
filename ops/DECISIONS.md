@@ -2,6 +2,23 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creature meshes v2 (Hatchery Heist)
+
+- **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
+  Chick and Piglet (Nov 5). Each tier is built at its planned pad height
+  (2, 2.2, 2.4, 2.7, 3, 3.4, 3.8 studs, Common to Godly), so bigger tiers get
+  more voxels, not bigger ones. Seams are about half as strong as v1 and
+  snouts and beaks sit flatter, as Alex asked.
+- **The game scales meshes to the voxel boxes' height** (`CreatureView`
+  `fit`), so `Layout.raritySize` stays the only size knob when the pad sizes
+  change.
+- **Triangle caps per tier and a far LOD**, agreed with the game side for 8
+  to 10 roaming creatures a floor (ops/ASSETS.md "Budgets"). A hard 15,000
+  cap for every tier was turned down: it would need 3× coarser voxels on the
+  Godlies, the look Alex had just approved.
+- **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
+  gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
+
 
 
 ## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)

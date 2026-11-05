@@ -27,6 +27,8 @@
 - Creatures can now be drawn as polished Blender voxel meshes with bevelled
   cubes and twice the detail; until their meshes are uploaded they look as
   before.
+- Creature meshes v2: finer voxels, softer seams, flatter snouts, a rounder
+  Piglet, and a light far version of every creature for phones.
 - Fixed: an incubator could keep saying "Ready!" after its egg hatched.
 - The odds card and the odds board use one text size per list, so long
   names no longer show smaller than their neighbours.
