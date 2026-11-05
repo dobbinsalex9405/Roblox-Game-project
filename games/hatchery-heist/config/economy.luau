@@ -24,10 +24,16 @@ return {
 	-- so every player sees the same belt and the server can check any purchase.
 	-- `weights` picks which egg comes next (the player sees the egg before
 	-- buying it); only coin eggs ride the belt.
+	-- The Egg Market in the middle of the map (shared/Conveyor.luau): one
+	-- belt for everyone, first to buy an egg gets it.
 	conveyor = {
-		spawnSeconds = 3, -- one new egg this often
-		travelSeconds = 18, -- time an egg takes to ride the whole belt
-		weights = { BasicEgg = 70, MeadowEgg = 25, MoonlitEgg = 5 },
+		spawnSeconds = 0.5, -- one new egg this often, lanes taking turns
+		travelSeconds = 30, -- time an egg takes to ride once round
+		lanes = 2, -- rings of the belt (Layout.MARKET_LANES)
+		-- How far from an egg (studs, flat) the server still sells it: the Buy
+		-- prompt's 10 plus how far an egg rides in the latency allowance.
+		buyReach = 20,
+		weights = { BasicEgg = 55, MeadowEgg = 30, MoonlitEgg = 15 },
 	},
 
 	-- The tower (shared/Tower.luau). Only creatures placed on a floor earn.

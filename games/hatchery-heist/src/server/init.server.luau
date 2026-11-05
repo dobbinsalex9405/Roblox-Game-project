@@ -19,6 +19,7 @@ local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
+local Conveyor = require(Shared.Conveyor)
 local DataTemplate = require(Shared.DataTemplate)
 local FeedbackContext = require(Shared.FeedbackContext)
 local Eggs = require(Shared.Eggs)
@@ -38,6 +39,7 @@ local Scenery = require(script.Scenery)
 local ShopHouse = require(script.ShopHouse)
 local Speed = require(script.Speed)
 local World = require(script.World)
+local Market = require(script.Market)
 
 local TICK_SECONDS = 10 -- income is added to the pending pile this often
 
@@ -111,6 +113,7 @@ end
 local atmosphere = Config.get("atmosphere")
 Scenery.build(atmosphere)
 ShopHouse.build(Config.get("shophouse"), monetization, Config.get("raids"))
+Market.build()
 Mounts.start()
 CreatureAssets.start(log)
 -- Nature meshes, skybox and grass tile (tools/art/env); until they load the
@@ -246,6 +249,25 @@ local ready: Actions.Actions = Actions.new({
 		return Workspace:GetServerTimeNow()
 	end,
 	plotOf = World.plotOf,
+	-- Reach is measured from the egg where the server's clock has it, with
+	-- room for the egg moving on during the player's latency.
+	nearEgg = function(player: Player, index: number, serverNow: number): boolean
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root == nil then
+			return false
+		end
+		local belt = config.economy.conveyor
+		local progress = (serverNow - Conveyor.spawnTime(index, belt)) / belt.travelSeconds
+		local at = Market.eggPosition(Conveyor.laneOf(index, belt), progress)
+		local flat = Vector3.new(root.Position.X - at.X, 0, root.Position.Z - at.Z)
+		return flat.Magnitude <= belt.buyReach
+	end,
+	eggSold = function(index: number)
+		for _, other in Players:GetPlayers() do
+			fire(Remotes["HH:EggSold"], other, index)
+		end
+	end,
 	notify = function(player: Player, text: string)
 		fire(Remotes["HH:Notice"], player, text)
 	end,

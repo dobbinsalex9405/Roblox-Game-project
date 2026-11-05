@@ -364,7 +364,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			end
 		end
 		herdInfo.Text = if #list == 0
-			then "No creatures yet. Buy an egg from the belt and hatch it!"
+			then "No creatures yet. Buy an egg at the Egg Market and hatch it!"
 			else `Earning: {usedCount}/{owned * Tower.SPOTS} slots used. In your inventory: {waiting}.`
 		for i, c in list do
 			local species = ctx.config.creatures.species[c.speciesId]

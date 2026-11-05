@@ -5,6 +5,7 @@
 -- odds board at the conveyor. Built from code; art comes after the gate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
@@ -186,62 +187,68 @@ function Hud.start(ctx: Context.Context)
 	listLayout(card, 8)
 	local cardEgg: string? = nil
 
-	-- Odds board over the player's own belt: every egg the belt carries.
-	local boardGui: SurfaceGui? = nil
+	-- The Egg Market's kiosk: four boards over the Golden Nest. Everyone sees
+	-- their title; this client draws its own odds (fixed order for a
+	-- restricted player) over every face, one column per belt egg.
+	local boardGuis: { [BasePart]: SurfaceGui } = {}
+	local boardGui: SurfaceGui? = nil -- set once the kiosk is found
 	local function renderBoard()
-		local model = ctx.plot()
-		if model == nil then
+		local market = Workspace:FindFirstChild("EggMarket")
+		local boards = market and market:FindFirstChild("Boards")
+		if boards == nil then
 			return
 		end
-		local board = model:FindFirstChild("OddsBoard")
-		if board == nil then
-			return
-		end
-		-- Everyone else sees the board's title; on your own board the real
-		-- odds replace it.
-		local title = board:FindFirstChild("Title")
-		if title and title:IsA("SurfaceGui") then
-			title.Enabled = false
-		end
-		if boardGui == nil or boardGui.Parent ~= board then
-			local sg = Instance.new("SurfaceGui")
-			sg.Name = "Odds"
-			sg.Face = Enum.NormalId.Front
-			sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			sg.PixelsPerStud = 25
-			sg.LightInfluence = 0 -- readable in the board's own shadow
-			sg.Adornee = board
-			local holder = Instance.new("Frame")
-			holder.Name = "Holder"
-			holder.Size = UDim2.fromScale(1, 1)
-			holder.BackgroundTransparency = 1
-			local layout = Instance.new("UIListLayout")
-			layout.FillDirection = Enum.FillDirection.Horizontal
-			layout.SortOrder = Enum.SortOrder.Name
-			layout.Padding = UDim.new(0, 12)
-			layout.Parent = holder
-			holder.Parent = sg
-			sg.Parent = ctx.player:WaitForChild("PlayerGui")
-			boardGui = sg
-		end
-		local holder = (boardGui :: SurfaceGui):FindFirstChild("Holder") :: Frame
 		local ids = {}
 		for eggId in ctx.config.economy.conveyor.weights do
 			table.insert(ids, eggId)
 		end
 		table.sort(ids)
-		for _, eggId in ids do
-			local column = holder:FindFirstChild(eggId) :: Frame?
-			if column == nil then
-				local c = Instance.new("Frame")
-				c.Name = eggId
-				c.BackgroundTransparency = 1
-				c.Size = UDim2.new(1 / #ids, -12, 1, 0)
-				listLayout(c, 2)
-				c.Parent = holder
-				column = c
+		for _, board in boards:GetChildren() do
+			if not board:IsA("BasePart") then
+				continue
 			end
-			OddsView.render(column :: Frame, eggId, true)
+			local title = board:FindFirstChild("Title")
+			if title and title:IsA("SurfaceGui") then
+				title.Enabled = false
+			end
+			local sg: SurfaceGui? = boardGuis[board]
+			if sg == nil then
+				local g = Instance.new("SurfaceGui")
+				g.Name = `Odds{board.Name}`
+				g.Face = Enum.NormalId.Front
+				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+				g.PixelsPerStud = 50
+				g.LightInfluence = 0 -- readable under the kiosk's roof
+				g.Adornee = board
+				local holder = Instance.new("Frame")
+				holder.Name = "Holder"
+				holder.Size = UDim2.fromScale(1, 1)
+				holder.BackgroundTransparency = 1
+				local layout = Instance.new("UIListLayout")
+				layout.FillDirection = Enum.FillDirection.Horizontal
+				layout.SortOrder = Enum.SortOrder.Name
+				layout.Padding = UDim.new(0, 12)
+				layout.Parent = holder
+				holder.Parent = g
+				g.Parent = ctx.player:WaitForChild("PlayerGui")
+				boardGuis[board] = g
+				boardGui = g
+				sg = g
+			end
+			local holder = (sg :: SurfaceGui):FindFirstChild("Holder") :: Frame
+			for _, eggId in ids do
+				local column = holder:FindFirstChild(eggId) :: Frame?
+				if column == nil then
+					local c = Instance.new("Frame")
+					c.Name = eggId
+					c.BackgroundTransparency = 1
+					c.Size = UDim2.new(1 / #ids, -12, 1, 0)
+					listLayout(c, 2)
+					c.Parent = holder
+					column = c
+				end
+				OddsView.render(column :: Frame, eggId, true)
+			end
 		end
 	end
 

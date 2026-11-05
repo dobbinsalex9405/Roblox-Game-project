@@ -48,8 +48,10 @@ return function(Schema: any, Odds: any)
 			incomeBonusPerRebirth = positive,
 		}),
 		conveyor = Schema.record({
-			spawnSeconds = Schema.number({ min = 0.5, max = 60 }),
+			spawnSeconds = Schema.number({ min = 0.25, max = 60 }),
 			travelSeconds = Schema.number({ min = 2, max = 120 }),
+			lanes = Schema.integer({ min = 1, max = 2 }),
+			buyReach = Schema.number({ min = 10, max = 60 }),
 			weights = Schema.map(id, Schema.integer({ min = 1 })),
 		}),
 		tower = Schema.record({

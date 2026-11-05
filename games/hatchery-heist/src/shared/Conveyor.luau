@@ -1,11 +1,13 @@
 --!strict
--- Each base's egg conveyor, as a pure schedule over server time.
+-- The Egg Market's conveyor in the middle of the map, as a pure schedule
+-- over server time. Everyone shares it: whoever buys an egg first gets it.
 --
 -- Egg number n appears at the start of the belt at n * spawnSeconds and rides
--- to the end over travelSeconds. Which egg it is comes from a fixed hash of n
--- and the base, so the server and every client agree on the whole belt
+-- once round over travelSeconds, on lane n % lanes + 1 (two rings, so each
+-- lane gets an egg every spawnSeconds * lanes). Which egg it is comes from a
+-- fixed hash of n, so the server and every client agree on the whole belt
 -- without sending a single message, and the server can check any purchase
--- ("egg 591 on base 3") against the clock.
+-- ("egg 591") against the clock.
 --
 -- The egg kind is shown before purchase (it is the egg you click), so this
 -- choice is not a paid random item; the hatch result is, and is handled by
@@ -14,6 +16,8 @@
 export type ConveyorConfig = {
 	spawnSeconds: number,
 	travelSeconds: number,
+	lanes: number,
+	buyReach: number,
 	weights: { [string]: number },
 }
 
@@ -60,10 +64,10 @@ local function sortedWeights(weights: { [string]: number }): ({ string }, number
 	return ids, total
 end
 
--- The egg kind of egg number `index` on base `plot`.
-function Conveyor.eggAt(index: number, plot: number, config: ConveyorConfig): string
+-- The egg kind of egg number `index`.
+function Conveyor.eggAt(index: number, config: ConveyorConfig): string
 	local ids, total = sortedWeights(config.weights)
-	local pick = mix(index * 31 + plot * 7919) % total
+	local pick = mix(index * 31) % total
 	for _, id in ids do
 		pick -= config.weights[id]
 		if pick < 0 then
@@ -77,8 +81,13 @@ function Conveyor.spawnTime(index: number, config: ConveyorConfig): number
 	return index * config.spawnSeconds
 end
 
+-- Which lane (1 to config.lanes) egg number `index` rides.
+function Conveyor.laneOf(index: number, config: ConveyorConfig): number
+	return index % config.lanes + 1
+end
+
 -- Every egg on the belt at `now`, oldest (furthest along) first.
-function Conveyor.onBelt(now: number, plot: number, config: ConveyorConfig): { BeltEgg }
+function Conveyor.onBelt(now: number, config: ConveyorConfig): { BeltEgg }
 	local first = math.ceil((now - config.travelSeconds) / config.spawnSeconds)
 	local last = math.floor(now / config.spawnSeconds)
 	local eggs = {}
@@ -87,7 +96,7 @@ function Conveyor.onBelt(now: number, plot: number, config: ConveyorConfig): { B
 		if progress >= 0 and progress <= 1 then
 			table.insert(eggs, {
 				index = index,
-				eggId = Conveyor.eggAt(index, plot, config),
+				eggId = Conveyor.eggAt(index, config),
 				progress = progress,
 			})
 		end
