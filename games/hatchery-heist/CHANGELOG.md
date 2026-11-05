@@ -14,6 +14,9 @@
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.
+- Fix: a creature's legs, wings, tails and heads no longer flicker where
+  they swing against the body (a bunny's hind feet kicking back in a hop
+  showed a striped patch at the hip).
 - Fix: a creature no longer stays blocky for a whole server when Roblox
   turns away one of its model loads. Loads go a few at a time and retry,
   and the server log says why a creature stayed on its blocks. A missing
