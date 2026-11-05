@@ -282,3 +282,16 @@ FAIL on three items; sizes and frame rate pass.
   Fox, Frost Wolf and Crystal Stag. Ember Fox drew as 61 voxel boxes. Plus about 12 "Asset content
   representation is being generated" notes for new image ids.
 - Phone 844x392 with 15 creatures on floor 3: 58 fps. No game errors.
+
+## Gate: #91 at a327f2f (apartment interior)
+
+PASS with one finding and one gap. Floors 2-4 were built and fully furnished. The furnished
+floors are cozy, not washed out (`91-hh-book-nook`): 0 Neon and 12 lamps at brightness 0.40.
+Each furnishing step grows in over about 0.3 s with an UpgradeSparkle particle burst. **No sound:**
+Sfx.play("reward") is called, but `sounds.reward.id` is 0 in atmosphere.luau, so it's silent. A
+Chick moved to Pad9 on floor 2 sits on the reading cushion and shows (`91-hh-chick-on-cushion`).
+Ladder opening clear of furniture on floors 1-4 (scripted check). **Gap:** floors 5-10 were built
+but my clicks on their Upgrade buttons didn't register, so they have no furniture and weren't
+checked. Phone 844x392 inside the tower with 3 furnished floors: 60 fps. No game errors. Output
+also shows "creature meshes did not load; drawing voxel boxes" for FrostWolf, CrystalStag,
+EmberFox and MoonUnicorn (the #94 issue).
