@@ -1137,11 +1137,17 @@ def serpent(c, H, cols, opts):
             z = 1.5 * k + u * 5.0 * k
             r = (1.2 - 0.25 * u) * k
         pts.append((x, y, max(r, z), r))
+    # the coil's thin end is its own tail part (it sways), hinged where it
+    # joins the rest of the coil
+    cut = round(n * 0.2)
+    tail = c.part('tail', 'tail', pts[cut][:3])
     for i, (x, y, z, r) in enumerate(pts):
-        body.ell((x, y, z), (r, r, r), col)
+        (tail if i <= cut else body).ell((x, y, z), (r, r, r), col)
     # belly scales: a lighter stripe on the inside of the neck and coil
     body.paint(lambda p, cc, g: (belly, False) if cc == col and (p[2] < 0.6 * k or (p[1] < -1.8 * k and p[2] > 1.6 * k)) else None)
     body.paint(lambda p, cc, g: (dark(col, 0.18), False) if cc == col and (p[0] * 3 + p[1] * 5 + p[2] * 7) % 13 == 0 else None)
+    tail.paint(lambda p, cc, g: (belly, False) if cc == col and p[2] < 0.6 * k else None)
+    tail.paint(lambda p, cc, g: (dark(col, 0.18), False) if cc == col and (p[0] * 3 + p[1] * 5 + p[2] * 7) % 13 == 0 else None)
     hx, hy, hz = pts[-1][0], pts[-1][1] - 0.6 * k, pts[-1][2] + 0.6 * k
     head = c.part('head', 'head', (hx, hy + 0.6 * k, hz - 0.6 * k))
     _serpent_head(c, head, k, hx, hy, hz, col, belly, iris, kind, 1.0)
@@ -1285,22 +1291,24 @@ def upright(c, H, cols, opts):
 
 
 def _golem(c, k, col, belly, accent, glow, iris):
-    """A hulking block golem: shoulders far wider than the head, thick
-    blocky arms hanging to big fists, short heavy legs and a small head sunk
+    """A hulking block golem: a barrel chest and shoulders far wider than the
+    head (and deep: at least 60% as deep as wide), thick blocky arms hanging
+    to big fists, short heavy legs and a small rock head jutting forward
     between the shoulders. c.joints lists the shoulder, elbow and knee
-    points (for lava, moss or crystals at the joints)."""
+    points; c.undersides the voxels under which drips can hang."""
     u = k * 1.4
     body = c.part('body')
     top = round(1.25 * u)
     dk = dark(col, 0.12)
     for side in ('L', 'R'):
-        leg(c, side, 0, 1, 0.85 * u, 0.2 * u, top, 0.7 * u, dk, foot=dark(col, 0.3), foot_h=max(1, round(0.3 * u)), wide=0.18 * u)
-    # torso: a deep block, wider at the chest
+        leg(c, side, 0, 1, 0.85 * u, 0.1 * u, top, 0.75 * u, dk, foot=dark(col, 0.3), foot_h=max(1, round(0.3 * u)), wide=0.2 * u,
+            ry=0.9 * u)
+    # torso: a deep barrel, wider and deeper at the chest
     t0, t1 = top - round(0.2 * u), top + round(2.7 * u)
-    body.box((-round(1.5 * u), -round(1.0 * u), t0), (round(1.5 * u) - 1, round(1.0 * u), t1), col)
-    body.box((-round(1.9 * u), -round(1.15 * u), top + round(1.5 * u)), (round(1.9 * u) - 1, round(1.1 * u), t1), col)
+    body.box((-round(1.5 * u), -round(1.45 * u), t0), (round(1.5 * u) - 1, round(1.45 * u), t1), col)
+    body.box((-round(1.9 * u), -round(1.75 * u), top + round(1.4 * u)), (round(1.9 * u) - 1, round(1.6 * u), t1), col)
     # a lighter chest plate
-    body.box((-round(1.1 * u), -round(1.15 * u) - 1, top + round(0.9 * u)), (round(1.1 * u) - 1, -round(1.15 * u) - 1, t1 - round(0.4 * u)),
+    body.box((-round(1.1 * u), -round(1.75 * u) - 1, top + round(1.0 * u)), (round(1.1 * u) - 1, -round(1.75 * u) - 1, t1 - round(0.4 * u)),
              belly)
     joints = []
     for sx in (1, -1):
@@ -1308,19 +1316,21 @@ def _golem(c, k, col, belly, accent, glow, iris):
             a, b = (round(x0), round(x1) - 1) if sx > 0 else (mx(round(x1) - 1), mx(round(x0)))
             body.box((a, round(y0), round(z0)), (b, round(y1), round(z1)), cc)
         # shoulder boulder, upper arm, forearm and a big fist
-        bx(1.7 * u, 2.9 * u, -0.75 * u, 0.75 * u, t1 - 1.0 * u, t1 + 0.35 * u, col)
-        bx(2.0 * u, 2.8 * u, -0.5 * u, 0.5 * u, top + 0.7 * u, t1 - 0.8 * u, dk)
-        bx(1.95 * u, 2.95 * u, -0.75 * u, 0.4 * u, top - 0.3 * u, top + 0.9 * u, col)
-        bx(1.85 * u, 3.1 * u, -0.95 * u, 0.5 * u, top - 1.0 * u, top - 0.1 * u, dark(col, 0.2))
-        joints += [(sx * 2.4 * u, -0.8 * u, t1 - 0.6 * u), (sx * 2.45 * u, -0.6 * u, top + 0.75 * u),
-                   (sx * 0.85 * u, -0.75 * u, top * 0.5)]
-    # small head sunk between the shoulders, a heavy brow over glowing eyes
-    hz0, hz1 = t1 - round(0.35 * u), t1 + round(1.05 * u)
-    head = c.part('head', 'head', (0, 0, t1))
-    head.box((-round(0.8 * u), -round(0.95 * u), hz0), (round(0.8 * u) - 1, round(0.6 * u), hz1), col)
-    head.box((-round(0.95 * u), -round(1.05 * u), hz1 - round(0.45 * u)), (round(0.95 * u) - 1, -round(0.8 * u), hz1 - round(0.25 * u)),
-             dark(col, 0.25))
-    eye_pair(c, head, max(1, round(0.35 * u)), hz1 - round(0.75 * u), max(2, round(0.28 * u)), iris=iris, glow=glow is not None, tall=0)
+        bx(1.7 * u, 2.95 * u, -1.25 * u, 1.1 * u, t1 - 1.0 * u, t1 + 0.4 * u, col)
+        bx(2.0 * u, 2.8 * u, -0.8 * u, 0.8 * u, top + 0.7 * u, t1 - 0.8 * u, dk)
+        bx(1.95 * u, 2.95 * u, -1.0 * u, 0.8 * u, top - 0.3 * u, top + 0.9 * u, col)
+        bx(1.85 * u, 3.1 * u, -1.2 * u, 0.9 * u, top - 1.0 * u, top - 0.1 * u, dark(col, 0.2))
+        joints += [(sx * 2.4 * u, -1.3 * u, t1 - 0.6 * u), (sx * 2.45 * u, -1.05 * u, top + 0.75 * u),
+                   (sx * 0.85 * u, -0.95 * u, top * 0.5)]
+    # small rock head jutting forward between the shoulders, a heavy brow
+    # over glowing eyes; a darker rock than the body so it reads apart
+    hz0, hz1 = t1 - round(0.3 * u), t1 + round(1.25 * u)
+    head = c.part('head', 'head', (0, -0.6 * u, t1))
+    hc = dark(col, 0.18)
+    head.box((-round(0.8 * u), -round(2.05 * u), hz0), (round(0.8 * u) - 1, -round(0.4 * u), hz1), hc)
+    head.box((-round(0.95 * u), -round(2.15 * u), hz1 - round(0.5 * u)), (round(0.95 * u) - 1, -round(1.9 * u), hz1 - round(0.3 * u)),
+             dark(col, 0.35))
+    eye_pair(c, head, max(1, round(0.3 * u)), hz1 - round(0.85 * u), max(2, round(0.3 * u)), iris=iris, glow=glow is not None, tall=0)
     c.joints = joints
     c.gait_hint = KIND_GAIT.get('golem', 'waddle')
     return c
@@ -1354,12 +1364,20 @@ def _seahorse(c, k, col, belly, accent, glow, iris):
         body.ell((x, y, z), (r * 0.85, r, r * 0.6), col)
     body.paint(lambda p, cc, g: (belly, False) if p[1] < -0.9 * k and cc == col else None)
     body.paint(lambda p, cc, g: (dark(belly, 0.15), False) if cc == belly and p[2] % max(2, round(0.5 * k)) == 0 else None)
-    # curled tail under it
+    # the curled tail: down from the body, then rolling forward under the
+    # belly into a tight spiral (a seahorse reads by it)
     tail = c.part('tail', 'tail', (0, -0.4 * k, cz0))
-    for i in range(24):
-        a = i / 23 * math.pi * 1.6
-        rr = 1.1 * k * (1 - i / 34)
-        tail.ell((0, -0.4 * k + math.sin(a) * rr, cz0 - 1.0 * k + math.cos(a) * rr * 0.9 + 0.2 * k), (max(0.6, 0.45 * k * (1 - i / 30)),) * 3, col)
+    R0, cy, czc = 1.35 * k, -0.35 * k, 1.35 * k
+    pts = []
+    n = 40
+    for i in range(n + 1):
+        t = i / n
+        th = math.pi / 2 - t * 3.3 * math.pi
+        R = R0 * (1 - 0.68 * t)
+        pts.append((0, cy + R * math.cos(th), czc + R * math.sin(th) + (0.5 * k * (1 - t) if t < 0.25 else 0),
+                    max(0.6, 0.55 * k * (1 - 0.6 * t))))
+    sweep(tail, pts, lambda s: col if s < 0.85 else dark(col, 0.12))
+    tail.paint(lambda p, cc, g: (dark(col, 0.12), False) if cc == col and p[2] % max(2, round(0.45 * k)) == 0 else None)
     hz = cz0 + 6.4 * k
     head = c.part('head', 'head', (0, -0.6 * k, hz - 0.8 * k))
     head.ell((0, -0.9 * k, hz), (1.1 * k, 1.4 * k, 1.1 * k), col)
