@@ -943,6 +943,90 @@ do
 	)
 end
 
+---------------------------------------------------------------- 14. Merging into stars through the server
+do
+	local Merge = require("../../games/hatchery-heist/src/shared/Merge")
+	local h = Sim.new({ seed = 14 })
+	local p = Fakes.player(1401)
+	h.join(p)
+	give(h, p, 50000)
+	h.data:update(p, function(d)
+		for i = 1, 4 do
+			table.insert(d.creatures, {
+				uid = tostring(d.nextUid),
+				speciesId = "Chick",
+				mutation = "None",
+				slot = nil,
+				eggId = "BasicEgg",
+				hatchedAt = 0,
+			})
+			d.nextUid += 1
+		end
+	end)
+	local coins = h.get(p).coins
+	check(h.actions:merge(p, "Chick", "None", 1), "merge", "merging 3 Chicks starts")
+	local d = h.get(p)
+	check(
+		#d.merges == 1 and d.coins == coins - 1800 and #d.creatures == 1,
+		"merge",
+		`the station holds 3 copies and charged 1,800 coins (left {d.coins - (coins - 1800)} extra, {#d.creatures} Chick outside)`
+	)
+	check(
+		not h.actions:merge(p, "Chick", "None", 1),
+		"merge",
+		`a second merge with one slot is refused ("{h.noticesOf(p)[#h.noticesOf(p)]}")`
+	)
+	h.wait(30)
+	check(#h.get(p).merges == 1, "merge", "not finished after 30 s")
+	-- leave mid-merge: the merge survives the save and finishes on rejoin
+	h.leave(p)
+	local h2 = Sim.new({ store = h.store, start = h.clock.now() + 60 })
+	h2.join(p)
+	d = h2.get(p)
+	local stars = 0
+	for _, c in d.creatures do
+		if c.speciesId == "Chick" and c.star == 2 then
+			stars += 1
+		end
+	end
+	check(
+		#d.merges == 0 and stars == 1 and d.creatures[#d.creatures].slot ~= nil,
+		"merge",
+		"a merge running at leave finishes on the next join and the Star 2 Chick is placed"
+	)
+	local last = h2.noticesOf(p)[#h2.noticesOf(p)] or ""
+	check(string.find(last, "Merge done", 1, true) ~= nil, "merge", `the player is told: "{last}"`)
+	-- cancel gives everything back
+	h2.data:update(p, function(dd)
+		for _ = 1, 2 do
+			table.insert(dd.creatures, {
+				uid = tostring(dd.nextUid),
+				speciesId = "Chick",
+				mutation = "None",
+				slot = nil,
+				eggId = "BasicEgg",
+				hatchedAt = 0,
+			})
+			dd.nextUid += 1
+		end
+	end)
+	coins = h2.get(p).coins
+	assert(h2.actions:merge(p, "Chick", "None", 1))
+	local id = h2.get(p).merges[1].id
+	check(
+		h2.actions:cancelMerge(p, id) and h2.get(p).coins == coins and #h2.get(p).merges == 0,
+		"merge",
+		"cancel refunds the coins and returns the copies"
+	)
+	-- Finish now: ends the running merge on the next tick
+	assert(h2.actions:merge(p, "Chick", "None", 1))
+	h2.data:update(p, function(dd)
+		Merge.rush(dd, h2.clock.now())
+	end)
+	h2.wait(10)
+	check(#h2.get(p).merges == 0, "merge", "a Finish now purchase hands the creature over on the next tick")
+end
+
 ---------------------------------------------------------------- summary
 local counts = { PASS = 0, BUG = 0, NOTE = 0 }
 for _, r in results do

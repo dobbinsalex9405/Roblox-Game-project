@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Merge creatures into stars: 3 of the same creature make 1 with a star
+  more, up to ★★★ (x2.5 and x6 income). Merges cost coins and take a
+  little time at the new Merge Station on your base (or the Pets window's
+  Merge button); cancel any time to get everything back, unlock a second
+  merge slot for 10,000 coins, or finish one now for 25 Robux. Godlies
+  don't merge.
 - Coin packs grow with you: each gives its fixed coins or 5, 20, 45 or 100
   minutes of what you earn now, whichever is more. The shop shows your exact
   amount.

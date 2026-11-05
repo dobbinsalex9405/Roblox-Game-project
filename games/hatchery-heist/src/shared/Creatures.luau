@@ -22,8 +22,9 @@ function Creatures.baseIncome(creatures: { Creature }, creatureConfig: any): num
 		if creature.slot ~= nil then
 			local species = creatureConfig.species[creature.speciesId]
 			local mutation = creatureConfig.mutations[creature.mutation] or 1
+			local star = (creatureConfig.stars or {})[(creature :: any).star or 1] or 1
 			if species then
-				total += species.coinsPerSecond * mutation
+				total += species.coinsPerSecond * mutation * star
 			end
 		end
 	end

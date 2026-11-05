@@ -2,6 +2,26 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Merging into stars (Hatchery Heist)
+
+- **Copies leave the save's creature list while merging** and live whole in
+  the job (`d.merges[].copies`), so nothing else (income, raids, storage
+  sales, Place best) has to know about merging, and a cancel restores them
+  exactly. They count toward nothing while in the station.
+- **Mutations merge only with the same mutation** and pass it on, so a
+  Golden Chick never vanishes into a plain merge.
+- **Finish now never wastes a purchase**: it ends the soonest running merge,
+  or is saved (`mergeRushes`) for the next one when none runs (a merge can
+  finish between the prompt and the receipt).
+- **Finish Merge is unlisted** in the shop (core `shop:unlist`): it only
+  makes sense next to a running merge. The core catalog item type was not
+  given a field because Tidecatch Cove builds its catalog with that exact
+  type.
+- **A stolen creature keeps its star.** Raids against stars get their own
+  pass later (plan); until then the thief gets what the owner lost.
+- **Merge Station sits at base-local (27, -20)**, front right beside the
+  collect pad, clear of traps, decoys, the belt and the tower.
+
 ## 2026-11-05: Coin packs scale with income (Hatchery Heist)
 
 - **Minutes per pack rise faster than price** (5, 20, 45, 100 minutes for

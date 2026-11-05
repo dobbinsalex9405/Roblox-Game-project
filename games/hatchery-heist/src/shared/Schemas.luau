@@ -71,6 +71,18 @@ return function(Schema: any, Odds: any)
 			slots = Schema.integer({ min = 0, max = 200 }),
 			sellSeconds = Schema.number({ min = 0, max = 3600 }),
 		}),
+		merge = Schema.record({
+			copies = Schema.integer({ min = 2, max = 10 }),
+			costMinutes = Schema.array(Schema.number({ min = 0 }), { minLength = 1, maxLength = 4 }),
+			secondsByRarity = Schema.map(
+				Schema.string({ maxLength = 20 }),
+				Schema.integer({ min = 1, max = 7 * 24 * 3600 })
+			),
+			timeFactor = Schema.number({ min = 1, max = 10 }),
+			freeSlots = Schema.integer({ min = 1, max = 5 }),
+			slotCosts = Schema.array(Schema.integer({ min = 1 }), { maxLength = 5 }),
+			excluded = Schema.array(Schema.string({ maxLength = 20 })),
+		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
 		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
 		daily = Schema.record({
@@ -120,10 +132,19 @@ return function(Schema: any, Odds: any)
 				{ maxEntries = 2000 }
 			),
 			mutations = Schema.map(id, Schema.number({ min = 1 })),
+			stars = Schema.array(Schema.number({ min = 1 }), { minLength = 1, maxLength = 5 }),
 		}),
 		function(v: any): (boolean, string?)
 			if v.mutations.None ~= 1 then
 				return false, "mutations.None must exist and equal 1"
+			end
+			if v.stars[1] ~= 1 then
+				return false, "stars[1] must be 1 (every hatch is Star 1)"
+			end
+			for i = 2, #v.stars do
+				if v.stars[i] <= v.stars[i - 1] then
+					return false, "each star must earn more than the one before"
+				end
 			end
 			return true, nil
 		end
@@ -404,6 +425,25 @@ return function(Schema: any, Odds: any)
 		end
 		if onBelt == 0 then
 			table.insert(problems, "economy.conveyor.weights: at least one egg must ride the belt")
+		end
+
+		local merge = config.economy.merge
+		if #merge.costMinutes ~= #config.creatures.stars - 1 then
+			table.insert(problems, "economy.merge.costMinutes needs one entry per star after Star 1")
+		end
+		for speciesId, species in config.creatures.species do
+			if
+				not table.find(merge.excluded, species.rarity)
+				and merge.secondsByRarity[species.rarity] == nil
+			then
+				table.insert(
+					problems,
+					`economy.merge.secondsByRarity has no {species.rarity} (for {speciesId})`
+				)
+			end
+		end
+		if config.monetization.products.FinishMerge == nil then
+			table.insert(problems, "monetization.products needs FinishMerge (merges sell a finish)")
 		end
 
 		for boostId, boost in config.monetization.boosts do

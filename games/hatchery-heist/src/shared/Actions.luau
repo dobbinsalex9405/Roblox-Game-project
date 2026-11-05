@@ -13,6 +13,7 @@ local Conveyor = require("./Conveyor")
 local Daily = require("./Daily")
 local Eggs = require("./Eggs")
 local Hatchery = require("./Hatchery")
+local Merge = require("./Merge")
 local Tower = require("./Tower")
 
 export type Perks = {
@@ -57,6 +58,16 @@ export type Actions = {
 	place: (self: Actions, player: any, uid: string, floor: number) -> (boolean, string?),
 	takeBack: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	placeBest: (self: Actions, player: any) -> (boolean, string?),
+	-- The Merge Station (shared/Merge.luau).
+	merge: (
+		self: Actions,
+		player: any,
+		speciesId: string,
+		mutation: string,
+		star: number
+	) -> (boolean, string?),
+	cancelMerge: (self: Actions, player: any, id: string) -> (boolean, string?),
+	buyMergeSlot: (self: Actions, player: any) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
@@ -147,6 +158,20 @@ function Actions.new(options: Options): Actions
 		return true, nil
 	end
 
+	-- "MoonUnicorn" -> "Moon Unicorn" (as Layout.displayName, which needs Roblox).
+	local function nameOf(id: string): string
+		return (string.gsub(id, "(%l)(%u)", "%1 %2"))
+	end
+
+	-- Tells the player about merges that just finished.
+	local function announceMerged(player: any, made: { any })
+		for _, c in made do
+			local where = if c.slot then `on floor {Tower.floorOf(c.slot)}` else "in your inventory"
+			options.notify(player, `Merge done: a {Merge.stars(c.star)} {nameOf(c.speciesId)} is {where}!`)
+			analytics:custom(player, `Merge:Star{c.star}`, 1)
+		end
+	end
+
 	local actions = {}
 
 	function actions.change(
@@ -168,6 +193,7 @@ function Actions.new(options: Options): Actions
 		local ready: number = 0
 		local step: number? = nil
 		local mountSpeed: number? = nil
+		local merged: { any } = {}
 		local ok = data:update(player, function(d: Hatchery.Data)
 			Hatchery.backfillFound(d)
 			-- Saves from before the tower had up to 20 creatures on pads:
@@ -186,6 +212,9 @@ function Actions.new(options: Options): Actions
 			end
 			Tower.tidy(d, config.creatures, economyConfig)
 			earned = Hatchery.welcomeBack(d, now, perSecond(d, player), economyConfig)
+			-- Merges that finished while away (after paying the time away,
+			-- when the copies were in the station earning nothing).
+			merged = Merge.finish(d, now, config)
 			for _, incubator in d.incubators do
 				if incubator.readyAt <= now then
 					ready += 1
@@ -211,6 +240,7 @@ function Actions.new(options: Options): Actions
 		if mountSpeed then
 			options.mount(player, mountSpeed)
 		end
+		announceMerged(player, merged)
 	end
 
 	-- Call every few seconds for each player in the server.
@@ -219,12 +249,15 @@ function Actions.new(options: Options): Actions
 		local autoCollect = options.perks(player).autoCollect
 			and now - (lastAutoCollect[player] or now) >= economyConfig.autoCollectSeconds
 		local step: number? = nil
+		local merged: { any } = {}
 		change(player, function(d, ledger)
 			if autoCollect and Hatchery.collect(d, ledger) > 0 then
 				step = Hatchery.markFirst(d, "FirstCollect", now)
 			end
+			merged = Merge.finish(d, now, config)
 			return nil
 		end)
+		announceMerged(player, merged)
 		if autoCollect then
 			lastAutoCollect[player] = now
 		end
@@ -427,6 +460,60 @@ function Actions.new(options: Options): Actions
 		end)
 		if ok then
 			options.notify(player, `Placed your best: {placed} creatures earning.`)
+		end
+		return ok, err
+	end
+
+	function actions.merge(
+		_self: Actions,
+		player: any,
+		speciesId: string,
+		mutation: string,
+		star: number
+	): (boolean, string?)
+		local job: Merge.Job? = nil
+		local now = options.now()
+		local ok, err = change(player, function(d, ledger)
+			local started, refusal = Merge.start(d, ledger, speciesId, mutation, star, now, config)
+			job = started
+			return refusal
+		end)
+		if ok and job then
+			local wait = job.readyAt - now
+			local when = if wait <= 0
+				then "finishing now"
+				elseif wait < 60 then `ready in {wait}s`
+				elseif wait < 3600 then `ready in {math.ceil(wait / 60)} min`
+				else `ready in {string.format("%.1f", wait / 3600)} h`
+			options.notify(player, `Merging into a {Merge.stars(job.star)} {nameOf(speciesId)}: {when}.`)
+			analytics:custom(player, `Merge:Start{job.star}`, 1)
+		end
+		return ok, err
+	end
+
+	function actions.cancelMerge(_self: Actions, player: any, id: string): (boolean, string?)
+		local job: Merge.Job? = nil
+		local ok, err = change(player, function(d, ledger)
+			local cancelled, refusal = Merge.cancel(d, ledger, id)
+			job = cancelled
+			return refusal
+		end)
+		if ok and job then
+			options.notify(
+				player,
+				`Merge cancelled: your {#job.copies} {nameOf(job.speciesId)}s and {job.cost} coins are back.`
+			)
+		end
+		return ok, err
+	end
+
+	function actions.buyMergeSlot(_self: Actions, player: any): (boolean, string?)
+		local ok, err = change(player, function(d, ledger)
+			local done, refusal = Merge.buySlot(d, ledger, economyConfig)
+			return if done then nil else refusal
+		end)
+		if ok then
+			options.notify(player, "Another merge slot unlocked: two merges at once!")
 		end
 		return ok, err
 	end

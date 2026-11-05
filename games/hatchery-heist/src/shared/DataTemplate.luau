@@ -13,7 +13,7 @@ DataTemplate.template = {
 	slots = 3, -- incubator slots unlocked
 	incubators = {}, -- { { slot, eggId, startedAt, readyAt, outcome } }
 	eggsBought = {}, -- { [eggId] = count }, drives the fixed-order alternative
-	creatures = {}, -- { { uid, speciesId, mutation, slot?, eggId, hatchedAt } }; slot = first tower pad, nil = inventory
+	creatures = {}, -- { { uid, speciesId, mutation, star?, slot?, eggId, hatchedAt } }; slot = first tower pad, nil = inventory; star nil = 1
 	nextUid = 1, -- next creature uid
 	mountUid = "", -- creature being ridden ("" = on foot)
 	decoys = {}, -- { { spot } } decoy eggs on the decoy spots
@@ -38,6 +38,12 @@ DataTemplate.template = {
 	floors = 1,
 	floorUpgrades = {},
 	towerVersion = 0,
+	-- The Merge Station (shared/Merge.luau), added after launch of version 1
+	-- like `found`: merges running (each holds its copies whole), extra
+	-- merge slots bought, and "Finish now" purchases kept for the next merge.
+	merges = {},
+	mergeSlotsBought = 0,
+	mergeRushes = 0,
 	daily = { lastDay = 0, streak = 0 }, -- Daily Rewards: UTC day last claimed, reward claimed then
 	stats = { raidsWon = 0, raidsLost = 0, playSeconds = 0 },
 	meta = { firstJoinAt = 0, lastJoinAt = 0, sessions = 0 }, -- written by the core on join

@@ -75,6 +75,8 @@ export type Shop = {
 	-- Gives one item a per-player name and description (a coin pack that
 	-- scales with the player's income), in place of the catalog's.
 	personalize: (self: Shop, key: string, describe: (player: Player) -> (string, string)) -> (),
+	-- Leaves an item out of the shop's list (sold from its own button).
+	unlist: (self: Shop, key: string) -> (),
 	catalogFor: (self: Shop, player: Player) -> { CatalogEntry },
 	-- Called by CoreServer whenever odds are sent to a player.
 	oddsShown: (self: Shop, player: Player, tableId: string) -> (),
@@ -147,10 +149,20 @@ function Purchases.start(deps: Deps): Shop
 		personalized[key] = describe
 	end
 
+	-- Sold from the game's own button (a "Finish now"), so it is left out of
+	-- the shop's list; Shop:Buy still prompts it like any catalog item.
+	local unlisted: { [string]: boolean } = {}
+	function shop.unlist(_self: Shop, key: string)
+		unlisted[key] = true
+	end
+
 	function shop.catalogFor(_self: Shop, player: Player): { CatalogEntry }
 		local out = {}
 		local restricted = not deps.policy:paidRandomAllowed(player)
 		for _, item in items do
+			if unlisted[item.key] then
+				continue
+			end
 			local id = idOf(item)
 			local name, description = item.name, item.description
 			local describe = personalized[item.key]

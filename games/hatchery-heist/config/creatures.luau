@@ -149,4 +149,9 @@ return {
 		Golden = 2,
 		Rainbow = 5,
 	},
+	-- Stars multiply a creature's income too. Every hatch is Star 1; merging
+	-- 3 copies at one star makes 1 at the next (economy.merge), up to the
+	-- last star listed. Merging always earns a little less than the copies
+	-- would apart (3 x 1 > 2.5, 3 x 2.5 > 6): it saves tower slots.
+	stars = { 1, 2.5, 6 },
 }

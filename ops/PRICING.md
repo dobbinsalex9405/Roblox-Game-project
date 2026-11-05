@@ -112,6 +112,7 @@ Why these numbers:
 | Hatchery Heist | ExtraIncubators | Game Pass | Extra Incubators | 99 | Medium | Yes | Two more incubators, so you can hatch more eggs at once. |
 | Hatchery Heist | DoubleCoins | Game Pass | Double Coins | 149 | Capacity | Yes | Every creature you own earns twice as many coins, forever. |
 | Hatchery Heist | CoinPackSmall | Developer Product | 5K Coins | 25 | Impulse | Yes | 5,000 coins, added right away. |
+| Hatchery Heist | FinishMerge | Developer Product | Finish Merge | 25 | Impulse | Yes | Finishes your creature merge right now. |
 | Hatchery Heist | InstantHatch | Developer Product | Instant Hatch | 25 | Impulse | Not yet | Finishes hatching an egg right now. |
 | Hatchery Heist | LuckBoost | Developer Product | Luck Boost | 49 | Boost | Not yet | Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown. |
 | Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy. |

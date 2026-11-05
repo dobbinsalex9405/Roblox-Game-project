@@ -68,13 +68,16 @@ local function eggById(eggs: { any }, eggId: string): any?
 end
 Hatchery.eggById = eggById
 
--- Coins per second one creature earns before rebirth and pass multipliers.
+-- Coins per second one creature earns before rebirth and pass multipliers:
+-- its species, times its mutation, times its star (shared/Merge.luau).
 function Hatchery.creatureIncome(creature: any, creatureConfig: any): number
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then
 		return 0
 	end
-	return species.coinsPerSecond * (creatureConfig.mutations[creature.mutation] or 1)
+	return species.coinsPerSecond
+		* (creatureConfig.mutations[creature.mutation] or 1)
+		* (creatureConfig.stars[creature.star or 1] or 1)
 end
 
 function Hatchery.creatureByUid(d: Data, uid: string): any?
@@ -488,6 +491,7 @@ function Hatchery.receive(
 		uid = tostring(d.nextUid),
 		speciesId = from.speciesId,
 		mutation = from.mutation,
+		star = from.star, -- a stolen Star 2 stays Star 2
 		slot = nil :: number?,
 		eggId = from.eggId,
 		hatchedAt = from.hatchedAt,

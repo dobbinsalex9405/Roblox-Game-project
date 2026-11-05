@@ -16,6 +16,7 @@ local Creatures = require(Shared.Creatures)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Merge = require(Shared.Merge)
 local Tower = require(Shared.Tower)
 
 local World = {}
@@ -57,6 +58,58 @@ local function billboard(parent: Instance, offset: Vector3, size: UDim2, text: s
 	label.Parent = gui
 	gui.Parent = parent
 	return label
+end
+
+-- The Merge Station (shared/Merge.luau): a little round workbench with three
+-- egg cups around a glowing star. Its owner's client adds the prompt that
+-- opens the Merge window (client/MergeView).
+local function buildMergeStation(model: Model, at: (Vector3) -> CFrame)
+	local base = Layout.MERGE_STATION + Vector3.new(0, Layout.FLOOR_TOP, 0)
+	local station = part({
+		Name = "MergeStation",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(2.4, 5.2, 5.2),
+		CFrame = at(base + Vector3.new(0, 1.2, 0)) * CFrame.Angles(0, 0, math.pi / 2),
+		Color = Color3.fromRGB(120, 80, 170),
+		Material = Enum.Material.SmoothPlastic,
+	})
+	station.Parent = model
+	local top = part({
+		Name = "MergeTop",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(0.4, 5.8, 5.8),
+		CFrame = at(base + Vector3.new(0, 2.6, 0)) * CFrame.Angles(0, 0, math.pi / 2),
+		Color = Color3.fromRGB(255, 205, 80),
+		Material = Enum.Material.SmoothPlastic,
+	})
+	top.Parent = station
+	for i = 1, 3 do
+		local a = (i - 1) / 3 * 2 * math.pi
+		local cup = part({
+			Name = "Cup",
+			Shape = Enum.PartType.Ball,
+			Size = Vector3.new(1.1, 1.1, 1.1),
+			CFrame = at(base + Vector3.new(math.cos(a) * 1.9, 3.2, math.sin(a) * 1.9)),
+			Color = Color3.fromRGB(250, 240, 220),
+			Material = Enum.Material.SmoothPlastic,
+		})
+		cup.Parent = station
+	end
+	local star = part({
+		Name = "Star",
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(1.4, 1.4, 1.4),
+		CFrame = at(base + Vector3.new(0, 4.4, 0)),
+		Color = Color3.fromRGB(255, 220, 90),
+		Material = Enum.Material.Neon,
+	})
+	star.Parent = station
+	local glow = Instance.new("PointLight")
+	glow.Color = Color3.fromRGB(255, 210, 120)
+	glow.Range = 10
+	glow.Brightness = 1
+	glow.Parent = star
+	billboard(station, Vector3.new(0, 5.2, 0), UDim2.fromScale(9, 1.6), "⭐ Merge Station")
 end
 
 -- Remembers how a tower part looks when its floor is built, so syncTower
@@ -311,6 +364,8 @@ local function buildPlot(index: number): Model
 	})
 	billboard(rebirth, Vector3.new(0, 4.5, 0), UDim2.fromScale(8, 1.6), "Rebirth")
 	rebirth.Parent = model
+
+	buildMergeStation(model, at)
 
 	local board = part({
 		Name = "OddsBoard",
@@ -682,7 +737,9 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 				body,
 				Vector3.new(0, size / 2 + 1.5, 0),
 				UDim2.fromScale(5, 1.5),
-				`{Layout.displayName(c.speciesId)}\n{Layout.shortNumber(income)}/s`
+				`{Layout.displayName(c.speciesId)}{if (c.star or 1) > 1 then ` {Merge.stars(c.star)}` else ""}\n{Layout.shortNumber(
+					income
+				)}/s`
 			)
 			body.Parent = pad
 			shown = body

@@ -13,6 +13,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 local Purchases = require(ServerScriptService.CoreServer.Purchases)
 local Monetization = require(ReplicatedStorage.Core.Monetization)
+local Merge = require(ReplicatedStorage.Shared.Merge)
 local Products = require(ReplicatedStorage.Shared.Products)
 
 local Shop = {}
@@ -49,9 +50,18 @@ function Shop.register(
 		data.shieldUntil = math.max(now, data.shieldUntil or 0) + raids.shieldSeconds
 	end)
 
+	-- Finish Merge: the running merge that ends soonest is done now (the
+	-- next tick hands the creature over); with none running, the finish is
+	-- kept for the next merge, so the purchase is never wasted.
+	services.receipts:register("FinishMerge", ids.products.FinishMerge, function(_player, data)
+		Merge.rush(data, os.time())
+	end)
+
 	-- Passes need no registration: the core checks ownership by id.
 	local catalog: { Purchases.CatalogItem } = Products.catalog(monetization, raids) :: any
 	services.shop:setCatalog(catalog)
+	-- Bought from the Merge window's Finish now button, not the shop list.
+	services.shop:unlist("FinishMerge")
 	for _, key in Products.COIN_PACKS do
 		local product = products[key]
 		services.shop:personalize(key, function(player: Player): (string, string)

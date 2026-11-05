@@ -78,6 +78,12 @@ function Products.catalog(monetization: any, raids: any): { CatalogItem }
 		description = `Shields your base for {raids.shieldSeconds // 60} more minutes. Raiders can't enter.`,
 	})
 	table.insert(catalog, {
+		key = "FinishMerge",
+		kind = "product",
+		name = "Finish Merge",
+		description = "Finishes your creature merge right now.",
+	})
+	table.insert(catalog, {
 		key = "DoubleCoins",
 		kind = "pass",
 		name = "Double Coins",

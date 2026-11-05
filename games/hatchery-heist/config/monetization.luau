@@ -25,6 +25,7 @@ return {
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
 		LuckBoost = { id = 0 },
+		FinishMerge = { id = 0 },
 	},
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
@@ -105,6 +106,11 @@ return {
 				name = "Luck Boost",
 				robux = 49,
 				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
+			},
+			FinishMerge = {
+				name = "Finish Merge",
+				robux = 25,
+				description = "Finishes your creature merge right now.",
 			},
 		},
 	},

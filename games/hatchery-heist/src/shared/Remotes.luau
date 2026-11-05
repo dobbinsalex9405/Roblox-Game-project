@@ -29,6 +29,15 @@ return function(Net: any, Schema: any)
 		["HH:TakeBack"] = Net.toServer("HH:TakeBack", { uid }, { count = 6, window = 1 }),
 		["HH:PlaceBest"] = Net.toServer("HH:PlaceBest", {}, { count = 1, window = 1 }),
 		["HH:GoFloor"] = Net.toServer("HH:GoFloor", { floor }, { count = 2, window = 1 }),
+		-- The Merge Station: merge 3 copies of species/mutation at a star,
+		-- cancel a running merge (by its id), unlock another merge slot.
+		["HH:Merge"] = Net.toServer("HH:Merge", {
+			Schema.string({ maxLength = 50 }),
+			Schema.string({ maxLength = 20 }),
+			Schema.integer({ min = 1, max = 5 }),
+		}, { count = 2, window = 1 }),
+		["HH:CancelMerge"] = Net.toServer("HH:CancelMerge", { uid }, { count = 2, window = 1 }),
+		["HH:BuyMergeSlot"] = Net.toServer("HH:BuyMergeSlot", {}, { count = 1, window = 1 }),
 		-- The player opened the Hatchery Book (clears its NEW badges).
 		["HH:BookSeen"] = Net.toServer("HH:BookSeen", {}, { count = 1, window = 2 }),
 		["HH:ClaimDaily"] = Net.toServer("HH:ClaimDaily", {}, { count = 1, window = 1 }),

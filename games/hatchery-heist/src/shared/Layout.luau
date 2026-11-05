@@ -28,6 +28,7 @@ Layout.BELT_END = Vector3.new(26, 2.5, -26)
 
 Layout.COLLECT_PAD = Vector3.new(27, 1.2, -8)
 Layout.REBIRTH_STAND = Vector3.new(27, 4, 8)
+Layout.MERGE_STATION = Vector3.new(27, 0, -20) -- where it stands on the floor (y = 0: add FLOOR_TOP)
 Layout.ODDS_BOARD = Vector3.new(0, 13, -19) -- centre of a 30 x 12 board
 Layout.SIGN = Vector3.new(0, 9, 30)
 Layout.SPAWN = Vector3.new(0, 4, 24)

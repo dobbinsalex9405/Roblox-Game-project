@@ -70,6 +70,36 @@ Legendary and Godly (`slotsByRarity`), side by side in one row.
   the mount and the guard cleared; every join then tidies the save so no two
   creatures overlap and none sits on a floor the player doesn't own.
 
+## Merging into stars (plan, Nov 5 2026)
+
+Every hatch is **Star 1**. Three copies of one creature at one star (same
+species and mutation) merge into one at the next star, up to **Star 3**.
+Stars multiply income: x1, x2.5, x6 (`creatures.stars`), stacking with
+mutation, floor, rebirth, pass and Book bonuses. Merging always earns a
+little less than the copies did apart, so it saves tower spots but never
+makes coins out of nothing. Godlies never merge.
+
+- **Merge Station**: a workbench on every base (front right) and a Merge
+  button in the Pets window open the Merge window: merges running with a
+  countdown, an empty slot, unlocking a second slot (10,000 coins), and every
+  creature the player could merge with how many copies they have (x/3).
+- **Cost and time** (`economy.merge`): 30 minutes of the creature's Star 1
+  income into Star 2, 100 minutes into Star 3. Into Star 2 takes Common 1 min,
+  Uncommon 2, Rare 5, Ultra Rare 10, Epic 20, Legendary 45; into Star 3 three
+  times as long.
+- A merge takes copies from the inventory first, then the lowest floors.
+  The ridden creature and the guard are never taken. The copies sit in the
+  station and earn nothing until it finishes; the new creature is placed
+  like a hatch. A merge that finishes while the player is away is handed
+  over on their next join.
+- **Cancel** gives the copies (to the inventory) and the coins back.
+- **Finish now** (Developer Product "Finish Merge", 25 Robux) ends the merge
+  that would finish soonest. Bought with none running, it is kept and the
+  next merge finishes at once. It is not listed in the shop.
+- Names show stars (Chick ★★) on pads, in the Pets window and in the Book,
+  which shows the highest star the player has of each creature. A stolen
+  creature keeps its star.
+
 ## Creatures and rarity (Alex, Nov 5 2026)
 
 33 species in seven tiers: **Common** (10), **Uncommon** (7), **Rare** (5),
@@ -227,6 +257,7 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
   `incomeMinutes` of the buyer's income right now, whichever is more (5, 20,
   45 and 100 minutes; `Products.packCoins`). The shop shows each player
   their own exact amount and a purchase never gives less than was shown.
+  Finish Merge (25 Robux, from the Merge window only; see Merging).
   Shield Refill (adds `shieldSeconds`), Instant
   Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare and better
   weights on the listed eggs; the boosted table still totals exactly 100%).
@@ -250,6 +281,8 @@ without a migration: the core's reconcile fills it in as `{}`, and join
 back-fills it from the creatures the player owns. `bookSeenAt` was added the
 same way (reconcile fills in 0, so a returning player's first look marks
 their whole book NEW once).
+`merges`, `mergeSlotsBought` and `mergeRushes` (the Merge Station) and a
+creature's optional `star` (nil = Star 1) were added the same way.
 
 ## Status
 

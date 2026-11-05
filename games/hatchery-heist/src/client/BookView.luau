@@ -21,6 +21,7 @@ local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
 local Layout = require(Shared.Layout)
+local Merge = require(Shared.Merge)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
@@ -379,7 +380,12 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 	end
 
-	local function paintCard(card: Card, found: { [string]: any }, restricted: boolean)
+	local function paintCard(
+		card: Card,
+		found: { [string]: any },
+		restricted: boolean,
+		best: { [string]: number }
+	)
 		local entry = card.entry
 		local owned = found[entry.speciesId] ~= nil
 		if card.found ~= owned then
@@ -392,7 +398,11 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 		-- Every paint, not only on a change: a card whose model appeared
 		-- first already counts as painted (Studio gate: "???" missing).
-		local name = if owned then Layout.displayName(entry.speciesId) else "???"
+		-- The highest star the player has of it now (shared/Merge.luau).
+		local star = best[entry.speciesId] or 1
+		local name = if owned
+			then `{Layout.displayName(entry.speciesId)}{if star > 1 then ` {Merge.stars(star)}` else ""}`
+			else "???"
 		if card.name.Text ~= name then
 			card.name.Text = name
 		end
@@ -411,6 +421,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function refresh()
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
+		local best = if d then Merge.bestStars(d) else {}
 		local restricted = ctx.restricted()
 		local counts = Book.tiers(found, species)
 		local have, total = 0, 0
@@ -433,7 +444,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 				then color:Lerp(SHADOW, 0.25)
 				else color:Lerp(SHADOW, 0.7)
 			for _, card in tab.cards do
-				paintCard(card, found, restricted)
+				paintCard(card, found, restricted, best)
 			end
 		end
 		local bonus = Book.bonus(found, species, bookConfig)

@@ -73,6 +73,27 @@ return {
 		slots = 150,
 		sellSeconds = 20,
 	},
+	-- Merging creatures into stars (shared/Merge.luau, creatures.stars).
+	merge = {
+		copies = 3, -- of one creature at one star, for one at the next
+		-- Coins per merge: minutes of the creature's Star 1 income, into
+		-- Star 2 and into Star 3.
+		costMinutes = { 30, 100 },
+		-- Seconds a merge into Star 2 takes; each star above that takes
+		-- `timeFactor` times as long.
+		secondsByRarity = {
+			Common = 60,
+			Uncommon = 120,
+			Rare = 300,
+			["Ultra Rare"] = 600,
+			Epic = 1200,
+			Legendary = 2700,
+		},
+		timeFactor = 3,
+		freeSlots = 1, -- merges running at once, free
+		slotCosts = { 10000 }, -- coins for each extra merge slot
+		excluded = { "Godly" }, -- rarities that never merge
+	},
 
 	-- With the Auto-Collect pass, earnings move into coins this often (seconds).
 	autoCollectSeconds = 30,

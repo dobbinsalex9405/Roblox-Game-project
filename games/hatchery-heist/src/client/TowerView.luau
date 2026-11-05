@@ -18,9 +18,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Merge = require(Shared.Merge)
 local Tower = require(Shared.Tower)
 
 local Context = require(script.Parent.Context)
+local MergeView = require(script.Parent.MergeView)
 local Sfx = require(script.Parent.Sfx)
 
 local TowerView = {}
@@ -321,7 +323,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	herdGui.Parent = playerGui
 	local herdInfo = text(herdFrame, "Info", "", 15)
 	herdInfo.Position = UDim2.fromOffset(16, 48)
-	herdInfo.Size = UDim2.new(1, -170, 0, 40)
+	herdInfo.Size = UDim2.new(1, -270, 0, 40)
 	herdInfo.TextWrapped = true
 	herdInfo.TextYAlignment = Enum.TextYAlignment.Top
 	local best =
@@ -331,6 +333,14 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	best.Activated:Connect(function()
 		Sfx.play("reward")
 		ctx.fire(ctx.remotes["HH:PlaceBest"])
+	end)
+	local mergeButton = button(herdFrame, "Merge", "⭐ Merge", Color3.fromRGB(150, 90, 210), 92)
+	mergeButton.AnchorPoint = Vector2.new(1, 0)
+	mergeButton.Position = UDim2.new(1, -160, 0, 52)
+	mergeButton.Activated:Connect(function()
+		Sfx.play("click")
+		herdGui.Enabled = false
+		MergeView.open()
 	end)
 	local picked: string? = nil -- the creature whose floor buttons are open
 
@@ -389,7 +399,13 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			elseif c.uid == d.guardUid then
 				tags = "  · guard"
 			end
-			local name = text(r, "Name", `{Layout.displayName(c.speciesId)}  ({species.rarity})`, 16, color)
+			local name = text(
+				r,
+				"Name",
+				`{Layout.displayName(c.speciesId)}{if (c.star or 1) > 1 then ` {Merge.stars(c.star)}` else ""}  ({species.rarity})`,
+				16,
+				color
+			)
 			name.Position = UDim2.fromOffset(26, 4)
 			name.Size = UDim2.new(1, -160, 0, 22)
 			local earning = Hatchery.earning(d, c, ctx.config, perks)
