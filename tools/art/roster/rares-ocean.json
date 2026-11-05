@@ -90,9 +90,14 @@
    "colors": {
     "col": "#8A9AB0",
     "belly": "#F2F4F8",
-    "accent": "#6E7E96",
-    "glow": "#9FE8FF"
-   }
+    "accent": "#8A9AB0"
+   },
+   "accessories": [
+    {
+     "kind": "gills",
+     "color": "#5CC8FF"
+    }
+   ]
   },
   {
    "id": "Narwhal",
@@ -234,6 +239,28 @@
     "accent": "#FFB627",
     "glow": "#7FD4FF"
    }
+  },
+  {
+   "id": "PteroChick",
+   "rarity": "Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "colors": {
+    "col": "#8E6BD8",
+    "belly": "#D9C9F7",
+    "wing": "#6A4BB0",
+    "crest": "#FF7A59",
+    "beak": "#F2C14E"
+   },
+   "options": {
+    "kind": "ptero"
+   },
+   "accessories": [
+    {
+     "kind": "colorglow",
+     "color": "#FF7A59"
+    }
+   ]
   }
  ]
 }

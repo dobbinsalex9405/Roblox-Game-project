@@ -496,6 +496,44 @@ def lavacracks(c, H, col, col2=None):
                                                  or abs((p[1] * 2 - p[2] * 3 + p[0]) % max(5, round(3.4 * k))) < w) else None)
 
 
+def gills(c, H, col, col2=None):
+    """A shark's gill slits: three short upright slits on each side just
+    behind the head, glowing col."""
+    k = H / 10.0
+    head = _head(c)
+    body = kit._find(c, 'body')
+    (hlo, hhi) = _bounds(head)
+    zc = hlo[2] + (hhi[2] - hlo[2]) * 0.5
+    y0 = hhi[1] + 1 + round(0.8 * k)
+    gap = max(3, round(0.5 * k))
+    tall = max(3, round(0.55 * k))
+    for part in (body, head):
+        if not part:
+            continue
+        sides = {}
+        for (x, y, z) in part.v:
+            if x >= 0:
+                sides[(y, z)] = max(sides.get((y, z), -99), x)
+        for j in range(3):
+            y = y0 + j * gap - gap
+            for z in range(round(zc - tall / 2), round(zc + tall / 2) + 1):
+                x = sides.get((y, z))
+                if x is not None and x > 0:
+                    for xx in (x, -x - 1):
+                        if (xx, y, z) in part.v:
+                            part.v[(xx, y, z)] = (col, True)
+
+
+def colorglow(c, H, col, col2=None):
+    """Makes every voxel already painted col glow (a pterosaur's crest, a
+    vampire bat's cape lining): the plan's own piece becomes the Rare's
+    glowing extra without redrawing it."""
+    for part in c.parts:
+        for p, (cc, g) in list(part.v.items()):
+            if cc == col:
+                part.v[p] = (cc, True)
+
+
 def glowstripe(c, H, col, col2=None):
     """One bright glowing stripe down the middle of the head and back
     (a badger's white stripe, smouldering)."""
@@ -1764,7 +1802,7 @@ def flamehair(c, H, col, col2=None):
 ACCESSORIES = {
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'giraffepatches': giraffepatches, 'banana': banana, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
-    'glowstripe': glowstripe, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,
+    'glowstripe': glowstripe, 'colorglow': colorglow, 'gills': gills, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,
     'mohawk': mohawk, 'zebra': zebra, 'tigerstripes': tigerstripes, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle, 'eartips': eartips, 'tailglow': tailglow,
     'screenface': screenface, 'berryeyes': berryeyes, 'antenna': antenna, 'wraps': wraps, 'beetleshell': beetleshell, 'teapot': teapot,
     'donut': donut, 'wrapper': wrapper, 'cherry': cherry, 'frosting': frosting, 'pancakes': pancakes,

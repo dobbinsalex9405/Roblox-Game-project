@@ -1054,6 +1054,31 @@
      "color2": "#FF4D5E"
     }
    ]
+  },
+  {
+   "id": "VampireBat",
+   "rarity": "Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "colors": {
+    "col": "#5B3F7A",
+    "belly": "#8A6BAA",
+    "wing": "#3A2752",
+    "ear": "#C79BD8",
+    "cape": "#1E1430",
+    "lining": "#D7263D"
+   },
+   "options": {
+    "face": "pug",
+    "fangs": true,
+    "cape": true
+   },
+   "accessories": [
+    {
+     "kind": "colorglow",
+     "color": "#D7263D"
+    }
+   ]
   }
  ]
 }
