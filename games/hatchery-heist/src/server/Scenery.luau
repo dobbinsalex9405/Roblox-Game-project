@@ -424,13 +424,23 @@ function Scenery.build(config: any)
 	for index = 1, Layout.PLOTS do
 		dressPlot(folder, index, rng)
 	end
-	local farmAngles = Farm.build(folder, s.farm)
-	-- Trees keep clear of the farm.
-	local function clear(angle: number): boolean
-		local degrees = math.deg(angle) % 360
-		for _, taken in farmAngles do
-			local gap = math.abs((degrees - taken + 180) % 360 - 180)
-			if gap < s.farm.clearAngle then
+	Farm.build(folder, s.farm)
+	-- Trees and props keep clear of each piece of the farm.
+	local farmSpots: { Vector3 } = {}
+	local function farmSpot(degrees: number, radius: number)
+		local a = math.rad(degrees)
+		table.insert(farmSpots, Vector3.new(math.cos(a) * radius, 0, math.sin(a) * radius))
+	end
+	for _, key in { "barn", "windmill", "pond", "pen" } do
+		local spot = (s.farm :: any)[key]
+		farmSpot(spot.angle, spot.radius)
+	end
+	for _, degrees in s.farm.fields do
+		farmSpot(degrees, s.farm.fieldRadius)
+	end
+	local function clear(x: number, z: number): boolean
+		for _, at in farmSpots do
+			if (at - Vector3.new(x, 0, z)).Magnitude < s.farm.clearRadius then
 				return false
 			end
 		end

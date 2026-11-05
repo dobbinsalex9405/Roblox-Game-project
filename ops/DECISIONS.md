@@ -2,6 +2,66 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Hatchery Heist farm hub: buildings and layout
+
+- **What:** 25 hub props in `tools/art/world/hub.py` (kinds `building` and
+  `hubprop`, zone `hub`), exported into `WorldArt.luau` like every other
+  world prop: Hatchery Barn (the landmark), Silo, Windmill, Well, Chicken
+  Coop, three market stalls, Theme Stand, Book stand, Market Arch, Duck
+  Pond, Vegetable Patch, Haystack, Scarecrow, and street props (picket
+  fence, gate, rail fence, lamp post, signpost, Daily Rewards mailbox,
+  notice board, bench, planter, path stones, egg cart). Shop building and
+  interior belong to the shop thread (`ShopArt.luau`); grass, sky and
+  trees to the environment thread.
+- **Layout lives in config** (`atmosphere.luau` `scenery.hub`), as angle and
+  radius round the Golden Nest, each piece facing the centre. Bases and
+  their paths are on 0, 45, 90 ...; the wedges between are centred on
+  22.5 + 45k. Market arches on the base angles at r31, Book stand, mailbox
+  and notice board by the market (r35 to r37), buildings r37 to r66, all
+  inside r30 to r72 (belt edge r29.2, base fronts r78). Path width 10 is
+  assumed. The shop's plot (22.5°, r62, 30 x 24, from the shop thread's
+  `shophouse.luau`) is mirrored so nothing lands on it. The barn, windmill
+  and silo replace `Farm.luau`'s outer farm (the polish thread wires the
+  hub in and removes the outer farm).
+- **`tests/HubLayout.spec.luau`** turns each footprint to face the centre
+  and fails if a piece leaves r30 to r72, touches a path, the shop or
+  another piece, lamp or signpost. Move things in config and the test says
+  what collides.
+- **Budgets:** a `building` may use up to 700 boxes (the barn uses ~640 at
+  0.4-stud voxels; it is one landmark), `hubprop` 80. Every hub prop
+  together, as laid out, is about 4,500 Parts.
+- **Signs are blank:** stalls, the Theme Stand, Book stand, arch, silo and
+  notice board carry a blank cream face; the game writes the text
+  (SurfaceGui), at the prop's `anchor` (the face centre).
+
+## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
+
+- **Alex asked (11:24Z) for an interior area for Robux spending.** One
+  storybook shop building in the yard, cream plaster and dark timber under a
+  red roof with cream trim (the hub's colours), a cross gable over the door
+  carrying the sign. Its spot, agreed with the hub-buildings thread: angle
+  22.5 (between the first two bases), radius 62, so it clears the paths that
+  run out along every base angle; door toward the Golden Nest.
+- **Every Shop-window item gets one display, and only those.** Coin packs
+  grow from a pouch (5K) to a sack, a chest and an overflowing hoard (200K,
+  "best value"), so bigger packs look bigger. Passes and the Shield sit on
+  red velvet. A Lune test fails if an item has no display or a display has
+  no item.
+- **No paid randomness on a display.** A display's prompt opens Roblox's
+  purchase prompt straight away, with no odds screen in between, so any item
+  with an odds table or `paidRandom` is refused by `ShopPlan` and stays in
+  the Shop window, which shows exact odds first. Today nothing random is
+  sold, so all eight items have displays.
+- **Prices on tags come from Roblox** (GetProductInfo), with the listing's
+  price until it answers; the purchase itself is the core shop's `Shop:Buy`
+  with source `GoldenEggShop`, so the scoreboard shows what the shop sells.
+- **Own generated module, shared placer.** The shop's props live in
+  `ShopArt.luau` (same format as WorldArt) so the shop, hub and world-asset
+  threads never fight over one generated file; `VoxelProp.register` lets the
+  polish thread's placer build them. No letters or numbers in the art: the
+  game shows WorldArt-format props mirrored left to right.
+- **Shell pieces collide, decor does not.** About 2,400 boxes in all.
+
 ## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
 
 - **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
@@ -18,9 +78,14 @@ Non-obvious choices, newest first, so a later session can trust them.
   1 in 50,000 each) to pass that.
 - **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
   fine surface detail** (scales, clouds, dithering, extra fins and crystals),
-  so the serpent stays within the Godly 800-box budget (793).
+  so the serpent stays within the Godly 800-box budget (794).
 - **Worlds never pass through the body.** Each orbiting world sits further
   out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
+
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 
 - **The palette PNG is uploaded as an Image asset.** MeshPart.TextureID needs an
@@ -31,6 +96,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   "Image"`**, so a wrong id draws the voxel boxes, never a grey mesh.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
+
 
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
@@ -49,6 +115,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   inventory is where a collection lives; overflow still sells the weakest.
 - **The raider must stand on the floor** (server checks height): the ladder
   is the only way up for a raider, which gives owners time to react.
+
 ## 2026-11-05: Hatchery Heist towers are cozy apartments, the farm is only the centre
 
 - **Alex's direction (10:52Z):** no farm theme on the towers; a farm in the
@@ -91,6 +158,16 @@ Non-obvious choices, newest first, so a later session can trust them.
   face, a Texture or a TextureID draws nothing ("Asset type does not match",
   found on #66's gate). upload.py checks the type that comes back and
   luau.py writes 0 for anything not recorded as an Image.
+- **The farm clears circles, not wedges** (gate follow-up). Trees once kept
+  13 degrees each side of every farm piece clear at every distance, which
+  emptied the gaps between bases (each holds a farm piece) and the wood
+  behind them. Now each piece keeps `farm.clearRadius` studs round itself
+  clear, a small tree stands on each side of every gap's farm piece (a bush
+  at the foot of one), and the wood fills in behind.
+- **Star Pines only on the hills** (gate follow-up): on flat grass in the
+  wood they read as random, on the hilltops as landmarks. Every other hill
+  gets one, the medium model scaled up (the large one's detail is never
+  seen from there), so 11 hill pines cost about what 6 large ones did.
 - **Uploads ride the creature workflow** (`art = nature`): a new workflow
   cannot be started until it is on main, and the ids are committed back onto
   the branch that ran it so they arrive in the same PR.
