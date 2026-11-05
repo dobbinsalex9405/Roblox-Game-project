@@ -1,0 +1,404 @@
+"""The **mammal** plan (see variants.py for how kit modules plug in): Rare
+four-legged animals whose shape the cat-like `quadruped` cannot give them.
+Each kind draws its own body, head, ears and tail, and its legs straight
+into leg parts (`legFL`..`legBR`, hinged at the top of each leg, the left
+legs an exact mirror of the right):
+
+- **camel**: long legs with knobbly knees and wide pads, one clear hump, a
+  long curved neck, a long droopy muzzle, small round ears, a glowing bell.
+- **ermine**: long, low and slender (about twice as long as tall), short
+  legs, small round ears, a long tail with a black tip.
+- **muskox**: shaggy fur hanging to the floor over its legs, a dark face
+  with a lighter muzzle and eye patches, horns that sweep out and curl down
+  past small tucked ears, glowing horn tips.
+- **sandcat**: a wide flat head with wide, low-set ears (glowing inside),
+  big eyes, striped legs, a ringed tail with a black tip.
+- **otter**: floats on its back (gait `swim`): pale face, paws on its chest
+  holding a shell with a glowing pearl, webbed hind feet up as `finL`/`finR`,
+  a flat `tail`, a ripple ring on the water round it.
+
+Colours: col, belly, snout, accent (horns, bell, shell), glow, tail_col.
+Same art frame (x right, y back, front is -y, z up) and scale (k = H / 10)
+as the other kits."""
+import math
+
+from voxkit import hexc
+import kit_pond
+import rig
+
+INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
+_dark, _mix, line, face = kit_pond._dark, kit_pond._mix, kit_pond.line, kit_pond.face
+
+
+def _light(col, t=0.35):
+    return _mix(col, WHITE, t)
+
+
+def _h(*a):
+    v = 2166136261
+    for x in a:
+        v = ((v ^ (int(x) & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
+    return v
+
+
+def _mirror(part):
+    """The left half becomes an exact mirror of the right (x >= 0)."""
+    right = {p: v for p, v in part.v.items() if p[0] >= 0}
+    part.v = dict(right)
+    for (x, y, z), v in right.items():
+        part.v[(-x - 1, y, z)] = v
+
+
+def _legs(c, k, spots, hz, w, col, foot=None, foot_h=0.3, paint=None):
+    """Four legs, `spots` the right legs' (x, y) front to back. Each leg is a
+    w x w column from the ground to z = hz (inside the body, which keeps the
+    shared voxels), hinged at its top; the left legs mirror the right."""
+    top = round(hz)
+    for i, (x, y) in enumerate(spots):
+        x0, y0 = round(x * k), round(y * k)
+        right = rig.leg_part(c, 'R', i, len(spots), (x0 + w / 2, y0 + w / 2, top))
+        left = rig.leg_part(c, 'L', i, len(spots), (-x0 - w / 2, y0 + w / 2, top))
+        for z in range(top):
+            for dx in range(w):
+                for dy in range(w):
+                    q = (x0 + dx, y0 + dy, z)
+                    cc = foot if foot is not None and z < max(1, round(foot_h * k)) else col
+                    if paint:
+                        cc = paint(q, cc, (x0, y0, w)) or cc
+                    right.put(q, cc)
+        for (qx, qy, qz), v in right.v.items():
+            left.v[(-qx - 1, qy, qz)] = v
+
+
+def _side_eyes(c, head, y, z, tall=2):
+    """Eyes on the sides of the head (a camel's): the outermost head voxels
+    at depth y, rows z.. z + tall - 1, the top one with a white shine."""
+    e = c.part('eyes', 'blink', head.pivot)
+    for dz in range(tall):
+        row = [p for p in head.v if p[1] == y and p[2] == z + dz and p[0] >= 0]
+        if not row:
+            continue
+        q = max(row)
+        del head.v[q]
+        e.put(q, WHITE if dz == tall - 1 and tall >= 2 else INK)
+    for (x, yy, zz), v in list(e.v.items()):
+        head.v.pop((-x - 1, yy, zz), None)
+        e.v[(-x - 1, yy, zz)] = v
+
+
+def _ears_round(c, k, x, y, z, r, col, pivot):
+    ears = c.part('ears', 'ears', pivot)
+    ears.ell((x * k, y * k, z * k), r, col)
+    _mirror(ears)
+    return ears
+
+
+# ------------------------------------------------------------------ camel
+
+def _camel(c, k, cols):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.3)
+    snout = cols.get('snout') or _light(col, 0.3)
+    pad = _dark(col, 0.35)
+    gold = cols.get('accent') or hexc('#FFD24A')
+    w = max(2, round(0.6 * k))
+    # long legs: a knobbly knee halfway up and a wide pad at the foot
+    knee = round(1.8 * k)
+
+    def knees(q, cc, base):
+        return _dark(col, 0.12) if knee <= q[2] < knee + max(1, round(0.25 * k)) else None
+    _legs(c, k, ((0.85, -0.9), (0.85, 2.2)), 3.7 * k, w, col, foot=pad, foot_h=0.25, paint=knees)
+    for p in [p for p in c.parts if p.name in rig.LEG_NAMES]:
+        sx = 1 if p.name.endswith('R') else -1
+        xs = [q[0] for q in p.v]
+        ys = [q[1] for q in p.v]
+        # the knee bulges a voxel out at the front and outside; the pad spreads
+        for q in list(p.v):
+            if knee <= q[2] < knee + max(1, round(0.25 * k)) and q[1] == min(ys):
+                p.put((q[0], q[1] - 1, q[2]), _dark(col, 0.12))
+            if q[2] == 0 and q[1] == min(ys):
+                p.put((q[0], q[1] - 1, 0), pad)
+        for q in list(p.v):
+            if q[2] == 0 and q[0] == (max(xs) if sx > 0 else min(xs)):
+                p.put((q[0] + sx, q[1], 0), pad)
+    body = c.part('body')
+    body.ell((0, 0.7 * k, 4.6 * k), (1.35 * k, 2.3 * k, 1.2 * k), col)
+    # one clear hump
+    body.ell((0, 0.8 * k, 5.8 * k), (0.95 * k, 1.15 * k, 1.0 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < 4.0 * k else None)
+    # the neck curves forward and down out of the chest, then up to the head
+    head = c.part('head', 'head', (0, -1.3 * k, 4.9 * k))
+    line(head, (0, -1.3 * k, 4.9 * k), (0, -2.5 * k, 5.6 * k), col, r=0.62 * k)
+    line(head, (0, -2.5 * k, 5.6 * k), (0, -2.9 * k, 7.4 * k), col, r=0.52 * k)
+    head.ell((0, -3.0 * k, 8.0 * k), (0.8 * k, 0.9 * k, 0.75 * k), col)
+    # a long muzzle with a droopy lower lip
+    head.ell((0, -4.1 * k, 7.75 * k), (0.58 * k, 1.0 * k, 0.5 * k), snout)
+    head.ell((0, -4.15 * k, 7.15 * k), (0.48 * k, 0.75 * k, 0.32 * k), _dark(snout, 0.12))
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    for x in (round(0.25 * k), -round(0.25 * k) - 1):
+        head.put((x, fy, zt), INK)
+    _side_eyes(c, head, round(-3.25 * k), round(7.9 * k))
+    # a glowing bell on a collar where the neck leaves the chest
+    red = hexc('#C8463A')
+    head.paint(lambda p, cc, g: (red, False) if abs(p[1] + .5 + 2.15 * k) < 0.25 * k + .5 and 5.0 * k < p[2] < 6.4 * k else None)
+    bell = c.part('bell', 'static')
+    # a little bell under the throat: a dome flaring to a rim, a dark clapper
+    by, bz = -2.75 * k, 4.75 * k
+    bell.ell((0, by, bz), (0.6 * k, 0.6 * k, 0.6 * k), gold, True)
+    bell.v = {p: v for p, v in bell.v.items() if p[2] <= bz}
+    bell.ell((0, by, bz + 0.3 * k), (0.3 * k + .3, 0.3 * k + .3, 0.35 * k), gold, True)
+    lo = min(p[2] for p in bell.v)
+    bell.put((0, math.floor(by), lo - 1), INK)
+    _mirror(bell)
+    _ears_round(c, k, 0.62, -2.75, 8.7, (0.3 * k, 0.24 * k, 0.36 * k), col, (0, -2.8 * k, 8.6 * k))
+    tail = c.part('tail', 'tail', (0, 3.0 * k, 5.0 * k))
+    tc = cols.get('tail_col') or _dark(col, 0.2)
+    line(tail, (0, 3.0 * k, 5.0 * k), (0, 3.35 * k, 3.6 * k), tc, r=0.3 * k)
+    tail.ell((0, 3.4 * k, 3.2 * k), (0.35 * k, 0.3 * k, 0.55 * k), _dark(tc, 0.3))
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ ermine
+
+def _ermine(c, k, cols):
+    col = cols['col']
+    w = max(2, round(0.55 * k))
+    _legs(c, k, ((0.5, -1.5), (0.5, 2.5)), 1.6 * k, w, col, foot=_dark(col, 0.06))
+    body = c.part('body')
+    body.ell((0, 0.6 * k, 2.15 * k), (0.92 * k, 2.95 * k, 0.85 * k), col)
+    body.ell((0, -1.4 * k, 2.4 * k), (0.88 * k, 1.05 * k, 0.9 * k), col)
+    body.paint(lambda p, cc, g: (_dark(col, 0.04), False) if p[2] > 2.6 * k and _h(*p) % 7 == 0 else None)
+    # the head held up on a slim neck, alert
+    head = c.part('head', 'head', (0, -1.7 * k, 2.7 * k))
+    line(head, (0, -1.7 * k, 2.6 * k), (0, -2.35 * k, 3.7 * k), col, r=0.6 * k)
+    head.ell((0, -2.75 * k, 4.3 * k), (1.15 * k, 0.95 * k, 0.95 * k), col)
+    head.ell((0, -3.6 * k, 3.75 * k), (0.5 * k, 0.5 * k, 0.38 * k), cols.get('snout') or col)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), INK)
+    head.put((-1, fy, zt), INK)
+    face(c, head, k, 4.3, x_off=0.75, size=0.3, cheeks=False)
+    _ears_round(c, k, 0.75, -2.45, 5.2, (0.32 * k, 0.2 * k, 0.3 * k), col, (0, -2.45 * k, 5.0 * k))
+    tail = c.part('tail', 'tail', (0, 3.4 * k, 2.4 * k))
+    line(tail, (0, 3.4 * k, 2.4 * k), (0, 5.0 * k, 3.0 * k), cols.get('tail_col') or col, r=0.34 * k)
+    line(tail, (0, 5.0 * k, 3.0 * k), (0, 5.9 * k, 3.6 * k), cols.get('tail_col') or col, r=0.3 * k)
+    tip = cols.get('accent') or hexc('#1F1F2A')
+    tail.paint(lambda p, cc, g: (tip, False) if p[1] > 5.0 * k else None)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ musk ox
+
+def _muskox(c, k, cols):
+    col = cols['col']
+    face_col = _dark(col, 0.25)
+    snout = cols.get('snout') or hexc('#B8A890')
+    horn = cols.get('accent') or hexc('#D8CCB0')
+    glow = cols.get('glow') or hexc('#FFF4D6')
+    w = max(2, round(0.7 * k))
+    _legs(c, k, ((0.95, -0.9), (0.95, 2.0)), 2.2 * k, w, _dark(col, 0.15), foot=hexc('#2A2420'), foot_h=0.4)
+    body = c.part('body')
+    body.ell((0, 0.6 * k, 3.4 * k), (1.7 * k, 2.4 * k, 1.6 * k), col)
+    body.ell((0, -0.2 * k, 4.4 * k), (1.35 * k, 1.3 * k, 1.05 * k), col)  # the shoulder hump
+    # a lighter saddle on the back
+    body.paint(lambda p, cc, g: (_light(col, 0.22), False) if p[2] > 4.4 * k and -0.3 * k < p[1] < 1.6 * k else None)
+    # the shaggy skirt: the body's outline at its widest hangs down nearly
+    # to the floor in uneven streaks, over the legs
+    zc = round(3.4 * k)
+    ring = {(x, y) for (x, y, z) in body.v if z == zc}
+    rim = {q for q in ring if any((q[0] + d0, q[1] + d1) not in ring for d0, d1 in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+    rim2 = {q for q in ring if q not in rim and any((q[0] + d0, q[1] + d1) in rim for d0, d1 in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+    for (x, y) in rim | rim2:
+        hx = x if x >= 0 else -x - 1
+        end = max(1, round(0.4 * k)) + _h(hx, y) % 3
+        shade = (col, _dark(col, 0.14), _light(col, 0.1))[_h(hx, y, 5) % 3]
+        for z in range(end, zc):
+            body.put((x, y, z), shade)
+        if (x, y) in rim:  # the hem flares out a little over the lower third
+            ox = (1 if x >= 0 else -1) if (x + 1, y) not in ring or (x - 1, y) not in ring else 0
+            oy = (1 if y > 0.6 * k else -1) if (x, y + 1) not in ring or (x, y - 1) not in ring else 0
+            for z in range(end, round(1.5 * k)):
+                body.put((x + ox, y + oy, z), shade)
+    head = c.part('head', 'head', (0, -1.5 * k, 3.8 * k))
+    head.ell((0, -2.45 * k, 3.5 * k), (1.1 * k, 1.05 * k, 1.1 * k), face_col)
+    head.ell((0, -3.4 * k, 2.85 * k), (0.72 * k, 0.55 * k, 0.55 * k), snout)
+    # a shaggy beard hanging under the chin
+    head.ell((0, -2.4 * k, 2.15 * k), (0.85 * k, 0.75 * k, 0.75 * k), col)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    for x in (round(0.3 * k), -round(0.3 * k) - 1):
+        head.put((x, fy, zt), INK)
+    face(c, head, k, 3.55, x_off=0.42, size=0.42, cheeks=False)
+    # lighter patches round the eyes so they read on the dark face
+    eyes = next(p for p in c.parts if p.name == 'eyes')
+    ev = list(eyes.v)
+    head.paint(lambda p, cc, g: (_light(face_col, 0.35), False) if p not in eyes.v and cc == face_col and any(
+        abs(p[0] - e[0]) <= 1 and abs(p[2] - e[2]) <= 1 and abs(p[1] - e[1]) <= 1 for e in ev) else None)
+    _mirror(head)
+    # small ears tucked out sideways under the horns
+    _ears_round(c, k, 1.15, -2.2, 3.55, (0.32 * k, 0.2 * k, 0.2 * k), face_col, (0, -2.2 * k, 3.6 * k))
+    # horns: a boss across the crown, sweeping out and curling down past the ears
+    horns = c.part('horns', 'static')
+    horns.ell((0, -2.4 * k, 4.45 * k), (1.0 * k, 0.45 * k, 0.32 * k), horn)
+    pts = ((0.6, -2.4, 4.5), (1.35, -2.35, 4.35), (1.75, -2.45, 3.7), (1.8, -2.75, 2.95), (1.55, -3.15, 2.75), (1.5, -3.35, 3.15))
+    for i in range(len(pts) - 1):
+        r = (0.4 - 0.05 * i) * k
+        line(horns, tuple(v * k for v in pts[i]), tuple(v * k for v in pts[i + 1]), horn, r=max(r, 0.65))
+    tipz = 3.0 * k
+    horns.paint(lambda p, cc, g: (glow, True) if p[1] < -3.0 * k and p[2] > tipz and abs(p[0]) > 1.2 * k else None)
+    _mirror(horns)
+    tail = c.part('tail', 'tail', (0, 2.9 * k, 3.6 * k))
+    tail.ell((0, 3.0 * k, 3.4 * k), (0.4 * k, 0.4 * k, 0.6 * k), col)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ sand cat
+
+def _sandcat(c, k, cols):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.4)
+    stripe = cols.get('accent') or hexc('#8A6A44')
+    glow = cols.get('glow') or hexc('#FFB24A')
+    w = max(2, round(0.6 * k))
+    bands = (round(0.55 * k), round(1.2 * k))
+
+    def striped(q, cc, base):
+        x0, y0, ww = base
+        outer = q[0] == x0 + ww - 1 or q[1] == y0
+        return stripe if outer and q[2] in bands else None
+    _legs(c, k, ((0.7, -0.8), (0.7, 2.0)), 2.0 * k, w, col, foot=belly, foot_h=0.2, paint=striped)
+    body = c.part('body')
+    body.ell((0, 0.6 * k, 2.6 * k), (1.2 * k, 2.0 * k, 1.1 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < 2.1 * k and abs(p[0] + .5) < 0.9 * k else None)
+    head = c.part('head', 'head', (0, -1.4 * k, 3.6 * k))
+    # a wide, flat head with fluffy cheeks
+    head.ell((0, -2.2 * k, 4.4 * k), (1.55 * k, 1.2 * k, 1.0 * k), col)
+    head.ell((1.2 * k, -2.5 * k, 3.95 * k), (0.5 * k, 0.6 * k, 0.48 * k), belly)
+    head.ell((0, -3.25 * k, 4.0 * k), (0.6 * k, 0.4 * k, 0.4 * k), belly)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), hexc('#E8909A'))
+    _mirror(head)
+    face(c, head, k, 4.55, x_off=0.5, size=0.5, cheeks=False)
+    # a dark line running back from each eye's outer corner
+    eyes = next(p for p in c.parts if p.name == 'eyes')
+    ez = min(p[2] for p in eyes.v)
+    ex = max(p[0] for p in eyes.v)
+    for (x, y, z) in list(head.v):
+        if z == ez and x in (ex + 1, ex + 2) and (x, y - 1, z) not in head.v:
+            head.put((x, y, z), stripe)
+    _mirror(head)
+    # wide ears set low on the sides of the head, leaning outward, dark tips
+    # and glowing insides
+    ears = c.part('ears', 'ears', (0, -2.2 * k, 5.1 * k))
+    n = max(3, round(1.05 * k))
+    y0 = round(-2.25 * k)
+    for i in range(n):
+        t = i / (n - 1)
+        wd = (1.0 - t) * 0.72 * k
+        cx = 1.25 * k + t * 0.5 * k
+        z = round(4.95 * k) + i
+        for x in range(math.floor(cx - wd), math.ceil(cx + wd) + 1):
+            for y in (y0, y0 + 1):
+                inner = y == y0 and abs(x + .5 - cx) < wd - 1 and i < n - 1
+                ears.put((x, y, z), (glow if inner else (INK if t > 0.75 else col)), inner)
+    _mirror(ears)
+    tail = c.part('tail', 'tail', (0, 2.5 * k, 2.9 * k))
+    line(tail, (0, 2.5 * k, 2.9 * k), (0, 3.9 * k, 2.5 * k), col, r=0.4 * k)
+    line(tail, (0, 3.9 * k, 2.5 * k), (0, 4.8 * k, 3.1 * k), col, r=0.37 * k)
+    ring = max(1, round(0.3 * k))
+    tail.paint(lambda p, cc, g: (INK, False) if p[1] > 4.5 * k else (stripe, False) if any(
+        abs(p[1] - r * k) < ring / 2 + .01 for r in (3.4, 4.0)) else None)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ sea otter
+
+def _otter(c, k, cols):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.3)
+    pale = cols.get('snout') or _light(col, 0.6)
+    shell = cols.get('accent') or hexc('#FFC8B0')
+    glow = cols.get('glow') or hexc('#F4FBFF')
+    body = c.part('body')
+    # lying on its back: a long body low on the water, chest and belly up
+    body.ell((0, 0.7 * k, 1.8 * k), (1.35 * k, 2.8 * k, 1.0 * k), col)
+    body.ell((0, -0.6 * k, 2.3 * k), (1.2 * k, 1.3 * k, 1.0 * k), col)  # the chest, raised
+    body.paint(lambda p, cc, g: (belly, False) if p[2] > 2.2 * k and abs(p[0] + .5) < 1.0 * k and p[1] < 2.6 * k else None)
+    # front paws resting on the chest holding a shell with a glowing pearl
+    for x in (0.62,):
+        body.ell((x * k, -0.9 * k, 3.3 * k), (0.32 * k, 0.4 * k, 0.32 * k), _dark(col, 0.2))
+    _mirror(body)
+    sh = c.part('shell', 'static')
+    sh.ell((0, -0.5 * k, 3.55 * k), (0.75 * k, 0.6 * k, 0.3 * k), shell)
+    sh.paint(lambda p, cc, g: (_dark(shell, 0.18), False) if p[0] % 2 == 0 else None)
+    sh.ell((0, -0.55 * k, 3.95 * k), (0.25 * k + .3, 0.25 * k + .3, 0.25 * k + .3), glow, True)
+    _mirror(sh)
+    head = c.part('head', 'head', (0, -2.0 * k, 2.3 * k))
+    head.ell((0, -2.75 * k, 3.0 * k), (1.1 * k, 1.0 * k, 1.0 * k), pale)
+    head.paint(lambda p, cc, g: (_mix(pale, col, 0.4), False) if p[1] > -2.3 * k else None)
+    head.ell((0, -3.6 * k, 2.75 * k), (0.52 * k, 0.4 * k, 0.38 * k), _light(pale, 0.4))
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), INK)
+    _mirror(head)
+    face(c, head, k, 3.3, x_off=0.45, size=0.4, cheeks=True, cheek_z=2.85, cheek_x=0.85)
+    _ears_round(c, k, 0.98, -2.5, 3.75, (0.28 * k, 0.2 * k, 0.25 * k), _dark(col, 0.1), (0, -2.45 * k, 3.6 * k))
+    # webbed hind feet held up out of the water: they paddle as it swims
+    for name, sx in (('finR', 1), ('finL', -1)):
+        fin = c.part(name, name, (sx * 0.75 * k, 2.9 * k, 2.2 * k))
+        line(fin, (0.75 * k, 2.9 * k, 2.2 * k), (0.95 * k, 3.3 * k, 3.4 * k), _dark(col, 0.1), r=0.32 * k)
+        fin.ell((1.0 * k, 3.4 * k, 3.75 * k), (0.48 * k, 0.24 * k, 0.55 * k), _dark(col, 0.25))
+        if sx < 0:
+            fin.v = {(-x - 1, y, z): v for (x, y, z), v in fin.v.items()}
+    tail = c.part('tail', 'tail', (0, 3.3 * k, 1.7 * k))
+    tail.ell((0, 4.4 * k, 1.75 * k), (0.5 * k, 1.1 * k, 0.26 * k), cols.get('tail_col') or _dark(col, 0.1))
+    _mirror(tail)
+    # ripples on the water round it
+    water = c.part('water', 'static')
+    for a in range(180):
+        ang = a / 180 * 2 * math.pi
+        if math.sin(ang * 7) < -0.35:
+            continue
+        x = math.cos(ang) * 1.9 * k
+        y = 0.7 * k + math.sin(ang) * 3.5 * k
+        water.put((math.floor(x), math.floor(y), 0), hexc('#BDEBFF'))
+    _mirror(water)
+
+
+KINDS = {'camel': _camel, 'ermine': _ermine, 'muskox': _muskox, 'sandcat': _sandcat, 'otter': _otter}
+GAITS = {'otter': 'swim'}
+
+
+def beast(c, H, kind, cols):
+    k = H / 10.0
+    KINDS[kind](c, k, cols)
+    eyes = next((p for p in c.parts if p.name == 'eyes'), None)
+    if eyes is None or len(eyes.v) < 2:
+        # the coarse in-game boxes: too few voxels for the face as drawn, so
+        # one ink voxel a side on the head's front, a row above its middle
+        head = next(p for p in c.parts if p.name == 'head')
+        zs = sorted(p[2] for p in head.v)
+        z = zs[len(zs) // 2] + 1
+        e = eyes or c.part('eyes', 'blink', head.pivot)
+        for x in (1, 0):
+            f, g = head.front(x, z), head.front(-x - 1, z)
+            if f and g:
+                for q in (f, g):
+                    del head.v[q]
+                    e.put(q, INK)
+                break
+        if len(e.v) < 2:
+            raise ValueError(f'{c.species}: the {kind} face has no eyes')
+    c.gait_hint = GAITS.get(kind, 'trot')
+    return c
+
+
+PLANS = {
+    'mammal': ({'col', 'belly', 'snout', 'accent', 'glow', 'tail_col'}, {'kind': set(KINDS)}),
+}
+
+BUILDERS = {
+    'mammal': lambda c, H, cols, opts: beast(c, H, opts['kind'], cols),
+}

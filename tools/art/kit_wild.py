@@ -69,34 +69,56 @@ def octopus(c, H, kind, col, accent=None, belly=None):
     # eight arms, four a side, from the skirt out and down to the ground,
     # the tips curling up; each is a leg part hinged at the skirt
     sock = kind == 'sock'
-    for sx in (-1, 1):
-        for i, ang in enumerate((25, 65, 110, 150)):
-            a = math.radians(ang)
-            ox, oy = math.sin(a) * sx, -math.cos(a)  # out from the centre, front is -y
-            r0 = 1.4 * k
-            hip = (ox * r0, 0.4 * k + oy * r0, 2.6 * k)
-            leg = _leg(c, sx, i, 4, (round(hip[0]) + .5, round(hip[1]) + .5, round(hip[2]) + 1))
-            pts = []
-            n = 12
-            for j in range(n + 1):
-                t = j / n
-                reach = r0 + 3.0 * k * t
-                z = 2.6 * k * (1 - t) ** 1.6 + 0.4 * k
-                if t > 0.8:  # the tip curls up and back in
-                    reach -= (t - 0.8) * 2.0 * k
-                    z += (t - 0.8) * 4.0 * k
-                pts.append((ox * reach, 0.4 * k + oy * reach, z, (0.62 - 0.38 * t) * k))
-            for j, (x, y, z, r) in enumerate(pts):
+    # odd socks: every arm its own colours and knit (stripes, dots, plain
+    # with a band), all with a heel and toe cap
+    socks = [(col, accent, 'stripe'), (hexc('#FF7A9C'), hexc('#FFFFFF'), 'dots'), (hexc('#7ED957'), hexc('#2E7D4F'), 'stripe'),
+             (hexc('#FFD43B'), hexc('#FF8A3D'), 'band'), (hexc('#A77BFF'), hexc('#FFE27A'), 'dots'), (hexc('#4AA8FF'), hexc('#FFFFFF'), 'stripe'),
+             (hexc('#FF5E5E'), hexc('#FFD6D6'), 'band'), (hexc('#3FD0C9'), hexc('#1F5F7A'), 'dots')]
+    cap = hexc('#F4F1EA')
+    for i, ang in enumerate((25, 65, 110, 150)):
+        # each arm is drawn on the right and mirrored exactly to the left
+        a = math.radians(ang)
+        ox, oy = math.sin(a), -math.cos(a)  # out from the centre, front is -y
+        r0 = 1.4 * k
+        pts = []
+        n = 12
+        for j in range(n + 1):
+            t = j / n
+            reach = r0 + 3.0 * k * t
+            z = 2.6 * k * (1 - t) ** 1.6 + 0.4 * k
+            if t > 0.8:  # the tip curls up and back in
+                reach -= (t - 0.8) * 2.0 * k
+                z += (t - 0.8) * 4.0 * k
+            pts.append((ox * reach, 0.4 * k + oy * reach, z, (0.62 - 0.38 * t) * k))
+        tmp = c.part('_armtmp', 'static')
+        seg = {}
+        for j, (x, y, z, r) in enumerate(pts):
+            before = set(tmp.v)
+            tmp.ell((x, y, z), (max(r, .7), max(r, .7), max(r, .7)), col)
+            for q in set(tmp.v) - before:
+                seg[q] = j
+        c.parts.remove(tmp)
+        hipx = ox * r0
+        hip = (round(hipx) + .5, round(0.4 * k + oy * r0) + .5, round(2.6 * k) + 1)
+        for side, sx in enumerate((1, -1)):
+            leg = _leg(c, sx, i, 4, hip if sx > 0 else (-hip[0], hip[1], hip[2]))
+            base, alt, knit = socks[(i * 2 + side) % len(socks)] if sock else (col, accent, '')
+            for q, j in seg.items():
+                cc = base
                 if sock:
-                    # knitted bands along the arm, a contrasting toe
-                    stripe = (j // 3) % 2 == 1 or j >= n - 1
-                    leg.ell((x, y, z), (max(r, .7), max(r, .7), max(r, .7)), accent if stripe else col)
-                else:
-                    leg.ell((x, y, z), (max(r, .7), max(r, .7), max(r, .7)), col)
+                    if j >= n - 1 or 6 <= j <= 7:
+                        cc = cap  # the toe and the heel
+                    elif knit == 'stripe' and (j // 2) % 2 == 1:
+                        cc = alt
+                    elif knit == 'dots' and kit._hash(q[0] // 2, q[1] // 2, q[2] // 2, 71) % 3 == 0:
+                        cc = alt
+                    elif knit == 'band' and j in (1, 2, 9):
+                        cc = alt
+                leg.v[(q[0] if sx > 0 else -q[0] - 1, q[1], q[2])] = (cc, False)
             if not sock and fine:
                 # pale suckers along the underside
                 for (x, y, z, r) in pts[2:-2:2]:
-                    leg.put((math.floor(x), math.floor(y), max(0, math.floor(z - r))), belly)
+                    leg.put((math.floor(x * sx) if sx > 0 else -math.floor(x) - 1, math.floor(y), max(0, math.floor(z - r))), belly)
     if sock:
         # knitted stripes: rows around each arm in the accent colour, a
         # ribbed cuff where the arms meet the mantle
@@ -214,6 +236,58 @@ def scorpion(c, H, k, col, accent, wing, body, head):
 
 
 kit_pond.add_critter_kind('scorpion', scorpion)
+
+
+def tarantula(c, H, k, col, accent, wing, body, head):
+    """A big hairy spider: a round furry rear and a smaller front, eight
+    thick legs that reach out level from the hips (each leg's top is its
+    hip, so it hinges there) to a knee banded in the accent colour (glowing
+    at Rare and up), then down to the feet; lighter fuzz on the leg tops."""
+    pale = _light(col, 0.3)
+    glowing = c.rarity not in ('Common', 'Uncommon')
+    body.ell((0, 1.8 * k, 2.9 * k), (2.0 * k, 2.2 * k, 1.8 * k), col)
+    body.ell((0, -0.4 * k, 2.6 * k), (1.35 * k, 1.3 * k, 1.1 * k), col)
+    body.paint(lambda p, cc, g: (pale, False) if kit._hash(*p, 61) % 6 == 0 and p[2] > 2.6 * k else None)
+    head.pivot = (0, -1.6 * k, 2.6 * k)
+    head.ell((0, -1.9 * k, 2.6 * k), (1.0 * k, 0.8 * k, 0.85 * k), col)
+    face(c, head, k, 2.75, x_off=0.4, size=0.5, cheek_z=2.2)
+    # fangs under the face
+    for x in (-1, 0):
+        for i in range(max(1, round(0.4 * k))):
+            head.put((x + (1 if x == 0 else -1) * round(0.25 * k), round(-2.6 * k), round(1.9 * k) - i), _dark(col, 0.45))
+    leg_col = _dark(col, 0.1)
+    for i, (y, splay) in enumerate(((-1.2, -0.9), (-0.6, -0.3), (0.0, 0.3), (0.6, 0.9))):
+        hip_z = 2.7 * k
+        a = (1.25 * k, y * k, hip_z)
+        b = (2.6 * k, (y + splay * 0.5) * k, hip_z - 0.1 * k)
+        f = (3.5 * k, (y + splay) * k, 0.3 * k)
+        right = {}
+        tmp = c.part('_legtmp', 'static')
+        line(tmp, a, b, leg_col, r=0.36 * k)
+        line(tmp, b, f, leg_col, r=0.3 * k)
+        # the knee band, and pale fuzz along the top of the leg
+        kx = math.floor(b[0])  # a one-voxel band right round the knee
+        tmp.paint(lambda q, cc, g: (accent, glowing) if q[0] in (kx, kx + 1) and q[2] >= b[2] - 0.6 * k else None)
+        tops = {}
+        for (x, yy, z) in tmp.v:
+            tops[(x, yy)] = max(tops.get((x, yy), -1), z)
+        tmp.paint(lambda q, cc, g: (pale, False) if cc == leg_col and q[2] == tops[(q[0], q[1])] and kit._hash(*q, 63) % 3 == 0 else None)
+        # the part of the leg inside the body stays the body's (as the
+        # build does), so hinge at the first voxel outside it
+        right = {q: v for q, v in tmp.v.items() if q not in body.v and (-q[0] - 1, q[1], q[2]) not in body.v}
+        c.parts.remove(tmp)
+        inner = min(q[0] for q in right)
+        top = max(q[2] for q in right if q[0] <= inner + 1)
+        ys = [q[1] for q in right if q[0] <= inner + 1]
+        hy = (min(ys) + max(ys) + 1) / 2
+        for sx in (1, -1):
+            hip = ((inner + .5) if sx > 0 else -(inner + .5), hy, top + .5)
+            leg = _leg(c, sx, i, 4, hip)
+            for (x, yy, z), v in right.items():
+                leg.v[(x if sx > 0 else -x - 1, yy, z)] = v
+
+
+kit_pond.add_critter_kind('tarantula', tarantula)
 
 
 # --------------------------------------------------------------- helpers
@@ -1417,6 +1491,54 @@ def clover(c, H, col, col2=None):
     part.put((0, round(y), z + 1), col2 or hexc('#CFFFF0'), True)
 
 
+def petallegs(c, H, col, col2=None):
+    """An orchid mantis's petal legs: a flat, round petal lobe (col) on the
+    thigh of every walking leg, standing out sideways, its middle glowing
+    softly (col2)."""
+    k = H / 10.0
+    for p in c.parts:
+        if p.name not in rig.LEG_NAMES or not p.v:
+            continue
+        sx = 1 if p.pivot[0] >= 0 else -1
+        top = max(q[2] for q in p.v)
+        ys = [q[1] for q in p.v]
+        y0 = min(ys)
+        upper = [q for q in p.v if q[2] >= top - 1]
+        x0 = max(q[0] * sx for q in upper) * sx
+        cx, cz = x0 + sx * 0.6 * k, top - 0.2 * k
+        r = 0.75 * k + .3
+        for x in range(math.floor(cx - r), math.ceil(cx + r) + 1):
+            for z in range(math.floor(cz - r), math.ceil(cz + r) + 1):
+                d = math.hypot(x + .5 - cx, (z + .5 - cz) * 1.2)
+                if d < r and z >= 1:
+                    glow = col2 is not None and d < 0.3 * k + .2
+                    p.v[(x, y0, z)] = ((col2 if glow else (col if d < r - 1 else _dark(col, 0.15))), glow)
+
+
+def raptorarms(c, H, col, col2=None):
+    """A mantis's folded hunting arms held up under the chin: a thick upper
+    arm angled forward and down, the spiky forearm folded back up against
+    it (spines in col2)."""
+    k = H / 10.0
+    head = _head(c)
+    (lo, hi) = _bounds(head)
+    part = c.part('arms', 'static')
+    zc = lo[2] - 0.2 * k
+    yc = (lo[1] + hi[1]) / 2 + 0.6 * k
+    for sx in (1,):
+        sh = (sx * 0.9 * k, yc + 0.8 * k, zc - 0.4 * k)
+        el = (sx * 1.2 * k, yc - 1.4 * k, zc - 2.0 * k)
+        hand = (sx * 1.1 * k, yc - 1.8 * k, zc + 0.2 * k)
+        line(part, sh, el, col, r=0.42 * k)
+        line(part, el, hand, col, r=0.34 * k)
+        for t in (0.3, 0.55, 0.8):
+            px = el[0] + (hand[0] - el[0]) * t
+            py = el[1] + (hand[1] - el[1]) * t
+            pz = el[2] + (hand[2] - el[2]) * t
+            part.put((math.floor(px), math.floor(py - 0.5 * k), math.floor(pz)), col2 or _dark(col, 0.3))
+    _mirror(part)
+
+
 def petalcrown(c, H, col, col2=None):
     """A ring of petals round the crown, a glowing centre (col2)."""
     k = H / 10.0
@@ -1487,6 +1609,60 @@ def wingspots(c, H, col, col2=None):
         w.paint(lambda p, cc, g, far=far: (_dark(cc, 0.35), False) if abs(p[0] - far) <= max(1, round(0.5 * k)) and p[2] >= max(zs) - round(1.4 * k) else None)
 
 
+def snaketips(c, H, col, col2=None):
+    """An atlas moth's snake-head wing tips: the front top corner of each
+    wing curls forward and down into a hooked lobe (col), with a dark eye
+    spot and a tiny glint, like a snake's head."""
+    k = H / 10.0
+    for name in ('wingL', 'wingR'):
+        w = kit._find(c, name)
+        if not w or not w.v:
+            continue
+        corner = max(w.v, key=lambda p: p[2] * 1.0 - p[1] * 0.8)
+        xs = sorted({p[0] for p in w.v if abs(p[2] - corner[2]) <= 2 and abs(p[1] - corner[1]) <= 2})
+        r = 0.75 * k
+        cy, cz = corner[1] - 0.7 * k, corner[2] - 0.7 * k
+        for x in xs:
+            for y in range(math.floor(cy - r - 1), math.ceil(cy + r + 1)):
+                for z in range(math.floor(cz - r - 1), math.ceil(cz + r + 1)):
+                    d = math.hypot(y + .5 - cy, z + .5 - cz)
+                    if d < r and (y < corner[1] or z < corner[2]):
+                        w.v[(x, y, z)] = (col, False)
+        # the eye spot near the hooked end, a white glint on it
+        ey, ez = math.floor(cy - 0.25 * k), math.floor(cz)
+        for x in xs:
+            w.v[(x, ey, ez)] = (INK, False)
+            w.v[(x, ey, ez + 1)] = (col2 or WHITE, bool(col2))
+        # a dark rim along the hook's outer edge
+        w.paint(lambda p, cc, g, cy=cy, cz=cz: (_dark(col, 0.35), False) if cc == col and r - 1 <= math.hypot(p[1] + .5 - cy, p[2] + .5 - cz) < r else None)
+
+
+def eyespots(c, H, col, col2=None):
+    """A round eye spot on each wing only (col, a glowing col2 centre)."""
+    k = H / 10.0
+    for name in ('wingL', 'wingR'):
+        w = kit._find(c, name)
+        if not w or not w.v:
+            continue
+        ys = [p[1] for p in w.v]
+        zs = [p[2] for p in w.v]
+        cy = (min(ys) + max(ys)) / 2 + .5
+        cz = min(zs) + (max(zs) - min(zs)) * 0.6 + .5
+        w.paint(lambda p, cc, g, cy=cy, cz=cz: ((col2 or WHITE), bool(col2)) if math.hypot(p[1] + .5 - cy, p[2] + .5 - cz) < 0.3 * k + .4 else (
+            (col, False) if math.hypot(p[1] + .5 - cy, p[2] + .5 - cz) < 0.65 * k + .4 else None))
+
+
+def wingedge(c, H, col, col2=None):
+    """A soft glowing rim round each wing (col)."""
+    for name in ('wingL', 'wingR'):
+        w = kit._find(c, name)
+        if not w or not w.v:
+            continue
+        flat = {(p[1], p[2]) for p in w.v}
+        edge = {q for q in flat if any((q[0] + a, q[1] + b) not in flat for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+        w.paint(lambda p, cc, g: (col, True) if (p[1], p[2]) in edge else None)
+
+
 def bigwings(c, H, col, col2=None):
     """Makes the wings a third bigger (the biggest wings in the tier)."""
     for name in ('wingL', 'wingR'):
@@ -1507,9 +1683,10 @@ def wingtails(c, H, col, col2=None):
         zs = [p[2] for p in w.v]
         low = [p for p in w.v if p[2] == min(zs)]
         p0 = max(low, key=lambda p: p[0] * sx)
-        n = round(2.2 * k)
+        ys = [p[1] for p in w.v]
+        n = max(round(2.2 * k), round((max(ys) - min(ys)) * 0.9))  # about the body's length
         for i in range(n):
-            pt = (p0[0] + sx * (i // 3), p0[1] + i // 2, p0[2] - 1 - i // 2)
+            pt = (p0[0] + sx * (i // 5), p0[1] + (i * 2) // 3, p0[2] - 1 - i // 3)
             w.put(pt, col2 if i >= n - max(1, round(0.5 * k)) and col2 else col, bool(col2) and i >= n - max(1, round(0.5 * k)))
 
 
@@ -1552,20 +1729,21 @@ def bighorn(c, H, col, col2=None):
     (lo, hi) = _bounds(head)
     part = c.part('horn', 'static')
     base = (0, lo[1] + 0.6 * k, (lo[2] + hi[2]) / 2)
-    pts = [(0, base[1] - t * 2.2 * k, base[2] - 0.2 * k + math.sin(t * 1.9) * 1.6 * k) for t in (i / 10 for i in range(11))]
+    # the lower horn: from the head, forward and curving up at the tip
+    pts = [(0, base[1] - t * 3.4 * k, base[2] - 0.3 * k + (t ** 2) * 1.6 * k) for t in (i / 14 for i in range(15))]
     for i, (x, y, z) in enumerate(pts):
-        part.ell((x, y, z), (0.5 * k * (1 - i / 14) + .5,) * 3, col)
+        part.ell((x, y, z), (0.5 * k * (1 - i / 20) + .45,) * 3, col)
     shell = kit._find(c, 'shell') or kit._find(c, 'body')
     (slo, shi) = _bounds(shell)
     top = (0, slo[1] + 0.8 * k, shi[2])
     # the great thorax horn: up off the shell, then long and forward over
     # the head, hooking down at the end to meet the head horn
-    pts2 = [(0, top[1] + 0.4 * k - t * 5.0 * k, top[2] + 0.4 * k + math.sin(t * math.pi * 0.8) * 1.3 * k - t * t * 1.4 * k) for t in (i / 16 for i in range(17))]
+    pts2 = [(0, top[1] + 0.6 * k - t * 7.6 * k, top[2] + 0.6 * k + math.sin(t * math.pi * 0.7) * 1.4 * k - t ** 3 * 2.6 * k) for t in (i / 22 for i in range(23))]
     for i, (x, y, z) in enumerate(pts2):
-        part.ell((x, y, z), (0.55 * k * (1 - i / 22) + .4,) * 3, col)
+        part.ell((x, y, z), (0.6 * k * (1 - i / 30) + .4,) * 3, col)
     # the hairy gold underside of the thorax horn
     hair = _light(col, 0.45)
-    for (x, y, z) in pts2[5:14]:
+    for (x, y, z) in pts2[6:18]:
         part.put((0, math.floor(y), math.floor(z - 0.55 * k)), hair)
         part.put((-1, math.floor(y), math.floor(z - 0.55 * k)), hair)
     tip = col2 or _light(col, 0.5)
@@ -1799,7 +1977,109 @@ def flamehair(c, H, col, col2=None):
     part.paint(lambda p, cc, g: (core, True) if abs(p[0] + .5) < 0.35 * k + .5 and p[2] < zt + 1.3 * k else None)
 
 
+def mirrorbody(c, H, col=None, col2=None):
+    """Makes the body (and the legs drawn into it) an exact mirror of its
+    right half, so the legs split from it match left and right."""
+    b = kit._find(c, 'body')
+    if b and b.v:
+        _mirror_exact(b)
+
+
+def _mirror_exact(part):
+    right = {p: v for p, v in part.v.items() if p[0] >= 0}
+    part.v = dict(right)
+    for (x, y, z), v in right.items():
+        part.v[(-x - 1, y, z)] = v
+
+
+def hoverwings(c, H, col, col2=None):
+    """A hummingbird's wings mid-beat: a pale blurred fan on each side,
+    streaked with faint arcs, and the whole bird lifted off the ground so it
+    clearly hovers (its little feet hang)."""
+    k = H / 10.0
+    lift = max(2, round(0.8 * k))
+    for p in c.parts:
+        _shift(p, dz=lift)
+    pale, streak = _mix(col, WHITE, 0.62), _mix(col, WHITE, 0.4)
+    wr, wl = kit._find(c, 'wingR'), kit._find(c, 'wingL')
+    if wr is None or wl is None:
+        return
+    px, py, pz = wr.pivot
+    wr.v, wl.v = {}, {}
+    R = 4.2 * k
+    y = math.floor(py)
+    for x in range(0, math.ceil(R) + 1):
+        for z in range(-math.ceil(0.6 * k), math.ceil(R) + 1):
+            d = math.hypot(x + .5, z + .5)
+            ang = math.degrees(math.atan2(z + .5, x + .5))
+            if d > R or d < 0.6 * k or not (-10 < ang < 80):
+                continue
+            # a blur: faint streaks fanning out, thicker near the tip
+            cc = streak if (int(ang + 10) // 18) % 2 == 0 and d > 1.4 * k else pale
+            q = (math.floor(px) + x, y, math.floor(pz) + z)
+            wr.put(q, cc)
+            if d > 0.7 * R:
+                wr.put((q[0], y + 1, q[2]), pale)
+    for (x, yy, z), v in wr.v.items():
+        wl.v[(-x - 1, yy, z)] = v
+    wl.pivot = (-px, py, pz)
+
+def clockshell(c, H, col, col2=None):
+    """A clockwork beetle's brass shell: each wing case is a big gear seen
+    from above (a toothed rim standing a voxel proud, a darker inner ring
+    with rivets, a hub), with darker brass panel seams down the middle.
+    col is the brass, col2 the darker brass of the panels."""
+    k = H / 10.0
+    shell = kit._find(c, 'shell')
+    if shell is None or not shell.v:
+        return
+    dark = col2 or _dark(col, 0.35)
+    rivet = _light(col, 0.45)
+    top = {}
+    for (x, y, z) in shell.v:
+        if z > top.get((x, y), -99):
+            top[(x, y)] = z
+    xs = [q[0] for q in top]
+    ys = [q[1] for q in top]
+    cy = (min(ys) + max(ys) + 1) / 2
+    half = max(xs) + 1  # the right case spans x 0 .. half
+    cx = half / 2
+    R = min(half / 2, (max(ys) - min(ys) + 1) / 2) * 0.98
+    teeth = 10
+    shell.paint(lambda p, cc, g: (col, False))
+    for (x, y), z in top.items():
+        if x < 0:
+            continue
+        dx, dy = x + .5 - cx, y + .5 - cy
+        r = math.hypot(dx, dy)
+        ang = math.atan2(dy, dx)
+        if x == 0:
+            cc = dark  # the seam down the middle
+        elif r < 0.25 * R + .5:
+            cc = dark
+        elif abs(r - 0.6 * R) < 0.55:
+            cc = rivet if int((ang + math.pi) / (2 * math.pi) * 8 + .5) % 2 == 0 and _h(x, y) % 2 == 0 else dark
+        else:
+            cc = col
+        shell.v[(x, y, z)] = (cc, False)
+        if 0.72 * R < r <= R + 0.5 and int((ang + math.pi) / (2 * math.pi) * teeth * 2) % 2 == 0:
+            shell.v[(x, y, z + 1)] = (_light(col, 0.15), False)  # the teeth stand a voxel proud
+    right = {p: v for p, v in shell.v.items() if p[0] >= 0}
+    shell.v = dict(right)
+    for (x, y, z), v in right.items():
+        shell.v[(-x - 1, y, z)] = v
+
+
+def _h(*a):
+    v = 2166136261
+    for x in a:
+        v = ((v ^ (int(x) & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
+    return v
+
+
 ACCESSORIES = {
+    'clockshell': clockshell,
+    'mirrorbody': mirrorbody, 'hoverwings': hoverwings,
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'giraffepatches': giraffepatches, 'banana': banana, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
     'glowstripe': glowstripe, 'colorglow': colorglow, 'gills': gills, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,
@@ -1810,8 +2090,8 @@ ACCESSORIES = {
     'glideflaps': glideflaps, 'bigbeak': bigbeak, 'longbeak': longbeak, 'hookbeak': hookbeak, 'casque': casque,
     'wingless': wingless, 'crowncrest': crowncrest, 'shellheld': shellheld, 'bolttail': bolttail,
     'cheekglow': cheekglow, 'eyering': eyering, 'narwhaltusk': narwhaltusk, 'speckles': speckles, 'throat': throat, 'gust': gust, 'embers': embers, 'flakes': flakes, 'clover': clover,
-    'petalcrown': petalcrown, 'cobweb': cobweb, 'knees': knees, 'fuzz': fuzz, 'wingspots': wingspots,
-    'bigwings': bigwings, 'wingtails': wingtails, 'clearwings': clearwings, 'honeybelly': honeybelly,
+    'petalcrown': petalcrown, 'petallegs': petallegs, 'raptorarms': raptorarms, 'cobweb': cobweb, 'knees': knees, 'fuzz': fuzz, 'wingspots': wingspots,
+    'bigwings': bigwings, 'snaketips': snaketips, 'eyespots': eyespots, 'wingedge': wingedge, 'wingtails': wingtails, 'clearwings': clearwings, 'honeybelly': honeybelly,
     'bighorn': bighorn, 'gear': gear, 'geode': geode, 'yarn': yarn, 'teddy': teddy, 'cactus': cactus,
     'wildbubble': bubble, 'wildtrunk': trunk, 'fanears': fanears, 'curlhorns': curlhorns, 'longfur': longfur,
     'flamehair': flamehair,
