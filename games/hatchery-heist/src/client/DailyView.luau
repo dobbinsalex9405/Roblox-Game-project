@@ -185,7 +185,7 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	local badge = Instance.new("TextLabel")
 	badge.Name = "Badge"
 	badge.AnchorPoint = Vector2.new(0.5, 0.5)
-	badge.Position = UDim2.new(0, 4, 0, 4)
+	badge.Position = UDim2.fromOffset(4, 4)
 	badge.Size = UDim2.fromOffset(22, 22)
 	badge.BackgroundColor3 = Color3.fromRGB(230, 60, 60)
 	badge.Font = FONT

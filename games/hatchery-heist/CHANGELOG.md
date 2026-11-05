@@ -11,6 +11,9 @@
   found adds +1% income.
 - Daily Rewards in the side menu: a seven-day streak of growing coin
   rewards that scale with income; a missed day starts over.
+- Farmyard map: a red barn and silo, a turning windmill, a duck pond, an
+  animal pen and crop fields around the ring of bases, with voxel trees and
+  terraced hills in place of the round ones.
 - Sound effect hooks for the egg, the reveal, the book and rewards (silent
   until sounds are picked).
 

@@ -161,6 +161,10 @@ return function(Schema: any, Odds: any)
 	local channel = Schema.integer({ min = 0, max = 255 })
 	local rgb = Schema.array(channel, { minLength = 3, maxLength = 3 })
 	local unit = Schema.number({ min = 0, max = 1 })
+	local farmSpot = Schema.record({
+		angle = Schema.number({ min = 0, max = 360 }),
+		radius = Schema.number({ min = 150, max = 260 }),
+	})
 	Schemas.atmosphere = Schema.record({
 		lighting = Schema.record({
 			clockTime = Schema.number({ min = 0, max = 24 }),
@@ -209,6 +213,16 @@ return function(Schema: any, Odds: any)
 				treeRadiusMin = Schema.number({ min = 160, max = 250 }),
 				treeRadiusMax = Schema.number({ min = 160, max = 250 }),
 				seed = Schema.integer(),
+				farm = Schema.record({
+					barn = farmSpot,
+					windmill = farmSpot,
+					pond = farmSpot,
+					pen = farmSpot,
+					fields = Schema.array(Schema.number({ min = 0, max = 360 }), { maxLength = 8 }),
+					fieldRadius = Schema.number({ min = 160, max = 260 }),
+					clearAngle = Schema.number({ min = 0, max = 45 }),
+					windmillTurnSeconds = Schema.number({ min = 1, max = 120 }),
+				}),
 			}),
 			function(v: any): (boolean, string?)
 				if v.treeRadiusMax < v.treeRadiusMin then

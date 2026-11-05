@@ -27,7 +27,7 @@ local PANEL = Color3.fromRGB(28, 30, 48)
 local GOLD = Color3.fromRGB(255, 210, 63)
 local SHADOW = Color3.fromRGB(16, 16, 26)
 local FONT = Enum.Font.FredokaOne
-local CARD = Vector2.new(104, 140)
+local CARD = Vector2.new(104, 150)
 
 export type Menu = {
 	add: (name: string, text: string, onClick: () -> ()) -> TextButton,
@@ -133,7 +133,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	body.BackgroundTransparency = 1
 	body.Position = UDim2.fromOffset(10, 96)
 	body.Size = UDim2.new(1, -20, 1, -104)
-	body.CanvasSize = UDim2.new()
+	body.CanvasSize = UDim2.fromScale(0, 0)
 	body.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	body.ScrollBarThickness = 6
 	body.BorderSizePixel = 0
@@ -179,7 +179,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 				local g = Instance.new("Frame")
 				g.Name = `Cards{entry.rank}`
 				g.BackgroundTransparency = 1
-				g.Size = UDim2.new(1, 0, 0, 0)
+				g.Size = UDim2.fromScale(1, 0)
 				g.AutomaticSize = Enum.AutomaticSize.Y
 				g.LayoutOrder = order
 				local layout = Instance.new("UIGridLayout")
@@ -232,9 +232,9 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			name.Position = UDim2.fromOffset(4, CARD.X - 6)
 			name.Size = UDim2.new(1, -8, 0, 18)
 			name.TextScaled = true
-			local odds = text(frame, "Odds", "", 11, Color3.fromRGB(255, 226, 120))
-			odds.Position = UDim2.fromOffset(4, CARD.X + 12)
-			odds.Size = UDim2.new(1, -8, 0, 26)
+			local odds = text(frame, "Odds", "", 13, Color3.fromRGB(255, 226, 120))
+			odds.Position = UDim2.fromOffset(2, CARD.X + 12)
+			odds.Size = UDim2.new(1, -4, 0, 32)
 			odds.TextWrapped = true
 			odds.TextYAlignment = Enum.TextYAlignment.Top
 

@@ -1,8 +1,8 @@
 --!strict
 -- Light, sky and scenery, from config/atmosphere.luau: a sunny meadow with a
 -- sandy yard, the Golden Nest in the middle, low fences and flowers on every
--- base, trees between and around the bases and a ring of hills that hides the
--- edge of the map. Decoration only: nothing here collides with players
+-- base, a farmyard around the ring (Farm.luau), voxel trees between and around
+-- the bases and a ring of terraced hills that hides the edge of the map. Decoration only: nothing here collides with players
 -- (except the hills and tree trunks, which are outside the play area) or
 -- changes gameplay, and everything sits on top of the ground.
 
@@ -11,6 +11,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Layout = require(ReplicatedStorage.Shared.Layout)
+
+local Farm = require(script.Parent.Farm)
 
 local Scenery = {}
 
@@ -129,38 +131,39 @@ local FLOWER_COLORS = {
 	Color3.fromRGB(255, 150, 70),
 }
 
+-- A voxel tree: a square trunk and a canopy of a few big leafy cubes,
+-- turned a little so a wood of them does not look stamped out.
 local function tree(parent: Instance, at: Vector3, scale: number, rng: Random)
 	local model = Instance.new("Model")
 	model.Name = "Tree"
-	local height = 9 * scale
-	local trunk =
-		column(model, "Trunk", at, height, 1.8 * scale, Color3.fromRGB(110, 78, 52), Enum.Material.Wood)
+	local height = 8 * scale
+	local turn = CFrame.new(at) * CFrame.Angles(0, rng:NextNumber(0, math.pi / 2), 0)
+	local trunk = part(model, {
+		Name = "Trunk",
+		Size = Vector3.new(1.8, height, 1.8) * Vector3.new(scale, 1, scale),
+		CFrame = turn * CFrame.new(0, height / 2, 0),
+		Color = Color3.fromRGB(110, 78, 52),
+		Material = Enum.Material.Wood,
+	})
 	trunk.CanCollide = true
 	local leaves = LEAF_COLORS[rng:NextInteger(1, #LEAF_COLORS)]
-	ball(
-		model,
-		"Leaves",
-		at + Vector3.new(0, height + 1.5 * scale, 0),
-		9 * scale,
-		leaves,
-		Enum.Material.Grass
-	)
-	ball(
-		model,
-		"Leaves",
-		at + Vector3.new(2.2 * scale, height - 0.5 * scale, 1.2 * scale),
-		6 * scale,
-		leaves,
-		Enum.Material.Grass
-	)
-	ball(
-		model,
-		"Leaves",
-		at + Vector3.new(-2 * scale, height - 0.2 * scale, -1.6 * scale),
-		6.5 * scale,
-		leaves,
-		Enum.Material.Grass
-	)
+	local cubes: { { at: Vector3, size: number } } = {
+		{ at = Vector3.new(0, height + 2.5 * scale, 0), size = 8 },
+		{ at = Vector3.new(2.6 * scale, height + 0.6 * scale, 1.4 * scale), size = 5.5 },
+		{ at = Vector3.new(-2.4 * scale, height + 1 * scale, -1.8 * scale), size = 5.5 },
+		{ at = Vector3.new(0.6 * scale, height + 6.2 * scale, -0.4 * scale), size = 4.5 },
+	}
+	for i, c in cubes do
+		local size = c.size * scale
+		local shade = if i == 4 then leaves:Lerp(Color3.fromRGB(170, 210, 110), 0.3) else leaves
+		part(model, {
+			Name = "Leaves",
+			Size = Vector3.new(size, size * 0.85, size),
+			CFrame = turn * CFrame.new(c.at),
+			Color = shade,
+			Material = Enum.Material.Grass,
+		})
+	end
 	model.Parent = parent
 end
 
@@ -370,6 +373,18 @@ function Scenery.build(config: any)
 	for index = 1, Layout.PLOTS do
 		dressPlot(folder, index, rng)
 	end
+	local farmAngles = Farm.build(folder, s.farm)
+	-- Trees keep clear of the farm.
+	local function clear(angle: number): boolean
+		local degrees = math.deg(angle) % 360
+		for _, taken in farmAngles do
+			local gap = math.abs((degrees - taken + 180) % 360 - 180)
+			if gap < s.farm.clearAngle then
+				return false
+			end
+		end
+		return true
+	end
 
 	-- One tree in each gap between neighbouring bases...
 	local trees = Instance.new("Folder")
@@ -378,14 +393,22 @@ function Scenery.build(config: any)
 	for index = 1, Layout.PLOTS do
 		local angle = (index - 0.5) / Layout.PLOTS * math.pi * 2
 		local r = Layout.RING_RADIUS + 40
+		if not clear(angle) then
+			continue
+		end
 		tree(trees, Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r), 1.3, rng)
 	end
 	-- ...and a wood all around the outside of the ring.
 	for i = 1, s.treeCount do
 		local angle = (i + rng:NextNumber(-0.35, 0.35)) / s.treeCount * math.pi * 2
 		local r = rng:NextNumber(s.treeRadiusMin, s.treeRadiusMax)
-		tree(trees, Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r), rng:NextNumber(0.9, 1.6), rng)
-		if rng:NextNumber() < 0.5 then
+		local scale = rng:NextNumber(0.9, 1.6)
+		local bloom = rng:NextNumber()
+		if not clear(angle) then
+			continue
+		end
+		tree(trees, Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r), scale, rng)
+		if bloom < 0.5 then
 			flowers(trees, Vector3.new(math.cos(angle) * (r - 8), 0, math.sin(angle) * (r - 8)), rng)
 		end
 	end
@@ -399,16 +422,23 @@ function Scenery.build(config: any)
 		local angle = (i + rng:NextNumber(-0.3, 0.3)) / s.hillCount * math.pi * 2
 		local r = s.hillRadius + rng:NextNumber(-15, 25)
 		local size = rng:NextNumber(110, 170)
-		local hill = ball(
-			hills,
-			"Hill",
-			Vector3.new(math.cos(angle) * r, 0.5, math.sin(angle) * r),
-			size,
-			LEAF_COLORS[rng:NextInteger(1, #LEAF_COLORS)]:Lerp(Color3.fromRGB(120, 160, 90), 0.4),
-			Enum.Material.Grass
-		)
-		hill.CanCollide = true
-		hill.CastShadow = false
+		local color = LEAF_COLORS[rng:NextInteger(1, #LEAF_COLORS)]:Lerp(Color3.fromRGB(120, 160, 90), 0.4)
+		local base = CFrame.new(math.cos(angle) * r, 0, math.sin(angle) * r) * CFrame.Angles(0, -angle, 0)
+		-- Voxel hills: three stacked terraces, each smaller than the last.
+		local y = 0
+		for step, k in { 1, 0.72, 0.44 } do
+			local height = size * 0.16
+			local hill = part(hills, {
+				Name = "Hill",
+				Size = Vector3.new(size * k * 0.7, height, size * k),
+				CFrame = base * CFrame.new(0, y + height / 2, 0),
+				Color = color:Lerp(Color3.fromRGB(150, 190, 100), (step - 1) * 0.15),
+				Material = Enum.Material.Grass,
+			})
+			hill.CanCollide = true
+			hill.CastShadow = false
+			y += height
+		end
 	end
 
 	folder.Parent = Workspace

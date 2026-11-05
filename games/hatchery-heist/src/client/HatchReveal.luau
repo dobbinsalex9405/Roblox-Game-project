@@ -259,10 +259,11 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	local moreText = textLabel(words, "More", 20, Color3.fromRGB(225, 225, 240))
 	moreText.LayoutOrder = 4
 
-	local hint = textLabel(root, "Hint", 18, Color3.fromRGB(230, 230, 240))
-	hint.AnchorPoint = Vector2.new(0.5, 1)
-	hint.Position = UDim2.new(0.5, 0, 1, -24)
-	hint.Size = UDim2.new(0.6, 0, 0, 18)
+	-- The hint is the last line of the words, so nothing above can ever
+	-- run into it; its text sits at the bottom of a taller line (a gap).
+	local hint = textLabel(words, "Hint", 18, Color3.fromRGB(230, 230, 240))
+	hint.LayoutOrder = 5
+	hint.TextYAlignment = Enum.TextYAlignment.Bottom
 	hint.Text = "Tap to continue"
 	hint.TextTransparency = 1
 
@@ -278,13 +279,20 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 		side = math.floor(math.min(screen.Y * 0.56, screen.X * 0.86))
 		centre = Vector2.new(screen.X * 0.5, screen.Y * 0.42)
 		-- Smaller words on short screens (a phone held sideways) so they
-		-- clear the hint at the bottom.
+		-- fit under the creature; the hint stays at least 14 px tall.
 		textScale = math.clamp(screen.Y / 720, 0.6, 1)
-		hint.Size = UDim2.new(0.6, 0, 0, math.floor(18 * math.max(textScale, 0.8)))
+		local hintText = 18 * math.max(textScale, 0.8) / textScale
+		hint.Size = UDim2.new(1, 0, 0, math.floor(hintText + 10 / textScale))
+		hint.TextScaled = false
+		hint.TextSize = math.floor(hintText)
 		stage.Size = UDim2.fromOffset(side, side)
 		local wordsWidth = math.min(screen.X - 32, 520)
-		words.Size = UDim2.fromOffset(wordsWidth / textScale, 150)
-		words.Position = UDim2.new(0.5, 0, 0.42, side / 2 - side * 0.02)
+		-- Every line at its tallest: new, rarity, name, info, more, hint.
+		local tallest = 24 + 44 + 30 + 22 + 20 + hintText + 10 / textScale
+		words.Size = UDim2.fromOffset(wordsWidth / textScale, tallest)
+		-- Under the stage, but pulled up if it would run off the bottom.
+		local top = math.min(screen.Y * 0.42 + side / 2 - side * 0.02, screen.Y - 6 - tallest * textScale)
+		words.Position = UDim2.fromOffset(screen.X / 2, top)
 	end
 
 	type Hatch = { speciesId: string, eggId: string, isNew: boolean, more: { string }? }
@@ -480,7 +488,7 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 			end
 			words.Visible = false
 			hint.TextTransparency = 1
-			root.Position = UDim2.new()
+			root.Position = UDim2.fromScale(0, 0)
 			phase = "idle"
 			current = nil
 			playNext()
@@ -729,7 +737,7 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 			local px = look.shake * left
 			root.Position = UDim2.fromOffset((math.random() - 0.5) * 2 * px, (math.random() - 0.5) * 2 * px)
 		elseif root.Position ~= UDim2.new() then
-			root.Position = UDim2.new()
+			root.Position = UDim2.fromScale(0, 0)
 		end
 		if phase == "shown" and t >= look.hold then
 			close()

@@ -152,6 +152,11 @@ never sold.
   round again; a missed day starts over. Each is so many seconds of income
   with a floor (`economy.daily`), Day 7 the biggest (45 minutes, at least
   3,500 coins). Kept in `data.daily`.
+- **Farmyard** (`src/server/Farm.luau`, `atmosphere.scenery.farm`): outside
+  the ring of bases, a red barn and silo, a windmill whose sails turn on each
+  client, a duck pond, an animal pen and crop fields, among voxel trees and
+  terraced hills. Farm animals are voxel creatures drawn by CreatureView
+  (Ducklings, Chicks, Lambs, Piglets). Decoration only.
 - **Sound effects** (`config/atmosphere.luau` `sounds`): named hooks; an id
   of 0 is silent until one is picked by ear.
 

@@ -48,6 +48,19 @@ return {
 		treeRadiusMin = 172,
 		treeRadiusMax = 215,
 		seed = 7, -- the same scenery on every server
+		-- The farmyard outside the ring of bases (src/server/Farm.luau).
+		-- Angles in degrees round the ring; bases sit at 0, 45, 90 ..., so
+		-- 22.5, 67.5 ... are the gaps between them. Radii in studs.
+		farm = {
+			barn = { angle = 22.5, radius = 190 },
+			windmill = { angle = 112.5, radius = 186 },
+			pond = { angle = 202.5, radius = 180 },
+			pen = { angle = 292.5, radius = 182 },
+			fields = { 67.5, 157.5, 247.5, 337.5 },
+			fieldRadius = 188,
+			clearAngle = 13, -- degrees round each farm spot kept free of trees
+			windmillTurnSeconds = 9, -- one full turn of the sails
+		},
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
