@@ -200,7 +200,7 @@
     "ear_col": "#E8434E"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "cat",
     "tail": "long"
    },
    "accessories": [
@@ -410,7 +410,7 @@
     "tail_col": "#8A6A4A"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "cat",
     "tail": "short"
    },
    "patterns": [
@@ -682,7 +682,7 @@
     "tail_col": "#BFE4FF"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "cat",
     "tail": "striped"
    },
    "accessories": [
@@ -950,7 +950,7 @@
     "tail_col": "#2A2633"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "cat",
     "tail": "long"
    },
    "accessories": [
@@ -959,7 +959,15 @@
      "color": "#4A2E6A",
      "color2": "#B983FF"
     }
-   ]
+   ],
+   "shape": {
+    "body": [
+     0.931,
+     0.931,
+     0.931
+    ],
+    "head": 0.931
+   }
   },
   {
    "id": "MummyHamster",
