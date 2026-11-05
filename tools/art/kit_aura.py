@@ -465,48 +465,184 @@ def eye_shine(c, H, col=None, col2=None):
 
 
 def wing_snowflakes(c, H, col, col2=None):
-    """A six-point snowflake (col) on the face of each raised wing,
-    with little side branches on every arm; mirrored on the two wings."""
-    k = H / 10.0
+    """A six-point snowflake (col) on the outer face of each raised wing:
+    three crossing 1-voxel bars with a small V on each arm, drawn on the
+    outermost voxel of every row so the lines stay crisp on a slanted wing;
+    mirrored on the two wings. col2 repaints the wing first as an even
+    ground for the flake."""
     w = _find(c, 'wingR')
     if not w or not w.v:
         return
-    ys = [p[1] for p in w.v]
-    zs = [p[2] for p in w.v]
-    yc = (min(ys) + max(ys)) / 2 - 0.15 * (max(ys) - min(ys))
-    zc = (min(zs) + max(zs)) / 2 + 0.1 * (max(zs) - min(zs))
-    L = 0.46 * min(max(ys) - min(ys), max(zs) - min(zs))
-
-    def on_flake(dy, dz):
-        for i in range(6):
-            a = math.pi / 6 + i * math.pi / 3
-            ux, uz = math.cos(a), math.sin(a)
-            t = dy * ux + dz * uz
-            d = abs(-dy * uz + dz * ux)
-            if 0 <= t <= L and d < 0.72:
-                return True
-            # a V of side branches two thirds out each arm
-            for sgn in (-1, 1):
-                b = a + sgn * math.pi / 3
-                by, bz = dy - ux * L * 0.6, dz - uz * L * 0.6
-                tb = by * math.cos(b) + bz * math.sin(b)
-                db = abs(-by * math.sin(b) + bz * math.cos(b))
-                if 0 <= tb <= L * 0.4 and db < 0.62:
-                    return True
-        return dy * dy + dz * dz < 1.6
-    flake = [q for q in w.v if on_flake(q[1] + .5 - yc, q[2] + .5 - zc)]
     wl = _find(c, 'wingL')
-    if col2:  # an even ground for the flake to read on
+    if col2:
         for part in (w, wl):
             for q, (cc, g) in list((part.v if part else {}).items()):
                 part.v[q] = (col2, g)
-    for q in flake:
-        w.v[q] = (col, False)
-    if wl:
-        for q in flake:
-            m = (_mx(q[0]), q[1], q[2])
-            if m in wl.v:
-                wl.v[m] = (col, False)
+    outer = {}
+    for (x, y, z) in w.v:
+        if x > outer.get((y, z), -1e9):
+            outer[(y, z)] = x
+    ys = [y for y, _ in outer]
+    zs = [z for _, z in outer]
+    yc = round((min(ys) + max(ys)) / 2 - 0.15 * (max(ys) - min(ys)))
+    zc = round((min(zs) + max(zs)) / 2 + 0.1 * (max(zs) - min(zs)))
+    L = max(3, round(0.4 * min(max(ys) - min(ys), max(zs) - min(zs))))
+    cells = {(yc, zc)}
+    for i in range(6):
+        a = math.pi / 2 + i * math.pi / 3
+        uy, uz = math.cos(a), math.sin(a)
+        for t in range(1, L + 1):
+            cells.add((yc + round(uy * t), zc + round(uz * t)))
+        # a small V two thirds of the way out
+        by, bz = yc + uy * L * 0.62, zc + uz * L * 0.62
+        for sgn in (-1, 1):
+            b = a + sgn * math.pi / 3
+            for t in (1, 2):
+                cells.add((round(by + math.cos(b) * t), round(bz + math.sin(b) * t)))
+    for (y, z) in cells:
+        x = outer.get((y, z))
+        if x is None:
+            continue
+        w.v[(x, y, z)] = (col, False)
+        m = (_mx(x), y, z)
+        if wl and m in wl.v:
+            wl.v[m] = (col, False)
+
+
+def pink_nose(c, H, col, col2=None):
+    """The dark nose (and mouth) on the head turn col (a lamb's pink nose),
+    so a pale face carries only its eyes and a soft nose."""
+    head = head_of(c)
+    if not head:
+        return
+    for q, (cc, g) in list(head.v.items()):
+        if not g and sum(cc) < 200:
+            head.v[q] = (col, False)
+
+
+def toasted(c, H, col, col2=None):
+    """A toasted marshmallow's fleece: golden-brown spots (col) scattered
+    over the top of the back and rump, each ringed in a light toast (col2),
+    like a marshmallow browned over a fire; the face and sides stay white."""
+    k = H / 10.0
+    col2 = col2 or _mix(col, WHITE, 0.55)
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    zs = [p[2] for p in body.v]
+    zcut = min(zs) + (max(zs) - min(zs)) * 0.5
+    top = {}
+    for (x, y, z) in body.v:
+        if z > top.get((x, y), -1e9):
+            top[(x, y)] = z
+    s = max(3, round(1.1 * k))
+    for (x, y), z in top.items():
+        if z < zcut or x < 0:
+            continue
+        cell = (x // s, y // s)
+        if _hash(*cell, 61) % 2:
+            continue
+        h = _hash(*cell, 67)
+        cx, cy = cell[0] * s + 1 + h % max(1, s - 2), cell[1] * s + 1 + (h >> 4) % max(1, s - 2)
+        d = math.hypot(x + .5 - cx, y + .5 - cy)
+        if d < 0.9:
+            cc = col
+        elif d < 1.6:
+            cc = col2
+        else:
+            continue
+        for q in ((x, y, z), (_mx(x), y, z)):
+            if q in body.v:
+                body.v[q] = (cc, False)
+
+
+def jelly(c, H, col, col2=None):
+    """Gummy candy lit from inside: every part shades from a deep candy
+    colour (col, darkened) at its base to a glowing lighter core tint (col2)
+    on top, with a glossy white highlight on the crown of the head and the
+    top of the body. The mesh is opaque, so the glow carries the see-through
+    look."""
+    k = H / 10.0
+    col2 = col2 or _light(col, 0.4)
+    deep = _dark(col, 0.25)
+    for part in c.parts:
+        if part.name in ('eyes',) or not part.v:
+            continue
+        zs = [p[2] for p in part.v]
+        z0, z1 = min(zs), max(zs)
+        for q, (cc, g) in list(part.v.items()):
+            if sum(cc) < 200:  # keep nose and mouth
+                continue
+            t = (q[2] - z0) / max(1, z1 - z0)
+            part.v[q] = (_mix(deep, col, t * 1.8) if t < 0.5 else _mix(col, col2, (t - 0.5) * 2), t >= 0.4)
+    for name in ('body',):
+        part = _find(c, name)
+        if not part or not part.v:
+            continue
+        mid = [p for p in part.v if 0 <= p[0] <= 1]
+        if not mid:
+            continue
+        zt = max(p[2] for p in mid)
+        hs = [p for p in mid if p[2] == zt]
+        ym = sum(p[1] for p in hs) / len(hs)
+        for p in _surface(part):
+            if zt - 2 <= p[2] <= zt and 1 <= p[0] <= max(1, round(0.5 * k)) and ym - 0.8 * k <= p[1] <= ym:
+                part.v[p] = (WHITE, True)
+                part.v[(_mx(p[0]), p[1], p[2])] = (WHITE, True)
+
+
+def ear_rims(c, H, col, col2=None):
+    """A pale rim round the edge of each ear (a raccoon's)."""
+    ears = _find(c, 'ears')
+    if not ears or not ears.v:
+        return
+    right = [p for p in ears.v if p[0] >= 0]
+    if not right:
+        return
+    cx = sum(p[0] for p in right) / len(right)
+    cz = sum(p[2] for p in right) / len(right)
+    rmax = max(math.hypot(p[0] - cx, p[2] - cz) for p in right)
+    for p in right:
+        if math.hypot(p[0] - cx, p[2] - cz) >= rmax - 1.0 and p[2] >= cz - 0.5:
+            ears.v[p] = (col, False)
+            m = (_mx(p[0]), p[1], p[2])
+            if m in ears.v:
+                ears.v[m] = (col, False)
+
+
+def otter_tail(c, H, col, col2=None):
+    """An otter's tail: thick where it leaves the rump, tapering to a point,
+    held low and straight out behind. Replaces the plan's tail."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    tl = _find(c, 'tail')
+    if not body or not tl:
+        return
+    y1 = max(p[1] for p in body.v)
+    zs = [p[2] for p in body.v if p[1] >= y1 - 1]
+    z = (min(zs) + max(zs)) / 2
+    tl.v = {}
+    tl.pivot = (0, y1 - 0.5, z)
+    L = 2.8 * k
+    n = max(4, round(L * 2))
+    for i in range(n + 1):
+        t = i / n
+        r = 0.65 * k * (1 - t) + 0.2 * k * t
+        p = (0, y1 - 0.8 * k + L * t, z - 0.5 * k * t)
+        tl.ell(p, (r + .2, r + .2, r * 0.8 + .2), col)
+
+
+def tiny_ears(c, H, col=None, col2=None):
+    """Cuts the plan's ears down to small round nubs at their base (an
+    otter's, a seal's)."""
+    k = H / 10.0
+    ears = _find(c, 'ears')
+    if not ears or not ears.v:
+        return
+    z0 = min(p[2] for p in ears.v)
+    ears.v = {q: v for q, v in ears.v.items() if q[2] <= z0 + max(1, round(0.5 * k))}
+    if col:
+        ears.v = {q: (_hexa(col, v[0]), v[1]) for q, v in ears.v.items()}
 
 
 def amber_gaster(c, H, col, col2=None):
@@ -3211,7 +3347,7 @@ def mend(c, H, col=None, col2=None):
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
-    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
+    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
     'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'aura_hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'aura_embers': embers, 'cracks': cracks, 'claws': claws,
