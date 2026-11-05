@@ -265,3 +265,20 @@ coins" on one line. Output: no errors.
 
 Note for players: getting off at a middle floor means jumping back at the right height. Holding W
 alone climbs past the last built floor and off the top of the ladder.
+
+## Gate: #83 at ac7d480 (walking, Godly size, LOD)
+
+FAIL on three items; sizes and frame rate pass.
+- Sizes PASS: Commons 2.00, Fox Kit 2.20, Raccoon 2.41, Ember Fox 2.70, Dragonling 3.01, Phoenix
+  3.38, Nebula Serpent 6.02, Golden Goose 6.00 (3x a Common). On floor 4 no two creatures'
+  bounding boxes overlapped in 8 s of wandering.
+- **Walking:** creatures wander (Ember Fox 3.7, Raccoon 3.1, Golden Goose 1.7 studs per 6 s) with
+  a 0.2-0.3 stud bob, but the meshes have no separate leg parts (body, head, ears, tail, eyes), so
+  nothing swings: they glide. Feet stay within 0.1 of the pad; Legendary/Godly hover 0.36-0.65.
+- **Upper floors hidden from below:** standing on the ground 20-45 studs from the tower, every
+  creature on floors 3 and 4 is hidden, even at 21 studs, while floor 2 shows. From floor 3, all
+  15 show. From outside, the upper floors look empty (`83-hh-upper-floors-hidden`).
+- **Meshes failing:** Output says "creature meshes did not load; drawing voxel boxes" for Ember
+  Fox, Frost Wolf and Crystal Stag. Ember Fox drew as 61 voxel boxes. Plus about 12 "Asset content
+  representation is being generated" notes for new image ids.
+- Phone 844x392 with 15 creatures on floor 3: 58 fps. No game errors.
