@@ -910,8 +910,11 @@ def raindrops(c, H, col, col2=None):
         return
     part = c.part('raindrops', 'glow')
     y0, y1 = _yrange(body)
-    for i in range(4):
-        y = round(y0 + (y1 - y0) * (0.2 + 0.2 * i))
+    placed = []
+    for i in range(9):
+        y = round(y0 + (y1 - y0) * (0.1 + 0.1 * i))
+        if placed and y - placed[-1] < max(4, 1.6 * k):
+            continue  # drops stay apart, never a band
         col_x = {}
         for (x, yy, z) in body.v:
             if yy == y and x >= 0 and z > 1.2 * k:
@@ -920,12 +923,18 @@ def raindrops(c, H, col, col2=None):
             continue
         x = max(col_x)  # the outermost column of fleece
         z = col_x[x]
-        L = round((0.6 + 0.3 * (i % 2)) * k)
+        L = max(2, round((0.7 + 0.3 * (len(placed) % 2)) * k))
+        if any((x, y, zz) in body.v for zz in range(z - L - 1, z)):
+            continue  # it would run down a leg: drip only where it hangs free
+        placed.append(y)
+        # a thin drip with a round drop at the end
         for d in range(1, L + 1):
-            w = 1 if d < L - 1 else 0
-            for dx in range(-w, w + 1) if d >= L - 1 else (0,):
-                part.put((x + dx, y, z - d), col, True)
-                part.put((_mx(x + dx), y, z - d), col, True)
+            cells = [(x, y)] if d < L else [(x, y), (x, y + 1)]
+            for (xx, yy) in cells:
+                part.put((xx, yy, z - d), col, True)
+                part.put((_mx(xx), yy, z - d), col, True)
+        if len(placed) == 4:
+            break
 
 
 def wave(c, H, col, col2=None):
@@ -1144,6 +1153,123 @@ def glow_eyes(c, H, col, col2=None):
     for p, (cc, g) in list(e.v.items()):
         if cc != WHITE:
             e.v[p] = (col, True)
+
+
+def iris_eyes(c, H, col, col2=None, a=None):
+    """Big readable eyes: each eye becomes a 3x3 disc (2x2 on small builds)
+    of iris colour (col) round a dark pupil (col2), with a white shine on the
+    same upper corner of both eyes. For eyes that vanish into a dark or busy
+    face (a lava toad's rock, an owl's pale disc). "iris_glow": true on the
+    entry makes the iris glow (only the iris, not the pupil or shine)."""
+    e = _find(c, 'eyes')
+    if not e or not e.v:
+        return
+    k = H / 10.0
+    glow = bool((a or {}).get('iris_glow'))
+    pupil = col2 or INK
+    n = 3 if k >= 1.6 else 2
+    old = dict(e.v)
+    e.v = {}
+    hosts = [p for p in c.parts if p.name in ('head', 'body') and p.v]
+    for side in (1, -1):
+        pts = [q for q in old if (q[0] >= 0) == (side > 0)]
+        if not pts:
+            continue
+        cx = sum(q[0] for q in pts) / len(pts)
+        cz = sum(q[2] for q in pts) / len(pts)
+        y0 = min(q[1] for q in pts)
+        x0, z0 = round(cx - (n - 1) / 2), round(cz - (n - 1) / 2)
+        for i in range(n):
+            for j in range(n):
+                x, z = x0 + i, z0 + j
+                # sit on the face: the front-most head voxel here, or the old eye's depth
+                spot = None
+                for y in range(y0 - 2, y0 + 4):
+                    if (x, y, z) in old:
+                        spot = (x, y, z)
+                        break
+                    host = next((h for h in hosts if (x, y, z) in h.v), None)
+                    if host:
+                        del host.v[(x, y, z)]
+                        spot = (x, y, z)
+                        break
+                spot = spot or (x, y0, z)
+                if n == 3 and i == 1 and j == 1:
+                    e.v[spot] = (pupil, False)
+                elif i == 0 and j == n - 1:  # the shine: upper corner toward -x
+                    e.v[spot] = (WHITE, False)
+                elif n == 2 and i == 1 and j == 0:
+                    e.v[spot] = (pupil, False)
+                else:
+                    e.v[spot] = (col, glow)
+    # old eye voxels outside the new discs go back to plain face
+    head = next((h for h in hosts if h.name == 'head'), hosts[0] if hosts else None)
+    for q, v in old.items():
+        if q not in e.v and head is not None and not any((q[0], yy, q[2]) in e.v for yy in range(q[1] - 2, q[1] + 3)):
+            nb = [head.v[r][0] for r in ((q[0] + 1, q[1], q[2]), (q[0] - 1, q[1], q[2]), (q[0], q[1] + 1, q[2])) if r in head.v]
+            if nb:
+                head.v[q] = (nb[0], False)
+
+
+def zigzag_tips(c, H, col, col2=None):
+    """Zigzag frost tips along the trailing edge of the wings and the end of
+    the tail: the edge is painted col and every third feather pokes out one
+    voxel in glowing col2."""
+    body = _find(c, 'body')
+    solid = set(body.v) if body else set()
+    for name in ('wingL', 'wingR', 'wing', 'wings'):
+        w = _find(c, name)
+        if not w or not w.v:
+            continue
+        low = {}
+        for (x, y, z) in w.v:
+            if (x, y) not in low or z < low[(x, y)]:
+                low[(x, y)] = z
+        for (x, y), z in low.items():
+            w.v[(x, y, z)] = (col, False)
+            if (x + y) % 3 == 0 and (x, y, z - 1) not in solid:
+                w.v[(x, y, z - 1)] = (col2 or col, True)
+    t = _find(c, 'tail')
+    if t and t.v:
+        end = {}
+        for (x, y, z) in t.v:
+            if (x, z) not in end or y > end[(x, z)]:
+                end[(x, z)] = y
+        for (x, z), y in end.items():
+            t.v[(x, y, z)] = (col, False)
+            if (x + z) % 3 == 0:
+                t.v[(x, y + 1, z)] = (col2 or col, True)
+
+
+def sheep_ears(c, H, col, col2=None):
+    """A sheep's ears: small and flat, sticking out sideways and a little
+    down from the sides of the head, pink inside (col2). Replaces the plan's."""
+    k = H / 10.0
+    ears = _find(c, 'ears')
+    head = head_of(c)
+    if not ears or not head:
+        return
+    ears.v = {}
+    zs = [p[2] for p in head.v]
+    zc = round(min(zs) + (max(zs) - min(zs)) * 0.62)
+    ys = [p[1] for p in head.v if p[2] == zc] or [p[1] for p in head.v]
+    yc = round((min(ys) + max(ys)) / 2 + 0.3 * k)
+    L = max(2, round(1.0 * k))
+    hw = max(1, round(0.3 * k))
+    inner = col2 or hexc('#F2B8C6')
+    for sx in (1, -1):
+        xs = [p[0] for p in head.v if p[2] == zc and abs(p[1] - yc) <= 1 and (p[0] >= 0) == (sx > 0)]
+        if not xs:
+            continue
+        edge = max(xs) if sx > 0 else min(xs)
+        for i in range(1, L + 1):
+            x = edge + sx * i
+            z = zc - (i * 2) // 3  # angled a little down
+            w = hw if i < L else max(0, hw - 1)
+            for y in range(yc - w, yc + w + 1):
+                ears.put((x, y, z), col)
+            if 1 < i < L:  # pink on the front edge
+                ears.put((x, yc - w, z), inner)
 
 
 def glow_color(c, H, col, col2=None):
@@ -2440,7 +2566,7 @@ ACCESSORIES = {
     'cloud_tail': cloud_tail, 'cloud_feet': cloud_feet, 'raincloud': raincloud, 'raindrops': raindrops,
     'wave': wave, 'raincoat': raincoat,
     'stars': stars, 'galaxy': galaxy, 'crescent': crescent, 'flank_crescent': flank_crescent, 'halo': halo, 'star_trail': star_trail,
-    'constellation': constellation, 'glow_eyes': glow_eyes, 'glow_color': glow_color, 'ghost': ghost,
+    'constellation': constellation, 'glow_eyes': glow_eyes, 'iris_eyes': iris_eyes, 'zigzag_tips': zigzag_tips, 'sheep_ears': sheep_ears, 'glow_color': glow_color, 'ghost': ghost,
     'wisps': wisps, 'cloak': cloak, 'opal': opal, 'rainbow_shell': rainbow_shell,
     'sprinkles': sprinkles, 'icing': icing, 'swirl': swirl, 'cone_horn': cone_horn, 'spiral_horn': spiral_horn, 'gears': gears,
     'windup_key': windup_key, 'cog_spines': cog_spines, 'rivets': rivets, 'clock_dial': clock_dial,
