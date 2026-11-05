@@ -222,7 +222,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Bunny", "Chick", "Chipmunk" })
+		expect(outcomes).toEqual({ "Gosling", "Turtle", "Bunny" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
