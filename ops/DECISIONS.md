@@ -47,9 +47,13 @@ Non-obvious choices, newest first, so a later session can trust them.
   1 in 50,000 each) to pass that.
 - **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
   fine surface detail** (scales, clouds, dithering, extra fins and crystals),
-  so the serpent stays within the Godly 800-box budget (793).
+  so the serpent stays within the Godly 800-box budget (794).
 - **Worlds never pass through the body.** Each orbiting world sits further
   out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
 
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 

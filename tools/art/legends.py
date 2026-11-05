@@ -91,12 +91,37 @@ def grand_wing(c, k, root, length, rise, cols, tip, edge=None, thick=2, fan=1.0,
                     w.put((xx, ry + dy, top - dz), col, g)
 
 
-def tube(part, pts, col_at, glow_at=lambda s: False):
-    """Sweep a sphere along points (x, y, z, r) with s from 0 to 1."""
+def _walk(a, b):
+    """Voxels from a to b, each sharing a face with the one before, so a thin
+    line has no diagonal-only steps (those come apart as bevelled blocks)."""
+    x, y, z = a
+    out = [(x, y, z)]
+    while (x, y, z) != tuple(b):
+        d = (b[0] - x, b[1] - y, b[2] - z)
+        i = max(range(3), key=lambda j: abs(d[j]))
+        step = [0, 0, 0]
+        step[i] = 1 if d[i] > 0 else -1
+        x, y, z = x + step[0], y + step[1], z + step[2]
+        out.append((x, y, z))
+    return out
+
+
+def tube(part, pts, col_at, glow_at=lambda s: False, joined=False):
+    """Sweep a sphere along points (x, y, z, r) with s from 0 to 1. joined
+    also walks face to face between the centres, so where the tube thins to
+    single voxels it stays one solid piece."""
     n = len(pts)
     for i, (x, y, z, r) in enumerate(pts):
         s = i / max(1, n - 1)
         part.ell((x, y, z), (r, r, r), col_at(s), glow_at(s))
+    if joined:
+        for i in range(n - 1):
+            s = i / max(1, n - 1)
+            a = tuple(math.floor(v) for v in pts[i][:3])
+            b = tuple(math.floor(v) for v in pts[i + 1][:3])
+            for q in _walk(a, b):
+                if q not in part.v:
+                    part.put(q, col_at(s), glow_at(s))
 
 
 # ------------------------------------------------------------------ Phoenix
@@ -243,6 +268,8 @@ def golden_goose(c, H):
         for t in range(-1, 2):
             body.put((x + t, round(-0.6 * k), 0), beak)
             body.put((x + t, round(-0.9 * k), 0), beakD)
+        for y in range(round(-0.6 * k) + 1, round(-0.1 * k)):  # middle toe joins the ankle
+            body.put((x, y, 0), beak)
     body.ell((0, 0.6 * k, 3.4 * k), (2.5 * k, 2.6 * k, 2.3 * k), gold)
     # long elegant neck rising from the chest
     for i in range(18):
@@ -264,6 +291,18 @@ def golden_goose(c, H):
     egg = c.part('egg', 'glow', (0, ny, 0))
     egg.ell((0, ny, 1.5 * k), (1.0 * k, 1.0 * k, 1.35 * k), gold, True)
     egg.paint(lambda p, cc, g: (shine, True) if p[0] >= 0.2 * k and p[1] < ny - 0.3 * k and p[2] > 1.9 * k else None)
+    # held together as one piece: a straw bed under the egg (it sits in the
+    # nest, not a voxel above it) and a strand of straw from each foot
+    for x in range(-round(1.6 * k) - 1, round(1.6 * k) + 2):
+        for y in range(round(ny - 1.6 * k) - 1, round(ny + 1.6 * k) + 2):
+            if math.hypot(x, y - ny) <= 1.6 * k and (x, y, nz) not in nest.v and (x, y, nz) not in egg.v:
+                nest.put((x, y, nz), strawD)
+    for sx in (1, -1):
+        x = round(0.9 * k) if sx > 0 else -round(0.9 * k) - 1
+        for q in _walk((x, round(-0.9 * k) - 1, 0), (x, round(ny), 0)):
+            if q in nest.v:
+                break
+            nest.put(q, strawD)
 
     head = c.part('head', 'head', (0, -1.4 * k, 8.0 * k))
     head.ell((0, -1.5 * k, 9.0 * k), (1.5 * k, 1.6 * k, 1.4 * k), gold)
@@ -284,11 +323,14 @@ def golden_goose(c, H):
     crown = c.part('crown', 'glow', (0, -1.5 * k, 10.4 * k))
     cz = round(10.3 * k)
     R = 1.0 * k
+    ring = [(round(math.cos(a / 40 * math.pi * 2) * R), round(-1.5 * k + math.sin(a / 40 * math.pi * 2) * R)) for a in range(40)]
+    for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1]):  # one solid band, no corner-only steps
+        for x, y, _ in _walk((x0, y0, 0), (x1, y1, 0)):
+            crown.put((x, y, cz), goldD, True)
+            crown.put((x, y, cz + 1), gold, True)
     for a in range(40):
         ang = a / 40 * math.pi * 2
         x, y = round(math.cos(ang) * R), round(-1.5 * k + math.sin(ang) * R)
-        crown.put((x, y, cz), goldD, True)
-        crown.put((x, y, cz + 1), gold, True)
         if a % 5 == 0:
             for h in range(2, 2 + max(2, round(0.6 * k))):
                 crown.put((x, y, cz + h), gold, True)
@@ -305,6 +347,8 @@ def golden_goose(c, H):
     for i in range(round(2.4 * k)):
         for x in range(-round(0.9 * k) + i // 3, round(0.9 * k) - i // 3):
             tail.put((x, round(3.0 * k) + i, round(3.6 * k) + i // 2), goldL if i % 2 else gold)
+            if i % 2 == 0 and i:  # under each step up, so the rows meet face to face
+                tail.put((x, round(3.0 * k) + i, round(3.6 * k) + i // 2 - 1), gold)
     return c
 
 
@@ -583,15 +627,33 @@ def nebula_serpent(c, H):
     tip.ell((tx, ty, tz), (0.42 * k, 0.42 * k, 0.42 * k), star, True)
     tip.ell((tx, ty, tz), (0.62 * k, 0.62 * k, 0.62 * k), starC, True, cond=lambda x, y, z: (x, y, z) not in tip.v and _hash(x, y, z, 5) % 3 == 0)
     for dx, dy, dz in ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1)):
-        for j in range(1, round(0.8 * k)):
+        for j in range(0, round(0.8 * k)):  # from the ball's surface out, no gap
             q = (math.floor(tx + dx * (0.42 * k + j)), math.floor(ty + dy * (0.42 * k + j)), max(0, math.floor(tz + dz * (0.42 * k + j))))
             tip.put(q, starC if j > 0.45 * k else star, True)
-    # a trail of sparks drifting back from the tip along the coil
+    # a trail of sparks back from the tip, lying on the coil
     for j in range(7 if fine else 0):
         px, py, pz, pr = pts[8 + j * 5]
-        q = (math.floor(px + 0.9 * k), math.floor(py - 0.2 * k * j), math.floor(pz + pr + 0.3 * k + j % 2))
-        tip.put(q, starP if j % 2 else starC, True)
+        x, y = math.floor(px + 0.9 * k), math.floor(py - 0.2 * k * j)
+        z = math.floor(pz + pr + 0.3 * k + j % 2)
+        floor = z - round(0.8 * k)
+        while z > floor and (x, y, z - 1) not in body.v:
+            z -= 1
+        if (x, y, z - 1) in body.v:
+            tip.put((x, y, z), starP if j % 2 else starC, True)
     for v in [q for q in tip.v if q in body.v]:
+        del tip.v[v]
+    # keep only glitter that touches the rest: grow out from the coil
+    near = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
+    held = {q for q in tip.v if any((q[0] + d[0], q[1] + d[1], q[2] + d[2]) in body.v for d in near)}
+    todo = list(held)
+    while todo:
+        q = todo.pop()
+        for d in near:
+            n = (q[0] + d[0], q[1] + d[1], q[2] + d[2])
+            if n in tip.v and n not in held:
+                held.add(n)
+                todo.append(n)
+    for v in [q for q in tip.v if q not in held]:
         del tip.v[v]
 
     # ---------------------------------------------------------- the head
@@ -703,14 +765,14 @@ def nebula_serpent(c, H):
             s = i / 23
             beam.append((hx + sx * (0.8 * k + s * 1.25 * k), hy + 0.5 * k + s * 2.1 * k, hz + 1.3 * k + s * 2.5 * k - s * s * 0.9 * k,
                          max(0.55, (0.38 - 0.24 * s) * k)))
-        tube(horns, beam, lambda s: magenta_f if s < 0.3 else (rose if s < 0.62 else (hexc('#B58CFF') if s < 0.88 else starC)), lambda s: True)
+        tube(horns, beam, lambda s: magenta_f if s < 0.3 else (rose if s < 0.62 else (hexc('#B58CFF') if s < 0.88 else starC)), lambda s: True, joined=True)
         for at, up, out in ((6, 1.3, 0.2), (12, 1.1, 0.5), (18, 0.8, 0.1))[:3 if fine else 2]:
             bx, by, bz, _ = beam[at]
             tine = []
             for i in range(10):
                 s = i / 9
                 tine.append((bx + sx * s * out * k, by - s * 0.55 * k, bz + s * up * k, max(0.5, (0.22 - 0.13 * s) * k)))
-            tube(horns, tine, lambda s: rose if s < 0.5 else (hexc('#B58CFF') if s < 0.85 else starC), lambda s: True)
+            tube(horns, tine, lambda s: rose if s < 0.5 else (hexc('#B58CFF') if s < 0.85 else starC), lambda s: True, joined=True)
 
     # mane: nebula wisps streaming back from the cheeks and the back of the head
     mane = c.part('fins', 'glow', (hx, hy, hz))
@@ -728,7 +790,7 @@ def nebula_serpent(c, H):
                              oz - s_ * (0.35 + 0.2 * m) * k + math.sin(s_ * math.pi * 1.5 + m) * 0.2 * k,
                              max(0.5, (0.26 - 0.17 * s_) * k)))
             cols = (rose, magenta_f) if m % 2 else (starC, teal)
-            tube(mane, lock, lambda s_, cols=cols: cols[1] if s_ < 0.35 else (cols[0] if s_ < 0.8 else starP), lambda s_: True)
+            tube(mane, lock, lambda s_, cols=cols: cols[1] if s_ < 0.35 else (cols[0] if s_ < 0.8 else starP), lambda s_: True, joined=True)
     for q in [q for q in mane.v if q in head.v or q in body.v]:
         del mane.v[q]
 
@@ -736,15 +798,20 @@ def nebula_serpent(c, H):
     whisk = c.part('whiskers', 'glow', (hx, hy - 2.8 * k, hz))
     for sx in (1, -1):
         L = round(3.6 * k)
+        prev = None
         for i in range(L):
             s = i / max(1, L - 1)
             x = hx + sx * (0.7 * k + s * 2.0 * k)
             y = hy - 2.75 * k + s * 1.9 * k
             z = hz - 0.1 * k - math.sin(s * math.pi * 0.9) * 1.25 * k + s * 0.5 * k + math.sin(s * math.pi * 3) * 0.12 * k
             q = (math.floor(x), math.floor(y), math.floor(z))
-            if q not in head.v:
-                whisk.put(q, starC if s < 0.75 else star, True)
-                whisk.put((q[0], q[1], q[2] + 1), starC if s < 0.75 else star, True)
+            if prev is None:  # root it in the nearest snout voxel
+                prev = min(head.v, key=lambda h: (h[0] - q[0]) ** 2 + (h[1] - q[1]) ** 2 + (h[2] - q[2]) ** 2)
+            for w in _walk(prev, q)[1:]:  # face to face, so the whisker is one solid strand
+                if w not in head.v:
+                    whisk.put(w, starC if s < 0.75 else star, True)
+                    whisk.put((w[0], w[1], w[2] + 1), starC if s < 0.75 else star, True)
+            prev = q
 
     # ---------------------------------------------------------- arms and pearl
     # two small arms reach from the chest and cup a glowing star pearl
@@ -833,10 +900,10 @@ def nebula_serpent(c, H):
                             if not fine:
                                 band_i = 0
                             orbit.put((x, y, zz), (hexc('#F4E3FF'), hexc('#D7B8FF'), hexc('#FFF4D6'))[min(2, band_i)], band_i == 1)
-        elif kind == 'ocean':
+        elif kind == 'ocean':  # the box fallback (not fine) has fewer clouds and craters, for its 800-box cap
             for p in mine:
                 land = _fbm(p[0], p[1], p[2], 0.7 * k, 23) > (0.56 if fine else 0.6)
-                cloud = _vnoise(p[0] * 1.0, p[1] * 1.0, p[2] * 2.2, 0.45 * k, 31) > 0.8
+                cloud = _vnoise(p[0] * 1.0, p[1] * 1.0, p[2] * 2.2, 0.45 * k, 31) > (0.8 if fine else 0.9)
                 pole = (p[2] + .5 - z) > r * 0.9
                 col = hexc('#FFFFFF') if (cloud or pole) else (hexc('#5DD67A') if land else hexc('#2E86E8'))
                 orbit.put(p, col)
@@ -847,7 +914,7 @@ def nebula_serpent(c, H):
                 orbit.put(p, col, g)
         else:
             for p in mine:
-                crater = _vnoise(p[0], p[1], p[2], 0.3 * k, 61) > 0.7
+                crater = _vnoise(p[0], p[1], p[2], 0.3 * k, 61) > (0.7 if fine else 0.74)
                 orbit.put(p, hexc('#8E89A8') if crater else (hexc('#D6D2E6') if _hash(*p, 6) % 3 or not fine else hexc('#BEB9D2')))
         # the worlds turn together, so they only need to be clear of the
         # body (above) and of each other at rest, which their angles see to

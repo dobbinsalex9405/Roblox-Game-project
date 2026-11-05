@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The Nebula Serpent is reworked: a finer, more detailed nebula coil with
+  crystal antlers, a flowing mane, whiskers and a comet tail, and four
+  little worlds (a ringed planet, an ocean world, a lava world and a moon)
+  circling it. It and the Golden Goose are each one solid piece, so
+  nothing floats loose when they hover.
 - Glowing paw soles and other small glowing bits on creatures no longer go
   missing after upload: each glow piece is now a closed shape.
 - Creature legs, tails and little bug legs that only touched the body at a
