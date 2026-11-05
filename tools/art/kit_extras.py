@@ -935,7 +935,7 @@ def shieldbug(c, H, cols, opts):
     leg = cols.get('leg') or tuple(round(v * 0.55) for v in col)
     rim = tuple(min(255, round(v * 1.15)) for v in col)
     body = c.part('body')
-    z0, z1 = round(2.0 * k), round(3.5 * k)  # underside, flat top
+    z0, z1 = round(1.4 * k), round(3.4 * k)  # underside, flat top: low on short legs
     yf, ys, yb = -1.0 * k, 0.4 * k, 3.4 * k  # front, end of the shoulders, the point
     W = 2.5 * k
     for y in range(math.floor(yf), math.ceil(yb) + 1):
@@ -965,19 +965,30 @@ def shieldbug(c, H, cols, opts):
     for x in range(-math.floor(W * 0.7), math.floor(W * 0.7)):
         for y in range(math.floor(yf + 0.4 * k), math.floor(yb - 0.8 * k)):
             body.put((x, y, z0 - 1), leg)
-    head = c.part('head', 'static', (0, yf, round(2.4 * k)))
+    head = c.part('head', 'static', (0, yf, round(1.9 * k)))
     for x in range(-round(0.8 * k), round(0.8 * k)):
         for y in range(round(yf - 0.9 * k), round(yf)):
-            for z in range(round(2.0 * k), round(3.2 * k)):
+            for z in range(round(1.4 * k), round(2.8 * k)):
                 head.put((x, y, z), col)
-    eyes(c, head, max(1, round(0.4 * k)), round(2.5 * k), max(1, round(0.35 * k)))
+    # eyes big enough for a white glint
+    eyes(c, head, max(1, round(0.3 * k)), round(1.8 * k), 2 if k >= 1.5 else 1)
+    ev = _find(c, 'eyes')
+    if ev is not None and ev.v:
+        # a white glint in the top inner corner of each eye
+        top = max(p[2] for p in ev.v)
+        for sx in (-1, 1):
+            side = [p for p in ev.v if (p[0] >= 0) == (sx > 0) and p[2] == top]
+            if side:
+                g = min(side, key=lambda p: abs(p[0] + .5))
+                ev.v[g] = (WHITE, False)
     # antennae: one voxel thin, a step up then forward and out
     hy = round(yf - 0.9 * k)
-    zt = round(3.2 * k) - 1
+    # from the top of the head, above and outside the eyes
+    zt = round(2.8 * k)
     n = max(3, round(1.2 * k))
     for sx in (-1, 1):
         cells = []
-        x, y, z = max(0, round(0.3 * k)), hy, zt
+        x, y, z = max(1, round(0.7 * k)), hy + 1, zt
         cells.append((x, y, z))
         z += 1
         cells.append((x, y, z))
