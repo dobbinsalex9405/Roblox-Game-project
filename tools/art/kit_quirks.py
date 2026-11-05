@@ -320,27 +320,59 @@ def glasses(c, H, col, col2, a=None):
 
 
 def eye_stripe(c, H, col, col2, a=None):
-    """A dark stripe through the eye from beak to nape (a nuthatch), and
-    with col2 a pale face and throat below it."""
+    """A nuthatch's head: a blue-grey crown (the creature's own colour), a
+    narrow dark stripe (col) from the bill through the eye to the nape, white
+    (col2) cheeks and throat below it, and a long, thin, pointed bill in the
+    roster's beak colour."""
     k = H / 10.0
     head = _find(c, 'head')
     eyes = _find(c, 'eyes')
     if not head or not eyes or not eyes.v:
         return
-    ez = sum(p[2] for p in eyes.v) / len(eyes.v)
-    half = max(1, round(0.3 * k))
+    cols = (a or {}).get('colors', {})
+    crown = hexc(cols['col']) if cols.get('col') else None
+    bill = hexc(cols['beak']) if cols.get('beak') else INK
+    dark_eye = [p for p, v in eyes.v.items() if v[0] != WHITE] or list(eyes.v)
+    ez = sum(p[2] for p in dark_eye) / len(dark_eye)
+    ye = min(p[1] for p in eyes.v)
     xs = [abs(p[0] + .5) for p in head.v]
     wide = max(xs)
+    # the old short beak: what stands in front of the face's widest part
+    yface = min(p[1] for p in head.v if abs(p[0] + .5) >= 2)
+    old = [p for p in head.v if p[1] < yface]
+    zb = round(sum(p[2] for p in old) / len(old)) if old else round(ez) - 2
+    for p in old:
+        del head.v[p]
+
+    def stripe_z(y):
+        # level through the eye and on back to the nape; in front of the
+        # eye it slopes down to the base of the bill
+        if y >= ye:
+            return ez
+        t = max(0.0, min(1.0, (ye - y) / max(1, ye - yface)))
+        return ez + (zb + 0.5 - ez) * t
 
     def paint(p, cc, g):
         if g:
             return None
-        if abs(p[2] - ez) <= half and abs(p[0] + .5) >= 0.35 * wide:
+        zs = stripe_z(p[1])
+        side = abs(p[0] + .5) >= 0.45 * wide
+        if side and abs(p[2] - zs + 0.0) <= 0.6:
             return (col, False)
-        if col2 and p[2] < ez - half:
-            return (col2, False)
-        return None
+        if p[2] < zs - 0.6:
+            return (col2 or WHITE, False)
+        return (crown, False) if crown else None
     head.paint(paint)
+    # the bill: from the face, two voxels wide; a short deep base, then a
+    # long thin blade to the point
+    y0 = min(p[1] for p in head.v if p[0] in (-1, 0) and p[2] == zb)
+    n = max(3, round(1.6 * k))
+    for i in range(1, n + 1):
+        for x in (-1, 0):
+            head.put((x, y0 - i, zb), bill)
+            if i == 1:
+                head.put((x, y0 - i, zb + 1), bill)
+    head.put((-1, y0 - n - 1, zb), bill)
 
 
 def fly_eyes(c, H, col, col2, a=None):
@@ -808,8 +840,10 @@ def diving_beetle(c, H, col, col2, a=None):
 
 def hoverfly(c, H, col, col2, a=None):
     """Turns a wasp into the fly that mimics one: no stinger (the abdomen ends
-    flat and rounded) and clear wings, col with a col2 edge, in place of the
-    wasp's amber ones."""
+    flat and rounded), clear wings (col with a col2 edge) in place of the
+    wasp's amber ones, and the six legs tucked short under the body, angled
+    back, because it hovers and never stands on them (gait hover)."""
+    import rig
     k = H / 10.0
     body = _find(c, 'body')
     ys = sorted({p[1] for p in body.v}, reverse=True)
@@ -828,6 +862,28 @@ def hoverfly(c, H, col, col2, a=None):
         for (x, y, z), (cc, g) in list(w.v.items()):
             inner = all(q in w.v for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z)))
             w.v[(x, y, z)] = (col if inner else edge, False)
+    # legs: short stubs folded back under the thorax
+    legs = sorted([p for p in c.parts if p.name in rig.LEG_NAMES], key=lambda p: (p.pivot[1], p.pivot[0]))
+    ys = sorted({round(l.pivot[1], 3) for l in legs})
+    under = {}
+    for (x, y, z) in body.v:
+        under[(x, y)] = min(under.get((x, y), 99), z)
+    dark = None
+    for leg in legs:
+        if leg.v:
+            dark = next(iter(leg.v.values()))[0]
+            break
+    for leg in legs:
+        sx = 1 if leg.pivot[0] >= 0 else -1
+        x = 0 if sx > 0 else -1
+        i = ys.index(round(leg.pivot[1], 3))
+        y = math.floor(leg.pivot[1]) + i
+        zb = under.get((x, y), min(under.values()))
+        xo = x + sx  # just outside the middle line
+        leg.v = {}
+        leg.pivot = (xo + .5, y + .5, zb - .5)
+        for (xx, yy, zz) in ((xo, y, zb - 1), (xo, y + 1, zb - 1), (xo, y + 1, zb - 2), (xo, y + 2, zb - 2)):
+            leg.put((xx, yy, zz), dark or INK)
 
 
 def gum_face(c, H, col, col2, a=None):
