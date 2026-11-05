@@ -286,7 +286,13 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			-- Swing forward and back about the hip, lifting the foot (a roll
 			-- that raises the leg's outer end) while it swings forward.
 			local lift = math.max(0, side * math.cos(a))
-			return { rx = 0, ry = 0.45 * moving * side * s * out, rz = 0.3 * moving * lift * out, dx = 0, dy = 0 }
+			return {
+				rx = 0,
+				ry = 0.45 * moving * side * s * out,
+				rz = 0.3 * moving * lift * out,
+				dx = 0,
+				dy = 0,
+			}
 		end
 		if gait == "trot" then
 			return { rx = 0.55 * moving * side * s, ry = 0, rz = 0, dx = 0, dy = 0 }

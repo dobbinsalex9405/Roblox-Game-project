@@ -150,13 +150,20 @@ describe("Walk gaits", function()
 	end)
 
 	it("walks a spider's eight legs as two sets of four", function()
-		for _, pair in { { "leg1L", "leg2R" }, { "leg3L", "leg4R" }, { "leg2L", "leg1R" }, { "leg4L", "leg3R" } } do
+		for _, pair in
+			{ { "leg1L", "leg2R" }, { "leg3L", "leg4R" }, { "leg2L", "leg1R" }, { "leg4L", "leg3R" } }
+		do
 			local a = Walk.pose("scuttle", pair[1], 0.25, 1, 1, true).ry
 			local b = Walk.pose("scuttle", pair[2], 0.25, 1, 1, true).ry
 			expect(math.abs(a) > 0.3 and near(a, -b)).toBe(true)
 		end
 		-- the two sets swing opposite ways (seen from the same side)
-		expect(near(Walk.pose("scuttle", "leg1L", 0.25, 1, 1, true).ry, -Walk.pose("scuttle", "leg2L", 0.25, 1, 1, true).ry)).toBe(true)
+		expect(
+			near(
+				Walk.pose("scuttle", "leg1L", 0.25, 1, 1, true).ry,
+				-Walk.pose("scuttle", "leg2L", 0.25, 1, 1, true).ry
+			)
+		).toBe(true)
 	end)
 
 	it("flicks a waddling bird's wings out only while it walks", function()
