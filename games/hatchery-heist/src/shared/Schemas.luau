@@ -249,8 +249,9 @@ return function(Schema: any, Odds: any)
 			turnSeconds = Schema.number({ min = 0.1, max = 3 }),
 			faceFrontAfter = Schema.number({ min = 0, max = 30 }),
 			margin = Schema.number({ min = 0, max = 4 }),
-			cullFloors = Schema.integer({ min = 0, max = 10 }),
-			cullOutsideStuds = Schema.number({ min = 40, max = 1000 }),
+			cullStuds = Schema.number({ min = 40, max = 1000 }),
+			cullOtherStuds = Schema.number({ min = 20, max = 1000 }),
+			animateOtherStuds = Schema.number({ min = 10, max = 500 }),
 		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),
