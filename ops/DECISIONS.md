@@ -37,9 +37,9 @@ Non-obvious choices, newest first, so a later session can trust them.
   creatures reached the design viewer but never an egg. One block in the
   same file (not a second module) keeps a single `require` and lets a hand
   entry override any generated one by moving its line out.
-- **HOLD list:** built creatures that break an in-game art rule (voxel box
-  budget, glow below Ultra Rare) stay out until fixed: Firefly,
-  BeardedDragon, SeaUrchin, HermitCrab.
+- **In-game art rules:** a built creature whose voxel boxes break a
+  VoxelArt.spec rule (box budget per tier, glow below Ultra Rare) is left
+  out and printed by the generator until its builder fixes it.
 - **Limit to fix before Rare+ batches:** an egg tier's weight must be at
   least its member count (Schemas.crossCheck), and tiers are written out of
   100,000. Basic egg Legendary is 2 and Epic 18, so Legendary/Epic batches
