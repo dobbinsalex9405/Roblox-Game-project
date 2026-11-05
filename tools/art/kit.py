@@ -176,12 +176,15 @@ def lizard(c, H, kind, col, accent, belly=None):
         body.paint(lambda p, cc, g: (belly, False) if p[2] < 1.6 * k else None)
     # four short legs splayed out to the sides, toes forward
     lw = max(1, round(0.7 * k))
-    for sx in (-1, 1):
-        for ly in (-0.9 * k, 2.4 * k):
-            x0 = round(sx * 1.6 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
-            body.box((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, round(1.6 * k)), col)
-            xt = x0 + sx * lw
-            body.box((xt, round(ly) - 1, 0), (xt + (sx if k >= 1.5 else 0), round(ly) + lw - 1, 0), col)
+    # drawn on the right and mirrored, so left and right legs match exactly
+    for ly in (-0.9 * k, 2.4 * k):
+        x0 = round(1.6 * k)
+        xt = x0 + lw
+        xe = xt + (1 if k >= 1.5 else 0)
+        for (a0, a1) in ((x0, x0 + lw - 1), (-(x0 + lw - 1) - 1, -x0 - 1)):
+            body.box((a0, round(ly), 0), (a1, round(ly) + lw - 1, round(1.6 * k)), col)
+        for (a0, a1) in ((xt, xe), (-xe - 1, -xt - 1)):
+            body.box((a0, round(ly) - 1, 0), (a1, round(ly) + lw - 1, 0), col)
     # a big round head, a little wider than tall, with a short flat muzzle
     head.ell((0, -2.4 * k, 3.9 * k), (max(2.0 * k, 2.1), 1.75 * k, max(1.9 * k, 1.6)), col)  # wide enough for eyes in the small build
     head.ell((0, -3.4 * k, 3.0 * k), (1.2 * k, 1.3 * k, 1.0 * k), col)
