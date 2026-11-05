@@ -15,10 +15,13 @@ Non-obvious choices, newest first, so a later session can trust them.
   bodies dip as the legs spread (feet stay planted), legless stand-ins
   bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
   each species' legs), falling back to the leg part names.
-- **Cull by distance only** (`cullStuds`, 180): culling by floor left whole
+- **Cull by distance only**, never by floor: culling by floor left whole
   floors looking empty, from the yard and inside your own tower (Studio
-  gates). Far meshes past 30 studs and no animation past the animate range
-  keep a full tower at 60 fps on a phone.
+  gates). Your own tower draws to `cullStuds` (180); other players' towers
+  to `cullOtherStuds` (100: the neighbours either side, 84 away) and move
+  only within `animateOtherStuds` (60). Four full neighbours at 180 studs
+  took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
+  rest cheap.
 
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 

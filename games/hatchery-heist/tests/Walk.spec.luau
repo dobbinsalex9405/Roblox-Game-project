@@ -259,11 +259,22 @@ end)
 describe("Walk culling", function()
 	-- Studio gates, Nov 5: culling by floor left whole floors looking empty,
 	-- from the yard and inside your own tower. Only distance culls now.
-	it("draws every tower creature within cullStuds, whatever its floor", function()
-		expect(Walk.culled(0, cfg)).toBe(false)
-		expect(Walk.culled(9 * 12, cfg)).toBe(false) -- floor 10, straight up
-		expect(Walk.culled(cfg.cullStuds, cfg)).toBe(false)
-		expect(Walk.culled(cfg.cullStuds + 1, cfg)).toBe(true)
+	it("draws every creature of your own tower within cullStuds, whatever its floor", function()
+		expect(Walk.culled(0, true, cfg)).toBe(false)
+		expect(Walk.culled(9 * 12, true, cfg)).toBe(false) -- floor 10, straight up
+		expect(Walk.culled(cfg.cullStuds, true, cfg)).toBe(false)
+		expect(Walk.culled(cfg.cullStuds + 1, true, cfg)).toBe(true)
+	end)
+
+	-- Studio gate stress test, Nov 5: four full neighbouring towers took a
+	-- phone from 59 to 37 fps. Other towers stop sooner than your own.
+	it("draws other players' towers only nearby: the neighbours either side", function()
+		local neighbour = 84 -- the next base round the ring
+		local across = 155 -- the base after that
+		expect(Walk.culled(neighbour, false, cfg)).toBe(false)
+		expect(Walk.culled(across, false, cfg)).toBe(true)
+		expect(cfg.cullOtherStuds < cfg.cullStuds).toBe(true)
+		expect(cfg.animateOtherStuds < cfg.cullOtherStuds).toBe(true)
 	end)
 end)
 

@@ -29,7 +29,9 @@ export type Config = {
 	turnSeconds: number, -- turning on the spot before a walk
 	faceFrontAfter: number, -- stand this long, then turn to the yard
 	margin: number, -- studs kept clear of the cell's edge
-	cullStuds: number, -- tower creatures farther than this from you are not drawn
+	cullStuds: number, -- your own tower's creatures farther than this are not drawn
+	cullOtherStuds: number, -- other players' tower creatures farther than this are not drawn
+	animateOtherStuds: number, -- other players' tower creatures hold still beyond this
 }
 
 export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover" | "swim"
@@ -455,10 +457,11 @@ function Walk.floorAt(above: number, floorHeight: number): number
 end
 
 -- Whether a tower creature is left undrawn: only by distance, so every
--- floor of a tower near you shows, your own tower included (Studio gate,
--- Nov 5: culling by floor left whole floors looking empty).
-function Walk.culled(distance: number, config: Config): boolean
-	return distance > config.cullStuds
+-- floor of a tower near you shows (Studio gate, Nov 5: culling by floor left
+-- whole floors looking empty). Other players' towers stop sooner: four full
+-- neighbours cost a phone 20 fps.
+function Walk.culled(distance: number, own: boolean, config: Config): boolean
+	return distance > (if own then config.cullStuds else config.cullOtherStuds)
 end
 
 -- The joint a part animates as. Exported meshes tag many heads, tails and

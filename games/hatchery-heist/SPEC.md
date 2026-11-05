@@ -71,8 +71,9 @@ Legendary and Godly (`slotsByRarity`), side by side in one row.
   clock, so every player sees the same thing and creatures never collide.
   Gaits per species (CreatureMeshes `gait`): trot, waddle, hop, scuttle,
   slither, hover. Only the client moves them; the server, raids and income
-  use the pad. Tower creatures more than `cullStuds` (180) from the player
-  are not drawn; every floor of a nearby tower shows.
+  use the pad. Every floor of a nearby tower shows: your own tower's
+  creatures within `cullStuds` (180), other players' within `cullOtherStuds`
+  (100), which only move within `animateOtherStuds` (60).
 - **Old saves** (before the tower) are placed best first once on join, with
   the mount and the guard cleared; every join then tidies the save so no two
   creatures overlap and none sits on a floor the player doesn't own.

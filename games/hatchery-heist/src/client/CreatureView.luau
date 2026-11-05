@@ -102,7 +102,9 @@ type Visual = {
 
 -- A floor creature's cell: the middle of its wander area (home), where the
 -- server stood it (stand), its schedule's seed and how far it may stray.
-type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number }
+-- `plot` is the base the tower belongs to: your own tower is drawn and
+-- animated further than other players' (Studio gate stress test, Nov 5).
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number, plot: Model? }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -313,6 +315,7 @@ local function build(anchor: BasePart, speciesId: string)
 			seed = Walk.seed(uid),
 			rx = rx,
 			rz = rz,
+			plot = pad:FindFirstAncestorWhichIsA("Model"),
 		}
 	end
 
@@ -850,8 +853,11 @@ function CreatureView.start()
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		local now = os.clock()
 		local serverNow = Workspace:GetServerTimeNow()
-		-- Tower creatures farther than `cullStuds` from you are not drawn;
-		-- every floor of a tower nearby shows, your own included (Studio gate).
+		-- Tower creatures are culled by distance only, so every floor shows:
+		-- your own tower out to `cullStuds`, other players' (the costly part
+		-- of a full server) out to `cullOtherStuds`, and theirs only move
+		-- within `animateOtherStuds` (Studio gates).
+		local userId = Players.LocalPlayer.UserId
 		local character = Players.LocalPlayer.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		for anchor, v in visuals do
@@ -860,9 +866,12 @@ function CreatureView.start()
 				continue
 			end
 			local roam = v.roam
+			local own = true
 			if roam then
+				local plot = roam.plot
+				own = plot == nil or plot:GetAttribute("OwnerUserId") == userId
 				local away = if root then (roam.home.Position - root.Position).Magnitude else 0
-				setCulled(v, Walk.culled(away, wander))
+				setCulled(v, Walk.culled(away, own, wander))
 				if v.culled then
 					continue
 				end
@@ -872,7 +881,8 @@ function CreatureView.start()
 				local limit = FAR_STUDS + (if v.showingFar then -LOD_SLACK else LOD_SLACK)
 				setFar(v, distance > limit)
 			end
-			if v.fade < 1 and distance <= ANIMATE_RANGE + v.height * 4 then
+			local range = if own then ANIMATE_RANGE else wander.animateOtherStuds
+			if v.fade < 1 and distance <= range + v.height * 4 then
 				if roam then
 					stroll(v, roam, serverNow)
 				end
