@@ -92,9 +92,9 @@ type Visual = {
 	culled: boolean,
 }
 
--- A floor creature's cell: where the server stood it (home), its schedule's
--- seed and how far it may stray.
-type Roam = { home: CFrame, seed: number, rx: number, rz: number }
+-- A floor creature's cell: the middle of its wander area (home), where the
+-- server stood it (stand), its schedule's seed and how far it may stray.
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -282,8 +282,14 @@ local function build(anchor: BasePart, speciesId: string)
 	if anchor.Name == "Creature" and pad and string.match(pad.Name, "^Pad%d+$") and type(uid) == "string" then
 		local home = homes[anchor] or anchor.CFrame
 		homes[anchor] = home
-		local rx, rz = Walk.range(slotsByRarity[rarity] or 1, math.max(size.X, size.Z), wander.margin)
-		roam = { home = home, seed = Walk.seed(uid), rx = rx, rz = rz }
+		local index = pad:GetAttribute("Pad")
+		local cx, cz, rx, rz = Walk.cell(
+			if type(index) == "number" then index else 1,
+			slotsByRarity[rarity] or 1,
+			math.max(size.X, size.Z),
+			wander.margin
+		)
+		roam = { home = home * CFrame.new(cx, 0, cz), stand = home, seed = Walk.seed(uid), rx = rx, rz = rz }
 	end
 
 	local v: Visual = {
@@ -701,7 +707,7 @@ end
 local function stroll(v: Visual, roam: Roam, serverNow: number)
 	if v.fade > 0 then
 		v.moving = 0
-		v.anchor.CFrame = roam.home
+		v.anchor.CFrame = roam.stand
 		return
 	end
 	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander)
