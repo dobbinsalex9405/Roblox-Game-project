@@ -16,6 +16,7 @@ accessory (kit_uncommon.py), so it needs no kind of its own.
 
 Accessories:
 - **nofeet**: takes away the puff's two stubby feet (legL / legR).
+- **furtrim**: thins the fur tufts on the back half (under a big tail).
 - **drizzle**: no feet; a few short streaks of rain under the creature in
   color (it floats)."""
 import math
@@ -47,20 +48,25 @@ def _dandelion(c, H, k, body, head, cols, opts):
     zs = [p[2] for p in solid]
     cz = (min(zs) + max(zs) + 1) / 2
     for (x, y, z) in solid:
-        if z < cz - 0.6 * k or _hash(x, y, z, 7) % 100 >= 16:
+        # the right half only, mirrored after: both eyes get the same frame
+        if x < 0 or z < cz - 0.6 * k or _hash(x, y, z, 7) % 100 >= 16:
             continue
         d = (x + .5, y + .5, z + .5 - cz)
         n = math.sqrt(sum(a * a for a in d)) or 1
         u = tuple(a / n for a in d)
-        if u[1] < -0.45 and z < cz + 0.9 * k:
-            continue  # keep the face clear
+        if u[1] < -0.2 and u[2] < 0.8:
+            continue  # keep the whole face clear: seeds only over the top
         out = [(math.floor(x + .5 + u[0] * s), math.floor(y + .5 + u[1] * s), math.floor(z + .5 + u[2] * s))
                for s in (1.0, 2.0)]
         if any(q in solid for q in out):
             continue
         seeds.put(out[0], stalk)
         seeds.put(out[1], light(col, 0.4) if col != WHITE else hexc('#F4F6F8'))
-    return {'big_eyes': True}
+    for (x, y, z), v in list(seeds.v.items()):
+        seeds.v[(-x - 1, y, z)] = v
+    for q in [q for q in seeds.v if q in solid]:
+        del seeds.v[q]
+    return {'big_eyes': True, 'face_z': -0.02}
 
 
 def _cloud(c, H, k, body, head, cols, opts):
@@ -79,36 +85,53 @@ def _cloud(c, H, k, body, head, cols, opts):
 
 
 def _tardigrade(c, H, k, body, head, cols, opts):
-    """A water bear: a plump capsule in soft rings, a round snout, and four
-    pairs of stubby clawed legs (leg1..leg4, so it scuttles)."""
+    """A water bear: a plump capsule in four soft segment bands, a round tube
+    snout at the front with small eyes beside it, and four pairs of stubby
+    clawed legs (leg1..leg4, mirrored, each 3+ voxels, so it scuttles)."""
     col = cols['col']
     ring = cols.get('accent') or dark(col, 0.12)
-    ys = [p[1] for p in _all(body, head)]
-    y0 = min(ys)
-    band = max(2, round(1.0 * k))
-    _paint_both(body, head, lambda p, cc, g: (ring, False) if (p[1] - y0) % band == 0 and p[1] > y0 + 2 * k else None)
-    # a little round snout
-    zs = [p[2] for p in _all(body, head)]
-    zc = (min(zs) + max(zs)) / 2 - 0.4 * k
-    head.ell((0, y0 - 0.3 * k, zc), (0.7 * k, 0.6 * k, 0.6 * k), light(col, 0.1))
-    head.put((-1, math.floor(y0 - 0.85 * k), round(zc)), dark(col, 0.45))
-    head.put((0, math.floor(y0 - 0.85 * k), round(zc)), dark(col, 0.45))
+    vox = _all(body, head)
+    ys = [p[1] for p in vox]
+    y0, y1 = min(ys), max(ys)
+    # four segment bands: a darker ring at each of four even steps along it
+    seg = (y1 - y0 + 1) / 5
+    marks = {round(y0 + seg * i) for i in range(1, 5)}
+    _paint_both(body, head, lambda p, cc, g: (ring, False) if p[1] in marks else None)
+    # a round tube snout pointing forward, tapering a little, its tip a pale
+    # lip ring round a small dark mouth (a ring, not a dog's nose)
+    zs = [p[2] for p in vox]
+    zc = (min(zs) + max(zs)) / 2 - 0.3 * k
+    n = max(2, round(0.85 * k))  # half the tube's width, in voxels
+    z0 = round(zc)
+    front = min(p[1] for p in vox if abs(p[0] + .5) < 1.5 and abs(p[2] - z0) < 1.5)
+    ln = max(3, round(1.0 * k))
+    tube = light(col, 0.08)
+    lip = light(col, 0.3)
+    for y in range(front - ln, front + 1):
+        for x in range(-n, n):
+            for z in range(z0 - n, z0 + n):
+                if x in (-n, n - 1) and z in (z0 - n, z0 + n - 1):
+                    continue  # rounded corners
+                cc = tube
+                if y == front - ln:
+                    cc = dark(col, 0.8) if x in (-1, 0) and z in (z0 - 1, z0) else lip
+                head.put((x, y, z), cc)
     lo = min(zs)
     rx = max(abs(p[0] + .5) for p in body.v)
     claw = cols.get('feet') or dark(col, 0.35)
-    hgt = max(2, round(1.0 * k))
-    for i, fy in enumerate((-0.45, -0.15, 0.15, 0.45)):
-        y = round(fy * (max(ys) - y0) + (max(ys) + y0) / 2)
+    hgt = max(3, round(1.0 * k))
+    w = max(2, round(0.6 * k))
+    x1 = round(rx * 0.75 + w / 2) - 1  # the right leg's outer column
+    x0 = x1 - w + 1
+    for i, fy in enumerate((-0.42, -0.14, 0.14, 0.42)):
+        y = round(fy * (y1 - y0) + (y1 + y0) / 2)
         for side, sx in (('L', -1), ('R', 1)):
-            x = sx * (rx * 0.75)
-            leg = rig.leg_part(c, side, i, 4, (x, y, lo + hgt))
-            w = max(1, round(0.6 * k))
-            x0 = math.floor(x - w / 2)
-            leg.box((x0, y, 0), (x0 + w - 1, y + w - 1, lo + hgt), col)
-            leg.put((x0, y - 1, 0), claw)
-            leg.put((x0 + w - 1, y - 1, 0), claw)
-    # lift the body onto its legs (the puff sits its ball on its own feet)
-    return {'big_eyes': True}
+            a, b = (x0, x1) if sx > 0 else (-x1 - 1, -x0 - 1)
+            leg = rig.leg_part(c, side, i, 4, ((a + b + 1) / 2 * 1.0, y + w / 2, lo + hgt))
+            leg.box((a, y, 0), (b, y + w - 1, lo + hgt), col)
+            leg.put((a, y - 1, 0), claw)
+            leg.put((b, y - 1, 0), claw)
+    return {'big_eyes': False, 'face_z': 0.32, 'no_mouth': True}
 
 
 def _bobble(c, H, k, body, head, cols, opts):
@@ -167,13 +190,14 @@ def _turnip(c, H, k, body, head, cols, opts):
     return {'face_z': -0.15}
 
 
-def _taper(body, head, k, lo, zc, rmax, frac=0.35):
+def _taper(body, head, k, lo, zc, rmax, frac=0.35, power=1.0):
     """Draws the bottom half of the ball in to a point (a carrot, a radish
-    root): below zc, the further down the narrower."""
+    root): below zc, the further down the narrower (power < 1 keeps it full
+    longer and pinches it in sharply at the very bottom)."""
     for part in (body, head):
         for p in list(part.v):
             if p[2] + .5 < zc:
-                t = (p[2] + .5 - lo) / max(1, zc - lo)
+                t = max(0.0, (p[2] + .5 - lo) / max(1, zc - lo)) ** power
                 if math.hypot(p[0] + .5, p[1] + .5) > rmax * (frac + (1 - frac) * t):
                     del part.v[p]
 
@@ -185,12 +209,12 @@ def _carrot(c, H, k, body, head, cols, opts):
     ridge = cols.get('accent') or dark(col, 0.15)
     zs = [p[2] for p in _all(body, head)]
     lo, top = min(zs), max(zs)
-    zc = (lo + top) / 2 + 0.6 * k
-    _taper(body, head, k, lo, zc, P.SHAPES['carrot'][0] * k, 0.4)
+    zc = (lo + top) / 2 + 1.0 * k
+    _taper(body, head, k, lo, zc, P.SHAPES['carrot'][0] * k, 0.08, 0.9)
     _paint_both(body, head, lambda p, cc, g: (ridge, False) if (p[2] % max(2, round(1.1 * k)) == 0 and
                                                                _hash(p[0] // 2, p[2], 3) % 3 == 0) else None)
     _leaves(c, k, top, 0.0, cols.get('tuft') or hexc('#4FB848'), n=4, h=2.0)
-    return {'face_z': 0.25, 'feet_w': 0.6}
+    return {'face_z': 0.25, 'feet_w': 0.6, 'big_eyes': True}
 
 
 def _radish(c, H, k, body, head, cols, opts):
@@ -316,9 +340,11 @@ def nofeet(c, H, col, col2, a):
 
 
 def drizzle(c, H, col, col2, a):
-    """No feet: falling rain under the creature, short dashes in two blues
-    (color, color2) a little apart from it, so they read as rain, not legs.
-    The rain is an "orbit" part: it turns slowly about the cloud's middle."""
+    """No feet: rain under the creature, six single droplets (one voxel
+    wide, two tall: a pale top, color below) scattered under it at staggered
+    heights with clear gaps, the highest a voxel or two below the cloud, so
+    they read as falling rain, not legs. The rain is an "orbit" part: it turns
+    slowly about the cloud's middle."""
     k = H / 10.0
     nofeet(c, H, col, col2, a)
     vox = [p for q in c.parts for p in q.v]
@@ -326,14 +352,13 @@ def drizzle(c, H, col, col2, a):
     ym = (min(p[1] for p in vox) + max(p[1] for p in vox)) / 2
     rain = c.part('rain', 'orbit', (0, ym, lo))
     c1, c2 = col or hexc('#7FB8F0'), col2 or hexc('#D6EBFB')
-    dash = max(1, round(0.4 * k))
-    for i, (dx, dy) in enumerate(((-1.7, -0.6), (-0.7, 0.7), (0.5, -0.9), (1.4, 0.3), (-0.1, 1.6), (1.0, -0.1))):
+    step = max(1, round(0.5 * k))
+    spots = ((-2.4, -0.5, 0), (-1.1, 0.9, 3), (0.2, -1.0, 1), (1.4, 0.7, 4), (-0.5, 2.0, 2), (2.5, -0.3, 5))
+    for dx, dy, h in spots:
         x, y = round(dx * k), round(ym + dy * k)
-        z = lo - 2 - (i % 3)
-        for d in range(2):  # two dashes, a gap between
-            for j in range(dash + 1):
-                rain.put((x, y, z - j), c1 if d == 0 else c2)
-            z -= dash + 1 + max(1, round(0.4 * k))
+        z = lo - 2 - (h % 3) * step - (h // 3)
+        rain.put((x, y, z), c2)
+        rain.put((x, y, z - 1), c1)
     # everything up so the lowest drop touches the ground
     drop = min(p[2] for p in rain.v)
     if drop < 0:
@@ -342,4 +367,18 @@ def drizzle(c, H, col, col2, a):
             q.pivot = (q.pivot[0], q.pivot[1], q.pivot[2] - drop)
 
 
-ACCESSORIES = {'nofeet': nofeet, 'drizzle': drizzle}
+def furtrim(c, H, col, col2, a):
+    """Thins a fuzzball's fur tufts on its back half, where a big tail
+    hides them anyway (keeps the triangle count down for a bushy tail)."""
+    fur = next((p for p in c.parts if p.name == 'fur'), None)
+    if fur is None or not fur.v:
+        return
+    ys = [p[1] for p in fur.v]
+    mid = (min(ys) + max(ys)) / 2
+    keep = round(a.get('keep', 0.3) * 100)
+    for p in list(fur.v):
+        if p[1] > mid and _hash(*p, 53) % 100 >= keep:
+            del fur.v[p]
+
+
+ACCESSORIES = {'nofeet': nofeet, 'drizzle': drizzle, 'furtrim': furtrim}

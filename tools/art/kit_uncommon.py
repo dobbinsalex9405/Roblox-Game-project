@@ -61,13 +61,15 @@ extra keys are listed with each):
 - **mouth**: `style` smile (a wide smile, color2 tongue) or underbite.
 - **sweater**: a knitted sweater over the body, color2 ribbing.
 - **snowcap**: a cap of snow on the head.
-- **bristles**: a bristly strip down the head and back.
+- **mane_strip**: a bristly strip down the head and back.
 - **crest**: `style` fan (a fan of feathers, color2 tips) or plumes (a
   bunch of bright feathers).
 - **beak**: a bigger beak over the plan's. `style` big, curved, long.
 - **fan**: a peacock spider's fan raised at the back.
 - **leaf**: the body is a flat leaf with a color2 midrib and veins.
 - **goatee**: a goat's beard under the chin, below a long snout (`length` in k).
+- **jellybean**: a beetle's shell remade as one smooth glossy jellybean, arched
+  like a kidney bean, with a long gloss streak (color2).
 - **eyedisc**: a color disc round each eye (`disc` in k) with a big color2
   eye (`size` in k) and a glint: eyes that read on dark or busy faces;
   `lift` and `back` (in k) move the eye up and back.
@@ -748,6 +750,8 @@ def tailset(c, H, col, col2, a):
         pts = [(0, y0, rz), (0, ry + 1.2 * k * sz, rz + 0.2 * k), (0, ry + 2.4 * k * sz, rz + 1.0 * k * sz),
                (0, ry + 3.0 * k * sz, rz + 2.4 * k * sz), (0, ry + 2.6 * k * sz, rz + 3.6 * k * sz),
                (0, ry + 1.7 * k * sz, rz + 4.1 * k * sz)]
+        lift = a.get('lift', 0) * k  # raise it up the back (a squirrel's tail stands tall)
+        pts = [(p[0], p[1] - lift * 0.35 * i / 5, p[2] + lift * i / 5) for i, p in enumerate(pts)]
         prof = lambda tt: (0.5 + 1.1 * math.sin(min(1, tt * 1.25) * math.pi * 0.85)) * k * sz  # noqa: E731
         for i in range(len(pts) - 1):
             a0, a1 = pts[i], pts[i + 1]
@@ -1546,13 +1550,92 @@ def leaf(c, H, col, col2, a):
             lf.put((x, y, z + (1 if abs(x + .5) < half * 0.4 else 0)), vein if (mid or v) else col)
 
 
+def jellybean(c, H, col, col2, a):
+    """A beetle's shell remade as one smooth jellybean: long, rounded at both
+    ends and arched like a kidney bean seen from the side, all one glossy
+    colour (no seam, no spots) with a long gloss streak (color2, default
+    white) down the upper left and a small dot of shine ahead of it."""
+    k = _k(H)
+    shell = _find(c, 'shell')
+    if shell is None or not shell.v:
+        return
+    gloss = col2 or WHITE
+    xs = [p[0] for p in shell.v]
+    ys = [p[1] for p in shell.v]
+    zs = [p[2] for p in shell.v]
+    cy = (min(ys) + max(ys) + 1) / 2
+    zlo = min(zs)
+    rx = (max(xs) - min(xs) + 1) / 2 * a.get('width', 0.92)
+    ry = (max(ys) - min(ys) + 1) / 2 * a.get('length', 1.08)
+    rz = (max(zs) - zlo + 1) * 0.95
+    arch = a.get('arch', 0.3) * k
+    shell.v = {}
+    for x in range(-math.ceil(rx), math.ceil(rx)):
+        for y in range(math.floor(cy - ry), math.ceil(cy + ry) + 1):
+            t = (y + .5 - cy) / ry
+            if abs(t) > 1:
+                continue
+            zc = zlo - 0.15 * rz + arch * (1 - t * t)
+            for z in range(zlo, math.ceil(zc + rz) + 1):
+                if ((x + .5) / rx) ** 2 + t * t + ((z + .5 - zc) / rz) ** 2 <= 1:
+                    shell.put((x, y, z), col)
+    # one gloss streak: the top voxel just left of the ridge, along most of
+    # its length, then a gap and a dot
+    gx = -max(1, round(0.22 * rx)) - 1
+    for y in range(math.floor(cy - 0.6 * ry), math.ceil(cy + 0.3 * ry)):
+        top = shell.top(gx, y)
+        if top:
+            shell.v[top] = (gloss, False)
+    top = shell.top(gx, math.ceil(cy + 0.48 * ry))
+    if top:
+        shell.v[top] = (gloss, False)
+    # no horn on a jellybean: the head keeps only its own dark voxels
+    head = _find(c, 'head')
+    if head is not None:
+        dark_head = Counter(v[0] for v in head.v.values()).most_common(1)[0][0]
+        for p in [p for p, v in head.v.items() if v[0] != dark_head]:
+            del head.v[p]
+        # a rounder, bigger head (room for eyes that read): the same centre,
+        # a third bigger, its back tucked under the shell
+        hx = [p[0] for p in head.v]
+        hy = [p[1] for p in head.v]
+        hz = [p[2] for p in head.v]
+        hc = (0, (min(hy) + max(hy) + 1) / 2, (min(hz) + max(hz) + 1) / 2 + 0.15 * k)
+        hr = ((max(hx) - min(hx) + 1) / 2 * 1.3, (max(hy) - min(hy) + 1) / 2 * 1.15, (max(hz) - min(hz) + 1) / 2 * 1.4)
+        head.v = {}
+        head.ell(hc, hr, dark_head)
+        for p in [p for p in head.v if p in shell.v]:
+            del head.v[p]
+        # big eyes that read on the dark head: 2x2 white, a dark pupil low
+        # and inward, set into the head's front where the plan put the eyes
+        e = _find(c, 'eyes')
+        if e is not None and e.v:
+            ex = max(1, round(0.25 * hr[0]))
+            ez = round(hc[2] - 0.2 * hr[2])
+            e.v = {}
+            block = [(x, z) for x in (ex, ex + 1) for z in (ez, ez + 1)]
+            fronts = [head.front(x, z) for x, z in block]
+            yf = min(f[1] for f in fronts if f) if any(fronts) else None
+            for (x, z), f in zip(block, fronts):
+                if yf is None or f is None:
+                    continue
+                # every eye voxel on one flat plane, the head filled in behind
+                for y in range(yf + 1, f[1]):
+                    mput(head, x, y, z, dark_head)
+                for q in ((x, yf, z), (-x - 1, yf, z)):
+                    head.v.pop(q, None)
+                pupil = x == ex and z == ez
+                mput(e, x, yf, z, INK if pupil else WHITE)
+
+
 ACCESSORIES = {
     'cup': cup, 'mitten': mitten, 'shell': shell, 'ball': ball_acc, 'pot': pot, 'bubble': bubble,
     'tusks': tusks, 'snout': snout, 'hornset': hornset, 'earset': earset, 'tailset': tailset,
     'wingset': wingset, 'wingfold': wingfold, 'boots': boots, 'stilts': stilts, 'carapace': carapace, 'skirt': skirt,
     'fluff': fluff, 'frizz': frizz, 'mushrooms': mushrooms, 'spikes': spikes, 'feelers': whiskers,
-    'bigeyes': bigeyes, 'mouth': mouth, 'sweater': sweater, 'snowcap': snowcap, 'bristles': mohawk,
+    'bigeyes': bigeyes, 'mouth': mouth, 'sweater': sweater, 'snowcap': snowcap, 'mane_strip': mohawk,
     'crest': crest, 'beak': beak, 'fan': fan, 'leaf': leaf, 'eyedisc': eyedisc, 'cicada': cicada, 'goatee': goatee,
+    'jellybean': jellybean,
 }
 
 
