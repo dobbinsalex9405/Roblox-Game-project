@@ -147,8 +147,8 @@ def jelly(c, H, kind, col, accent=None):
     body.paint(lambda p, cc, g: (_light(accent, 0.5), True) if p[2] <= round(rim) and (p[0] + p[1]) % 3 == 0 else None)
     # the face on the front of the bell
     face(c, bell, k, (rim / k) + 1.0, x_off=0.8, size=0.6, cheek_z=(rim / k) + 0.4)
-    # frilly oral arms under the bell (static) and four long tentacles,
-    # which are its legs (two a side), drifting down to just off the ground
+    # frilly oral arms under the bell (static) and four long tentacles, one
+    # `tail` part hinged under the bell so they sweep as it swims
     frills = c.part('frills', 'static')
     for sx in (-1, 1):
         for sy in (-1, 1):
@@ -156,10 +156,11 @@ def jelly(c, H, kind, col, accent=None):
                 z = rim - 1 - i
                 wob = math.sin(i / max(1, k) * 1.6) * 0.5 * k
                 frills.ell((sx * (0.6 * k + wob), sy * 0.6 * k, z), (0.45 * k, 0.45 * k, 0.6), _light(accent, 0.35))
+    tent = c.part('tail', 'tail', (0, 0, round(rim)))
     for sx in (-1, 1):
         for i, sy in enumerate((-1, 1)):
             hip = (sx * 2.0 * k, sy * 1.4 * k, rim)
-            leg = _leg(c, sx, i, 2, (round(hip[0]) + .5, round(hip[1]) + .5, round(rim)))
+            leg = tent
             n = max(4, round(rim))
             for j in range(n):
                 z = rim - 1 - j

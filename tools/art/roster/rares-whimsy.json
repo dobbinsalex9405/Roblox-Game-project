@@ -468,7 +468,7 @@
    "id": "Ducktopus",
    "rarity": "Rare",
    "plan": "octopus",
-   "gait": "hover",
+   "gait": "scuttle",
    "options": {
     "kind": "duck"
    },

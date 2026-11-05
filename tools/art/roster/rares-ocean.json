@@ -20,7 +20,7 @@
    "id": "BabyOctopus",
    "rarity": "Rare",
    "plan": "octopus",
-   "gait": "hover",
+   "gait": "scuttle",
    "options": {
     "kind": "octopus"
    },
@@ -57,7 +57,7 @@
    "id": "MoonJelly",
    "rarity": "Rare",
    "plan": "jelly",
-   "gait": "hover",
+   "gait": "swim",
    "options": {
     "kind": "moon"
    },
@@ -131,7 +131,7 @@
    "id": "Socktopus",
    "rarity": "Rare",
    "plan": "octopus",
-   "gait": "hover",
+   "gait": "scuttle",
    "options": {
     "kind": "sock"
    },
