@@ -1882,8 +1882,8 @@ def bubble(c, H, col, col2=None):
             if z < 0.3 * k:
                 continue
             part.put((math.floor(cx + u * R), math.floor(cy + v * R), math.floor(z)), shades[(i // 10) % 4], True)
-    # a shine highlight high on the front
-    part.ell((cx + 0.45 * R, cy - 0.7 * R, cz + 0.45 * R), (0.35 * k, 0.35 * k, 0.35 * k), WHITE, True)
+    # a shine highlight high on one of the rings
+    part.ell((cx + 0.707 * R, cy, cz + 0.707 * R), (0.35 * k, 0.35 * k, 0.35 * k), WHITE, True)
 
 
 def trunk(c, H, col, col2=None):
