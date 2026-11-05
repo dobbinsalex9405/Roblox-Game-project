@@ -22,6 +22,14 @@
 - Fix: some Hatchery Book cards showed no "???" name for creatures not
   found yet (on phones, the top rows).
 
+- Creatures walk on real legs: every leg is its own part that swings from
+  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
+  slither or hover).
+- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
+  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
+  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
+  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
+  cheeks.
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala
