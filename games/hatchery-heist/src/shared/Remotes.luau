@@ -11,7 +11,7 @@ return function(Net: any, Schema: any)
 	local floor = Schema.integer({ min = 1, max = 10 })
 	local pad = Schema.integer({ min = 1, max = 80 }) -- across the tower (Geometry.pad)
 	return {
-		-- Buy egg number `index` off the player's own conveyor (see Conveyor.luau).
+		-- Buy egg number `index` off the Egg Market (see Conveyor.luau).
 		["HH:BuyEgg"] = Net.toServer(
 			"HH:BuyEgg",
 			{ Schema.integer({ min = 0, max = 2 ^ 40 }) },
@@ -55,6 +55,8 @@ return function(Net: any, Schema: any)
 			"HH:EggResult",
 			{ Schema.integer({ min = 0, max = 2 ^ 40 }), Schema.boolean() }
 		),
+		-- Market egg `index` was just bought by someone: hide it.
+		["HH:EggSold"] = Net.toClient("HH:EggSold", { Schema.integer({ min = 0, max = 2 ^ 40 }) }),
 		-- A short message for the player (a refusal, a reward).
 		["HH:Notice"] = Net.toClient("HH:Notice", { text }),
 		-- An egg hatched: species id, the egg it came from, and whether it is

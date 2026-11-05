@@ -19,6 +19,7 @@ local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
+local Conveyor = require(Shared.Conveyor)
 local DataTemplate = require(Shared.DataTemplate)
 local FeedbackContext = require(Shared.FeedbackContext)
 local Eggs = require(Shared.Eggs)
@@ -36,6 +37,7 @@ local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
 local Speed = require(script.Speed)
 local World = require(script.World)
+local Market = require(script.Market)
 
 local TICK_SECONDS = 10 -- income is added to the pending pile this often
 
@@ -106,6 +108,7 @@ for index = 1, Layout.PLOTS do
 	assert(top > 0.05 and top <= 0.5, `base {index}'s floor top is at {top}, not a low lip above the grass`)
 end
 Scenery.build(Config.get("atmosphere"))
+Market.build()
 Mounts.start()
 CreatureAssets.start(log)
 
@@ -234,6 +237,25 @@ local ready: Actions.Actions = Actions.new({
 		return Workspace:GetServerTimeNow()
 	end,
 	plotOf = World.plotOf,
+	-- Reach is measured from the egg where the server's clock has it, with
+	-- room for the egg moving on during the player's latency.
+	nearEgg = function(player: Player, index: number, serverNow: number): boolean
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root == nil then
+			return false
+		end
+		local belt = config.economy.conveyor
+		local progress = (serverNow - Conveyor.spawnTime(index, belt)) / belt.travelSeconds
+		local at = Market.eggPosition(Conveyor.laneOf(index, belt), progress)
+		local flat = Vector3.new(root.Position.X - at.X, 0, root.Position.Z - at.Z)
+		return flat.Magnitude <= belt.buyReach
+	end,
+	eggSold = function(index: number)
+		for _, other in Players:GetPlayers() do
+			fire(Remotes["HH:EggSold"], other, index)
+		end
+	end,
 	notify = function(player: Player, text: string)
 		fire(Remotes["HH:Notice"], player, text)
 	end,
