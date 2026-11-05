@@ -1163,32 +1163,38 @@ def sentinel(c, H, cols, opts):
                 _sym(body, x + max(0, round(0.15 * k)), y, z, col)
     # the head: small and round with a tapered snout
     hz = hip + 5.4 * k
-    head.ell((0, -0.3 * k, hz), (1.25 * k, 1.15 * k, 1.05 * k), col)
+    head.ell((0, -0.3 * k, hz), (1.4 * k, 1.15 * k, 1.05 * k), col)
     head.ell((0, -1.2 * k, hz - 0.35 * k), (0.55 * k, 0.75 * k, 0.5 * k), belly)
     f = head.front(0, round(hz - 0.2 * k))
     if f:
         _sym(head, 0, f[1], f[2], INK)
     es = max(1, round(0.4 * k))
-    eyes(c, head, max(1, round(0.75 * k)), round(hz + 0.05 * k), es)
-    # a dark patch around each eye, apart from the other, and a glint
+    ez = round(hz + 0.05 * k)
+    # eyes one column out from the middle (on the face, whatever the
+    # detail), so the two middle columns stay light between the patches
+    xs = [p[0] for p in head.v if p[2] == ez and p[0] >= 0]
+    eyes(c, head, max(0, min(1, max(xs) - es + 1)), ez, es)
+    # a dark patch around each eye, never towards the middle, and a glint
     e = _find(c, 'eyes')
     ring = {(p[0], p[2]) for p in e.v}
     for p, (cc, g) in list(head.v.items()):
-        near = [(x, z) for (x, z) in ring if abs(p[0] - x) <= 1 and abs(p[2] - z) <= 1 and (p[0] >= 0) == (x >= 0)]
+        near = [(x, z) for (x, z) in ring if 0 <= abs(p[0] + .5) - abs(x + .5) <= 1 and abs(p[2] - z) <= 1 and (p[0] >= 0) == (x >= 0)]
         if near and p[1] < -0.6 * k and cc != INK:
             head.v[p] = (patch, g)
     if _fine(c):
-        for (x, z) in ring:
-            f = head.front(x, z + 1)
-            if f:
+        # the glint: a white voxel just outside each eye, on the face
+        for p in e.v:
+            x = p[0] + (1 if p[0] >= 0 else -1)
+            f = head.front(x, p[2])
+            if f and abs(f[1] - p[1]) <= 1:
                 head.v[f] = (WHITE, False)
     # small dark ears low on the sides
     ep = c.part('ears', 'static', head.pivot)
     r = max(1.0, 0.35 * k)
-    for x in range(0, math.ceil(1.2 * k) + 1):
+    for x in range(0, math.ceil(1.6 * k) + 1):
         for y in range(math.floor(-0.3 * k - r), math.ceil(-0.3 * k + r) + 1):
             for z in range(math.floor(hz + 0.4 * k - r), math.ceil(hz + 0.4 * k + r) + 1):
-                if ((x + .5 - 1.0 * k) / r) ** 2 + ((y + .5 + 0.3 * k) / (r * 0.7)) ** 2 + ((z + .5 - hz - 0.4 * k) / r) ** 2 <= 1:
+                if ((x + .5 - 1.3 * k) / r) ** 2 + ((y + .5 + 0.3 * k) / (r * 0.7)) ** 2 + ((z + .5 - hz - 0.4 * k) / r) ** 2 <= 1:
                     if (x, y, z) not in head.v:
                         _sym(ep, x, y, z, ear)
     # the tail: from the rump down behind, along the ground, a dark tip
