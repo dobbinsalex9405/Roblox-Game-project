@@ -26,6 +26,16 @@ return {
 		moonAngularSize = 11,
 		starCount = 1500,
 	},
+	-- Once the uploaded storybook skybox loads (tools/art/env/sky.py), its
+	-- painted clouds and mountains need thinner moving clouds and less haze.
+	skybox = {
+		cloudCover = 0.3, -- 0-1, replaces clouds.cover
+		atmosphereDensity = 0.24, -- replaces atmosphere.density
+		haze = 0.6, -- replaces atmosphere.haze
+	},
+	ground = {
+		grassTileStuds = 32, -- the uploaded grass tile (tools/art/env/grass.py) repeats every this many studs
+	},
 	clouds = {
 		cover = 0.55, -- 0-1
 		density = 0.6,
@@ -44,10 +54,42 @@ return {
 	scenery = {
 		hillRadius = 320, -- studs from the centre; hides the edge of the map
 		hillCount = 22,
-		treeCount = 36, -- around the outside of the ring of bases
-		treeRadiusMin = 172,
-		treeRadiusMax = 215,
 		seed = 7, -- the same scenery on every server
+		-- Trees, bushes, rocks and flowers (shared/NaturePlan.luau; models in
+		-- shared/EnvArt.luau from tools/art/env). Radii in studs from the
+		-- centre; bases fill 78 to 145, the hub stays inside 72.
+		nature = {
+			seed = 11,
+			gapTrees = { "PuffOakM", "BlossomM" }, -- one in each gap between bases, alternating
+			gapRadius = 152,
+			wood = {
+				count = 42, -- trees round the outside of the ring
+				radiusMin = 166,
+				radiusMax = 245,
+				scaleMin = 0.9,
+				scaleMax = 1.15,
+				minSpacing = 9, -- studs between trunks at least
+				-- how often each species is picked (relative)
+				species = {
+					PuffOak = 30,
+					StarPine = 24,
+					Blossom = 14,
+					Willow = 12,
+					AmberOak = 10,
+					Toadstool = 10,
+				},
+			},
+			scatter = {
+				radiusMin = 150,
+				radiusMax = 250,
+				bushes = 26,
+				rocks = 18,
+				flowers = 24,
+				tufts = 80,
+				mushroomRings = 8,
+			},
+			hillPines = 6, -- big Star Pines on top of every other hill (up to this many)
+		},
 		-- The farmyard outside the ring of bases (src/server/Farm.luau).
 		-- Angles in degrees round the ring; bases sit at 0, 45, 90 ..., so
 		-- 22.5, 67.5 ... are the gaps between them. Radii in studs.
