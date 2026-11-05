@@ -728,9 +728,9 @@
   },
   "Phoenix": {
    "assetId": 71414247546855,
-   "textureId": 133302477876061,
+   "textureId": 113274817218841,
    "textureType": "Image",
-   "version": "3"
+   "version": "5"
   },
   "Piglet": {
    "assetId": 106002945781471,
@@ -974,9 +974,9 @@
   },
   "ThunderGriffin": {
    "assetId": 97687610747222,
-   "textureId": 90646532567032,
+   "textureId": 105472988593618,
    "textureType": "Image",
-   "version": "3"
+   "version": "5"
   },
   "Toad": {
    "assetId": 135837297701031,
