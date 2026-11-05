@@ -251,3 +251,17 @@ farm piece has small trees on both sides about 39 studs from its centre (Puff Oa
 windmill, pond and pen; Blossom S for the fields) with a bush beside them (`89-hh-barn-framed`).
 Note: wood stands behind the windmill, pond, pen and two fields, but there are no trees within
 12° behind the barn or the fields at 67° and 338°. Output: no errors.
+
+## Gate: #84 at 73a8c4e (tower fixes)
+
+PASS. Ladder: climbing from the ground inside the tower passes cleanly through the deck openings
+(no snag under a deck) and grows with the built floors (top at y 28.3 with floors 2-3). Stepping
+off works at floor 2 (landed on the floor 2 deck) and floor 3 (`84-hh-floor3-off-ladder`) by
+jumping back off the ladder level with the deck. Walking from a deck into the opening grabs the
+ladder, and holding back climbs all the way down to the ground with no damage. Phone 844x392:
+the X and every Upgrade/Build button are 40 px tall, no clipped text (`84-hh-tower-menu-phone`).
+Coin amounts read "5K", "15K", "225K", "675K", "2M" and the ghost deck reads "Floor 4: 225K
+coins" on one line. Output: no errors.
+
+Note for players: getting off at a middle floor means jumping back at the right height. Holding W
+alone climbs past the last built floor and off the top of the ladder.
