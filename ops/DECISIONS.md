@@ -2,6 +2,22 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Moving creature parts are inset a hair (Hatchery Heist)
+
+- **What:** every creature part that moves against the body (legs, wings,
+  fins, tails, heads, ears, orbits) has its mesh skin moved 0.08 of a voxel
+  inward (`voxmesh.MeshData.inset`, `describe.INSET`). Faces resting on the
+  body (a leg's top) stay put, so no slit opens at the hip.
+- **Why:** a part turning about its hinge keeps the faces whose normal lies
+  along the hinge axis in one plane. Where such a face is flush with a body
+  face (a bunny's hind foot beside its flank), the two overlapped in one
+  plane mid-swing and flickered (Alex, Nov 5, Dutch Bunny hop). Clamping the
+  swing could not fix it: any swing of a flush leg overlaps. Inset, the
+  body's face always wins; 0.08 voxel (0.008 studs) is more than the pillow
+  lift (0.035), so even the raised face squares stay behind.
+- **Guard:** `tools/art/tests/test_overlap.py` (CI) fails if any moving part
+  of any creature shares a face plane with its body (1,055 parts did before).
+
 ## 2026-11-05: Tower upgrades furnish the room, built on each client
 
 - **Each upgrade is one room-wide layer** you see from the doorway, plus
