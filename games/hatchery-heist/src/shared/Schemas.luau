@@ -136,6 +136,72 @@ return function(Schema: any, Odds: any)
 		}),
 	})
 
+	local channel = Schema.integer({ min = 0, max = 255 })
+	local rgb = Schema.array(channel, { minLength = 3, maxLength = 3 })
+	local unit = Schema.number({ min = 0, max = 1 })
+	Schemas.atmosphere = Schema.record({
+		lighting = Schema.record({
+			clockTime = Schema.number({ min = 0, max = 24 }),
+			geographicLatitude = Schema.number({ min = -90, max = 90 }),
+			brightness = Schema.number({ min = 0, max = 10 }),
+			ambient = rgb,
+			outdoorAmbient = rgb,
+			environmentDiffuseScale = unit,
+			environmentSpecularScale = unit,
+			exposureCompensation = Schema.number({ min = -3, max = 3 }),
+			shadowSoftness = unit,
+		}),
+		atmosphere = Schema.record({
+			density = unit,
+			offset = unit,
+			color = rgb,
+			decay = rgb,
+			glare = Schema.number({ min = 0, max = 10 }),
+			haze = Schema.number({ min = 0, max = 10 }),
+		}),
+		sky = Schema.record({
+			sunAngularSize = Schema.number({ min = 0, max = 60 }),
+			moonAngularSize = Schema.number({ min = 0, max = 60 }),
+			starCount = Schema.integer({ min = 0, max = 5000 }),
+		}),
+		clouds = Schema.record({
+			cover = unit,
+			density = unit,
+			color = rgb,
+		}),
+		effects = Schema.record({
+			bloomIntensity = unit,
+			bloomSize = Schema.number({ min = 0, max = 56 }),
+			bloomThreshold = Schema.number({ min = 0, max = 4 }),
+			sunRaysIntensity = unit,
+			sunRaysSpread = unit,
+			saturation = Schema.number({ min = -1, max = 1 }),
+			contrast = Schema.number({ min = -1, max = 1 }),
+			tint = rgb,
+		}),
+		scenery = Schema.check(
+			Schema.record({
+				hillRadius = Schema.number({ min = 200, max = 1000 }),
+				hillCount = Schema.integer({ min = 0, max = 60 }),
+				treeCount = Schema.integer({ min = 0, max = 120 }),
+				treeRadiusMin = Schema.number({ min = 160, max = 250 }),
+				treeRadiusMax = Schema.number({ min = 160, max = 250 }),
+				seed = Schema.integer(),
+			}),
+			function(v: any): (boolean, string?)
+				if v.treeRadiusMax < v.treeRadiusMin then
+					return false, "treeRadiusMax must be at least treeRadiusMin"
+				end
+				return true
+			end
+		),
+		music = Schema.record({
+			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),
+			volume = Schema.number({ min = 0, max = 1 }),
+			fadeSeconds = Schema.number({ min = 0, max = 10 }),
+		}),
+	})
+
 	-- Name, Robux price and description of each pass and product on Roblox
 	-- (Roblox's limits: names 50 characters, descriptions 1,000). Which items
 	-- need one, and the price ladder, are checked by tools/tests/Pricing.spec.

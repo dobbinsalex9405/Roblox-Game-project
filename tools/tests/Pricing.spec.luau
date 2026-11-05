@@ -128,7 +128,7 @@ describe("pricing", function()
 		local hh = byId("hatchery-heist")
 		local raids = require("../../games/hatchery-heist/config/raids")
 		local hhEconomy = require("../../games/hatchery-heist/config/economy")
-		for _, key in { "CoinPackSmall", "CoinPackMedium", "CoinPackLarge" } do
+		for _, key in { "CoinPackSmall", "CoinPackMedium", "CoinPackBig", "CoinPackLarge" } do
 			says(hh, "products", key, `{commas(hh.monetization.products[key].coins)} coins`)
 		end
 		says(hh, "products", "ShieldRefill", `{raids.shieldSeconds // 60} more minutes`)

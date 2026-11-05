@@ -105,6 +105,17 @@ function CoreClient.onOdds(listener: Listener<any>)
 	table.insert(oddsListeners, listener)
 end
 
+-- Adds a tab to the shared shop, in front of the Robux tab, for things the
+-- game sells for its own currency. The shop opens on the first such tab.
+function CoreClient.addShopTab(name: string, render: ShopUi.TabRender)
+	ShopUi.addTab(name, render)
+end
+
+-- Redraws the shop's open tab (e.g. when the player's coins change).
+function CoreClient.refreshShop()
+	ShopUi.refresh()
+end
+
 -- Opens the Feedback form, e.g. from a game's own menu or after a failure
 -- ("Something went wrong? Tell us"). `category` may be "bug", "idea" or "other".
 function CoreClient.openFeedback(category: string?)

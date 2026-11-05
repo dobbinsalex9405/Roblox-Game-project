@@ -35,6 +35,8 @@ local function part(props: { [string]: any }): Part
 	return p
 end
 
+-- `size` is in studs (UDim2 scale), so labels shrink with distance and
+-- neighbouring labels never pile on top of each other from across the yard.
 local function billboard(parent: Instance, offset: Vector3, size: UDim2, text: string): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Label"
@@ -99,7 +101,7 @@ local function buildPlot(index: number): Model
 		})
 		p:SetAttribute("Slot", slot)
 		p:SetAttribute("State", "Locked")
-		billboard(p, Vector3.new(0, 4, 0), UDim2.fromOffset(120, 36), "")
+		billboard(p, Vector3.new(0, 4, 0), UDim2.fromScale(4.6, 1.3), "")
 		p.Parent = incubators
 	end
 
@@ -124,7 +126,7 @@ local function buildPlot(index: number): Model
 		Color = Color3.fromRGB(70, 200, 90),
 		Material = Enum.Material.Neon,
 	})
-	billboard(collect, Vector3.new(0, 4, 0), UDim2.fromOffset(160, 40), "Collect")
+	billboard(collect, Vector3.new(0, 3.5, 0), UDim2.fromScale(6, 1.6), "Collect")
 	collect.Parent = model
 
 	local rebirth = part({
@@ -134,7 +136,7 @@ local function buildPlot(index: number): Model
 		Color = Color3.fromRGB(150, 80, 220),
 		Material = Enum.Material.Neon,
 	})
-	billboard(rebirth, Vector3.new(0, 5, 0), UDim2.fromOffset(180, 40), "Rebirth")
+	billboard(rebirth, Vector3.new(0, 4.5, 0), UDim2.fromScale(8, 1.6), "Rebirth")
 	rebirth.Parent = model
 
 	local board = part({
@@ -144,6 +146,48 @@ local function buildPlot(index: number): Model
 		Color = Color3.fromRGB(30, 30, 40),
 	})
 	board.Parent = model
+	-- Two legs and a wooden frame, so the board stands on the floor.
+	local boardBottom = Layout.ODDS_BOARD.Y - 4
+	for _, x in { -14, 14 } do
+		local legHeight = boardBottom - Layout.FLOOR_TOP
+		part({
+			Name = "OddsBoardLeg",
+			Size = Vector3.new(0.8, legHeight, 0.8),
+			CFrame = at(Vector3.new(x, Layout.FLOOR_TOP + legHeight / 2, Layout.ODDS_BOARD.Z + 0.6)),
+			Color = Color3.fromRGB(120, 85, 55),
+			Material = Enum.Material.Wood,
+		}).Parent =
+			model
+	end
+	part({
+		Name = "OddsBoardFrame",
+		Size = Vector3.new(31, 9, 0.3),
+		CFrame = at(Layout.ODDS_BOARD + Vector3.new(0, 0, 0.35)),
+		Color = Color3.fromRGB(120, 85, 55),
+		Material = Enum.Material.Wood,
+	}).Parent =
+		model
+	-- What everyone sees on the board: its title. The owner's client hides
+	-- this and draws the real odds of their own belt over it (Hud).
+	local face = Instance.new("SurfaceGui")
+	face.Name = "Title"
+	face.Face = Enum.NormalId.Front
+	face.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	face.PixelsPerStud = 25
+	face.LightInfluence = 0
+	local heading = Instance.new("TextLabel")
+	heading.Size = UDim2.fromScale(1, 1)
+	heading.BackgroundTransparency = 1
+	heading.Font = Enum.Font.GothamBold
+	heading.TextScaled = true
+	heading.TextColor3 = Color3.fromRGB(255, 210, 63)
+	heading.Text = "🥚 EGG ODDS 🥚"
+	local headingPad = Instance.new("UIPadding")
+	headingPad.PaddingTop = UDim.new(0.25, 0)
+	headingPad.PaddingBottom = UDim.new(0.25, 0)
+	headingPad.Parent = heading
+	heading.Parent = face
+	face.Parent = board
 
 	local post = part({
 		Name = "Sign",
@@ -151,7 +195,7 @@ local function buildPlot(index: number): Model
 		CFrame = at(Layout.SIGN - Vector3.new(0, 4, 0)),
 		Color = Color3.fromRGB(90, 70, 50),
 	})
-	billboard(post, Vector3.new(0, 6, 0), UDim2.fromOffset(240, 50), "Free base")
+	billboard(post, Vector3.new(0, 6, 0), UDim2.fromScale(16, 3), "Free base")
 	post.Parent = model
 
 	local traps = Instance.new("Folder")
@@ -167,7 +211,7 @@ local function buildPlot(index: number): Model
 			CanCollide = false,
 		})
 		p:SetAttribute("Spot", spot)
-		billboard(p, Vector3.new(0, 3, 0), UDim2.fromOffset(120, 30), "")
+		billboard(p, Vector3.new(0, 3, 0), UDim2.fromScale(4.4, 1.1), "")
 		p.Parent = traps
 	end
 
@@ -192,7 +236,7 @@ local function buildPlot(index: number): Model
 		Color = Color3.fromRGB(60, 160, 255),
 		Material = Enum.Material.Neon,
 	})
-	billboard(pylon, Vector3.new(0, 5, 0), UDim2.fromOffset(160, 36), "Shield")
+	billboard(pylon, Vector3.new(0, 5, 0), UDim2.fromScale(5, 1.4), "Shield")
 	pylon.Parent = model
 
 	local dome = part({
@@ -421,7 +465,7 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			billboard(
 				body,
 				Vector3.new(0, size / 2 + 1.5, 0),
-				UDim2.fromOffset(140, 40),
+				UDim2.fromScale(5, 1.5),
 				`{Layout.displayName(c.speciesId)}\n{Layout.shortNumber(income)}/s`
 			)
 			body.Parent = pad
@@ -478,7 +522,7 @@ local function syncDefenses(model: Model, d: { [string]: any }?, config: any?, n
 			billboard(
 				body,
 				Vector3.new(0, size / 2 + 1.5, 0),
-				UDim2.fromOffset(140, 40),
+				UDim2.fromScale(5, 1.5),
 				`{Layout.displayName(DECOY_LOOK)}\n{Layout.shortNumber(species.coinsPerSecond)}/s`
 			)
 			body.Parent = p
