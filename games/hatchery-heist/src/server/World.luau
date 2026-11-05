@@ -71,8 +71,8 @@ local function buildPlot(index: number): Model
 
 	local floor = part({
 		Name = "Floor",
-		Size = Vector3.new(Layout.PLOT_SIZE, 1, Layout.PLOT_SIZE),
-		CFrame = at(Vector3.new(0, Layout.FLOOR_TOP - 0.5, 0)),
+		Size = Vector3.new(Layout.PLOT_SIZE, Layout.FLOOR_THICKNESS, Layout.PLOT_SIZE),
+		CFrame = at(Vector3.new(0, Layout.FLOOR_TOP - Layout.FLOOR_THICKNESS / 2, 0)),
 		Color = Color3.fromRGB(120, 110, 95),
 		Material = Enum.Material.WoodPlanks,
 	})
@@ -243,7 +243,7 @@ local function buildPlot(index: number): Model
 		Name = "ShieldDome",
 		Shape = Enum.PartType.Ball,
 		Size = Vector3.new(96, 96, 96),
-		CFrame = at(Vector3.new(0, 0, 0)),
+		CFrame = at(Vector3.new(0, -Layout.PLOT_Y, 0)), -- centred on the ground, as before
 		Color = Color3.fromRGB(80, 170, 255),
 		Material = Enum.Material.ForceField,
 		Transparency = 1,

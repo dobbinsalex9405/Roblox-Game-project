@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Each base's floor now sits just above the grass (a 0.3-stud deck instead
+  of a 1-stud step), with everything on it lowered to match.
+- Music fades in gently once you have spawned instead of starting at a
+  random moment, crossfades between tracks, and fades on the Music button.
+- New fantasy music (Magical Surprise, Magic Castle, Wildflower Meadows)
+  in place of the bagpipe-style tracks.
+- Ridden creatures fit inside their 6-stud mount size, crest and all
+  (a ridden Phoenix stood 6.5 studs tall).
+- Legendary and Godly creatures glow more softly, so a base full of them
+  no longer washes out, and the creature you ride drops its glow on your
+  own screen so it doesn't fill your camera. Others still see it shine.
+- The goal line's arrow showed as a missing-glyph box; it now has a gold
+  "GOAL" tag, and the arrow over the goal is drawn instead of typed.
 - Creatures can now be drawn as polished Blender voxel meshes with bevelled
   cubes and twice the detail; until their meshes are uploaded they look as
   before.

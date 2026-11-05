@@ -135,8 +135,12 @@ never sold.
 - **Look and sound** from `config/atmosphere.luau`: sunny afternoon light,
   haze, clouds, bloom and sun rays; a sandy yard with the Golden Nest in the
   middle; low fences and flower beds on each base; trees and a ring of hills.
+  Each base's floor is a low 0.3-stud deck above the grass (`Layout.PLOT_Y`
+  lowers the whole base; the server refuses to start if a floor is higher).
   Background music from Roblox's licensed library, with a Music on/off button
-  in the side menu.
+  in the side menu. It never starts or stops abruptly: it rises from silence
+  over 4 s once the player has spawned, each track crossfades into the next,
+  and the button fades it (`atmosphere.music`).
 - **Hatch reveal** (`src/client/HatchReveal.luau`): every hatch plays on
   screen. The egg wobbles, cracks, and the creature turns under its rarity,
   name, income and the player's exact chance (same numbers as the odds card).

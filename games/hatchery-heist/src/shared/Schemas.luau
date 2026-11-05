@@ -236,6 +236,9 @@ return function(Schema: any, Odds: any)
 			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),
 			volume = Schema.number({ min = 0, max = 1 }),
 			fadeSeconds = Schema.number({ min = 0, max = 10 }),
+			startDelaySeconds = Schema.number({ min = 0, max = 30 }),
+			startFadeSeconds = Schema.number({ min = 0.5, max = 15 }),
+			crossfadeSeconds = Schema.number({ min = 0.5, max = 10 }),
 		}),
 		sounds = Schema.map(
 			Schema.string({ maxLength = 30 }),
