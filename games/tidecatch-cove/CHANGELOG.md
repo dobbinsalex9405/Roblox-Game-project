@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+- Phones: pool rows show their status in readable text instead of
+  shrinking it to a few pixels; bait buttons pop when tapped, mark the
+  chosen bait with a tick and say why an empty bait can't be picked.
+- Phones: every window's close button (X) is 40 by 40 px.
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
+- Fix: on a landscape phone the Pools, Bucket and shop panels were taller
+  than the screen, so the Unlock and Sell all buttons were cut off. Panels
+  now fit 90% of the screen height and their lists scroll.
+- Fix: the map was buried in the ground. The Baseplate was placed with a
+  property Rojo drops when it builds the place, so it sat ten studs too high
+  and covered every floor, pad and label. It is now placed with CFrame, and
+  the boot check fails when anything is built inside the ground.
+
+- Player analytics (shared core): the daily scoreboard now shows time played
+  and session lengths, D7 and D30 returns, players who come with or bring
+  friends, Robux by item and by where in the game it was bought, purchase
+  prompts, onboarding drop-off and game event counts.
+
+- Error reports (shared core) are stored under dated keys, so the daily
+  feedback digest and the post-publish error sweep can read them by day.
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (rod, bait, bucket, pools, species caught and casts) to help reproduce bugs.
 - Robux prices and Roblox listings for every pass and product, on the
   studio price ladder (ops/PRICING.md). The Storm Lure Pack is now 4 lures
   (was 5), so at the same 25 Robux Mystery Bait is never the worse deal.

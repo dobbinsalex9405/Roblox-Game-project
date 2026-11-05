@@ -37,12 +37,69 @@ Paste each key **directly into GitHub**, never into chat:
 
 Each future game gets its own pair, named `ROBLOX_API_KEY_<GAME_NAME>`.
 
+### 2b. One read-only key for player feedback
+
+Every game has a Feedback button; the daily **Player feedback** workflow
+reads what players sent, plus the errors the games' servers record, and opens
+a digest issue (see `ops/FEEDBACK.md`). The same run is the error check after
+each publish (`ops/PUBLISH_CHECKS.md` step 3). It needs one more
+**group-owned** key that can only read:
+
+| Key | Permissions | Experiences |
+|-----|-------------|-------------|
+| Feedback reader | DataStore: **List entry keys** and **Read entry** (`universe-datastores.objects:list`, `universe-datastores.objects:read`). Nothing else. | Every game's **Staging** and **Production** (add each new game when it is created). |
+
+Name it `loop-lab-feedback-reader`, leave the IP list open (GitHub's runners
+change address) and give it a 90-day expiry. When it lapses the workflow
+fails with HTTP 401 and the daily run flags it; make a new one the same way.
+
+Paste it into GitHub as a **repository** secret (not an environment one, so
+the daily run never waits for an approval): Repo → Settings → Secrets and
+variables → Actions → **New repository secret** named `ROBLOX_READ_API_KEY`.
+It cannot change anything in a game. Until it exists, the workflow skips.
+
+### 2c. Real-engine check: Luau Execution on the Staging keys
+
+Done 2026-11-05: the permission is on all four Staging experiences and
+`CLOUD_CHECK` is `on`. The first run on `main` passed for all four games.
+
+The verifier's real-engine check (`ops/VISUAL_PLAYTEST.md` tier 2) runs a
+read-only probe inside a real Roblox server for a **saved, unpublished**
+Staging version. It uses the existing Staging keys, which need one more
+permission. The key values do not change, so nothing in GitHub changes.
+
+For each of the 4 **Staging** publish keys in the Creator Dashboard (Loop Lab
+Games → Open Cloud → API Keys → the key → Edit):
+
+1. Under Access Permissions, add the API system **luau-execution-sessions**
+   (Luau Execution) for that game's **Staging** experience with **Read** and
+   **Write** (`universe.place.luau-execution-session:read` and `:write`).
+2. Save. Do not regenerate the key.
+
+Then, to run the check on every Staging publish too: Repo → Settings →
+Secrets and variables → Actions → **Variables** → New repository variable
+`CLOUD_CHECK` = `on`. Until then it runs only when the verifier starts the
+**Real-engine check** workflow.
+
+### Keys in place now (set up 2026-11-01)
+
+| Key on Roblox (Loop Lab Games) | Scope | GitHub secret(s) | Expires |
+|---|---|---|---|
+| Staging publish (GitHub Actions) | `universe-places` Write on the 4 Staging experiences; Luau Execution read + write (added 2026-11-05) | `staging` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
+| Production publish (GitHub Actions) | `universe-places` Write on the 4 Production experiences | `production` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
+| Read-only (GitHub Actions) | `universe-datastores.objects` read + list on all 8 experiences | repository: `ROBLOX_READ_API_KEY` | **2027-01-30**: make a new one before then |
+
+Every Roblox key also expires after 60 days without use. The publish keys
+have no DataStore read; nothing reads the error queue with them yet.
+
 ## 3. Your approval gate on production
 
 Repo → Settings → Environments → `production`:
 
 - **Required reviewers**: add yourself. Every production publish then waits for
   your Approve click.
+  Not available while the repo is private on GitHub Free (checked 2026-11-01);
+  until then Production only runs when someone starts it by hand.
 - **Deployment branches and tags**: "Selected branches and tags", add `main`.
 
 ## 4. Protect main

@@ -1,6 +1,7 @@
 --!strict
 -- Remotes the core itself needs. Games declare their own in their shared folder.
 
+local Feedback = require("./Feedback")
 local Net = require("./Net")
 local Schema = require("./Schema")
 
@@ -11,10 +12,25 @@ local CoreRemotes = {
 		Schema.string({ maxLength = 4000 }),
 	}, { count = 5, window = 10 }),
 
-	-- Client -> server: text from the feedback button.
+	-- Client -> server: a report from the Feedback form: category, text,
+	-- rating (1-5, 0 = none) and the device it came from. Feedback.luau
+	-- applies the real per-player limits; this only stops floods.
 	["Core:Feedback"] = Net.toServer("Core:Feedback", {
+		Schema.oneOf(Feedback.CATEGORIES),
 		Schema.string({ maxLength = 2000 }),
-	}, { count = 2, window = 60 }),
+		Schema.integer({ min = 0, max = 5 }),
+		Schema.record({
+			platform = Schema.oneOf(Feedback.PLATFORMS),
+			screen = Schema.string({ maxLength = 20, pattern = "^%d+x%d+$" }),
+			fps = Schema.number({ min = 0, max = 1000 }),
+		}),
+	}, { count = 3, window = 60 }),
+
+	-- Server -> client: whether the report was sent, and what to tell the player.
+	["Core:FeedbackResult"] = Net.toClient("Core:FeedbackResult", {
+		Schema.boolean(),
+		Schema.string({ maxLength = 200 }),
+	}),
 
 	-- Client -> server: ask for the current odds screen of one table.
 	["Core:RequestOdds"] = Net.toServer("Core:RequestOdds", {

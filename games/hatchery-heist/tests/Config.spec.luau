@@ -16,6 +16,7 @@ local function load()
 		eggs = require("../config/eggs"),
 		raids = require("../config/raids"),
 		monetization = require("../config/monetization"),
+		atmosphere = require("../config/atmosphere"),
 	}
 end
 
@@ -64,7 +65,7 @@ describe("Hatchery Heist config", function()
 				for _, row in odds:display(egg.id, player).rows do
 					total += row.weight
 				end
-				expect(total).toBe(10000)
+				expect(total).toBe(egg.total or 10000)
 			end
 		end
 	end)
@@ -84,6 +85,42 @@ describe("Hatchery Heist config", function()
 		expect(text).toContain("product id 77")
 		local schemaProblems = table.concat(Config.validate(Schemas.sections(bad)), "\n")
 		expect(schemaProblems).toContain("slotCosts must not decrease")
+	end)
+
+	it("keeps coin packs worth buying across the whole roster", function()
+		-- Income may grow with rarity but not run away from what coins buy:
+		-- the best creature earns at most 1,000 times the worst, each tier
+		-- earns more than the one below, and the 80K pack is at least five
+		-- minutes of any Epic's income (Nov 5 balance review).
+		local config = load()
+		local tiers = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
+		local low, high = {}, {}
+		local worst, best = math.huge, 0
+		for _, s in config.creatures.species do
+			local r = table.find(tiers, s.rarity) :: number
+			low[r] = math.min(low[r] or math.huge, s.coinsPerSecond)
+			high[r] = math.max(high[r] or 0, s.coinsPerSecond)
+			worst = math.min(worst, s.coinsPerSecond)
+			best = math.max(best, s.coinsPerSecond)
+		end
+		expect(best / worst).toBeAtMost(1000)
+		for r = 2, #tiers do
+			expect(low[r]).toBeAtLeast(high[r - 1] + 1)
+		end
+		expect(config.monetization.products.CoinPackBig.coins / high[5]).toBeAtLeast(5 * 60)
+	end)
+
+	it("keeps every daily reward at most a quarter of the 80K Coins pack", function()
+		local config = load()
+		local pack = config.monetization.products.CoinPackBig.coins
+		for day, reward in config.economy.daily.rewards do
+			expect(reward.maxCoins).toBeAtMost(pack * 0.25)
+			-- The floor sits below the cap, so income still counts in between.
+			expect(reward.minCoins).toBeAtMost(reward.maxCoins - 1)
+			if day > 1 then
+				expect(reward.maxCoins).toBeAtLeast(config.economy.daily.rewards[day - 1].maxCoins)
+			end
+		end
 	end)
 
 	it("never sells raid immunity", function()

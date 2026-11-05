@@ -19,7 +19,9 @@ relative path (`require("./Log")`); everything else requires them by instance
 | – | `Timers` | Progress from a saved start time with an optional offline cap; shared restock windows. | `Timers.spec` |
 | 11 | `Analytics` | One naming scheme over AnalyticsService; session length and D1/D7/D30 return markers for the launch gate. | `Analytics.spec` |
 | 14 | `Metrics` | Daily counters per game (players, new, D1/D7 returns, play time, Robux by product and pass, payers), merged into the `Metrics` DataStore once a minute from live servers only; read by the scoreboard (`ops/METRICS.md`). | `Metrics.spec` |
-| 12 | `ErrorReporter` | Errors grouped by signature, at most one queue write per server per minute, feedback cleaned and rate-limited. | `ErrorReporter.spec` |
+| 12 | `ErrorReporter` | Errors grouped by signature, at most one queue write per server per minute. | `ErrorReporter.spec` |
+| 15 | `Feedback` (+ `client/FeedbackUi`) | Every game gets a top-bar Feedback button: Bug / Idea / Other, text, optional fun rating. Server checks, rate-limits and filters it, stores only filtered text, tags it with build, device, session, game context and recent client errors, and writes at most once per server per minute to the `Feedback` DataStore. See `ops/FEEDBACK.md`. | `Feedback.spec`, `tools/tests/FeedbackTool.spec`, each game's `FeedbackContext.spec` |
+| – | `Stores` | Opens a DataStore for the error queue, feedback and metrics sinks; where DataStores are unavailable (an unpublished place in Studio) it warns once per store and the sink saves nothing, so the server still starts. | `Stores.spec`, boot check `--studio --unpublished` |
 
 Still to come, per the plan: 9 Plots (with Hatchery Heist M2), 10 Events,
 13 UI kit and AgeCheck (with M5), plus movement checks (M4).
@@ -33,12 +35,14 @@ local services = CoreServer.start({
 	template = DataTemplate.template, migrations = DataTemplate.migrations,
 	currencies = { coins = { field = "coins", max = 1e15 } },
 	passes = monetization.passes, oddsTables = oddsTables, remotes = Remotes,
+	-- Optional: a few values that help reproduce a bug report.
+	feedbackContext = function(player) return FeedbackContext.from(services.data:get(player), os.time()) end,
 })
 services.receipts:register("CoinPack", productId, function(player, data, ledger)
 	ledger:add("coins", 1000, "IAP:CoinPack")
 end)
 services.net:on(Remotes["MyGame:Collect"], function(player) ... end)
 
--- client
+-- client (also mounts the Feedback button; CoreClient.openFeedback("bug") opens it from a game menu)
 CoreClient.start()
 ```

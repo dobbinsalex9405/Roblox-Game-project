@@ -2,6 +2,323 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
+
+- **Meshes are generated from the voxel art, not modelled separately.**
+  `tools/art/blender` turns the same `creatures.py` voxels into meshes, so a
+  new Common is one ROSTER line. It ships at once as VoxelArt boxes, and its
+  mesh follows on the next upload. Alex wants about 150 Commons, so adding
+  one has to be cheap.
+- **Twice the voxels for the small tiers.** Commons to Rares use 0.125-stud
+  voxels and Ultra Rares and Epics 0.167, at the same size in studs. At the
+  in-game 0.25, a 2-stud Common is 8 voxels tall, which leaves no room for
+  eyes (the Chick had none). Legendaries and Godlies keep 0.25: they are
+  already 34 to 42 voxels tall.
+- **The look is a bevelled "pillow" per voxel face.** Each face is a raised
+  square with sloped rims, about 10 triangles a face, and no hidden faces
+  are made. Next to a neighbour on the same plane the rims form a groove,
+  which gives the hand-placed cube look of the concept renders. Tones vary
+  a few percent per face, from a stable hash, so re-exports never change
+  unchanged art.
+- **One texture per creature, one colour per cell.** Each face samples a
+  cell centre, so the texture never blurs. Glowing faces are separate Neon
+  MeshParts with their colour in data, so pulse and shimmer work as they do
+  for boxes. Roblox vertex colours were not relied on.
+- **The meshes ride the same joints as the boxes.** They use the same part
+  names, `anim` and parents, and CreatureView keeps its procedural
+  animation. The Blender idle and walk clips mirror it, for previews and the
+  .glb. No per-creature animation assets are uploaded: Roblox only accepts
+  .rbxm animations through Open Cloud.
+- **Loaded at run time with InsertService, sized from data.** A mesh's
+  imported scale or units never matter: the game sets every MeshPart's size
+  and place from `CreatureMeshes.luau`. Rojo cannot build MeshParts
+  reliably, and an asset id in data is one line per creature. A failed load
+  falls back to boxes.
+- **Asset owner = the experience owner.** If Production goes to another
+  group, its meshes must be uploaded again by that group (ops/ASSETS.md).
+
+## 2026-11-05: Hatch reveal and Hatchery Book (Hatchery Heist)
+
+- **The book's reward is income, not luck.** Each species found adds +1%
+  income (`economy.book.incomePerSpecies`). A luck bonus would make every
+  player's odds different from the config and need its own exact-odds
+  display; income keeps odds the same for everyone.
+- **`found` joined save version 1 without a migration.** Reconcile adds the
+  missing key and join back-fills it from owned creatures. A version bump
+  would make any rollback refuse saves that loaded on the newer build.
+- **The reveal and the book show the server's odds for the player** (the
+  odds card's numbers, boosts included), using config odds only until the
+  server's arrive, so the three can never disagree.
+- **Daily rewards are coins scaled to income, with a floor and a cap.**
+  Fixed amounts are worthless after an hour of play; free eggs would need a
+  free incubator and a paid-random-item policy check. Uncapped, Day 7 at 200
+  coins a second paid 540K, about 7x the 80K Coins pack, so each day has a
+  `maxCoins` (Day 1 2,000 up to Day 7 20,000, a quarter of that pack) and
+  Config.spec fails if any day goes over a quarter. Days are UTC days so the
+  server's check is simple and the same everywhere.
+- **Waiting small hatches share one reveal.** Commons and Uncommons already
+  in the book group into "+N more"; anything new or Rare and up keeps its
+  own reveal. Holding the screen skips everything waiting and lists it in a
+  notice. A player with 12 incubators is never held up long.
+
+## 2026-11-05: Rarer odds and voxel creatures (Hatchery Heist)
+
+- **Odds tables may total more than 10,000.** `Odds` takes an optional
+  `total` (a power of ten up to 10,000,000); left out it stays 10,000, so the
+  other games are unchanged. Hatchery Heist's eggs total 100,000 (Alex asked
+  for far rarer odds); percentages show as many decimals as the total needs
+  and every row also shows "1 in N". The fixed order for restricted players
+  is the same odds as a cycle (50,000 to 100,000 eggs), computed once per egg,
+  and the wait for a creature is a binary search.
+- **Creatures are client-built voxel models, not uploaded meshes.** Art is
+  Python (`tools/art`), merged into boxes and exported as Luau data; the
+  client builds Parts. This needs no Open Cloud asset key, diffs in review,
+  and lets parts move (Motor6Ds) and glow (Neon) per tier. A box may run
+  through voxels nobody can see, but never overlaps another on the outside
+  (coplanar faces flickered and caught shadow speckles in the render
+  check), and a voxel belongs to one part only. Budgets per tier are tested;
+  a Godly is at most 800 parts, fine for a 1 in 50,000 creature.
+- **The server's creature parts are invisible stand-ins.** The client
+  draws the model on them rather than hiding them locally, because the
+  camera rewrites `LocalTransparencyModifier` on character parts and a
+  hidden mount would reappear. `LookFade` carries ghost (ridden, guarding)
+  and gone (carried).
+- **Income roughly doubles per tier and tops out at 1,000/s** (Common 1 to
+  Godly 1,000), on the scale the economy was built for (the old Phoenix was
+  600/s), not 40,000/s. Rarity pays in looks and bragging more than coins,
+  so coin packs, slots and rebirth stay meaningful: the 80K pack is at least
+  five minutes of an Epic's income (tested). The Moonlit Egg is 15,000 coins
+  (about 12 minutes of its average hatch's income to pay back, against
+  about 8 for a Meadow Egg).
+- **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
+  number on its own line); CI re-runs the exporter and fails if it differs.
+## 2026-11-05: Games start without DataStores (Studio)
+
+- A built `.rbxl` opened in Studio is an unpublished place, where
+  `GetDataStore` throws. The error queue, feedback and metrics sinks opened
+  their stores unguarded while CoreServer started, so every game's server
+  died at start-up in Studio. They now open stores through
+  `Core.Stores.open`, which returns nil with one warning per store, and
+  their writers then report failure without touching a store. Live servers
+  always get their store, so nothing changes there.
+- CI boots every built game a second time with `--studio --unpublished`
+  (GetDataStore throws the Studio message), so this cannot come back. Player
+  saves are ProfileStore's own concern: it switches to its mock store.
+
+## 2026-11-04: Shop tabs, first-session guide and atmosphere (Hatchery Heist)
+
+- **The shared shop takes game tabs.** `CoreClient.addShopTab(name, render)`
+  puts a game's own-currency tab in front of the Robux tab and the shop
+  opens on it. Opening straight onto Robux prices read as a cash grab on a
+  first look. Games without a tab keep the old single Robux list.
+- **The guide is pure and tested** (`src/shared/Guide.luau`), like Street
+  Food Empire's, and stops after the 4th incubator, the point where the
+  playtest numbers say the loop has clicked.
+- **The welcome screen shows on a fresh save only** (no egg bought, first
+  session), so no data field or migration was needed.
+- **Scenery is decoration only.** Fences and flowers don't collide, so raid
+  routes and the movement check are unchanged. Hills and tree trunks
+  collide, but they are outside the play area.
+- **Music is licensed library audio only.** Track ids live in
+  `config/atmosphere.luau`. The cloud sandbox can't reach Roblox's
+  catalogue, so ids are picked in Studio's Creator Store (by Roblox) on the
+  laptop. With no ids, there is no music and no Music button.
+
+## 2026-11-04: Visual playtests in the cloud first, Studio's MCP server last
+
+- Alex asked for a playtest that sees each game as a player does, required
+  before any game change, run from the cloud where possible. Headless checks
+  had passed builds whose ground covered every base and spawn.
+- **Tier 1, a rendered audit in CI** (`tools/audit/`): the boot shim plus a
+  software renderer (boxes, flat colours, a bitmap font) and world, HUD and
+  click checks. Free, runs on every PR, and caught the floor bug, a nest on a
+  spawn and a phone overflow before any person looked. It builds Staging so
+  the Robux shop and odds are exercised, and clicks inside every panel.
+- **Tier 2, Open Cloud Luau Execution** (`tools/cloud/`): the same rules plus
+  real collision geometry and Roblox's own text metrics inside a real Roblox
+  server, against a saved (never published) Staging version. It has no
+  players, physics or rendering, so it cannot take screenshots.
+- **Tier 3, Studio's built-in MCP server** on the laptop for real pixels:
+  play-solo, walk, tap, capture the viewport. It replaces clicking Studio
+  with screen control.
+- Rejected: GitHub's Windows runners (Studio needs a signed-in account,
+  which means a cookie; the Player is blocked on VMs) and a rented cloud
+  Windows machine with Studio (about $50 to $80 a month on a schedule); the
+  latter is Alex's call if the laptop becomes the bottleneck.
+- The gate is a commit status (`visual-playtest`, `.github/workflows/visual-gate.yml`)
+  because GitHub Free cannot require checks on a private repo; the verifier
+  merges only when it is green.
+
+
+## 2026-11-04: Place parts in project files with CFrame, and check the ground
+
+- `rojo build` does not write a part's `Position` into the place file, so the
+  Baseplates of Hatchery Heist, Tidecatch Cove and Street Food Empire were
+  built centred on Y = 0 (top at Y = 10) and buried each map. Project files
+  now use `CFrame`; `tools/tests/ProjectFiles.spec.luau` rejects `Position`,
+  `Orientation` and `Rotation`.
+- The boot check now fails when a part sits inside a Baseplate after the
+  server builds its world and a player joins. It is still no substitute for
+  looking: every visible change gets a Studio play-solo screenshot before it
+  is called done.
+
+## 2026-11-03: The daily run starts the morning workflows itself
+
+- GitHub's `schedule` trigger ran the feedback pull and the scoreboard about
+  10 hours late on Nov 2 and had not started them by 07:13 UTC on Nov 3. The
+  daily Claude run now dispatches Player feedback and both scoreboards when
+  today's runs are missing (`ops/DAILY_RUN.md` step 1). The cron lines stay
+  as a fallback. A late scoreboard or plan run only rewrites the same issue;
+  a late feedback run can open a second digest for the same day, which the
+  next run closes as a duplicate (step 2.1).
+- A Staging publish that fails with a Roblox 5xx gets one re-run of the
+  failed job before it counts as a failure (Nov 2: Depthbound got HTTP 500,
+  the re-run published).
+
+## 2026-11-02: Screen control on the laptop
+
+- **A local MCP server, not a skill.** `tools/screen-control/` gives Claude
+  Code on the laptop screenshots, mouse, keyboard and window focus, for the
+  clicks the browser tools cannot do (thumbnail uploads, Studio play tests).
+  Registered in Claude Code's user config so every laptop session gets it.
+- **Alex starts it, nothing else does.** It is an HTTP server on 127.0.0.1
+  behind a token, run in a visible window by `start.ps1`; no stdio server
+  that Claude Code could launch by itself.
+- **Keys go through a guard, fail closed.** No typing or key presses in
+  password, code, CAPTCHA or payment fields or on sign-in and checkout
+  pages; an unreadable focused field is a refusal too.
+- **Token in `%USERPROFILE%`, not AppData**, because the Store-installed
+  Claude app gets a private AppData copy that other programs cannot see.
+
+## 2026-11-02: Player analytics in the scoreboard
+
+- **One pipeline, not two.** Analytics (time played, returning players,
+  friends, where Robux is spent, onboarding, game events) are extra counters
+  in the same `Metrics` DataStore days and extra sections in the same Studio
+  scoreboard issue. No new store, key, workflow or secret.
+- **No third-party analytics service.** Roblox's own analytics need a
+  signed-in session and outside services need an API key in game servers;
+  DataStore counters are readable with the read-only key Alex already made.
+- **Counts only.** No user ids, names or player text leave the game; the
+  "brought a friend" and "first payment" markers live in each player's own
+  save.
+- **The JSON stays `version: 1`.** New numbers are optional fields, so the
+  daily run and the update loop thread keep working; a breaking change would
+  bump the version.
+- **Where Robux is spent is named by the client.** `Shop:Buy` carries a
+  PascalCase place name (schema-checked, at most 100 per day kept), because
+  only the client knows which button was pressed. A lying client can only
+  mislabel its own purchase; Robux totals still come from Roblox's receipts.
+- **Schema 2 reads schema 1.** A server running older code during a rollout
+  leaves schema 2 values alone (its write is skipped), so a few minutes of
+  counts from old servers can be lost on the day of the first rollout. Nothing
+  is live yet, so this costs nothing now.
+- **"With a friend" is checked against Roblox**, at most 50 lookups per join,
+  in the background; a failed lookup counts as solo.
+
+## 2026-11-02: The update loop
+
+- **Ages 16+ is the starting audience.** Every game is shown to 16+ only
+  until Alex completes ID verification, 2-step verification and, per game,
+  250 highly engaged players or a refundable 1,000 Robux fee. The plan
+  carries it as one studio-wide For Alex line, repeated in the Friday ask,
+  and early metrics are read against the 16+ pool. Which games are open lives
+  in `tools/loop/config.luau` (`audience`).
+
+- **Plain code decides the signals; Claude decides the update.** The plan
+  (`tools/loop/`) is a tested rules engine over the scoreboard JSON, the open
+  bugs and the release tags. It never writes game code; it names a focus and
+  the numbers behind it, and the loop owner thread writes the brief.
+- **One focus per game per week**, so a release's effect can be read. Ties
+  go fix → discovery → onboarding → depth → return → monetization → social →
+  content: fix the leak before pouring players or prices into it.
+- **Rates need a sample.** D1/D7 need 30 new players a week, session length 40
+  sessions, spending 60 player-days; below that a rule stays quiet and the
+  plan says what it could not judge. With too few new players the focus is
+  the store page (discovery), the only thing that can change that.
+- **Weekly cadence with a Wednesday merge deadline and a Friday Production
+  ask**, so the Staging 24-hour sweep fits before the ask and releases land
+  before the weekend peak. Alex gets one batched ask a week, plus hotfixes.
+- **Release checks compare days, not weekdays.** Day 3 (rollback question)
+  and day 7 (verdict) compare the days after a release with up to 7 days
+  before, skipping the release day itself. Weekday mix can blur day 3; the
+  thresholds (a third off session length, 30% off players or Robux per
+  player, 10 points off D1) are set wide for that reason.
+- **A rollback question needs 2 days after a release.** With 20 players a
+  day, one day can swing 30% on noise (verifier's review of #30); day 1 shows
+  as "worse so far" in the plan and asks no one.
+- **Production tags are now annotated**, so a tag carries its publish date
+  (a lightweight tag only has its commit's date, which can be days older).
+- **The loop reads the scoreboard issue, not the metrics run's files**, and a
+  separate workflow writes the plan. The analytics work can change
+  `metrics.yml` and `tools/metrics/` freely; the contract is the
+  `loop-lab-metrics v1` block, where new fields are optional.
+- **Thresholds are first guesses** from common Roblox benchmarks (D1 25%, D7
+  8%, about 1% of daily players paying). Review them after two weeks of real
+  data.
+
+## 2026-11-01: Feedback prefilter and the error sweep
+
+- **A plain-code prefilter, not a model, sits between players and the Claude
+  run.** It dedupes, tags keywords, caps per player and per game, and leans
+  towards escalating; the Claude run decides. Its output is a hidden JSON
+  block with no player text, so nothing a player typed reaches the run as
+  structure.
+- **One read-only key and one workflow read both feedback and errors.** The
+  `ErrorQueue` sweep reuses `ROBLOX_READ_API_KEY` and the Player feedback
+  workflow, so Alex makes one key, not two, and errors land next to the
+  reports that mention them.
+- **`ErrorQueue` keys are now dated** (`YYYYMMDD-HHMMSS-<server>-<n>`, as
+  `Feedback`), so a day or an hour lists by prefix instead of reading the
+  whole store. Keys in the old `<minute>-<job>` form (Staging test sessions
+  at most) are simply never listed; nothing reads or migrates them.
+- **The 1-hour sweep is started by the thread that published, not by a
+  sleeping job**, which would spend an hour of Actions minutes per publish.
+  The daily digest is the 24-hour sweep, and the daily run catches a missed
+  one.
+- **Sweeps open an issue even when clean** (`error-sweep`), so the promotion
+  rule ("24-hour sweep found no server error") has a record to point at.
+  Daily digests still open only when there is something in them.
+
+## 2026-11-01: In-game feedback in every game
+
+- **The core owns it, so every game gets it.** `CoreClient.start` mounts the
+  Feedback button and form, `CoreServer.start` runs the server side; a game
+  only adds a `feedbackContext` hook (`src/shared/FeedbackContext.luau`) with
+  a few numbers that help reproduce a bug. A game could opt out with
+  `CoreClient.start({ feedback = false })`; none should.
+- **The button lives in the Roblox top bar**, right-aligned in
+  `GuiService.TopbarInset`, so it never covers a game's HUD on any screen.
+  The left end of the free top-bar area is kept for the shop button.
+- **Bug / Idea / Other, up to 500 characters, optional 1-5 fun rating.** Text
+  is required (a bare rating says too little to act on). The rating also
+  becomes a `Feedback:Rating` analytics event, a cheap weekly fun score.
+- **Only filtered text is stored.** Reports are not shown to other players,
+  but players type names and numbers; Roblox's filter (non-chat broadcast
+  mode) removes personal information. If the filter fails, the report is
+  refused with "try again", never stored raw. A report the filter blanks out
+  entirely is refused too.
+- **Limits:** one report per player per minute, ten per UTC day per server,
+  repeats refused, at most 200 held per server between writes (a failed write
+  keeps them for the next try). The remote itself allows 3 calls a minute.
+- **Its own DataStore (`Feedback`), not the error queue.** Feedback moved out
+  of ErrorReporter: different readers, different retention, and reports carry
+  much more context. Each report still links to the error queue through the
+  signatures of the player's last client errors (up to 5, from the last 10
+  minutes).
+- **Dated keys, one write per server per minute.** Keys start with the UTC
+  date (`YYYYMMDD-HHMMSS-<server>-<n>`), so the reader lists one day with a
+  prefix and the daily run reads each batch exactly once. Writes stay far
+  under the DataStore budget.
+- **Read outside the game through Open Cloud, from GitHub Actions.** The
+  cloud sandbox cannot reach apis.roblox.com, so the daily workflow pulls with
+  a read-only repository secret and opens one `player-feedback` issue per day
+  with reports. The issue escapes player text (no mentions, links or
+  formatting) and shows reporter tags, not user ids; full reports stay in a
+  90-day run artifact. The repo is private.
+- **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
+  test first, verified by the playtest thread, auto-merged, production by
+  Alex's click.
 ## 2026-11-01: Boot check and key flows gate every merge and publish
 
 - **Why.** PR #5 merged with a start-up assert in Street Food Empire's
@@ -383,8 +700,9 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Data from a newer build is refused, not downgraded,** so a rollback can
   never overwrite progress made on the newer build.
 - **Error queue keys** are `<unix minute>-<JobId>` in the `ErrorQueue`
-  DataStore: one write per server per minute at most. The nightly reader (M5)
-  lists keys newer than its cursor. Consider MemoryStore with expiry at M5 if
+  DataStore: one write per server per minute at most. *Superseded
+  2026-11-01: keys are dated, `YYYYMMDD-HHMMSS-<server>-<n>`, and the
+  feedback workflow reads them by day or hour prefix (see the top entry).* Consider MemoryStore with expiry at M5 if
   DataStore storage grows.
 - **Packages.** ProfileStore pinned at exactly `1.0.3` (MadStudio, by loleris;
   source reviewed 2026-11-01). React-Lua is deferred to the UI kit (module 13,

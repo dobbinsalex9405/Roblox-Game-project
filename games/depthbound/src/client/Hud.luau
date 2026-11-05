@@ -134,7 +134,7 @@ function Hud.start(ctx: Context.Context)
 			ctx.fire(ctx.remotes["DB:Refill"])
 		else
 			boughtAt = os.clock()
-			ctx.fire(ShopRemotes["Shop:Buy"], "product", "OilRefill")
+			ctx.fire(ShopRemotes["Shop:Buy"], "product", "OilRefill", "HudRefill")
 		end
 	end)
 

@@ -1,6 +1,8 @@
 --!strict
 -- Starts every core service on the server and runs the player lifecycle:
 --
+-- It also runs the Feedback button's server side: every game gets it.
+--
 --   join:  load data (kick with a clear message if it cannot load) -> record
 --          join times -> read policy -> check passes -> start analytics session
 --          -> send the client its data and passes -> run the game's onPlayerReady
@@ -23,6 +25,7 @@ local CoreRemotes = require(Core.CoreRemotes)
 local DataService = require(Core.DataService)
 local Economy = require(Core.Economy)
 local ErrorReporter = require(Core.ErrorReporter)
+local Feedback = require(Core.Feedback)
 local Log = require(Core.Log)
 local Metrics = require(Core.Metrics)
 local Net = require(Core.Net)
@@ -41,9 +44,10 @@ local ServerNet = require(script.Parent.ServerNet)
 local TestPanel = require(script.Parent.TestPanel)
 
 local RECEIPTS_FIELD = "receipts"
-local FLUSH_EVERY = 5 -- seconds between ErrorReporter flush checks (it writes at most once a minute)
+local FLUSH_EVERY = 5 -- seconds between ErrorReporter/Feedback flush checks (each writes at most once a minute)
 local METRICS_EVERY = 60 -- seconds between Metrics writes (one UpdateAsync per server per day touched)
 local DAY = 86400
+local MAX_FRIEND_CHECKS = 50 -- friend lookups per join (a server holds far fewer players)
 
 export type Options = {
 	game: string, -- folder name, e.g. "hatchery-heist"
@@ -57,6 +61,10 @@ export type Options = {
 	remotes: { [string]: Net.Remote },
 	onPlayerReady: ((player: Player) -> ())?,
 	onPlayerLeaving: ((player: Player) -> ())?,
+	-- A few values that help reproduce a bug report (area, level, what the
+	-- player is holding). Called when the player sends feedback; at most 12
+	-- keys of numbers, booleans or short strings are kept.
+	feedbackContext: ((player: Player) -> { [string]: any })?,
 }
 
 export type Services = {
@@ -68,9 +76,18 @@ export type Services = {
 	policy: Policy.Policy,
 	analytics: Analytics.Analytics,
 	errors: ErrorReporter.Reporter,
+	feedback: Feedback.Feedback,
 	net: ServerNet.ServerNet,
 	-- The shared shop: call shop:setCatalog after registering products.
 	shop: Purchases.Shop,
+	-- Adds a game action to the Studio test panel (TestPanel.addAction). It
+	-- only ever runs on a Studio server.
+	addTestAction: (
+		name: string,
+		title: string,
+		choices: { string },
+		run: (player: Player, choice: string) -> string
+	) -> (),
 }
 
 local log = Log.new("CoreServer")
@@ -100,21 +117,33 @@ function CoreServer.start(options: Options): Services
 	ScriptContext.Error:Connect(function(message: string, trace: string)
 		errors:record("server", message, trace, os.time())
 	end)
+
+	local feedback = Feedback.new({
+		game = options.game,
+		build = options.build,
+		placeVersion = game.PlaceVersion,
+		server = game.JobId,
+		write = RobloxSinks.feedbackStore(),
+		filter = RobloxSinks.textFilter(),
+	})
+
 	task.spawn(function()
 		while true do
 			task.wait(FLUSH_EVERY)
 			errors:flush(os.time())
+			feedback:flush(os.time())
 		end
 	end)
 	game:BindToClose(function()
 		errors:flush(os.time(), true)
+		feedback:flush(os.time(), true)
 	end)
-
-	local analytics = Analytics.new(RobloxSinks.analytics())
 
 	-- Daily counters for the studio scoreboard (ops/METRICS.md). Counted
 	-- everywhere, written only from live servers, so Studio never reaches it.
 	local metrics = Metrics.new()
+	-- Every game event also counts in the daily metrics.
+	local analytics = Analytics.new(Metrics.countingSink(RobloxSinks.analytics(), metrics, os.time))
 	if not RunService:IsStudio() then
 		local writeMetrics = MetricsStore.writer()
 		local function flushMetrics()
@@ -162,25 +191,35 @@ function CoreServer.start(options: Options): Services
 		migrations = options.migrations,
 	})
 
+	-- Where a purchase's prompt was opened; set once the shop exists.
+	local sourceOf = function(_player: Player, _kind: "product" | "pass", _key: string): string
+		return "Other"
+	end
+
 	-- Counts a payment once the purchase is granted. The player's first payment
 	-- of the UTC day is remembered in their data, so "payers" counts each
-	-- player once a day across servers.
+	-- player once a day across servers; their first payment ever is
+	-- remembered too ("newPayers").
 	local function countPayment(player: Player, kind: "product" | "pass", key: string, robux: number)
 		local now = os.time()
-		local firstToday = false
+		local firstToday, firstEver = false, false
 		local current = if data:isLoaded(player) then data:get(player) else nil
 		if current then
-			local meta = current.meta
-			firstToday =
-				Metrics.isFirstPaymentToday(if type(meta) == "table" then meta.lastPaidDay else nil, now)
-			if firstToday then
+			local meta = if type(current.meta) == "table" then current.meta else {}
+			firstToday = Metrics.isFirstPaymentToday(meta.lastPaidDay, now)
+			-- Players who paid before firstPaidAt existed have a lastPaidDay.
+			firstEver = meta.firstPaidAt == nil and meta.lastPaidDay == nil
+			if firstToday or firstEver then
 				data:update(player, function(d)
 					d.meta = d.meta or {}
 					d.meta.lastPaidDay = now // DAY
+					if d.meta.firstPaidAt == nil then
+						d.meta.firstPaidAt = now
+					end
 				end)
 			end
 		end
-		metrics:purchase(kind, key, robux, firstToday, now)
+		metrics:purchase(kind, key, robux, firstToday, now, sourceOf(player, kind, key), firstEver)
 	end
 
 	local economy = Economy.new({
@@ -300,8 +339,14 @@ function CoreServer.start(options: Options): Services
 		passIds = options.passes,
 		policy = policy,
 		studio = RunService:IsStudio(),
+		onPrompt = function(_player: Player, kind: "product" | "pass", key: string, source: string)
+			metrics:prompt(kind, key, source, os.time())
+		end,
 	})
 	shop = theShop
+	sourceOf = function(player: Player, kind: "product" | "pass", key: string): string
+		return theShop:takeSource(player, kind, key)
+	end
 	TestPanel.start({
 		net = net,
 		data = data,
@@ -316,12 +361,70 @@ function CoreServer.start(options: Options): Services
 
 	-- Core remotes.
 	net:on(CoreRemotes["Core:ClientError"], function(player: Player, message: string, trace: string)
-		errors:record("client", message, trace, os.time())
+		local now = os.time()
+		local signature = errors:record("client", message, trace, now)
+		feedback:noteError(player.UserId, signature, message, now)
 		log:info("client error", { userId = player.UserId })
 	end)
-	net:on(CoreRemotes["Core:Feedback"], function(player: Player, text: string)
-		errors:submitFeedback(player.UserId, text, os.time())
-	end)
+
+	local joinedAt: { [Player]: number } = {}
+	local function feedbackInfo(player: Player, now: number): Feedback.PlayerInfo
+		local position = ""
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then
+			local p = root.Position
+			position = `{math.round(p.X)},{math.round(p.Y)},{math.round(p.Z)}`
+		end
+		local pingOk, ping = pcall(function(): number
+			return player:GetNetworkPing()
+		end)
+		local context: { [string]: any }? = nil
+		if options.feedbackContext then
+			local ok, result = pcall(options.feedbackContext, player)
+			if ok then
+				context = result
+			else
+				log:warn("feedbackContext failed", { userId = player.UserId, err = tostring(result) })
+			end
+		end
+		return {
+			userId = player.UserId,
+			accountAgeDays = player.AccountAge,
+			locale = player.LocaleId,
+			sessionSeconds = now - (joinedAt[player] or now),
+			pingMs = if pingOk then ping * 1000 else 0,
+			position = position,
+			context = context,
+		}
+	end
+	net:on(
+		CoreRemotes["Core:Feedback"],
+		function(
+			player: Player,
+			category: Feedback.Category,
+			text: string,
+			rating: number,
+			client: Feedback.ClientInfo
+		)
+			local now = os.time()
+			local sent, message = feedback:submit(feedbackInfo(player, now), {
+				category = category,
+				text = text,
+				rating = rating,
+				client = client,
+			}, now)
+			if player.Parent == Players then
+				net:fire(CoreRemotes["Core:FeedbackResult"], player, sent, message)
+			end
+			if sent then
+				analytics:custom(player, "Feedback:Sent", 1, { category :: string })
+				if rating > 0 then
+					analytics:custom(player, "Feedback:Rating", rating)
+				end
+			end
+		end
+	)
 	net:on(CoreRemotes["Core:RequestOdds"], function(player: Player, tableId: string)
 		if odds:has(tableId) then
 			sendOdds(player, tableId)
@@ -344,7 +447,68 @@ function CoreServer.start(options: Options): Services
 		end)
 	end)
 
+	-- Friends (ops/METRICS.md): who joined by following or being invited by
+	-- someone, who brought them, and which sessions had a friend on the server.
+	local withFriend: { [Player]: boolean } = {}
+	local function markFriends(a: Player, b: Player)
+		if a.Parent == Players and b.Parent == Players then
+			withFriend[a] = true
+			withFriend[b] = true
+		end
+	end
+	-- The user id this player followed in or was invited by, or 0.
+	local function referrerOf(player: Player): number
+		local ok, joinData = pcall(function()
+			return player:GetJoinData()
+		end)
+		local referred = if ok and type(joinData) == "table"
+			then tonumber((joinData :: any).ReferredByPlayerId) or 0
+			else 0
+		if referred > 0 and referred ~= player.UserId then
+			return referred
+		end
+		local followed = tonumber(player.FollowUserId) or 0
+		return if followed > 0 and followed ~= player.UserId then followed else 0
+	end
+	local function countFriends(player: Player, now: number): boolean
+		local referrer = referrerOf(player)
+		local bringer = if referrer > 0 then Players:GetPlayerByUserId(referrer) else nil
+		if bringer and bringer ~= player then
+			markFriends(player, bringer)
+			local current = if data:isLoaded(bringer) then data:get(bringer) else nil
+			local meta = if current and type(current.meta) == "table" then current.meta else {}
+			local firstToday = current ~= nil and Metrics.isFirstToday(meta.lastBroughtDay, now)
+			if firstToday then
+				data:update(bringer, function(d)
+					d.meta = d.meta or {}
+					d.meta.lastBroughtDay = now // DAY
+				end)
+			end
+			metrics:brought(firstToday, now)
+		end
+		-- Anyone else already here who is a friend (each check is a web call).
+		task.spawn(function()
+			local checked = 0
+			for _, other in Players:GetPlayers() do
+				if checked >= MAX_FRIEND_CHECKS or player.Parent ~= Players then
+					break
+				end
+				if other ~= player and other ~= bringer then
+					checked += 1
+					local ok, friends = pcall(function()
+						return player:IsFriendsWithAsync(other.UserId)
+					end)
+					if ok and friends == true then
+						markFriends(player, other)
+					end
+				end
+			end
+		end)
+		return referrer > 0
+	end
+
 	local function onPlayerAdded(player: Player)
+		joinedAt[player] = os.time()
 		local result, reason = data:load(player, player.UserId)
 		if player.Parent ~= Players then
 			data:release(player)
@@ -382,7 +546,11 @@ function CoreServer.start(options: Options): Services
 			return
 		end
 		analytics:sessionStart(player, info, now)
-		metrics:join(info, now)
+		metrics:join({
+			firstJoinAt = info.firstJoinAt,
+			lastJoinAt = info.lastJoinAt,
+			viaFriend = countFriends(player, now),
+		}, now)
 		metrics:serverPlayers(#Players:GetPlayers(), now)
 		sendPasses(player)
 		net:fire(CoreRemotes["Core:Data"], player, snapshot(data:get(player) :: any))
@@ -404,13 +572,16 @@ function CoreServer.start(options: Options): Services
 		end
 		local sessionSeconds = analytics:sessionEnd(player, os.time())
 		if sessionSeconds then
-			metrics:leave(sessionSeconds, os.time())
+			metrics:leave(sessionSeconds, os.time(), withFriend[player] == true)
 		end
+		withFriend[player] = nil
 		odds:forget(player)
 		theShop:forget(player)
 		passes:release(player)
 		policy:release(player)
 		pendingSnapshot[player] = nil
+		feedback:forget(player.UserId)
+		joinedAt[player] = nil
 		data:release(player)
 	end
 
@@ -431,8 +602,10 @@ function CoreServer.start(options: Options): Services
 		policy = policy,
 		analytics = analytics,
 		errors = errors,
+		feedback = feedback,
 		net = net,
 		shop = theShop,
+		addTestAction = TestPanel.addAction,
 	}
 end
 

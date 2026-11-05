@@ -25,17 +25,20 @@ games/hatchery-heist/
   src/server  src/client  src/shared
   tests/                  config, save data and gameplay-math tests
   SPEC.md  CHANGELOG.md
-tools/                    test runner, build, type check, boot check, key flows, publish
+tools/                    test runner, build, type check, boot check, key flows, publish, feedback reader,
+                          metrics (scoreboard), loop (update plan)
 playtests/                headless playtests per game: system checks (CI) and bot sessions
 ops/
   environments.json       universe and place ids per game (no keys, ever)
   SETUP.md                the steps only Alex can do (accounts, keys)
+  FEEDBACK.md             how player feedback becomes fixes
   PUBLISH_CHECKS.md       what runs before a publish is allowed and what is verified after
   DECISIONS.md            why things are the way they are
   DAILY_RUN.md            what the daily scheduled Claude run does
   METRICS.md              daily counters and the studio scoreboard issue
+  UPDATE_LOOP.md          how the numbers choose each game's weekly update
   digests/                weekly digests
-.github/workflows/        ci, publish-staging, publish-production, metrics (scoreboard)
+.github/workflows/        ci, publish-staging, publish-production, metrics (scoreboard), update-plan
 ```
 
 ## Daily commands
@@ -52,6 +55,7 @@ selene packages games tools   # lint
 tools/build.sh all         # build/<game>.rbxl for every game
 lune run tools/boot/run all --built   # boot every built game: server start, player join, client UI
 tools/keyflows.sh all      # play every game's main loop headless (playtests/<game>/checks.luau)
+lune run tools/audit/run all   # what a joining player sees and taps, as images + checks (build/audit/)
 tools/typecheck.sh         # strict type check with Roblox API types
 
 rojo serve games/hatchery-heist/default.project.json   # live-sync into Studio
@@ -62,15 +66,20 @@ CI runs the same checks on every pull request.
 ## How a change reaches players
 
 1. A pull request: CI must be green (format, lint, tests, build, boot check,
-   key flows, strict types).
-2. Merge to `main`: **Publish to Staging** re-runs tests, the boot check and
-   the key flows on the exact file, then publishes every game to its private
-   Staging experience.
+   key flows, player's-eye audit, strict types), and a PR that changes game
+   code needs a **visual playtest** report for its head commit
+   (`ops/VISUAL_PLAYTEST.md`: rendered audit, real-engine check in a Roblox
+   server, Studio play-solo through Studio's MCP server).
+2. Merge to `main`: **Publish to Staging** re-runs tests, the boot check, the
+   key flows and the audit on the exact file, then publishes every game to
+   its private Staging experience.
 3. Playtest on Staging: the live join and the error-queue sweep in
    `ops/PUBLISH_CHECKS.md`.
 4. Run **Publish to Production** for one game. It waits for Alex's approval in
    GitHub, publishes, and tags the commit `<game>/production/v<version>`.
    Rolling back is the same workflow run with the previous tag.
+5. The **update plan** checks the release on day 3 and reviews it on day 7,
+   and picks each game's next update from the numbers (`ops/UPDATE_LOOP.md`).
 
 Publishing uses Roblox Open Cloud with group-owned API keys stored only as
 GitHub environment secrets. See `ops/SETUP.md`.
@@ -82,4 +91,7 @@ GitHub environment secrets. See `ops/SETUP.md`.
 - Developer product purchases are granted exactly once.
 - Paid random items show exact odds (totalling exactly 100%) before purchase,
   and the server rolls from the same table, after a PolicyService check.
-- Errors and feedback reach the error queue with deduplication and write caps.
+- Errors reach the error queue with deduplication and write caps.
+- Every game has a Feedback button; reports are filtered, rate-limited, tagged
+  with the build and device, and land in a daily `player-feedback` issue
+  (`ops/FEEDBACK.md`).

@@ -13,7 +13,9 @@ describe("Creatures", function()
 	}
 
 	it("sums income from placed creatures with mutations", function()
-		expect(Creatures.baseIncome(placed, creatures)).toBe(1 + 20 * 2)
+		expect(Creatures.baseIncome(placed, creatures)).toBe(
+			creatures.species.Chick.coinsPerSecond + creatures.species.Penguin.coinsPerSecond * 2
+		)
 	end)
 
 	it("applies rebirth and Double Coins multipliers", function()

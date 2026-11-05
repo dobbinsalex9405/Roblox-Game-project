@@ -207,7 +207,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Chick", "Duckling", "Chick" })
+		expect(outcomes).toEqual({ "Chick", "Duckling", "Bunny" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -291,5 +291,66 @@ describe("Hatchery Heist sessions", function()
 		)
 		local progression = h.eventsOf("progression")
 		expect(progression[#progression][1]).toBe("Rebirth")
+	end)
+
+	it("claims the daily reward once a day through the server", function()
+		local h = Harness.new()
+		local player = Fakes.player(9)
+		h.join(player)
+		local before = h.get(player).coins
+		expect((h.actions:claimDaily(player))).toBe(true)
+		local reward = economy.daily.rewards[1].minCoins
+		expect(h.get(player).coins).toBe(before + reward)
+		expect(h.lastNotice(player)).toBe(`Day 1 reward: +{reward} coins!`)
+		expect((h.actions:claimDaily(player))).toBe(false)
+		expect(h.get(player).coins).toBe(before + reward)
+		h.wait(player, 86400)
+		expect((h.actions:claimDaily(player))).toBe(true)
+		expect(h.get(player).daily.streak).toBe(2)
+	end)
+end)
+
+-- The Studio test panel's "Give a creature": guard walks and rides can be
+-- checked in Studio without hatching the right egg first.
+describe("Studio grant", function()
+	it("puts any species on a pad, ready to ride and guard", function()
+		local h = Harness.new()
+		local player = Fakes.player(1)
+		h.join(player)
+		-- A species only the second egg holds, so the recorded egg is checked.
+		local first: { [string]: boolean } = {}
+		for _, outcome in config.eggs[1].outcomes do
+			first[outcome.id] = true
+		end
+		local speciesId: string? = nil
+		for _, outcome in config.eggs[2].outcomes do
+			if speciesId == nil and not first[outcome.id] then
+				speciesId = outcome.id
+			end
+		end
+		local id = speciesId :: string
+		local ok, text = h.actions:grantCreature(player, id)
+		expect(ok).toBe(true)
+		expect(text).toBe(`{id} added on pad 1, ready to ride or guard.`)
+		local d = h.get(player)
+		expect(#d.creatures).toBe(1)
+		local c = d.creatures[1]
+		expect(c.speciesId).toBe(id)
+		expect(c.slot).toBe(1)
+		expect(c.eggId).toBe(config.eggs[2].id) -- the egg that holds it
+		assert(h.actions:ride(player, c.uid))
+		assert(h.actions:dismount(player))
+		assert(h.raids:toggleGuard(player, c.uid))
+		expect(h.get(player).guardUid).toBe(c.uid)
+	end)
+
+	it("refuses an unknown species and changes nothing", function()
+		local h = Harness.new()
+		local player = Fakes.player(1)
+		h.join(player)
+		local ok, text = h.actions:grantCreature(player, "NoSuchCreature")
+		expect(ok).toBe(false)
+		expect(text).toBe("No creature called NoSuchCreature.")
+		expect(#h.get(player).creatures).toBe(0)
 	end)
 end)

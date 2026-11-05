@@ -2,6 +2,79 @@
 
 ## Unreleased
 
+- Creatures can now be drawn as polished Blender voxel meshes with bevelled
+  cubes and twice the detail; until their meshes are uploaded they look as
+  before.
+- Fixed: an incubator could keep saying "Ready!" after its egg hatched.
+- The odds card and the odds board use one text size per list, so long
+  names no longer show smaller than their neighbours.
+- Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
+  flash, and the creature turns under its rarity, name, income and exact
+  chance, with rays, glow, confetti and screen shake as rarity rises. Tap to
+  skip ahead, hold to skip all; small repeat hatches share one reveal.
+- Hatchery Book in the side menu: all 33 creatures by tier, "???"
+  silhouettes until found, each with its best egg and odds. Every species
+  found adds +1% income.
+- Daily Rewards in the side menu: a seven-day streak of growing coin
+  rewards that scale with income up to a cap (Day 7 at most 20,000); a
+  missed day starts over.
+- Farmyard map: a red barn and silo, a turning windmill, a duck pond, an
+  animal pen and crop fields around the ring of bases, with voxel trees and
+  terraced hills in place of the round ones.
+- Sound effect hooks for the egg, the reveal, the book and rewards (silent
+  until sounds are picked).
+
+- Creatures (Alex, Nov 5): 33 voxel creatures in seven tiers, from ten
+  small Commons up to two huge Godlies, replacing the coloured balls. Each
+  tier moves and shines more than the last: Commons bob and blink; Rares
+  flap and flick their ears; Ultra Rares glow and sparkle; Epics stand in a
+  rarity ring; Legendaries hover in an aura; Godlies have orbiting lights
+  and a rainbow ring. A ridden creature is drawn up to 6 studs tall and a
+  carried one up to 4, and guards turn to face where they walk.
+- Odds are far rarer: every egg now rolls out of 100,000, so the rarest
+  hatch is 1 in 50,000, and the odds card shows each chance as a percentage
+  and as "1 in N". A new Moonlit Egg (15,000 coins, 5% of the belt) holds
+  the Moon Unicorn and a 1 in 50,000 Nebula Serpent.
+- Studio test panel: "Give a creature" adds any species by id, placed on a
+  free pad like a hatch, so rides and the guard walk can be checked in
+  Studio straight away. Studio only; a live server never runs it.
+- Phones: shop buttons are 40 px tall (thumb-sized), and every shop card
+  reads top to bottom (name, description, price, button).
+- Phones: every window's close button (X) is 40 by 40 px.
+- Fixed (#49): a server error on every frame while any base had no guard
+  (every new player), which also stopped every other base's guard from
+  moving. The boot check now plays 30 frames, so per-frame errors fail CI.
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
+- First look (Alex's Nov 4 play test): a welcome screen on a new player's
+  first join and a Guide button in a new side menu to reopen it; a goal line
+  under the coin bar with a beam and arrow to the next thing to do (first
+  egg, hatch, collect, 4th incubator); a sunny sky with haze, clouds, bloom
+  and sun rays; a sandy yard with the Golden Nest, fences and flowers on
+  every base, trees and a ring of hills hiding the map's edge; background
+  music (tracks set in `config/atmosphere.luau`) with a Music on/off button.
+- Shop opens on a new Coins tab (incubator, shield, traps, decoy, belt
+  eggs), with Robux items on the second tab.
+- Prices one rung lower: Double Coins 149, Extra Incubators 99, and a new
+  80K Coins pack at 199 between the 30K and 200K packs.
+
+- Fix: the map was buried in the ground. The Baseplate was placed with a
+  property Rojo drops when it builds the place, so it sat ten studs too high
+  and covered every floor, pad and label. It is now placed with CFrame, and
+  the boot check fails when anything is built inside the ground.
+
+- Player analytics (shared core): the daily scoreboard now shows time played
+  and session lengths, D7 and D30 returns, players who come with or bring
+  friends, Robux by item and by where in the game it was bought, purchase
+  prompts, onboarding drop-off and game event counts.
+
+- Error reports (shared core) are stored under dated keys, so the daily
+  feedback digest and the post-publish error sweep can read them by day.
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (creatures, placed, incubating, mounted, guard, traps, shield) to help reproduce bugs.
 - Robux prices and Roblox listings (name, price, description) for every
   pass and product, on the studio price ladder (ops/PRICING.md). The shop's
   catalog moved to `src/shared/Products.luau` so tests check its names.

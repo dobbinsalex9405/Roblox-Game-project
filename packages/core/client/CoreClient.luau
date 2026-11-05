@@ -1,13 +1,14 @@
 --!strict
 -- Starts the core on the client: forwards client errors to the server's error
--- queue, keeps the latest copy of the player's own data and passes, and
--- exposes the feedback button and odds screen requests.
+-- queue, keeps the latest copy of the player's own data and passes, mounts
+-- the Feedback button every game gets, and exposes odds screen requests.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ScriptContext = game:GetService("ScriptContext")
 
 local CoreRemotes = require(ReplicatedStorage.Core.CoreRemotes)
 local ClientNet = require(script.Parent.ClientNet)
+local FeedbackUi = require(script.Parent.FeedbackUi)
 local ShopUi = require(script.Parent.ShopUi)
 local TestPanelUi = require(script.Parent.TestPanelUi)
 
@@ -25,7 +26,12 @@ local dataListeners: { Listener<{ [string]: any }> } = {}
 local oddsListeners: { Listener<any> } = {}
 local started = false
 
-function CoreClient.start()
+export type Options = {
+	-- The top-bar Feedback button and form. On by default in every game.
+	feedback: boolean?,
+}
+
+function CoreClient.start(options: Options?)
 	assert(not started, "CoreClient.start called twice")
 	started = true
 
@@ -61,6 +67,9 @@ function CoreClient.start()
 		end
 	end)
 
+	if options == nil or options.feedback ~= false then
+		task.spawn(FeedbackUi.start)
+	end
 	-- The shared shop (shown once the game lists items) and, in Studio only,
 	-- the test panel.
 	task.spawn(ShopUi.start, {
@@ -96,8 +105,21 @@ function CoreClient.onOdds(listener: Listener<any>)
 	table.insert(oddsListeners, listener)
 end
 
-function CoreClient.submitFeedback(text: string)
-	ClientNet.fire(CoreRemotes["Core:Feedback"], string.sub(text, 1, 2000))
+-- Adds a tab to the shared shop, in front of the Robux tab, for things the
+-- game sells for its own currency. The shop opens on the first such tab.
+function CoreClient.addShopTab(name: string, render: ShopUi.TabRender)
+	ShopUi.addTab(name, render)
+end
+
+-- Redraws the shop's open tab (e.g. when the player's coins change).
+function CoreClient.refreshShop()
+	ShopUi.refresh()
+end
+
+-- Opens the Feedback form, e.g. from a game's own menu or after a failure
+-- ("Something went wrong? Tell us"). `category` may be "bug", "idea" or "other".
+function CoreClient.openFeedback(category: string?)
+	FeedbackUi.open(category)
 end
 
 return CoreClient

@@ -1,0 +1,71 @@
+name: Update plan
+
+# Turns the studio scoreboard, the open bugs and the Production release tags
+# into each game's next update (ops/UPDATE_LOOP.md), and rewrites the one open
+# issue labelled `update-plan`. The daily Claude run reads it. Reads no secrets
+# and calls nothing outside GitHub.
+on:
+  workflow_run:
+    workflows: ["Studio scoreboard"]
+    types: [completed]
+  schedule:
+    - cron: "3 7 * * *" # 07:03 UTC, in case the scoreboard run did not trigger it; before the 07:13 daily run
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: update-plan
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Write the update plan
+    # A failed scoreboard run would leave yesterday's numbers in the issue: do not plan from them.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # release tags and their dates
+
+      - name: Install pinned tools (rokit.toml)
+        uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Gather the scoreboard, open bugs and releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p loop-in
+          gh issue list --label daily-metrics --state open --limit 1 --json body \
+            --jq '.[0].body // ""' > loop-in/scoreboard.md
+          gh issue list --label bug --state open --limit 500 --json number,labels > loop-in/bugs.json
+          # Tag dates: publish-production makes annotated tags, so this is the publish day.
+          TZ=UTC git for-each-ref 'refs/tags/*/production/v*' \
+            --format='%(refname:strip=2)|%(creatordate:format-local:%Y%m%d)' > loop-in/releases.txt
+          echo "scoreboard: $(wc -c < loop-in/scoreboard.md) bytes; releases: $(wc -l < loop-in/releases.txt)"
+
+      - name: Write the plan
+        run: |
+          lune run tools/loop/run --metrics loop-in/scoreboard.md --releases loop-in/releases.txt \
+            --bugs loop-in/bugs.json --out loop-out
+
+      - name: Update the plan issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          label=update-plan
+          gh label create "$label" --color 1d76db \
+            --description "Each game's next update, rewritten daily (ops/UPDATE_LOOP.md)" 2>/dev/null || true
+          number=$(gh issue list --label "$label" --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [[ -n "$number" ]]; then
+            gh issue edit "$number" --body-file loop-out/plan.md
+          else
+            gh issue create --title "Update plan" --label "$label" --body-file loop-out/plan.md
+          fi

@@ -1,13 +1,12 @@
 --!strict
--- Module 12: ErrorReporter and Feedback.
+-- Module 12: ErrorReporter.
 -- Collects server and client errors, groups them by a short signature, and
 -- writes at most one batch per server per `interval` seconds to the error
 -- queue (a DataStore the nightly GitHub Action reads). A storm of 10,000
 -- identical errors becomes one record with count = 10000, not 10,000 writes.
 --
--- The in-game feedback button writes into the same batch. Feedback is never
--- shown to other players, so it needs no chat filtering, but it is trimmed,
--- length-capped and rate-limited per player.
+-- Player feedback has its own module and store (Feedback.luau); a player's
+-- recent client error signatures are attached to their bug reports there.
 
 local Log = require("./Log")
 local Util = require("./Util")
@@ -24,18 +23,11 @@ export type ErrorRecord = {
 	lastSeen: number,
 }
 
-export type FeedbackRecord = {
-	userId: number,
-	text: string,
-	at: number,
-}
-
 export type Batch = {
 	game: string,
 	build: string,
 	at: number,
 	errors: { ErrorRecord },
-	feedback: { FeedbackRecord },
 	droppedSignatures: number,
 }
 
@@ -45,16 +37,12 @@ export type Options = {
 	write: (batch: Batch) -> boolean, -- may yield; returns false if the write failed
 	interval: number?, -- seconds between writes, default 60
 	maxSignatures: number?, -- distinct errors kept per batch, default 50
-	maxFeedback: number?, -- feedback entries kept per batch, default 50
-	feedbackCooldown: number?, -- seconds between submissions per player, default 60
-	feedbackMaxLength: number?, -- default 500 characters
 }
 
 export type Reporter = {
 	record: (self: Reporter, source: Source, message: string, trace: string?, now: number) -> string,
-	submitFeedback: (self: Reporter, userId: number, text: string, now: number) -> (boolean, string?),
 	flush: (self: Reporter, now: number, force: boolean?) -> boolean,
-	pending: (self: Reporter) -> (number, number),
+	pending: (self: Reporter) -> number,
 }
 
 local MAX_MESSAGE = 500
@@ -89,15 +77,10 @@ end
 function ErrorReporter.new(options: Options): Reporter
 	local interval = options.interval or 60
 	local maxSignatures = options.maxSignatures or 50
-	local maxFeedback = options.maxFeedback or 50
-	local cooldown = options.feedbackCooldown or 60
-	local maxLength = options.feedbackMaxLength or 500
 
 	local errors: { [string]: ErrorRecord } = {}
 	local errorCount = 0
 	local droppedSignatures = 0
-	local feedback: { FeedbackRecord } = {}
-	local lastFeedbackAt: { [number]: number } = {}
 	local lastWriteAt = -math.huge
 	local writing = false
 
@@ -132,37 +115,10 @@ function ErrorReporter.new(options: Options): Reporter
 		return sig
 	end
 
-	function reporter.submitFeedback(
-		_self: Reporter,
-		userId: number,
-		text: string,
-		now: number
-	): (boolean, string?)
-		if type(text) ~= "string" then
-			return false, "feedback must be text"
-		end
-		-- Strip control characters and surrounding whitespace.
-		local cleaned = string.gsub(text, "%c", " ")
-		cleaned = string.match(cleaned, "^%s*(.-)%s*$") or ""
-		if #cleaned < 3 then
-			return false, "feedback is too short"
-		end
-		local last = lastFeedbackAt[userId]
-		if last and now - last < cooldown then
-			return false, "please wait before sending more feedback"
-		end
-		if #feedback >= maxFeedback then
-			return false, "feedback queue is full, try again in a minute"
-		end
-		lastFeedbackAt[userId] = now
-		table.insert(feedback, { userId = userId, text = clip(cleaned, maxLength), at = now })
-		return true, nil
-	end
-
 	-- Writes the pending batch if `interval` has passed since the last write (or `force`).
 	-- Returns true when a batch was written.
 	function reporter.flush(_self: Reporter, now: number, force: boolean?): boolean
-		if writing or (errorCount == 0 and #feedback == 0) then
+		if writing or errorCount == 0 then
 			return false
 		end
 		if not force and now - lastWriteAt < interval then
@@ -181,7 +137,6 @@ function ErrorReporter.new(options: Options): Reporter
 			build = options.build,
 			at = now,
 			errors = list,
-			feedback = feedback,
 			droppedSignatures = droppedSignatures,
 		}
 
@@ -189,24 +144,20 @@ function ErrorReporter.new(options: Options): Reporter
 		errors = {}
 		errorCount = 0
 		droppedSignatures = 0
-		feedback = {}
 		lastWriteAt = now
 
 		writing = true
 		local ok, written = pcall(options.write, batch)
 		writing = false
 		if not ok or not written then
-			log:warn(
-				"error queue write failed; batch dropped",
-				{ errors = #batch.errors, feedback = #batch.feedback }
-			)
+			log:warn("error queue write failed; batch dropped", { errors = #batch.errors })
 			return false
 		end
 		return true
 	end
 
-	function reporter.pending(_self: Reporter): (number, number)
-		return errorCount, #feedback
+	function reporter.pending(_self: Reporter): number
+		return errorCount
 	end
 
 	return (reporter :: any) :: Reporter

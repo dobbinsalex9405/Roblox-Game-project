@@ -33,13 +33,42 @@ another Claude.
 
 1. Check the latest **CI** run on `main` and every **Publish to Staging**,
    **Publish to Production** and **Player feedback** run since the last run.
+   **Do not wait for GitHub's schedules.** They run hours late or not at all
+   (Nov 2: about 10 hours late; Nov 3: not started by 07:13). If today's
+   **Player feedback** or **Studio scoreboard** run has not finished, dispatch
+   it yourself: Player feedback, then Studio scoreboard with
+   `env: production` and again with `env: staging` (a production scoreboard
+   run also starts **Update plan**). Read the results once they finish,
+   usually within two minutes. A Staging publish job that failed with an
+   HTTP 5xx from Roblox gets one re-run of its failed jobs (never under a
+   publish hold); a second failure is handled as in item 3.
 2. A red run on `main` is a severity 1 bug in the studio itself: open (or
    update) an issue labelled `bug`, `ci`, `sev1` with the failing step and
    log link, and send it to the thread that owns that code (the last PR that
    touched it).
 3. A publish that failed twice in a row, or a feedback pull that failed
    twice in a row, gets the same treatment.
-4. **Trip the switch yourself** (see "Tripping the switch") if a publish is
+4. **After a publish** since the last run, follow the post-publish checks in
+   `ops/PUBLISH_CHECKS.md`: confirm the version read-back in the run
+   summary, and check that the live-join list was done for it (ask the
+   thread that published if not). Then the **error sweep**: the day's
+   digest has an **Errors** section (yesterday's `ErrorQueue` records, by
+   game, environment, build and signature), and a publish since the last run
+   should also have an `error-sweep` issue from the 1-hour sweep. List open
+   issues labelled `error-sweep`, and read the digest's Errors section.
+   Any issue labelled `stop` (digest or sweep) is handled first, before
+   anything else in the run:
+   - a group marked **STOP** (any server error, or a client error seen 10+
+     times) on Staging blocks promoting that build: open a `bug`, `<game>`,
+     `sev1` tracking issue with the signature and route it like a bug
+     (step 2.4). On Production it is a rollback question: tell Alex;
+   - other error groups are `sev2` or `sev3` tracking issues (one per
+     signature; search for the signature first);
+   - comment the decision on each `error-sweep` issue and close it.
+   If a publish happened and no sweep issue exists, run the **Player
+   feedback** workflow by hand with `hours: 1` (or `24`) and `build:
+   <commit>`, or say "error queue not swept" in the heartbeat.
+5. **Trip the switch yourself** (see "Tripping the switch") if a publish is
    failing in a loop, CI on `main` has been red for 3 runs in a row, or a
    release that reached players cannot be rolled back.
 
@@ -47,6 +76,9 @@ another Claude.
 
 1. List open issues labelled `player-feedback` **without** the label
    `triaged`, oldest first. Usually there is one (yesterday's), or none.
+   Two digests with the same title are the same day pulled twice (a late
+   scheduled run after a dispatched one): triage the first, and close the
+   second as a duplicate with a link to the first.
 2. Each digest starts with a **Needs triage** section written by the plain
    code prefilter in the feedback workflow (dedupes reports, tags keywords,
    caps per game and per reporter, and leans towards escalating). Each item
@@ -106,13 +138,66 @@ revenue pages need Alex's signed-in session, which Claude never uses.
   For each live game look at:
   - the **next-wave gate** (`gate.pass`): 14 days after launch, 7-day D1 at
     least 25%, average session 10+ minutes, players rising 3 days in a row.
-    When a game first passes, tell Alex: the plan says the next wave of games
-    can start;
+    reported to Alex through step 3b's For Alex list (one message, not two);
   - the **kill signal** (`kill: true`): 7-day D1 under 15% after 7 days.
-    Flag it to Alex with the numbers; stopping a game is Alex's call;
-  - **regressions**: players, average session or Robux down 30% or more day
-    over day, right after a release, point at that release. Open a `sev1`
-    issue and route it like a bug.
+    Reported to Alex through step 3b's For Alex list; stopping a game is
+    Alex's call;
+  - **regressions and release drops** are computed by the update plan
+    (step 3b); act on them there.
+  - the block's analytics fields (friends, where Robux is spent,
+    onboarding, events) are read by the update plan; this run only checks
+    they are there.
+
+## Step 3b: the update loop
+
+The **Update plan** workflow (after the scoreboard, 07:03 UTC at the
+latest) rewrites the open issue labelled `update-plan` with each game's focus
+for the week, the signals behind it, a check on the latest Production
+release and a **For Alex** list; the same data is in its
+`<!-- loop-lab-plan v1 ... -->` block. `ops/UPDATE_LOOP.md` is the whole loop;
+this step is the daily run's part of it.
+
+**A stale plan is never acted on.** If the issue was not updated today (the
+GitHub schedules do not always fire), dispatch **Studio scoreboard**
+(`env: production`), then **Update plan**, and read the plan once both
+finish. If it still cannot be produced, skip this step's urgent checks and
+For Alex items, write "plan stale" in the heartbeat, and treat the failing
+workflow like any other in step 1. Yesterday's release-drop signal must not
+become today's rollback question.
+
+**Every day:**
+
+- **urgent** signals, handled before the rest of this step:
+  - `release drop`: ask Alex in the thread whether to roll back, with the
+    plan's numbers, the previous tag it names and the **Publish to
+    Production** workflow link (`ref` = that tag). Also open or update a
+    `bug`, `<game>`, `sev1` issue and route it like a bug (step 2.4).
+  - `regression`: open a `bug`, `<game>`, `sev1` issue titled
+    `<game>: <metric> down <n>% on <day>` with the plan's numbers, and route
+    it like a bug. The fixer looks for the cause (a Roblox outage counts; say
+    so and close it).
+  - `open sev1`: already routed by step 2; check it has an owner.
+- **For Alex** items (gate passed, kill signal): tell Alex once per game and
+  item. The studio-wide audience line (games still shown to Ages 16+ only)
+  is not asked daily; it rides the Friday ask. Record it in the switch database, collection `agent`, document
+  `runstate`, field `loopAsks` (`{ "<game>:<kind>": <epoch ms> }`), and ask
+  again only if the item is still there 7 days later.
+
+**Mondays:** send the plan to the loop owner thread "Run the update loop from
+metrics" (one message: each game's focus and why, last week's release
+verdicts, the top ideas from step 2.5). The owner opens the week's update
+issues and gets builders started.
+
+**Fridays:** list open issues labelled `update` and `ready-for-production`.
+If there are any, send Alex **one** message: per game, the update, its
+commit, that the Staging checks passed, and the **Publish to Production**
+link. Hotfixes are asked for as soon as they are ready, not on Fridays.
+While the plan's For Alex list has the audience line, add it to the Friday
+message as one sentence (which games are 16+ only and the next account step),
+even in a week with nothing ready for Production.
+
+Under a **publish hold**, send no Production asks (a rollback question still
+goes, with the hold mentioned) and tell the owner "no merges".
 
 ## Step 4: what is waiting on Alex
 
@@ -142,7 +227,9 @@ On Mondays, post one summary in the thread (under 15 lines). Lead with the
 **score**: Robux since 2026-11-01 and over the last 7 days (with the week
 before for comparison), best and worst game by Robux and by D1. Then: reports
 and average fun per game, bugs opened and fixed by severity, top ideas, each
-game against the gate, and what is waiting on Alex. Link the scoreboard issue.
+game against the gate, each game's update focus this week and last week's
+release verdict, and what is waiting on Alex. Link the scoreboard and the
+update plan issues.
 
 ## Step 6: the heartbeat (always last)
 
@@ -155,7 +242,8 @@ that crashes halfway shows up there.
 ## Talking to Alex
 
 Post in the thread only when Alex should know or act: a sev1, a tripped
-switch, an unreadable switch, a reminder (step 4) or the Monday summary.
+switch, an unreadable switch, a rollback question or a For Alex item (step
+3b), the Friday Production ask, a reminder (step 4) or the Monday summary.
 Otherwise end the run quietly. Keep messages under 80 words.
 
 ## Tripping the switch

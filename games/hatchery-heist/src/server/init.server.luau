@@ -20,6 +20,7 @@ local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
 local DataTemplate = require(Shared.DataTemplate)
+local FeedbackContext = require(Shared.FeedbackContext)
 local Eggs = require(Shared.Eggs)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
@@ -28,8 +29,10 @@ local Raids = require(Shared.Raids)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
 
+local CreatureAssets = require(script.CreatureAssets)
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
+local Scenery = require(script.Scenery)
 local Speed = require(script.Speed)
 local World = require(script.World)
 
@@ -44,6 +47,7 @@ local raw = {
 	eggs = require(GameConfig.eggs),
 	raids = require(GameConfig.raids),
 	monetization = require(GameConfig.monetization),
+	atmosphere = require(GameConfig.atmosphere),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -90,7 +94,9 @@ end
 local ids = Monetization.resolve(monetization, Build.environment)
 
 World.build()
+Scenery.build(Config.get("atmosphere"))
 Mounts.start()
+CreatureAssets.start(log)
 
 local services: CoreServer.Services
 local actions: Actions.Actions? = nil
@@ -191,6 +197,10 @@ services = CoreServer.start({
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
 	onPlayerLeaving = onPlayerLeaving,
+	feedbackContext = function(player: Player)
+		local data = services.data:get(player)
+		return if data then FeedbackContext.from(data, os.time()) else {}
+	end,
 })
 
 local function fire(remote: any, player: Player, ...: any)
@@ -216,8 +226,8 @@ local ready: Actions.Actions = Actions.new({
 	notify = function(player: Player, text: string)
 		fire(Remotes["HH:Notice"], player, text)
 	end,
-	hatched = function(player: Player, speciesId: string)
-		fire(Remotes["HH:Hatched"], player, speciesId)
+	hatched = function(player: Player, speciesId: string, eggId: string, isNew: boolean)
+		fire(Remotes["HH:Hatched"], player, speciesId, eggId, isNew)
 	end,
 	welcome = function(player: Player, coins: number, readyEggs: number)
 		fire(Remotes["HH:WelcomeBack"], player, coins, readyEggs)
@@ -227,6 +237,25 @@ local ready: Actions.Actions = Actions.new({
 	end,
 })
 actions = ready
+
+-- Studio test panel: give any creature, so guard walks and rides can be
+-- checked without hatching the right egg first.
+do
+	local speciesIds = {}
+	for id in config.creatures.species do
+		table.insert(speciesIds, id)
+	end
+	table.sort(speciesIds)
+	services.addTestAction(
+		"creature",
+		"Give a creature (on a free pad, ready to ride or guard)",
+		speciesIds,
+		function(player: Player, speciesId: string): string
+			local _, text = ready:grantCreature(player, speciesId)
+			return text
+		end
+	)
+end
 
 local notify = function(player: Player, text: string)
 	fire(Remotes["HH:Notice"], player, text)
@@ -284,6 +313,9 @@ net:on(Remotes["HH:BuySlot"], function(player: Player)
 end)
 net:on(Remotes["HH:Collect"], function(player: Player)
 	ready:collect(player)
+end)
+net:on(Remotes["HH:ClaimDaily"], function(player: Player)
+	ready:claimDaily(player)
 end)
 net:on(Remotes["HH:Rebirth"], function(player: Player)
 	ready:rebirth(player)

@@ -16,6 +16,8 @@
 --                              repeated receipt grants nothing
 --   reset                      wipe this player's save back to the template,
 --                              then kick so the next join starts fresh
+--   game  <action>/<choice>    run a game's own test action (addAction), such
+--                              as Hatchery Heist's "give a creature"
 
 local GroupService = game:GetService("GroupService")
 local Players = game:GetService("Players")
@@ -48,6 +50,32 @@ export type Deps = {
 local log = Log.new("TestPanel")
 
 local TestPanel = {}
+
+export type Action = {
+	name: string,
+	title: string,
+	choices: { string },
+	run: (player: Player, choice: string) -> string,
+}
+
+-- Game-specific actions, in the order added. Registered on every server but
+-- only ever run on a Studio server, by an authorized player.
+local gameActions: { Action } = {}
+
+-- Adds a game action to the panel: a section titled `title` with a button per
+-- choice and a box to type any choice. `run` returns the text to show.
+function TestPanel.addAction(
+	name: string,
+	title: string,
+	choices: { string },
+	run: (player: Player, choice: string) -> string
+)
+	assert(not string.find(name, "/", 1, true), "test action names cannot contain /")
+	for _, action in gameActions do
+		assert(action.name ~= name, `test action {name} added twice`)
+	end
+	table.insert(gameActions, { name = name, title = title, choices = table.clone(choices), run = run })
+end
 
 -- Whether this player may use the panel. Only ever asked on a Studio server.
 local function authorized(player: Player): boolean
@@ -94,10 +122,15 @@ function TestPanel.start(deps: Deps): boolean
 		for _, key in sorted(deps.currencies) do
 			table.insert(currencies, { key = key, balance = deps.economy:balance(player, key) or 0 })
 		end
+		local actions = {}
+		for _, action in gameActions do
+			table.insert(actions, { name = action.name, title = action.title, choices = action.choices })
+		end
 		deps.net:fire(ShopRemotes["Test:Info"], player, {
 			currencies = currencies,
 			passes = passes,
 			products = deps.receipts:keys(),
+			actions = actions,
 		})
 	end
 
@@ -171,6 +204,19 @@ function TestPanel.start(deps: Deps): boolean
 			return `Replayed purchase {purchaseId}: nothing was given twice, but the save is still failing. Press Replay again.`
 		end
 		return `PROBLEM: replaying {purchaseId} gave {decision}, granted again = {tostring(fresh)}.`
+	end
+
+	function commands.game(player: Player, key: string): string
+		local name, choice = string.match(key, "^([^/]+)/(.+)$")
+		if name == nil or choice == nil then
+			return "Pick an action and a choice."
+		end
+		for _, action in gameActions do
+			if action.name == name then
+				return action.run(player, choice)
+			end
+		end
+		return `No test action called {name}.`
 	end
 
 	function commands.reset(player: Player): string

@@ -8,6 +8,7 @@ export type OddsTable = {
 	id: string,
 	paid: boolean,
 	outcomes: { { id: string, weight: number } },
+	total: number?,
 }
 
 -- Every Hatchery Heist egg is a paid random item: Premium Egg costs Robux, and
@@ -25,7 +26,10 @@ function Eggs.oddsTables(eggs: { any }, sellsCurrency: boolean): { OddsTable }
 		for _, outcome in egg.outcomes do
 			table.insert(outcomes, { id = outcome.id, weight = outcome.weight })
 		end
-		table.insert(tables, { id = egg.id, paid = Eggs.isPaid(egg, sellsCurrency), outcomes = outcomes })
+		table.insert(
+			tables,
+			{ id = egg.id, paid = Eggs.isPaid(egg, sellsCurrency), total = egg.total, outcomes = outcomes }
+		)
 	end
 	return tables
 end

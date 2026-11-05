@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local IncubatorLabel = require(Shared.IncubatorLabel)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
@@ -214,18 +215,19 @@ function BaseView.start(ctx: Context.Context)
 		for _, incubator in (model:FindFirstChild("Incubators") :: Folder):GetChildren() do
 			local state = incubator:GetAttribute("State")
 			local readyAt = incubator:GetAttribute("ReadyAt")
-			local ready = state == "Busy" and type(readyAt) == "number" and readyAt <= now
-			if state == "Busy" then
-				local eggId = incubator:GetAttribute("EggId") :: string
-				setText(
-					incubator,
-					if ready
-						then "Ready!"
-						else `{Layout.displayName(eggId)} {formatTime((readyAt :: number) - now)}`
-				)
-			elseif state == "Buyable" then
-				setText(incubator, `Unlock: {Layout.shortNumber(number(incubator, "Cost"))}`)
-			end
+			local eggId = incubator:GetAttribute("EggId")
+			local cost = incubator:GetAttribute("Cost")
+			-- Every state sets the label, so an emptied incubator never keeps "Ready!".
+			local label, ready = IncubatorLabel.text(
+				if type(state) == "string" then state else "Locked",
+				if type(eggId) == "string" then eggId else nil,
+				if type(readyAt) == "number" then readyAt else nil,
+				if type(cost) == "number" then cost else nil,
+				now,
+				Layout.displayName,
+				Layout.shortNumber
+			)
+			setText(incubator, label)
 			setPrompt(incubator, "Hatch", isOwn and ready)
 			setPrompt(
 				incubator,

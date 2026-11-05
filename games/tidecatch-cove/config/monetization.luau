@@ -28,7 +28,19 @@ return {
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
 	environments = {
-		staging = { passes = {}, products = {} },
+		staging = {
+			passes = {
+				AutoReel = 2063872966,
+				ExtraPools = 2063665373,
+				SellMultiplier = 2064046798,
+			},
+			products = {
+				BaitPack = 3726414197,
+				MysteryBait = 3726414520,
+				RestockSkip = 3726414690,
+				GrowthBoost = 3726414850,
+			},
+		},
 		production = { passes = {}, products = {} },
 	},
 	-- What each item is called, costs and says on Roblox. The laptop creates

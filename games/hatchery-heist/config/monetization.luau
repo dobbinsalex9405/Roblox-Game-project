@@ -15,6 +15,7 @@ return {
 	products = {
 		CoinPackSmall = { id = 0, coins = 5000 },
 		CoinPackMedium = { id = 0, coins = 30000 },
+		CoinPackBig = { id = 0, coins = 80000 },
 		CoinPackLarge = { id = 0, coins = 200000 },
 		ShieldRefill = { id = 0 },
 		InstantHatch = { id = 0 },
@@ -24,7 +25,20 @@ return {
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
 	environments = {
-		staging = { passes = {}, products = {} },
+		staging = {
+			passes = {
+				AutoCollect = 2064038784,
+				ExtraIncubators = 2063927014,
+				DoubleCoins = 2063914971,
+			},
+			products = {
+				CoinPackSmall = 3726412639,
+				ShieldRefill = 3726413289,
+				CoinPackMedium = 3726413675,
+				CoinPackLarge = 3726413903,
+				CoinPackBig = 3728152137,
+			},
+		},
 		production = { passes = {}, products = {} },
 	},
 	-- Paid odds boosts. While one runs, the odds screen shows the boosted table.
@@ -37,12 +51,12 @@ return {
 		passes = {
 			DoubleCoins = {
 				name = "Double Coins",
-				robux = 199,
+				robux = 149,
 				description = "Every creature you own earns twice as many coins, forever.",
 			},
 			ExtraIncubators = {
 				name = "Extra Incubators",
-				robux = 149,
+				robux = 99,
 				description = "Two more incubators, so you can hatch more eggs at once.",
 			},
 			AutoCollect = {
@@ -57,6 +71,11 @@ return {
 				name = "30K Coins",
 				robux = 99,
 				description = "30,000 coins, added right away.",
+			},
+			CoinPackBig = {
+				name = "80K Coins",
+				robux = 199,
+				description = "80,000 coins, added right away.",
 			},
 			CoinPackLarge = {
 				name = "200K Coins",
@@ -76,12 +95,12 @@ return {
 			PremiumEgg = {
 				name = "Premium Egg",
 				robux = 49,
-				description = "One Premium Egg, with a chance at a Dragonling or Phoenix. Exact odds are shown before you buy.",
+				description = "One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy.",
 			},
 			LuckBoost = {
 				name = "Luck Boost",
 				robux = 49,
-				description = "Better odds of Rare, Epic and Legendary hatches for 15 minutes. The boosted odds are shown.",
+				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
 			},
 		},
 	},
@@ -89,8 +108,8 @@ return {
 		LuckBoost = {
 			durationSeconds = 900,
 			-- Multiplier per rarity on the eggs listed.
-			eggs = { "BasicEgg", "MeadowEgg", "PremiumEgg" },
-			rarityMultipliers = { Rare = 1.5, Epic = 2, Legendary = 2 },
+			eggs = { "BasicEgg", "MeadowEgg", "MoonlitEgg", "PremiumEgg" },
+			rarityMultipliers = { Rare = 1.5, ["Ultra Rare"] = 1.75, Epic = 2, Legendary = 2, Godly = 2 },
 		},
 	},
 }

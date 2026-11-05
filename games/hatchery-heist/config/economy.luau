@@ -27,7 +27,7 @@ return {
 	conveyor = {
 		spawnSeconds = 3, -- one new egg this often
 		travelSeconds = 18, -- time an egg takes to ride the whole belt
-		weights = { BasicEgg = 75, MeadowEgg = 25 },
+		weights = { BasicEgg = 70, MeadowEgg = 25, MoonlitEgg = 5 },
 	},
 
 	-- Creatures that can earn at once; when every pad is full, a better hatch
@@ -43,6 +43,29 @@ return {
 
 	-- With the Auto-Collect pass, earnings move into coins this often (seconds).
 	autoCollectSeconds = 30,
+
+	-- Daily Rewards, Day 1 to 7 (then round again; a missed day starts over).
+	-- Each is `incomeSeconds` of the player's income, at least `minCoins` and
+	-- at most `maxCoins`. The cap keeps the free reward well below the coin
+	-- packs: Day 7 (the biggest) is a quarter of the 80K Coins pack, and
+	-- Config.spec fails if any day goes over that.
+	daily = {
+		rewards = {
+			{ incomeSeconds = 300, minCoins = 250, maxCoins = 2000 },
+			{ incomeSeconds = 450, minCoins = 400, maxCoins = 3000 },
+			{ incomeSeconds = 600, minCoins = 600, maxCoins = 4500 },
+			{ incomeSeconds = 900, minCoins = 900, maxCoins = 6500 },
+			{ incomeSeconds = 1200, minCoins = 1300, maxCoins = 9000 },
+			{ incomeSeconds = 1500, minCoins = 1800, maxCoins = 13000 },
+			{ incomeSeconds = 2700, minCoins = 3500, maxCoins = 20000 },
+		},
+	},
+
+	-- Hatchery Book: every species a player has ever owned adds this much
+	-- income (0.01 = +1%), so a full book of 33 is +33%.
+	book = {
+		incomePerSpecies = 0.01,
+	},
 
 	-- Multiplier for the Double Coins pass.
 	doubleCoinsMultiplier = 2,

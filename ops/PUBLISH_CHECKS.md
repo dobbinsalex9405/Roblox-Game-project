@@ -17,6 +17,9 @@ on Staging.
 | Build `tools/build.sh` | Rojo project resolves, environment stamp written | yes (dev) | yes (staging) | yes (production) | |
 | **Boot check** `lune run tools/boot/run --built <game>` | the built place starts its server, a player can join, the client UI starts, a player can leave | yes, every game | yes, the uploaded file | yes, the uploaded file | |
 | **Key flows** `tools/keyflows.sh <game>` | the main loop plays through headless: every system check in `playtests/<game>/checks.luau` passes | yes, every game | yes | yes | |
+| **Player's-eye audit** `lune run tools/audit/run` | nothing buried, the spawn is standable, the HUD fits a phone, every first-screen button and the shop work (`ops/VISUAL_PLAYTEST.md`) | yes, every game, with images | yes, the uploaded file | yes, the uploaded file | |
+| **Real-engine check** `lune run tools/cloud/run <game>` | the same world checks with real collision geometry, Roblox's own text metrics, server start-up errors, inside a real Roblox server | verifier runs it on the PR head | yes, once `CLOUD_CHECK` is on | | |
+| **Visual playtest report** | a person's-eye look: images, real engine, Studio play-solo for world/UI changes | required for game code (`visual-playtest` status) | | | |
 | Version read-back | Roblox accepted the upload and reports the new place version | | yes (run summary) | yes (summary + git tag) | |
 | **Live join** (below) | the version behaves on real Roblox: loads, plays, saves, sells | | | | within 1 hour of a Staging publish; before and right after a Production publish |
 | **Error-queue sweep** (below) | no server or client error from the new build | | | | 1 hour and 24 hours after a publish |
@@ -50,12 +53,20 @@ build and before the upload:
    core loop, selling, upgrades, passes, rejoin, exploit refusals). It exits
    non-zero on any `[BUG]`. Every game must have one; a game without it cannot
    be published.
+5. **Player's-eye audit** on the built file:
+   `lune run tools/audit/run --built --no-images <game>`. Any FAIL (a buried
+   part or spawn, a spawn a player cannot stand on, a button off a phone
+   screen, a click that errors) stops the upload. `ops/VISUAL_PLAYTEST.md`.
+6. **Real-engine check** (Staging, when the repository variable `CLOUD_CHECK`
+   is `on`): `lune run tools/cloud/run <game>` saves the file as an
+   unpublished Staging version and checks it inside a real Roblox server.
 
 Production adds: the ref must already be on `main`, and Alex must click
 Approve on the `production` environment.
 
-What the gate cannot do: judge how anything looks, moves or sounds, or talk to
-real Roblox services. That is what the post-publish checks are for.
+What the gate cannot do: judge how anything moves or sounds, or talk to real
+Roblox services. The audit approximates how it looks; the verifier's visual
+playtest (Studio play-solo) and the post-publish checks cover the rest.
 
 ## Post-publish checks
 
@@ -104,22 +115,36 @@ and see customers leave, not stack.
 a margin; sell; buy the Rucksack; see the lamp refill at camp; let the lamp
 run out once and confirm the ore is lost but the save is fine.
 
-### 3. Error-queue sweep (automated by the daily run, or by hand)
+### 3. Error-queue sweep (one workflow run)
 
-Servers write errors and feedback to the `ErrorQueue` DataStore once per
-minute at most (`packages/core/src/ErrorReporter.luau`), tagged with the build
-commit. One hour and 24 hours after a publish, list the entries written since
-the publish and read the ones whose `build` equals the published commit:
+Servers write their errors to the `ErrorQueue` DataStore once per minute at
+most (`packages/core/src/ErrorReporter.luau`), tagged with the build commit,
+under dated keys (`YYYYMMDD-HHMMSS-<server>-<n>`). The **Player feedback**
+workflow reads them (`tools/feedback/errors.luau`):
+
+- **1 hour after a publish**, run it by hand (Actions → Player feedback →
+  Run workflow, or the GitHub tools from a Claude thread) with `hours: 1` and
+  `build: <the published commit>`. It always opens an issue
+  "Error sweep: last 1 h (build abc1234)" labelled `error-sweep`, plus `stop`
+  when the rules below say stop. The thread that merged or published sets
+  itself a reminder to do this.
+- **24 hours after**: the next daily digest covers it (its **Errors**
+  section lists every build's errors for the day), or run it again with
+  `hours: 24`.
+
+The verdicts, which the tool applies and the issue shows:
 
 - Any **server** error record: stop. Fix forward on Staging, or roll
   Production back.
 - **Client** error records with `count` under 10 across all servers: open an
   issue, keep going. 10 or more: treat as a server error.
-- Feedback records: triage in the feedback thread as usual.
+- Player reports are in the `Feedback` store and go through the daily
+  digest as usual (`ops/FEEDBACK.md`).
 
-Reading the queue needs the game's API key with DataStore read on that
-environment (`ops/SETUP.md` step 2); the daily run does this with the keys
-GitHub already holds, never from a laptop.
+Reading the queue uses the read-only `ROBLOX_READ_API_KEY` (`ops/SETUP.md`
+step 2b), the same key as player feedback, in GitHub Actions; never from a
+laptop. Until the key exists the sweep cannot run: look at the experience's
+error report in the Creator Dashboard instead (Alex), and say so.
 
 ### 4. Production only: the first 24 hours
 
@@ -145,6 +170,7 @@ the check is reproducible.
   and touches `DataStoreService` would turn most of the live join's
   "it loads" items into a workflow step. It needs the API key to carry the
   Luau execution scope for that experience; add it when the keys are created.
-- **The error-queue sweep in the publish workflows.** Today it belongs to the
-  daily run (`ops/DAILY_RUN.md`), which already reads the queue. A delayed job
-  in the publish workflow would need the same DataStore read scope.
+- **Starting the 1-hour sweep from the publish workflows.** The sweep is one
+  workflow run, but a publish job that waits an hour would burn an hour of
+  Actions minutes per publish on a free private repo. For now the thread that
+  published starts it (a reminder), and the daily run catches any it missed.

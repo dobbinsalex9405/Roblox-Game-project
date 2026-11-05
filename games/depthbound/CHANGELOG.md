@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- Phones (shared core): the close button (X) on the shop, test panel and
+  feedback windows is 40 by 40 px.
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
+- Player analytics (shared core): the daily scoreboard now shows time played
+  and session lengths, D7 and D30 returns, players who come with or bring
+  friends, Robux by item and by where in the game it was bought, purchase
+  prompts, onboarding drop-off and game event counts.
+  The oil refill button reports its purchases as `HudRefill`.
+
+- Error reports (shared core) are stored under dated keys, so the daily
+  feedback digest and the post-publish error sweep can read them by day.
+- Feedback button in the top bar (shared core): players send a Bug, Idea or
+  Other report with an optional fun rating. Reports carry this game's
+  progress snapshot (gear tiers, pack contents, deepest row, dives and lamp-outs) to help reproduce bugs.
 - Robux prices and Roblox listings (name, price, description) for every
   pass and product, on the studio price ladder (ops/PRICING.md).
 

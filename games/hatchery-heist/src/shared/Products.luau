@@ -16,7 +16,7 @@ export type CatalogItem = {
 local Products = {}
 
 -- The coin packs, in shop order.
-Products.COIN_PACKS = table.freeze({ "CoinPackSmall", "CoinPackMedium", "CoinPackLarge" })
+Products.COIN_PACKS = table.freeze({ "CoinPackSmall", "CoinPackMedium", "CoinPackBig", "CoinPackLarge" })
 
 local function short(n: number): string
 	if n >= 1e6 then

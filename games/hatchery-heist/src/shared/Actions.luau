@@ -10,6 +10,7 @@
 -- testable without Roblox.
 
 local Conveyor = require("./Conveyor")
+local Daily = require("./Daily")
 local Eggs = require("./Eggs")
 local Hatchery = require("./Hatchery")
 
@@ -34,7 +35,7 @@ export type Options = {
 	plotOf: (player: any) -> number?,
 	-- Effects on the player.
 	notify: (player: any, text: string) -> (),
-	hatched: (player: any, speciesId: string) -> (),
+	hatched: (player: any, speciesId: string, eggId: string, isNew: boolean) -> (),
 	welcome: (player: any, coins: number, readyEggs: number) -> (),
 	mount: (player: any, speed: number?) -> (), -- speed nil = dismount
 }
@@ -47,9 +48,13 @@ export type Actions = {
 	hatch: (self: Actions, player: any, slot: number) -> (boolean, string?),
 	buySlot: (self: Actions, player: any) -> (boolean, string?),
 	collect: (self: Actions, player: any) -> (boolean, string?),
+	claimDaily: (self: Actions, player: any) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
+	-- Studio test panel only: adds a creature of any species, placed like a
+	-- hatch. Returns whether it worked and what to show.
+	grantCreature: (self: Actions, player: any, speciesId: string) -> (boolean, string),
 	-- For the raid layer (Raids.luau): one atomic update with income brought
 	-- up to date; `fn` returns a refusal or nil.
 	change: (
@@ -156,6 +161,7 @@ function Actions.new(options: Options): Actions
 		local step: number? = nil
 		local mountSpeed: number? = nil
 		local ok = data:update(player, function(d: Hatchery.Data)
+			Hatchery.backfillFound(d)
 			earned = Hatchery.welcomeBack(d, now, perSecond(d, player), economyConfig)
 			for _, incubator in d.incubators do
 				if incubator.readyAt <= now then
@@ -279,10 +285,13 @@ function Actions.new(options: Options): Actions
 		local sold: { any } = {}
 		local step: number? = nil
 		local fullStep: number? = nil
+		local isNew = false
 		local now = options.now()
 		local ok, err = change(player, function(d, ledger)
 			local refusal: string?
+			local foundBefore = Hatchery.foundCount(d, config.creatures)
 			creature, refusal, sold = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
+			isNew = Hatchery.foundCount(d, config.creatures) > foundBefore
 			if creature then
 				step = Hatchery.markFirst(d, "FirstHatch", now)
 				if Hatchery.padsFull(d, economyConfig.creaturePads) then
@@ -295,7 +304,7 @@ function Actions.new(options: Options): Actions
 			onboarding(player, step)
 			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
-			options.hatched(player, creature.speciesId)
+			options.hatched(player, creature.speciesId, creature.eggId, isNew)
 			if #sold > 0 then
 				local pending: SoldNotice = soldNotice[player]
 					or { at = -math.huge, count = 0, coins = 0, what = "" }
@@ -336,6 +345,25 @@ function Actions.new(options: Options): Actions
 		end)
 		if ok then
 			onboarding(player, step)
+		end
+		return ok, err
+	end
+
+	-- Daily Rewards: today's coins, once a UTC day (shared/Daily.luau).
+	function actions.claimDaily(_self: Actions, player: any): (boolean, string?)
+		local coins: number? = nil
+		local day = 0
+		local ok, err = change(player, function(d, ledger)
+			local paid, result =
+				Daily.claim(d, ledger, options.now(), perSecond(d, player), economyConfig.daily)
+			if paid == nil then
+				return result :: string
+			end
+			coins, day = paid, result :: number
+			return nil
+		end)
+		if ok and coins then
+			options.notify(player, `Day {day} reward: +{coins} coins!`)
 		end
 		return ok, err
 	end
@@ -386,6 +414,39 @@ function Actions.new(options: Options): Actions
 			options.mount(player, nil)
 		end
 		return ok, err
+	end
+
+	function actions.grantCreature(_self: Actions, player: any, speciesId: string): (boolean, string)
+		if config.creatures.species[speciesId] == nil then
+			return false, `No creature called {speciesId}.`
+		end
+		-- Record the first egg that can hatch it, so it looks like any other.
+		local eggId: string? = nil
+		for _, egg in config.eggs do
+			for _, outcome in egg.outcomes do
+				if eggId == nil and outcome.id == speciesId then
+					eggId = egg.id
+				end
+			end
+		end
+		local creature: any = nil
+		local now = options.now()
+		local ok, err = change(player, function(d, ledger)
+			creature = Hatchery.receive(d, ledger, {
+				speciesId = speciesId,
+				mutation = "None",
+				eggId = eggId or config.eggs[1].id,
+				hatchedAt = now,
+			}, config.creatures, economyConfig)
+			return nil
+		end)
+		if not ok or creature == nil then
+			return false, `Could not add {speciesId}: {err or "unknown"}.`
+		end
+		if creature.slot == nil then
+			return true, `{speciesId} added to storage (every pad holds a better creature).`
+		end
+		return true, `{speciesId} added on pad {creature.slot}, ready to ride or guard.`
 	end
 
 	return (actions :: any) :: Actions
