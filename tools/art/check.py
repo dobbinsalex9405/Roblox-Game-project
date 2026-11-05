@@ -19,6 +19,8 @@ Checks:
       trot 4, waddle 2, hop 0/2/4/6 (hopping insects), scuttle 0 or 4+,
       slither 0, hover any, swim 0 (fins are finL/finR, not legs)
     - Legendary/Godly are hand-built (not in tools/art/roster)
+ 3b. no loose pieces (Common..Epic, after rig.weld): every voxel touches the body
+    face to face, so nothing floats once voxels are bevelled blocks
  4. ids unique, CamelCase <= 24 chars, never reuse a removed id
  5. hatchery tests pass (lune run tools/test/run hatchery), stylua --check
 """
@@ -83,7 +85,22 @@ def main():
         print('PASS generated files current')
 
     import describe as D
-    metas = D.manifest()['creatures']
+    cs = D.creatures()
+    metas = D.manifest(cs)['creatures']
+    try:
+        import rig
+    except ImportError:  # before the walking-legs rig (#70)
+        rig = None
+    if rig is not None and hasattr(rig, '_components'):
+        for c in cs:
+            if c.rarity not in getattr(rig, 'WELD_TIERS', ()):
+                continue
+            vox = {v for p in c.parts if p.anim != 'orbit' for v in p.v}
+            loose = rig._components(vox)[1:]
+            if loose:
+                fail(f'{c.species} ({c.rarity}): {len(loose)} loose piece(s) not touching the body face to face '
+                     f'(sizes {sorted(map(len, loose), reverse=True)[:5]}); rig.weld joins pieces within '
+                     f'{rig.WELD_REACH} voxels, so move it closer or attach it')
     ids = [m['id'] for m in metas]
     dup = {i for i in ids if ids.count(i) > 1}
     if dup:
