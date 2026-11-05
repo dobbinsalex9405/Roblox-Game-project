@@ -67,3 +67,19 @@ PASS. Contains main eecbc3e. Chick, Ember Fox and Phoenix match main exactly on 
 14/61/415, total part volume 1.219/10.406/188.729, no MeshParts or blank meshes, same heights
 within animation). Ridden Phoenix 6.0 studs with no neon, ring, light or particles; rider in view.
 Output: no errors.
+
+## Gate: #59 at 220b513
+
+FAIL on one item (phone clipping), everything else PASS.
+- Odds card shows tier chances only (Basic: Common 92% ... Legendary 0.002%), one text size, "See every
+  creature" opens "Basic Egg: every creature" grouped by tier with per-creature chances (six Commons
+  at 15.33% add up to the 92% tier). Desktop clean.
+- FAIL: at 844x392 the list's right column is cut off by the scroll bar ("1 in 6." / "1 in 28.") on
+  every row (`59-hh-every-creature-phone`). The list also covers the HUD bar at that size.
+- Hatching 4 Basic eggs: Turtle (Uncommon), Mouse, Piglet, plus one still to hatch; the reveal names
+  the creature with "1 in N" matching the list. Plausible, small sample.
+- Sizes on pads: Common 2.0, Uncommon 2.2, Rare 2.4, Ultra Rare 2.7, Epic 3.0, Legendary 3.4,
+  Godly 3.8 studs. Phoenix ride 4.4 studs, no glow.
+- Daily Rewards at 844x392: Day 5/6 labels 16 px, amounts 18 px, "coins" 13 px, intro 14 px,
+  nothing clipped.
+- Output: no errors.
