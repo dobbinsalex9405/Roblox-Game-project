@@ -511,7 +511,8 @@
     },
     {
      "kind": "raindrops",
-     "color": "#3FA9F5"
+     "color": "#5CB8F0",
+     "color2": "#8FD8FF"
     },
     {
      "kind": "cloud_hump",
@@ -612,9 +613,15 @@
    "accessories": [
     {
      "kind": "hedgehog_quills",
-     "color": "#4E8F3A",
-     "color2": "#F2E4C4",
-     "snout": "#F3DFC4"
+     "color": "#3F7A30",
+     "color2": "#A8D878",
+     "snout": "#F3DFC4",
+     "thorns": true
+    },
+    {
+     "kind": "rosebud",
+     "color": "#E8365F",
+     "color2": "#3F8F3A"
     },
     {
      "kind": "mend",
@@ -765,16 +772,17 @@
    },
    "shape": {
     "body": [
-     0.92,
-     0.92,
-     0.92
+     0.9,
+     0.9,
+     0.9
     ]
    },
    "accessories": [
     {
      "kind": "aura_raincloud",
-     "color": "#E8EEF6",
-     "color2": "#7FD4FF"
+     "color": "#F2F6FB",
+     "color2": "#5CBFFF",
+     "float": true
     },
     {
      "kind": "mend",
