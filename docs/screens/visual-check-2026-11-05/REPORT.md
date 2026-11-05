@@ -302,3 +302,13 @@ FAIL. After 20 s all four still draw as voxel boxes (Crystal Stag 108 boxes, Fro
 Ember Fox 61, Moon Unicorn 104; no MeshParts). Output gives the reason each time: "mesh
 <Species>_body_glow missing from asset <id>" — CrystalStag 76176813759498, EmberFox
 115947540552349, FrostWolf 118793263738444, MoonUnicorn 110066245966043.
+
+## Re-gate: #83 at 74a596c
+
+Mixed. From the yard and from a neighbour's base, all 15 creatures on floors 2-4 are drawn (PASS).
+Phone 844x392: 59.8 fps. No game errors (voxel-box notes for the 4 glow species are the #94
+issue). **Walking:** the whole creature rocks side to side (10-17° on the walkers), nods (8° pitch)
+and bobs (0.13) at about 1.3-1.8 studs/s, but heads, ears and tails never move against the body
+(0° on every part), so there's no ear or tail swing. **Own-tower rule:** standing on your own
+ground floor inside the tower, floor 2 and all of floor 4 show while half of floor 3 is hidden
+(pads 21-24 hidden, 17-20 shown). That doesn't match "your floor ±1".
