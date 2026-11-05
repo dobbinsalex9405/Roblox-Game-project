@@ -16,8 +16,13 @@
 -- lights and a rainbow ring. The ball's `LookFade` attribute says when a
 -- creature is a ghost (0.75: ridden or guarding) or gone (1: carried off).
 --
+-- Two ways to draw a creature, same parts, joints and animation either way:
+-- its Blender meshes (shared/CreatureMeshes, loaded by the server into
+-- ReplicatedStorage.CreatureMeshes) when they are there, otherwise its
+-- VoxelArt boxes. Meshes that arrive after a creature is drawn swap it over.
+--
 -- The creature you ride yourself fills most of your camera, so it keeps its
--- colours but drops its glow: no neon, no light, no sparkles and no ring.
+-- colours but drops its glow: no neon, no light, no sparkles, ring or orbs.
 -- Everyone else still sees it shine.
 
 local Players = game:GetService("Players")
@@ -28,12 +33,14 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local ArtScale = require(Shared.ArtScale)
 local CreatureLooks = require(Shared.CreatureLooks)
+local CreatureMeshes = require(Shared.CreatureMeshes)
 local Layout = require(Shared.Layout)
 local VoxelArt = require(Shared.VoxelArt)
 
 local CreatureView = {}
 
 local ATTRIBUTE = "CreatureLook"
+local MESH_FOLDER = "CreatureMeshes" -- server/CreatureAssets fills it
 local ANIMATE_RANGE = 160 -- studs from the camera; further creatures hold still
 local RING_TRANSPARENCY = 0.45
 local LIGHT_BRIGHTNESS = 1 -- was 1.5 to 2.5 pulsing: a base of Legendaries washed out
@@ -44,9 +51,12 @@ local function dim(color: Color3, neon: number): Color3
 end
 
 type Motor = { motor: Motor6D, anim: string }
-type Glow = { part: Part, color: Color3 }
+type Glow = { part: BasePart, color: Color3 }
+type Joint = { name: string, anim: string, parent: string? }
 type Visual = {
 	anchor: BasePart,
+	species: string,
+	meshed: boolean,
 	model: Model,
 	look: CreatureLooks.Look,
 	height: number,
@@ -140,21 +150,72 @@ local function applyFade(v: Visual)
 	end
 end
 
+-- The loaded meshes for a species, when the server has them and every mesh
+-- the creature needs is there.
+local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instance?)
+	local entry = CreatureMeshes[speciesId]
+	local folder = ReplicatedStorage:FindFirstChild(MESH_FOLDER)
+	local source = if entry and folder then folder:FindFirstChild(speciesId) else nil
+	if entry == nil or source == nil then
+		return nil, nil
+	end
+	for _, part in entry.parts do
+		for _, mesh in part.meshes do
+			if not source:FindFirstChild(mesh.name) then
+				return nil, nil
+			end
+		end
+	end
+	return entry, source
+end
+
+local function vec(t: { number }, k: number): Vector3
+	return Vector3.new(t[1] * k, t[2] * k, t[3] * k)
+end
+
+-- A copy of one of a creature's MeshParts, sized for `k` (1 = its size on
+-- a pad) and placed at `cframe`. Glowing meshes are plain Neon in their
+-- colour, like the glowing boxes, so the pulse and shimmer work the same.
+local function meshPiece(source: Instance, mesh: CreatureMeshes.Mesh, k: number, cframe: CFrame): MeshPart
+	local template = source:FindFirstChild(mesh.name) :: MeshPart
+	local p = template:Clone()
+	p.Size = vec(mesh.size, k)
+	p.CFrame = cframe
+	p.Anchored = false
+	p.CanCollide = false
+	p.CanTouch = false
+	p.CanQuery = false
+	p.Massless = true
+	p.CastShadow = false
+	if mesh.glow then
+		for _, child in p:GetChildren() do
+			if child:IsA("SurfaceAppearance") then
+				child:Destroy()
+			end
+		end
+		p.TextureID = ""
+		p.Material = Enum.Material.Neon
+		p.Color = (rgb(mesh.glow))
+	end
+	return p
+end
+
 local function build(anchor: BasePart, speciesId: string)
+	local mesh, source = meshSource(speciesId)
 	local art = VoxelArt.species[speciesId]
-	if art == nil then
+	if art == nil and mesh == nil then
 		return -- no art: the ball stays as it is
 	end
-	local look = CreatureLooks[art.rarity] or CreatureLooks.Common
-	-- Studs per voxel: the art's own size on a pad, scaled with the ball when
-	-- the server draws it smaller (ridden or carried overhead), and then small
-	-- enough that the whole art, crest and all, fits inside the ball.
-	local s = VoxelArt.voxel
-		* ArtScale.drawScale(anchor.Size.Y, Layout.raritySize(art.rarity), art.size[2] * VoxelArt.voxel)
-	-- Your own mount fills your camera: no glow on it for you.
-	local character = Players.LocalPlayer.Character
-	local ownMount = character ~= nil and anchor.Name == "Mount" and anchor:IsDescendantOf(character)
-	local height = art.size[2] * s
+	local rarity = if mesh then mesh.rarity else (art :: VoxelArt.Art).rarity
+	local look = CreatureLooks[rarity] or CreatureLooks.Common
+	-- k: the creature's size against its size on a pad, smaller when the
+	-- server draws it ridden or carried overhead, and then small enough that
+	-- the whole art, crest and all, fits inside the ball. s: studs per voxel.
+	local artHeight = if mesh then mesh.size[2] else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
+	local k = ArtScale.drawScale(anchor.Size.Y, Layout.raritySize(rarity), artHeight)
+	local s = VoxelArt.voxel * k
+	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)
+	local height = size.Y
 	local feet = anchor.CFrame * CFrame.new(0, -anchor.Size.Y / 2, 0)
 
 	local model = Instance.new("Model")
@@ -162,6 +223,8 @@ local function build(anchor: BasePart, speciesId: string)
 
 	local v: Visual = {
 		anchor = anchor,
+		species = speciesId,
+		meshed = mesh ~= nil,
 		model = model,
 		look = look,
 		height = height,
@@ -182,65 +245,95 @@ local function build(anchor: BasePart, speciesId: string)
 		connections = {},
 	}
 
-	local palette: { { color: Color3, glow: boolean } } = {}
 	local glowColor: Color3? = nil
-	for i, hex in art.palette do
-		local color, glow = rgb(hex)
-		palette[i] = { color = color, glow = glow }
-		if glow and glowColor == nil then
-			glowColor = color
-		end
-	end
-	local rarityColor = Layout.rarityColor(art.rarity)
+	local rarityColor = Layout.rarityColor(rarity)
 
-	-- One invisible root per part, at its pivot; the parts' boxes weld to it.
+	-- One invisible root per part, at its pivot; the part's meshes or boxes
+	-- weld to it.
 	local roots: { [string]: BasePart } = {}
-	for _, part in art.parts do
-		local pivot = feet * CFrame.new(part.pivot[1] * s, part.pivot[2] * s, part.pivot[3] * s)
-		local root = visualPart(`Root_{part.name}`, Vector3.new(0.05, 0.05, 0.05), pivot)
+	local joints: { Joint } = {}
+	local function addRoot(name: string, pivot: CFrame)
+		local root = visualPart(`Root_{name}`, Vector3.new(0.05, 0.05, 0.05), pivot)
 		root.Transparency = 1
 		root.Parent = model
-		roots[part.name] = root
-		local boxes = part.boxes
-		for i = 1, #boxes, 7 do
-			local x, y, z = boxes[i], boxes[i + 1], boxes[i + 2]
-			local sx, sy, sz = boxes[i + 3], boxes[i + 4], boxes[i + 5]
-			local entry = palette[boxes[i + 6]]
-			local box = visualPart(
-				part.name,
-				Vector3.new(sx * s, sy * s, sz * s),
-				feet * CFrame.new((x + sx / 2) * s, (y + sy / 2) * s, (z + sz / 2) * s)
-			)
-			box.Color = entry.color
-			if entry.glow and not ownMount then
-				box.Material = Enum.Material.Neon
-				box.Color = dim(entry.color, look.neon)
-				table.insert(v.glow, { part = box, color = box.Color })
+		roots[name] = root
+		return root
+	end
+	-- Your own mount fills your camera: no glow on it for you.
+	local character = Players.LocalPlayer.Character
+	local ownMount = character ~= nil and anchor.Name == "Mount" and anchor:IsDescendantOf(character)
+	local function keep(piece: BasePart, anim: string, glow: Color3?)
+		piece.Parent = model
+		if glow and ownMount then
+			piece.Material = Enum.Material.SmoothPlastic
+		elseif glow then
+			piece.Color = dim(glow, look.neon)
+			table.insert(v.glow, { part = piece, color = piece.Color })
+			if glowColor == nil then
+				glowColor = glow
 			end
-			weld(root, box)
-			box.Parent = model
-			if part.anim == "blink" then
-				table.insert(v.eyes, box)
-			else
-				table.insert(v.boxes, box)
+		end
+		if anim == "blink" then
+			table.insert(v.eyes, piece)
+		else
+			table.insert(v.boxes, piece)
+		end
+	end
+
+	if mesh and source then
+		for _, part in mesh.parts do
+			local root = addRoot(part.name, feet * CFrame.new(vec(part.pivot, k)))
+			for _, m in part.meshes do
+				local piece = meshPiece(source, m, k, feet * CFrame.new(vec(m.center, k)))
+				weld(root, piece)
+				keep(piece, part.anim, if m.glow then (rgb(m.glow)) else nil)
 			end
+			table.insert(joints, { name = part.name, anim = part.anim, parent = part.parent })
+		end
+	else
+		local voxel = art :: VoxelArt.Art
+		local palette: { { color: Color3, glow: boolean } } = {}
+		for i, hex in voxel.palette do
+			local color, glow = rgb(hex)
+			palette[i] = { color = color, glow = glow }
+		end
+		for _, part in voxel.parts do
+			local root = addRoot(part.name, feet * CFrame.new(vec(part.pivot, s)))
+			local boxes = part.boxes
+			for i = 1, #boxes, 7 do
+				local x, y, z = boxes[i], boxes[i + 1], boxes[i + 2]
+				local sx, sy, sz = boxes[i + 3], boxes[i + 4], boxes[i + 5]
+				local entry = palette[boxes[i + 6]]
+				local box = visualPart(
+					part.name,
+					Vector3.new(sx * s, sy * s, sz * s),
+					feet * CFrame.new((x + sx / 2) * s, (y + sy / 2) * s, (z + sz / 2) * s)
+				)
+				box.Color = entry.color
+				if entry.glow then
+					box.Material = Enum.Material.Neon
+				end
+				weld(root, box)
+				keep(box, part.anim, if entry.glow then entry.color else nil)
+			end
+			local anim = if part.name == "body" then "body" else part.anim
+			table.insert(joints, { name = part.name, anim = anim, parent = part.parent })
 		end
 	end
 	-- Joints: the body hangs from the ball, everything else from its parent.
-	for _, part in art.parts do
-		local root = roots[part.name]
-		local parent: BasePart = if part.parent then roots[part.parent] or anchor else anchor
+	for _, joint in joints do
+		local root = roots[joint.name]
+		local parent: BasePart = if joint.parent then roots[joint.parent] or anchor else anchor
 		local motor = Instance.new("Motor6D")
-		motor.Name = part.name
+		motor.Name = joint.name
 		motor.Part0 = parent
 		motor.Part1 = root
 		motor.C0 = parent.CFrame:ToObjectSpace(root.CFrame)
 		motor.Parent = root
-		local anim = if part.name == "body" then "body" else part.anim
-		table.insert(v.motors, { motor = motor, anim = anim })
+		table.insert(v.motors, { motor = motor, anim = joint.anim })
 	end
 
-	local width = math.max(art.size[1], art.size[3]) * s
+	local width = math.max(size.X, size.Z)
 	local centre = feet * CFrame.new(0, height / 2, 0)
 
 	if look.ring and not ownMount then
@@ -334,14 +427,29 @@ local function build(anchor: BasePart, speciesId: string)
 end
 
 -- A still copy of a creature for a picture (the hatch reveal, the Hatchery
--- Book): anchored boxes with its feet at the origin, facing -Z like on a pad.
--- Returns the model and its size in studs, or nil for a species without art.
+-- Book): its meshes, or anchored boxes, with its feet at the origin, facing
+-- -Z like on a pad. Returns the model and its size in studs, or nil for a
+-- species without art.
 function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (Model?, Vector3)
+	local s = studsPerVoxel or VoxelArt.voxel
+	local mesh, source = meshSource(speciesId)
+	if mesh and source then
+		local k = s / VoxelArt.voxel
+		local model = Instance.new("Model")
+		model.Name = speciesId
+		for _, part in mesh.parts do
+			for _, m in part.meshes do
+				local piece = meshPiece(source, m, k, CFrame.new(vec(m.center, k)))
+				piece.Anchored = true
+				piece.Parent = model
+			end
+		end
+		return model, vec(mesh.size, k)
+	end
 	local art = VoxelArt.species[speciesId]
 	if art == nil then
 		return nil, Vector3.zero
 	end
-	local s = studsPerVoxel or VoxelArt.voxel
 	local model = Instance.new("Model")
 	model.Name = speciesId
 	local colors: { Color3 } = {}
@@ -468,11 +576,42 @@ local function animate(v: Visual, now: number)
 	end
 end
 
+-- Meshes for a species just arrived: redraw its creatures with them.
+local function meshesArrived(model: Instance)
+	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
+	-- must not happen while iterating it.
+	local redraw: { BasePart } = {}
+	for anchor, v in visuals do
+		if v.species == model.Name and not v.meshed then
+			table.insert(redraw, anchor)
+		end
+	end
+	for _, anchor in redraw do
+		remove(anchor)
+		watch(anchor)
+	end
+end
+
+local function watchMeshFolder(folder: Instance)
+	if folder.Name ~= MESH_FOLDER or not folder:IsA("Folder") then
+		return
+	end
+	folder.ChildAdded:Connect(meshesArrived)
+	for _, model in folder:GetChildren() do
+		meshesArrived(model)
+	end
+end
+
 function CreatureView.start()
 	for _, inst in Workspace:GetDescendants() do
 		watch(inst)
 	end
 	Workspace.DescendantAdded:Connect(watch)
+	local folder = ReplicatedStorage:FindFirstChild(MESH_FOLDER)
+	if folder then
+		watchMeshFolder(folder)
+	end
+	ReplicatedStorage.ChildAdded:Connect(watchMeshFolder)
 
 	RunService.RenderStepped:Connect(function()
 		local camera = Workspace.CurrentCamera

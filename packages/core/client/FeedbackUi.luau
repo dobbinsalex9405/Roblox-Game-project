@@ -220,7 +220,7 @@ function FeedbackUi.start()
 
 	local header = Instance.new("Frame")
 	header.Name = "Header"
-	header.Size = UDim2.new(1, 0, 0, 36)
+	header.Size = UDim2.new(1, 0, 0, 40)
 	header.BackgroundTransparency = 1
 	header.Parent = form
 	nextOrder(header)
@@ -228,7 +228,7 @@ function FeedbackUi.start()
 	title.Size = UDim2.new(1, -48, 1, 0)
 	title.Text = "Send feedback"
 	local close = button(header, "Close", "X", CHIP)
-	close.Size = UDim2.fromOffset(40, 36)
+	close.Size = UDim2.fromOffset(40, 40)
 	close.Position = UDim2.new(1, -40, 0, 0)
 
 	local hint = text(form, "Hint", 36, 14)

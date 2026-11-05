@@ -108,9 +108,11 @@ players and no physics) and checks with the real engine:
 Run it with the **Real-engine check** workflow (Actions tab, inputs: the
 PR's branch or head commit, and `all` or one game). It needs the Staging
 keys to carry Luau Execution access (`ops/SETUP.md` section 2). The workflow
-keeps `build/cloud/<game>.md` and the tier 1 images as an artifact. Once the
-keys have that access, set the repository variable `CLOUD_CHECK` to `on`
-and every Staging publish runs it before uploading.
+keeps `build/cloud/<game>.md` and the tier 1 images as an artifact. The
+keys have that access and `CLOUD_CHECK` is `on` (since 2026-11-05), so every
+Staging publish also runs it before uploading. The log prints what the probe
+covered (scripts started, parts, labels, texts); a probe that started no
+script or saw no part fails rather than passing.
 
 Locally (a thread with a key in its environment, never in chat):
 `BUILD_ENVIRONMENT=staging tools/build.sh <game> && lune run tools/audit/run --built <game> && ROBLOX_API_KEY=... lune run tools/cloud/run <game>`.

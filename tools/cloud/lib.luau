@@ -88,4 +88,25 @@ function lib.report(results: { any }?, decodeJson: (string) -> any): { [string]:
 	return report
 end
 
+-- A probe that started no server script or saw no part checked nothing;
+-- that is a failed check, not a pass.
+function lib.coverage(report: { [string]: any }): { { severity: string, rule: string, message: string } }
+	local out = {}
+	if (report.started or 0) == 0 then
+		table.insert(out, {
+			severity = "FAIL",
+			rule = "engine.no-scripts",
+			message = "The probe started no server script, so nothing the game builds was checked.",
+		})
+	end
+	if (report.parts or 0) == 0 then
+		table.insert(out, {
+			severity = "FAIL",
+			rule = "engine.empty-world",
+			message = "The probe saw no parts in Workspace, so the world checks checked nothing.",
+		})
+	end
+	return out
+end
+
 return lib

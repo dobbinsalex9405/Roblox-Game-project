@@ -38,3 +38,26 @@ a few joints per creature, not every box. `src/shared/CreatureLooks.luau`
 says what each tier does: bob, head turn, ear flick, wing flap, blink, glow
 pulse, light, sparkles, rarity ring, hover, orbiting lights. See
 `src/client/CreatureView.luau`.
+
+## Blender meshes (`blender/`)
+
+The same creatures as polished voxel meshes: each voxel face a bevelled
+square, twice the voxels for the small tiers, glowing parts as their own
+meshes, one joint per part. See `ops/ASSETS.md` for how they reach the game.
+
+| File | What it is |
+| --- | --- |
+| `blender/voxmesh.py` | Voxels to bevelled meshes (plain Python) |
+| `blender/palette.py` | The tiny per-creature colour texture |
+| `blender/describe.py` | Every creature's meshes, joints and `meta.json` (plain Python) |
+| `blender/build.py` | Blender: `.glb`, `.fbx`, idle and walk clips, renders |
+| `blender/lineup.py` | Blender: a row of creatures at in-game size |
+| `blender/luau.py` | Writes `src/shared/CreatureMeshes.luau` (CI checks it) |
+| `blender/upload.py` | Uploads the `.fbx` files as Model assets (the workflow runs it) |
+
+```sh
+PYTHONPATH=/opt/bpy python3 tools/art/blender/build.py out --tier Common     # files + renders
+PYTHONPATH=/opt/bpy python3 tools/art/blender/build.py out --no-render       # files only
+PYTHONPATH=/opt/bpy python3 tools/art/blender/lineup.py commons.png --tier Common
+python3 tools/art/blender/luau.py                                            # after any art change
+```

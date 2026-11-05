@@ -15,6 +15,9 @@
   own screen so it doesn't fill your camera. Others still see it shine.
 - The goal line's arrow showed as a missing-glyph box; it now has a gold
   "GOAL" tag, and the arrow over the goal is drawn instead of typed.
+- Creatures can now be drawn as polished Blender voxel meshes with bevelled
+  cubes and twice the detail; until their meshes are uploaded they look as
+  before.
 - Fixed: an incubator could keep saying "Ready!" after its egg hatched.
 - The odds card and the odds board use one text size per list, so long
   names no longer show smaller than their neighbours.
@@ -48,6 +51,9 @@
 - Studio test panel: "Give a creature" adds any species by id, placed on a
   free pad like a hatch, so rides and the guard walk can be checked in
   Studio straight away. Studio only; a live server never runs it.
+- Phones: shop buttons are 40 px tall (thumb-sized), and every shop card
+  reads top to bottom (name, description, price, button).
+- Phones: every window's close button (X) is 40 by 40 px.
 - Fixed (#49): a server error on every frame while any base had no guard
   (every new player), which also stopped every other base's guard from
   moving. The boot check now plays 30 frames, so per-frame errors fail CI.

@@ -29,6 +29,7 @@ local Raids = require(Shared.Raids)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
 
+local CreatureAssets = require(script.CreatureAssets)
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
@@ -105,6 +106,7 @@ for index = 1, Layout.PLOTS do
 end
 Scenery.build(Config.get("atmosphere"))
 Mounts.start()
+CreatureAssets.start(log)
 
 local services: CoreServer.Services
 local actions: Actions.Actions? = nil

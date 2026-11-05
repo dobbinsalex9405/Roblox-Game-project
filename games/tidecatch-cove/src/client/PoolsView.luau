@@ -34,8 +34,8 @@ function PoolsView.start(ctx: Context.Context, hud: Hud.Api)
 	fit.Parent = panel
 	local title = Ui.label(panel, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	title.TextXAlignment = Enum.TextXAlignment.Left
-	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 34), Ui.WARN)
-	close.Position = UDim2.new(1, -46, 0, 4)
+	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 40), Ui.WARN)
+	close.Position = UDim2.new(1, -46, 0, 2)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Name = "List"
 	scroll.Size = UDim2.new(1, -12, 1, -110)
@@ -76,13 +76,20 @@ function PoolsView.start(ctx: Context.Context, hud: Hud.Api)
 		local frame = Instance.new("Frame")
 		frame.Name = `Pool{slot}`
 		frame.LayoutOrder = slot
-		frame.Size = UDim2.new(1, -10, 0, 44)
+		frame.Size = UDim2.new(1, -10, 0, 54)
 		frame.BackgroundTransparency = 1
-		local name = Ui.label(frame, "Name", UDim2.fromScale(0.5, 0.55))
+		local name = Ui.label(frame, "Name", UDim2.new(0.5, -4, 0, 22))
 		name.TextXAlignment = Enum.TextXAlignment.Left
-		local info = Ui.label(frame, "Info", UDim2.fromScale(0.5, 0.45), UDim2.fromScale(0, 0.55))
+		-- Fixed, readable text that wraps, rather than scaled text that
+		-- shrinks to a few pixels on a phone.
+		local info = Ui.label(frame, "Info", UDim2.new(0.5, -4, 1, -24), UDim2.fromOffset(0, 24))
+		info.TextScaled = false
+		info.TextSize = 13
+		info.TextWrapped = true
+		info.TextTruncate = Enum.TextTruncate.AtEnd
 		info.TextXAlignment = Enum.TextXAlignment.Left
-		info.Font = Enum.Font.Gotham
+		info.TextYAlignment = Enum.TextYAlignment.Top
+		info.Font = Enum.Font.GothamMedium
 		info.TextColor3 = Ui.MUTED
 		local feed = Ui.button(frame, "Feed", "Feed", UDim2.new(0.22, -4, 1, -4), Ui.GOOD)
 		feed.Position = UDim2.new(0.5, 2, 0, 2)

@@ -60,6 +60,9 @@ It cannot change anything in a game. Until it exists, the workflow skips.
 
 ### 2c. Real-engine check: Luau Execution on the Staging keys
 
+Done 2026-11-05: the permission is on all four Staging experiences and
+`CLOUD_CHECK` is `on`. The first run on `main` passed for all four games.
+
 The verifier's real-engine check (`ops/VISUAL_PLAYTEST.md` tier 2) runs a
 read-only probe inside a real Roblox server for a **saved, unpublished**
 Staging version. It uses the existing Staging keys, which need one more
@@ -82,7 +85,7 @@ Secrets and variables → Actions → **Variables** → New repository variable
 
 | Key on Roblox (Loop Lab Games) | Scope | GitHub secret(s) | Expires |
 |---|---|---|---|
-| Staging publish (GitHub Actions) | `universe-places` Write on the 4 Staging experiences; Luau Execution read + write once 2c is done | `staging` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
+| Staging publish (GitHub Actions) | `universe-places` Write on the 4 Staging experiences; Luau Execution read + write (added 2026-11-05) | `staging` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
 | Production publish (GitHub Actions) | `universe-places` Write on the 4 Production experiences | `production` environment: `ROBLOX_API_KEY_<GAME>` for all 4 games | No date (60 days unused) |
 | Read-only (GitHub Actions) | `universe-datastores.objects` read + list on all 8 experiences | repository: `ROBLOX_READ_API_KEY` | **2027-01-30**: make a new one before then |
 
