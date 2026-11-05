@@ -22,7 +22,9 @@ kit.accessory:
 - **button_eye**: one big sewn-on button for an eye (a sock puppet's).
 - **knit_head**: knitted bands across the head (a sock's cuff).
 
-And one plan, **twig**: a stick insect, thin everywhere (colours col, accent).
+And two plans: **twig**, a stick insect, thin everywhere (colours col,
+accent); **termite**, a pale banded ant shape with a brown head, a pinched
+waist, thin dark legs and forward antennae (colours col, accent, leg).
 
 Each is fn(c, H, color, color2, a) (variants.py's kit hook): colours are RGB
 tuples, color2 may be None, `a` is the roster entry's accessory dict.
@@ -432,5 +434,56 @@ def twig(c, H, cols, opts):
     return c
 
 
-PLANS = {'twig': ({'col', 'accent'}, {})}
-BUILDERS = {'twig': twig}
+def termite(c, H, cols, opts):
+    """Plan "termite": a pale ant-shaped bug that reads as an insect: a
+    brown head (accent) with small dark jaws, a pale thorax, a pinched
+    waist and a round banded abdomen; six thin dark legs angled out from
+    the thorax (each its own leg part) and thin antennae pointing forward
+    and out. Colours col (the pale body), accent (the head), leg (legs,
+    antennae, jaws; default a dark brown)."""
+    import kit_pond
+    k = H / 10.0
+    col = cols['col']
+    acc = cols.get('accent') or tuple(round(v * 0.6) for v in col)
+    leg = cols.get('leg') or tuple(round(v * 0.45) for v in acc)
+    band = tuple(round(v * 0.72) for v in col)
+    body = c.part('body')
+    head = c.part('head', 'static', (0, -2.0 * k, 3.0 * k))
+    # three segments with clear gaps, held low: head, thorax, waist, abdomen
+    head.ell((0, -3.0 * k, 2.6 * k), (1.2 * k, 1.05 * k, 1.1 * k), acc)
+    body.ell((0, -1.2 * k, 2.2 * k), (0.8 * k, 1.1 * k, 0.7 * k), col)
+    body.ell((0, 0.05 * k, 2.15 * k), (0.3 * k + .2, 0.4 * k, 0.3 * k + .2), col)
+    body.ell((0, 1.85 * k, 2.4 * k), (1.4 * k, 1.65 * k, 1.2 * k), col)
+    # darker bands across the abdomen, so it reads as segmented
+    step = max(2, round(0.7 * k))
+    y0 = round(0.7 * k)
+    body.paint(lambda p, cc, g: (band, False) if p[1] > y0 and (p[1] - y0) % step == 0 else None)
+    kit_pond.face(c, head, k, 2.7, x_off=0.45, size=0.45, cheek_z=2.0)
+    # small dark jaws at the front of the head
+    jy, jz = round(-4.05 * k), round(1.8 * k)
+    for sx in (-1, 1):
+        for i in range(max(1, round(0.6 * k))):
+            x = round(0.3 * k) + (1 if i > 0 else 0) - 1
+            head.put((x if sx > 0 else kit_pond._mx(x), jy - i, jz), leg)
+    # antennae: thin, forward and out from the top front of the head
+    n = max(3, round(2.0 * k))
+    for sx in (-1, 1):
+        x, z = round(0.4 * k), round(3.5 * k)
+        for i in range(n):
+            y = round(-3.6 * k) - i
+            # out one every other step, up one every third, each step touching
+            # the last face to face
+            if i and i % 2 == 0:
+                x += 1
+                head.put((x if sx > 0 else kit_pond._mx(x), y + 1, z), leg)
+            if i and i % 3 == 0:
+                z += 1
+                head.put((x if sx > 0 else kit_pond._mx(x), y + 1, z), leg)
+            head.put((x if sx > 0 else kit_pond._mx(x), y, z), leg)
+    # six thin dark legs from the thorax, the front pair forward, the back pair back
+    kit_pond.bent_legs(body, k, (-2.0, -1.2, -0.4), leg, hip=(0.55, 2.0), knee=(1.5, 2.6), foot=2.4, r=0.2, splay=1.6, c=c)
+    return c
+
+
+PLANS = {'twig': ({'col', 'accent'}, {}), 'termite': ({'col', 'accent', 'leg'}, {})}
+BUILDERS = {'twig': twig, 'termite': termite}
