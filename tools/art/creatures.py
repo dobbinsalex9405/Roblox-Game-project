@@ -322,7 +322,7 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
                 w = max(0, round((1.8 * k - i) * 0.35))
                 earp.box((round(bx - w), round(-2.4 * k), round(7.6 * k) + i), (round(bx + w), round(-2.4 * k) + max(0, round(0.4 * k)), round(7.6 * k) + i), ec)
         elif ears == 'cat':  # short, wide-based triangles set on the head corners
-            n = max(2, round(1.6 * k))
+            n = max(3, round(1.6 * k) + 1)
             y0 = round(-2.5 * k)
             for i in range(n):
                 t = i / (n - 1)
@@ -818,5 +818,7 @@ def build_all(detail=None):
                         del part.v[v]
         c.parts = [p for p in c.parts if p.v]
         rig.split_legs(c, Part)  # walking legs, each its own part
+        if c.fine:
+            c.floating = rig.weld(c)  # no loose pieces in the meshes
         out.append(c)
     return out
