@@ -222,24 +222,47 @@ def aurora_stag(c, H):
                       ((0.25, 1.3, 0.1), (0.5, 1.2, 0.45), (0.75, 1.0, 0.2)) if fine else ((0.35, 1.2, 0.2), (0.7, 1.0, 0.2)),
                       col_at)
         curtains.append(tips)
-    # ribbons of aurora light hanging from tine to tine (fine build)
+    # the aurora: a glowing curtain hanging from each antler's beam, wavy at
+    # the hem, green at the bottom through cyan to violet and pink at the top,
+    # with brighter vertical streaks like real aurora light
+    rib = c.part('aurora', 'glow', (0, hy + 0.3 * k, hz + 1.0 * k))
+    for sx in (1, -1):
+        bx, by, bz = sx * 0.5 * k, hy + 0.3 * k, hz + 0.8 * k
+        cols_top = {}
+        for i in range(60):
+            s_ = 0.2 + 0.8 * i / 59
+            x = bx + sx * s_ * 3.2 * 0.75 * k
+            y = by + s_ * 3.2 * 0.55 * k
+            z = bz + s_ * 2.2 * k - s_ * s_ * 0.5 * k
+            key = (math.floor(x), math.floor(y))
+            cols_top[key] = max(cols_top.get(key, -1e9), z)
+        for (x, y), ztop in cols_top.items():
+            u = abs(x + .5 - bx) / (3.2 * 0.75 * k)
+            depth = (1.1 + 0.9 * math.sin(u * math.pi) + 0.25 * math.sin(u * 17 + sx)) * k
+            for d in range(1, round(depth)):
+                z = math.floor(ztop) - d
+                f = d / depth  # 0 at the beam, 1 at the hem
+                if fine:
+                    band = (pink, violet, cyan, teal, green)[min(4, int(f * 5.2))]
+                    if (x * 3 + y) % 5 == 0 and 0.2 < f < 0.85:
+                        band = cyan if band != cyan else WHITE  # brighter streaks
+                else:
+                    band = violet if f < 0.4 else green
+                for dy in (0, 1):
+                    rib.put((x, y + dy, z), band, True)
+    for q in [q for q in rib.v if q in horns.v or q in h.v or q in b.v]:
+        del rib.v[q]
+    # a frosty ruff on the chest and faint glowing frost-markings on the flanks
+    ruff = c.part('ruff', 'static', (0, -2.0 * k, 6.2 * k))
+    for i in range(14 if fine else 7):
+        a = (i / (13 if fine else 6) - 0.5) * 2.2
+        tip = (math.sin(a) * 1.15 * k, -2.55 * k - 0.15 * k * math.cos(a), 5.3 * k - 0.35 * k * abs(math.sin(a)))
+        limb(ruff, (math.sin(a) * 0.8 * k, -2.0 * k, 6.4 * k), tip, 0.42 * k, 0.2 * k, frostL)
+    for q in [q for q in ruff.v if q in b.v and q[1] > -2.2 * k]:
+        del ruff.v[q]
     if fine:
-        rib = c.part('aurora', 'glow', (0, hy + 0.3 * k, hz + 1.0 * k))
-        for tips in curtains:
-            tips = sorted(tips, key=lambda q: q[1])
-            for a, bq in zip(tips, tips[1:]):
-                steps = max(2, round(math.dist(a, bq)))
-                for i in range(steps + 1):
-                    s = i / steps
-                    x, y, z = (a[j] + (bq[j] - a[j]) * s for j in range(3))
-                    drop = round((0.9 + 0.35 * math.sin(s * math.pi * 2 + x)) * k)
-                    for d in range(drop):
-                        if d % 3 == 2 and i % 2:
-                            continue
-                        f = d / max(1, drop - 1)
-                        rib.put((math.floor(x), math.floor(y), math.floor(z) - d), green if f < 0.4 else (teal if f < 0.75 else violet), True)
-        for q in [q for q in rib.v if q in horns.v or q in h.v]:
-            del rib.v[q]
+        b.paint(lambda p, cc, g: (cyan, True) if not g and abs(p[0] + .5) > 0.9 * k and 4.6 * k < p[2] < 6.2 * k
+                and abs(math.sin((p[1] + .5) / (0.55 * k) + (p[2] + .5) / (0.9 * k))) < 0.09 else None)
     # short tail, white flag
     tail_tube(c, k, (0, 3.8, 5.9), (0, 4.3, 6.1), (0, 4.5, 5.5), 0.38, 0.28, lambda s: frostL)
     tidy(c)
@@ -281,26 +304,26 @@ def void_kitsune(c, H):
                iris2=C('#FF9A3D'), slit=True, behind=hy - 0.9 * k)
     ears_pair(c, k, (0.85, hy / k + 0.35, hz / k + 0.8), 1.5, 0.48, night, inner=mark, lean=0.3)
     ear = c.part('ears')
-    ear.paint(lambda p, cc, g: (markL, True) if p[2] > hz + 2.0 * k and cc == night else None)
+    ear.paint(lambda p, cc, g: (mark, True) if p[2] > hz + 2.0 * k and cc == night else None)
     # nine tails fanned behind, each a soft tube of night sky with a glowing tip
     tail = c.part('tail', 'tail', (0, 2.9 * k, 4.4 * k))
     n = 9
     root = (0, 2.9 * k, 4.4 * k)
     for i in range(n):
-        th = math.radians(-78 + 156 * i / (n - 1))  # fanned like a peacock's, seen from behind
-        L = (3.0 - 0.35 * abs(i - 4) / 4) * k
-        end = (math.sin(th) * L, root[1] + 1.9 * k, root[2] + math.cos(th) * L * 0.85 + 0.6 * k)
+        th = math.radians(-84 + 168 * i / (n - 1))  # fanned like a peacock's, seen from behind
+        L = (3.4 - 0.3 * abs(i - 4) / 4) * k
+        end = (math.sin(th) * L, root[1] + 2.2 * k - 0.5 * k * abs(math.sin(th)), root[2] + math.cos(th) * L * 0.9 + 0.6 * k)
         ctrl = (math.sin(th) * L * 0.35, root[1] + 1.6 * k, root[2] + 0.2 * k)
         pts = []
         m = 22 if fine else 12
         for j in range(m):
             s_ = j / (m - 1)
             q = tuple((1 - s_) ** 2 * a + 2 * (1 - s_) * s_ * cc + s_ * s_ * e for a, cc, e in zip(root, ctrl, end))
-            r = (0.28 + 0.34 * math.sin(min(1.0, s_ * 1.15) * math.pi * 0.8)) * k
+            r = (0.2 + 0.24 * math.sin(min(1.0, s_ * 1.15) * math.pi * 0.8)) * k
             pts.append((*q, max(0.6, r)))
-        tube(tail, pts, lambda s_: night if s_ < 0.72 else (mark if s_ < 0.9 else markL), lambda s_: s_ >= 0.72)
+        tube(tail, pts, lambda s_: night if s_ < 0.74 else (mark if s_ < 0.9 else C('#FF5CD6')), lambda s_: s_ >= 0.74)
     tail.paint(lambda p, cc, g: (nightD, False) if cc == night and p[2] < 4.6 * k else None)
-    sparkle(tail, (WHITE, cyan, WHITE, markL), 26 if fine else 9999, 33, fine)
+    sparkle(tail, (WHITE, cyan, WHITE), 9 if fine else 9999, 33, fine, keep=(mark, C('#FF5CD6')))
     tidy(c)
     orb = ball(C('#7FD8FF'), WHITE, glow=True, cap=True, fine=fine)
     orb2 = ball(C('#C58CFF'), WHITE, glow=True, cap=True, fine=fine)
@@ -379,8 +402,21 @@ def prism_alicorn(c, H):
     sparkle(b, (C('#FFD93B'), C('#3FA9FF')), 300, 41, fine)
     tidy(c)
     gems = [C('#FF4D6D'), C('#FF9A3D'), C('#FFD93B'), C('#4CD964'), C('#3FA9FF'), C('#9A5CFF')]
-    orbit_ring(c, k, [(i * 60, 2.4 + (i % 2) * 0.5, 0.4, shard(g, g, tall=1.4))
-                      for i, g in enumerate(gems)])
+    orb = orbit_ring(c, k, [(i * 60, 2.4 + (i % 2) * 0.5, 0.4, shard(g, g, tall=1.4))
+                            for i, g in enumerate(gems)])
+    # the rainbow halo: a glowing ring floating level above its back, on the
+    # orbit's axis, so it spins in place as the orbit turns
+    allv = [p for part in c.parts if part.name != 'orbit' for p in part.v]
+    zt = max(p[2] for p in allv) + 1 + round(0.35 * k)
+    ox, oy = orb.pivot[0], orb.pivot[1]
+    R0, R1 = 1.35 * k, 1.75 * k
+    for x in range(math.floor(ox - R1) - 1, math.ceil(ox + R1) + 2):
+        for y in range(math.floor(oy - R1) - 1, math.ceil(oy + R1) + 2):
+            d = math.hypot(x + .5 - ox, y + .5 - oy)
+            if R0 <= d <= R1:
+                band = gems[int((math.atan2(y + .5 - oy, x + .5 - ox) + math.pi) / (2 * math.pi) * 6) % 6]
+                for dz in range(2 if fine else 1):
+                    orb.put((x, y, zt + dz), band, True)
     return c
 
 
@@ -416,6 +452,10 @@ def omega_chimera(c, H):
         b.paint(lambda p, cc, g: (armL, False) if cc == arm and (p[1] // max(1, round(0.7 * k))) % 2 == 0 and p[2] > 5.6 * k else None)
         b.paint(lambda p, cc, g: (trim, False) if cc in (arm, armL) and p[1] % round(1.4 * k) == 0 else None)
         b.paint(lambda p, cc, g: (rune, True) if cc in (arm, armL) and _hash(p[0] // 2, p[1] // 2, p[2] // 2, 5) % 23 == 0 else None)
+        # the cosmic look: nebula clouds drifting through the plates, and stars
+        b.paint(lambda p, cc, g: (C('#5A2A9A'), False) if cc in (arm, armL) and _fbm(p[0], p[1], p[2], 1.1 * k, 71) > 0.6 else None)
+        b.paint(lambda p, cc, g: (C('#A0307A'), False) if cc in (arm, armL) and _fbm(p[0], p[1], p[2], 0.9 * k, 72) > 0.7 else None)
+        sparkle(b, (WHITE, C('#BFE3FF'), WHITE), 30, 73, fine, keep=(trim, tan, tanD))
     for name in ('legBL', 'legBR'):
         c.part(name).paint(lambda p, cc, g: (armD, False) if 2.0 * k < p[2] else None)
     gradient(h, [tanD, tan, tan], 6.0 * k, 8.5 * k, fine, keep=(C('#F0CF95'), C('#5A2A1A')))
@@ -458,18 +498,29 @@ def omega_chimera(c, H):
     tidy(c)
 
     def rune_ring(col, col2):
+        """An open glowing hoop standing upright, facing out, with bright
+        rune marks round it."""
         def draw(part, centre, r):
             cx, cy, cz = centre
             a_out = math.atan2(cy - part.pivot[1], cx - part.pivot[0])
             ux, uy = -math.sin(a_out), math.cos(a_out)
-            for i in range(48):
-                a = i / 48 * math.pi * 2
-                for rr in (r, r - 1):
-                    q = (math.floor(cx + ux * math.cos(a) * rr), math.floor(cy + uy * math.cos(a) * rr), math.floor(cz + math.sin(a) * rr))
-                    part.put(q, col2 if (i % 6 == 0 and rr == r) else col, True)
+            nx, ny = math.cos(a_out), math.sin(a_out)
+            n = max(48, round(r * 9))
+            for i in range(n):
+                a = i / n * math.pi * 2
+                mark = (i * 12 // n) % 2 == 0 and (i % (n // 12)) < 2
+                for rr in (r - 0.5, r - 1.5):
+                    for t in (0, 1):
+                        q = (math.floor(cx + ux * math.cos(a) * rr + nx * t), math.floor(cy + uy * math.cos(a) * rr + ny * t),
+                             math.floor(cz + math.sin(a) * rr))
+                        part.put(q, col2 if mark else col, True)
+                if mark:  # a rune tick standing off the outside of the hoop
+                    q = (math.floor(cx + ux * math.cos(a) * (r + 0.5)), math.floor(cy + uy * math.cos(a) * (r + 0.5)),
+                         math.floor(cz + math.sin(a) * (r + 0.5)))
+                    part.put(q, col2, True)
         return draw
-    orbit_ring(c, k, [(30, 3.0, 0.62, rune_ring(rune, runeL)), (150, 5.6, 0.55, rune_ring(C('#B45CFF'), runeL)),
-                      (270, 3.6, 0.6, rune_ring(trim, C('#FFF0A0')))])
+    orbit_ring(c, k, [(30, 3.4, 0.95, rune_ring(rune, WHITE)), (150, 5.4, 0.85, rune_ring(C('#B45CFF'), WHITE)),
+                      (270, 3.8, 0.9, rune_ring(trim, WHITE))], margin=0.6)
     return c
 
 
