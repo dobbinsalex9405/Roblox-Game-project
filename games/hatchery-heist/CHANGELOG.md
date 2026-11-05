@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Studio test panel: "Give a creature" adds any species by id, placed on a
+  free pad like a hatch, so rides and the guard walk can be checked in
+  Studio straight away. Studio only; a live server never runs it.
 - Fixed (#49): a server error on every frame while any base had no guard
   (every new player), which also stopped every other base's guard from
   moving. The boot check now plays 30 frames, so per-frame errors fail CI.

@@ -29,8 +29,8 @@ local ShopRemotes = {
 
 	-- Studio test panel. Client -> server: one command; see TestPanel.ACTIONS.
 	["Test:Command"] = Net.toServer("Test:Command", {
-		Schema.oneOf({ "info", "currency", "pass", "product", "replay", "reset" }),
-		Schema.string({ maxLength = 50 }),
+		Schema.oneOf({ "info", "currency", "pass", "product", "replay", "reset", "game" }),
+		Schema.string({ maxLength = 80 }),
 		Schema.number({ min = -1e12, max = 1e12 }),
 	}, { count = 10, window = 1 }),
 	-- Server -> client: what the panel can do (currencies, passes, products).
