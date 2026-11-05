@@ -172,6 +172,15 @@ return {
 			},
 		},
 	},
+	-- The Tower window's Build and Upgrade buttons (client/TowerView). After
+	-- a tap the row shows "Building..." until the server answers (at most
+	-- waitSeconds), then "Built!" for holdSeconds, so a double tap never
+	-- buys the next thing (Studio gate, Nov 5). A tap you can't afford shows
+	-- how many more coins you need for holdSeconds.
+	menus = {
+		holdSeconds = 1.5,
+		waitSeconds = 3,
+	},
 	-- The guide's gold arrow and beam hide once you are this close (studs,
 	-- flat) to where they point, so they never sit on top of the Buy prompt
 	-- you came for (Studio gate, Nov 5).

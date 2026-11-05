@@ -179,7 +179,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   Nov 5): boards big enough to read from the path hid the Golden Nest and
   still failed on a phone, and a full tier table on a small sign was too
   small too. Each stop gets a 10 x 3.3-stud sign beside its arch's left post,
-  face 3.9 to 7.2 studs up so the follow camera sees it over the character,
+  face 3.6 to 6.9 studs up so the follow camera sees it over the character,
   turned 20 degrees toward the path in. Three lines in about 1-stud type:
   the egg and its price, then its two rarest tiers' exact "1 in N", the next
   egg every 4 seconds. The odds card beside the Buy prompt keeps every tier.

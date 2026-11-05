@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Fix: the side menu (Guide, Book, Tower, Pets, Daily, Music) no longer
+  disappears for good after the welcome card; only an open window hides it.
+- Fix: tapping Build or Upgrade twice no longer buys the next upgrade. The
+  row shows "Building..." and then "Built!" (with a sound) before the next
+  button appears. Tapping one you can't afford says how many more coins you
+  need.
+- Fix: Daily Rewards pay round amounts (600, not 601), and claiming shows
+  "+600 coins" rising from the button.
+- Fix: the camera no longer ends up inside the Golden Egg Shop's counter and
+  walls; indoors it stays close behind you.
+- Phone: the coin panel is solid, so the base sign no longer shows through;
+  the side menu hides while a window is open; the welcome card shows all
+  four steps without scrolling; the Robux shop shows more items at a time.
+
 - The apartment towers now look like apartments from outside: walls,
   windows, balconies and a roof on every built floor of your tower and the
   nearest towers (the rest keep their plain floors until you come close).

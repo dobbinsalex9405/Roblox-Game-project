@@ -290,6 +290,36 @@ function ShopHouseView.start()
 		ClientNet.fire(ShopRemotes["Shop:RequestCatalog"])
 
 		local centre = shop:GetPivot().Position
+
+		-- A short camera inside the shop (config.indoorZoom), the player's own
+		-- zoom limit again outside.
+		local box, size = (shop :: Model):GetBoundingBox()
+		local player = Players.LocalPlayer
+		local outdoorZoom = player.CameraMaxZoomDistance
+		local inside = false
+		task.spawn(function()
+			while true do
+				local character = player.Character
+				local root = character and character:FindFirstChild("HumanoidRootPart")
+				local now = false
+				if root and root:IsA("BasePart") then
+					local p = box:PointToObjectSpace(root.Position)
+					now = math.abs(p.X) < size.X / 2 - 1
+						and math.abs(p.Z) < size.Z / 2 - 1
+						and math.abs(p.Y) < size.Y / 2
+				end
+				if now ~= inside then
+					inside = now
+					if now then
+						outdoorZoom = player.CameraMaxZoomDistance
+						player.CameraMaxZoomDistance = math.min(outdoorZoom, config.indoorZoom)
+					else
+						player.CameraMaxZoomDistance = outdoorZoom
+					end
+				end
+				task.wait(0.2)
+			end
+		end)
 		RunService.RenderStepped:Connect(function()
 			local camera = Workspace.CurrentCamera
 			if camera == nil or (camera.CFrame.Position - centre).Magnitude > config.animateRange then
