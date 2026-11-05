@@ -25,6 +25,7 @@
 -- colours but drops its glow: no neon, no light, no sparkles, ring or orbs.
 -- Everyone else still sees it shine.
 
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -150,13 +151,18 @@ local function applyFade(v: Visual)
 	end
 end
 
--- The loaded meshes for a species, when the server has them and every mesh
--- the creature needs is there.
+-- Species whose meshes and texture this client has finished loading: until
+-- then (or if any fails) the creature is drawn as voxel boxes, never as a
+-- grey mesh that colours in later.
+local loaded: { [Instance]: boolean } = {}
+
+-- The loaded meshes for a species, when the server has them, every mesh the
+-- creature needs is there, and their content has loaded on this client.
 local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instance?)
 	local entry = CreatureMeshes[speciesId]
 	local folder = ReplicatedStorage:FindFirstChild(MESH_FOLDER)
 	local source = if entry and folder then folder:FindFirstChild(speciesId) else nil
-	if entry == nil or source == nil then
+	if entry == nil or source == nil or loaded[source] ~= true then
 		return nil, nil
 	end
 	for _, part in entry.parts do
@@ -591,8 +597,28 @@ local function animate(v: Visual, now: number)
 	end
 end
 
--- Meshes for a species just arrived: redraw its creatures with them.
+-- Meshes for a species just arrived: load their geometry and texture, then
+-- redraw its creatures with them.
 local function meshesArrived(model: Instance)
+	if loaded[model] ~= nil then
+		return
+	end
+	loaded[model] = false
+	local ok = pcall(function()
+		local failed = false
+		ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
+			if status ~= Enum.AssetFetchStatus.Success then
+				failed = true
+			end
+		end)
+		if failed then
+			error("asset failed")
+		end
+	end)
+	if not ok then
+		return -- stays on the boxes
+	end
+	loaded[model] = true
 	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
 	-- must not happen while iterating it.
 	local redraw: { BasePart } = {}
@@ -611,9 +637,11 @@ local function watchMeshFolder(folder: Instance)
 	if folder.Name ~= MESH_FOLDER or not folder:IsA("Folder") then
 		return
 	end
-	folder.ChildAdded:Connect(meshesArrived)
+	folder.ChildAdded:Connect(function(model)
+		task.spawn(meshesArrived, model)
+	end)
 	for _, model in folder:GetChildren() do
-		meshesArrived(model)
+		task.spawn(meshesArrived, model)
 	end
 end
 
