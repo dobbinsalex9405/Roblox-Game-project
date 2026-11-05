@@ -6,8 +6,6 @@
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala
   from the Meadow Egg. They share the Common chance, so no other tier moves.
-- Fix: the Butterfly drew as one dark cube (its head and a wing were each
-  attached to the other); the art tools no longer let parts loop.
 - Fix: Book cards for creatures not found yet no longer flash in colour
   before turning into silhouettes.
 - Fix: the "every creature" list's rows now really stop short of the scroll
@@ -19,6 +17,9 @@
 - The book's income bonus is capped: a full book is +25% however many
   creatures there are (it was +1% per creature, +33% at 33).
 
+- Fix: a creature whose head touched its wings more than its body (the
+  Butterfly) was drawn as one dark cube; head, wings and tail now always
+  ride the body, and the art export refuses any parent loop.
 - Eggs roll a rarity tier first, then a creature from that tier, so adding
   creatures never changes the chance of any other tier. Creatures in a tier
   now share its chance evenly.

@@ -43,6 +43,26 @@ describe("Voxel art", function()
 		end
 	end)
 
+	it("rides every part on the body: each parent chain ends at the body, with no loop", function()
+		for id, art in VoxelArt.species do
+			local parentOf: { [string]: string? } = {}
+			for _, part in art.parts do
+				parentOf[part.name] = part.parent
+			end
+			for _, part in art.parts do
+				local at, steps = part.name, 0
+				while parentOf[at] ~= nil and steps <= #art.parts do
+					at = parentOf[at] :: string
+					steps += 1
+				end
+				local ok = at == "body" and steps <= #art.parts
+				expect(if ok then "body" else `{id}.{part.name}: chain ends at {at} after {steps}`).toBe(
+					"body"
+				)
+			end
+		end
+	end)
+
 	it("is well formed: whole boxes, known colours, parents and animations", function()
 		for id, art in VoxelArt.species do
 			local names: { [string]: boolean } = {}
