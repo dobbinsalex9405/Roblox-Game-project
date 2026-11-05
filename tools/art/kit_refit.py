@@ -649,7 +649,7 @@ BEAKS = {
     # per layer outward from the face: (half width, z low, z high) about
     # the beak's centre row
     'pointed': [(1, -1, 0), (1, -1, 0), (1, -1, -1)],
-    'cone': [(2, -1, 0), (1, -1, 0), (1, -1, 0), (1, -1, -1)],
+    'cone': [(1, -1, 1), (1, -1, 0), (1, 0, 0)],
     'hooked': [(1, -1, 1), (1, -1, 1), (1, -2, 0), (1, -2, -1)],
 }
 
