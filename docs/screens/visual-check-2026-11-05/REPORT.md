@@ -356,3 +356,11 @@ hidden (11 creatures). That's worse than gate 2. From the yard all 15 show. **Ho
 float with their lowest point 0.94 (Golden Goose) and 0.98 (Nebula Serpent) above the pad,
 including the bob; no Legendary was placed this run. Phone fps 60. No game errors (the 4
 voxel-box notes are from #94, which this branch doesn't contain).
+
+## #97 kiosk-only re-gate @ 2d65cab
+
+- **Board readability: PASS (desktop), PASS with a layout note (phone).** One egg per board. Each row is 1.28 studs tall: 20 px per stud, text bounds 25.6 px. From 34 studs at eye height, a row is about 17 px tall on desktop (1350x672) and about 8 px on phone (844x392). Every row is readable in `97c-hh-kiosk-34studs-desktop.jpg`.
+  - **Phone note:** the board is 14.5 studs up. Walking in from the path, the coin HUD and the GOAL banner sit right over it and hide the title and the first 3 to 4 rows (`97c-hh-kiosk-34studs-phone-eye.jpg`, `97c-hh-kiosk-46studs-phone-3rdperson.jpg`). Lowering the board or the camera's target would fix it.
+- **First spawn: PASS.** The player joins at their own base (plot-local 0, 3.2, 24). The SpawnLocation is now at (52, 0.1, 0), off the belt, Transparency 1, with no decals. Nothing shows in the lane (`97c-hh-spawn-plate-area-phone.jpg`).
+- **Respawn: FINDING.** After the character died (killed from the server), it stayed at the plaza SpawnLocation (53, 3, 1) for 6 s and was not sent home. `CharacterAdded -> World.sendHome` is the same code as on main f82fdd9, so this is probably an existing ordering race (the teleport runs before Roblox places the character) and not caused by #97. Because the plate is now off the belt, a respawned player lands next to the Golden Egg Shop, not on the belt.
+- Output: nothing new. It shows the usual unpublished-place DataStore notes, the 203785492 notice, and voxel-box fallbacks.
