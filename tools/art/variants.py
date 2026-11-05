@@ -43,7 +43,7 @@ PLANS = {
         {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines'},
         {'ears': {'pointy', 'big', 'round', 'long', 'floppy'},
          'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'none'},
-         'fluffy': {True, False}, 'pig': {True, False}},
+         'fluffy': {True, False}, 'pig': {True, False}, 'cow': {True, False}, 'bunny': {True, False}},
     ),
     'bird': (
         {'col', 'belly', 'beak', 'wing', 'crest', 'tail', 'feet'},
@@ -150,6 +150,7 @@ def load(directory=ROSTER_DIR):
 def builder(entry):
     """fn(c, H) that builds the entry, for the ROSTER."""
     import creatures as cr
+    import rig
     import kit
     from voxkit import hexc
 
@@ -159,6 +160,7 @@ def builder(entry):
 
     def build(c, H, cols=cols, opts=opts):
         cols, opts = dict(cols), dict(opts)  # a fresh copy each build
+        c.gait_hint = rig.KIND_GAIT.get(opts.get('kind', plan))
         if plan == 'quadruped':
             col = cols.pop('col')
             if opts.get('tail') == 'none':

@@ -29,7 +29,7 @@ def parent_of(part, parts):
         return None
     if part.name in ('eyes', 'ears'):
         return 'head'
-    if part.name in ('head', 'wingL', 'wingR', 'tail'):
+    if part.name in ('head', 'wingL', 'wingR', 'tail') or part.name.startswith('leg'):
         return 'body'  # a moving part rides the body, never another mover (no parent loops)
     # Whichever moving part it sits closest to (body, head, a wing or the
     # tail): the most voxels touching it, even corner to corner; a part that

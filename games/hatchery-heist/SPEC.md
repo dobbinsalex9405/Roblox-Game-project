@@ -66,6 +66,14 @@ Legendary and Godly (`slotsByRarity`), side by side in one row.
   floor; the server checks you are at the elevator and own the floor) and a
   ladder on the opposite side. Raiders climb the ladder: a steal is refused
   unless the raider stands on that creature's floor.
+- **Wandering** (`shared/Walk`, `atmosphere.wander`): each placed creature
+  walks around its own spots on a schedule from its uid and the server
+  clock, so every player sees the same thing and creatures never collide.
+  Gaits per species (CreatureMeshes `gait`): trot, waddle, hop, scuttle,
+  slither, hover. Only the client moves them; the server, raids and income
+  use the pad. Every floor of a nearby tower shows: your own tower's
+  creatures within `cullStuds` (180), other players' within `cullOtherStuds`
+  (100), which only move within `animateOtherStuds` (60).
 - **Old saves** (before the tower) are placed best first once on join, with
   the mount and the guard cleared; every join then tidies the save so no two
   creatures overlap and none sits on a floor the player doesn't own.

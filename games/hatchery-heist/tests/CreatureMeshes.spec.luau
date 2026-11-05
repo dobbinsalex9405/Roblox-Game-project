@@ -10,7 +10,38 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
-local ANIMS = { "body", "static", "head", "ears", "tail", "wingL", "wingR", "blink", "glow" }
+local ANIMS = {
+	"body",
+	"static",
+	"head",
+	"ears",
+	"tail",
+	"wingL",
+	"wingR",
+	"blink",
+	"glow",
+	"orbit", -- turns about its pivot on the vertical axis (Godly planets)
+	"legFL",
+	"legFR",
+	"legBL",
+	"legBR",
+	"legL",
+	"legR",
+	"leg1L",
+	"leg1R",
+	"leg2L",
+	"leg2R",
+	"leg3L",
+	"leg3R",
+	"leg4L",
+	"leg4R",
+	"leg5L",
+	"leg5R",
+	"leg6L",
+	"leg6R",
+	"finL", -- fins paddle when a fish swims (Walk "swim")
+	"finR",
+}
 
 -- Triangles a client draws per creature close up (LOD0), at most, by tier;
 -- past 30 studs the game draws the LOD1 meshes (4,000 at most). Agreed with
@@ -51,6 +82,20 @@ describe("Creature meshes", function()
 		end
 	end)
 
+	it("say how each one walks, and swing every leg from a hip", function()
+		local GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover" }
+		for id, m in CreatureMeshes do
+			expect(table.find(GAITS, m.gait) ~= nil and m.gait or `{id}: gait {m.gait}`).toBe(m.gait)
+			for _, part in m.parts do
+				if string.sub(part.name, 1, 3) == "leg" then
+					expect(`{id}.{part.name} anim {part.anim} parent {part.parent}`).toBe(
+						`{id}.{part.name} anim {part.name} parent body`
+					)
+				end
+			end
+		end
+	end)
+
 	it("are well formed: a body, known animations, parents, unique mesh names", function()
 		local seen: { [string]: string } = {}
 		for id, m in CreatureMeshes do
@@ -84,6 +129,10 @@ describe("Creature meshes", function()
 					expect(#mesh.size).toBe(3)
 					if mesh.glow then
 						expect(string.match(mesh.glow, "^%x%x%x%x%x%x$") ~= nil).toBe(true)
+						-- a closed glow piece, never a flat open sheet: Roblox's
+						-- importer drops open one-voxel slabs (paw soles)
+						local flat = mesh.size[1] <= 0 or mesh.size[2] <= 0 or mesh.size[3] <= 0
+						expect(flat and `{mesh.name} is flat` or "closed").toBe("closed")
 					end
 				end
 			end
@@ -113,6 +162,80 @@ describe("Creature meshes", function()
 				end
 			end
 			expect(m.trisLod1 <= 4000 and "within" or `{id}: lod1 {m.trisLod1} > 4000`).toBe("within")
+		end
+	end)
+
+	it("stand on legs in left and right pairs (a crab walks on both sides)", function()
+		for id, m in CreatureMeshes do
+			local left, right = 0, 0
+			for _, part in m.parts do
+				if string.match(part.name, "^leg") then
+					if string.sub(part.name, -1) == "L" then
+						left += 1
+					else
+						right += 1
+					end
+				end
+			end
+			expect(left == right and "paired" or `{id}: {left} left legs, {right} right`).toBe("paired")
+		end
+		local crabLegs = 0
+		for _, part in CreatureMeshes.Crab.parts do
+			if string.match(part.name, "^leg") then
+				crabLegs += 1
+			end
+		end
+		expect(crabLegs >= 6 and "walks" or `Crab: {crabLegs} legs`).toBe("walks")
+		-- a bird's flat toes stay part of its foot: two legs, not four
+		local gooseLegs = {}
+		for _, part in CreatureMeshes.GoldenGoose.parts do
+			if string.match(part.name, "^leg") then
+				table.insert(gooseLegs, part.name)
+			end
+		end
+		table.sort(gooseLegs)
+		expect(table.concat(gooseLegs, " ")).toBe("legL legR")
+	end)
+
+	it("mirror each left leg on the right: same size, opposite side (lizards, crabs, seals)", function()
+		local function bounds(part: CreatureMeshes.Part): ({ number }, { number })
+			local lo, hi = { math.huge, math.huge, math.huge }, { -math.huge, -math.huge, -math.huge }
+			for _, mesh in part.meshes do
+				for i = 1, 3 do
+					lo[i] = math.min(lo[i], mesh.center[i] - mesh.size[i] / 2)
+					hi[i] = math.max(hi[i], mesh.center[i] + mesh.size[i] / 2)
+				end
+			end
+			return lo, hi
+		end
+		-- A voxel is 0.1 studs (finer for Godlies); allow one, plus bevel.
+		local TOLERANCE = 0.13
+		for id, m in CreatureMeshes do
+			local byName: { [string]: CreatureMeshes.Part } = {}
+			for _, part in m.parts do
+				byName[part.name] = part
+			end
+			for name, part in byName do
+				if string.match(name, "^leg") and string.sub(name, -1) == "L" and #part.meshes > 0 then
+					local other = byName[string.sub(name, 1, -2) .. "R"]
+					if other and #other.meshes > 0 then
+						local lo, hi = bounds(part)
+						local olo, ohi = bounds(other)
+						local worst = math.max(
+							math.abs(lo[1] + ohi[1]),
+							math.abs(hi[1] + olo[1]),
+							math.abs(lo[2] - olo[2]),
+							math.abs(hi[2] - ohi[2]),
+							math.abs(lo[3] - olo[3]),
+							math.abs(hi[3] - ohi[3])
+						)
+						expect(
+							worst <= TOLERANCE and "mirrored"
+								or `{id} {name}: {math.floor(worst * 100 + 0.5) / 100} studs off its right leg`
+						).toBe("mirrored")
+					end
+				end
+			end
 		end
 	end)
 
