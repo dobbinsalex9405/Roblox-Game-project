@@ -177,3 +177,21 @@ PASS with three findings.
   of the screen).
 - Book: "???" now shows on all unfound cards, top rows included.
 - Output: no errors.
+
+## Gate: #75 at 22eb9ca (nature)
+
+PASS with two layout findings.
+- Trees: 204 scenery props, all meshes (1,560 MeshParts, no box-only trees). On the client the
+  meshes were already in place from the first frame after spawn, so no pop was visible in Studio.
+  Kinds: oaks, blossoms, willows, Star Pines, berry and hydrangea bushes, rocks, three flower
+  patches, grass tufts, 8 mushroom rings, toadstools. 39 trees in the 166-245 ring.
+- **Gap trees:** no tree stands in any of the 8 gaps between bases; the barn, windmill, pond, pen
+  and four fields fill the gaps at about r 186.
+- **Star Pines:** 6 of 15 stand on hills (the large ones at r 316-343); the other 9 are in the wood
+  ring on flat grass.
+- Sky: the Up face looks right (plain blue gradient with the sun), and clouds and floating islands
+  cross the corner seams with no break (looked at the 45° and 225° corners).
+- Grass: the Baseplate is Grass with a top Texture, and all 66 hill parts have grass.
+- Phone 844x392 looking into the wood: 60 fps in all four directions.
+- Output: no "nature meshes did not load" and no texture-type errors. One warning: grass texture
+  95042477743332 "Asset content representation is being generated" (still processing on Roblox).
