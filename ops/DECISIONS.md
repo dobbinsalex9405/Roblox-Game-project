@@ -2,6 +2,41 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
+
+- **Meshes are generated from the voxel art, not modelled separately.**
+  `tools/art/blender` turns the same `creatures.py` voxels into meshes, so a
+  new Common is one ROSTER line. It ships at once as VoxelArt boxes, and its
+  mesh follows on the next upload. Alex wants about 150 Commons, so adding
+  one has to be cheap.
+- **Twice the voxels for the small tiers.** Commons to Rares use 0.125-stud
+  voxels and Ultra Rares and Epics 0.167, at the same size in studs. At the
+  in-game 0.25, a 2-stud Common is 8 voxels tall, which leaves no room for
+  eyes (the Chick had none). Legendaries and Godlies keep 0.25: they are
+  already 34 to 42 voxels tall.
+- **The look is a bevelled "pillow" per voxel face.** Each face is a raised
+  square with sloped rims, about 10 triangles a face, and no hidden faces
+  are made. Next to a neighbour on the same plane the rims form a groove,
+  which gives the hand-placed cube look of the concept renders. Tones vary
+  a few percent per face, from a stable hash, so re-exports never change
+  unchanged art.
+- **One texture per creature, one colour per cell.** Each face samples a
+  cell centre, so the texture never blurs. Glowing faces are separate Neon
+  MeshParts with their colour in data, so pulse and shimmer work as they do
+  for boxes. Roblox vertex colours were not relied on.
+- **The meshes ride the same joints as the boxes.** They use the same part
+  names, `anim` and parents, and CreatureView keeps its procedural
+  animation. The Blender idle and walk clips mirror it, for previews and the
+  .glb. No per-creature animation assets are uploaded: Roblox only accepts
+  .rbxm animations through Open Cloud.
+- **Loaded at run time with InsertService, sized from data.** A mesh's
+  imported scale or units never matter: the game sets every MeshPart's size
+  and place from `CreatureMeshes.luau`. Rojo cannot build MeshParts
+  reliably, and an asset id in data is one line per creature. A failed load
+  falls back to boxes.
+- **Asset owner = the experience owner.** If Production goes to another
+  group, its meshes must be uploaded again by that group (ops/ASSETS.md).
+
 ## 2026-11-05: Hatch reveal and Hatchery Book (Hatchery Heist)
 
 - **The book's reward is income, not luck.** Each species found adds +1%

@@ -45,7 +45,9 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
     body = c.part('body')
     head = c.part('head', 'head' if detailed else 'static', (0, -1.6 * k, 4.6 * k))
     # legs
-    lw = max(1, round(0.9 * k))
+    # legs: the finer Blender build (detail > 1) gets sturdier legs, which
+    # would round to one voxel otherwise; the in-game boxes keep theirs
+    lw = max(1, round(0.9 * k * (1.4 if getattr(c, 'detail', 1) > 1 else 1)))
     for sx in (-1, 1):
         for ly in (-1.2 * k, 2.2 * k):
             x0 = round(sx * 1.3 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
@@ -407,11 +409,18 @@ ROSTER = [
 ]
 
 
-def build_all():
+def build_all(detail=None):
+    """Every creature in the ROSTER. `detail` (rarity -> multiplier, default
+    1) builds a tier with more, smaller voxels at the same size in studs: the
+    Blender meshes use it (tools/art/blender), the in-game boxes do not.
+    Each creature's `voxel` is its studs per voxel."""
     out = []
     for species, rarity, fn in ROSTER:
         c = Creature(species, rarity)
-        fn(c, HEIGHT[rarity])
+        mult = (detail or {}).get(rarity, 1)
+        c.detail = mult
+        fn(c, HEIGHT[rarity] * mult)
+        c.voxel = VOXEL / mult
         # A voxel belongs to one part only: the later, more specific part
         # (head over body, ears over head) keeps it, so no two parts draw the
         # same spot and flicker against each other.

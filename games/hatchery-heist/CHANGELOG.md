@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Creatures can now be drawn as polished Blender voxel meshes with bevelled
+  cubes and twice the detail; until their meshes are uploaded they look as
+  before.
 - Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
   flash, and the creature turns under its rarity, name, income and exact
   chance, with rays, glow, confetti and screen shake as rarity rises. Tap to

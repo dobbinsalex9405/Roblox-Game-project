@@ -1,0 +1,70 @@
+name: Upload creature meshes
+
+# Started by hand (ops/ASSETS.md). Builds Hatchery Heist's creature meshes
+# with Blender, uploads them to Roblox as Model assets with the Staging key,
+# and opens a draft PR that records the asset ids (tools/art/blender/
+# assets.json and the regenerated CreatureMeshes.luau). Nothing reaches
+# players until that PR is verified and merged.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Creatures to upload, comma separated (blank = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: creature-meshes
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: staging
+    env:
+      ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY_HATCHERY_HEIST }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Blender (bpy from pip)
+        run: pip install --target="$RUNNER_TEMP/bpy" bpy==5.1.2
+
+      - name: Build the meshes
+        run: |
+          args=()
+          if [ -n "${{ inputs.only }}" ]; then args+=(--only "${{ inputs.only }}"); fi
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/blender/build.py "$RUNNER_TEMP/meshes" --no-render "${args[@]}"
+
+      - name: Upload to Roblox
+        run: |
+          args=()
+          if [ -n "${{ inputs.only }}" ]; then args+=(--only "${{ inputs.only }}"); fi
+          python3 tools/art/blender/upload.py "$RUNNER_TEMP/meshes" "${args[@]}"
+
+      - name: Record the asset ids
+        run: python3 tools/art/blender/luau.py
+
+      - name: Open a draft PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet; then echo "No asset ids changed."; exit 0; fi
+          branch="creature-meshes/${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add tools/art/blender/assets.json games/hatchery-heist/src/shared/CreatureMeshes.luau
+          git commit -m "Hatchery Heist: creature mesh asset ids (run ${{ github.run_id }})"
+          git push -u origin "$branch"
+          gh pr create --draft --base "${{ github.ref_name }}" --head "$branch" \
+            --title "Hatchery Heist: creature mesh asset ids" \
+            --body "Asset ids from the Upload creature meshes run ${{ github.run_id }}. Needs the visual playtest before merge (ops/ASSETS.md)."
