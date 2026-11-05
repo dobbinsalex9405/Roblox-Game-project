@@ -31,7 +31,7 @@ export type Creature = {
 
 local CreatureMeshes: { [string]: Creature } = {
 	Bunny = {
-		assetId = 0,
+		assetId = 104598696622884,
 		rarity = "Common",
 		height = 2.2,
 		size = { 1.2, 2.2, 1.7 },
@@ -90,7 +90,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Chick = {
-		assetId = 0,
+		assetId = 74180591280310,
 		rarity = "Common",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.3 },
@@ -129,7 +129,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Duckling = {
-		assetId = 0,
+		assetId = 102220359849826,
 		rarity = "Common",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.4 },
@@ -176,7 +176,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Frog = {
-		assetId = 0,
+		assetId = 97442222723304,
 		rarity = "Common",
 		height = 1.4,
 		size = { 1.2, 1.4, 1.2 },
@@ -215,7 +215,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Hamster = {
-		assetId = 0,
+		assetId = 139623795240964,
 		rarity = "Common",
 		height = 1.7,
 		size = { 1.2, 1.7, 1.7 },
@@ -274,7 +274,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Ladybug = {
-		assetId = 0,
+		assetId = 102641076306308,
 		rarity = "Common",
 		height = 0.9,
 		size = { 1.2, 0.9, 1.5 },
@@ -313,7 +313,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Lamb = {
-		assetId = 0,
+		assetId = 138591886331754,
 		rarity = "Common",
 		height = 1.6,
 		size = { 1.2, 1.6, 1.7 },
@@ -372,7 +372,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Mouse = {
-		assetId = 0,
+		assetId = 92364934149108,
 		rarity = "Common",
 		height = 1.7,
 		size = { 1.2, 1.7, 2.2 },
@@ -431,7 +431,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Piglet = {
-		assetId = 0,
+		assetId = 106002945781471,
 		rarity = "Common",
 		height = 1.5,
 		size = { 1.2, 1.5, 1.9 },
@@ -490,7 +490,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Snail = {
-		assetId = 0,
+		assetId = 134232233539311,
 		rarity = "Common",
 		height = 1.3,
 		size = { 0.6, 1.3, 1.7 },
@@ -539,7 +539,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	FoxKit = {
-		assetId = 0,
+		assetId = 105624438454758,
 		rarity = "Uncommon",
 		height = 2.1,
 		size = { 1.2, 2.1, 2.4 },
@@ -598,7 +598,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Gosling = {
-		assetId = 0,
+		assetId = 130561605368036,
 		rarity = "Uncommon",
 		height = 1.9,
 		size = { 1.4, 1.9, 1.5 },
@@ -637,7 +637,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Hedgehog = {
-		assetId = 0,
+		assetId = 83813792125695,
 		rarity = "Uncommon",
 		height = 1.9,
 		size = { 1.2, 1.9, 1.9 },
@@ -714,7 +714,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Kitten = {
-		assetId = 0,
+		assetId = 88352589006478,
 		rarity = "Uncommon",
 		height = 2.1,
 		size = { 1.2, 2.1, 2.3 },
@@ -773,7 +773,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Puppy = {
-		assetId = 0,
+		assetId = 127990885620508,
 		rarity = "Uncommon",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.9 },
@@ -832,7 +832,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Squirrel = {
-		assetId = 0,
+		assetId = 92755741632027,
 		rarity = "Uncommon",
 		height = 2.1,
 		size = { 1.2, 2.1, 2.2 },
@@ -899,7 +899,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Turtle = {
-		assetId = 0,
+		assetId = 123806255045156,
 		rarity = "Uncommon",
 		height = 1,
 		size = { 1.2, 1, 1.8 },
@@ -948,7 +948,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Fennec = {
-		assetId = 0,
+		assetId = 106352067459997,
 		rarity = "Rare",
 		height = 2.6,
 		size = { 1.6, 2.6, 2.6 },
@@ -1007,7 +1007,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Owlet = {
-		assetId = 0,
+		assetId = 127514852994147,
 		rarity = "Rare",
 		height = 2.3,
 		size = { 1.4, 2.3, 1.5 },
@@ -1084,7 +1084,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	PandaCub = {
-		assetId = 0,
+		assetId = 133358910111184,
 		rarity = "Rare",
 		height = 2.1,
 		size = { 1.2, 2.1, 2.1 },
@@ -1147,7 +1147,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Penguin = {
-		assetId = 0,
+		assetId = 82084154556622,
 		rarity = "Rare",
 		height = 2.1,
 		size = { 1.4, 2.1, 1.5 },
@@ -1222,7 +1222,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Raccoon = {
-		assetId = 0,
+		assetId = 114013898990968,
 		rarity = "Rare",
 		height = 2.2,
 		size = { 1.2, 2.2, 2.5 },
@@ -1281,7 +1281,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Axolotl = {
-		assetId = 0,
+		assetId = 93299309721117,
 		rarity = "Ultra Rare",
 		height = 1.6,
 		size = { 1.8, 1.6, 3 },
@@ -1345,7 +1345,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	EmberFox = {
-		assetId = 0,
+		assetId = 115947540552349,
 		rarity = "Ultra Rare",
 		height = 2.6,
 		size = { 1.4, 2.6, 2.8 },
@@ -1428,7 +1428,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	FrostWolf = {
-		assetId = 0,
+		assetId = 118793263738444,
 		rarity = "Ultra Rare",
 		height = 2.6,
 		size = { 1.4, 2.6, 2.7 },
@@ -1524,7 +1524,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	StormHawk = {
-		assetId = 0,
+		assetId = 113835090859855,
 		rarity = "Ultra Rare",
 		height = 2.5,
 		size = { 2.4, 2.5, 2.1 },
@@ -1654,7 +1654,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	CrystalStag = {
-		assetId = 0,
+		assetId = 76176813759498,
 		rarity = "Epic",
 		height = 3.3,
 		size = { 2.5, 3.3, 2.7 },
@@ -1778,7 +1778,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Dragonling = {
-		assetId = 0,
+		assetId = 112243397048228,
 		rarity = "Epic",
 		height = 2.8,
 		size = { 2.8, 2.8, 3.3 },
@@ -1956,7 +1956,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	MoonUnicorn = {
-		assetId = 0,
+		assetId = 110066245966043,
 		rarity = "Epic",
 		height = 3.2,
 		size = { 1.6, 3.2, 3 },
@@ -2099,7 +2099,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Phoenix = {
-		assetId = 0,
+		assetId = 71414247546855,
 		rarity = "Legendary",
 		height = 3.9,
 		size = { 4.6, 3.9, 3.7 },
@@ -2258,7 +2258,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	ThunderGriffin = {
-		assetId = 0,
+		assetId = 97687610747222,
 		rarity = "Legendary",
 		height = 3.2,
 		size = { 4.4, 3.2, 4.3 },
@@ -2447,7 +2447,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	GoldenGoose = {
-		assetId = 0,
+		assetId = 78366279913804,
 		rarity = "Godly",
 		height = 4.4,
 		size = { 5.6, 4.4, 4 },
@@ -2647,7 +2647,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	NebulaSerpent = {
-		assetId = 0,
+		assetId = 133734762072662,
 		rarity = "Godly",
 		height = 4.2,
 		size = { 2.6, 4.2, 3.3 },
