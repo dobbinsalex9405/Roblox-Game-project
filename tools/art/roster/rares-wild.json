@@ -125,17 +125,14 @@
     ],
     "head": 0.95
    },
-   "patterns": [
-    {
-     "kind": "spots",
-     "color": "#B8732E"
-    }
-   ],
    "accessories": [
     {
      "kind": "neck",
-     "color": "#F5C26B",
-     "color2": "#B8732E"
+     "color": "#F5C26B"
+    },
+    {
+     "kind": "giraffepatches",
+     "color": "#B8732E"
     },
     {
      "kind": "ossicones",
@@ -330,7 +327,13 @@
     "accent": "#3A3A46",
     "glow": "#9FE8FF"
    },
-   "accessories": []
+   "accessories": [
+    {
+     "kind": "banana",
+     "color": "#FFE04A",
+     "color2": "#6A4A22"
+    }
+   ]
   },
   {
    "id": "Toucan",
@@ -872,11 +875,11 @@
    },
    "shape": {
     "body": [
-     1.0,
-     1.05,
-     0.88
+     0.921,
+     0.967,
+     0.811
     ],
-    "head": 0.95
+    "head": 0.875
    },
    "accessories": [
     {
