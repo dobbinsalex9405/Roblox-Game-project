@@ -197,6 +197,15 @@ function Hud.start(ctx: Context.Context)
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
 		cardScale.Scale = math.clamp(screen.Y / 520, 0.75, 1)
+		-- On a short screen the card starts below the notice line (124 +
+		-- 36 px), so a refusal is never half under it.
+		if screen.Y < 500 then
+			card.AnchorPoint = Vector2.new(0, 0)
+			card.Position = UDim2.fromOffset(16, 168)
+		else
+			card.AnchorPoint = Vector2.new(0, 0.5)
+			card.Position = UDim2.new(0, 16, 0.5, 0)
+		end
 	end
 
 	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
