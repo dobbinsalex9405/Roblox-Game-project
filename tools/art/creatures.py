@@ -769,6 +769,12 @@ import variants  # noqa: E402
 ROSTER += variants.roster_entries()
 ELEMENT.update(variants.elements())
 
+# The Legendary batch from the master sheet, hand-built (legendaries.py).
+import legendaries  # noqa: E402
+
+ROSTER = legendaries.finish_existing(ROSTER) + legendaries.ROSTER
+ELEMENT.update(legendaries.ELEMENT)
+
 
 def build_all(detail=None):
     """Every creature in the ROSTER. `detail` (rarity -> multiplier, default
