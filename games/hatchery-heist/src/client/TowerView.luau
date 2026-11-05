@@ -304,7 +304,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 						if now and now.coins < price then
 							hold(
 								floor,
-								`Need {coins(price - now.coins)} more`,
+								`Need {Layout.shortNumber(price - now.coins)} more`,
 								GREY:Lerp(Color3.new(1, 1, 1), 0.5),
 								menus.holdSeconds
 							)
@@ -329,7 +329,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 					if now and now.coins < price then
 						hold(
 							floor,
-							`Need {coins(price - now.coins)} more`,
+							`Need {Layout.shortNumber(price - now.coins)} more`,
 							GREY:Lerp(Color3.new(1, 1, 1), 0.5),
 							menus.holdSeconds
 						)

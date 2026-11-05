@@ -380,21 +380,27 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	end)
 
 	local menu = sideMenu(gui)
-	-- An open window (Book, Daily, Tower, Pets, odds list: DisplayOrder 20
-	-- to 49) hides the side menu, so its buttons never poke out past the
-	-- window's edge on a phone (Studio gate, Nov 5). Each window has an X.
+	-- An open window (Book, Daily, Tower, Pets, odds list, Core Shop: its
+	-- Window frame showing, DisplayOrder 20 to 49) hides the side menu, so its
+	-- buttons never poke out past the window's edge on a phone (Studio gate,
+	-- Nov 5). Each window has an X. Guide.windowOpen decides.
 	local column = gui:FindFirstChild("SideMenu") :: Frame
 	local playerGui = player:WaitForChild("PlayerGui")
 	task.spawn(function()
 		while true do
-			local open = false
+			local screens: { Guide.Screen } = {}
 			for _, g in playerGui:GetChildren() do
-				if g:IsA("ScreenGui") and g.Enabled and g.DisplayOrder >= 20 and g.DisplayOrder < 50 then
-					open = true
-					break
+				if g:IsA("ScreenGui") then
+					local frame = g:FindFirstChild("Window") or g:FindFirstChild("Form")
+					table.insert(screens, {
+						name = g.Name,
+						enabled = g.Enabled,
+						displayOrder = g.DisplayOrder,
+						windowVisible = if frame and frame:IsA("GuiObject") then frame.Visible else nil,
+					})
 				end
 			end
-			column.Visible = not open
+			column.Visible = not Guide.windowOpen(screens)
 			task.wait(0.1)
 		end
 	end)

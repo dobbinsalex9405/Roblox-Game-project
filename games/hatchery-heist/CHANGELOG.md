@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the side menu (Guide, Book, Tower, Pets, Daily, Music) no longer
+  disappears for good after the welcome card; only an open window hides it.
 - Fix: tapping Build or Upgrade twice no longer buys the next upgrade. The
   row shows "Building..." and then "Built!" (with a sound) before the next
   button appears. Tapping one you can't afford says how many more coins you

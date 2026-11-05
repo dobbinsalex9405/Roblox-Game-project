@@ -211,21 +211,25 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 
 	-- "+600 coins" rising from the Claim button once the coins land: the
 	-- window covers the coin counter, so this is where a player sees it.
+	-- The claim's "+N coins", in gold in the footer line just under the Claim
+	-- button, with a little bump; the countdown comes back after it. (Floating
+	-- up through the day cards, it covered their amounts: audit, #112.)
+	local poppedUntil = 0
+	local footerColor = footer.TextColor3
+	local footerSize = footer.TextSize
 	local function pop(amount: number)
-		local l = text(window, "Gained", `+{Layout.shortNumber(amount)} coins`, 30, GOLD)
-		l.AnchorPoint = Vector2.new(0.5, 1)
-		l.Position = UDim2.fromOffset(520 - 16 - 80, 204)
-		l.Size = UDim2.fromOffset(240, 40)
-		l.TextXAlignment = Enum.TextXAlignment.Center
-		l.ZIndex = 5
-		local rise =
-			TweenService:Create(l, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Position = UDim2.fromOffset(520 - 16 - 80, 150),
-				TextTransparency = 1,
-			})
-		rise:Play()
-		task.delay(1.7, function()
-			l:Destroy()
+		poppedUntil = os.clock() + 1.6
+		footer.Text = `+{Layout.shortNumber(amount)} coins!`
+		footer.TextColor3 = GOLD
+		footer.TextSize = footerSize + 6
+		TweenService:Create(footer, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			TextSize = footerSize + 2,
+		}):Play()
+		task.delay(1.6, function()
+			if os.clock() >= poppedUntil then
+				footer.TextColor3 = footerColor
+				footer.TextSize = footerSize
+			end
 		end)
 	end
 	local function refresh()
@@ -264,9 +268,11 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		claim.Text = if ready then "Claim!" elseif waiting then "..." else clock(status.secondsLeft)
 		claim.BackgroundColor3 = if ready then GREEN else GREY
 		claim.AutoButtonColor = ready
-		footer.Text = if status.ready
-			then `Day {status.day} reward is ready.`
-			else `Next reward in {clock(status.secondsLeft)}.`
+		if os.clock() >= poppedUntil then
+			footer.Text = if status.ready
+				then `Day {status.day} reward is ready.`
+				else `Next reward in {clock(status.secondsLeft)}.`
+		end
 		badge.Visible = status.ready
 	end
 
