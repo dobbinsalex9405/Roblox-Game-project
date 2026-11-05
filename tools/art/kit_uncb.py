@@ -152,7 +152,7 @@ def ub_bands(c, H, color, color2=None, a=None):
     lo, hi = _bb(body.v)
     ym = (lo[1] + hi[1]) / 2
     w = max(1, round(0.4 * k))
-    mid = _light(col, 0.2)
+    mid = _light(col, 0.4)
     shades = [col, col2, mid]
     for q, (cc, g) in list(body.v.items()):
         if q[1] >= ym - 0.5 * k and cc not in (INK, WHITE):
@@ -291,7 +291,7 @@ def ub_cauldron(c, H, color, color2=None, a=None):
     others = [p for p in c.parts if p.v]
     lo, hi = _bb(v for p in others for v in p.v)
     width = max(hi[0] - lo[0] + 1, hi[1] - lo[1] + 1)
-    R = max(3.0, float(a.get('r', 0.38)) * width + 0.5)
+    R = max(3.0, float(a.get('r', 0.36)) * width + 0.5)
     Hp = max(round(2 * R) + 1, round(float(a.get('h', 1.12)) * 2 * R))
     cy = (lo[1] + hi[1]) / 2 + 0.5
     # lift the creature so it sits in the pot, its head and shoulders out
@@ -304,20 +304,27 @@ def ub_cauldron(c, H, color, color2=None, a=None):
     # nothing of the creature pokes through the pot's wall below the rim
     for p in others:
         p.v = {v: cc for v, cc in p.v.items()
-               if v[2] >= Hp - 1 or math.hypot(v[0] + .5, v[1] + .5 - cy) <= R * 0.78 - 1.6}
+               if v[2] >= Hp - 1 or math.hypot(v[0] + .5, v[1] + .5 - cy) <= R * 0.72 - 0.5}
     if True:
         # the pot is solid: what it hides of the creature goes
         for p in others:
             p.v = {v: cc for v, cc in p.v.items()
                    if v[2] >= Hp or max(abs(v[0] + .5), abs(v[1] + .5 - cy)) > R + 0.5}
     inside = set(v for p in others for v in p.v)
+    feet = max(1, round(0.7 * k)) if _fine(c) else 0
     for z in range(0, Hp):
-        # a round belly: narrower foot and neck, straight sides between
-        # (few ledges, so few triangles)
-        rr = R * (0.72 if z < 1 else 0.88 if z < 2 else 0.86 if z >= Hp - 3 else 1.0)
+        # a round belly on little feet: narrow at the foot, widest 40% of
+        # the way up, drawing in to a neck under the rim
+        t = (z - feet) / max(1, Hp - 1 - feet)
+        if z < feet:
+            rr = -1
+        elif t < 0.4:
+            rr = R * (0.62 + 0.38 * math.sin(t / 0.4 * math.pi / 2))
+        else:
+            rr = R * (1.0 - 0.28 * ((t - 0.4) / 0.6) ** 1.2)
         rr = round(rr)  # whole-voxel steps keep the bulge's ledges (and triangles) few
-        for x in range(0, math.ceil(rr) + 1):
-            for y in range(math.floor(cy - rr) - 1, math.ceil(cy + rr) + 1):
+        for x in range(0, math.ceil(max(rr, R)) + 1):
+            for y in range(math.floor(cy - R) - 1, math.ceil(cy + R) + 1):
                 d = math.hypot(x + .5, y + .5 - cy)
                 if not _fine(c):
                     # in game: square slabs, a few boxes for the whole pot
@@ -328,6 +335,8 @@ def ub_cauldron(c, H, color, color2=None, a=None):
                         pot.put((x, y, z), col)
                         pot.put((_mx(x), y, z), col)
                     continue
+                if z == Hp - 1 and d <= R * 0.72 + 0.2:
+                    continue  # the top is open: brew fills it (below)
                 if d <= rr and (x, y, z) not in inside:
                     pot.put((x, y, z), col)
                     pot.put((_mx(x), y, z), col)
@@ -338,8 +347,15 @@ def ub_cauldron(c, H, color, color2=None, a=None):
             brew.put((round(R * 0.4) + x, round(cy - .5), zt + 1), goo)
             brew.put((_mx(round(R * 0.4) + x), round(cy - .5), zt + 1), goo)
         return
-    # the rim lip: a ring sticking out one voxel at the top, a shade lighter
-    rl = R * 0.78 + 1.0
+    # four stubby feet under the belly
+    fx, fy = max(1, round(R * 0.45)), max(1, round(R * 0.45))
+    for z in range(feet):
+        for x in (fx, fx + 1):
+            for y in (round(cy - .5) - fy - 1, round(cy - .5) - fy, round(cy - .5) + fy, round(cy - .5) + fy + 1):
+                pot.put((x, y, z), col)
+                pot.put((_mx(x), y, z), col)
+    # the rim lip: a ring sticking out past the neck at the top, lighter
+    rl = R * 0.72 + 2.0
     for x in range(0, math.ceil(rl) + 1):
         for y in range(math.floor(cy - rl) - 1, math.ceil(cy + rl) + 1):
             d = math.hypot(x + .5, y + .5 - cy)
@@ -355,23 +371,25 @@ def ub_cauldron(c, H, color, color2=None, a=None):
         if v not in pot.v:
             pot.put(v, rim_col)
             pot.put((_mx(v[0]), v[1], v[2]), rim_col)
-    # green brew: a disc just under the rim around the creature, and bubbles
-    # popping up at the rim
+    # green brew filling the pot to the rim around the creature, and
+    # bubbles popping up out of it
     brew = c.part('bubbles', 'static')
-    for x in range(0, math.ceil(R * 0.78)):
-        for y in range(math.floor(cy - R), math.ceil(cy + R) + 1):
-            v = (x, y, zt - 1)
-            if math.hypot(x + .5, y + .5 - cy) <= R * 0.78 - 1.0 and v not in inside and v not in pot.v:
+    for x in range(0, math.ceil(rl)):
+        for y in range(math.floor(cy - rl) - 1, math.ceil(cy + rl) + 1):
+            v = (x, y, zt)
+            if math.hypot(x + .5, y + .5 - cy) <= rl - 1.8 and v not in inside and v not in pot.v:
                 brew.put(v, goo)
-                brew.put((_mx(x), y, zt - 1), goo)
-    spots = [(0.55, -0.5), (0.35, 0.6), (0.62, 0.25)]
-    for (fx, fy) in spots:
-        x = round(fx * R * 0.7)
-        y = round(cy + fy * R * 0.7)
-        for v in ((x, y, zt), (x, y, zt + 1)):
+                brew.put((_mx(x), y, zt), goo)
+    light = _light(goo, 0.45)
+    spots = [(0.7, -0.45, 1), (0.45, 0.65, 2), (0.75, 0.2, 1), (0.2, -0.8, 1)]
+    for (fx_, fy_, h) in spots:
+        x = round(fx_ * (rl - 2))
+        y = round(cy - .5 + fy_ * (rl - 2))
+        for dz in range(1, h + 1):
+            v = (x, y, zt + dz)
             if v not in inside and v not in pot.v:
-                brew.put(v, _light(goo, 0.35) if v[2] > zt else goo)
-                brew.put((_mx(x), y, v[2]), _light(goo, 0.35) if v[2] > zt else goo)
+                brew.put(v, light if dz == h else goo)
+                brew.put((_mx(x), y, v[2]), light if dz == h else goo)
 
 
 # ------------------------------------------------------------ leaf insect
