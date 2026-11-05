@@ -131,9 +131,18 @@
    "colors": {
     "col": "#FFFFFF",
     "accent": "#FF7A1A",
-    "belly": "#FFFFFF",
-    "glow": "#FFB347"
-   }
+    "belly": "#FFFFFF"
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    },
+    {
+     "kind": "barbels",
+     "color": "#FFB866"
+    }
+   ]
   },
   {
    "id": "Socktopus",

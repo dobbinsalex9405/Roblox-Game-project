@@ -166,13 +166,13 @@
     "kind": "beetle"
    },
    "colors": {
-    "col": "#C8A048",
-    "accent": "#6A5428"
+    "col": "#B87333",
+    "accent": "#5A3A1E"
    },
    "accessories": [
     {
      "kind": "gear",
-     "color": "#7A5424",
+     "color": "#E0B040",
      "color2": "#5CF2FF"
     }
    ]
