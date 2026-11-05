@@ -1105,13 +1105,18 @@ def bigbeak(c, H, col, col2=None):
     # drop the small beak
     for p in [p for p in head.v if p[1] < face_y and p[2] < lo[2] + (hi[2] - lo[2]) * 0.6]:
         del head.v[p]
+    for p in [p for p, v in head.v.items() if v[0] in (hexc('#FF9418'), hexc('#FFB627')) and p[1] < fy + 1.0 * k]:
+        del head.v[p]  # what is left of the plan's own short beak
+    old = kit._find(c, 'beak')
+    if old:
+        c.parts.remove(old)
     beak = c.part('beak', 'static')
     zc = lo[2] + (hi[2] - lo[2]) * 0.42
-    L = 3.2 * k
-    n = 14
+    L = 4.6 * k
+    n = 18
     for i in range(n):
         t = i / (n - 1)
-        r = 0.95 * k * (1 - 0.6 * t) + .3
+        r = 1.1 * k * (1 - 0.6 * t) + .3
         y = face_y - t * L
         z = zc + math.sin(t * math.pi) * 0.35 * k - t * 0.4 * k
         beak.ell((0, y, z), (r * 0.85, .8, r), col)
@@ -1131,9 +1136,14 @@ def longbeak(c, H, col, col2=None):
     face_y = fy + max(1, round(0.4 * k))
     for p in [p for p in head.v if p[1] < face_y and p[2] < lo[2] + (hi[2] - lo[2]) * 0.6]:
         del head.v[p]
+    for p in [p for p, v in head.v.items() if v[0] in (hexc('#FF9418'), hexc('#FFB627')) and p[1] < fy + 1.0 * k]:
+        del head.v[p]  # what is left of the plan's own short beak
+    old = kit._find(c, 'beak')
+    if old:
+        c.parts.remove(old)
     beak = c.part('beak', 'static')
     zc = lo[2] + (hi[2] - lo[2]) * 0.42
-    L = round(2.8 * k)
+    L = round(4.0 * k)
     w = max(1, round(0.25 * k))
     for i in range(L):
         t = i / L
@@ -1151,6 +1161,8 @@ def hookbeak(c, H, col, col2=None):
     face_y = fy + max(1, round(0.4 * k))
     for p in [p for p in head.v if p[1] < face_y and p[2] < lo[2] + (hi[2] - lo[2]) * 0.6]:
         del head.v[p]
+    for p in [p for p, v in head.v.items() if v[0] in (hexc('#FF9418'), hexc('#FFB627')) and p[1] < fy + 1.0 * k]:
+        del head.v[p]  # what is left of the plan's own short beak
     beak = c.part('beak', 'static')
     zc = lo[2] + (hi[2] - lo[2]) * 0.45
     w = max(1, round(0.5 * k))
@@ -1570,15 +1582,15 @@ def geode(c, H, col, col2=None):
     yc = (lo[1] + hi[1]) / 2
     zcut = hi[2] - round(0.9 * k)
     rim = col2 or hexc('#D8D2E0')
-    R = (hi[0] - lo[0] + 1) / 2 * 0.62
+    R = (hi[0] - lo[0] + 1) / 2 * 0.72
     for p in [p for p in body.v if p[2] > zcut and math.hypot(p[0] + .5, p[1] + .5 - yc) < R]:
         del body.v[p]
     body.paint(lambda p, cc, g: (rim, False) if p[2] >= zcut - 1 and math.hypot(p[0] + .5, p[1] + .5 - yc) < R + 1.2 else None)
     part = c.part('crystals', 'static')
-    for (x, y, h) in ((0, 0, 1.6), (0.7, -0.5, 1.0), (-0.6, 0.6, 1.2), (0.5, 0.7, 0.8), (-0.6, -0.6, 0.9)):
-        n = max(2, round(h * k))
+    for (x, y, h) in ((0, 0, 2.0), (0.8, -0.5, 1.4), (-0.7, 0.6, 1.6), (0.6, 0.8, 1.1), (-0.7, -0.7, 1.2)):
+        n = max(3, round(h * k))
         for i in range(n):
-            r = 0.5 * k * (1 - i / (n + 1)) + .3
+            r = 0.6 * k * (1 - i / (n + 1)) + .3
             part.ell((x * k, yc + y * k, zcut - 0.6 * k + i), (r, r, .6), col, True)
     part.paint(lambda p, cc, g: (_light(col, 0.4), True) if (p[0] + p[1] + p[2]) % 3 == 0 else None)
 
