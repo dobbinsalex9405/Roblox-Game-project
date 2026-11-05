@@ -371,8 +371,9 @@ def puff(c, H, kind, cols, opts):
     col = cols['col']
     rx, ry, rz = SHAPES.get(kind, SHAPES['ball'])
     legged = kind != 'tadpole'
-    # feet at least three voxels tall: two below the ball, one it sinks into
-    fh = max(2, round(0.9 * k)) if legged else 0
+    # feet keep at least three voxels of their own below the ball (the
+    # voxel they sink into goes to the body when parts are merged)
+    fh = max(3, round(0.9 * k)) if legged else 0
     # the ball sits on its feet, sinking into them a little
     cz = fh + rz * k - (0.35 * k if legged else 0.1 * k)
     centre = (0, 0, cz)
@@ -430,7 +431,11 @@ if __name__ == '__main__':
                     bad.append(f'{kind} at H={H}: legR is not the mirror of legL')
                 if abs(L.pivot[0] + R.pivot[0]) > 1e-6:
                     bad.append(f'{kind} at H={H}: leg hips not mirrored')
-                if max(z for _, _, z in L.v) - min(z for _, _, z in L.v) + 1 < 3:
-                    bad.append(f'{kind} at H={H}: legs under three voxels tall')
+                # count only the leg's own voxels: ones shared with another
+                # part go to that part when the build merges them
+                others = set().union(*(p.v for p in c.parts if p.name not in legs))
+                own = [z for v in (L.v, R.v) for (x, y, z) in v if (x, y, z) not in others]
+                if not own or max(own) - min(own) + 1 < 3:
+                    bad.append(f'{kind} at H={H}: legs keep under three voxels of their own')
     print('\n'.join(bad) or f'puff: {len(KINDS)} kinds OK')
     sys.exit(1 if bad else 0)

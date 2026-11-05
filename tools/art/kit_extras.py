@@ -22,13 +22,17 @@ kit.accessory:
 - **button_eye**: one big sewn-on button for an eye (a sock puppet's).
 - **knit_head**: knitted bands across the head (a sock's cuff).
 
-And two plans: **twig**, a stick insect, thin everywhere (colours col,
+And three plans: **twig**, a stick insect, thin everywhere (colours col,
 accent); **termite**, a pale banded ant shape with a brown head, a pinched
-waist, thin dark legs and forward antennae (colours col, accent, leg).
+waist, thin dark legs and forward antennae (colours col, accent, leg);
+**wasp**, slim and narrow-waisted with a banded tapered abdomen, a stinger
+and narrow amber wings (colours col, accent, wing).
 
 Each is fn(c, H, color, color2, a) (variants.py's kit hook): colours are RGB
 tuples, color2 may be None, `a` is the roster entry's accessory dict.
 Same art frame as kit.py (x right, y back, front is -y, z up), k = H / 10."""
+
+import math
 
 from voxkit import hexc
 
@@ -485,5 +489,96 @@ def termite(c, H, cols, opts):
     return c
 
 
-PLANS = {'twig': ({'col', 'accent'}, {}), 'termite': ({'col', 'accent', 'leg'}, {})}
-BUILDERS = {'twig': twig, 'termite': termite}
+def wasp(c, H, cols, opts):
+    """Plan "wasp": slim and narrow-waisted: a small yellow head, a black
+    thorax, a waist as thin as the mirror allows (two voxels wide, one
+    tall), a long tapered abdomen in yellow and black bands ending in a dark
+    stinger; two narrow pale-amber wings (wingL, wingR), six thin dark legs
+    (each its own leg part) and thin antennae. Colours col (yellow), accent
+    (black), wing."""
+    import kit_pond
+    from creatures import eyes
+    k = H / 10.0
+    col = cols['col']
+    acc = cols.get('accent') or INK
+    wc = cols.get('wing') or hexc('#F5DFA0')
+    body = c.part('body')
+    head = c.part('head', 'static', (0, -1.7 * k, 3.2 * k))
+    zc = 3.2 * k  # the body's centre line, up on the legs
+    # head: small and round, yellow face under a black crown
+    head.ell((0, -2.5 * k, zc + 0.1 * k), (1.05 * k, 0.9 * k, 0.95 * k), col)
+    crown = zc + 0.55 * k
+    head.paint(lambda p, cc, g: (acc, False) if p[2] >= crown else None)
+    eyes(c, head, max(1, round(0.4 * k)), round(zc + 0.05 * k), max(1, round(0.4 * k)))
+    # thorax: black, with two small yellow marks on the shoulders
+    body.ell((0, -1.0 * k, zc), (0.75 * k, 0.85 * k, 0.75 * k), acc)
+    for sx in (-1, 1):
+        x = round(0.35 * k)
+        body.put((x if sx > 0 else kit_pond._mx(x), round(-1.3 * k), round(zc + 0.7 * k) - 1), col)
+    # the waist: a thin stalk from the thorax to the abdomen
+    wz = round(zc) - 1
+    for y in range(round(-0.25 * k), round(0.55 * k) + 1):
+        for x in (-1, 0):
+            body.put((x, y, wz), acc)
+    # the abdomen: swelling quickly, then tapering to the tip, tilted down
+    y0, y1 = 0.5 * k, 4.6 * k
+    n = max(4, round((y1 - y0) * 1.2))
+    band = max(1, round(0.5 * k))
+    tip = None
+    for i in range(n + 1):
+        t = i / n
+        prof = math.sin(math.pi * min(1.0, 0.18 + t * 0.95)) ** 0.8
+        r = max(0.55, 1.15 * k * prof)
+        y = y0 + (y1 - y0) * t
+        z = zc - 0.1 * k - 0.5 * k * t * t
+        body.ell((0, y, z), (r, 0.6, r * 0.95), col)
+        tip = (y, z)
+    yb = round(y0 + 0.6 * k)
+    body.paint(lambda p, cc, g: (acc, False) if cc == col and p[1] >= yb and ((p[1] - yb) // band) % 2 == 1 else None)
+    # the stinger: dark voxels straight back from the tip, touching it
+    tail = max((v for v in body.v if v[0] in (-1, 0)), key=lambda v: (v[1], -abs(v[2] - tip[1])))
+    for x in (-1, 0):
+        for j in range(1, max(2, round(0.6 * k)) + 1):
+            body.put((x, tail[1] + j, tail[2]), acc)
+    # wings: long and narrow, laid back over the abdomen at a slight angle
+    wz2 = round(zc + 0.85 * k)
+    for sx in (-1, 1):
+        name = 'wingL' if sx < 0 else 'wingR'
+        wp = c.part(name, name, (sx * 0.5 * k, -0.9 * k, wz2))
+        L, Wd = 3.2 * k, 0.55 * k
+        for y in range(round(-1.0 * k), round(-1.0 * k + L) + 1):
+            t = (y - (-1.0 * k)) / L
+            half = Wd * math.sqrt(max(0.0, 1 - (2 * t - 1) ** 2))
+            cx = 0.6 * k + t * 1.2 * k  # angled out towards the tip
+            for x in range(math.floor(cx - half), math.ceil(cx + half)):
+                xx = max(0, x)
+                edge = abs(x + 0.5 - cx) > half - 1 or t > 0.9
+                wp.put((xx if sx > 0 else kit_pond._mx(xx), y, wz2), _mix(wc, (214, 140, 40), 0.55) if edge else wc)
+    # antennae: thin and dark, up and forward from the top of the head,
+    # each voxel touching the last face to face
+    m = max(3, round(1.6 * k))
+    y0a = round(-2.7 * k)
+    for sx in (-1, 1):
+        x = round(0.3 * k)
+        z = max(v[2] for v in head.v if v[0] == x and v[1] == y0a) + 1
+        for i in range(m):
+            y = y0a - i
+            if i and i % 2 == 0:
+                x += 1
+                head.put((x if sx > 0 else kit_pond._mx(x), y + 1, z), acc)
+            if i and i <= m // 2:
+                z += 1
+                head.put((x if sx > 0 else kit_pond._mx(x), y + 1, z), acc)
+            head.put((x if sx > 0 else kit_pond._mx(x), y, z), acc)
+    # six thin dark legs from under the thorax, at least three voxels long
+    kit_pond.bent_legs(body, k, (-1.6, -1.0, -0.4), acc, hip=(0.45, zc / k - 0.5), knee=(1.6, zc / k - 0.4), foot=2.4, r=0.2, splay=2.0, c=c)
+    return c
+
+
+def _mix(a, b, t):
+    return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+
+PLANS = {'twig': ({'col', 'accent'}, {}), 'termite': ({'col', 'accent', 'leg'}, {}),
+         'wasp': ({'col', 'accent', 'wing'}, {})}
+BUILDERS = {'twig': twig, 'termite': termite, 'wasp': wasp}
