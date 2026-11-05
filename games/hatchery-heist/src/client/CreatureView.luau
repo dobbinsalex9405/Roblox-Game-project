@@ -157,6 +157,18 @@ local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instanc
 	return entry, source
 end
 
+-- The meshes are built at their own size in studs (tools/art/blender), so
+-- they are scaled to the height of the voxel boxes the game draws for the
+-- species: the pad, mount and carry sizes in Layout stay the one source of
+-- how big a creature is, whichever way it is drawn.
+local function fit(speciesId: string, mesh: CreatureMeshes.Creature): number
+	local art = VoxelArt.species[speciesId]
+	if art == nil or mesh.height <= 0 then
+		return 1
+	end
+	return art.size[2] * VoxelArt.voxel / mesh.height
+end
+
 local function vec(t: { number }, k: number): Vector3
 	return Vector3.new(t[1] * k, t[2] * k, t[3] * k)
 end
@@ -200,6 +212,9 @@ local function build(anchor: BasePart, speciesId: string)
 	-- server draws it ridden or carried overhead. s: studs per voxel.
 	local k = anchor.Size.Y / Layout.raritySize(rarity)
 	local s = VoxelArt.voxel * k
+	if mesh then
+		k *= fit(speciesId, mesh)
+	end
 	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)
 	local height = size.Y
 	local feet = anchor.CFrame * CFrame.new(0, -anchor.Size.Y / 2, 0)
@@ -414,7 +429,7 @@ function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (M
 	local s = studsPerVoxel or VoxelArt.voxel
 	local mesh, source = meshSource(speciesId)
 	if mesh and source then
-		local k = s / VoxelArt.voxel
+		local k = s / VoxelArt.voxel * fit(speciesId, mesh)
 		local model = Instance.new("Model")
 		model.Name = speciesId
 		for _, part in mesh.parts do

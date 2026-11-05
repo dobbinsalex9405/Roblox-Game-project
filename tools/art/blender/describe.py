@@ -97,7 +97,8 @@ def describe(c):
     centre = ((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2])
     V = c.voxel
     p = pal.Palette()
-    parts, parts_meta, total, glows = [], [], 0, set()
+    parts, parts_meta, total, total_lod, glows = [], [], 0, 0, set()
+    lods = voxmesh.lod1_meshes(c.parts, centre, V, p.cell_of, c.species)
     for part in c.parts:
         pivot = voxmesh.to_game(part.pivot, centre, V)
         meshes, mlist = [], []
@@ -119,6 +120,18 @@ def describe(c):
             total += len(md.tris)
             meshes.append((kind, rgb, md, name))
             mlist.append(entry)
+        lod = lods[part.name]
+        lod_entry = None
+        if lod.tris:
+            lo_m, hi_m = lod.bounds()
+            lod_entry = {
+                'name': lod.name,
+                'center': r4([(a + b) / 2 for a, b in zip(lo_m, hi_m)]),
+                'size': r4([b - a for a, b in zip(lo_m, hi_m)]),
+                'tris': len(lod.tris),
+            }
+            total_lod += len(lod.tris)
+            meshes.append(('lod1', None, lod, lod.name))
         parts.append((part, pivot, meshes))
         parts_meta.append({
             'name': part.name,
@@ -126,6 +139,7 @@ def describe(c):
             'parent': parent_of(part, c.parts),
             'pivot': r4(pivot),
             'meshes': mlist,
+            'lod1': lod_entry,
         })
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
@@ -138,6 +152,7 @@ def describe(c):
         'glow': bool(glows),
         'glowColors': sorted(glows),
         'tris': total,
+        'trisLod1': total_lod,
         'parts': parts_meta,
         'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 1.0, 'loop': True}},
         'files': {'glb': f'{c.species}.glb', 'fbx': f'{c.species}.fbx', 'texture': f'{c.species}_palette.png'},

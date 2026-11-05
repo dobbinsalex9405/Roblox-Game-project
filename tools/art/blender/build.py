@@ -184,6 +184,9 @@ def creature_scene(c, out_dir, coll):
             ob.data.transform(Matrix.Translation(-mid))
             ob.parent = j
             ob.location = mid - pivots[part.name]
+            if kind == 'lod1':
+                # exported with the rest; the renders show the close-up meshes
+                ob.hide_render = True
     return meta, root, joints, glow_mats
 
 
