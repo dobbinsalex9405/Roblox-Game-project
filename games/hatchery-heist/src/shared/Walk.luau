@@ -29,7 +29,9 @@ export type Config = {
 	turnSeconds: number, -- turning on the spot before a walk
 	faceFrontAfter: number, -- stand this long, then turn to the yard
 	margin: number, -- studs kept clear of the cell's edge
-	cullFloors: number, -- creatures this many floors from you or more are not drawn
+	cullStuds: number, -- your own tower's creatures farther than this are not drawn
+	cullOtherStuds: number, -- other players' tower creatures farther than this are not drawn
+	animateOtherStuds: number, -- other players' tower creatures hold still beyond this
 }
 
 export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover" | "swim"
@@ -337,6 +339,35 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 		end
 		return STILL
 	end
+	-- A mesh with no leg parts (most of today's creature meshes) can't swing
+	-- legs, so it walks with its whole body: it rocks from foot to foot,
+	-- nods, bounces each step and swings its tail and ears, so it never
+	-- reads as gliding (Studio gate, Nov 5).
+	local steps = gait == "trot" or gait == "waddle" or gait == "scuttle"
+	if not legged and steps then
+		local rock = if gait == "waddle" then 0.2 elseif gait == "scuttle" then 0.08 else 0.15
+		local rate = if gait == "scuttle" then 2 else 1
+		local step = math.sin(a * rate)
+		local twice = math.sin(2 * a * rate)
+		local bounce = (1 - math.cos(2 * a * rate)) / 2
+		if anim == "body" then
+			return {
+				rx = 0.07 * moving * twice,
+				ry = 0.06 * moving * step,
+				rz = rock * moving * step,
+				dx = 0,
+				dy = h * 0.07 * moving * bounce,
+			}
+		elseif anim == "head" then
+			-- Nods with each step and leans against the rock, staying nearly level.
+			return { rx = 0.12 * moving * twice, ry = 0, rz = -0.6 * rock * moving * step, dx = 0, dy = 0 }
+		elseif anim == "tail" then
+			return { rx = 0, ry = 0.45 * moving * math.sin(a * rate - 0.8), rz = 0, dx = 0, dy = 0 }
+		elseif anim == "ears" then
+			return { rx = 0.18 * moving * math.max(0, twice), ry = 0, rz = 0, dx = 0, dy = 0 }
+		end
+		return STILL
+	end
 	if anim == "body" then
 		if gait == "trot" then
 			-- Legs swung out reach less far down, so the body dips as they
@@ -423,6 +454,29 @@ end
 -- Which floor (1 up) a height in studs above the ground floor's deck is on.
 function Walk.floorAt(above: number, floorHeight: number): number
 	return math.max(1, math.floor((above + 1) / floorHeight) + 1)
+end
+
+-- Whether a tower creature is left undrawn: only by distance, so every
+-- floor of a tower near you shows (Studio gate, Nov 5: culling by floor left
+-- whole floors looking empty). Other players' towers stop sooner: four full
+-- neighbours cost a phone 20 fps.
+function Walk.culled(distance: number, own: boolean, config: Config): boolean
+	return distance > (if own then config.cullStuds else config.cullOtherStuds)
+end
+
+-- The joint a part animates as. Exported meshes tag many heads, tails and
+-- ears "static" (they don't move standing still), but they still nod and
+-- swing while walking, so a static part named head, tail or ears walks as
+-- one (Studio gate, Nov 5: those parts stayed at 0 degrees).
+local WALKS_BY_NAME: { [string]: boolean } = { head = true, tail = true, ears = true }
+function Walk.role(name: string, anim: string): string
+	if name == "body" then
+		return "body"
+	end
+	if anim == "static" and WALKS_BY_NAME[name] then
+		return name
+	end
+	return anim
 end
 
 return Walk

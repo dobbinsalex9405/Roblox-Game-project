@@ -71,8 +71,9 @@ Legendary and Godly (`slotsByRarity`), side by side in one row.
   clock, so every player sees the same thing and creatures never collide.
   Gaits per species (CreatureMeshes `gait`): trot, waddle, hop, scuttle,
   slither, hover. Only the client moves them; the server, raids and income
-  use the pad. Creatures more than `cullFloors` floors from the player are
-  not drawn.
+  use the pad. Every floor of a nearby tower shows: your own tower's
+  creatures within `cullStuds` (180), other players' within `cullOtherStuds`
+  (100), which only move within `animateOtherStuds` (60).
 - **Old saves** (before the tower) are placed best first once on join, with
   the mount and the guard cleared; every join then tidies the save so no two
   creatures overlap and none sits on a floor the player doesn't own.
@@ -229,6 +230,19 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
 
 - The shop opens on its **Coins** tab (next incubator, free shield, traps,
   decoy egg, belt eggs); Robux items are the second tab.
+- **Golden Egg Shop** (`src/server/ShopHouse.luau`, `config/shophouse.luau`,
+  art and room layout in `src/shared/ShopArt.luau` from
+  `tools/art/world/shop.py`): a walk-in storybook shop in the yard (angle
+  22.5, radius 62, door toward the Golden Nest) where every Robux item in the
+  Shop window stands on its own display: the four coin packs from a pouch to
+  a treasure hoard on one wall, Auto-Collect, Extra Incubators, Double Coins
+  and Shield Refill on the other, a counter with a Hamster shopkeeper at the
+  back. Each plinth's tag shows the name, a line on what it does and the
+  price from Roblox ("Owned" for a pass the player has, "Coming soon" for an
+  item not on Roblox yet). Its Buy prompt sends the same `Shop:Buy` as the
+  Shop window (source `GoldenEggShop`), so the server re-checks everything.
+  An item with random results never goes on a display (`ShopPlan`): it stays
+  in the Shop window behind its odds screen.
 - Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect.
 - Products: three coin packs, Shield Refill (adds `shieldSeconds`), Instant
   Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare and better
