@@ -372,3 +372,19 @@ voxel-box notes are from #94, which this branch doesn't contain).
 - **Income +876/s** (CrystalStag, EmberFox, FrostWolf and Dragonling given): the tab shows 263K / 1.05M / 2.36M / 5.26M Coins, each labelled "...: N minutes of what you earn now" (`98-hh-robux-tab-876ps.jpg`). The exact values would be 262,800 / 1,051,200 / 2,365,200 / 5,256,000; the shop rounds them to 3 significant figures.
 - **Grants match what the shop shows exactly:** Small `amount=263000` and Medium `amount=1050000`. The grant is the rounded amount that was displayed, not the unrounded one.
 - Output: nothing new.
+
+## #83 gate 4 @ 1d9eae7 (distance-only cull)
+
+Setup: floors 2-4 built, 15 creatures given through the Test panel (2 on floor 2, 5 on floor 3, 8 on floor 4; mix of commons and rares, incl. CrystalStag, EmberFox, FrostWolf, Dragonling, MoonUnicorn, GoldenGoose).
+
+- **From the ground floor inside the tower: PASS.** 15/15 creature models drawn (floor 2 2/2, floor 3 5/5, floor 4 8/8). The decks block the view upward, as expected (`83d-hh-inside-ground-floor.jpg`).
+- **Walking: PASS.** 5 of 15 moved more than 0.3 studs in a 3 s window. The rest were idle on their schedule.
+- **Yard: PASS.** 15/15 drawn, 59.5 fps on desktop (`83d-hh-yard-side-view.jpg`).
+- **Ladder climb: PASS.** The character was stepped up the ladder line (plot-local 22.5, 14.5) from y 3 to 42, sampling every 1.5 studs. The count stayed at 15 drawn the whole way, with 0 changes, so nothing popped in or out.
+- **Several full towers, phone 844x392, Studio in the foreground: FINDING.**
+  - Setup: server-side clones of the 15 creature balls (same CreatureLook, Uid set, parented as `Creature` under each free `PadN`, so they wander like real ones) filled every pad of the four neighbouring towers: Plot2 and Plot8 at 84 studs, Plot3 and Plot7 at 155. Plot1's extra clones were removed by its own resync. That made 335 creatures in total.
+  - Standing in the yard of my base, 273 are drawn: own 15, Plot2 80, Plot8 80, Plot7 79, Plot3 19 (the rest of Plot3 is beyond 180 studs).
+  - Measured **36-39 fps** (default camera 39.3; looking at own tower, Plot2, Plot8 and the market: 36.8 / 38.6 / 37.0 / 36.1).
+  - Baseline at the same spot with only the own 15: **59.3 fps**.
+  - Client memory was 2.8 GB with the clones present.
+  - This is the laptop GPU in Studio, so a real phone will likely be slower.
