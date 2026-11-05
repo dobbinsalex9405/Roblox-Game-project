@@ -119,11 +119,10 @@ def face(c, head, k, z, x_off=0.9, size=0.6, smile=True, cheeks=True):
     if cheeks and k >= 1:
         blush(head, round((x_off + 0.9) * k), round((z - 0.7) * k))
     if smile and getattr(c, 'fine', False):
-        zm = round((z - 1.0) * k)
-        w = max(1, round(0.5 * k))
-        for x in range(-w, w):
-            corner = x in (-w, w - 1)
-            f = head.front(x, zm + (1 if corner else 0))
+        # a small mouth, two voxels wide, a little below and between the eyes
+        zm = round((z - 1.2) * k)
+        for x in (-1, 0):
+            f = head.front(x, zm)
             if f:
                 head.put(f, INK)
 
@@ -202,14 +201,6 @@ def _puddle(c, H, k, body, head, cols, opts):
     for part in (body, head):
         part.paint(lambda p, cc, g: (light(col, 0.3), False) if p[2] >= hi - round(0.5 * k) else None)
         part.paint(lambda p, cc, g: (acc, False) if p[2] <= lo + round(0.4 * k) else None)
-    # drips: little drops around the base
-    drops = c.part('drops', 'static')
-    for i in range(6):
-        a = i / 6 * 2 * math.pi + 0.4
-        x, y = 4.2 * k * math.cos(a), 3.6 * k * math.sin(a)
-        if y < -1.5 * k:
-            continue  # keep the front clear for the face
-        drops.ell((x, y, 0.4 * k), (0.4 * k + .2, 0.4 * k + .2, 0.3 * k + .2), light(col, 0.15))
     return {'shine': True}
 
 
@@ -302,8 +293,12 @@ def _acorn(c, H, k, body, head, cols, opts):
     cap_col = cols.get('tuft') or hexc('#8A5A33')
     top = max(p[2] for p in list(body.v) + list(head.v))
     cap = c.part('cap', 'static')
-    cz = top - 1.0 * k
-    cap.ell((0, 0.3 * k, cz), (3.6 * k, 3.4 * k, 1.9 * k), cap_col, cond=lambda x, y, z: z + .5 >= cz - 0.2 * k)
+    bottom = min(p[2] for p in list(body.v) + list(head.v))
+    # the brim covers the top third, above the eyes; the small in-game build
+    # has too few voxels for that, so its cap sits on top
+    brim = top - 0.3 * (top - bottom) if getattr(c, 'fine', False) else top + 0.5
+    cz = brim + 1.2 * k
+    cap.ell((0, 0.3 * k, cz), (3.6 * k, 3.4 * k, 1.9 * k), cap_col, cond=lambda x, y, z: z + .5 >= brim)
     for p in list(cap.v):
         head.v.pop(p, None)
         body.v.pop(p, None)
@@ -312,7 +307,7 @@ def _acorn(c, H, k, body, head, cols, opts):
     for i in range(max(2, round(1.0 * k))):
         cap.put((0, round(0.3 * k), cz2 + 1 + i), dark(cap_col, 0.35))
         cap.put((-1, round(0.3 * k), cz2 + 1 + i), dark(cap_col, 0.35))
-    return {'face_z': 0.25}
+    return {'face_z': 0.05}
 
 
 def _cone(c, H, k, body, head, cols, opts):
