@@ -90,19 +90,22 @@ def ball_body(c, k, centre, r, col):
 
 def feet(c, k, col, height, x=1.2, y=-0.2, w=0.75, toe=0.5):
     """Two stubby feet, each its own leg part hinged at the hip, so they step
-    as the puff hops. `height` in voxels; x, y, w, toe in k."""
+    as the puff hops. The right foot is the exact mirror of the left (cells
+    x -> -x-1, hip x negated), and each is at least three voxels tall.
+    `height` in voxels; x, y, w, toe in k."""
     hw = max(1, round(w * k))
+    height = max(3, height)
+    x0 = math.floor(-x * k - hw / 2)
+    x1 = x0 + hw - 1
+    y0 = round(y * k - hw / 2)
+    t = max(1, round(toe * k))
     out = []
     for sx in (-1, 1):
-        cx = sx * x * k
-        x0 = math.floor(cx - hw / 2)
-        x1 = x0 + hw - 1
-        y0 = round(y * k - hw / 2)
-        leg = _leg(c, sx, (x0 + x1 + 1) / 2, y0 + hw / 2, height)
-        leg.box((x0, y0, 0), (x1, y0 + hw - 1, max(0, height - 1)), col)
+        a, b = (x0, x1) if sx < 0 else (-x1 - 1, -x0 - 1)
+        leg = _leg(c, sx, (a + b + 1) / 2, y0 + hw / 2, height)
+        leg.box((a, y0, 0), (b, y0 + hw - 1, height - 1), col)
         # a rounded toe reaching forward
-        t = max(1, round(toe * k))
-        leg.box((x0, y0 - t, 0), (x1, y0 - 1, max(0, round(0.35 * k) - 1)), col)
+        leg.box((a, y0 - t, 0), (b, y0 - 1, max(0, round(0.35 * k) - 1)), col)
         out.append(leg)
     return out
 
@@ -368,7 +371,9 @@ def puff(c, H, kind, cols, opts):
     col = cols['col']
     rx, ry, rz = SHAPES.get(kind, SHAPES['ball'])
     legged = kind != 'tadpole'
-    fh = max(1, round((0.9 if legged else 0.0) * k)) if legged else 0
+    # feet keep at least three voxels of their own below the ball (the
+    # voxel they sink into goes to the body when parts are merged)
+    fh = max(3, round(0.9 * k)) if legged else 0
     # the ball sits on its feet, sinking into them a little
     cz = fh + rz * k - (0.35 * k if legged else 0.1 * k)
     centre = (0, 0, cz)
@@ -394,7 +399,7 @@ def puff(c, H, kind, cols, opts):
                     if z == zb:
                         head.put((f[0], f[1] - 2, f[2]), extra['beak'])
     if legged:
-        feet(c, k, cols.get('feet') or dark(col, 0.25), fh + round(0.35 * k),
+        feet(c, k, cols.get('feet') or dark(col, 0.25), fh + max(1, round(0.35 * k)),
              x=min(1.4, rx * 0.45), w=extra.get('feet_w', 0.8), toe=0.5)
     return c
 
@@ -419,5 +424,18 @@ if __name__ == '__main__':
             want = {'body', 'head', 'eyes'} | (set() if kind == 'tadpole' else {'legL', 'legR'})
             if want - names:
                 bad.append(f'{kind} at H={H}: missing {sorted(want - names)}')
+            legs = {p.name: p for p in c.parts if p.name in ('legL', 'legR')}
+            if len(legs) == 2:
+                L, R = legs['legL'], legs['legR']
+                if {(-x - 1, y, z) for (x, y, z) in L.v} != set(R.v):
+                    bad.append(f'{kind} at H={H}: legR is not the mirror of legL')
+                if abs(L.pivot[0] + R.pivot[0]) > 1e-6:
+                    bad.append(f'{kind} at H={H}: leg hips not mirrored')
+                # count only the leg's own voxels: ones shared with another
+                # part go to that part when the build merges them
+                others = set().union(*(p.v for p in c.parts if p.name not in legs))
+                own = [z for v in (L.v, R.v) for (x, y, z) in v if (x, y, z) not in others]
+                if not own or max(own) - min(own) + 1 < 3:
+                    bad.append(f'{kind} at H={H}: legs keep under three voxels of their own')
     print('\n'.join(bad) or f'puff: {len(KINDS)} kinds OK')
     sys.exit(1 if bad else 0)
