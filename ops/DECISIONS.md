@@ -18,6 +18,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Space rules are tested**, not eyeballed: creature cells, elevator
   shaft and door, ladder opening, windows, pictures, ceiling
   (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
 ## 2026-11-05: Roster creatures reach the game through a generated config block
 
 - **What:** `tools/art/to_config.py` writes a marked block at the end of
