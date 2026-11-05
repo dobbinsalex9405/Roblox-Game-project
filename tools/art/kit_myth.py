@@ -1354,12 +1354,20 @@ def _seahorse(c, k, col, belly, accent, glow, iris):
         body.ell((x, y, z), (r * 0.85, r, r * 0.6), col)
     body.paint(lambda p, cc, g: (belly, False) if p[1] < -0.9 * k and cc == col else None)
     body.paint(lambda p, cc, g: (dark(belly, 0.15), False) if cc == belly and p[2] % max(2, round(0.5 * k)) == 0 else None)
-    # curled tail under it
+    # the curled tail: down from the body, then rolling forward under the
+    # belly into a tight spiral (a seahorse reads by it)
     tail = c.part('tail', 'tail', (0, -0.4 * k, cz0))
-    for i in range(24):
-        a = i / 23 * math.pi * 1.6
-        rr = 1.1 * k * (1 - i / 34)
-        tail.ell((0, -0.4 * k + math.sin(a) * rr, cz0 - 1.0 * k + math.cos(a) * rr * 0.9 + 0.2 * k), (max(0.6, 0.45 * k * (1 - i / 30)),) * 3, col)
+    R0, cy, czc = 1.35 * k, -0.35 * k, 1.35 * k
+    pts = []
+    n = 40
+    for i in range(n + 1):
+        t = i / n
+        th = math.pi / 2 - t * 3.3 * math.pi
+        R = R0 * (1 - 0.68 * t)
+        pts.append((0, cy + R * math.cos(th), czc + R * math.sin(th) + (0.5 * k * (1 - t) if t < 0.25 else 0),
+                    max(0.6, 0.55 * k * (1 - 0.6 * t))))
+    sweep(tail, pts, lambda s: col if s < 0.85 else dark(col, 0.12))
+    tail.paint(lambda p, cc, g: (dark(col, 0.12), False) if cc == col and p[2] % max(2, round(0.45 * k)) == 0 else None)
     hz = cz0 + 6.4 * k
     head = c.part('head', 'head', (0, -0.6 * k, hz - 0.8 * k))
     head.ell((0, -0.9 * k, hz), (1.1 * k, 1.4 * k, 1.1 * k), col)
