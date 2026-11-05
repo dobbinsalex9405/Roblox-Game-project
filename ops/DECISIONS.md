@@ -24,6 +24,70 @@ Non-obvious choices, newest first, so a later session can trust them.
   keep those at 0.2 studs or more; `partsheet.py` renders every Parts
   version for a quick check.
 
+## 2026-11-05: Design viewer (tools/designs)
+
+- **A folder that opens from disk, not a hosted page.** Alex asked for a
+  desktop shortcut and folders like File Explorer. A plain folder with one
+  HTML page works offline, needs no server or install, and its files are
+  content-hashed so re-copying only moves what changed. The cost: a page
+  opened from disk cannot fetch() files, so each .glb ships as a small
+  script and three.js is bundled into one classic script (`viewer/dist/`).
+- **Sorted by what a thing is, then by game** (Creatures/Hatchery Heist/
+  Common/Bunny), as Alex asked; search covers names, folders, games and tiers.
+- **Game models come from booting the games**, not from a hand-kept list:
+  the export runs the same headless boot as the audit, so every model a
+  game builds (even client-side ones like eggs on the belt) is in the
+  viewer, and CI fails if a game change breaks the export.
+- **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
+  the repo: designs are for looking at before anything is decided, and big
+  .glb files do not belong in git.
+
+## 2026-11-05: Creature meshes v2 (Hatchery Heist)
+
+- **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
+  Chick and Piglet (Nov 5). Each tier is built at its planned pad height
+  (2, 2.2, 2.4, 2.7, 3, 3.4, 3.8 studs, Common to Godly), so bigger tiers get
+  more voxels, not bigger ones. Seams are about half as strong as v1 and
+  snouts and beaks sit flatter, as Alex asked.
+- **The game scales meshes to the voxel boxes' height** (`CreatureView`
+  `fit`), so `Layout.raritySize` stays the only size knob when the pad sizes
+  change.
+- **Triangle caps per tier and a far LOD**, agreed with the game side for 8
+  to 10 roaming creatures a floor (ops/ASSETS.md "Budgets"). A hard 15,000
+  cap for every tier was turned down: it would need 3× coarser voxels on the
+  Godlies, the look Alex had just approved.
+- **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
+  gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
+
+
+
+## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)
+
+- **Eggs roll a tier, then a creature.** Alex asked for it so creatures can
+  be added without moving other odds. An egg names a pool and a whole
+  weight per tier (out of 100,000); creatures list their pools. At load,
+  `Eggs.expand` turns that into one whole weight per creature (largest
+  remainder inside each tier), so every existing consumer (roll, odds
+  display, fixed order, Book, reveal) keeps reading `egg.outcomes`, and the
+  server rolls exactly the table it shows. Tier chances are unchanged from
+  before; creatures inside a tier now share it evenly, which moved some
+  individual chances (Premium Phoenix 1 in 286 became 1 in 408). Config.spec
+  and the boot check refuse a tier with no creatures or fewer weight units
+  than creatures.
+- **Stayed at 100,000, not 1,000,000.** The fixed-order cycle for
+  restricted players is built once per egg and is as long as the total;
+  100,000 keeps that cheap on phones, and still splits 150 Commons evenly.
+- **Tier boards plus a full list.** With hundreds of creatures planned, the
+  card and board show seven tier lines. Roblox policy and our rule need
+  each item's chance before purchase, so the card has "See every creature",
+  listing every creature's exact chance from the server's table.
+- **Sizes flatten, art fits its stand-in.** Rarer creatures are only a
+  little bigger (2 to 3.8 studs) and will take more floor slots instead.
+  `ArtScale.drawScale` now scales every creature's whole art to its
+  stand-in's height, so `Layout.raritySize` is the one size knob and
+  replaces the earlier crest cap.
+- **An `element` field exists from day one** but does nothing until the
+  roster is several hundred creatures (Alex, Nov 5).
 
 ## 2026-11-05: Hatchery Heist floor height and music fades
 

@@ -26,12 +26,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 ASSETS = os.path.join(HERE, 'assets.json')
 API = 'https://apis.roblox.com/assets/v1'
-DEVELOP = 'https://develop.roblox.com/v1/universes'
+CLOUD_UNIVERSE = 'https://apis.roblox.com/cloud/v2/universes'
+GAMES = 'https://games.roblox.com/v1/games'
 GAME = 'hatchery-heist'
 
 
-def call(method, url, key=None, body=None, ctype=None):
-    assert url.startswith('https://apis.roblox.com/') or url.startswith('https://develop.roblox.com/')
+def call(method, url, key=None, body=None, ctype=None, soft=False):
+    """JSON from a Roblox API. soft: a 4xx raises LookupError instead of
+    stopping, so the caller can try another way."""
+    assert url.startswith('https://apis.roblox.com/') or (url.startswith('https://games.roblox.com/') and not key)
     req = urllib.request.Request(url, data=body, method=method)
     if key:
         req.add_header('x-api-key', key)
@@ -46,6 +49,8 @@ def call(method, url, key=None, body=None, ctype=None):
             if e.code in (429, 500, 502, 503) and attempt < 4:
                 time.sleep(2 ** attempt * 2)
                 continue
+            if soft and 400 <= e.code < 500:
+                raise LookupError(f'HTTP {e.code}')
             raise SystemExit(f'{method} {url.split("?")[0]} failed: HTTP {e.code} {text}')
 
 
@@ -63,13 +68,29 @@ def multipart(request, path):
     return b''.join(parts), f'multipart/form-data; boundary={b}'
 
 
-def owner_group():
+def owner_group(key):
+    """The group that owns the Staging experience, which must also own the
+    uploaded meshes. Asked of Open Cloud first (the key's own universe), then
+    of the public games API (no key sent there). develop.roblox.com's
+    universe lookup, used before, now answers 404."""
+    if os.environ.get('ROBLOX_GROUP_ID', '').isdigit():
+        return os.environ['ROBLOX_GROUP_ID']
     with open(os.path.join(ROOT, 'ops', 'environments.json')) as f:
         uni = json.load(f)[GAME]['staging']['universeId']
-    info = call('GET', f'{DEVELOP}?ids={uni}')['data'][0]
-    if info.get('creatorType') != 'Group':
-        raise SystemExit('the Staging experience is not owned by a group; see ops/ASSETS.md')
-    return str(info['creatorTargetId'])
+    try:
+        info = call('GET', f'{CLOUD_UNIVERSE}/{uni}', key, soft=True)
+        group = info.get('group', '')
+        if group.startswith('groups/'):
+            return group.split('/', 1)[1]
+        if info.get('user'):
+            raise SystemExit('the Staging experience is owned by a user, not a group; see ops/ASSETS.md')
+    except LookupError as e:
+        print(f'Open Cloud universe lookup unavailable ({e}); asking the games API')
+    data = call('GET', f'{GAMES}?universeIds={uni}').get('data') or []
+    creator = data[0].get('creator', {}) if data else {}
+    if creator.get('type') != 'Group' or not creator.get('id'):
+        raise SystemExit('could not find the group that owns the Staging experience; see ops/ASSETS.md')
+    return str(creator['id'])
 
 
 def wait(op, key):
@@ -102,7 +123,7 @@ def main():
     ids = sorted(d for d in os.listdir(a.dir) if os.path.isfile(os.path.join(a.dir, d, f'{d}.fbx')))
     if a.only:
         ids = [i for i in ids if i in set(a.only.split(','))]
-    group = None if a.dry_run else owner_group()
+    group = None if a.dry_run else owner_group(key)
     for sid in ids:
         fbx = os.path.join(a.dir, sid, f'{sid}.fbx')
         have = data['models'].get(sid)

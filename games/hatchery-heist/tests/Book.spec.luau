@@ -3,7 +3,7 @@
 -- that can hatch it at its best chance.
 local Book = require("../src/shared/Book")
 local creatures = require("../config/creatures")
-local eggs = require("../config/eggs")
+local eggs = require("../src/shared/Eggs").expand(require("../config/eggs"), creatures.species)
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 

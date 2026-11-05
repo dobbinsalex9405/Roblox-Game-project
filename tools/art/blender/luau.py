@@ -14,7 +14,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from describe import manifest  # noqa: E402
+from describe import creatures, manifest  # noqa: E402
+from creatures import in_game  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 OUT = os.path.join(ROOT, 'games', 'hatchery-heist', 'src', 'shared', 'CreatureMeshes.luau')
@@ -33,14 +34,14 @@ def vec(v):
 WIDTH = 110  # stylua.toml column_width; tabs count 4
 
 
-def table_lines(depth, fields, trail=','):
+def table_lines(depth, fields, trail=',', prefix=''):
     """A table of `fields` as StyLua would lay it out: on one line when it
     fits in WIDTH, otherwise one field a line, so the file is already
     formatted and `stylua --check` agrees with it."""
-    one = '\t' * depth + '{ ' + ', '.join(fields) + ' }' + trail
+    one = '\t' * depth + prefix + '{ ' + ', '.join(fields) + ' }' + trail
     if len(one.expandtabs(4)) <= WIDTH:
         return [one]
-    return ['\t' * depth + '{'] + ['\t' * (depth + 1) + f + ',' for f in fields] + ['\t' * depth + '}' + trail]
+    return ['\t' * depth + prefix + '{'] + ['\t' * (depth + 1) + f + ',' for f in fields] + ['\t' * depth + '}' + trail]
 
 
 def assets():
@@ -57,8 +58,12 @@ def assets():
 
 def write():
     ids = assets()
-    m = manifest()
-    known = {c['id'] for c in m['creatures']}
+    every = creatures()
+    kept, waiting = in_game(every)
+    if waiting:
+        print('meshes not in config/creatures.luau yet (left out): ' + ', '.join(waiting))
+    m = manifest(kept)
+    known = {c.species for c in every}  # uploaded before the config lists it is fine
     for k in ids:
         assert k in known, f'assets.json names {k}, which is not a creature'
     L = [
@@ -75,13 +80,21 @@ def write():
         '-- the VoxelArt boxes instead.',
         '',
         'export type Mesh = { name: string, center: { number }, size: { number }, glow: string? }',
-        'export type Part = { name: string, anim: string, parent: string?, pivot: { number }, meshes: { Mesh } }',
+        'export type Part = {',
+        '\tname: string,',
+        '\tanim: string,',
+        '\tparent: string?,',
+        '\tpivot: { number },',
+        '\tmeshes: { Mesh },',
+        '\tlod1: Mesh?,',
+        '}',
         'export type Creature = {',
         '\tassetId: number,',
         '\trarity: string,',
         '\theight: number,',
         '\tsize: { number },',
         '\ttris: number,',
+        '\ttrisLod1: number,',
         '\tparts: { Part },',
         '}',
         '',
@@ -94,6 +107,7 @@ def write():
         L.append(f'\t\theight = {num(c["heightStuds"])},')
         L.append(f'\t\tsize = {vec(c["sizeStuds"])},')
         L.append(f'\t\ttris = {c["tris"]},')
+        L.append(f'\t\ttrisLod1 = {c["trisLod1"]},')
         L.append('\t\tparts = {')
         for p in c['parts']:
             L.append('\t\t\t{')
@@ -109,6 +123,10 @@ def write():
                     fields.append(f'glow = "{ms["color"]}"')
                 L += table_lines(5, fields)
             L.append('\t\t\t\t},')
+            if p.get('lod1'):
+                lo = p['lod1']
+                f = [f'name = "{lo["name"]}"', f'center = {vec(lo["center"])}', f'size = {vec(lo["size"])}']
+                L += table_lines(4, f, prefix='lod1 = ')
             L.append('\t\t\t},')
         L.append('\t\t},')
         L.append('\t},')

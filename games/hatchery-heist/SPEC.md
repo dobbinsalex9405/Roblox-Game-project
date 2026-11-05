@@ -15,7 +15,8 @@ Eight bases sit in a ring around a shared yard; each player gets one.
    `travelSeconds`, the kind picked by `weights`. Walk up to an egg and buy it
    with coins; it goes straight into the first free incubator. The odds card
    for that egg is on screen while the Buy prompt is, and the board above the
-   belt lists every belt egg's odds. Buy stays off until the odds are known.
+   belt lists every belt egg's odds by tier. The card's "See every creature"
+   button lists each creature's exact chance. Buy stays off until the odds are known.
 2. **Incubators.** 3 to start, more for coins (`economy.incubators.slotCosts`),
    +2 with the Extra Incubators pass. An egg hatches `hatchSeconds` after it
    was bought, by the saved clock, so it keeps going while the player is away.
@@ -44,28 +45,40 @@ lower the tier, the bigger the selection and the smaller the creature; the
 higher, the bigger, more detailed, more animated and more glowing
 (`src/shared/CreatureLooks.luau`):
 
-- Common: about 2 studs; bobs and blinks.
+- Common: 2 studs; bobs and blinks.
 - Uncommon: turns its head, wags its tail.
 - Rare: flicks its ears, flaps its wings.
 - Ultra Rare: glowing (Neon) markings, a soft light and sparkles.
-- Epic: about 5 studs, standing in a glowing rarity ring.
-- Legendary: about 9 studs, hovering in a bright aura, the most detailed
+- Epic: 3 studs, standing in a glowing rarity ring.
+- Legendary: 3.4 studs, hovering in a soft aura, the most detailed
   models in the game (Phoenix, Thunder Griffin).
-- Godly: about 11 studs, glowing cubes orbit it and its ring cycles through
+- Godly: 3.8 studs, glowing cubes orbit it and its ring cycles through
   the rainbow (Golden Goose, Nebula Serpent).
+
+Sizes (`Layout.raritySize`, Uncommon 2.2, Rare 2.4, Ultra Rare 2.7) rise only
+a little with rarity (Alex, Nov 5): rarer creatures will take more room on a
+floor instead. The client draws a creature's whole art exactly as tall as the
+server's stand-in.
 
 Every creature is a voxel model made in `tools/art` (Python, rendered for
 review with Blender) and exported to `src/shared/VoxelArt.luau`. The server
 places an invisible stand-in part for each creature it shows (on a pad,
 ridden, guarding, carried, decoy) with a `CreatureLook` attribute; the
 client's `CreatureView` builds and animates the model on it. A ridden
-creature is drawn at most `Layout.MOUNT_MAX` studs tall, a carried one at
-most `Layout.CARRY_MAX`.
+creature is drawn one stud taller than on its pad, at most `Layout.MOUNT_MAX`
+studs, a carried one at most `Layout.CARRY_MAX`.
 
-Odds tables may total more than 10,000 (`total` in `config/eggs.luau`): the
-eggs total 100,000, so 1 = 0.001% (1 in 100,000). The odds card shows each
-row as a percentage and as "1 in N". The rarest belt hatch is a Godly at
-1 in 50,000 from the Moonlit Egg.
+**Eggs roll a tier, then a creature** (Alex, Nov 5). Each egg in
+`config/eggs.luau` has a pool and a whole weight per tier, out of 100,000
+(1 = 0.001%). Each creature lists the pools it hatches from
+(`config/creatures.luau`) and may set an in-tier `weight` (1 by default).
+`Eggs.expand` splits each tier's weight between its creatures, largest
+remainder first, so every tier's chance is exact and adding a creature only
+splits its own tier. The odds card and board show one line per tier; the
+"See every creature" list shows each creature as a percentage and as
+"1 in N". The rarest belt hatch is a Godly at 1 in 50,000 from the Moonlit
+Egg. Each creature also has an optional `element`, unused until elements
+roll out with a much larger roster.
 
 | Egg | Price | Belt share | Best odds |
 | --- | ---: | ---: | --- |
@@ -183,7 +196,7 @@ screen before purchase, odds update live during a Luck Boost, PolicyService
 check on every purchase. Players for whom PolicyService restricts paid random
 items get the fixed order instead: each egg hatches a fixed repeating cycle
 in which every outcome comes exactly as often as its odds (a Basic Egg cycle
-is 50,000 eggs, with one Phoenix in it). The odds card
+is 100,000 eggs, with two Phoenixes in it). The odds card
 shows the next creature and how many eggs until each other one, so nothing
 they buy is random and they get no more and no fewer rare creatures than
 anyone else.

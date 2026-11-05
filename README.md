@@ -28,6 +28,7 @@ games/hatchery-heist/
 tools/                    test runner, build, type check, boot check, key flows, publish, feedback reader,
                           metrics (scoreboard), loop (update plan)
 playtests/                headless playtests per game: system checks (CI) and bot sessions
+tools/designs/            the design viewer: every model in every game, in folders, in 3D
 ops/
   environments.json       universe and place ids per game (no keys, ever)
   SETUP.md                the steps only Alex can do (accounts, keys)

@@ -169,6 +169,18 @@ local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instanc
 	return entry, source
 end
 
+-- The meshes are built at their own size in studs (tools/art/blender), so
+-- they are scaled to the height of the voxel boxes the game draws for the
+-- species: the pad, mount and carry sizes in Layout stay the one source of
+-- how big a creature is, whichever way it is drawn.
+local function fit(speciesId: string, mesh: CreatureMeshes.Creature): number
+	local art = VoxelArt.species[speciesId]
+	if art == nil or mesh.height <= 0 then
+		return 1
+	end
+	return art.size[2] * VoxelArt.voxel / mesh.height
+end
+
 local function vec(t: { number }, k: number): Vector3
 	return Vector3.new(t[1] * k, t[2] * k, t[3] * k)
 end
@@ -208,12 +220,15 @@ local function build(anchor: BasePart, speciesId: string)
 	end
 	local rarity = if mesh then mesh.rarity else (art :: VoxelArt.Art).rarity
 	local look = CreatureLooks[rarity] or CreatureLooks.Common
-	-- k: the creature's size against its size on a pad, smaller when the
-	-- server draws it ridden or carried overhead, and then small enough that
-	-- the whole art, crest and all, fits inside the ball. s: studs per voxel.
-	local artHeight = if mesh then mesh.size[2] else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
-	local k = ArtScale.drawScale(anchor.Size.Y, Layout.raritySize(rarity), artHeight)
+	-- k: scales the art so all of it, crest and all, stands as tall as the
+	-- server's ball (its size on a pad, ridden or carried). s: studs per voxel.
+	-- Meshes are drawn at their boxes' height (fit), so both paths fit the
+	-- same art height into the ball.
+	local meshFit = if mesh then fit(speciesId, mesh) else 1
+	local artHeight = if mesh then mesh.size[2] * meshFit else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
+	local k = ArtScale.drawScale(anchor.Size.Y, artHeight)
 	local s = VoxelArt.voxel * k
+	k *= meshFit
 	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)
 	local height = size.Y
 	local feet = anchor.CFrame * CFrame.new(0, -anchor.Size.Y / 2, 0)
@@ -434,7 +449,7 @@ function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (M
 	local s = studsPerVoxel or VoxelArt.voxel
 	local mesh, source = meshSource(speciesId)
 	if mesh and source then
-		local k = s / VoxelArt.voxel
+		local k = s / VoxelArt.voxel * fit(speciesId, mesh)
 		local model = Instance.new("Model")
 		model.Name = speciesId
 		for _, part in mesh.parts do
