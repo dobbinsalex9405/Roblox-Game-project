@@ -13,6 +13,15 @@ legs an exact mirror of the right):
   past small tucked ears, glowing horn tips.
 - **sandcat**: a wide flat head with wide, low-set ears (glowing inside),
   big eyes, striped legs, a ringed tail with a black tip.
+- **ferret**: the ermine's shape in its own colours (accent tips the tail).
+- **hamster**: a round chubby ball with puffed cheek pouches, tiny pink
+  nose, small round ears and stubby pink-toed legs.
+- **mouse**: a slim body, a pointed snout, big round disc ears with pink
+  fronts, a long thin tail curving up.
+- **badger**: low and wide on short thick legs, a white stripe from nose
+  over the crown, white cheeks, small pale ears.
+- **lamb**: a curly woolly body on thin dark legs, a dark face with a
+  woolly cap and pale eyes, ears sticking out sideways.
 - **otter**: floats on its back (gait `swim`): pale face, paws on its chest
   holding a shell with a glowing pearl, webbed hind feet up as `finL`/`finR`,
   a flat `tail`.
@@ -357,7 +366,141 @@ def _otter(c, k, cols):
     _mirror(tail)
 
 
-KINDS = {'camel': _camel, 'ermine': _ermine, 'muskox': _muskox, 'sandcat': _sandcat, 'otter': _otter}
+# ------------------------------------------------------------------ hamster
+
+def _hamster(c, k, cols):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.5)
+    pink = hexc('#FFB3C7')
+    _legs(c, k, ((0.7, -0.9), (0.7, 1.3)), 1.6 * k, max(2, round(0.5 * k)), _dark(col, 0.08), foot=pink, foot_h=0.25)
+    body = c.part('body')
+    # a round, chubby ball of a body
+    body.ell((0, 0.4 * k, 2.75 * k), (1.65 * k, 1.8 * k, 1.55 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < 2.6 * k and abs(p[0] + .5) < 1.1 * k and p[1] < 0.8 * k else None)
+    head = c.part('head', 'head', (0, -1.0 * k, 3.4 * k))
+    head.ell((0, -1.55 * k, 3.4 * k), (1.35 * k, 1.15 * k, 1.15 * k), col)
+    # puffed-out cheek pouches and a tiny pink nose
+    head.ell((1.0 * k, -2.05 * k, 2.85 * k), (0.62 * k, 0.55 * k, 0.55 * k), belly)
+    head.ell((0, -2.6 * k, 3.05 * k), (0.38 * k, 0.28 * k, 0.32 * k), belly)
+    _mirror(head)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), pink)
+    head.put((-1, fy, zt), pink)
+    face(c, head, k, 3.55, x_off=0.55, size=0.4, cheeks=False)
+    ears = c.part('ears', 'ears', (0, -1.4 * k, 4.4 * k))
+    ears.ell((0.85 * k, -1.45 * k, 4.45 * k), (0.36 * k, 0.18 * k + .3, 0.36 * k), col)
+    ears.paint(lambda p, cc, g: (pink, False) if p[1] == min(q[1] for q in ears.v) and abs(p[0] + .5 - 0.85 * k) < 0.2 * k + .5 and p[2] < 4.6 * k else None)
+    _mirror(ears)
+    tail = c.part('tail', 'tail', (0, 2.0 * k, 2.2 * k))
+    tail.ell((0, 2.25 * k, 2.1 * k), (0.25 * k + .3, 0.3 * k, 0.25 * k + .3), col)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ mouse
+
+def _mouse(c, k, cols):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.4)
+    pink = cols.get('accent') or hexc('#FFB3C7')
+    _legs(c, k, ((0.6, -0.8), (0.6, 1.6)), 1.6 * k, 2, _dark(col, 0.1), foot=pink, foot_h=0.25)
+    body = c.part('body')
+    body.ell((0, 0.5 * k, 2.3 * k), (1.15 * k, 1.85 * k, 1.1 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < 2.0 * k and abs(p[0] + .5) < 0.8 * k else None)
+    head = c.part('head', 'head', (0, -1.2 * k, 2.9 * k))
+    head.ell((0, -1.8 * k, 3.15 * k), (1.0 * k, 1.0 * k, 0.95 * k), col)
+    # a pointed snout with a pink nose at the tip
+    head.ell((0, -2.85 * k, 2.85 * k), (0.48 * k, 0.65 * k, 0.42 * k), belly)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), pink)
+    head.put((-1, fy, zt), pink)
+    _mirror(head)
+    face(c, head, k, 3.45, x_off=0.5, size=0.36, cheeks=False)
+    # big round ears, thin discs with pink fronts
+    ears = c.part('ears', 'ears', (0, -1.6 * k, 4.0 * k))
+    ears.ell((0.95 * k, -1.55 * k, 4.35 * k), (0.72 * k, 0.15 * k + .35, 0.72 * k), col)
+    fr = min(q[1] for q in ears.v)
+    ears.paint(lambda p, cc, g: (pink, False) if p[1] == fr and math.hypot(p[0] + .5 - 0.95 * k, p[2] + .5 - 4.35 * k) < 0.5 * k else None)
+    _mirror(ears)
+    # a long thin tail curving back and up
+    tail = c.part('tail', 'tail', (0, 2.3 * k, 1.9 * k))
+    tc = cols.get('tail_col') or pink
+    line(tail, (0, 2.3 * k, 1.9 * k), (0, 3.8 * k, 1.1 * k), tc, r=0.3 * k)
+    line(tail, (0, 3.8 * k, 1.1 * k), (0, 5.0 * k, 2.0 * k), tc, r=0.25 * k)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ badger
+
+def _badger(c, k, cols):
+    col = cols['col']
+    stripe = cols.get('snout') or hexc('#F4F1EA')
+    claw = cols.get('belly') or _dark(col, 0.4)
+    w = max(2, round(0.75 * k))
+    _legs(c, k, ((1.0, -1.2), (1.0, 1.9)), 1.5 * k, w, _dark(col, 0.25), foot=claw, foot_h=0.25)
+    body = c.part('body')
+    # low and wide, broad in the shoulders
+    body.ell((0, 0.6 * k, 2.3 * k), (1.65 * k, 2.3 * k, 1.05 * k), col)
+    body.ell((0, -0.6 * k, 2.5 * k), (1.55 * k, 1.2 * k, 1.05 * k), col)
+    body.paint(lambda p, cc, g: (_light(col, 0.18), False) if p[2] > 3.0 * k and _h(*p) % 4 == 0 else None)
+    head = c.part('head', 'head', (0, -1.6 * k, 2.6 * k))
+    head.ell((0, -2.2 * k, 2.6 * k), (1.15 * k, 1.05 * k, 0.9 * k), col)
+    head.ell((0, -3.2 * k, 2.3 * k), (0.55 * k, 0.65 * k, 0.45 * k), col)
+    # the badger's white stripe from the nose over the crown, and white cheeks
+    head.paint(lambda p, cc, g: (stripe, False) if abs(p[0] + .5) < 0.35 * k + .5 and p[2] > 2.3 * k else None)
+    head.paint(lambda p, cc, g: (stripe, False) if abs(p[0] + .5) > 0.75 * k and p[2] < 2.6 * k and p[1] < -2.2 * k else None)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), INK)
+    head.put((-1, fy, zt), INK)
+    _mirror(head)
+    face(c, head, k, 2.8, x_off=0.55, size=0.36, cheeks=False)
+    _ears_round(c, k, 1.0, -1.9, 3.35, (0.3 * k, 0.2 * k, 0.26 * k), stripe, (0, -1.9 * k, 3.2 * k))
+    tail = c.part('tail', 'tail', (0, 2.8 * k, 2.6 * k))
+    tail.ell((0, 3.1 * k, 2.5 * k), (0.4 * k, 0.5 * k, 0.32 * k), _light(col, 0.15))
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ lamb
+
+def _lamb(c, k, cols):
+    col = cols['col']
+    face_col = cols.get('snout') or hexc('#3A3438')
+    _legs(c, k, ((0.75, -0.8), (0.75, 1.9)), 2.6 * k, 2, face_col, foot=_dark(face_col, 0.35), foot_h=0.3)
+    body = c.part('body')
+    body.ell((0, 0.55 * k, 3.25 * k), (1.4 * k, 2.0 * k, 1.2 * k), col)
+    # curly wool: little puffs all over, a shade darker in the hollows
+    for i in range(26):
+        a = _h(i, 1) % 360 / 180 * math.pi
+        b = (_h(i, 2) % 140 - 50) / 180 * math.pi
+        x = math.cos(b) * math.cos(a) * 1.3 * k
+        y = 0.55 * k + math.cos(b) * math.sin(a) * 1.9 * k
+        z = 3.25 * k + math.sin(b) * 1.1 * k
+        body.ell((x, y, z), (0.5 * k, 0.5 * k, 0.5 * k), col if i % 3 else _dark(col, 0.06))
+    _mirror(body)
+    head = c.part('head', 'head', (0, -1.3 * k, 4.0 * k))
+    head.ell((0, -2.1 * k, 4.15 * k), (0.8 * k, 0.85 * k, 0.95 * k), face_col)
+    head.ell((0, -2.65 * k, 3.75 * k), (0.55 * k, 0.5 * k, 0.5 * k), _light(face_col, 0.15))
+    # a woolly cap on the crown
+    head.ell((0, -1.95 * k, 4.95 * k), (0.85 * k, 0.75 * k, 0.5 * k), col)
+    _mirror(head)
+    face(c, head, k, 4.3, x_off=0.42, size=0.36, cheeks=False)
+    eyes = next(p for p in c.parts if p.name == 'eyes')
+    if face_col == hexc('#3A3438') or sum(face_col) < 300:  # dark face: pale eyes with dark pupils
+        for q in list(eyes.v):
+            if eyes.v[q][0] == INK:
+                eyes.v[q] = (WHITE, False)
+    ears = c.part('ears', 'ears', (0, -2.0 * k, 4.5 * k))
+    line(ears, (0.75 * k, -2.0 * k, 4.5 * k), (1.45 * k, -2.0 * k, 4.0 * k), face_col, r=0.3 * k)
+    _mirror(ears)
+    tail = c.part('tail', 'tail', (0, 2.5 * k, 3.6 * k))
+    tail.ell((0, 2.7 * k, 3.5 * k), (0.45 * k, 0.4 * k, 0.45 * k), col)
+    _mirror(tail)
+
+
+KINDS = {'camel': _camel, 'ermine': _ermine, 'ferret': _ermine, 'muskox': _muskox, 'sandcat': _sandcat, 'otter': _otter,
+         'hamster': _hamster, 'mouse': _mouse, 'badger': _badger, 'lamb': _lamb}
 GAITS = {'otter': 'swim'}
 
 
@@ -370,14 +513,17 @@ def beast(c, H, kind, cols):
         # one ink voxel a side on the head's front, a row above its middle
         head = next(p for p in c.parts if p.name == 'head')
         zs = sorted(p[2] for p in head.v)
-        z = zs[len(zs) // 2] + 1
+        zm = zs[len(zs) // 2]
         e = eyes or c.part('eyes', 'blink', head.pivot)
-        for x in (1, 0):
-            f, g = head.front(x, z), head.front(-x - 1, z)
-            if f and g:
-                for q in (f, g):
-                    del head.v[q]
-                    e.put(q, INK)
+        for z in (zm + 1, zm, zm + 2, zm - 1):
+            for x in (1, 0, 2):
+                f, g = head.front(x, z), head.front(-x - 1, z)
+                if f and g:
+                    for q in (f, g):
+                        del head.v[q]
+                        e.put(q, INK)
+                    break
+            if len(e.v) >= 2:
                 break
         if len(e.v) < 2:
             raise ValueError(f'{c.species}: the {kind} face has no eyes')
