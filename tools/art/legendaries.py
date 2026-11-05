@@ -1115,7 +1115,20 @@ def storm_narwhal(c, H):
     k = H / 10.0 * 1.1
     tusk = c.part('tusk')
     tusk.anim = 'glow'
-    tusk.paint(lambda p, cc, g: ((P('#FFF6B0') if (p[1] % 2) else P('#FFE14D')), True))
+    # a longer lightning tusk: spiralled gold and white-hot, crackling at the tip
+    (tx0, ty0, tz0), (tx1, ty1, tz1) = bounds_of(tusk)
+    front = [q for q in tusk.v if q[1] == ty0]
+    fx = sum(q[0] for q in front) / len(front) + 0.5
+    fz = sum(q[2] for q in front) / len(front) + 0.5
+    n = round(1.6 * k)
+    for i in range(1, n + 1):
+        r = max(0.55, 0.4 * k * (1 - i / (n + 2)))
+        tusk.ell((fx, ty0 - i + 0.5, fz + i * 0.12), (r, 0.6, r), P('#FFE14D'))
+    tusk.paint(lambda p, cc, g: ((P('#FFF6B0') if ((p[1] + p[2]) % 3 == 0) else P('#FFD400')), True))
+    tip = (fx, ty0 - n, fz + n * 0.12)
+    sp = c.part('sparks', 'glow')
+    for (dx, dz) in ((0.7, 0.6), (-0.7, -0.3)):
+        bolt(sp, tip, (tip[0] + dx * k, tip[1] - 0.5 * k, tip[2] + dz * k), BOLT, True, zig=0.25 * k, r=0.6)
     speckle(c.part('body'), (P('#3A4A7A'),), P('#5A6A9A'), 6)
     # storm clouds on its fins and back, sparking
     cl = c.part('clouds', 'static')
@@ -1123,7 +1136,10 @@ def storm_narwhal(c, H):
     for (x, y) in ((0.8, -0.4), (-0.8, 0.6), (0.2, 1.6)):
         t = top_of(body, round(x * k), round(y * k))
         if t is not None:
-            cl.ell((x * k, y * k, t + 0.4 * k), (0.9 * k, 0.9 * k, 0.6 * k), P('#C8D0E2'))
+            cl.ell((x * k, y * k, t + 0.5 * k), (1.15 * k, 1.1 * k, 0.75 * k), P('#E8ECF8'))
+            cl.ell((x * k + 0.5 * k, y * k + 0.3 * k, t + 0.9 * k), (0.7 * k, 0.7 * k, 0.55 * k), P('#FFFFFF'))
+    zl = min(q[2] for q in cl.v) if cl.v else 0
+    cl.paint(lambda p, cc, g: (P('#8A94B8'), False) if p[2] <= zl + 1 else None)  # dark storm undersides
     cl.paint(lambda p, cc, g: (BOLT, True) if (p[0] + p[1] * 2 + p[2] * 3) % 17 == 0 else None)
     return c
 
@@ -1327,6 +1343,22 @@ def starlight_pegasus(c, H):
             p.paint(lambda q, cc, g: (P('#2A2A6A'), False))
             speckle(p, (P('#2A2A6A'),), P('#FFF6B0'), 5, glow=True)
             speckle(p, (P('#2A2A6A'),), P('#9A8AFF'), 4, glow=False)
+    # glowing wings: pearl at the root, deepening to violet and sky blue
+    # light at the tips, strewn with star glints
+    for name in ('wingL', 'wingR'):
+        w = part_or_none(c, name)
+        if not w:
+            continue
+        xs = [abs(q[0] + 0.5) for q in w.v]
+        a, b = min(xs), max(xs)
+        def wcol(q, cc, g, a=a, b=b):
+            t = (abs(q[0] + 0.5) - a) / max(1, b - a)
+            if t < 0.35:
+                return None
+            if (q[0] * 7 + q[1] * 3 + q[2] * 5) % 23 == 0:
+                return (P('#FFF6B0'), True)
+            return (P('#6A3AE0') if t < 0.7 else P('#1E7AE8'), True)
+        w.paint(wcol)
     # glowing hooves and a star on the brow
     for name in ('legFL', 'legFR', 'legBL', 'legBR'):
         lp = part_or_none(c, name)
