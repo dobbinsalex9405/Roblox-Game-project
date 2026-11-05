@@ -816,28 +816,31 @@ def _rhino(c, k, cols):
     head.ell((0, -1.9 * k, 3.2 * k), (1.0 * k, 0.9 * k, 0.9 * k), col)
     fy = min(p[1] for p in head.v)
     zt = max(p[2] for p in head.v if p[1] == fy)
-    # the big horn at the nose tip, a small one behind it
+    # the big horn at the nose tip, tapering to a point and curving up and
+    # back; a small second horn behind it. Horn coloured, only the very tip
+    # glows.
     hp = c.part('horns', 'static')
-    n = max(4, round(1.6 * k))
-    for i in range(n):
-        t = i / (n - 1)
-        r = 0.42 * k * (1 - 0.75 * t) + .3
-        hp.ell((0, fy + 0.6 * k - t * 0.5 * k, zt + 0.2 * k + t * 1.5 * k), (r, r, .6), horn, bool(glow) and t > 0.7)
-    for i in range(max(2, round(0.6 * k))):
-        r = 0.3 * k * (1 - 0.5 * i / max(1, round(0.6 * k))) + .3
-        hp.ell((0, -2.5 * k, zt + 0.4 * k + i), (r, r, .6), horn)
-    if glow:
-        hp.paint(lambda p, cc, g: (glow, True) if p[2] >= max(q[2] for q in hp.v) - 1 else None)
+    # side profile, base up: (front, back) offsets from the nose tip and the
+    # half width; the front edge sweeps back so the point curves up
+    prof = [(0, 3, 2), (0, 2, 1), (1, 2, 1), (1, 2, 1), (2, 2, 1), (3, 3, 1)]
+    for i, (f0, b0, wide) in enumerate(prof):
+        for x in range(wide):
+            for y in range(fy + f0, fy + b0 + 1):
+                hp.put((x, y, zt + 1 + i), horn)
+    # the small second horn, on the head's top behind the big one
+    y2 = fy + 1 + round(1.9 * k)
+    z2 = max((p[2] for p in head.v if p[1] == y2 and p[0] in (-1, 0)), default=zt)
+    hp.put((0, y2, z2 + 1), _dark(horn, 0.06))
+    hp.put((0, y2 + 1, z2 + 1), _dark(horn, 0.06))
+    hp.put((0, y2, z2 + 2), _dark(horn, 0.06))
     _mirror(hp)
     _side_eyes(c, head, round(-2.3 * k), round(3.0 * k), brow=_light(col, 0.2))
-    # small tube ears
-    ears = c.part('ears', 'ears', (0, -1.6 * k, 3.9 * k))
-    for i in range(max(3, round(0.7 * k))):
-        r = 0.25 * k + .3
-        ears.ell((0.7 * k, -1.6 * k, 3.85 * k + i), (r, r, .6), col)
-    _mirror(ears)
+    # small round ears
+    _ears_round(c, k, 0.75, -1.6, 4.0, (0.3 * k + .2, 0.22 * k + .2, 0.28 * k + .2), col, (0, -1.6 * k, 3.9 * k))
     tail = c.part('tail', 'tail', (0, 2.9 * k, 3.2 * k))
     line(tail, (0, 2.9 * k, 3.2 * k), (0, 3.3 * k, 2.4 * k), col, r=0.22 * k)
+    if glow:  # the Rare's glow: a little lit tuft at the tail's tip
+        tail.ell((0, 3.3 * k, 2.1 * k), (0.2 * k + .2, 0.2 * k + .2, 0.35 * k + .2), glow, True)
     _mirror(tail)
 
 

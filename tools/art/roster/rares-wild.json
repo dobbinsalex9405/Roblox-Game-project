@@ -164,10 +164,9 @@
    },
    "accessories": [
     {
-     "kind": "flower",
-     "color": "#FFB3D1",
-     "color2": "#FFE27A",
-     "glow": true
+     "kind": "lotus",
+     "color": "#FFD3E4",
+     "color2": "#FFE27A"
     }
    ]
   },
@@ -181,8 +180,8 @@
    },
    "colors": {
     "col": "#A8A8B4",
-    "accent": "#E8E0D0",
-    "glow": "#FFF4D6"
+    "accent": "#BDB09A",
+    "glow": "#FFD27A"
    },
    "accessories": []
   },
