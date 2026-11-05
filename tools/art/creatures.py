@@ -792,12 +792,12 @@ def build_all(detail=None):
         # A voxel belongs to one part only: the later, more specific part
         # (head over body, ears over head) keeps it, so no two parts draw the
         # same spot and flicker against each other.
-        # A leg is the exception: the body keeps the voxels a leg drawn into
-        # it shares, so a leg that swings out leaves no hole in the body.
+        # Legs and wings are the exception: the body keeps the voxels they
+        # share with it, so a leg or wing that swings out leaves no hole.
         for i, part in enumerate(c.parts):
             for later in c.parts[i + 1:]:
                 for v in set(part.v) & set(later.v):
-                    if part.name == 'body' and later.name in rig.LEG_NAMES:
+                    if part.name == 'body' and (later.name in rig.LEG_NAMES or later.name in ('wingL', 'wingR')):
                         del later.v[v]
                     else:
                         del part.v[v]

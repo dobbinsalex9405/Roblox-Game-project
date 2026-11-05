@@ -104,7 +104,8 @@ def bug(c, H, kind, col, accent, wing=None):
                 head.put((round(sx * 0.5 * k) - (1 if sx < 0 else 0) + sx * (i // 2), round(-2.8 * k), round(3.9 * k) + i), INK)
         for sx in (-1, 1):
             x = round(sx * 0.5 * k) - (1 if sx < 0 else 0)
-            leg = _leg(c, sx, 0, 1, (x + .5, .5, round(1.8 * k) + 1))
+            # (the coarse stand-in's body is all head and wings but these)
+            leg = _leg(c, sx, 0, 1, (x + .5, .5, round(1.8 * k) + 1)) if getattr(c, 'fine', False) else body
             leg.box((x, 0, 0), (x, 0, round(1.8 * k)), INK)
     elif kind == 'beetle':
         shell = c.part('shell', 'static')
