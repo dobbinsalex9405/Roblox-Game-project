@@ -65,7 +65,8 @@ extra keys are listed with each):
 - **leaf**: the body is a flat leaf with a color2 midrib and veins.
 - **goatee**: a goat's beard under the chin, below a long snout (`length` in k).
 - **eyedisc**: a color disc round each eye (`disc` in k) with a big color2
-  eye (`size` in k) and a glint: eyes that read on dark or busy faces.
+  eye (`size` in k) and a glint: eyes that read on dark or busy faces;
+  `lift` and `back` (in k) move the eye up and back.
 - **cicada**: turns the dragonfly critter into a cicada: wide head, big
   bulging eyes at the sides (`eye`), a stout banded body and clear roof
   wings (color) with color2 veins.
@@ -1086,8 +1087,8 @@ def _plates(c, k, body, head, col, col2, belly, thi, a):
 
 
 def mushrooms(c, H, col, col2, a):
-    """Three toadstools on the back (never on the head), two side by side and
-    a smaller one behind: a pale
+    """Four toadstools of different sizes down the back, clear of the head: a
+    pale
     stem two or more voxels tall and a domed cap in color with color2 dots."""
     k = _k(H)
     m = c.part('mushrooms', 'static')
@@ -1099,24 +1100,28 @@ def mushrooms(c, H, col, col2, a):
     stem_col = col2 or hexc('#FFF6E8')
     dot = col2 or WHITE
     hy = max(p[1] for p in head_of(c).v) if head_of(c) is not body else tlo[1]
-    r0 = 1.0 * k + 0.3
-    # a pair behind the head, side by side, and a smaller one behind them
-    yf = max(hy + 1 + r0 * 0.4, tlo[1] + (thi[1] - tlo[1]) * 0.3)
-    yb = min(thi[1] - 0.3 * k, yf + r0 * 1.5)
-    spots = ((-(r0 + 0.4), yf, 1.0), (r0 + 0.4, yf + 0.3, 0.92), (0.0, yb, 0.78))
-    for (x, y, s) in spots:
+    r0 = 0.75 * k + 0.3
+    # four of different sizes in two rows down the back, behind the head and
+    # apart from each other, their stems of different heights
+    back = [q for q in top if q[1] > hy + 1]
+    ya = min(q[1] for q in back) if back else tlo[1]
+    yz = max(q[1] for q in back) if back else thi[1]
+    yf = ya + r0 * 0.8
+    yb = max(yf + r0 * 2.0, yz - r0 * 0.6)
+    spots = ((-(r0 + 0.6), yf, 0.9), (r0 + 0.6, yf + 0.5, 0.75), (-(r0 * 0.7), yb, 1.05), (r0 + 0.8, yb - 0.5, 0.65))
+    for i, (x, y, s) in enumerate(spots):
         cols = [(xx, yy) for (xx, yy) in top if abs(xx + .5 - x) < 1 and abs(yy + .5 - y) < 1]
         zt = max((top[q] for q in cols), default=thi[2]) + 1
-        stem = max(2, round(1.1 * k * s))
+        stem = max(2, round(1.1 * k * s)) + (1 if i in (1, 2) else 0)
         sw = 2 if k >= 1.5 else 1
         x0, y0 = math.floor(x - sw / 2 + .5), math.floor(y - sw / 2 + .5)
         for zz in range(zt - 1, zt + stem):
             for dx in range(sw):
                 for dy in range(sw):
                     m.put((x0 + dx, y0 + dy, zz), stem_col)
-        r = 1.0 * k * s + 0.3
+        r = r0 * s
         cen = (x0 + sw / 2, y0 + sw / 2, zt + stem - 0.5)
-        m.ell(cen, (r, r, r * 0.75), col, cond=lambda xx, yy, zz, c0=cen: zz + .5 >= c0[2])
+        m.ell(cen, (r, r, r * 0.9), col, cond=lambda xx, yy, zz, c0=cen: zz + .5 >= c0[2])
         # a pale gill ring under the cap rim
         for q in list(m.v):
             if m.v[q][0] == col and q[2] == math.floor(cen[2]) and math.hypot(q[0] + .5 - cen[0], q[1] + .5 - cen[1]) < r - 1.2:
@@ -1216,6 +1221,10 @@ def eyedisc(c, H, col, col2, a):
     if not spots or not e:
         return
     ex, ey, ez = spots[0]
+    # `lift` / `back` (in k) move the eye up / back from where the plan put it
+    ez += a.get('lift', 0) * k
+    ey += a.get('back', 0) * k
+    ex += a.get('back', 0) * k * 0.5
     R = a.get('disc', 1.0) * k
     r = a.get('size', 0.45) * k + 0.3
     eye = col2 or INK
@@ -1228,8 +1237,8 @@ def eyedisc(c, H, col, col2, a):
         d = math.dist((p[0] + .5, p[1] + .5, p[2] + .5), (ex + .5, ey + .5, ez + .5))
         if d <= r:
             new_eye[p] = eye
-        elif d <= R and head.v[p][0] != WHITE:
-            head.v[p] = (col, False)
+        elif d <= R and head.v[p][0] != WHITE and p[2] + .5 <= ez + .5 + R * 0.55 and p[1] + .5 <= ey + .5 + R * 0.6:
+            head.v[p] = (col, False)  # a disc on the face, not up over the crown
     if new_eye:
         # a white glint at the top front of the eye
         g = min(new_eye, key=lambda q: (q[1] - q[2], -q[0]))
