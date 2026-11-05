@@ -585,14 +585,14 @@ def glacier_orca(c, H):
 
 def blizzard_owl(c, H):
     snow, grey = P('#F4FBFF'), P('#C8D6E8')
-    k, lift = grand_bird(c, H, snow, P('#FFFFFF'), P('#3A3A4A'), snow, (snow, P('#E6F2FF'), P('#C8E8FF')), ICE,
+    k, lift = grand_bird(c, H, snow, P('#FFFFFF'), P('#3A3A4A'), snow, (snow, P('#B8DCFF'), P('#6AB8F0')), P('#2EA8FF'),
                          feet=P('#E6EEF8'), tuft=True, crest=None)
-    for p in c.parts:
-        speckle(p, (snow,), grey, 13)
+    for p in c.parts:  # a snowy owl's dark bars
+        speckle(p, (snow,), P('#7A8AA8'), 7)
     c.part('eyes').paint(lambda p, cc, g: (P('#FFC21A'), True) if cc == INK else None)
     # a swirling blizzard ring round it, with snowflakes
     sw = orbit_part(c, 'blizzard', (0, 0.6 * k, 4.6 * k + lift))
-    ring(sw, 0, 0.6 * k, 3.6 * k + lift, 4.4 * k, ICE_L, True, thick=0.6, tilt=0.18)
+    ring(sw, 0, 0.6 * k, 3.6 * k + lift, 4.4 * k, P('#2EA8FF'), True, thick=0.95, tilt=0.18)
     for a in range(6):
         ang = a / 6 * math.pi * 2
         star(sw, math.cos(ang) * 4.4 * k, 0.6 * k + math.sin(ang) * 4.4 * k, 3.6 * k + lift + math.sin(ang) * 4.4 * k * 0.18 + 1,
@@ -601,16 +601,17 @@ def blizzard_owl(c, H):
 
 
 def frost_giant(c, H):
-    plan('upright', c, H, {'col': '#E6F2FF', 'belly': '#FFFFFF', 'glow': '#7FE6FF', 'eye': '#2E5AC8'}, kind='giant')
+    plan('upright', c, H, {'col': '#DCEBFA', 'belly': '#FFFFFF', 'glow': '#2EA8FF', 'eye': '#2E5AC8'}, kind='giant')
     k = H / 10.0
     body = c.part('body')
     # ice armour: plates on the chest and shoulders
     armour = c.part('armour', 'static')
     for (x, y, z) in list(body.v):
         if y < -1.2 * k and 4.2 * k < z < 6.8 * k and (x + 100) % 3 != 0 and abs(x + .5) < 1.8 * k:
-            armour.put((x, y - 1, z), ICE if z % 2 else ICE_D)
+            armour.put((x, y - 1, z), (P('#4FC8FF'), True) [0] if z % 4 == 0 else P('#3A7AD8'), z % 4 == 0)
     for side in (1, -1):
-        armour.ell((side * 2.2 * k - (0.5 if side < 0 else 0), 0, 7.2 * k), (1.0 * k, 1.1 * k, 0.6 * k), ICE_D)
+        armour.ell((side * 2.2 * k - (0.5 if side < 0 else 0), 0, 7.2 * k), (1.0 * k, 1.1 * k, 0.6 * k), P('#3A7AD8'))
+        armour.ell((side * 2.2 * k - (0.5 if side < 0 else 0), 0, 7.6 * k), (0.6 * k, 0.7 * k, 0.6), P('#4FC8FF'), True)
     # the icicle beard
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
@@ -625,24 +626,24 @@ def frost_giant(c, H):
     cr = c.part('icecrown', 'glow')
     for a in range(5):
         x = (a - 2) * 0.55 * k
-        crystal(cr, x, (y0 + y1) / 2, z1 + 1, (1.0 + 0.5 * (a == 2)) * k, 0.3 * k, ICE, ICE_L)
+        crystal(cr, x, (y0 + y1) / 2, z1 + 1, (1.0 + 0.5 * (a == 2)) * k, 0.3 * k, P('#2EA8FF'), P('#BFF0FF'))
     return c
 
 
 def frost_saber(c, H):
-    plan('beast', c, H, {'col': '#F4FBFF', 'belly': '#FFFFFF', 'snout': '#FFFFFF', 'accent': '#7FB8E8', 'horn': '#BFF4FF',
-                         'glow': '#7FE6FF', 'eye': '#2E5AC8'}, kind='cat', tail='lion', saber=True, stripes=True)
+    plan('beast', c, H, {'col': '#C8DDF0', 'belly': '#F4FBFF', 'snout': '#F4FBFF', 'accent': '#2E5A9A', 'horn': '#BFF4FF',
+                         'glow': '#2EA8FF', 'eye': '#2E5AC8'}, kind='cat', tail='lion', saber=True, stripes=True)
     k = H / 10.0
     fangs = c.part('fangs')
     fangs.anim = 'glow'
-    fangs.paint(lambda p, cc, g: (ICE, True))
+    fangs.paint(lambda p, cc, g: (P('#4FC8FF') if p[2] > min(q[2] for q in fangs.v) + 1 else P('#BFF0FF'), True))
     # frost spikes along the spine
     body = c.part('body')
     sp = c.part('frost', 'glow')
     for y in range(round(-1.4 * k), round(3.2 * k), max(2, round(0.9 * k))):
         t = top_of(body, 0, y)
         if t is not None:
-            crystal(sp, -0.5, y, t + 1, 0.9 * k, 0.3 * k, ICE, ICE_L, lean=(0, 0.25))
+            crystal(sp, -0.5, y, t + 1, 1.1 * k, 0.35 * k, P('#2EA8FF'), P('#BFF0FF'), lean=(0, 0.25))
     return c
 
 
@@ -1715,8 +1716,8 @@ def abyss_angler(c, H):
     plan('fish', c, H, {'col': '#2A2A5A', 'belly': '#4A3A7A', 'accent': '#3A2A6A', 'glow': '#7FFFD4', 'eye': '#7FFFD4'},
          kind='angler')
     k = H / 10.0 * 1.4
-    c.part('eyes').paint(lambda q, cc, g: (P('#7FFFD4'), True) if cc != WHITE else None)
-    speckle(c.part('body'), (P('#2A2A5A'),), P('#7FFFD4'), 31, glow=True)
+    c.part('eyes').paint(lambda q, cc, g: (P('#0FD6A8'), True) if cc != WHITE else None)
+    speckle(c.part('body'), (P('#2A2A5A'),), P('#0FD6A8'), 31, glow=True)
     # the lure: a stalk curving forward from its head to a glowing bulb
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
@@ -1728,8 +1729,8 @@ def abyss_angler(c, H):
     for (x, y, z) in pts:
         lure.ell((x - 0.5, y, z), (0.7, 0.7, 0.7), P('#4A3A7A'))
     bx, by, bz = pts[-1]
-    lure.ell((0, by - 0.3 * k, bz - 0.5 * k), (0.8 * k, 0.8 * k, 0.8 * k), P('#7FFFD4'), True)
-    lure.ell((0, by - 0.6 * k, bz - 0.3 * k), (0.35 * k, 0.35 * k, 0.35 * k), WHITE, True)
+    lure.ell((0, by - 0.3 * k, bz - 0.5 * k), (0.8 * k, 0.8 * k, 0.8 * k), P('#0FD6A8'), True)
+    lure.ell((0, by - 0.75 * k, bz - 0.3 * k), (0.3 * k, 0.3 * k, 0.3 * k), P('#BFFFEA'), True)
     return c
 
 
