@@ -103,12 +103,37 @@ def mirror(part, pts):
         part.put((mx(x), y, z), col, g)
 
 
+def core(part, pts, col_at=None, glow_at=None, col=None, glow=False):
+    """A face-connected voxel path through points (x, y, z): every step
+    moves one axis at a time, so a thin tube, horn or rod never ends up as
+    voxels that only touch at an edge or a corner (they would read as loose
+    debris once bevelled). col_at(s) / glow_at(s) colour by s in [0, 1]."""
+    n = len(pts)
+    prev = None
+    for i, p in enumerate(pts):
+        s = i / max(1, n - 1)
+        cl = col_at(s) if col_at else col
+        g = glow_at(s) if glow_at else glow
+        cur = [math.floor(v) for v in p[:3]]
+        if prev is not None:
+            q = list(prev)
+            for axis in range(3):
+                while q[axis] != cur[axis]:
+                    q[axis] += 1 if cur[axis] > q[axis] else -1
+                    if tuple(q) not in part.v:
+                        part.put(tuple(q), cl, g)
+        if tuple(cur) not in part.v:
+            part.put(tuple(cur), cl, g)
+        prev = cur
+
+
 def sweep(part, pts, col_at, glow_at=lambda s: False):
     """A sphere swept along (x, y, z, r) points; colour by s in [0, 1]."""
     n = len(pts)
     for i, (x, y, z, r) in enumerate(pts):
         s = i / max(1, n - 1)
         part.ell((x, y, z), (r, r, r), col_at(s), glow_at(s))
+    core(part, pts, col_at, glow_at)
 
 
 def curve(a, b, n, bend=(0, 0, 0)):
@@ -123,26 +148,32 @@ def curve(a, b, n, bend=(0, 0, 0)):
 
 def horn(part, base, tip, r0, col, tip_col=None, bend=(0, 0, 0), glow=False, both=True):
     """A tapering horn from base to tip, mirrored to the left too."""
-    n = max(6, round(math.dist(base, tip) * 1.5))
+    n = max(6, round(math.dist(base, tip) * 2.5))
     pts = curve(base, tip, n, bend)
     for side in ((1, -1) if both else (1,)):
+        side_pts = []
         for i, (x, y, z) in enumerate(pts):
             s = i / n
             r = max(0.55, r0 * (1 - 0.8 * s))
             colr = tip_col if tip_col is not None and s > 0.7 else col
             g = glow and (tip_col is None or s > 0.7)
-            part.ell((x * side - (1 if side < 0 else 0) + (0.5 if side < 0 else 0) * 0, y, z), (r, r, r), colr, g)
+            xx = x if side > 0 else mx(x) + 1  # the mirror of a point (not a cell) is -x
+            part.ell((xx, y, z), (r, r, r), colr, g)
+            side_pts.append((xx, y, z))
+        core(part, side_pts, lambda s: tip_col if tip_col is not None and s > 0.7 else col,
+             lambda s: glow and (tip_col is None or s > 0.7))
 
 
 def rod(part, a, b, r, col, glow=False):
-    n = max(2, round(math.dist(a, b) * 1.5))
+    n = max(2, round(math.dist(a, b) * 2.5))
+    pts = []
     for i in range(n + 1):
         t = i / n
         p = tuple(a[j] + (b[j] - a[j]) * t for j in range(3))
+        pts.append(p)
         if r > 0.6:
             part.ell(p, (r, r, r), col, glow)
-        else:
-            part.put(tuple(math.floor(v) for v in p), col, glow)
+    core(part, pts, col=col, glow=glow)
 
 
 def band(part, stops, z0, z1, keep=()):
@@ -250,7 +281,7 @@ def wing_bat(c, k, root, span, col, membrane, glow=None, rise=1.0, thick=1):
         # a claw on the wrist
         xx = round(rx) + L // 3
         top = rz + round(rise * k * math.sin(1 / 3 * math.pi * 0.9) + 1.4 * k / 3)
-        w.put((xx if sx > 0 else mx(xx), ry - 1, top + 1), light(col, 0.6))
+        w.put((xx if sx > 0 else mx(xx), ry, top + 1), light(col, 0.6))
 
 
 def wing_butterfly(c, k, root, size, col, col2, glow=None, edge=INK):
@@ -419,9 +450,13 @@ def beast(c, H, cols, opts):
                 ears.put((round(1.05 * k) + dx, round(hy + 0.1 * k), round(ez0) + i), col if dx != 0 or i < 1 else light(col, 0.5))
                 ears.put((mx(round(1.05 * k) + dx), round(hy + 0.1 * k), round(ez0) + i), col if dx != 0 or i < 1 else light(col, 0.5))
     if hoof:
+        # leaf ears out from the side of the head, rising a little
+        ey, ez = round(hy + 0.3 * k), round(hz + 0.9 * k)
+        side_x = max((p[0] for p in head.v if p[1] == ey and p[2] == ez), default=round(1.2 * k))
         for i in range(round(1.4 * k)):
-            ears.put((round(1.45 * k) + i, round(hy + 0.3 * k), round(hz + 0.9 * k) + i // 3), col)
-            ears.put((mx(round(1.45 * k) + i), round(hy + 0.3 * k), round(hz + 0.9 * k) + i // 3), col)
+            for dz in range(max(1, round(0.35 * k * (1 - i / (1.4 * k))))):
+                ears.put((side_x + i, ey, ez + i // 3 + dz), col)
+                ears.put((mx(side_x + i), ey, ez + i // 3 + dz), col)
     if heavy and opts.get('tusks'):
         # big flap ears (a mammoth's)
         ears.ell((1.9 * k, hy + 0.6 * k, hz), (0.5 * k, 0.9 * k, 1.2 * k), dark(col, 0.1))
@@ -506,6 +541,7 @@ def beast(c, H, cols, opts):
             for i, (x, y, z) in enumerate(pts):
                 rr = max(0.75, 0.42 * k * (1 - 0.6 * i / n))
                 tp.ell((x - (0.5 if side < 0 else 0), y, z), (rr, rr, rr), hornc)
+            core(tp, [(x - (0.5 if side < 0 else 0), y, z) for (x, y, z) in pts], col=hornc)
     if opts.get('saber'):
         sp = c.part('fangs', 'static', (0, hy, hz))
         for side in (1, -1):
@@ -631,13 +667,18 @@ def drake(c, H, cols, opts):
             for side in (1, -1):
                 base = (hx + side * 0.8 * k * hs, hy + 0.5 * k, hz + 1.0 * k * hs)
                 tip = (hx + side * 1.4 * k * hs, hy + 2.4 * k * hs, hz + 2.2 * k * hs) if hk == 'swept' else (hx + side * 1.0 * k, hy + 0.3 * k, hz + 2.6 * k)
-                n = 10
+                n = max(10, round(math.dist(base, tip) * 2.5))
+                hpts = []
                 for i, p in enumerate(curve(base, tip, n, (0, 0, 0.5 * k))):
                     s = i / n
                     rr = max(0.55, 0.38 * k * hs * (1 - 0.75 * s))
                     tipg = glow is not None and s > 0.65
                     h_col = (glow if tipg else hornc)
-                    hp.ell((p[0] - (0.5 if side < 0 else 0), p[1], p[2]), (rr, rr, rr), h_col, tipg)
+                    q = (p[0] - (0.5 if side < 0 else 0), p[1], p[2])
+                    hp.ell(q, (rr, rr, rr), h_col, tipg)
+                    hpts.append(q)
+                core(hp, hpts, lambda s: glow if (glow is not None and s > 0.65) else hornc,
+                     lambda s: glow is not None and s > 0.65)
     # back spines from neck to tail
     sp = c.part('spines', 'glow' if glow is not None else 'static')
     ys = range(round(-1.8 * k), round(3.0 * k), max(2, round(0.7 * k)))
@@ -769,10 +810,13 @@ def dino(c, H, cols, opts):
                     for dy in range(-w, w + 1):
                         edge = glow is not None and i >= h - 2
                         pl.put((side * 0 - (1 if side < 0 else 0), y + dy, t + 1 + i), glow if edge else accent, edge)
-            for i in range(2):
-                for side in (1, -1):
-                    x = round(0.7 * k) if side > 0 else mx(round(0.7 * k))
-                    tail.put((x + side * i, round(6.2 * k), round(bz - 1.4 * k) + 1 + i), hornc)
+            ty = round(6.0 * k)
+            for side in (1, -1):
+                x = round(0.4 * k) if side > 0 else mx(round(0.4 * k))
+                t = top_of(tail, x, ty)
+                if t is not None:  # thagomizer spikes standing on the tail
+                    horn(tail, (x + .5 if side > 0 else x + .5, ty, t), (x + .5 + side * 0.9 * k, ty + 0.3 * k, t + 1.0 * k), 0.3 * k,
+                         hornc, both=False)
         c.gait_hint = 'trot'
     return c
 
@@ -1126,10 +1170,12 @@ def _serpent_head(c, head, k, hx, hy, hz, col, belly, iris, kind, s):
     # a forked tongue
     f = head.front(math.floor(hx), round(hz - 0.6 * k * s))
     if f:
-        for i in range(max(2, round(0.6 * k * s))):
+        n = max(2, round(0.6 * k * s))
+        for i in range(n):
             head.put((f[0], f[1] - 1 - i, f[2]), hexc('#FF4D6D'))
-        head.put((f[0] - 1, f[1] - 1 - max(2, round(0.6 * k * s)), f[2]), hexc('#FF4D6D'))
-        head.put((f[0] + 1, f[1] - 1 - max(2, round(0.6 * k * s)), f[2]), hexc('#FF4D6D'))
+        for dx in (-1, 1):  # the fork: a prong each side of the tip, then forward
+            head.put((f[0] + dx, f[1] - n, f[2]), hexc('#FF4D6D'))
+            head.put((f[0] + dx, f[1] - n - 1, f[2]), hexc('#FF4D6D'))
 
 
 # ------------------------------------------------------------------ upright
