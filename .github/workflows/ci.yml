@@ -61,6 +61,13 @@ jobs:
       - name: Boot every game (server start, player join, client UI)
         run: lune run tools/boot/run all --built
 
+      # The design viewer (tools/designs) exports every model the games build;
+      # a game change must not break that export.
+      - name: Design viewer builds (every game's models export)
+        run: |
+          lune run tools/designs/export all
+          node tools/designs/build.mjs --drops /nonexistent --out build/design-viewer
+
       # The same file opened in Studio, where an unpublished place has no
       # DataStores: every game must still start and let a player in.
       - name: Boot every game as an unpublished place in Studio

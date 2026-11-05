@@ -2,6 +2,24 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Design viewer (tools/designs)
+
+- **A folder that opens from disk, not a hosted page.** Alex asked for a
+  desktop shortcut and folders like File Explorer. A plain folder with one
+  HTML page works offline, needs no server or install, and its files are
+  content-hashed so re-copying only moves what changed. The cost: a page
+  opened from disk cannot fetch() files, so each .glb ships as a small
+  script and three.js is bundled into one classic script (`viewer/dist/`).
+- **Sorted by what a thing is, then by game** (Creatures/Hatchery Heist/
+  Common/Bunny), as Alex asked; search covers names, folders, games and tiers.
+- **Game models come from booting the games**, not from a hand-kept list:
+  the export runs the same headless boot as the audit, so every model a
+  game builds (even client-side ones like eggs on the belt) is in the
+  viewer, and CI fails if a game change breaks the export.
+- **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
+  the repo: designs are for looking at before anything is decided, and big
+  .glb files do not belong in git.
+
 ## 2026-11-05: Creature meshes v2 (Hatchery Heist)
 
 - **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
@@ -18,7 +36,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   Godlies, the look Alex had just approved.
 - **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
   gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
-
 
 ## 2026-11-05: Hatchery Heist floor height and music fades
 

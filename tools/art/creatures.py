@@ -521,7 +521,14 @@ def game_species():
     out of the game's generated files until the game side adds it."""
     import re
     with open(CONFIG) as f:
-        return set(re.findall(r'^\t\t(\w+) = \{ rarity', f.read(), re.M))
+        text = f.read()
+    # the `species = { ... }` block: from its line to the next line that
+    # closes a table one tab in; each species is a key two tabs in, whether
+    # StyLua keeps its table on one line or wraps it
+    block = re.search(r'^\tspecies = \{\n(.*?)^\t\}', text, re.M | re.S)
+    if not block:
+        raise SystemExit(f'no species block in {CONFIG}')
+    return set(re.findall(r'^\t\t(\w+) = \{', block.group(1), re.M))
 
 
 def in_game(cs):
