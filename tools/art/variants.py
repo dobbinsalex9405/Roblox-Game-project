@@ -61,7 +61,8 @@ PLANS = {
     ),
     'bird': (
         {'col', 'belly', 'beak', 'wing', 'crest', 'tail', 'feet', 'glow'},
-        {'big_eyes': {True, False}, 'tuft': {True, False}, 'bill': {True, False}},
+        {'big_eyes': {True, False}, 'tuft': {True, False}, 'bill': {True, False},
+         'wing_span': {1.4, 1.8, 2.2, 2.6, 3.0}},  # how far Rare+ wings reach
     ),
     'blob': ({'col', 'accent'}, {'kind': {'frog', 'snail', 'ladybug', 'axolotl', 'turtle'}}),
     'bug': ({'col', 'accent', 'wing'}, {'kind': {'bee', 'butterfly', 'beetle', 'caterpillar'}}),
