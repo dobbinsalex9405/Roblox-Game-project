@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Fix: climbing the tower ladder from inside the tower no longer gets you
+  stuck under the next floor. Each floor has an opening beside the ladder
+  you climb through and step off onto.
+- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
+  phone.
+- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
+  no longer says "(Tower menu)".
+- The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
+  its own display (coin packs, passes, Shield Refill), price tags, a Buy
+  prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
+  and dark unlit price tags that stay readable in the lit room.
+
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
@@ -15,6 +27,14 @@
   Steal buttons of a big creature sit in the middle of its spots.
 - Fix: some Hatchery Book cards showed no "???" name for creatures not
   found yet (on phones, the top rows).
+- A new outdoors: a wood of voxel trees in five kinds (Puff Oak, Blossom
+  Tree, Star Pine with a glowing star, Moonberry Willow, Toadstool Tree)
+  and three sizes, with bushes, mossy rocks, flowers, grass and glowing
+  mushroom rings, pines on the hills, a painted storybook sky with voxel
+  clouds and floating islands, and a grass texture on the ground.
+- Small trees and a bush now frame each piece of the farm between the
+  bases, the wood grows behind the farm too, and the Star Pines stand on
+  the hills (one on every other hill) instead of on flat grass.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
