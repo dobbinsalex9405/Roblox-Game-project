@@ -250,6 +250,8 @@ return function(Schema: any, Odds: any)
 			faceFrontAfter = Schema.number({ min = 0, max = 30 }),
 			margin = Schema.number({ min = 0, max = 4 }),
 			cullStuds = Schema.number({ min = 40, max = 1000 }),
+			cullOtherStuds = Schema.number({ min = 20, max = 1000 }),
+			animateOtherStuds = Schema.number({ min = 10, max = 500 }),
 		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),

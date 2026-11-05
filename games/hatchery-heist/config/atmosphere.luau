@@ -194,7 +194,9 @@ return {
 		turnSeconds = 0.6, -- turning on the spot before a walk
 		faceFrontAfter = 1.5, -- stand this long, then turn to face the centre
 		margin = 0.6, -- studs kept clear of the spot's edge
-		cullStuds = 180, -- tower creatures farther than this from you are not drawn
+		cullStuds = 180, -- your own tower's creatures farther than this are not drawn
+		cullOtherStuds = 100, -- other players' tower creatures: the neighbours either side (84 away)
+		animateOtherStuds = 60, -- other players' tower creatures hold still beyond this
 	},
 	-- Creature meshes past this many studs from the camera draw their far
 	-- (LOD1) version: a few thousand triangles instead of up to 100,000.

@@ -9,8 +9,10 @@
 - Creatures whose models have no separate legs walk with their whole body:
   they rock from foot to foot, nod, bounce and swing their tails and ears.
 - Legendaries and Godlies float clearly above their spots.
-- Every floor's creatures show, inside your tower and from the yard;
-  only creatures more than 180 studs away are not drawn.
+- Every floor's creatures show, inside your tower and from the yard. Other
+  players' towers show their creatures within 100 studs (your neighbours
+  either side) and only move them within 60, so a full server stays smooth
+  on a phone.
 - A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
   longer also gets the generic rainbow cubes.
 - Crabs and lobsters with up to six legs a side walk on all of them.
