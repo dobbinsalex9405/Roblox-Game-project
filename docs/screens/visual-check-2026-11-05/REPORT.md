@@ -154,3 +154,26 @@ fails to load with "Asset type does not match requested type" (24 warnings; Cont
 Failure for all 12 sampled, e.g. Mouse 134268190690554, Fawn 123371316878080, Toad
 98361995289835, Koala 76631192769813, Crab 104822474090359). These ids look like Decal asset ids,
 not the Image ids that a MeshPart.TextureID needs.
+
+## Gate: #68 at 98d9930 (tower)
+
+PASS with three findings.
+- Tower menu: floors 2-4 built with coins from the Test panel (25K, 75K, 225K) and an upgrade
+  bought on floor 2. Each floor has a deck, railings, 4 pillars and a plaque ("2. Book Nook
+  x1.10" ...). Floor 5 shows as a see-through ghost deck with "Floor 5: 675.00K coins (Tower menu)".
+- Elevator: the Ride prompt opens the menu with Go on each built floor. Go to floor 3 lands the
+  player on the floor 3 elevator pad.
+- Pets: Move offers floors 1-4 and To inventory; To inventory works (Chick showed "Inventory");
+  Place best put the best creatures on the highest floor (Serpent, Unicorn, Dragonling,
+  Ember Fox on floor 4; Fox Kit, Chick, Bunny on floor 3). Income went up to +4.57K/s.
+- **Ladder:** climbing from inside the tower, the player hits the underside of the floor 2 deck
+  at y 10 and stays stuck there (`68-hh-ladder-blocked-inside`). From outside, the player climbs
+  to the top and steps onto the highest built floor, but there is no way off at floors 2 or 3.
+- **Ghost label:** the "(Tower menu)" text wraps onto a second line. It looks like a leftover
+  hint.
+- Phone 844x392: the Tower and Pets windows fit and no text is clipped, but Upgrade, Build,
+  Move and Place best buttons are 34 px tall (under 40). The windows' X closes with a real
+  click (checked with a real mouse; the Studio test tool's click didn't reach it near the top
+  of the screen).
+- Book: "???" now shows on all unfound cards, top rows included.
+- Output: no errors.
