@@ -487,8 +487,8 @@ def glacier_mammoth(c, H):
     fringe = c.part('fringe', 'static')
     zb = min(p[2] for p in body.v)
     for (x, y, z) in list(body.v):
-        if z == zb + 1 and (x + y) % 2 == 0:
-            for i in range(round(0.5 * k)):
+        if z == zb + 1:
+            for i in range(round(0.5 * k) - (1 if (x * 3 + y * 7) % 4 == 0 else 0)):
                 fringe.put((x, y, z - 1 - i), furD)
     # a cap of snow on the back
     body.paint(lambda p, cc, g: (P('#F4FBFF'), False) if p[2] >= max(q[2] for q in body.v if q[0] == p[0] and q[1] == p[1]) - 1 and p[2] > 4.6 * k else None)
@@ -502,15 +502,28 @@ def glacier_mammoth(c, H):
         pts.append((0, y0 + 0.4 * k - s * 1.0 * k - math.sin(s * math.pi) * 0.4 * k, z0 + 1.0 * k - s * 2.8 * k + s ** 4 * 1.4 * k,
                     max(0.8, 0.62 * k * (1 - 0.45 * s))))
     sweep(trunk, pts, lambda s: fur if s < 0.85 else furD)
-    # ice tusks glow at the tips, and frost crystals on the snowy back
-    tusks = c.part('tusks')
-    tusks.anim = 'glow'
-    tusks.paint(lambda p, cc, g: (P('#7FE6FF'), True) if p[1] < y0 - 1.6 * k else None)
+    # big ice tusks sweeping forward, down and up again, glowing from the
+    # middle out to the tips
+    drop(c, 'tusks')
+    tusks = c.part('tusks', 'glow', (0, y0, z0))
+    for side in (1, -1):
+        pts = []
+        for i in range(26):
+            s = i / 25
+            a = s * math.pi * 0.95
+            pts.append((side * (0.85 * k + 0.9 * k * s), y0 + 0.4 * k - math.sin(a) * 1.7 * k - s * 0.6 * k,
+                        z0 + 0.6 * k - math.sin(a) * 1.0 * k + s * s * 2.2 * k, max(0.7, 0.44 * k * (1 - 0.6 * s))))
+        if side < 0:
+            pts = [(x - 0.5, y, z, r) for (x, y, z, r) in pts]
+        sweep(tusks, pts, lambda s: ICE_L if s < 0.3 else (ICE if s < 0.7 else P('#4FD0FF')), lambda s: s > 0.45)
+    # a thick snow drift over the back with lumps, and glowing frost crystals
+    body.paint(lambda p, cc, g: (P('#F4FBFF'), False) if p[2] >= max(q[2] for q in body.v if q[0] == p[0] and q[1] == p[1]) - 2 and p[2] > 4.2 * k else None)
     cr = c.part('frost', 'glow')
-    for (x, y) in ((0.9, -0.8), (-1.1, 0.6), (0.6, 1.8), (-0.3, -1.6)):
+    for (x, y, h, lx, ly) in ((0.9, -0.8, 1.6, 0.15, -0.1), (-1.1, 0.6, 1.9, -0.18, 0.05), (0.6, 1.8, 1.4, 0.12, 0.15),
+                              (0.1, 0.4, 2.2, 0.0, 0.0)):
         t = top_of(body, round(x * k), round(y * k))
         if t is not None:
-            crystal(cr, round(x * k), round(y * k), t + 1, 1.3 * k, 0.4 * k, ICE, ICE_L)
+            crystal(cr, round(x * k), round(y * k), t, h * k, 0.45 * k, P('#4FC8FF'), ICE_L, lean=(lx, ly))
     return c
 
 
@@ -728,28 +741,55 @@ def verdant_wyrm(c, H):
 
 
 def blossom_qilin(c, H):
-    plan('beast', c, H, {'col': '#F2D8B8', 'belly': '#FFF1DC', 'snout': '#FFF1DC', 'accent': '#FF9BC8', 'horn': '#FFE27A',
-                         'glow': '#FFD43B'}, kind='hoof', horns='qilin', mane='crest', tail='bushy')
+    """Jade qilin with gold scales, golden antlers and a big flowing
+    cherry-blossom mane; its hooves burn with soft pink flame."""
+    jade, jade_d = P('#5CC8A0'), P('#3A9A7A')
+    pink, pink_d, pink_g = P('#FFB3D1'), P('#FF8AB8'), P('#FF4FA0')
+    plan('beast', c, H, {'col': '#5CC8A0', 'belly': '#DFF7EA', 'snout': '#DFF7EA', 'accent': '#FF8AB8', 'horn': '#FFC21A',
+                         'glow': '#FFE27A'}, kind='hoof', horns='antlers', mane='crest', tail='bushy')
     k = H / 10.0
     body = c.part('body')
-    # golden scales on the back
-    body.paint(lambda p, cc, g: (GOLD if (p[0] + p[1] * 2 + p[2]) % 3 == 0 else P('#E8B860'), False) if cc == P('#F2D8B8') and p[2] > 4.8 * k else None)
-    # the cherry-blossom mane and tail: blossoms over the pink crest
-    for name in ('mane', 'tail'):
-        m = part_or_none(c, name)
-        if not m:
+    # gold-edged scales over the back and flanks
+    body.paint(lambda p, cc, g: ((GOLD if (p[0] + 2 * p[1] + 3 * p[2]) % 5 == 0 else jade_d), False)
+               if cc == jade and p[2] > 3.9 * k and (p[0] + p[1] + p[2]) % 2 == 0 else None)
+    head = c.part('head')
+    (hx0, hy0, hz0), (hx1, hy1, hz1) = bounds_of(head)
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
+    # the cherry-blossom mane: big pink locks from the crown, down the neck
+    # and along the spine, studded with blossoms whose hearts glow
+    drop(c, 'mane')
+    m = c.part('mane', 'static')
+    for i in range(18):
+        s = i / 17
+        y = hy0 + (hy1 - hy0) * 0.55 + s * (by1 - hy0 - 1.2 * k)
+        z = hz1 - 0.1 * k - s * (hz1 - bz1 + 0.4 * k)
+        r = 0.95 * k * (1 - 0.35 * s)
+        m.ell((0, y, z), (r * 0.9, r * 0.75, r * 0.85), pink if i % 3 else pink_d)
+        for sx in (1, -1):  # locks falling to either side
+            m.ell((sx * r * 0.75, y + 0.2 * k, z - 0.55 * k), (0.45 * k, 0.45 * k, 0.75 * k), pink_d)
+    tops = {}
+    for (x, y, z) in m.v:
+        if z > tops.get((x, y), -99):
+            tops[(x, y)] = z
+    for n, ((x, y), z) in enumerate(sorted(tops.items(), key=lambda t: (t[0][1], t[0][0]))):
+        if n % 19 == 0:
+            flower(m, x, y, z + 1, k * 0.6, petal=P('#FFE3EF'), heart=pink_g, glow=False)
+    m.paint(lambda q, cc, g: (pink_g, True) if cc == pink_g else None)
+    # a blossom-tufted tail
+    tail = part_or_none(c, 'tail')
+    if tail:
+        tail.paint(lambda q, cc, g: (pink, False) if not g else None)
+        (tx0, ty0, tz0), (tx1, ty1, tz1) = bounds_of(tail)
+        flower(tail, 0, ty1 - 0.4 * k, tz1, k * 0.7, petal=P('#FFE3EF'), heart=pink_g, glow=True)
+    # pink flame curling round each hoof
+    for name in ('legFL', 'legFR', 'legBL', 'legBR'):
+        leg = part_or_none(c, name)
+        if not leg:
             continue
-        pts = list(m.v)
-        for i, (x, y, z) in enumerate(pts):
-            if i % 23 == 0:
-                flower(m, x, y, z + 1, k * 0.7, petal=P('#FFD6E8'), heart=GOLD, glow=False)
-    # falling petals: a few drifting by its legs (on a slow orbit ring)
-    pe = orbit_part(c, 'petals', (0, 0.4 * k, 4 * k))
-    ring(pe, 0, 0.4 * k, 6.4 * k, 3.6 * k, P('#FFD6E8'), True, thick=0.5, tilt=0.25)
-    for a in range(5):
-        ang = a / 5 * math.pi * 2
-        flower(pe, math.cos(ang) * 3.6 * k, 0.4 * k + math.sin(ang) * 3.6 * k, 6.4 * k + math.sin(ang) * 3.6 * k * 0.25, k * 0.6,
-               petal=BLOSSOM, glow=True)
+        (lx0, ly0, lz0), (lx1, ly1, lz1) = bounds_of(leg)
+        cx, cy = (lx0 + lx1) / 2 + 0.5, (ly0 + ly1) / 2 + 0.5
+        for dz, r in ((0, 0.75), (1, 0.7), (2, 0.55)):
+            leg.ell((cx, cy, lz0 + 0.4 * k + dz), (r * k, r * k, 0.6), pink_g if dz < 2 else pink, True)
     return c
 
 
@@ -921,14 +961,43 @@ def storm_ram(c, H):
     # cloud fleece: puffy grey-white lumps over the body
     body = c.part('body')
     fleece = c.part('fleece', 'static')
-    for (x, y, z) in ((0, -1.2, 5.0), (1.1, 0.4, 4.8), (-1.1, 0.4, 4.8), (0, 1.6, 5.0), (0, 0.2, 5.5), (1.4, -1.0, 4.2),
-                      (-1.4, -1.0, 4.2), (1.3, 2.0, 4.2), (-1.3, 2.0, 4.2)):
-        fleece.ell((x * k, y * k, z * k), (1.05 * k, 1.05 * k, 0.9 * k), P('#EEF2FA'))
+    for (x, y, z) in ((0, -1.0, 5.0), (1.1, 0.6, 4.7), (-1.1, 0.6, 4.7), (0, 1.8, 5.0), (0, 0.4, 5.5)):
+        fleece.ell((x * k, y * k, z * k), (1.25 * k, 1.25 * k, 1.0 * k), P('#EEF2FA'))
     fleece.paint(lambda p, cc, g: (P('#C8D0E2'), False) if p[2] < 4.3 * k else None)
     for p in [p for p in fleece.v if p in body.v]:
         del body.v[p]
     # lightning crackles through the fleece
     fleece.paint(lambda p, cc, g: (BOLT, True) if (p[0] * 5 + p[1] * 3 + p[2] * 2) % 31 == 0 else None)
+    # the showpiece: big curled storm horns, dark slate banded with glowing
+    # lightning, white-hot at the tips, with sparks jumping off them
+    drop(c, 'horns')
+    head = c.part('head')
+    (hx0, hy0, hz0), (hx1, hy1, hz1) = bounds_of(head)
+    hp = c.part('horns', 'glow', (0, (hy0 + hy1) / 2, hz1))
+    slate, slate_l = P('#D8C8A0'), P('#F0E4C4')  # pale ivory, so the horns stand out on the dark head
+    tips = []
+    for side in (1, -1):
+        cx, cy, cz = side * (hx1 + 0.2 * k), hy0 + (hy1 - hy0) * 0.62, hz1 - 1.35 * k
+        pts = []
+        for i in range(34):
+            s = i / 33
+            a = math.pi * 0.5 + s * math.pi * 1.45   # up, back, down, curling forward
+            R = 1.85 * k * (1 - 0.55 * s)
+            pts.append((cx + side * s * 1.0 * k, cy + math.cos(a) * R * -1.0, cz + math.sin(a) * R,
+                        max(0.7, 0.7 * k * (1 - 0.6 * s))))
+        if side < 0:
+            pts = [(x - 0.5, y, z, r) for (x, y, z, r) in pts]
+        sweep(hp, pts, lambda s: BOLT if s > 0.9 else (slate if int(s * 9) % 2 == 0 else slate_l),
+              lambda s: s > 0.9)
+        # glowing lightning bands spiralling round the horn
+        for i, (x, y, z, r) in enumerate(pts[:-3]):
+            if i % 4 == 1:
+                hp.ell((x, y, z), (r + 0.4, r + 0.4, 0.6), BOLT, True)
+        tips.append(pts[-1][:3])
+    sp = c.part('sparks', 'glow')
+    for (x, y, z) in tips:
+        out = 1 if x > 0 else -1
+        bolt(sp, (x, y, z), (x + out * 0.6 * k, y - 0.2 * k, z - 0.8 * k), BOLT, True, zig=0.25 * k, r=0.6)
     return c
 
 
@@ -1067,37 +1136,48 @@ def prism_peacock(c, H):
     drop(c, 'wingL', 'wingR')
     body0 = c.part('body')
     (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body0)
-    for sx, name in ((1, 'wingR'), (-1, 'wingL')):
-        w = c.part(name, name, (sx * bx1 * 0.8, (by0 + by1) / 2, (bz0 + bz1) / 2 + 0.6 * k))
-        xs = bx1 - 0.4 * k if sx > 0 else bx0 + 0.4 * k
-        w.ell((xs, (by0 + by1) / 2 + 0.6 * k, (bz0 + bz1) / 2 + 0.2 * k), (0.55 * k, 1.5 * k, 0.9 * k), teal)
-        w.paint(lambda q, cc, g: (P('#1E9A8A'), False) if q[1] > (by0 + by1) / 2 + 1.4 * k else None)
-    # the fan tail of rainbow crystal eyes, standing up tall behind it
+    # folded wings, the left an exact mirror of the right (x -> -1 - x)
+    wr = c.part('wingR', 'wingR', (bx1 * 0.8, (by0 + by1) / 2, (bz0 + bz1) / 2 + 0.6 * k))
+    wr.ell((bx1 + 0.05 * k, (by0 + by1) / 2 + 0.5 * k, (bz0 + bz1) / 2 + 0.2 * k), (0.4 * k, 1.2 * k, 0.8 * k), teal)
+    wr.paint(lambda q, cc, g: (P('#1E9A8A'), False) if q[1] > (by0 + by1) / 2 + 1.4 * k else None)
+    for q in [q for q in wr.v if q[0] < 0]:
+        del wr.v[q]
+    wl = c.part('wingL', 'wingL', (-1 - wr.pivot[0], wr.pivot[1], wr.pivot[2]))
+    for (x, y, z), val in wr.v.items():
+        wl.v[(-1 - x, y, z)] = val
+    # the fan tail of rainbow crystal eyes: about one and a half times the
+    # bird's height and wider than it on both sides, so it frames the bird
+    # from the front
     tail = c.part('tail', 'tail', (0, 2.6 * k, 3.2 * k + lift))
     body = c.part('body')
     cy = max(v[1] for v in body.v if abs(v[0]) < 2 and v[2] < 3.4 * k + lift) - 1
-    base_z = 2.6 * k + lift
-    Rx, Rz = 5.7 * k, 5.1 * k
-    rainbow = [P('#FF4D6D'), P('#FF9A1A'), P('#FFE14D'), P('#5CD85A'), P('#4FA8FF'), P('#9A6AFF')]
-    # one feathered layer, wider than tall so it frames the head
-    for x in range(-round(Rx), round(Rx) + 1):
+    base_z = 3.0 * k + lift
+    Rx, Rz = 5.8 * k, 6.5 * k
+    rainbow = [P('#FF2D5A'), P('#FF8A00'), P('#FFD400'), P('#2ED83A'), P('#1E90FF'), P('#8A3AFF')]
+    for x in range(-round(Rx), round(Rx)):
         for z in range(0, round(Rz) + 1):
             d = math.hypot((x + .5) / Rx, z / Rz)
             if d > 1:
                 continue
-            a = math.atan2(z / Rz, (x + .5) / Rx)
-            y = round(cy + (0.6 * k if d > 0.6 else 0))
-            col = teal if d < 0.55 else P('#1E9A8A') if d < 0.92 else P('#5AD8C8')
-            tail.put((x, y, round(base_z + z)), col)
-    # crystal eyes in two rings: a gold rim round a rainbow gem
-    for ring_r, n, size in ((0.8, 11, 0.7), (0.5, 6, 0.5)):
+            col = P('#1E9A8A') if d < 0.93 else P('#5AD8C8')
+            tail.put((x, round(cy), round(base_z + z)), col)
+    # big faceted crystal eyes in two rings: a gold rim, a saturated gem with
+    # a darker facet, and a white glint, standing proud of the fan's front
+    for ring_r, n, size in ((0.78, 7, 1.0), (0.45, 3, 0.8)):
         for i in range(n):
             a = (i + 0.5) / n * math.pi
-            ex, ez = math.cos(a) * Rx * ring_r, base_z + math.sin(a) * Rz * ring_r
-            ey = cy + (0.6 * k if ring_r > 0.6 else 0) - 1
-            col = rainbow[i % len(rainbow)]
-            tail.ell((ex, ey, ez), (size * k, 0.6, size * k), P('#FFE14D'), True)
-            tail.ell((ex, ey - 1, ez), (size * 0.6 * k, 0.6, size * 0.6 * k), col, True)
+            ex, ez = round(math.cos(a) * Rx * ring_r - 0.5), round(base_z + math.sin(a) * Rz * ring_r)
+            col = rainbow[(i + (0 if ring_r > 0.6 else 3)) % len(rainbow)]
+            R = max(2, round(size * k * 0.75))
+            for dx in range(-R, R + 1):
+                for dz in range(-R, R + 1):
+                    if abs(dx) + abs(dz) > R + 1:
+                        continue
+                    if abs(dx) + abs(dz) >= R:  # a gold rim, not glowing, so the gems stand apart
+                        tail.put((ex + dx, round(cy), ez + dz), GOLD_D, False)
+                    else:  # the gem, cut in two facets
+                        tail.put((ex + dx, round(cy), ez + dz), col, True)
+            tail.put((ex - 1, round(cy) - 1, ez + 1), WHITE, True)  # glint
     return c
 
 
