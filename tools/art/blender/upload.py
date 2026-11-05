@@ -1,12 +1,18 @@
 """Uploads Hatchery Heist's creature meshes to Roblox through Open Cloud, as
 one Model asset per creature, and records the asset ids in assets.json.
 
-    python3 tools/art/blender/upload.py DIR [--only Chick,Frog] [--dry-run]
+    python3 tools/art/blender/upload.py DIR [--only Chick,Frog] [--textures-only] [--dry-run]
 
 DIR is build.py's output (DIR/<id>/<id>.fbx). A creature already in
 assets.json gets a new version of the same asset, so its id never changes;
 a new creature gets a new asset. Afterwards run luau.py so the game knows
 the ids.
+
+Each creature's colours are its palette PNG, uploaded as an **Image** asset
+(never a Decal: MeshPart.TextureID needs an image id, and a decal id draws
+the creature grey with "Asset type does not match requested type").
+--textures-only re-uploads just the palettes of creatures that already have
+a model asset.
 
 The API key comes from ROBLOX_API_KEY (the Hatchery Heist Staging key, with
 the Assets API "asset:read" and "asset:write" permissions). It is never
@@ -114,6 +120,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('dir')
     ap.add_argument('--only')
+    ap.add_argument('--textures-only', action='store_true')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
     key = os.environ.get('ROBLOX_API_KEY', '')
@@ -130,9 +137,12 @@ def main():
             raise SystemExit(f'{sid}: no {sid}_palette.png next to the fbx')
         have = data['models'].get(sid)
         if a.dry_run:
-            print(f'{sid}: would {"update " + str(have["assetId"]) if have else "create"} from {fbx}')
+            what = 'keep' if a.textures_only and have else ('update ' + str(have['assetId'])) if have else 'create'
+            print(f'{sid}: would {what} model from {fbx} and upload its palette as an Image')
             continue
-        if have:
+        if a.textures_only and have:
+            res = {'assetId': have['assetId'], 'revisionId': have.get('version')}
+        elif have:
             body, ctype = multipart({'assetId': str(have['assetId'])}, fbx)
             op = call('PATCH', f'{API}/assets/{have["assetId"]}', key, body, ctype)
         else:
@@ -143,19 +153,24 @@ def main():
                 'creationContext': {'creator': {'groupId': group}},
             }, fbx)
             op = call('POST', f'{API}/assets', key, body, ctype)
-        res = wait(op, key)
+        if not (a.textures_only and have):
+            res = wait(op, key)
         asset = int(res.get('assetId') or have['assetId'])
         # the colours: the palette image as its own asset, set as each
         # MeshPart's TextureID by the game (the FBX carries no texture)
         png = os.path.join(a.dir, sid, f'{sid}_palette.png')
         body, ctype = multipart({
-            'assetType': 'Decal',
+            'assetType': 'Image',
             'displayName': f'HH {sid} palette',
             'description': f'Hatchery Heist creature {sid} colours (tools/art/blender)',
             'creationContext': {'creator': {'groupId': group}},
         }, png, 'image/png')
         tex = wait(call('POST', f'{API}/assets', key, body, ctype), key)
-        data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId'), 'textureId': int(tex['assetId'])}
+        kind = str(tex.get('assetType', ''))
+        if 'IMAGE' not in kind.upper():
+            raise SystemExit(f'{sid}: palette came back as {kind or "an unknown type"}, not an Image')
+        data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId'),
+                               'textureId': int(tex['assetId']), 'textureType': 'Image'}
         print(f'{sid}: asset {asset}, texture {tex["assetId"]}', flush=True)
         with open(ASSETS, 'w') as f:  # after every upload, so a failure keeps the ids made so far
             json.dump(data, f, indent=1, sort_keys=True)

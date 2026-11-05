@@ -52,7 +52,9 @@ def assets():
     out = {}
     for k, v in data.get('models', {}).items():
         assert isinstance(v, dict) and isinstance(v.get('assetId'), int), f'assets.json: bad entry for {k}'
-        out[k] = (v['assetId'], v.get('textureId', 0))
+        # only an Image id works as a MeshPart.TextureID; an older Decal id
+        # would draw the creature grey, so it counts as not uploaded (boxes)
+        out[k] = (v['assetId'], v.get('textureId', 0) if v.get('textureType') == 'Image' else 0)
     return out
 
 
@@ -76,7 +78,7 @@ def write():
         '-- same names, anims and parents as VoxelArt, each with a pivot and the',
         '-- meshes that ride on it. Studs, at the creature\'s size on a pad; Y up,',
         '-- front -Z, feet at the origin. `assetId` is the uploaded Model holding',
-        '-- MeshParts named after the meshes, `textureId` the image of its colours',
+        '-- MeshParts named after the meshes, `textureId` the Image asset (never a Decal) of its colours',
         '-- (every MeshPart\'s TextureID); 0 = not uploaded, so the game draws',
         '-- the VoxelArt boxes instead.',
         '',

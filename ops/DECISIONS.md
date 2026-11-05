@@ -2,6 +2,17 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
+
+- **The palette PNG is uploaded as an Image asset.** MeshPart.TextureID needs an
+  image id; a Decal id fails with "Asset type does not match requested type" and
+  the creature draws grey (Studio gate, #66). Open Cloud gives no stable way to
+  turn a decal id into its image id, so we never upload Decals for textures.
+- **luau.py writes `textureId = 0` unless assets.json marks it `textureType:
+  "Image"`**, so a wrong id draws the voxel boxes, never a grey mesh.
+- `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
+  palettes; models keep their ids.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150

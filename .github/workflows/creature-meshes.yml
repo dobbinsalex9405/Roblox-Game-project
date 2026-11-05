@@ -12,6 +12,11 @@ on:
         description: "Creatures to upload, comma separated (blank = all)"
         required: false
         default: ""
+      textures_only:
+        description: "Only re-upload the colour images (palettes) of creatures that already have a model"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -30,6 +35,7 @@ jobs:
       ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY_HATCHERY_HEIST }}
       ROBLOX_GROUP_ID: ${{ vars.ROBLOX_GROUP_ID }} # optional; otherwise looked up from the Staging universe
       ONLY: ${{ inputs.only }} # used as "$ONLY", never pasted into a script
+      TEXTURES_ONLY: ${{ inputs.textures_only }}
     steps:
       - uses: actions/checkout@v4
 
@@ -50,6 +56,7 @@ jobs:
         run: |
           args=()
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          if [ "$TEXTURES_ONLY" = "true" ]; then args+=(--textures-only); fi
           python3 tools/art/blender/upload.py "$RUNNER_TEMP/meshes" "${args[@]}"
 
       - name: Record the asset ids
