@@ -13,6 +13,7 @@ local Conveyor = require("./Conveyor")
 local Daily = require("./Daily")
 local Eggs = require("./Eggs")
 local Hatchery = require("./Hatchery")
+local Tower = require("./Tower")
 
 export type Perks = {
 	doubleCoins: boolean,
@@ -50,6 +51,12 @@ export type Actions = {
 	collect: (self: Actions, player: any) -> (boolean, string?),
 	claimDaily: (self: Actions, player: any) -> (boolean, string?),
 	seeBook: (self: Actions, player: any) -> (),
+	-- The tower (shared/Tower.luau).
+	buyFloor: (self: Actions, player: any) -> (boolean, string?),
+	upgradeFloor: (self: Actions, player: any, floor: number) -> (boolean, string?),
+	place: (self: Actions, player: any, uid: string, floor: number) -> (boolean, string?),
+	takeBack: (self: Actions, player: any, uid: string) -> (boolean, string?),
+	placeBest: (self: Actions, player: any) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
@@ -93,7 +100,7 @@ function Actions.new(options: Options): Actions
 			return
 		end
 		local what = if pending.count == 1 then pending.what else `{pending.count} creatures`
-		options.notify(player, `Storage is full: sold {what} for {pending.coins} coins.`)
+		options.notify(player, `Inventory is full: sold {what} for {pending.coins} coins.`)
 		pending.at = now
 		pending.count = 0
 		pending.coins = 0
@@ -163,6 +170,21 @@ function Actions.new(options: Options): Actions
 		local mountSpeed: number? = nil
 		local ok = data:update(player, function(d: Hatchery.Data)
 			Hatchery.backfillFound(d)
+			-- Saves from before the tower had up to 20 creatures on pads:
+			-- once, everything goes back to the inventory and the tower is
+			-- filled best-first. After that, only tidy up.
+			if (d.towerVersion or 0) < 1 then
+				for _, c in d.creatures do
+					c.slot = nil
+				end
+				d.mountUid = ""
+				d.guardUid = ""
+				Tower.placeBest(d, config.creatures, economyConfig, function(c)
+					return Hatchery.creatureIncome(c, config.creatures)
+				end)
+				d.towerVersion = 1
+			end
+			Tower.tidy(d, config.creatures, economyConfig)
 			earned = Hatchery.welcomeBack(d, now, perSecond(d, player), economyConfig)
 			for _, incubator in d.incubators do
 				if incubator.readyAt <= now then
@@ -295,7 +317,7 @@ function Actions.new(options: Options): Actions
 			isNew = Hatchery.foundCount(d, config.creatures) > foundBefore
 			if creature then
 				step = Hatchery.markFirst(d, "FirstHatch", now)
-				if Hatchery.padsFull(d, economyConfig.creaturePads) then
+				if Hatchery.padsFull(d, config.creatures, economyConfig) then
 					fullStep = Hatchery.markFirst(d, "PadsFull", now)
 				end
 			end
@@ -346,6 +368,65 @@ function Actions.new(options: Options): Actions
 		end)
 		if ok then
 			onboarding(player, step)
+		end
+		return ok, err
+	end
+
+	-- The tower: buy the next floor, upgrade one, move creatures between the
+	-- floors and the inventory, or let Place best fill it.
+	local function towerChange(player: any, fn: (d: Hatchery.Data, ledger: any) -> string?, done: string?)
+		local ok, err = change(player, fn)
+		if ok and done then
+			options.notify(player, done)
+		end
+		return ok, err
+	end
+
+	function actions.buyFloor(_self: Actions, player: any): (boolean, string?)
+		local floor = 0
+		local ok, err = change(player, function(d, ledger)
+			local bought, refusal = Tower.buyFloor(d, ledger, economyConfig)
+			floor = Tower.owned(d)
+			return if bought then nil else refusal
+		end)
+		if ok then
+			options.notify(player, `Floor {floor} built: {economyConfig.tower.themes[floor]}!`)
+			analytics:custom(player, "Tower:Floor", floor)
+		end
+		return ok, err
+	end
+
+	function actions.upgradeFloor(_self: Actions, player: any, floor: number): (boolean, string?)
+		return towerChange(player, function(d, ledger)
+			local done, refusal = Tower.upgradeFloor(d, ledger, floor, economyConfig)
+			return if done then nil else refusal
+		end, `Floor {floor} upgraded!`)
+	end
+
+	function actions.place(_self: Actions, player: any, uid: string, floor: number): (boolean, string?)
+		return towerChange(player, function(d)
+			local done, refusal = Tower.place(d, uid, floor, config.creatures, economyConfig)
+			return if done then nil else refusal
+		end)
+	end
+
+	function actions.takeBack(_self: Actions, player: any, uid: string): (boolean, string?)
+		return towerChange(player, function(d)
+			local done, refusal = Tower.takeBack(d, uid)
+			return if done then nil else refusal
+		end)
+	end
+
+	function actions.placeBest(_self: Actions, player: any): (boolean, string?)
+		local placed = 0
+		local ok, err = change(player, function(d)
+			placed = Tower.placeBest(d, config.creatures, economyConfig, function(c)
+				return Hatchery.creatureIncome(c, config.creatures)
+			end)
+			return nil
+		end)
+		if ok then
+			options.notify(player, `Placed your best: {placed} creatures earning.`)
 		end
 		return ok, err
 	end
@@ -453,9 +534,9 @@ function Actions.new(options: Options): Actions
 			return false, `Could not add {speciesId}: {err or "unknown"}.`
 		end
 		if creature.slot == nil then
-			return true, `{speciesId} added to storage (every pad holds a better creature).`
+			return true, `{speciesId} added to your inventory (the tower is full).`
 		end
-		return true, `{speciesId} added on pad {creature.slot}, ready to ride or guard.`
+		return true, `{speciesId} added on floor {Tower.floorOf(creature.slot)}, ready to ride or guard.`
 	end
 
 	return (actions :: any) :: Actions

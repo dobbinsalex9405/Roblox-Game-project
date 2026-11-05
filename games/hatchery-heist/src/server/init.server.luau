@@ -25,6 +25,7 @@ local Eggs = require(Shared.Eggs)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Tower = require(Shared.Tower)
 local Raids = require(Shared.Raids)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
@@ -68,7 +69,7 @@ assert(
 	economy.incubators.maxSlots + economy.incubators.passBonusSlots <= Layout.INCUBATOR_POSITIONS,
 	"the map has fewer incubators than maxSlots + passBonusSlots"
 )
-assert(economy.creaturePads <= 20, "the map has 20 creature pads")
+assert(#economy.tower.floorPrices + 1 == Geometry.FLOORS, "the map has 10 tower floors")
 -- Raid geometry (plain numbers) must match the map (CFrames) exactly.
 for index = 1, Layout.PLOTS do
 	local frame = Layout.plotCFrame(index)
@@ -323,6 +324,39 @@ net:on(Remotes["HH:BuySlot"], function(player: Player)
 end)
 net:on(Remotes["HH:Collect"], function(player: Player)
 	ready:collect(player)
+end)
+net:on(Remotes["HH:BuyFloor"], function(player: Player)
+	ready:buyFloor(player)
+end)
+net:on(Remotes["HH:UpgradeFloor"], function(player: Player, floor: number)
+	ready:upgradeFloor(player, floor)
+end)
+net:on(Remotes["HH:Place"], function(player: Player, uid: string, floor: number)
+	ready:place(player, uid, floor)
+end)
+net:on(Remotes["HH:TakeBack"], function(player: Player, uid: string)
+	ready:takeBack(player, uid)
+end)
+net:on(Remotes["HH:PlaceBest"], function(player: Player)
+	ready:placeBest(player)
+end)
+-- The elevator: only from one of the player's own stops, only to a floor
+-- they have built.
+net:on(Remotes["HH:GoFloor"], function(player: Player, floor: number)
+	local d = services.data:get(player)
+	if d == nil then
+		return
+	end
+	local owned = Tower.owned(d)
+	if floor > owned then
+		notify(player, "Build that floor first.")
+		return
+	end
+	if not World.atElevator(player, owned) then
+		notify(player, "Step onto your elevator first.")
+		return
+	end
+	World.elevatorTo(player, floor)
 end)
 net:on(Remotes["HH:BookSeen"], function(player: Player)
 	ready:seeBook(player)

@@ -389,7 +389,12 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 				part.Color = if owned then look.color else SHADOW
 				part.Material = if owned then look.material else Enum.Material.SmoothPlastic
 			end
-			card.name.Text = if owned then Layout.displayName(entry.speciesId) else "???"
+		end
+		-- Every paint, not only on a change: a card whose model appeared
+		-- first already counts as painted (Studio gate: "???" missing).
+		local name = if owned then Layout.displayName(entry.speciesId) else "???"
+		if card.name.Text ~= name then
+			card.name.Text = name
 		end
 		card.new.Visible = Book.isNew(found, entry.speciesId, seenAt)
 		if entry.eggId and not restricted then
