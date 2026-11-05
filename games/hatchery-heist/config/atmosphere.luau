@@ -170,6 +170,15 @@ return {
 			},
 		},
 	},
+	-- The Tower window's Build and Upgrade buttons (client/TowerView). After
+	-- a tap the row shows "Building..." until the server answers (at most
+	-- waitSeconds), then "Built!" for holdSeconds, so a double tap never
+	-- buys the next thing (Studio gate, Nov 5). A tap you can't afford shows
+	-- how many more coins you need for holdSeconds.
+	menus = {
+		holdSeconds = 1.5,
+		waitSeconds = 3,
+	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
 		-- tracks from Roblox's own licensed library (Creator Store, Audio,

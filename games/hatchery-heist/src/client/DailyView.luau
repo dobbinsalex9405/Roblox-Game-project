@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -206,6 +207,27 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	badge.Parent = button
 
 	local waiting = false -- a claim is on its way to the server
+	local claiming: number? = nil -- coins the claim on its way pays
+
+	-- "+600 coins" rising from the Claim button once the coins land: the
+	-- window covers the coin counter, so this is where a player sees it.
+	local function pop(amount: number)
+		local l = text(window, "Gained", `+{Layout.shortNumber(amount)} coins`, 30, GOLD)
+		l.AnchorPoint = Vector2.new(0.5, 1)
+		l.Position = UDim2.fromOffset(520 - 16 - 80, 204)
+		l.Size = UDim2.fromOffset(240, 40)
+		l.TextXAlignment = Enum.TextXAlignment.Center
+		l.ZIndex = 5
+		local rise =
+			TweenService:Create(l, TweenInfo.new(1.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Position = UDim2.fromOffset(520 - 16 - 80, 150),
+				TextTransparency = 1,
+			})
+		rise:Play()
+		task.delay(1.7, function()
+			l:Destroy()
+		end)
+	end
 	local function refresh()
 		local d = ctx.data()
 		if d == nil then
@@ -257,12 +279,14 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 			return
 		end
 		waiting = true
-		Sfx.play("reward")
+		local status = Daily.status(d, ctx.serverNow(), days)
+		claiming = Daily.amount(status.day, Hatchery.incomePerSecond(d, ctx.config, ctx.perks()), config)
 		ctx.fire(ctx.remotes["HH:ClaimDaily"])
 		refresh()
 		-- The new data clears `waiting`; if the server refused, try again soon.
 		task.delay(3, function()
 			waiting = false
+			claiming = nil
 			refresh()
 		end)
 	end)
@@ -274,6 +298,14 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	local autoOpened = false
 	ctx.onData(function(d: { [string]: any })
 		waiting = false
+		local paid = claiming
+		if paid and Daily.status(d, ctx.serverNow(), days).claimedToday then
+			claiming = nil
+			Sfx.play("reward")
+			if gui.Enabled then
+				pop(paid)
+			end
+		end
 		refresh()
 		-- Returning players with a reward waiting see the window once.
 		if not autoOpened then

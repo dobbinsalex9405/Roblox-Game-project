@@ -341,6 +341,13 @@ return function(Schema: any, Odds: any)
 				return true
 			end
 		),
+		-- Menu buttons (client/TowerView): how long a row shows "Built!" or
+		-- "Need ... more" in place of its button, and how long it waits for
+		-- the server after a tap before showing the button again.
+		menus = Schema.record({
+			holdSeconds = Schema.number({ min = 0.5, max = 5 }),
+			waitSeconds = Schema.number({ min = 1, max = 10 }),
+		}),
 		music = Schema.record({
 			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),
 			volume = Schema.number({ min = 0, max = 1 }),
@@ -528,6 +535,7 @@ return function(Schema: any, Odds: any)
 		lightColor = Schema.array(Schema.number({ min = 0, max = 255 }), { minLength = 3, maxLength = 3 }),
 		neon = Schema.boolean(),
 		animateRange = Schema.number({ min = 0, max = 400 }),
+		indoorZoom = Schema.number({ min = 4, max = 30 }),
 	})
 
 	function Schemas.sections(config: { [string]: any }): { [string]: Section }

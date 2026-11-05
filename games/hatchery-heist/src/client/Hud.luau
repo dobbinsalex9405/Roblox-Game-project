@@ -38,7 +38,7 @@ local function panel(parent: Instance, name: string, size: UDim2, position: UDim
 	f.Position = position
 	f.AnchorPoint = anchor
 	f.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-	f.BackgroundTransparency = 0.2
+	f.BackgroundTransparency = 0.05 -- nearly solid: world signs behind it showed through (Studio gate)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = f

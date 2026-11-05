@@ -201,8 +201,26 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	towerInfo.TextWrapped = true
 	towerInfo.TextYAlignment = Enum.TextYAlignment.Top
 	local elevatorMode = false
+	local menus = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).menus
+	-- A floor whose row shows a word in place of its button for a moment:
+	-- "Building..." after a tap, "Built!" once done, "Need ... more".
+	local held: { [number]: { text: string, color: Color3, untilAt: number } } = {}
+	local drawTower: () -> ()
+	local function hold(floor: number, words: string, color: Color3, seconds: number)
+		local entry = { text = words, color = color, untilAt = os.clock() + seconds }
+		held[floor] = entry
+		drawTower()
+		task.delay(seconds, function()
+			if held[floor] == entry then
+				held[floor] = nil
+				if towerGui.Enabled then
+					drawTower()
+				end
+			end
+		end)
+	end
 
-	local function drawTower()
+	drawTower = function()
 		local d = ctx.data()
 		if d == nil then
 			return
@@ -265,7 +283,12 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 					towerGui.Enabled = false
 				end)
 			end
-			if built then
+			local hasHold = held[floor]
+			if hasHold and os.clock() < hasHold.untilAt then
+				local word = text(buttons, "Held", hasHold.text, 17, hasHold.color)
+				word.Size = UDim2.fromOffset(168, 40)
+				word.TextXAlignment = Enum.TextXAlignment.Center
+			elseif built then
 				local price = Tower.nextUpgradePrice(d, floor, economy)
 				if price then
 					local up = button(
@@ -277,6 +300,17 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 					)
 					up.Activated:Connect(function()
 						Sfx.play("click")
+						local now = ctx.data()
+						if now and now.coins < price then
+							hold(
+								floor,
+								`Need {coins(price - now.coins)} more`,
+								GREY:Lerp(Color3.new(1, 1, 1), 0.5),
+								menus.holdSeconds
+							)
+							return
+						end
+						hold(floor, "Upgrading...", GOLD, menus.waitSeconds)
 						ctx.fire(ctx.remotes["HH:UpgradeFloor"], floor)
 					end)
 				end
@@ -291,6 +325,17 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 				)
 				build.Activated:Connect(function()
 					Sfx.play("click")
+					local now = ctx.data()
+					if now and now.coins < price then
+						hold(
+							floor,
+							`Need {coins(price - now.coins)} more`,
+							GREY:Lerp(Color3.new(1, 1, 1), 0.5),
+							menus.holdSeconds
+						)
+						return
+					end
+					hold(floor, "Building...", GOLD, menus.waitSeconds)
 					ctx.fire(ctx.remotes["HH:BuyFloor"])
 				end)
 			else
@@ -483,7 +528,29 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	-- Redraw an open window when the save changes (a purchase, a move, a
 	-- new hatch, coins going up so a button turns green).
 	local lastTower, lastHerd = "", ""
+	local seenOwned: number? = nil
+	local seenUpgrades: { [number]: number } = {}
 	ctx.onData(function(d: { [string]: any })
+		-- A floor just built or upgraded: "Built!" in its row for a moment,
+		-- with a sound, before its next button shows.
+		local owned = Tower.owned(d)
+		local before = seenOwned
+		if before and owned > before then
+			Sfx.play("reward")
+			for floor = before + 1, owned do
+				hold(floor, "Built!", GOLD, menus.holdSeconds)
+			end
+		end
+		for floor = 2, owned do
+			local n = Tower.upgrades(d, floor)
+			local was = seenUpgrades[floor]
+			if before and floor <= before and was and n > was then
+				Sfx.play("reward")
+				hold(floor, "Upgraded!", GOLD, menus.holdSeconds)
+			end
+			seenUpgrades[floor] = n
+		end
+		seenOwned = owned
 		if towerGui.Enabled then
 			local key =
 				`{Tower.owned(d)}|{table.concat(d.floorUpgrades or {}, ",")}|{d.coins // 1000}|{tostring(
