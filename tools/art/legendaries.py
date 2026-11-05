@@ -286,37 +286,118 @@ def lava_drake(c, H):
 
 def sun_scarab(c, H):
     import kit
-    kit.bug(c, H, 'beetle', GOLD, P('#8A5A10'), None)
+    LAPIS, LAPIS_L = P('#2A55C8'), P('#4F86F0')
+    kit.bug(c, H, 'beetle', LAPIS, GOLD, None)
     k = H / 10.0
     shell = part_or_none(c, 'shell')
     if shell:
-        shell.paint(lambda p, cc, g: (GOLD_L, False) if cc == GOLD and p[2] > max(q[2] for q in shell.v) - 0.5 * k else None)
-        speckle(shell, (GOLD,), GOLD_D, 9)
-        # a sun-disc emblem on the back
         top = max(q[2] for q in shell.v)
-        shell.paint(lambda p, cc, g: (FIRE[2], True) if p[2] >= top - 2 and (p[0] + .5) ** 2 + (p[1] - 0.8 * k) ** 2 < (0.7 * k) ** 2 else None)
+        low = min(q[2] for q in shell.v)
+        # a lapis shell: a sheen on top, gold flecks and a gold rim
+        shell.paint(lambda p, cc, g: (LAPIS_L, False) if cc == LAPIS and p[2] > top - 0.5 * k else None)
+        speckle(shell, (LAPIS,), GOLD_L, 11)
+        shell.paint(lambda p, cc, g: (GOLD_D, False) if p[2] <= low + 1 else None)
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
     hn = c.part('beetlehorn', 'static', head.pivot)
     f = head.front(0, z1 - round(0.3 * k)) or (0, y0, z1)
     horn(hn, (0.0, f[1] + 0.5, f[2]), (0.0, f[1] - 1.0 * k, f[2] + 1.2 * k), 0.4 * k, GOLD_D, GOLD_L, bend=(0, -0.2 * k, 0.3 * k), both=False)
-    # the small sun it rolls, out in front
-    sun = c.part('sun', 'glow', (0, -4.8 * k, 1.6 * k))
-    sun.ell((0, -5.2 * k, 1.7 * k), (1.7 * k, 1.7 * k, 1.7 * k), FIRE[2], True)
-    sun.paint(lambda p, cc, g: (FIRE[3], True) if p[1] < -5.8 * k and p[2] > 2.0 * k else None)
-    sun.paint(lambda p, cc, g: (FIRE[1], True) if (p[0] * 3 + p[2] * 5 + p[1]) % 9 == 0 else None)
+    # the sun it rolls, held between its back legs: an orange orb with a
+    # white-hot core and short rays, far brighter than the gold beetle
+    body = part_or_none(c, 'shell') or c.part('body')
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
+    R = 1.9 * k
+    cy, cz = by1 + 0.5 * R, R + 0.15 * k
+    sun = c.part('sun', 'glow', (0, cy, cz))
+    ORANGE, HOT, CORE = P('#FF7A10'), P('#FFB020'), P('#FFF3C0')
+    sun.ell((0, cy, cz), (R, R, R), ORANGE, True)
+    sun.paint(lambda p, cc, g: (HOT, True) if (p[0] + .5) ** 2 + (p[1] + .5 - cy - 0.35 * R) ** 2 + (p[2] + .5 - cz - 0.25 * R) ** 2 < (0.75 * R) ** 2 else None)
+    sun.paint(lambda p, cc, g: (CORE, True) if (p[0] + .5) ** 2 + (p[1] + .5 - cy - 0.5 * R) ** 2 + (p[2] + .5 - cz - 0.4 * R) ** 2 < (0.45 * R) ** 2 else None)
     for a in range(8):
-        ang = a / 8 * math.pi * 2
-        x, z = math.cos(ang) * 2.1 * k, 1.7 * k + math.sin(ang) * 2.1 * k
-        if z > 0.3 * k:
-            sun.ell((x, -5.2 * k, z), (0.45 * k, 0.45 * k, 0.45 * k), FIRE[1], True)
+        ang = a / 8 * math.pi * 2 + math.pi / 8
+        dx, dz = math.cos(ang), math.sin(ang)
+        if cz + dz * (R + 0.6 * k) < 0.4 * k:
+            continue
+        shard(sun, (dx * (R - 1), cy, cz + dz * (R - 1)), (dx, 0, dz), 0.6 * k + 1, 0.42 * k, P('#FF5A0A'), P('#FF9A1A'))
     return c
+
+
+def _split_heads(c, k, col, snout, light_c, turn=20.0):
+    """Three heads that read as three: the side heads turn out by `turn`
+    degrees about their own pivots, a one-voxel gap parts them from the
+    middle head, every muzzle is lighter and each side head gets ears."""
+    head, eyes, ears = c.part('head'), c.part('eyes'), part_or_none(c, 'ears')
+    # every muzzle a lighter grey so each face reads on its own
+    for name in ('head', 'headL', 'headR'):
+        hp = part_or_none(c, name)
+        if hp:
+            hp.paint(lambda p, cc, g: (light_c, False) if cc == snout else None)
+    thr = 1.3 * k
+    for name, side in (('headR', 1), ('headL', -1)):
+        hp = part_or_none(c, name)
+        if hp is None:
+            continue
+        hp.pivot = (hp.pivot[0] + side * round(0.3 * k), hp.pivot[1], hp.pivot[2])
+        # the side head's eyes and a copy of the middle head's ears move with it
+        mine = {q: v for q, v in eyes.v.items() if (q[0] + 0.5) * side > thr}
+        for q in mine:
+            del eyes.v[q]
+        extra = {}
+        if ears:
+            for (x, y, z), v in ears.v.items():
+                if x * side >= 0:
+                    nx = x * 0.8 + side * 2.3 * k
+                    extra[(round(nx), round(y * 0.85 + 0.7 * k + abs(x) * 0.15), round(z - 0.9 * k))] = v
+        src = dict(hp.v)
+        src.update({q: v for q, v in extra.items() if q not in src})
+        src.update(mine)
+        px, py = hp.pivot[0], hp.pivot[1]
+        a = math.radians(turn * side)
+        ca, sa = math.cos(a), math.sin(a)
+        xs = [q[0] for q in src]
+        ys = [q[1] for q in src]
+        zs = sorted({q[2] for q in src})
+        pad = round(1.0 * k)
+        shift = round(0.3 * k)
+        out = {}
+        for x in range(min(xs) - pad, max(xs) + pad + 1):
+            for y in range(min(ys) - pad, max(ys) + pad + 1):
+                # inverse rotation of the cell centre back into the source
+                dx, dy = x + 0.5 - px, y + 0.5 - py
+                sx = px + dx * ca + dy * sa - 0.5
+                sy = py - dx * sa + dy * ca - 0.5
+                q0 = (round(sx), round(sy))
+                for z in zs:
+                    v = src.get((q0[0], q0[1], z))
+                    if v is not None:
+                        out[(x + shift * side, y, z)] = v
+        eye_set = {q for q in mine}
+        hp.v, new_eyes = {}, {}
+        rot_eyes = set()
+        for (x, y, z), v in out.items():
+            dx, dy = x - shift * side + 0.5 - px, y + 0.5 - py
+            sx = round(px + dx * ca + dy * sa - 0.5)
+            sy = round(py - dx * sa + dy * ca - 0.5)
+            if (sx, sy, z) in eye_set:
+                new_eyes[(x, y, z)] = v
+            else:
+                hp.v[(x, y, z)] = v
+        # the gap: nothing of a side head within one voxel of the middle head
+        mid = set(head.v) | {q for q in eyes.v}
+        for q in list(hp.v):
+            if any((q[0] + dx, q[1] + dy, q[2] + dz) in mid for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1)):
+                del hp.v[q]
+        for q in list(new_eyes):
+            if any((q[0] + dx, q[1] + dy, q[2]) in mid for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                del new_eyes[q]
+        eyes.v.update(new_eyes)
 
 
 def cerberus_pup(c, H):
     plan('beast', c, H, {'col': '#3A3340', 'belly': '#5A5060', 'snout': '#5A5060', 'accent': '#2A2430', 'glow': '#FF7A1A',
                          'eye': '#FF5A1A'}, kind='canine', heads=3, tail='whip')
     k = H / 10.0
+    _split_heads(c, k, P('#3A3340'), P('#5A5060'), P('#9A8CA4'))
     # an ember collar with studs round the neck
     col = c.part('collar', 'glow', (0, -2.6 * k, 5.2 * k))
     body = c.part('body')
@@ -607,21 +688,39 @@ def frost_giant(c, H):
     # ice armour: plates on the chest and shoulders
     armour = c.part('armour', 'static')
     for (x, y, z) in list(body.v):
-        if y < -1.2 * k and 4.2 * k < z < 6.8 * k and (x + 100) % 3 != 0 and abs(x + .5) < 1.8 * k:
+        if y < -1.2 * k and 3.6 * k < z < 5.0 * k and (x + 100) % 3 != 0 and abs(x + .5) < 1.8 * k:
             armour.put((x, y - 1, z), (P('#4FC8FF'), True) [0] if z % 4 == 0 else P('#3A7AD8'), z % 4 == 0)
+    # ice pauldrons capping the shoulders (down at shoulder height, clear
+    # of the head)
     for side in (1, -1):
-        armour.ell((side * 2.2 * k - (0.5 if side < 0 else 0), 0, 7.2 * k), (1.0 * k, 1.1 * k, 0.6 * k), P('#3A7AD8'))
-        armour.ell((side * 2.2 * k - (0.5 if side < 0 else 0), 0, 7.6 * k), (0.6 * k, 0.7 * k, 0.6), P('#4FC8FF'), True)
-    # the icicle beard
+        cx = side * 2.5 * k - (0.5 if side < 0 else 0)
+        armour.ell((cx, 0, 6.0 * k), (1.0 * k, 1.05 * k, 0.55 * k), P('#3A7AD8'), cond=lambda x, y, z: z >= round(5.7 * k))
+        armour.ell((cx, 0, 6.15 * k), (0.55 * k, 0.6 * k, 0.6), P('#4FC8FF'), True)
+    # the icicle beard: five icicles hanging from the chin, in front of the chest
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
     beard = c.part('beard', 'glow', (0, y0, z0))
-    for x in range(round(-0.9 * k), round(0.9 * k)):
-        f = head.front(x, z0 + 1)
-        if f:
-            n = round((1.6 - abs(x + .5) / k * 0.9) * k)
-            for i in range(max(1, n)):
-                beard.put((f[0], f[1] - 1, f[2] - i), ICE_L if i < n - 1 else ICE, True)
+    # start at the lowest face row that stands in front of the chest
+    cz = round(z0 + 0.35 * k)
+    for z in range(z0, z1):
+        hf, bf = head.front(0, z), body.front(0, z)
+        if hf and (bf is None or hf[1] < bf[1]):
+            cz = z + 1
+            break
+    icicles = [((-1, 0), 1.9)]  # (cells across, length in k): the middle one, then mirrored pairs
+    for xi, ln in ((2, 1.6), (5, 1.2)):
+        icicles += [((xi, xi + 1), ln), ((-xi - 2, -xi - 1), ln)]
+    for cells, ln in icicles:
+        f = head.front(cells[0], cz) or head.front(cells[1], cz)
+        if not f:
+            continue
+        n = round(ln * k)
+        for j in range(n):
+            s2 = j / max(1, n - 1)
+            col = P('#2EA8FF') if s2 > 0.7 else P('#6FC8F4')
+            inner = cells[0] if cells[0] >= 0 else cells[1]
+            for xx in (cells if s2 < 0.5 or cells == (-1, 0) else (inner,)):
+                beard.put((xx, f[1] - 1, cz - j), col, s2 > 0.7)
     # an ice crown of spikes
     cr = c.part('icecrown', 'glow')
     for a in range(5):
@@ -634,9 +733,29 @@ def frost_saber(c, H):
     plan('beast', c, H, {'col': '#C8DDF0', 'belly': '#F4FBFF', 'snout': '#F4FBFF', 'accent': '#2E5A9A', 'horn': '#BFF4FF',
                          'glow': '#2EA8FF', 'eye': '#2E5AC8'}, kind='cat', tail='lion', saber=True, stripes=True)
     k = H / 10.0
+    # two long ice fangs from the mouth corners, well past the jaw line:
+    # two voxels wide at the root, a glowing point at the tip
     fangs = c.part('fangs')
-    fangs.anim = 'glow'
-    fangs.paint(lambda p, cc, g: (P('#4FC8FF') if p[2] > min(q[2] for q in fangs.v) + 1 else P('#BFF0FF'), True))
+    fangs.anim = 'static'
+    fangs.v = {}
+    head = c.part('head')
+    # a clean face (the stripes stay on the body and tail), so the fangs read
+    head.paint(lambda p, cc, g: (P('#C8DDF0'), False) if g and cc == P('#2EA8FF') else None)
+    (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
+    top = round(z0 + 0.75 * k)
+    n = round(2.4 * k)
+    xi = round(0.35 * k)
+    for cells in ((xi, xi + 1), (-xi - 2, -xi - 1)):
+        inner = cells[0] if cells[0] >= 0 else cells[1]
+        f = head.front(inner, top)
+        if not f:
+            continue
+        for j in range(n):
+            s2 = j / max(1, n - 1)
+            col = P('#2EA8FF') if s2 > 0.7 else P('#86D2FA')
+            y = f[1] - 1 - (1 if s2 > 0.6 else 0)
+            for xx in (cells if s2 < 0.7 else (inner,)):
+                fangs.put((xx, y, top - j), col, s2 > 0.7)
     # frost spikes along the spine
     body = c.part('body')
     sp = c.part('frost', 'glow')
@@ -696,18 +815,21 @@ def frost_wyvern(c, H):
     plan('drake', c, H, {'col': '#4A8FE0', 'belly': '#DFF4FF', 'accent': '#2A5FB0', 'glow': '#4FD0FF', 'horn': '#E6FBFF',
                          'wing': '#2A5FB0'}, kind='wyvern', wings='bat', horns='swept')
     k = H / 10.0
-    # icicles hanging from the wings' lower edge
-    for name in ('wingL', 'wingR'):
-        w = c.part(name)
-        lows = {}
-        for (x, y, z) in w.v:
-            if (x, y) not in lows or z < lows[(x, y)]:
-                lows[(x, y)] = z
-        for (x, y), z in lows.items():
-            if x % 2 == 0 and y == min(yy for (xx, yy) in lows if xx == x):
-                n = round(0.5 * k) + (abs(x) * 7) % max(2, round(0.9 * k))
-                for i in range(n):
-                    w.put((x, y, z - 1 - i), ICE_L if i >= n - 2 else P('#4FC8FF'), True)
+    # icicles hanging from the right wing's lower edge, then the left wing
+    # rebuilt as its exact mirror (the rig check wants matching wings)
+    w = c.part('wingR')
+    lows = {}
+    for (x, y, z) in w.v:
+        if (x, y) not in lows or z < lows[(x, y)]:
+            lows[(x, y)] = z
+    for (x, y), z in lows.items():
+        if x % 2 == 0 and y == min(yy for (xx, yy) in lows if xx == x):
+            n = round(0.5 * k) + (abs(x) * 7) % max(2, round(0.9 * k))
+            for i in range(n):
+                w.put((x, y, z - 1 - i), ICE_L if i >= n - 2 else P('#4FC8FF'), True)
+    wl = c.part('wingL')
+    wl.v = {(-1 - x, y, z): v for (x, y, z), v in w.v.items()}
+    wl.pivot = (-w.pivot[0], w.pivot[1], w.pivot[2])
     # ice shards along the spine
     body = c.part('body')
     (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
@@ -717,15 +839,6 @@ def frost_wyvern(c, H):
         t = top_of(body, 0, round(y))
         if t is not None:
             crystal(sh, 0, round(y), t, (1.4 - 0.15 * i) * k, 0.4 * k, P('#4FC8FF'), ICE_L, lean=(0, 0.15))
-    # frost breath: a glowing mouth and a puff of crystals before it
-    head = c.part('head')
-    (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
-    br = c.part('breath', 'glow', (0, y0, z0))
-    mz = z0 + round(0.6 * k)
-    f = head.front(0, mz) or (0, y0, mz)
-    for i in range(round(1.4 * k)):
-        r = 0.3 * k + i * 0.25
-        br.ell((0, f[1] - i, mz + 0.5), (r, 0.8, r), ICE_L if i % 2 else ICE, True)
     return c
 
 
@@ -818,12 +931,119 @@ def blossom_qilin(c, H):
 
 
 def elder_treant(c, H):
-    bark, barkD = P('#7A5232'), P('#5A3A22')
-    plan('upright', c, H, {'col': '#7A5232', 'belly': '#9A6E46', 'glow': '#B8FF6A', 'eye': '#2A1A10'}, kind='treant')
-    k = H / 10.0
-    for p in c.parts:
-        if p.name != 'eyes':
-            p.paint(lambda q, cc, g: (barkD, False) if cc in (bark,) and (q[0] * 3 + q[2]) % 5 == 0 else None)
+    """A walking tree: a bark trunk for a body with grooves running up it,
+    a face carved into the upper trunk (deep-set glowing eyes under a heavy
+    brow, a knot for a mouth), branch arms ending in twigs and leaves, and
+    root feet; the canopy and its nest on top."""
+    import rig
+    from voxkit import Part
+    bark, barkD, barkL, groove = P('#7A5232'), P('#5A3A22'), P('#9A6E46'), P('#3E2614')
+    MOSS = P('#5CC83A')
+    k = H / 10.0 * 0.87  # the canopy adds height: keep it level with the other tall Legendaries
+    top = 1.8 * k  # hip height
+    # root feet: a stump each, with three roots spreading over the ground
+    for side in ('R', 'L'):
+        sx = 1 if side == 'R' else -1
+        hipx = 1.05 * k
+        tmp = Part('tmp')
+        for z in range(0, round(top) + 1):
+            r = 0.8 * k + max(0.0, 0.35 * k * (1 - z / (0.5 * top)))
+            tmp.ell((hipx, 0.2 * k, z + .5), (r, r * 0.9, 0.5), barkD if z < 0.25 * k else bark)
+        for (dx, dy) in ((0.15, -1.0), (0.8, -0.55), (0.8, 0.6)):
+            rod(tmp, (hipx + dx * 0.5 * k, 0.2 * k + dy * 0.5 * k, 0.7 * k), (hipx + dx * 1.35 * k, 0.2 * k + dy * 1.35 * k, 0.5),
+                0.38 * k, barkD)
+        leg = rig.leg_part(c, side, 0, 1, (sx * hipx, 0.2 * k, top + 1))
+        for (x, y, z), v in tmp.v.items():
+            leg.v[(x if sx > 0 else -1 - x, y, z)] = v
+    # the trunk
+    body = c.part('body')
+    neck = 5.7 * k
+    for z in range(round(top - 0.4 * k), round(neck) + 1):
+        t = (z - top) / (neck - top)
+        r = 1.75 * k - 0.25 * k * t + max(0.0, 0.3 * k * (1 - t * 4))
+        body.ell((0, 0, z + .5), (r, r * 0.86, 0.5), bark)
+    # branch arms from the shoulders, forking into twigs with leaf tufts
+    arm = Part('arm')
+    sh = (1.4 * k, 0.0, neck - 0.6 * k)
+    elbow = (2.55 * k, -0.35 * k, neck - 1.9 * k)
+    rod(arm, sh, elbow, 0.55 * k, bark)
+    for (end, r) in (((3.25 * k, -0.6 * k, neck - 0.7 * k), 0.38 * k), ((3.05 * k, -0.7 * k, neck - 3.2 * k), 0.36 * k),
+                     ((2.3 * k, -1.2 * k, neck - 3.0 * k), 0.3 * k)):
+        rod(arm, elbow, end, r, barkD)
+        arm.ell((end[0], end[1], end[2] + 0.25 * k), (0.55 * k, 0.55 * k, 0.45 * k), LEAF)
+        arm.put((math.floor(end[0]), math.floor(end[1]) - 1, math.floor(end[2] + 0.25 * k)), BLOSSOM)
+    for (x, y, z), v in arm.v.items():
+        body.v[(x, y, z)] = v
+        body.v[(-1 - x, y, z)] = v
+    # the head: the upper trunk, a little broader, with the face carved in
+    head = c.part('head', 'head', (0, 0, neck))
+    htop = neck + 2.6 * k
+    for z in range(round(neck) - 1, round(htop) + 1):
+        t = (z - neck) / (htop - neck)
+        r = 1.6 * k - 0.15 * k * t
+        if t > 0.85:
+            r -= (t - 0.85) * 2.5 * k
+        head.ell((0, 0, z + .5), (r, r * 0.86, 0.5), bark)
+    # bark grooves: wavy vertical seams round trunk and head, and a few knots
+    def grooves(p, cc, g):
+        if cc != bark:
+            return None
+        ang = math.atan2(p[1] + .5, p[0] + .5)
+        u = ang / (2 * math.pi) * 14 + math.sin(p[2] / (0.9 * k)) * 0.35
+        f = u - math.floor(u)
+        if f < 0.13:
+            return (groove, False)
+        if f < 0.24:
+            return (barkD, False)
+        return None
+    body.paint(grooves)
+    head.paint(grooves)
+    ez = round(neck + 1.35 * k)
+    es = max(2, round(0.45 * k))
+    ex = max(2, round(0.42 * k))
+    eyes = c.part('eyes', 'blink', head.pivot)
+    for sx in (1, -1):
+        for dx in range(es):
+            x = ex + dx if sx > 0 else -(ex + dx) - 1
+            for dz in range(es):
+                f = head.front(x, ez + dz)
+                if not f:
+                    continue
+                # carve two voxels deep: the eye sits at the back of the socket
+                del head.v[f]
+                back = (f[0], f[1] + 1, f[2])
+                head.v.pop(back, None)
+                glint = dz == es - 1 and dx == (0 if sx > 0 else es - 1)
+                eyes.put((f[0], f[1] + 2, f[2]), P('#B8FF6A') if glint else P('#4FD02A'), True)
+                head.put((f[0], f[1] + 3, f[2]), groove)
+        # the heavy brow: a ledge of dark bark over the socket, higher outside
+        for dx in range(-1, es + 1):
+            x = ex + dx if sx > 0 else -(ex + dx) - 1
+            zz = ez + es + (1 if dx >= es - 1 else 0)
+            f = head.front(x, zz)
+            if f:
+                head.put((f[0], f[1] - 1, f[2]), barkD)
+                head.put(f, barkD)
+    # the mouth: a dark knot hole ringed by a raised lip of pale bark
+    mz = round(neck + 0.45 * k)
+    mw = max(2, round(0.45 * k))
+    for x in range(-mw - 1, mw + 1):
+        for dz in (-1, 0, 1, 2):
+            f = head.front(x, mz + dz)
+            if not f:
+                continue
+            inner = -mw <= x < mw and dz in (0, 1)
+            if inner:
+                del head.v[f]
+                head.put((f[0], f[1] + 1, f[2]), groove)
+            elif not ((x in (-mw - 1, mw)) and dz in (-1, 2)):
+                head.put((f[0], f[1] - 1, f[2]), barkL)
+    # moss on the root tips, glowing
+    for name in ('legL', 'legR'):
+        lp = part_or_none(c, name)
+        if lp:
+            lp.paint(lambda q, cc, g: (MOSS, True) if q[2] <= 1 and cc == barkD and (q[0] * 3 + q[1]) % 5 == 0 else None)
+    c.gait_hint = 'waddle'
     # a leafy crown with branches, and a bird's nest with a little bird
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
@@ -845,11 +1065,6 @@ def elder_treant(c, H):
     if bf:
         bird.put((bf[0], bf[1] - 1, bf[2]), P('#FFB627'))
         bird.put((bf[0], bf[1], bf[2] + 1), INK) if (bf[0], bf[1], bf[2] + 1) in bird.v else None
-    # glowing moss and mushrooms at its feet
-    for name in ('legL', 'legR'):
-        lp = part_or_none(c, name)
-        if lp:
-            lp.paint(lambda q, cc, g: (P('#B8FF6A'), True) if q[2] < 0.6 * k and (q[0] + q[1]) % 3 == 0 else None)
     return c
 
 
@@ -858,6 +1073,15 @@ def mushroom_king(c, H):
          hat='crown')
     k = H / 10.0
     cap = c.part('cap')
+    # lift the rim two voxels outside the face, so the face shows from the
+    # hero angle
+    head = c.part('head')
+    foot = {(x, y) for (x, y, z) in head.v}
+    zmin = min(q[2] for q in cap.v)
+    for q in [q for q in cap.v if q[2] <= zmin + 1 and (q[0], q[1]) not in foot]:
+        del cap.v[q]
+    zmin = min(q[2] for q in cap.v if (q[0], q[1]) not in foot)
+    cap.paint(lambda p, cc, g: (dark(P('#E84855'), 0.25), False) if p[2] == zmin and not g else None)
     cap.paint(lambda p, cc, g: (P('#FFF6B0'), True) if cc == WHITE and (p[0] + p[1]) % 5 == 0 else None)
     # the royal cape: purple velvet with an ermine trim, hanging behind
     body = c.part('body')
@@ -1964,12 +2188,19 @@ def meteor_beetle(c, H):
                         del head.v[f]
                         glint = z == zc + 1 and dx == 2
                         eyes.v[f] = (FIRE[3] if glint else FIRE[1], True)
-    # a smoking trail of embers off the back
+    # smoke curling up from the hot shell itself: two soft grey wisps that
+    # sit on the cracks, each two puffs, no stalk
     sm = c.part('smoke', 'glow')
-    (x0, y0, z0), (x1, y1, z1) = bounds_of(shell or c.part('body'))
-    for i in range(4):
-        r = (0.5 + 0.18 * i) * k
-        sm.ell((0, y1 + 0.2 * k + i * 0.9 * k, z1 - 0.6 * k + i * 0.7 * k), (r, r, r), (FIRE[1], FIRE[2], P('#8A8A9A'), P('#B8B8C8'))[i], i < 2)
+    sh = shell or c.part('body')
+    for (fx, fy) in ((-1.0, 1.0), (0.9, 2.0)):
+        x, y = round(fx * k), round(fy * k)
+        t = top_of(sh, x, y)
+        if t is None:
+            continue
+        # each wisp drifts back as it rises, swelling then thinning
+        sm.ell((x + 0.5, y + 0.5, t + 0.2 * k), (0.55 * k, 0.55 * k, 0.4 * k), P('#A29EAA'))
+        sm.ell((x + 0.5, y + 0.5 + 0.55 * k, t + 0.8 * k), (0.72 * k, 0.72 * k, 0.5 * k), P('#C0BCC8'))
+        sm.ell((x + 0.5, y + 0.5 + 1.15 * k, t + 1.3 * k), (0.5 * k, 0.55 * k, 0.4 * k), P('#DCD8E2'))
     return c
 
 
