@@ -1189,26 +1189,28 @@ def sentinel(c, H, cols, opts):
     xs = [p[0] for p in head.v if p[2] == ez and p[0] >= 0]
     ex = max(0, min(2, max(xs) - es + 1))
     if _fine(c):
-        # each eye two voxels tall with a white shine on top (#96), one
-        # column in from the side, and a small dark teardrop patch running
-        # down and out from it; light fur stays between the patches and
-        # between each patch and the muzzle
+        # each eye a dark 2x2 block with one white shine in its top outer
+        # corner (#96), and a mid-brown tear streak 1 wide and 2 long running
+        # down from its lower outer corner; light fur stays between the
+        # streaks and the nose, and the dark eye is the strongest thing
         ex = max(0, min(1, max(xs) - 1))
         e = c.part('eyes', 'blink', head.pivot)
         for side in (1, -1):
-            xx = ex if side > 0 else _mx(ex)
-            for z, cc in ((ez, WHITE), (ez - 1, INK)):
+            for dx, z in ((0, ez), (1, ez), (0, ez - 1), (1, ez - 1)):
+                xx = ex + dx if side > 0 else _mx(ex + dx)
                 f = head.front(xx, z)
                 if f:
                     del head.v[f]
-                    e.put(f, cc)
-                    if z == ez and (xx, f[1], z + 1) not in head.v:
-                        head.put((xx, f[1], z + 1), col)  # a brow over the eye
+                    e.put(f, WHITE if (dx, z) == (1, ez) else INK)
             px = ex + 1 if side > 0 else _mx(ex + 1)
-            for z in (ez - 1, ez - 2):
+            last = head.front(px, ez - 1) or e.front(px, ez - 1)
+            for z in (ez - 2, ez - 3):
                 f = head.front(px, z)
-                if f and head.v[f][0] != INK:
-                    head.v[f] = (patch, False)
+                if f is None and last is not None:
+                    f = (px, last[1], z)  # the streak runs on down past the jaw
+                if f is not None and (f not in head.v or head.v[f][0] != INK):
+                    head.put(f, patch)
+                    last = f
     else:
         eyes(c, head, ex, ez, es)
         e = _find(c, 'eyes')
