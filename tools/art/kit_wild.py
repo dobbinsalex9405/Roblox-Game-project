@@ -258,7 +258,7 @@ def ruff(c, H, col, col2=None):
     for a in range(32):
         ang = a / 32 * 2 * math.pi
         px, pz = cx + math.cos(ang) * rx * 1.05, cz + math.sin(ang) * rz * 1.0
-        mane.ell((px, cy + 0.5 * k, pz), (0.6 * k, 0.7 * k, 0.6 * k), col,
+        mane.ell((px, cy + 0.5 * k, pz), (0.55 * k, 0.6 * k, 0.55 * k), col,
                  cond=lambda x, y, z: (x, y, z) not in hv and z >= 1)
     # the outer tufts a lighter shade
     far = {}
@@ -767,44 +767,62 @@ def donut(c, H, col, col2=None):
     """A sprinkle donut ring round the middle (a float), sprinkles in col2."""
     k = H / 10.0
     body = kit._find(c, 'body')
+    # (the shore seal's flippers round unevenly at some heights: keep the
+    # body mirror-exact so its legs pair up)
+    for p in [p for p in body.v if p[0] < 0]:
+        del body.v[p]
+    _mirror(body)
+    # its belly rests on the float, just off the ground, so only the
+    # flippers touch down (and step)
+    z0 = min(p[2] for p in body.v)
+    for piece in rig._plan_pieces({(x, y) for (x, y, z) in body.v if z == z0}):
+        if min(x for x, _ in piece) < 0 <= max(x for x, _ in piece):
+            for (x, y) in piece:
+                body.v.pop((x, y, z0), None)
     (lo, hi) = _bounds(body)
     ring = c.part('donut', 'static')
     yc = (lo[1] + hi[1]) / 2 - 0.4 * k
-    zc = lo[2] + (hi[2] - lo[2]) * 0.38
-    R = (hi[0] - lo[0] + 1) / 2 + 0.3 * k
-    r = 0.85 * k
+    zc = max(lo[2] + (hi[2] - lo[2]) * 0.5, 1.6 * k)
+    R = (hi[0] - lo[0] + 1) / 2 + 0.2 * k
+    r = 0.75 * k
     dough = hexc('#E8B06A')
     for a in range(48):
         ang = a / 48 * 2 * math.pi
         ring.ell((math.cos(ang) * R, yc + math.sin(ang) * R * 0.95, zc), (r, r, r * 0.9), dough)
     # pink icing over the top half, glowing rainbow sprinkles
     ring.paint(lambda p, cc, g: (col, False) if p[2] + .5 >= zc - 0.1 * k else None)
+    _mirror(ring)
+    for p in [p for p in ring.v if p in body.v]:
+        del ring.v[p]  # the ring sits round the body, never cuts into it
     sprinkles = [hexc('#FF4D5E'), hexc('#FFD43B'), hexc('#5CF2FF'), hexc('#7BE36A'), WHITE]
     ring.paint(lambda p, cc, g: (sprinkles[kit._hash(*p, 9) % 5], True) if cc == col and kit._hash(*p, 21) % 13 == 0 else None)
     del col2
 
 
 def wrapper(c, H, col, col2=None):
-    """A cupcake's pleated paper wrapper round the lower body, ribs in col2."""
+    """A cupcake's pleated paper wrapper: the lower body painted in ribs (col2
+    every other pleat) and a rolled rim standing out round the top edge."""
     body = kit._find(c, 'body')
     (lo, hi) = _bounds(body)
     rib = col2 or _dark(col, 0.2)
-    cup = c.part('wrapper', 'static')
     zt = lo[2] + (hi[2] - lo[2]) * 0.42
     yc = (lo[1] + hi[1]) / 2
-    for z in range(lo[2], math.floor(zt) + 1):
-        t = (z - lo[2]) / max(1, zt - lo[2])
-        R = (hi[0] - lo[0] + 1) / 2 * (0.75 + 0.3 * t) + 0.4
-        for a in range(64):
-            ang = a / 64 * 2 * math.pi
-            x, y = math.cos(ang) * R, yc + math.sin(ang) * R
-            ribbed = (a // 2) % 2 == 0
-            cup.put((math.floor(x), math.floor(y), z), rib if ribbed else col)
-    # the wrapper's rolled top edge
+
+    def pleat(p, cc, g):
+        if p[2] > zt:
+            return None
+        a = math.atan2(p[1] + .5 - yc, p[0] + .5) / (2 * math.pi) * 32
+        return (rib if int(math.floor(a)) % 2 == 0 else col, False)
+
+    body.paint(pleat)
+    cup = c.part('wrapper', 'static')
     for a in range(64):
         ang = a / 64 * 2 * math.pi
-        R = (hi[0] - lo[0] + 1) / 2 * 1.05 + 0.4
+        R = (hi[0] - lo[0] + 1) / 2 * 1.0 + 0.6
         cup.put((math.floor(math.cos(ang) * R), math.floor(yc + math.sin(ang) * R), math.floor(zt) + 1), col)
+    for p in list(cup.v):
+        if p in body.v:
+            del cup.v[p]
     _mirror(cup)
 
 
@@ -825,7 +843,7 @@ def frosting(c, H, col, col2=None):
     y, zt = kit.crown(c)
     part = c.part('frosting', 'static')
     for i in range(3):
-        r = (1.2 - 0.35 * i) * k
+        r = (1.05 - 0.3 * i) * k
         part.ell((0, y, zt + 0.2 * k + i * 0.55 * k), (r, r, 0.4 * k + .2), col)
     part.put((0, round(y), round(zt + 1.8 * k)), col)
     if col2:
@@ -1322,10 +1340,15 @@ def clearwings(c, H, col, col2=None):
         w = kit._find(c, name)
         if not w or not w.v:
             continue
-        vs = set((p[0], p[2]) for p in w.v)
-        edge = {(x, z) for (x, z) in vs if any((x + a, z + b) not in vs for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
-        w.paint(lambda p, cc, g: ((col2 or hexc('#FF9418')), True) if (p[0], p[2]) in edge else (
-            (INK, False) if (p[0] + p[2]) % max(3, round(1.4 * k)) == 0 else (col, False)))
+        # the wing is a thin sheet: find its two long axes
+        span = [max(p[i] for p in w.v) - min(p[i] for p in w.v) for i in range(3)]
+        thin = span.index(min(span))
+        a, b = [i for i in range(3) if i != thin]
+        flat = {(p[a], p[b]) for p in w.v}
+        edge = {q for q in flat if any((q[0] + d0, q[1] + d1) not in flat for d0, d1 in ((1, 0), (-1, 0), (0, 1), (0, -1)))}
+        vein = max(4, round(2.2 * k))
+        w.paint(lambda p, cc, g: ((col2 or hexc('#FF9418')), True) if (p[a], p[b]) in edge else (
+            (_dark(col, 0.45), False) if (p[a] + p[b]) % vein == 0 else (col, False)))
 
 
 def honeybelly(c, H, col, col2=None):
@@ -1350,7 +1373,7 @@ def bighorn(c, H, col, col2=None):
     base = (0, lo[1] + 0.6 * k, (lo[2] + hi[2]) / 2)
     pts = [(0, base[1] - t * 2.4 * k, base[2] + math.sin(t * 1.7) * 2.0 * k) for t in (i / 10 for i in range(11))]
     for i, (x, y, z) in enumerate(pts):
-        part.ell((x, y, z), (0.45 * k * (1 - i / 14) + .4,) * 3, col)
+        part.ell((x, y, z), (0.6 * k * (1 - i / 14) + .5,) * 3, col)
     shell = kit._find(c, 'shell') or kit._find(c, 'body')
     (slo, shi) = _bounds(shell)
     top = (0, slo[1] + 0.8 * k, shi[2])
@@ -1515,7 +1538,7 @@ def fanears(c, H, col, col2=None):
     zc = (lo[2] + hi[2]) / 2 + 0.3 * k
     for sx in (1,):
         xc = hi[0] + 0.6 * k
-        ears.ell((xc, yc, zc), (0.45 * k + .3, 1.5 * k, 1.8 * k), col)
+        ears.ell((xc, yc, zc), (0.4 * k + .3, 1.3 * k, 1.6 * k), col)
         ears.paint(lambda p, cc, g: (inner, False) if p[1] <= yc - 0.2 * k and abs(p[2] + .5 - zc) < 1.2 * k and abs(p[1] + .5 - yc) < 1.0 * k and p[0] >= xc - 0.4 * k else None)
     _mirror(ears)
 
@@ -1528,13 +1551,13 @@ def curlhorns(c, H, col, col2=None):
     head = _head(c)
     (lo, hi) = _bounds(head)
     part = c.part('horns', 'static')
-    part.ell((0, y, zt - 0.1 * k), ((hi[0] - lo[0] + 1) / 2 * 0.8, 0.8 * k, 0.45 * k + .2), col)
+    part.ell((0, y, zt - 0.1 * k), ((hi[0] - lo[0] + 1) / 2 * 0.75, 0.7 * k, 0.4 * k + .2), col)
     for i in range(14):
         t = i / 13
         ang = t * math.pi * 1.1
         x = (hi[0] - lo[0] + 1) / 2 * 0.75 + math.sin(ang) * 1.0 * k
         z = zt - 0.4 * k - (1 - math.cos(ang)) * 1.4 * k + max(0, t - 0.7) * 2.5 * k
-        r = (0.5 - 0.25 * t) * k + .3
+        r = (0.42 - 0.2 * t) * k + .3
         part.ell((x, y - 0.3 * k - t * 0.6 * k, z), (r, r, r), col2 if (col2 and t > 0.8) else col)
     _mirror(part)
 
