@@ -85,8 +85,8 @@
    "accessories": [
     {
      "kind": "wildbubble",
-     "color": "#9FF0FF",
-     "color2": "#FFB3F0"
+     "color": "#4AD8FF",
+     "color2": "#FF6AD5"
     }
    ]
   },
@@ -118,7 +118,7 @@
    "colors": {
     "col": "#FFD43B",
     "accent": "#7FDBFF",
-    "tuft": "#FFF6A0",
+    "tuft": "#FFE01A",
     "feet": "#C89A1A"
    }
   },
@@ -610,27 +610,16 @@
   {
    "id": "SparkFerret",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "element": "Storm",
+   "options": {
+    "kind": "ferret"
+   },
    "colors": {
     "col": "#F4F4FA",
-    "belly": "#FFFFFF",
     "snout": "#FFFFFF",
-    "ear_col": "#F4F4FA",
-    "tail_col": "#F4F4FA"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "long"
-   },
-   "shape": {
-    "body": [
-     0.85,
-     1.35,
-     0.85
-    ],
-    "head": 0.9
+    "accent": "#A8C8E8"
    },
    "accessories": [
     {
@@ -777,18 +766,15 @@
   {
    "id": "SnowLamb",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "element": "Glacial",
+   "options": {
+    "kind": "lamb"
+   },
    "colors": {
     "col": "#FFFFFF",
-    "snout": "#BFD8F2",
-    "ear_col": "#BFD8F2"
-   },
-   "options": {
-    "ears": "floppy",
-    "tail": "short",
-    "fluffy": true
+    "snout": "#8FA8C8"
    },
    "accessories": [
     {
@@ -826,56 +812,46 @@
   {
    "id": "ZapMouse",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "element": "Storm",
-   "colors": {
-    "col": "#FFD43B",
-    "belly": "#FFF4C0",
-    "snout": "#FFF4C0",
-    "ear_col": "#FFB3C7"
-   },
    "options": {
-    "ears": "round",
-    "tail": "long"
+    "kind": "mouse"
+   },
+   "colors": {
+    "col": "#7F95B8",
+    "belly": "#D8E2F0",
+    "accent": "#FFB3C7",
+    "tail_col": "#E8B8C8"
    },
    "accessories": [
     {
-     "kind": "bolttail",
-     "color": "#FFF27A"
+     "kind": "sparks",
+     "color": "#5CE8FF"
     },
     {
-     "kind": "cheekglow",
-     "color": "#FF5E5E"
+     "kind": "tailglow",
+     "color": "#5CE8FF"
     }
    ]
   },
   {
    "id": "AshBadger",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "element": "Ember",
+   "options": {
+    "kind": "badger"
+   },
    "colors": {
     "col": "#3A3438",
-    "belly": "#2A2428",
-    "snout": "#5A5054",
-    "ear_col": "#2A2428"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "short"
-   },
-   "shape": {
-    "body": [
-     1.15,
-     1.05,
-     0.9
-    ]
+    "snout": "#E8E2DA",
+    "belly": "#2A2428"
    },
    "accessories": [
     {
-     "kind": "glowstripe",
+     "kind": "lavacracks",
      "color": "#FF8A2A"
     }
    ]
@@ -883,18 +859,15 @@
   {
    "id": "FrostHamster",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "element": "Glacial",
+   "options": {
+    "kind": "hamster"
+   },
    "colors": {
     "col": "#CFE8FF",
-    "belly": "#F4FAFF",
-    "snout": "#F4FAFF"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "short",
-    "fluffy": true
+    "belly": "#F4FAFF"
    },
    "accessories": [
     {
@@ -972,16 +945,14 @@
   {
    "id": "MummyHamster",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "hamster"
+   },
    "colors": {
     "col": "#F2B05E",
-    "snout": "#FFF1DC"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "short",
-    "fluffy": true
+    "belly": "#FFF1DC"
    },
    "accessories": [
     {
@@ -998,18 +969,16 @@
   {
    "id": "WindupMouse",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "mouse"
+   },
    "colors": {
     "col": "#B8C0CC",
     "belly": "#D8DEE8",
-    "snout": "#D8DEE8",
-    "ear_col": "#E8A0B0",
+    "accent": "#E8A0B0",
     "tail_col": "#8A929E"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "long"
    },
    "accessories": [
     {
