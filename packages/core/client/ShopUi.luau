@@ -147,12 +147,12 @@ function ShopUi.start(hooks: Hooks)
 			return
 		end
 		if tabBar == nil then
-			local bar = UiKit.row(window, 34)
+			local bar = UiKit.row(window, UiKit.TOUCH_ROW)
 			bar.Name = "Tabs"
 			bar.Position = UDim2.fromOffset(10, 48)
-			bar.Size = UDim2.new(1, -20, 0, 34)
-			body.Position = UDim2.fromOffset(10, 90)
-			body.Size = UDim2.new(1, -20, 1, -100)
+			bar.Size = UDim2.new(1, -20, 0, UiKit.TOUCH_ROW)
+			body.Position = UDim2.fromOffset(10, 98)
+			body.Size = UDim2.new(1, -20, 1, -108)
 			tabBar = bar
 		end
 		local bar = tabBar :: Frame
@@ -163,8 +163,13 @@ function ShopUi.start(hooks: Hooks)
 		end
 		table.insert(names, ROBUX_TAB)
 		for index, name in names do
-			local tabButton =
-				UiKit.button(bar, name, 110, 32, if name == selected then UiKit.ACCENT else UiKit.MUTED)
+			local tabButton = UiKit.button(
+				bar,
+				name,
+				110,
+				UiKit.TOUCH,
+				if name == selected then UiKit.ACCENT else UiKit.MUTED
+			)
 			tabButton.Name = `Tab{name}`
 			tabButton.LayoutOrder = index
 			tabButton.Activated:Connect(function()
@@ -221,10 +226,10 @@ function ShopUi.start(hooks: Hooks)
 				end
 			end
 
-			local buttons = UiKit.row(card, 34)
+			local buttons = UiKit.row(card, UiKit.TOUCH_ROW)
 			local oddsTable = entry.oddsTable
 			if oddsTable and not entry.blocked then
-				local oddsButton = UiKit.button(buttons, "Show odds", 110, 32, UiKit.MUTED)
+				local oddsButton = UiKit.button(buttons, "Show odds", 110, UiKit.TOUCH, UiKit.MUTED)
 				oddsButton.Activated:Connect(function()
 					hooks.requestOdds(oddsTable)
 				end)
@@ -236,7 +241,7 @@ function ShopUi.start(hooks: Hooks)
 				buttons,
 				if entry.owned then "Owned" elseif fresh then "Buy" else "See odds first",
 				130,
-				32,
+				UiKit.TOUCH,
 				if canBuy then UiKit.ACCENT else UiKit.MUTED
 			)
 			buy.AutoButtonColor = canBuy

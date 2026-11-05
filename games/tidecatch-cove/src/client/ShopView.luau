@@ -33,8 +33,8 @@ function ShopView.start(ctx: Context.Context)
 	local title = Ui.label(panel, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Text = "Bait & Tackle"
-	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 34), Ui.WARN)
-	close.Position = UDim2.new(1, -46, 0, 4)
+	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 40), Ui.WARN)
+	close.Position = UDim2.new(1, -46, 0, 2)
 	close.Activated:Connect(function()
 		panel.Visible = false
 	end)
