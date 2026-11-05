@@ -5,6 +5,9 @@
 - Creatures walk on real legs: every leg is its own part that swings from
   the hip, and each creature has a gait (trot, waddle, hop, scuttle,
   slither or hover).
+- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
+  crayfish and lobsters now walk on all their legs, and dragonflies,
+  fireflies and the Phoenix hover.
 - The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
   sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
   (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,

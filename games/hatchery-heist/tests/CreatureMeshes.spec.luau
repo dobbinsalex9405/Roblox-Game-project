@@ -154,6 +154,29 @@ describe("Creature meshes", function()
 		end
 	end)
 
+	it("stand on legs in left and right pairs (a crab walks on both sides)", function()
+		for id, m in CreatureMeshes do
+			local left, right = 0, 0
+			for _, part in m.parts do
+				if string.match(part.name, "^leg") then
+					if string.sub(part.name, -1) == "L" then
+						left += 1
+					else
+						right += 1
+					end
+				end
+			end
+			expect(left == right and "paired" or `{id}: {left} left legs, {right} right`).toBe("paired")
+		end
+		local crabLegs = 0
+		for _, part in CreatureMeshes.Crab.parts do
+			if string.match(part.name, "^leg") then
+				crabLegs += 1
+			end
+		end
+		expect(crabLegs >= 6 and "walks" or `Crab: {crabLegs} legs`).toBe("walks")
+	end)
+
 	it("stay within the triangle budgets", function()
 		for id, m in CreatureMeshes do
 			local budget = BUDGET[table.find(RARITIES, m.rarity) or 1]

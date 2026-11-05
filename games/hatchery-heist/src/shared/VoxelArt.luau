@@ -3306,7 +3306,52 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					anim = "static",
 					pivot = { 0, 0, 0 },
 					boxes = {
-						-3, 0, -1, 1, 2, 1, 1, -1, 0, -1, 2, 1, 3, 1, 2, 0, -1, 1, 2, 1, 1, -3, 0, 1, 1, 2, 2, 1, 2, 0, 1, 1, 2, 2, 1,
+						-3, 1, -1, 1, 1, 1, 1, 2, 1, -1, 1, 1, 1, 1, -3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -2.5, 1, 2 },
+					boxes = {
+						-3, 0, 1, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 2.5, 1, 2 },
+					boxes = {
+						2, 0, 1, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { 0, 1, 0.5 },
+					boxes = {
+						-1, 0, -1, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 2.5, 1, -0.5 },
+					boxes = {
+						2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -2.5, 1, -0.5 },
+					boxes = {
+						-3, 0, -1, 1, 1, 1, 1,
 					},
 				},
 				{

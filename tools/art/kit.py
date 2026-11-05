@@ -156,7 +156,8 @@ def crab(c, H, col, accent):
         body.ell((cx + sx * 0.3 * k, -2.6 * k, 3.6 * k), (0.4 * k + .3, 0.5 * k, 0.7 * k), col)
         for ly in (-0.2 * k, 1.0 * k, 2.0 * k):
             xx = round(sx * 3.0 * k) - (1 if sx < 0 else 0)
-            body.box((xx, round(ly), 0), (xx + (sx if k > 1 else 0), round(ly), round(1.2 * k)), col)
+            x2 = xx + (sx if k > 1 else 0)  # a leg two voxels wide, on either side
+            body.box((min(xx, x2), round(ly), 0), (max(xx, x2), round(ly), round(1.2 * k)), col)
     blush(head, round(1.4 * k), round(2.0 * k))
     return c
 
