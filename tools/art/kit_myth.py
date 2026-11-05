@@ -1208,6 +1208,8 @@ def upright(c, H, cols, opts):
         return _seahorse(c, k, col, belly, accent, glow, iris)
     if kind == 'mushroom':
         return _mushroom(c, k, col, belly, accent, glow, iris, opts)
+    if kind == 'golem':
+        return _golem(c, k, col, belly, accent, glow, iris)
     big = kind in ('golem', 'giant', 'treant', 'gorilla')
     small = kind in ('sprite', 'gnome', 'imp')
     top = (2.2 if big else 1.6 if small else 1.9) * k
@@ -1237,9 +1239,22 @@ def upright(c, H, cols, opts):
         head.box((round(-hr[0] * k), round(-hr[1] * k), round(hz - hr[2] * k)), (round(hr[0] * k) - 1, round(hr[1] * k), round(hz + hr[2] * k)), col)
     else:
         head.ell((0, -0.3 * k, hz), (hr[0] * k, hr[1] * k, hr[2] * k), col)
+    ez = hz - 0.1 * k
+    esize = max(2, round(0.4 * k))
     if kind in ('gorilla', 'cub'):
-        head.ell((0, -1.4 * k, hz - 0.4 * k), (1.0 * k, 0.6 * k, 0.8 * k), cols.get('snout', light(col, 0.4)))
-    eye_pair(c, head, max(1, round(0.5 * k)), round(hz - 0.1 * k), max(2, round(0.4 * k)), iris=iris,
+        snout = cols.get('snout', light(col, 0.4))
+        if kind == 'gorilla':
+            # a pale face mask so the dark eyes read, a heavy brow ridge
+            # just above them and the muzzle below
+            ez = hz - 0.25 * k
+            head.ell((0, -1.3 * k, hz - 0.2 * k), (1.35 * k, 0.45 * k, 0.95 * k), snout)
+            head.ell((0, -1.4 * k, round(ez) + esize + 1.5), (1.05 * k, 0.45 * k, 0.75), dark(col, 0.2))
+            head.ell((0, -1.4 * k, hz - 0.95 * k), (0.95 * k, 0.55 * k, 0.45 * k), snout)
+        else:
+            ez = hz + 0.1 * k
+            # a muzzle low on the face, below the eyes (not over them)
+            head.ell((0, -1.35 * k, hz - 0.75 * k), (0.95 * k, 0.55 * k, 0.5 * k), snout)
+    eye_pair(c, head, max(1, round(0.5 * k)), round(ez), esize, iris=iris,
              glow=kind in ('golem',) and glow is not None)
     if kind in ('cub', 'gnome', 'sprite', 'gorilla'):
         cheeks(head, round(1.1 * k), round(hz - 0.6 * k))
@@ -1266,6 +1281,48 @@ def upright(c, H, cols, opts):
     if opts.get('wings', 'sprite' == kind and 'fairy' or 'none') == 'fairy':
         wing_butterfly(c, k * 0.9, (0.8 * k, 1.2 * k, round(bz + 0.6 * k)), 1.0, cols.get('wing', light(accent, 0.4)), light(accent, 0.7), glow=glow)
     c.gait_hint = KIND_GAIT.get(kind, 'waddle')
+    return c
+
+
+def _golem(c, k, col, belly, accent, glow, iris):
+    """A hulking block golem: shoulders far wider than the head, thick
+    blocky arms hanging to big fists, short heavy legs and a small head sunk
+    between the shoulders. c.joints lists the shoulder, elbow and knee
+    points (for lava, moss or crystals at the joints)."""
+    u = k * 1.4
+    body = c.part('body')
+    top = round(1.25 * u)
+    dk = dark(col, 0.12)
+    for side in ('L', 'R'):
+        leg(c, side, 0, 1, 0.85 * u, 0.2 * u, top, 0.7 * u, dk, foot=dark(col, 0.3), foot_h=max(1, round(0.3 * u)), wide=0.18 * u)
+    # torso: a deep block, wider at the chest
+    t0, t1 = top - round(0.2 * u), top + round(2.7 * u)
+    body.box((-round(1.5 * u), -round(1.0 * u), t0), (round(1.5 * u) - 1, round(1.0 * u), t1), col)
+    body.box((-round(1.9 * u), -round(1.15 * u), top + round(1.5 * u)), (round(1.9 * u) - 1, round(1.1 * u), t1), col)
+    # a lighter chest plate
+    body.box((-round(1.1 * u), -round(1.15 * u) - 1, top + round(0.9 * u)), (round(1.1 * u) - 1, -round(1.15 * u) - 1, t1 - round(0.4 * u)),
+             belly)
+    joints = []
+    for sx in (1, -1):
+        def bx(x0, x1, y0, y1, z0, z1, cc):
+            a, b = (round(x0), round(x1) - 1) if sx > 0 else (mx(round(x1) - 1), mx(round(x0)))
+            body.box((a, round(y0), round(z0)), (b, round(y1), round(z1)), cc)
+        # shoulder boulder, upper arm, forearm and a big fist
+        bx(1.7 * u, 2.9 * u, -0.75 * u, 0.75 * u, t1 - 1.0 * u, t1 + 0.35 * u, col)
+        bx(2.0 * u, 2.8 * u, -0.5 * u, 0.5 * u, top + 0.7 * u, t1 - 0.8 * u, dk)
+        bx(1.95 * u, 2.95 * u, -0.75 * u, 0.4 * u, top - 0.3 * u, top + 0.9 * u, col)
+        bx(1.85 * u, 3.1 * u, -0.95 * u, 0.5 * u, top - 1.0 * u, top - 0.1 * u, dark(col, 0.2))
+        joints += [(sx * 2.4 * u, -0.8 * u, t1 - 0.6 * u), (sx * 2.45 * u, -0.6 * u, top + 0.75 * u),
+                   (sx * 0.85 * u, -0.75 * u, top * 0.5)]
+    # small head sunk between the shoulders, a heavy brow over glowing eyes
+    hz0, hz1 = t1 - round(0.35 * u), t1 + round(1.05 * u)
+    head = c.part('head', 'head', (0, 0, t1))
+    head.box((-round(0.8 * u), -round(0.95 * u), hz0), (round(0.8 * u) - 1, round(0.6 * u), hz1), col)
+    head.box((-round(0.95 * u), -round(1.05 * u), hz1 - round(0.45 * u)), (round(0.95 * u) - 1, -round(0.8 * u), hz1 - round(0.25 * u)),
+             dark(col, 0.25))
+    eye_pair(c, head, max(1, round(0.35 * u)), hz1 - round(0.75 * u), max(2, round(0.28 * u)), iris=iris, glow=glow is not None, tall=0)
+    c.joints = joints
+    c.gait_hint = KIND_GAIT.get('golem', 'waddle')
     return c
 
 
