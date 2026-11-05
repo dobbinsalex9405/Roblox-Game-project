@@ -445,7 +445,7 @@ def ear_leaves(c, H, col, col2=None):
     ears = c.part('ears')
     for sx in (-1, 1):
         x = t[0] if sx > 0 else -t[0]
-        leaf(ears, (x, t[1], t[2] - 0.4 * k), (0.25 * sx, 0.15, 1), 2.4 * k, 0.6 * k, col, col2)
+        leaf(ears, (x, t[1], t[2] - 0.2 * k), (0.2 * sx, 0.1, 1), 1.4 * k, 0.45 * k, col, col2)
 
 
 def leaf_hat(c, H, col, col2=None):
@@ -696,17 +696,31 @@ def ear_bolts(c, H, col, col2=None):
 
 
 def bolt_mark(c, H, col, col2=None):
-    """A lightning bolt painted down the back (a beetle's shell)."""
+    """Two clear zigzag lightning bolts across the back (a beetle's shell),
+    glowing, one on each side of the middle."""
     k = H / 10.0
+    # a bolt's centre line: x offset (in units of k) at fractions of the length
+    path = ((0.0, -0.55), (0.42, 0.55), (0.46, -0.25), (0.88, 0.75), (1.0, 0.85))
+
+    def bx(t):
+        for (t0, x0), (t1, x1) in zip(path, path[1:]):
+            if t <= t1:
+                return x0 + (x1 - x0) * (t - t0) / max(1e-6, t1 - t0)
+        return path[-1][1]
     for part in _back_parts(c):
         ys = [p[1] for p in part.v]
-        y0, y1 = min(ys), max(ys)
-        L = y1 - y0
+        y0, y1 = min(ys) + 0.15 * (max(ys) - min(ys)), max(ys) - 0.1 * (max(ys) - min(ys))
+        L = max(1, y1 - y0)
+        zs = [p[2] for p in part.v]
+        zcut = min(zs) + (max(zs) - min(zs)) * 0.45
+        w = 0.32 * k + .25
 
         def zig(p, cc, g):
-            t = (p[1] - y0) / max(1, L)
-            cx = (0.9 * k) * (1 if (t * 3) % 2 < 1 else -1) * (((t * 3) % 1) * 2 - 1)
-            return (col, True) if abs(p[0] + .5 - cx) < 0.45 * k and p[2] > 1.4 * k else None
+            if p[2] < zcut or not y0 <= p[1] <= y1:
+                return None
+            t = (p[1] - y0) / L
+            x = abs(p[0] + .5)
+            return (col, True) if abs(x - (1.25 + bx(t)) * k) < w else None
         part.paint(zig)
 
 
@@ -2098,6 +2112,111 @@ def _components(vox):
     return sorted(out, key=len, reverse=True)
 
 
+def cheek_ruff(c, H, col, col2=None):
+    """Tufts of fur flaring from the lower cheeks (a lynx's ruff)."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    zc = z0 + (z1 - z0) * 0.3
+    xs = [p[0] for p in head.v if abs(p[2] - zc) <= 1]
+    if not xs:
+        return
+    xr = max(xs)
+    ys = [p[1] for p in head.v if p[0] == xr and abs(p[2] - zc) <= 1]
+    yc = sum(ys) / len(ys)
+    for sx in (-1, 1):
+        x = xr if sx > 0 else -xr - 1
+        for dz, L in ((0.2, 0.7), (-0.5, 0.9)):
+            shard(head, (x + .5, yc + .5, zc + dz * k), (sx * 0.6, 0.35, -0.7), L * k, 0.3 * k + .2,
+                  col, col2 or col, tip_glow=False)
+
+
+def owl_tufts(c, H, col, col2=None):
+    """Feathered triangular ear tufts on the crown's corners."""
+    k = H / 10.0
+    head = head_of(c)
+    zt = max(p[2] for p in head.v)
+    top = [p for p in head.v if p[2] >= zt - 1]
+    xr = max(p[0] for p in top)
+    yc = sum(p[1] for p in top) / len(top)
+    part = c.part('tufts', 'ears' if c.rarity not in ('Common', 'Uncommon') else 'static', (0, yc, zt))
+    n = max(3, round(1.6 * k))
+    hw0 = max(1, round(0.6 * k))
+    for sx in (-1, 1):
+        cx = xr - hw0 if sx > 0 else -(xr - hw0) - 1
+        for i in range(n):
+            hw = 0 if i == n - 1 else int(hw0 * (1 - i / n) + 0.5)
+            lean = round(sx * i * 0.35)
+            for x in range(cx - hw + lean, cx + hw + lean + 1):
+                for y in (round(yc), round(yc) + 1):
+                    shade = col2 if (col2 and i >= n - 2) else (_dark(col, 0.1) if (x + i) % 2 else col)
+                    part.put((x, y, zt - 1 + i), shade)
+
+
+def facial_disc(c, H, col, col2=None):
+    """An owl's facial disc: a ring of feathers round both eyes."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    eyes = _find(c, 'eyes')
+    if not eyes or not eyes.v:
+        return
+    for sx in (-1, 1):
+        pts = [p for p in eyes.v if (p[0] >= 0) == (sx > 0)]
+        if not pts:
+            continue
+        cx = sum(p[0] + .5 for p in pts) / len(pts)
+        cz = sum(p[2] + .5 for p in pts) / len(pts)
+        r_in = max(abs(p[0] + .5 - cx) for p in pts) + max(abs(p[2] + .5 - cz) for p in pts) * 0 + 1.0
+        r_in = max(r_in, 0.9 * k)
+        r_out = r_in + max(1.0, 0.45 * k)
+        head.paint(lambda p, cc, g, cx=cx, cz=cz, r_in=r_in, r_out=r_out:
+                   (col, False) if (p[1] <= yf + 2 and not g and
+                                    r_in <= math.hypot(p[0] + .5 - cx, p[2] + .5 - cz) < r_out) else None)
+
+
+def snowflakes(c, H, col, col2=None):
+    """Little six-pointed snowflakes on the wing and tail feathers, glowing."""
+    k = H / 10.0
+    for name in ('wingL', 'wingR', 'tail'):
+        part = _find(c, name)
+        if not part or not part.v:
+            continue
+        surf = _surface(part)
+        if not surf:
+            continue
+        xs = [abs(p[0] + .5) for p in part.v]
+        zs = [p[2] for p in part.v]
+        outer = [p for p in surf if abs(p[0] + .5) >= min(xs) + (max(xs) - min(xs)) * 0.45 or name == 'tail']
+        picks = sorted(outer, key=lambda p: _hash(*p, 71))[:3 if name == 'tail' else 2]
+        arm = max(1, round(0.35 * k))
+        for (x, y, z) in picks:
+            for d in range(-arm, arm + 1):
+                for q in ((x, y, z + d), (x, y + d, z), (x, y + d, z + d), (x, y + d, z - d)):
+                    if q in part.v:
+                        part.v[q] = (col, True)
+
+
+def turtle_beak(c, H, col, col2=None):
+    """A turtle's head: a flatter skull and a rounded horn beak at the front."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    eyes = _find(c, 'eyes')
+    ev = set(eyes.v) if eyes else set()
+    # flatten the skull: take off the top layer
+    zt = max(p[2] for p in head.v)
+    for p in [p for p in head.v if p[2] == zt and p not in ev]:
+        del head.v[p]
+    # the beak: the front of the face below the eyes, in horn colour, with a
+    # rim that curls a voxel forward and down
+    beak = col
+    top = (ez - 1) if ez is not None else (z0 + z1) / 2
+    head.paint(lambda p, cc, g: (beak, False) if p[1] <= yf + max(1, round(0.5 * k)) and p[2] < top else None)
+    front = [p for p in head.v if p[1] == yf and p[2] < top]
+    if front:
+        zl = min(p[2] for p in front)
+        for p in front:
+            if p[2] <= zl + 1:
+                head.put((p[0], p[1] - 1, p[2]), col2 or _dark(beak, 0.2))
+
 def mend(c, H, col=None, col2=None):
     """Joins any piece of a part that came apart (a thin leg or tail drawn
     at a size where its rounding leaves a one-voxel gap) back to the rest of
@@ -2131,7 +2250,8 @@ def mend(c, H, col=None, col2=None):
             comps.remove(comp)
 
 ACCESSORIES = {
-    'recolor': recolor, 'mend': mend, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes,
+    'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
+    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes,
     'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'trunk': trunk, 'hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'embers': embers, 'cracks': cracks, 'claws': claws,
