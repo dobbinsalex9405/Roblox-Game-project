@@ -11,6 +11,7 @@ local TextService = game:GetService("TextService")
 local Analytics = require(ReplicatedStorage.Core.Analytics)
 local ErrorReporter = require(ReplicatedStorage.Core.ErrorReporter)
 local Feedback = require(ReplicatedStorage.Core.Feedback)
+local Stores = require(ReplicatedStorage.Core.Stores)
 
 local CUSTOM_FIELD_KEYS = {
 	Enum.AnalyticsCustomFieldKeys.CustomField01.Name,
@@ -71,11 +72,15 @@ end
 -- Writes each batch to its own key in the "ErrorQueue" DataStore, dated like
 -- feedback ("YYYYMMDD-HHMMSS-<server>-<n>", see Feedback.batchKey), so the
 -- error sweep (tools/feedback) lists one UTC day by prefix. At most one write
--- per server per minute keeps far under the DataStore budget.
+-- per server per minute keeps far under the DataStore budget. Without
+-- DataStores (an unpublished place in Studio) every write reports failure.
 function RobloxSinks.errorQueue(storeName: string?): (batch: ErrorReporter.Batch) -> boolean
-	local store = DataStoreService:GetDataStore(storeName or "ErrorQueue")
+	local store = Stores.open(DataStoreService, storeName or "ErrorQueue")
 	local sequence = 0
 	return function(batch: ErrorReporter.Batch): boolean
+		if store == nil then
+			return false
+		end
 		sequence += 1
 		local key = Feedback.batchKey(batch.at, game.JobId, sequence)
 		local ok = pcall(function()
@@ -87,9 +92,13 @@ end
 
 -- Player feedback batches, one key per write (see Feedback.batchKey), in the
 -- "Feedback" DataStore. tools/feedback reads them through Open Cloud.
+-- Without DataStores every write reports failure.
 function RobloxSinks.feedbackStore(storeName: string?): (key: string, batch: Feedback.Batch) -> boolean
-	local store = DataStoreService:GetDataStore(storeName or "Feedback")
+	local store = Stores.open(DataStoreService, storeName or "Feedback")
 	return function(key: string, batch: Feedback.Batch): boolean
+		if store == nil then
+			return false
+		end
 		local ok = pcall(function()
 			store:SetAsync(key, batch)
 		end)

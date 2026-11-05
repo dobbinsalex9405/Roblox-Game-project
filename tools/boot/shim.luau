@@ -33,6 +33,7 @@ Shim.gaps = {} :: { [string]: number }
 Shim.errors = {} :: { { where: string, message: string } }
 Shim.output = {} :: { string }
 Shim.studio = false
+Shim.unpublished = false -- DataStores throw, as in an unpublished place
 Shim.quiet = false
 
 local function gap(name: string)
@@ -1132,6 +1133,11 @@ local function defineServices()
 
 	local ds = overridesFor("DataStoreService")
 	ds.GetDataStore = function(_, name, scope)
+		if Shim.unpublished then
+			-- What Roblox raises in a place that was never published (a built
+			-- .rbxl opened in Studio).
+			error("You must publish this place to the web to access DataStore.", 2)
+		end
 		local key = `{name}/{scope or "global"}`
 		dataStores[key] = dataStores[key] or newDataStore(name)
 		return dataStores[key]
