@@ -1557,8 +1557,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.9,
 		size = { 1.2, 1.9, 1.7 },
-		tris = 11100,
-		trisLod1 = 968,
+		tris = 11120,
+		trisLod1 = 960,
 		parts = {
 			{
 				name = "body",
