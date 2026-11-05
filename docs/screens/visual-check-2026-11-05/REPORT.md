@@ -583,3 +583,30 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - "Floor 2: 25K coins" over the ghost floor uses TextScaled and fits. The text takes 528 of the 1034 px label width, leaving clear space at both ends (`116-hh-floor2-label-close.jpg`).
 - The label is a BillboardGui at (120, 13.8, 1.5). There's no floor plaque on an unbuilt floor, so it can't overlap one.
 - **Note:** from the yard at spawn, it sits right beside the "⭐ YOUR HATCHERY ⭐" billboard (offset 10 above the sign at 140, 4.3, 0), and the two read as one line: "★ YOUR HATCHERY ★ Floor 2: 25K coins" (`116-hh-floor2-label-spawn.jpg`). Not an overlap, but crowded.
+
+## #112 re-gate @ 1abc90f
+
+**PASS.** Phone size (viewport about 858x418).
+
+- **Side menu:**
+  - Present after "Let's go!".
+  - Hidden while Book, Daily, Tower, the Core Shop or the Test panel is open; back on close (Book checked both ways).
+- **Daily:**
+  - Amounts are round: 250 / 400 / 600 / 900 / 1.3K / 1.8K / 3.5K.
+  - Claim shows gold "+250 coins!" in the footer under the day cards, nothing floating over them. Coins went 200 → 450 (`112c-hh-daily-claim-pop.jpg`).
+  - The window still covers the HUD coin counter, but the footer pop is the feedback.
+- **Tower:**
+  - The greyed Build, tapped with 450 coins, shows "Need 24.55K more" (`112c-hh-tower-need-more.jpg`).
+  - With 100.45K coins, a triple-tap 60 ms apart charged once (one `Shop:TowerFloor` sink, 100,450 → 75,450).
+  - The button showed "Built!", then "Upgrade 5K coins" after about 0.8 s. "Building..." was too brief to sample.
+- **Golden Egg Shop:** CameraMaxZoomDistance is 8 inside. No clipping, and the displays and counter are visible (`112c-hh-golden-shop-inside.jpg`).
+- **Core Shop:**
+  - 600x362 on phone, price on the button row.
+  - The Robux tab shows about 2.3 products (`112c-hh-shop-robux-phone.jpg`).
+  - Nothing cut off in Tidecatch, Street Food Empire or Depthbound (`112c-tc-shop.jpg`, `112c-sfe-shop.jpg`, `112c-db-shop.jpg`).
+- **Market (from #97):**
+  - Sign backs are light wood with "🥚 EGG MARKET". **The emoji renders as an egg** in Studio, not a box (`112c-hh-sign-back-egg-market.jpg`).
+  - At 14 studs with the follow camera, the sign clears the GOAL banner (`112c-hh-sign-14studs.jpg`).
+  - The refusal toast (y 128-156) now sits above the odds card (y 168+), no overlap (`112c-hh-refusal-toast.jpg`).
+- Earlier items still PASS: welcome card shows 4 tips, coin panel is solid.
+- Side note: the Test panel's "Reset my save" kicks the client, by design. Restarting play recovers.
