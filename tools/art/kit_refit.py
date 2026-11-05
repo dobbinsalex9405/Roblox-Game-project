@@ -29,7 +29,7 @@ dict, its extra keys are the settings named below):
 - **ring_tail**: the tail replaced by a long ringed tail held up in a
   question mark, rings of color and color2 (a ringtail lemur's).
 - **poms**: pom-poms on the crown, ear tips, tail and ankles (a poodle's).
-- **beak**: the beak redrawn. `style`: pointed, cone (a finch's), hooked
+- **refit_beak**: the beak redrawn. `style`: pointed, cone (a finch's), hooked
   (a parrot's), long (a wader's), dagger (a heron's), pouch (a pelican's,
   color2 the pouch). `len` (in k) for long, dagger and pouch.
 - **cheeks**: a round patch on each cheek (a cockatiel's).
@@ -42,7 +42,7 @@ dict, its extra keys are the settings named below):
   stay on the ground; `toes` keeps a bird's toes flat.
 - **fold_wings**: the wings folded shut over the back (a damselfly's), tip
   spot color2.
-- **leaf**: a big cut leaf held in the jaws, over the back (a leafcutter
+- **carry_leaf**: a big cut leaf held in the jaws, over the back (a leafcutter
   ant's), vein color2.
 - **mandibles**: big antler jaws (a stag beetle's), the little horn removed.
 - **short_feelers**: the head's ink antennae replaced by two short thin ones in
@@ -1297,7 +1297,7 @@ BUILDERS = {'sentinel': sentinel, 'fiddler': fiddler}
 ACCESSORIES = {
     'ears': ears, 'muzzle': muzzle, 'ruff': ruff, 'big_eyes': big_eyes, 'stripe': stripe,
     'membrane': membrane, 'tear_marks': tear_marks, 'claw_arms': claw_arms, 'ring_tail': ring_tail,
-    'poms': poms, 'beak': beak, 'cheeks': cheeks, 'face': face, 'hood': hood, 'throat_bars': throat_bars,
-    'plume': plume, 'lift_legs': lift_legs, 'fold_wings': fold_wings, 'leaf': leaf, 'mandibles': mandibles,
+    'poms': poms, 'refit_beak': beak, 'cheeks': cheeks, 'face': face, 'hood': hood, 'throat_bars': throat_bars,
+    'plume': plume, 'lift_legs': lift_legs, 'fold_wings': fold_wings, 'carry_leaf': leaf, 'mandibles': mandibles,
     'short_feelers': feelers, 'chameleon': chameleon, 'symmetry': symmetry,
 }
