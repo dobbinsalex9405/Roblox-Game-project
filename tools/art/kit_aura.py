@@ -880,25 +880,42 @@ def cloud_feet(c, H, col, col2=None):
 
 
 def raincloud(c, H, col, col2=None):
-    """A little raincloud floating over the head, dripping glowing drops."""
+    """A little raincloud resting on the head like a cap, with glowing
+    raindrops dripping from its underside past the sides of the head (each
+    drip hangs from the cloud, so nothing floats or reads as a pole)."""
     k = H / 10.0
     col2 = col2 or hexc('#7FD4FF')
     y, zt = _crown(c)
     part = c.part('cloud', 'static')
-    zc = zt + 3.0 * k
-    puffs(part, (0, y, zc), 1.6 * k, col, n=7, seed=8, flat=0.6)
-    drops = c.part('raindrops', 'glow')
-    # rain falling from the cloud onto the head, in dashes that touch
     head = head_of(c)
-    for (dx, dy) in ((1.1, -0.3), (-1.2, 0.35)):
-        x, yy = math.floor(dx * k), math.floor(y + dy * k)
-        top = head.top(x, yy) or head.top(0, round(y))
-        z_head = top[2] if top else zt
-        lo = min(p[2] for p in part.v if abs(p[0] - x) <= 1 and abs(p[1] - yy) <= 1) if any(
-            abs(p[0] - x) <= 1 and abs(p[1] - yy) <= 1 for p in part.v) else zc
-        for z in range(z_head + 1, lo):
-            drops.put((x, yy, z), col2, True)
-            drops.put((_mx(x), yy, z), col2, True)
+    eyes = _find(c, 'eyes')
+    # it sits just behind the eyes (a frog's are on top) and clears them
+    ztop = max([zt] + [p[2] for p in eyes.v]) if eyes and eyes.v else zt
+    y += 0.9 * k
+    zc = ztop + 1.0 * k
+    puffs(part, (0, y, zc), 1.45 * k, col, n=7, seed=8, flat=0.6)
+    drops = c.part('raindrops', 'glow')
+    solid = set(head.v) | (set(eyes.v) if eyes else set())
+    # underside voxels of the cloud with open air below, right half
+    under = {}
+    for (x, yy, z) in part.v:
+        if x >= 0 and (x, yy, z - 1) not in part.v and not any(
+                (x, yy, z - t) in solid for t in range(1, 4)):
+            under[(x, yy)] = min(z, under.get((x, yy), z))
+    picked = []
+    for (x, yy), z in sorted(under.items(), key=lambda t: (-t[0][0], t[0][1])):
+        if all(abs(x - a) + abs(yy - b) >= max(3, 1.4 * k) for a, b, _ in picked):
+            picked.append((x, yy, z))
+        if len(picked) >= 3:
+            break
+    L = max(2, round(0.7 * k))
+    for i, (x, yy, z) in enumerate(picked):
+        n = L + (i % 2)
+        for t in range(1, n + 1):
+            for xx in (x, _mx(x)):
+                drops.put((xx, yy, z - t), col2, True)
+        for xx in (x, _mx(x)):  # a bulb at the end
+            drops.put((xx + (1 if xx >= 0 else -1) * 0, yy - 1, z - n), col2, True)
 
 
 def raindrops(c, H, col, col2=None):
@@ -2319,6 +2336,160 @@ def horse_head(c, H, col, col2=None, a=None):
                 break
 
 
+def hedgehog_quills(c, H, col, col2=None, a=None):
+    """A hedgehog's coat: the back, flanks, crown and back of the head turn
+    the quill colour (col) and bristle with short quills leaning back (tips
+    col2); the face stays bare and gets a short pointed snout with a dark
+    nose, and the ears shrink to little nubs at the edge of the coat."""
+    k = H / 10.0
+    body, head = _find(c, 'body'), head_of(c)
+    if not body:
+        return
+    tip = col2 or _light(col, 0.4)
+    quill = c.part('spines', 'static')
+    head0, yf, ez, z0, z1 = _head_front(c)
+    face = (a or {}).get('snout')
+    face = hexc(face) if isinstance(face, str) else head.v[min(head.v, key=lambda q: (q[1], -q[2]))][0]
+
+    def paint(part, keep):
+        """Repaint the part's coat voxels; return the outer ones with a normal."""
+        xs = [p[0] for p in part.v]
+        ys = [p[1] for p in part.v]
+        zs = [p[2] for p in part.v]
+        cx, cy = (min(xs) + max(xs) + 1) / 2, (min(ys) + max(ys) + 1) / 2
+        cz = min(zs) + (max(zs) - min(zs)) * 0.3
+        out = []
+        surf = set(_surface(part))
+        for q in list(part.v):
+            if keep(q):
+                continue
+            part.put(q, col)
+            if q in surf and q[0] >= 0:
+                out.append((q, _norm((q[0] + .5 - cx, (q[1] + .5 - cy) * 0.8, q[2] + .5 - cz))))
+        return out
+
+    bz = [p[2] for p in body.v]
+    bcut = min(bz) + (max(bz) - min(bz)) * 0.4
+    by0 = min(p[1] for p in body.v)
+    outs = paint(body, lambda q: q[2] < bcut or (q[1] < by0 + 1.2 * k and q[2] < bcut + 1.5 * k))
+    if head is not body:
+        # the face is bare: everything in front of a line from the brow
+        # down to behind the cheeks keeps its colour
+        hz = [p[2] for p in head.v]
+        eyes = _find(c, 'eyes')
+        brow = (max(p[2] for p in eyes.v) + 1.5) if eyes and eyes.v else min(hz) + (max(hz) - min(hz)) * 0.7
+        cheek = min(hz) + 0.3 * (max(hz) - min(hz))
+        outs += paint(head, lambda q: q[2] < cheek or (q[2] < brow and q[1] < yf + 2.0 * k))
+    # quills: short chunky spikes (2x2 at the root, one voxel at the pale
+    # tip) on a staggered grid, leaning up and back, so the coat's outline
+    # bristles all over
+    step = max(3, round(1.1 * k))
+    L = max(3, round(1.3 * k))
+    for (x, y, z), n in outs:
+        if (x + (z // step) % 2 * (step // 2 or 1)) % step or (y + z) % step:
+            continue
+        d = _norm((n[0], n[1] + 0.7, n[2] + 0.5))
+        for i in range(1, L + 1):
+            px, py, pz = x + .5 + d[0] * i, y + .5 + d[1] * i, z + .5 + d[2] * i
+            cc = tip if i == L else col
+            w = 1 if i <= L // 2 else 0
+            for ox in range(w + 1):
+                for oz in range(w + 1):
+                    q = (math.floor(px) + ox, math.floor(py), math.floor(pz) + oz)
+                    quill.put(q, cc)
+                    quill.put((_mx(q[0]), q[1], q[2]), cc)
+    # little ears at the front edge of the coat
+    ears = _find(c, 'ears')
+    if ears:
+        top = [p for p in ears.v]
+        ex = max(abs(p[0] + .5) for p in top)
+        ey = min(p[1] for p in top) + 0.3 * k
+        ezz = min(p[2] for p in top) + 0.2 * k
+        ears.v = {}
+        for sx in (-1, 1):
+            ears.ell((sx * (ex - 0.2 * k) - .5, ey, ezz), (0.45 * k, 0.3 * k, 0.45 * k), face)
+    # a short pointed snout from below the eyes, with a dark nose
+    zc = (ez - 0.6 * k) if ez is not None else (z0 + z1) / 2 - 0.4 * k
+    for i in range(5):
+        t = i / 4
+        head.ell((0, yf + 0.3 * k - t * 1.5 * k, zc - t * 0.25 * k),
+                 ((0.75 - 0.4 * t) * k, 0.4 * k, (0.6 - 0.3 * t) * k), face)
+    yn = min(p[1] for p in head.v)
+    tz = max(p[2] for p in head.v if p[1] <= yn + 1)
+    head.ell((0, yn + 0.3 * k, tz - 0.2 * k), (0.32 * k, 0.35 * k, 0.3 * k), hexc('#2A1E1A'))
+
+
+def raptor_pose(c, H, col=None, col2=None, a=None):
+    """A bird of prey's stance: the body and head lean forward (sheared
+    about the hips by "lean", default 0.35), the cheeks lose their blush,
+    and a heavy brow ridge (col, default a dark shade of the head) juts
+    out over each eye for the hawk's glare. Put it before the wings."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body:
+        return
+    t = float((a or {}).get('lean', 0.35))
+    z0 = min(p[2] for p in body.v) + 0.4 * k
+    for p in c.parts:
+        if p.name.startswith('leg'):
+            continue
+        p.v = {(x, y - round(max(0, z - z0) * t), z): v for (x, y, z), v in p.v.items()}
+        px, py, pz = p.pivot
+        p.pivot = (px, py - max(0, pz - z0) * t, pz)
+    head = head_of(c)
+    hcol = head.v[max(head.v, key=lambda q: q[2])][0]
+    for q, (cc, g) in list(head.v.items()):
+        if cc == hexc('#FF9EB5') or (cc[0] > 0.9 and cc[1] < 0.7 and cc[2] > 0.6 and cc[2] < 0.8):
+            head.v[q] = (hcol, g)
+    eyes = _find(c, 'eyes')
+    if not eyes or not eyes.v:
+        return
+    brow = hexc(col) if isinstance(col, str) else (col or _dark(hcol, 0.35))
+    zt = max(p[2] for p in eyes.v)
+    for sx in (1, -1):
+        side = [p for p in eyes.v if (p[0] >= 0) == (sx > 0)]
+        if not side:
+            continue
+        xs = [p[0] for p in side]
+        yf = min(p[1] for p in side)
+        # a slab over the eye, sloping down toward the beak, one voxel proud
+        for x in range(min(xs) - 1, max(xs) + 2):
+            inner = (x <= min(xs)) if sx > 0 else (x >= max(xs))
+            z = zt + 1 - (1 if inner else 0)
+            for y in range(yf - 1, yf + 2):
+                head.put((x, y, z), brow)
+                head.put((x, y, z + 1), brow) if not inner else None
+
+
+def storm_crest(c, H, col, col2=None):
+    """Three crest feathers swept back from the back of the head, the middle
+    one a lightning zigzag; they glow (col) with pale tips (col2). Lying
+    back, they read as a crest, not a candle on the head."""
+    k = H / 10.0
+    head = head_of(c)
+    part = c.part('crest', 'glow')
+    zt = max(p[2] for p in head.v)
+    yb = max(p[1] for p in head.v if p[2] >= zt - 1.2 * k)
+    tip = col2 or _light(col, 0.5)
+    fine = getattr(c, 'fine', False)
+    base = (yb - 0.8 * k, zt - 0.4 * k)
+    for x, L, rise in ((-0.9 * k, 2.0 * k, 0.5 * k), (0.9 * k, 2.0 * k, 0.5 * k)):
+        a_ = (x, base[0], base[1] - 0.3 * k)
+        b_ = (x * 1.3, base[0] + L, base[1] + rise)
+        line(part, a_, b_, col, r=0.3 * k, glow=True)
+        if fine:  # the in-game box build skips the pale tips
+            part.put(tuple(math.floor(v) for v in b_), tip, True)
+    # the middle feather: a zigzag lying back and up
+    pts = [(base[0], base[1]), (base[0] + 0.9 * k, base[1] + 1.0 * k),
+           (base[0] + 1.3 * k, base[1] + 0.5 * k), (base[0] + 2.5 * k, base[1] + 1.6 * k)]
+    for a_, b_ in zip(pts, pts[1:]):
+        for x in (-1, 0):
+            line(part, (x + .5, a_[0], a_[1]), (x + .5, b_[0], b_[1]), col, r=0.32 * k, glow=True)
+    if fine:
+        for x in (-1, 0):
+            part.put((x, math.floor(pts[-1][0]), math.floor(pts[-1][1])), tip, True)
+
+
 def raptor_beak(c, H, col, col2=None):
     """A hawk's hooked beak in place of a songbird's: a deep upper mandible
     that curves down to a dark hooked tip, and fierce brows over the eyes
@@ -2552,7 +2723,7 @@ def mend(c, H, col=None, col2=None):
 
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
-    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes,
+    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest,
     'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'embers': embers, 'cracks': cracks, 'claws': claws,
