@@ -96,8 +96,11 @@ def split_legs(c, Part):
     if hip > z0 and _slab_pieces(body.v, z0 + 1) > _slab_pieces(body.v, z0):
         base = z0 + 1
     feet = _plan_pieces({(x, y) for (x, y, z) in body.v if z == base})
-    if base > z0:  # a belly just off the ground spans the middle: not a leg
-        feet = [f for f in feet if not (min(x for x, _ in f) < 0 <= max(x for x, _ in f))]
+    # a belly on (or just off) the ground spans the middle: not a leg (a
+    # seal's, or a bug's resting on its feet)
+    side_feet = [f for f in feet if not (min(x for x, _ in f) < 0 <= max(x for x, _ in f))]
+    if base > z0 or len(side_feet) >= 2:
+        feet = side_feet
     if base > z0:  # the lower tips belong to the feet above them
         tips = _plan_pieces({(x, y) for (x, y, z) in body.v if z == z0})
         feet = [f for f in feet if not any(f & t for t in tips)] + [
@@ -240,3 +243,93 @@ def gait(c):
         return g
     legs = [p for p in c.parts if p.name.startswith('leg')]
     return {4: 'trot', 2: 'waddle'}.get(len(legs), 'scuttle')
+
+
+WELD_TIERS = ('Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic')
+WELD_REACH = 4  # an island this close (in voxels, Manhattan) is joined; further is meant to float
+
+
+def _components(vox):
+    left, out = set(vox), []
+    while left:
+        start = left.pop()
+        comp, todo = {start}, [start]
+        while todo:
+            x, y, z = todo.pop()
+            for n in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1), (x, y, z - 1)):
+                if n in left:
+                    left.remove(n)
+                    comp.add(n)
+                    todo.append(n)
+        out.append(comp)
+    out.sort(key=len, reverse=True)
+    return out
+
+
+def weld(c):
+    """Joins every loose piece of a creature to the rest, face to face. Body
+    plans place legs, tails and spots with rounding, and a piece that only
+    touches the body at an edge or a corner reads as floating once each
+    voxel is a bevelled block (hind legs under a round body, diagonal tails,
+    1-voxel bug legs). Each nearby island gets the shortest straight path of
+    voxels to the main piece, in the island's own part and colour. Pieces
+    further than WELD_REACH are left alone (glows and orbits meant to float),
+    and Legendary and Godly showpieces are hand-built, so they are skipped.
+    Returns the islands it left floating, [(part names, size, distance)]."""
+    if c.rarity not in WELD_TIERS:
+        return []
+    owner = {}
+    for part in c.parts:
+        if part.anim == 'orbit':
+            continue
+        for v in part.v:
+            owner[v] = part
+    floating = []
+    while True:
+        comps = _components(owner)
+        if len(comps) < 2:
+            return floating
+        main = comps[0]
+        joined = False
+        # right-hand pieces first; each path is mirrored, which joins the
+        # matching left-hand piece the same way (creatures mirror at x = -0.5)
+        for comp in sorted(comps[1:], key=lambda k: (max(v[0] for v in k) < 0, -len(k), min(k))):
+            lo = [min(v[i] for v in comp) - WELD_REACH for i in range(3)]
+            hi = [max(v[i] for v in comp) + WELD_REACH for i in range(3)]
+            near = [b for b in main if all(lo[i] <= b[i] <= hi[i] for i in range(3))]
+            best = None
+            for a in comp:
+                for b in near:
+                    d = abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2])
+                    # shortest, then from the piece's top (a leg joins at its hip)
+                    key = (d, -a[2], -b[2], abs(a[0] - b[0]), a, b)
+                    if best is None or key < best:
+                        best = key
+            if best is None:
+                continue
+            d, a, b = best[0], best[4], best[5]
+            if d > WELD_REACH:
+                continue
+            part = owner[a]
+            col, glow = part.v[a]
+            ma = (-a[0] - 1, a[1], a[2])  # the same spot on the other side
+            mpart = owner.get(ma, part)
+            mlook = mpart.v.get(ma, (col, glow))
+            p = list(a)
+            for axis in (2, 0, 1):  # up or down first: a leg reaches into the body
+                while p[axis] != b[axis]:
+                    p[axis] += 1 if b[axis] > p[axis] else -1
+                    t = tuple(p)
+                    if t not in owner:
+                        part.v[t] = (col, glow)
+                        owner[t] = part
+                    m = (-t[0] - 1, t[1], t[2])
+                    if m not in owner:  # keep the creature symmetric
+                        mpart.v[m] = mlook
+                        owner[m] = mpart
+            joined = True
+            break  # recompute pieces: the main piece has grown
+        if not joined:
+            for comp in comps[1:]:
+                floating.append((sorted({owner[v].name for v in comp}), len(comp)))
+            return floating

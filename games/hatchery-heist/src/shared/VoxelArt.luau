@@ -3346,25 +3346,43 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					anim = "static",
 					pivot = { 0, 0, 0 },
 					boxes = {
-						-3, 1, -1, 1, 1, 1, 1, 2, 1, -1, 1, 1, 1, 1, -3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1,
+						-1, 0, 0, 2, 1, 1, 1, -3, 1, -1, 1, 1, 1, 1, 2, 1, -1, 1, 1, 1, 1, -3, 1, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 1,
 					},
 				},
 				{
-					name = "legR",
-					anim = "legR",
+					name = "legFR",
+					anim = "legFR",
 					parent = "body",
-					pivot = { 2.5, 1, 1 },
+					pivot = { 1.5, 1, -0.5 },
 					boxes = {
-						2, 0, -1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 2, 1,
+						0, 0, -1, 1, 1, 1, 1, 2, 0, -1, 1, 1, 1, 1,
 					},
 				},
 				{
-					name = "legL",
-					anim = "legL",
+					name = "legFL",
+					anim = "legFL",
 					parent = "body",
-					pivot = { -1, 1, 0.5 },
+					pivot = { -1.5, 1, -0.5 },
 					boxes = {
-						-3, 0, -1, 1, 1, 1, 1, -1, 0, -1, 2, 1, 3, 1, -3, 0, 1, 1, 1, 2, 1,
+						-3, 0, -1, 1, 1, 1, 1, -1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 1, 2 },
+					boxes = {
+						0, 0, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 2 },
+					boxes = {
+						-3, 0, 1, 1, 1, 2, 1, -1, 0, 1, 1, 1, 1, 1,
 					},
 				},
 				{

@@ -2,17 +2,14 @@
 
 ## Unreleased
 
-- Creatures walk on real legs: every leg is its own part that swings from
-  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
-  slither or hover).
-- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
-  crayfish and lobsters now walk on all their legs, and dragonflies,
-  fireflies and the Phoenix hover.
-- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
-  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
-  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
-  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
-  cheeks.
+- The Nebula Serpent is reworked: a finer, more detailed nebula coil with
+  crystal antlers, a flowing mane, whiskers and a comet tail, and four
+  little worlds (a ringed planet, an ocean world, a lava world and a moon)
+  circling it. It and the Golden Goose are each one solid piece, so
+  nothing floats loose when they hover.
+- Creature legs, tails and little bug legs that only touched the body at a
+  corner no longer look like they float: every loose piece is now joined to
+  the body.
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
@@ -31,7 +28,17 @@
   and three sizes, with bushes, mossy rocks, flowers, grass and glowing
   mushroom rings, pines on the hills, a painted storybook sky with voxel
   clouds and floating islands, and a grass texture on the ground.
-
+- Creatures walk on real legs: every leg is its own part that swings from
+  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
+  slither or hover).
+- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
+  crayfish and lobsters now walk on all their legs, and dragonflies,
+  fireflies and the Phoenix hover.
+- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
+  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
+  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
+  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
+  cheeks.
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala
