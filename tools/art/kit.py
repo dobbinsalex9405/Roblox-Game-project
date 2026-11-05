@@ -173,7 +173,8 @@ def crab(c, H, col, accent):
             leg = _leg(c, sx, i, 3, (inner + .5, round(ly) + .5, top + 1))
             # out from under the shell, then down to the sand
             leg.box((min(xx, inner), round(ly), top), (max(xx, inner), round(ly), top), col)
-            leg.box((xx, round(ly), 0), (xx + (sx if k > 1 else 0), round(ly), top), col)
+            x2 = xx + (sx if k > 1 else 0)  # two voxels wide, outward on either side
+            leg.box((min(xx, x2), round(ly), 0), (max(xx, x2), round(ly), top), col)
     blush(head, round(1.4 * k), round(2.0 * k))
     return c
 
@@ -193,12 +194,15 @@ def lizard(c, H, kind, col, accent, belly=None):
         body.paint(lambda p, cc, g: (belly, False) if p[2] < 1.6 * k else None)
     # four short legs splayed out to the sides, toes forward
     lw = max(1, round(0.7 * k))
-    for sx in (-1, 1):
-        for ly in (-0.9 * k, 2.4 * k):
-            x0 = round(sx * 1.6 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
-            body.box((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, round(1.6 * k)), col)
-            xt = x0 + sx * lw
-            body.box((xt, round(ly) - 1, 0), (xt + (sx if k >= 1.5 else 0), round(ly) + lw - 1, 0), col)
+    # Drawn on the right, then mirrored (x -> -x - 1) so both sides match.
+    for ly in (-0.9 * k, 2.4 * k):
+        x0 = round(1.6 * k)
+        xt = x0 + lw
+        boxes = (((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, round(1.6 * k))),
+                 ((xt, round(ly) - 1, 0), (xt + (1 if k >= 1.5 else 0), round(ly) + lw - 1, 0)))
+        for a, b in boxes:
+            body.box(a, b, col)
+            body.box((-b[0] - 1, a[1], a[2]), (-a[0] - 1, b[1], b[2]), col)
     # a big round head, a little wider than tall, with a short flat muzzle
     head.ell((0, -2.4 * k, 3.9 * k), (max(2.0 * k, 2.1), 1.75 * k, max(1.9 * k, 1.6)), col)  # wide enough for eyes in the small build
     head.ell((0, -3.4 * k, 3.0 * k), (1.2 * k, 1.3 * k, 1.0 * k), col)
@@ -415,7 +419,11 @@ def _rescale(parts, centre, s):
         for x in range(lo[0], hi[0]):
             for y in range(lo[1], hi[1]):
                 for z in range(max(0, lo[2]), hi[2]):
-                    p = tuple(math.floor(centre[i] + (q + .5 - centre[i]) / s[i]) for i, q in enumerate((x, y, z)))
+                    # x shrinks a hair toward the centre line so a voxel
+                    # that lands exactly on a boundary picks the same side
+                    # left and right (the creature stays mirrored).
+                    p = tuple(math.floor(centre[i] + (q + .5 - centre[i]) / s[i] * (1 - 1e-9 if i == 0 else 1))
+                              for i, q in enumerate((x, y, z)))
                     if p in src:
                         out[(x, y, z)] = src[p]
         part.v = out

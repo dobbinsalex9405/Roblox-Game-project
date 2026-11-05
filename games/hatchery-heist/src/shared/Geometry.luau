@@ -70,6 +70,13 @@ Geometry.SPOT_COLUMNS = 4
 -- The tower's footprint in base-local x, z (floors 2 and up).
 Geometry.TOWER_MIN = { -24, -3 }
 Geometry.TOWER_MAX = { 24, 23 }
+-- The ladder (a 2-stud truss) up the right side, just outside the decks,
+-- and the opening cut in every upper deck beside it, so a climber on the
+-- tower side of the ladder rises through each floor and steps back onto
+-- the deck there instead of hitting its underside. Base-local x, z.
+Geometry.LADDER = { 25.2, 14.5 }
+Geometry.LADDER_HOLE_MIN = { 21, 12.5 }
+Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
 
 -- Base-local positions of things raids care about. Layout uses the same
 -- numbers for the parts. Pad `index` counts across the whole tower: pads 1
@@ -81,6 +88,14 @@ function Geometry.pad(index: number): (number, number, number)
 	local column = spot % Geometry.SPOT_COLUMNS
 	local row = spot // Geometry.SPOT_COLUMNS
 	return -15 + column * 10, 5 + row * 10, floor * Geometry.FLOOR_HEIGHT
+end
+
+-- Where a creature taking `span` side-by-side pads from pad `index` stands:
+-- the middle of its pads (x, z, height), which is also where its prompts
+-- sit and what a raider's reach is measured from.
+function Geometry.padCentre(index: number, span: number): (number, number, number)
+	local x, z, height = Geometry.pad(index)
+	return x + (span - 1) * 5, z, height
 end
 
 -- Whether a character whose root is `rootAbove` studs above the ground
@@ -96,5 +111,14 @@ end
 Geometry.TRAP_SPOTS = { { -10, -22 }, { 10, -22 }, { -27, 10 }, { 17, 27 } }
 Geometry.DECOY_SPOTS = { { -27, -4 }, { -27, 4 }, { -27, 22 } }
 Geometry.SHIELD_PYLON = { 27, 20 }
+
+-- From pad `index` back to its base's origin (x, y, z in the base's axes):
+-- `padFrame * CFrame.new(Geometry.toBase(index))` is the base's frame, for
+-- telling whether a point is inside the tower. (Geometry.pad returns x, z,
+-- height; reading it as x, y, z put floor 3 a tower-width off, Studio gate.)
+function Geometry.toBase(index: number): (number, number, number)
+	local x, z, height = Geometry.pad(index)
+	return -x, -height, -z
+end
 
 return Geometry

@@ -25,6 +25,7 @@
 -- colours but drops its glow: no neon, no light, no sparkles, ring or orbs.
 -- Everyone else still sees it shine.
 
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -34,6 +35,7 @@ local Shared = ReplicatedStorage.Shared
 local ArtScale = require(Shared.ArtScale)
 local CreatureLooks = require(Shared.CreatureLooks)
 local CreatureMeshes = require(Shared.CreatureMeshes)
+local Geometry = require(Shared.Geometry)
 local Layout = require(Shared.Layout)
 local VoxelArt = require(Shared.VoxelArt)
 local Walk = require(Shared.Walk)
@@ -44,7 +46,8 @@ local wander = atmosphere.wander :: Walk.Config
 local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
 local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
 local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
-local FLOOR_HEIGHT = 12 -- Geometry.FLOOR_HEIGHT
+local FLOOR_HEIGHT = Geometry.FLOOR_HEIGHT
+local TOWER_MIN, TOWER_MAX = Geometry.TOWER_MIN, Geometry.TOWER_MAX
 
 local CreatureView = {}
 
@@ -102,7 +105,9 @@ type Visual = {
 
 -- A floor creature's cell: the middle of its wander area (home), where the
 -- server stood it (stand), its schedule's seed and how far it may stray.
-type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number }
+-- `tower` is the creature's base frame (its tower's footprint is
+-- Geometry.TOWER_MIN..TOWER_MAX in it), for telling inside from outside.
+type Roam = { home: CFrame, stand: CFrame, tower: CFrame, seed: number, rx: number, rz: number }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -189,13 +194,18 @@ local function applyFade(v: Visual)
 	end
 end
 
--- The loaded meshes for a species, when the server has them and every mesh
--- the creature needs is there.
+-- Species whose meshes and texture this client has finished loading: until
+-- then (or if any fails) the creature is drawn as voxel boxes, never as a
+-- grey mesh that colours in later.
+local loaded: { [Instance]: boolean } = {}
+
+-- The loaded meshes for a species, when the server has them, every mesh the
+-- creature needs is there, and their content has loaded on this client.
 local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instance?)
 	local entry = CreatureMeshes[speciesId]
 	local folder = ReplicatedStorage:FindFirstChild(MESH_FOLDER)
 	local source = if entry and folder then folder:FindFirstChild(speciesId) else nil
-	if entry == nil or source == nil then
+	if entry == nil or source == nil or loaded[source] ~= true then
 		return nil, nil
 	end
 	for _, part in entry.parts do
@@ -302,7 +312,16 @@ local function build(anchor: BasePart, speciesId: string)
 			math.max(size.X, size.Z),
 			wander.margin
 		)
-		roam = { home = home * CFrame.new(cx, 0, cz), stand = home, seed = Walk.seed(uid), rx = rx, rz = rz }
+		local tower = (pad :: BasePart).CFrame
+			* CFrame.new(Geometry.toBase(if type(index) == "number" then index else 1))
+		roam = {
+			home = home * CFrame.new(cx, 0, cz),
+			stand = home,
+			tower = tower,
+			seed = Walk.seed(uid),
+			rx = rx,
+			rz = rz,
+		}
 	end
 
 	local v: Visual = {
@@ -394,7 +413,10 @@ local function build(anchor: BasePart, speciesId: string)
 				piece.Parent = nil
 				table.insert(v.far, piece)
 			end
-			table.insert(joints, { name = part.name, anim = part.anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	else
 		local voxel = art :: VoxelArt.Art
@@ -422,8 +444,10 @@ local function build(anchor: BasePart, speciesId: string)
 				weld(root, box)
 				keep(box, part.anim, if entry.glow then entry.color else nil)
 			end
-			local anim = if part.name == "body" then "body" else part.anim
-			table.insert(joints, { name = part.name, anim = anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	end
 	-- Joints: the body hangs from the ball, everything else from its parent.
@@ -656,9 +680,13 @@ local function animate(v: Visual, now: number, dt: number)
 			if walking then
 				pose *= walkPose(v, anim)
 			end
-		elseif anim == "ears" and look.moves.ears then
+		elseif anim == "ears" and (look.moves.ears or walking) then
 			local k = t % 3.3
-			pose = if k < 0.3 then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			local flick = look.moves.ears and not walking and k < 0.3
+			pose = if flick then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			if walking then
+				pose *= walkPose(v, anim)
+			end
 		elseif anim == "tail" and (look.moves.tail or walking) then
 			local wag = if look.moves.tail then math.sin(t * 6) * 0.35 * (1 - v.moving) else 0
 			pose = CFrame.Angles(0, wag, 0)
@@ -766,8 +794,28 @@ local function stroll(v: Visual, roam: Roam, serverNow: number)
 	v.stepPhase = Walk.phase(v.gait, at.travelled, v.height)
 end
 
--- Meshes for a species just arrived: redraw its creatures with them.
+-- Meshes for a species just arrived: load their geometry and texture, then
+-- redraw its creatures with them.
 local function meshesArrived(model: Instance)
+	if loaded[model] ~= nil then
+		return
+	end
+	loaded[model] = false
+	local ok = pcall(function()
+		local failed = false
+		ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
+			if status ~= Enum.AssetFetchStatus.Success then
+				failed = true
+			end
+		end)
+		if failed then
+			error("asset failed")
+		end
+	end)
+	if not ok then
+		return -- stays on the boxes
+	end
+	loaded[model] = true
 	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
 	-- must not happen while iterating it.
 	local redraw: { BasePart } = {}
@@ -786,9 +834,11 @@ local function watchMeshFolder(folder: Instance)
 	if folder.Name ~= MESH_FOLDER or not folder:IsA("Folder") then
 		return
 	end
-	folder.ChildAdded:Connect(meshesArrived)
+	folder.ChildAdded:Connect(function(model)
+		task.spawn(meshesArrived, model)
+	end)
 	for _, model in folder:GetChildren() do
-		meshesArrived(model)
+		task.spawn(meshesArrived, model)
 	end
 end
 
@@ -808,8 +858,9 @@ function CreatureView.start()
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		local now = os.clock()
 		local serverNow = Workspace:GetServerTimeNow()
-		-- Floor creatures more than `cullFloors` floors from you are not drawn:
-		-- the decks hide them anyway, and a full tower is 80 creatures.
+		-- Inside a tower, its creatures more than `cullFloors` floors from you
+		-- are not drawn (the decks hide them, and a full tower is 80); from
+		-- outside every floor shows, up to `cullOutsideStuds` away.
 		local character = Players.LocalPlayer.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		for anchor, v in visuals do
@@ -819,10 +870,17 @@ function CreatureView.start()
 			end
 			local roam = v.roam
 			if roam then
-				local apart = if root
-					then math.abs(roam.home.Position.Y - root.Position.Y) / FLOOR_HEIGHT
-					else 0
-				setCulled(v, math.floor(apart + 0.5) > wander.cullFloors)
+				local inside, apart, away = false, 0, 0
+				if root then
+					local p = roam.tower:PointToObjectSpace(root.Position)
+					inside = p.X >= TOWER_MIN[1] - 1
+						and p.X <= TOWER_MAX[1] + 1
+						and p.Z >= TOWER_MIN[2] - 1
+						and p.Z <= TOWER_MAX[2] + 1
+					apart = math.abs(roam.home.Position.Y - root.Position.Y) / FLOOR_HEIGHT
+					away = (roam.home.Position - root.Position).Magnitude
+				end
+				setCulled(v, Walk.culled(inside, apart, away, wander))
 				if v.culled then
 					continue
 				end

@@ -15,7 +15,7 @@ legs an exact mirror of the right):
   big eyes, striped legs, a ringed tail with a black tip.
 - **otter**: floats on its back (gait `swim`): pale face, paws on its chest
   holding a shell with a glowing pearl, webbed hind feet up as `finL`/`finR`,
-  a flat `tail`, a ripple ring on the water round it.
+  a flat `tail`.
 
 Colours: col, belly, snout, accent (horns, bell, shell), glow, tail_col.
 Same art frame (x right, y back, front is -y, z up) and scale (k = H / 10)
@@ -355,16 +355,6 @@ def _otter(c, k, cols):
     tail = c.part('tail', 'tail', (0, 3.3 * k, 1.7 * k))
     tail.ell((0, 4.4 * k, 1.75 * k), (0.5 * k, 1.1 * k, 0.26 * k), cols.get('tail_col') or _dark(col, 0.1))
     _mirror(tail)
-    # ripples on the water round it
-    water = c.part('water', 'static')
-    for a in range(180):
-        ang = a / 180 * 2 * math.pi
-        if math.sin(ang * 7) < -0.35:
-            continue
-        x = math.cos(ang) * 1.9 * k
-        y = 0.7 * k + math.sin(ang) * 3.5 * k
-        water.put((math.floor(x), math.floor(y), 0), hexc('#BDEBFF'))
-    _mirror(water)
 
 
 KINDS = {'camel': _camel, 'ermine': _ermine, 'muskox': _muskox, 'sandcat': _sandcat, 'otter': _otter}

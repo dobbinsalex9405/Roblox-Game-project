@@ -405,7 +405,9 @@ def shore(c, H, kind, col, accent=None, belly=None):
         tail = c.part('tail', 'static', (0, 4.0 * k, 0.6 * k))
         for sx in (-1, 1):
             tail.ell((sx * 0.9 * k, 4.6 * k, 0.5 * k), (0.9 * k, 1.0 * k, 0.4 * k + .3), accent)
-            body.ell((sx * 2.2 * k, -0.6 * k, 0.7 * k), (0.8 * k, 1.1 * k, 0.4 * k + .3), accent)
+            # front flippers: the legs it waddles on, hinged at the shoulder
+            hip = (sx * 2.2 * k, -0.6 * k, 0.7 * k + 0.4 * k + .3)
+            _leg(c, sx, 0, 1, hip).ell((sx * 2.2 * k, -0.6 * k, 0.7 * k), (0.8 * k, 1.1 * k, 0.4 * k + .3), accent)
         head.ell((0, -1.4 * k, 4.8 * k), (2.0 * k, 1.8 * k, 1.8 * k), col)
         muzzle = belly or _mix(col, WHITE, 0.4)
         if tusks:

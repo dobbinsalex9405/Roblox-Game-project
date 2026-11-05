@@ -100,6 +100,11 @@ describe("Creature meshes", function()
 		local seen: { [string]: string } = {}
 		for id, m in CreatureMeshes do
 			expect(m.assetId).toBeAtLeast(0)
+			expect(m.textureId).toBeAtLeast(0)
+			-- an uploaded Model always comes with its palette, an Image asset
+			-- (tools/art/blender/upload.py; luau.py writes 0 for a Decal id,
+			-- which MeshPart.TextureID cannot draw)
+			expect(`{id} texture: {m.assetId == 0 or m.textureId > 0}`).toBe(`{id} texture: true`)
 			local names: { [string]: boolean } = {}
 			for _, part in m.parts do
 				names[part.name] = true
@@ -186,6 +191,48 @@ describe("Creature meshes", function()
 		end
 		table.sort(gooseLegs)
 		expect(table.concat(gooseLegs, " ")).toBe("legL legR")
+	end)
+
+	it("mirror each left leg on the right: same size, opposite side (lizards, crabs, seals)", function()
+		local function bounds(part: CreatureMeshes.Part): ({ number }, { number })
+			local lo, hi = { math.huge, math.huge, math.huge }, { -math.huge, -math.huge, -math.huge }
+			for _, mesh in part.meshes do
+				for i = 1, 3 do
+					lo[i] = math.min(lo[i], mesh.center[i] - mesh.size[i] / 2)
+					hi[i] = math.max(hi[i], mesh.center[i] + mesh.size[i] / 2)
+				end
+			end
+			return lo, hi
+		end
+		-- A voxel is 0.1 studs (finer for Godlies); allow one, plus bevel.
+		local TOLERANCE = 0.13
+		for id, m in CreatureMeshes do
+			local byName: { [string]: CreatureMeshes.Part } = {}
+			for _, part in m.parts do
+				byName[part.name] = part
+			end
+			for name, part in byName do
+				if string.match(name, "^leg") and string.sub(name, -1) == "L" and #part.meshes > 0 then
+					local other = byName[string.sub(name, 1, -2) .. "R"]
+					if other and #other.meshes > 0 then
+						local lo, hi = bounds(part)
+						local olo, ohi = bounds(other)
+						local worst = math.max(
+							math.abs(lo[1] + ohi[1]),
+							math.abs(hi[1] + olo[1]),
+							math.abs(lo[2] - olo[2]),
+							math.abs(hi[2] - ohi[2]),
+							math.abs(lo[3] - olo[3]),
+							math.abs(hi[3] - ohi[3])
+						)
+						expect(
+							worst <= TOLERANCE and "mirrored"
+								or `{id} {name}: {math.floor(worst * 100 + 0.5) / 100} studs off its right leg`
+						).toBe("mirrored")
+					end
+				end
+			end
+		end
 	end)
 
 	it("stay within the triangle budgets", function()

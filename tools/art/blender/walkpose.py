@@ -37,6 +37,19 @@ HOP_AIR = 0.6
 STILL = (0.0, 0.0, 0.0, 0.0, 0.0)  # rx, ry, rz, dx, dy
 
 
+WALKS_BY_NAME = ('head', 'tail', 'ears')
+
+
+def role(name, anim):
+    """Walk.role: the joint a part animates as. A part named head, tail or
+    ears tagged 'static' still nods and swings as one."""
+    if name == 'body':
+        return 'body'
+    if anim == 'static' and name in WALKS_BY_NAME:
+        return name
+    return anim
+
+
 def is_leg(anim):
     return anim in LEG_SETS
 
@@ -86,6 +99,23 @@ def pose(gait, anim, ph, moving, h, legged):
             return (-0.7 * moving * _hop_arc(ph), 0.0, 0.0, 0.0, 0.0)
         if gait == 'hover':
             return (moving * (-0.3 + 0.12 * side * s), 0.0, 0.0, 0.0, 0.0)
+        return STILL
+    # A mesh with no leg parts walks with its whole body: rocks, nods,
+    # bounces and swings its tail and ears (Walk.luau, Studio gate Nov 5).
+    if not legged and gait in ('trot', 'waddle', 'scuttle'):
+        rock = 0.2 if gait == 'waddle' else 0.08 if gait == 'scuttle' else 0.15
+        rate = 2 if gait == 'scuttle' else 1
+        step = math.sin(a * rate)
+        twice = math.sin(2 * a * rate)
+        bounce = (1 - math.cos(2 * a * rate)) / 2
+        if anim == 'body':
+            return (0.07 * moving * twice, 0.06 * moving * step, rock * moving * step, 0.0, h * 0.07 * moving * bounce)
+        if anim == 'head':
+            return (0.12 * moving * twice, 0.0, -0.6 * rock * moving * step, 0.0, 0.0)
+        if anim == 'tail':
+            return (0.0, 0.45 * moving * math.sin(a * rate - 0.8), 0.0, 0.0, 0.0)
+        if anim == 'ears':
+            return (0.18 * moving * max(0.0, twice), 0.0, 0.0, 0.0, 0.0)
         return STILL
     if anim == 'body':
         if gait == 'trot':
