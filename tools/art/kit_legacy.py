@@ -229,12 +229,13 @@ def bird_tail(c, H, col, col2=None, a=None):
                     t.put((0, y, zz), cc)
     elif style == 'cocked':
         n = max(4, round(2.6 * k * L))
-        w = max(1, round(0.45 * k))
+        w = max(1, round(0.75 * k))
         for i in range(n):
             s = i / (n - 1)
             z = zr + i
             y = yb + round(0.5 * k * s)
-            for x in range(-w, w):
+            ww = w + (1 if s > 0.6 else 0)  # the tip fans a little
+            for x in range(-ww, ww):
                 for dy in range(2):
                     t.put((x, y + dy, z), col)
         # bars across the tail (a wren's)
@@ -331,12 +332,6 @@ def polka(c, H, col, col2=None, a=None):
         vox = part.v
         zs = [p[2] for p in vox]
         zfrom = min(zs) + (max(zs) - min(zs)) * a.get('zfrom', 0.0)
-        for (x, y, z), (cc, g) in list(vox.items()):
-            if g or cc in (INK, WHITE) or z < zfrom:
-                continue
-            # only the surface
-            if all(n in vox for n in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1))):
-                continue
         # one dot per step-sized cell of space the surface passes through,
         # on a hashed voxel of that cell, never touching another dot: even
         # spacing on the top, the sides and the wings alike
@@ -795,6 +790,15 @@ def eyes_big(c, H, col, col2=None, a=None):
                         del head.v[p]
                         e.put(p, INK)
                         break
+    # a white shine in each eye's upper inner corner, so a big dark eye
+    # reads as an eye and not as a pair of sunglasses
+    for side in (-1, 1):
+        ev = [p for p in e.v if (p[0] >= 0) == (side > 0)]
+        if len(ev) >= 4:
+            zt = max(p[2] for p in ev)
+            top = [p for p in ev if p[2] == zt]
+            p = min(top, key=lambda p: abs(p[0] + .5))
+            e.put(p, WHITE)
 
 
 # ------------------------------------------------------------------ bodies
@@ -953,3 +957,86 @@ ACCESSORIES = {
     'quills': quills, 'legs_long': legs_long,
 }
 ACCESSORIES = {name: _fine_only(fn) for name, fn in ACCESSORIES.items()}
+
+
+def llama_neck(c, H, col, col2=None, a=None):
+    """A llama's neck: upright and as thick as the head, about one head
+    taller than the back (kit_quirks.long_neck is a giraffe's: thinner and
+    twice as tall, which read as a lollipop on a llama). The small in-game
+    build keeps long_neck. `lift` and `r` (in k) tune it."""
+    a = a or {}
+    if not getattr(c, 'fine', False):
+        return q.long_neck(c, H, col, col2)
+    k = _k(H)
+    body = q._find(c, 'body')
+    head = q._find(c, 'head')
+    if not body or not head or not head.v:
+        return
+    hz0 = min(p[2] for p in head.v)
+    lift = round(a.get('lift', 4.0) * k)
+    fwd = -round(0.4 * k)
+    hy = sum(p[1] for p in head.v) / len(head.v)
+    for p in c.parts:
+        if p.name in q.HEAD_PARTS:
+            q._shift(p, 0, fwd, lift)
+    r = a.get('r', 1.35) * k
+    top = hz0 + lift + round(1.0 * k)
+    base = hz0 - round(1.6 * k)
+    steps = max(4, top - base)
+    for i in range(steps + 1):
+        t = i / steps
+        z = base + (top - base) * t
+        y = hy + 0.8 * k + (fwd - 0.2 * k) * t
+        head.ell((0, y, z), (r, r * 1.05, 0.8), col)
+    head.anim = 'head'
+    head.pivot = (0, hy + 0.8 * k, base + 0.5 * k)
+
+
+def round_top(c, H, col=None, col2=None, a=None):
+    """Shaves the small pole nub (a 2x2 or smaller cap of voxels) off the
+    top of the head, which reads as a hat button or a bun on a smooth-headed
+    bird."""
+    if not getattr(c, 'fine', False):
+        return
+    head = q._find(c, 'head')
+    if not head or not head.v:
+        return
+    for _ in range(2):
+        zt = max(p[2] for p in head.v)
+        top = [p for p in head.v if p[2] == zt]
+        below = sum(1 for p in head.v if p[2] == zt - 1)
+        if len(top) <= 4 and below >= 3 * len(top):
+            for p in top:
+                del head.v[p]
+        else:
+            break
+
+
+def goatee(c, H, col, col2=None, a=None):
+    """A goat's beard hanging from under the chin, just behind the muzzle
+    tip, joined to the head (kit's 'beard' hangs from the bottom of the head
+    plan and floated once a long muzzle was added). The small in-game build
+    keeps kit's beard."""
+    import kit
+    if not getattr(c, 'fine', False):
+        return kit.accessory(c, H, 'beard', '#%02X%02X%02X' % tuple(col[:3]))
+    k = _k(H)
+    head = _head(c)
+    if head is None:
+        return
+    ymin = min(p[1] for p in head.v)
+    front = [p for p in head.v if p[1] <= ymin + max(3, round(1.4 * k)) and p[0] in (-1, 0)]
+    if not front:
+        return
+    zb = min(p[2] for p in front)
+    yb = max(p[1] for p in front if p[2] == zb)
+    bd = c.part('beard', 'static')
+    n = max(3, round(1.4 * k))
+    for i in range(n):
+        for x in (-1, 0):
+            bd.put((x, yb + (1 if i > n // 2 else 0), zb - 1 - i), col)
+
+
+ACCESSORIES['llama_neck'] = llama_neck
+ACCESSORIES['goatee'] = goatee
+ACCESSORIES['round_top'] = round_top
