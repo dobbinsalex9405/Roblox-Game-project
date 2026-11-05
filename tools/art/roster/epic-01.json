@@ -68,13 +68,10 @@
    },
    "accessories": [
     {
-     "kind": "antlers",
-     "color": "#E8D8B0"
-    },
-    {
-     "kind": "blossoms",
-     "color": "#9BE36A",
-     "color2": "#FFF06A"
+     "kind": "aura_antlers",
+     "color": "#D8C49A",
+     "color2": "#F4EAD2",
+     "size": 1.25
     },
     {
      "kind": "mend",
@@ -155,7 +152,7 @@
    },
    "accessories": [
     {
-     "kind": "sparks",
+     "kind": "aura_sparks",
      "color": "#9FE4FF",
      "color2": "#FFF35C"
     },
@@ -384,7 +381,7 @@
      "amount": 0.7
     },
     {
-     "kind": "hump",
+     "kind": "aura_hump",
      "color": "#6A4A34"
     },
     {
@@ -565,7 +562,7 @@
      "color2": "#8A2AB8"
     },
     {
-     "kind": "tusks",
+     "kind": "aura_tusks",
      "color": "#F2E6D0",
      "color2": "#C8344A"
     },
@@ -666,7 +663,7 @@
      "color2": "#FFFFFF"
     },
     {
-     "kind": "sparks",
+     "kind": "aura_sparks",
      "color": "#FFE84A",
      "color2": "#8FE3FF"
     },
@@ -708,7 +705,7 @@
      "color2": "#FFE14D"
     },
     {
-     "kind": "mushrooms",
+     "kind": "aura_mushrooms",
      "color": "#E8453C",
      "color2": "#FFF6E0"
     },
@@ -867,7 +864,7 @@
      "color2": "#FFB0E0"
     },
     {
-     "kind": "stripe",
+     "kind": "aura_stripe",
      "color": "#E8341A"
     },
     {
