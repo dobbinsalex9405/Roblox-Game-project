@@ -71,7 +71,13 @@
     "accent": "#2A2F45",
     "belly": "#FFF8E0",
     "glow": "#FFD43B"
-   }
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#FFF8E0"
+    }
+   ]
   },
   {
    "id": "SharkPup",
@@ -100,9 +106,19 @@
     "col": "#9AA6B8",
     "belly": "#E8EDF4",
     "accent": "#5E6A80",
-    "horn": "#FFF4D6",
-    "glow": "#FFF4D6"
-   }
+    "horn": "#FFF4D6"
+   },
+   "accessories": [
+    {
+     "kind": "speckles",
+     "color": "#F4F8FC"
+    },
+    {
+     "kind": "narwhaltusk",
+     "color": "#FFF4D6",
+     "color2": "#C8A878"
+    }
+   ]
   },
   {
    "id": "Koi",
