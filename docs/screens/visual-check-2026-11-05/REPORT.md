@@ -213,3 +213,13 @@ FAIL on readability (lighting); everything else passes.
   4 text lines) and the wall signs show as blank white with faint text, so you can't read them
   (`76-hh-shop-coin-wall`, `76-hh-shop-counter`). From outside, the shop looks good.
 - Output: no game errors.
+
+## Gate 3: #66 at c904a7b
+
+PASS. 8 creatures given (Mouse, Fawn, Koala, Crab, Chick, Ember Fox, Dragonling, Nebula Serpent),
+all coloured (`66c-hh-coloured-meshes`); every texture loads (7/7 Success). A frame-by-frame log
+from the moment each creature appeared shows meshes within 0.12 s and never an untextured grey
+mesh. No "Asset type does not match" or TexturePack errors. Book: 17 unfound cards on screen, all
+dark with no TextureID and labelled "???"; Chick shows in colour with NEW
+(`66c-hh-book-silhouettes`). Output still has 7 one-time "Asset content representation is being
+generated" warnings while Roblox finishes processing the new images.
