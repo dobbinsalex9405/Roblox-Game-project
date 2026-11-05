@@ -191,16 +191,15 @@ def torn_ear(c, H, col, col2, a=None):
     if not right:
         return
     zt = max(p[2] for p in right)
-    xs = [p[0] for p in right if p[2] >= zt - round(1.2 * k)]
-    xo = max(xs)
-    n = max(2, round(0.8 * k))
+    xo = max(p[0] for p in right)
+    # a nick out of the tip's outer corner (cat ears are only a few voxels
+    # tall, so one corner column goes), and a pink scar beside it
     for (x, y, z) in list(right):
-        # a V cut into the outer top corner
-        if z > zt - n and x >= xo - (z - (zt - n)):
+        if z == zt and x == xo:
             torn.v.pop((x, y, z), None)
-    if col2:  # a pink nick showing where it healed
+    if col2:
         for (x, y, z) in list(torn.v):
-            if x >= 0 and z == zt - n and x >= xo - n:
+            if x == xo and z == zt - 1:
                 torn.v[(x, y, z)] = (col2, False)
 
 
