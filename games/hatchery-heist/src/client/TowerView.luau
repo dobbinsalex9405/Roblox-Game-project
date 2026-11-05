@@ -19,6 +19,7 @@ local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local Tower = require(Shared.Tower)
+local TowerDecor = require(Shared.TowerDecor)
 
 local Context = require(script.Parent.Context)
 local Sfx = require(script.Parent.Sfx)
@@ -191,6 +192,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	local playerGui = player:WaitForChild("PlayerGui")
 	local economy = ctx.config.economy
 	local themes = economy.tower.themes
+	local decor: TowerDecor.Config = require(ReplicatedStorage.GameConfig.towerDecor) :: any
 
 	------------------------------------------------------------------ Tower
 	local towerGui, towerFrame, floorList, fitTower = window("TowerMenu", "Your Tower", 22)
@@ -230,12 +232,14 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			local detail = ""
 			if built then
 				local m = Tower.multiplier(d, floor, economy)
+				local ups = Tower.upgrades(d, floor)
+				local nextName = TowerDecor.nextName(decor, floor, ups)
 				detail = if floor == 1
 					then "Ground floor  x1.00"
-					else `{times(m)} of {times(Tower.fullMultiplier(floor, economy))}  ·  upgrades {Tower.upgrades(
-						d,
-						floor
-					)}/{#economy.tower.upgradeShares}`
+					elseif
+						nextName
+					then `{times(m)} of {times(Tower.fullMultiplier(floor, economy))}  ·  Next: {nextName} ({ups}/{#economy.tower.upgradeShares})`
+					else `{times(m)}  ·  Fully furnished`
 			else
 				detail =
 					`{times(Tower.multiplier({ floorUpgrades = {} }, floor, economy))} when built, up to {times(
@@ -364,7 +368,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			end
 		end
 		herdInfo.Text = if #list == 0
-			then "No creatures yet. Buy an egg from the belt and hatch it!"
+			then "No creatures yet. Buy an egg at the Egg Market and hatch it!"
 			else `Earning: {usedCount}/{owned * Tower.SPOTS} slots used. In your inventory: {waiting}.`
 		for i, c in list do
 			local species = ctx.config.creatures.species[c.speciesId]
@@ -481,14 +485,13 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	end)
 
 	-- Redraw an open window when the save changes (a purchase, a move, a
-	-- new hatch, coins going up so a button turns green).
+	-- new hatch, a button turning green).
 	local lastTower, lastHerd = "", ""
 	ctx.onData(function(d: { [string]: any })
 		if towerGui.Enabled then
-			local key =
-				`{Tower.owned(d)}|{table.concat(d.floorUpgrades or {}, ",")}|{d.coins // 1000}|{tostring(
-					elevatorMode
-				)}`
+			-- only when a button changes, never on every coin (a rebuilt
+			-- button loses the click being made on it)
+			local key = `{Tower.menuKey(d, economy)}|{tostring(elevatorMode)}`
 			if key ~= lastTower then
 				lastTower = key
 				drawTower()

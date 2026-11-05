@@ -34,6 +34,11 @@ export type Options = {
 	now: () -> number, -- unix seconds (os.time)
 	serverTime: () -> number, -- shared server clock for the conveyor (workspace:GetServerTimeNow)
 	plotOf: (player: any) -> number?,
+	-- Whether the player stands close enough to market egg `index` to buy it
+	-- (the server measures from the character; nil in tests = always).
+	nearEgg: ((player: any, index: number, serverNow: number) -> boolean)?,
+	-- Tells every player a market egg is gone (nil in tests).
+	eggSold: ((index: number) -> ())?,
 	-- Effects on the player.
 	notify: (player: any, text: string) -> (),
 	hatched: (player: any, speciesId: string, eggId: string, isNew: boolean) -> (),
@@ -83,7 +88,8 @@ function Actions.new(options: Options): Actions
 	local analytics = options.analytics
 
 	-- Conveyor eggs each player has bought recently: { [player] = { [index] = true } }.
-	local boughtOnBelt: { [any]: { [number]: boolean } } = {}
+	-- Market eggs already sold to someone, by egg number (shared by all).
+	local soldOnMarket: { [number]: boolean } = {}
 	local lastAutoCollect: { [any]: number } = {}
 	-- Storage auto-sales are reported at most once per SOLD_NOTICE_SECONDS,
 	-- summed, so they never drown out other notices.
@@ -237,9 +243,20 @@ function Actions.new(options: Options): Actions
 		change(player, function()
 			return nil
 		end)
-		boughtOnBelt[player] = nil
 		lastAutoCollect[player] = nil
 		soldNotice[player] = nil
+	end
+
+	-- The cheapest coin egg the market sells.
+	local function cheapestEgg(): any?
+		local best: any? = nil
+		for eggId in economyConfig.conveyor.weights do
+			local e = Hatchery.eggById(config.eggs, eggId)
+			if e and e.priceCoins and (best == nil or e.priceCoins < best.priceCoins) then
+				best = e
+			end
+		end
+		return best
 	end
 
 	function actions.buyEgg(_self: Actions, player: any, index: number): (boolean, string?)
@@ -253,12 +270,15 @@ function Actions.new(options: Options): Actions
 			options.notify(player, "That egg has left the conveyor.")
 			return false, "egg not on the belt"
 		end
-		local bought: { [number]: boolean } = boughtOnBelt[player] or {}
-		boughtOnBelt[player] = bought
-		if bought[index] then
+		if soldOnMarket[index] then
+			options.notify(player, "Someone else got that egg first.")
 			return false, "egg already bought"
 		end
-		local egg = Hatchery.eggById(config.eggs, Conveyor.eggAt(index, plot, belt))
+		if options.nearEgg and not options.nearEgg(player, index, serverNow) then
+			options.notify(player, "Walk up to the egg to buy it.")
+			return false, "too far from the egg"
+		end
+		local egg = Hatchery.eggById(config.eggs, Conveyor.eggAt(index, belt))
 		if egg == nil then
 			return false, "unknown egg"
 		end
@@ -285,18 +305,24 @@ function Actions.new(options: Options): Actions
 				extraIncubators = perks.extraIncubators,
 			})
 			local incubator, refusal = Hatchery.buyEgg(d, ledger, egg, slots, options.now(), pick)
+			if refusal == "Not enough coins." then
+				refusal = Hatchery.shortOfCoins(egg, cheapestEgg())
+			end
 			if incubator then
 				step = Hatchery.markFirst(d, "FirstEggBought", options.now())
 			end
 			return refusal
 		end)
 		if ok then
-			bought[index] = true
+			soldOnMarket[index] = true
 			-- Forget eggs that have left the belt.
-			for i in bought do
+			for i in soldOnMarket do
 				if not Conveyor.canBuy(i, serverNow, belt) then
-					bought[i] = nil
+					soldOnMarket[i] = nil
 				end
+			end
+			if options.eggSold then
+				options.eggSold(index)
 			end
 			onboarding(player, step)
 		end

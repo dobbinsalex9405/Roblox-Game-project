@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+- Creatures on your tower walk around their spot: they turn, walk, stop,
+  and turn to face you, the same for every player. They really walk: four
+  legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
+  snakes slither and flyers hover with faster wing beats.
+- Creatures whose models have no separate legs walk with their whole body:
+  they rock from foot to foot, nod, bounce and swing their tails and ears.
+- Legendaries and Godlies float clearly above their spots.
+- Every floor's creatures show, inside your tower and from the yard. Other
+  players' towers show their creatures within 100 studs (your neighbours
+  either side) and only move them within 60, so a full server stays smooth
+  on a phone.
+- A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
+  longer also gets the generic rainbow cubes.
+- Crabs and lobsters with up to six legs a side walk on all of them.
+- Godlies stand about three times as tall as a Common (6 studs), across
+  their three spots.
+- Creature meshes more than 30 studs away draw their lighter far version,
+  so a busy yard of detailed Godlies stays smooth.
+
+- Fix: a creature no longer stays blocky for a whole server when Roblox
+  turns away one of its model loads. Loads go a few at a time and retry,
+  and the server log says why a creature stayed on its blocks. A missing
+  glow accent (Ember Fox's glowing paws) no longer sends the whole creature
+  back to blocks.
+- 61 more Commons can hatch from the Basic and Meadow eggs (91 Commons in
+  all): pups, kittens, parrots, woodland and pond critters, beetles and more.
+  Egg tier odds are unchanged; the new creatures share the Common chance.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
@@ -13,13 +40,30 @@
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
   and dark unlit price tags that stay readable in the lit room.
-
+- Fix: after a respawn you are sent back to your base again, not left at
+  the plaza.
+- The Egg Market: the conveyors at the front of each base are gone. One
+  round belt in the middle of the map carries eggs for everyone, on two
+  lanes turning opposite ways, each egg on its own pedestal. Whoever buys an
+  egg first gets it. Moonlit Eggs come along three times as often (the mix
+  is now 55% Basic, 30% Meadow, 15% Moonlit), and a sign beside each
+  stop shows each egg in turn: its price and its rarest chances, in big
+  type. Pressing Buy on an egg you can't afford says which egg it was and
+  what the cheapest egg costs, and Buy only shows on eggs you can afford
+  (unless you can afford none). On a phone the odds card is smaller, and the
+  guide's gold arrow steps aside once you reach the market.
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
   and each floor has 4 upgrades with props you can see. 8 spots a floor:
   Epics take 2, Legendaries and Godlies 3. Ride the elevator or climb the
   ladder.
+- Every floor upgrade now furnishes the room: themed beds on all eight
+  spots, then a big rug, then glowing ceiling lights, then corner plants
+  and the floor's crest, each growing in with a sparkle. The Tower menu
+  shows what the next upgrade brings.
+- Fix: with a big income, Upgrade and Build taps in the Tower menu were
+  sometimes lost (the menu rebuilt itself every time coins went up).
 - Only creatures on a floor earn. The rest wait in your inventory (now 150,
   up from 30); "Your Creatures" moves them, and Place best fills the tower
   with your strongest. Old bases are placed best first on the next join.
@@ -35,6 +79,8 @@
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.
+- The wood now goes all the way round the ring, so no bare grass shows
+  behind the barn or the fields.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
