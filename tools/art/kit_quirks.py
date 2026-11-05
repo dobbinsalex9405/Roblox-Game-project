@@ -799,6 +799,28 @@ def diving_beetle(c, H, col, col2, a=None):
             leg.put((X(xk), y, 0), legc)
 
 
+def puff_legs(c, H, col, col2, a=None):
+    """Even feet for a two-legged puff: the body is raised one voxel, each
+    leg grows by that voxel at the hip (so it is three tall and seen
+    stepping), and the right leg becomes the exact mirror of the left, its
+    pivot too (the puff plan places the two a voxel apart)."""
+    import rig
+    left, right = _find(c, 'legL'), _find(c, 'legR')
+    if not left or not right or not left.v:
+        return
+    for p in c.parts:
+        if p.name not in rig.LEG_NAMES:
+            _shift(p, 0, 0, 1)
+    top = max(z for (x, y, z) in left.v)
+    for (x, y, z), cv in list(left.v.items()):
+        if z == top:
+            left.v[(x, y, z + 1)] = left.v[(x, y, z)]
+            left.v[(x, y, z)] = left.v[(x, y, z - 1)] if (x, y, z - 1) in left.v else cv
+    left.pivot = (left.pivot[0], left.pivot[1], left.pivot[2] + 1)
+    right.v = {(-x - 1, y, z): cv for (x, y, z), cv in left.v.items()}
+    right.pivot = (-left.pivot[0], left.pivot[1], left.pivot[2])
+
+
 def drop_ears(c, H, col, col2, a=None):
     """Long floppy hound ears: from the top corners of the head each ear
     folds over and hangs flat against the side of the head, down past the
@@ -944,6 +966,7 @@ ACCESSORIES = {
     'aphid': aphid,
     'drop_ears': drop_ears,
     'cone_scales': cone_scales,
+    'puff_legs': puff_legs,
     'diving_beetle': diving_beetle,
     'tidy': tidy,
 }
