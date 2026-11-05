@@ -12,7 +12,7 @@ local BUDGET: { [string]: number } = {
 	tree = 160,
 	bush = 80,
 	stump = 40,
-	egg = 60,
+	egg = 90,
 	pedestal = 60,
 	belt = 60,
 	hub = 160,
@@ -20,6 +20,7 @@ local BUDGET: { [string]: number } = {
 	ladder = 20,
 	plaque = 20,
 	decor = 80,
+	tower = 260,
 }
 local ANIMS =
 	{ "static", "slide", "spin", "sway", "bob", "flicker", "pulse", "roll", "rock", "turn", "drip", "glint" }
@@ -104,6 +105,39 @@ describe("World art", function()
 				local okFloor = prop.floor == nil or (prop.floor >= 1 and prop.floor <= 10)
 				expect(okFloor and id or `{id}: floor {prop.floor}`).toBe(id)
 				expect(prop.zone ~= nil and id or `{id}: no zone`).toBe(id)
+			end
+		end
+	end)
+
+	it("has a whole apartment shell for every floor, all on one anchor", function()
+		for floor = 1, 10 do
+			for _, piece in { "Floor", "Back", "Left", "Right", "Front" } do
+				local id = `Tower{piece}{floor}`
+				local prop = WorldArt.props[id]
+				expect(prop ~= nil and id or `{id} is missing`).toBe(id)
+				if prop then
+					expect(prop.kind).toBe("tower")
+					expect(prop.floor).toBe(floor)
+					expect(prop.anchor ~= nil and id or `{id}: no anchor`).toBe(id)
+				end
+			end
+		end
+		local roof = WorldArt.props.TowerRoof
+		expect(roof ~= nil and roof.anchor ~= nil).toBe(true)
+	end)
+
+	it("has decor for every floor's four upgrade zones", function()
+		for floor = 1, 10 do
+			local zones: { [string]: boolean } = {}
+			for _, prop in WorldArt.props do
+				if prop.kind == "decor" and prop.floor == floor and prop.zone then
+					zones[prop.zone] = true
+				end
+			end
+			for _, zone in { "cozy", "toys", "lighting", "food" } do
+				expect(zones[zone] and `{floor} {zone}` or `floor {floor} has no {zone} decor`).toBe(
+					`{floor} {zone}`
+				)
 			end
 		end
 	end)
