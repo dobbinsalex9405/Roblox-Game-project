@@ -88,6 +88,11 @@ return {
 		margin = 0.6, -- studs kept clear of the spot's edge
 		cullFloors = 1, -- creatures more floors than this from you are not drawn
 	},
+	-- Creature meshes past this many studs from the camera draw their far
+	-- (LOD1) version: a few thousand triangles instead of up to 100,000.
+	creatureLod = {
+		farStuds = 30,
+	},
 	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
 	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
 	-- id 0 = silent until one is picked; the game works the same either way.
