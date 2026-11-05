@@ -20,6 +20,22 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **The raider must stand on the floor** (server checks height): the ladder
   is the only way up for a raider, which gives owners time to react.
 
+## 2026-11-05: Master creature list, 645 creatures (Hatchery Heist)
+
+- **Tier counts on one curve**: Common 200, Uncommon 140, Rare 100, Ultra
+  Rare 75, Epic 60, Legendary 50, Godly 20. Alex gave five of them and asked
+  for Uncommon to sit on the same curve; Epic, which Alex did not name but
+  the game has, gets the same treatment between Ultra Rare and Legendary.
+- **Every existing creature stays with its id and tier** (53 in the game,
+  122 more as roster data, all 152 Commons stay Common).
+- **The list lives in `tools/art/roster/master/`**, a subfolder, because
+  `variants.py` loads every `roster/*.json` as build entries.
+- **A cheap `puff` plan** (round body, stubby feet, a prop on top) carries
+  28 invented and garden-veggie creatures; other new plans: upright, drake,
+  fish, whale, octopus, dino, serpent, bat, jelly, griffin, ray, scorpion.
+- **Fish are on the list but flagged** (gait `swim`): no swim animation yet.
+- **Elements**: set from Rare up only; no effect until the element rollout.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150
