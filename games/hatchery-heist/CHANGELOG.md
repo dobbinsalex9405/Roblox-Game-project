@@ -16,6 +16,25 @@
   the side menu hides while a window is open; the welcome card shows all
   four steps without scrolling; the Robux shop shows more items at a time.
 
+- The apartment towers now look like apartments from outside: walls,
+  windows, balconies and a roof on every built floor of your tower and the
+  nearest towers (the rest keep their plain floors until you come close).
+- Fix: the ladder now stops at your top built floor, with a landing to step
+  off onto, instead of running past it.
+
+- Fix: the price label over the next floor to buy no longer fills its box
+  edge to edge; it has room for the longest price ("Floor 10: 165M coins").
+
+- Long Godlies (the Clockwork Leviathan, the Cosmic Whale) lie along their
+  three spots at full Godly height and pace up and down them, instead of
+  reaching into the spots in front and behind.
+
+- Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
+  set with F (snare) or R (slime), with a short hold, from closer by.
+
+- Sound effects: the egg shakes and cracks, each reveal has its own sting,
+  new Book entries, rewards and menu buttons all make a sound now.
+
 - Creatures on your tower walk around their spot: they turn, walk, stop,
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,

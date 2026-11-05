@@ -172,6 +172,10 @@ return function(Schema: any, Odds: any)
 		freeShieldSeconds = count,
 		shieldCooldownSeconds = count,
 		shieldSeconds = count,
+		trapPrompt = Schema.record({
+			reach = Schema.number({ min = 1, max = 20 }),
+			holdSeconds = Schema.number({ min = 0, max = 5 }),
+		}),
 		traps = Schema.record({
 			Snare = Schema.record({
 				price = Schema.integer({ min = 1 }),
@@ -383,6 +387,11 @@ return function(Schema: any, Odds: any)
 				volume = unit,
 			})
 		),
+		towerShells = Schema.record({
+			drawStuds = Schema.number({ min = 20, max = 1000 }),
+			towers = Schema.integer({ min = 1, max = 8 }),
+			boxesPerFrame = Schema.integer({ min = 50, max = 10000 }),
+		}),
 	})
 
 	-- Name, Robux price and description of each pass and product on Roblox
