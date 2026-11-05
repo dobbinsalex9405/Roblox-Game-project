@@ -169,6 +169,10 @@ return function(Schema: any, Odds: any)
 		freeShieldSeconds = count,
 		shieldCooldownSeconds = count,
 		shieldSeconds = count,
+		trapPrompt = Schema.record({
+			reach = Schema.number({ min = 1, max = 20 }),
+			holdSeconds = Schema.number({ min = 0, max = 5 }),
+		}),
 		traps = Schema.record({
 			Snare = Schema.record({
 				price = Schema.integer({ min = 1 }),

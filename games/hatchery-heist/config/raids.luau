@@ -40,6 +40,10 @@ return {
 		-- Slows the raider.
 		Slime = { price = 2000, slowFactor = 0.5, slowSeconds = 4, rearmSeconds = 20 },
 	},
+	-- Buying a trap: its prompts use their own keys (F snare, R slime), not
+	-- Hatch's E, need a short hold, and only reach this far, so standing at
+	-- an incubator never sets one by accident (Studio gate, Nov 5).
+	trapPrompt = { reach = 5, holdSeconds = 0.6 },
 
 	-- Decoy eggs on the decoy spots look like a creature to raiders. Picking
 	-- one up pops it, stuns the raider and alerts the owner.

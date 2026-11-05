@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
+  set with F (snare) or R (slime), with a short hold, from closer by.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
