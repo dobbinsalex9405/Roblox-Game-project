@@ -312,3 +312,10 @@ and bobs (0.13) at about 1.3-1.8 studs/s, but heads, ears and tails never move a
 (0° on every part), so there's no ear or tail swing. **Own-tower rule:** standing on your own
 ground floor inside the tower, floor 2 and all of floor 4 show while half of floor 3 is hidden
 (pads 21-24 hidden, 17-20 shown). That doesn't match "your floor ±1".
+
+## Gate: #93 at ca84265
+
+PASS. Trees stand behind every farm piece within ±12° (Barn 3, Field 67° 3, Field 338° 1 plus
+more just outside that cone; `93-hh-field338` shows wood behind the field). No scenery prop sits
+inside any farm piece's footprint. No parts are named "path", so the check against paths was
+done by eye: nothing stands on the walkways.
