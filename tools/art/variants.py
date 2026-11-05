@@ -144,7 +144,8 @@ def builder(entry):
     cols = {k: hexc(v) for k, v in entry.get('colors', {}).items()}
     opts = dict(entry.get('options', {}))
 
-    def build(c, H):
+    def build(c, H, cols=cols, opts=opts):
+        cols, opts = dict(cols), dict(opts)  # a fresh copy each build
         if plan == 'quadruped':
             col = cols.pop('col')
             if opts.get('tail') == 'none':
