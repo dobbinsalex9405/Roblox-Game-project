@@ -89,6 +89,58 @@ describe("Tower floors", function()
 		expect(#d.floorUpgrades).toBe(2)
 	end)
 
+	it("upgrades every floor from 2 to 10, in any order, four times each", function()
+		-- The Studio gate on #91 could not upgrade floors 5 to 10: prove the
+		-- rules do (the cost is the only thing that grows: about 443M coins).
+		local d = fresh()
+		d.coins = 10 ^ 12
+		for _ = 2, 10 do
+			expect((Tower.buyFloor(d, ledger(d), economy))).toBe(true)
+		end
+		expect(Tower.owned(d)).toBe(10)
+		local spent = d.coins
+		for _, floor in { 10, 5, 7, 2, 9, 3, 6, 8, 4 } do
+			for _ = 1, 4 do
+				local ok, why = Tower.upgradeFloor(d, ledger(d), floor, economy)
+				expect(if ok then floor else `floor {floor}: {why}`).toBe(floor)
+			end
+			expect((Tower.upgradeFloor(d, ledger(d), floor, economy))).toBe(false)
+		end
+		for floor = 2, 10 do
+			expect(Tower.upgrades(d, floor)).toBe(4)
+		end
+		expect(#d.floorUpgrades).toBe(10)
+		-- 1.8 x the price of floors 2 to 10
+		local total = 0
+		for _, p in economy.tower.floorPrices do
+			total += p
+		end
+		expect(spent - d.coins).toBe(math.floor(total * 1.8 + 0.5))
+	end)
+
+	it("redraws the Tower menu only when a button changes, not on every coin", function()
+		-- Bug: the menu redrew whenever coins crossed a thousand, so with a big
+		-- income an Upgrade button was rebuilt between press and release and
+		-- the click was lost (Studio gate, floors 5 to 10).
+		local d = fresh()
+		d.coins = 10 ^ 9
+		for _ = 2, 10 do
+			Tower.buyFloor(d, ledger(d), economy)
+		end
+		d.coins = 1000
+		local before = Tower.menuKey(d, economy)
+		d.coins = 4999 -- still short of the cheapest upgrade (floor 2: 5,000)
+		expect(Tower.menuKey(d, economy)).toBe(before)
+		d.coins = 5000 -- floor 2's Upgrade turns green
+		expect(Tower.menuKey(d, economy) ~= before).toBe(true)
+		local green = Tower.menuKey(d, economy)
+		d.coins = 9000
+		expect(Tower.menuKey(d, economy)).toBe(green)
+		-- buying changes it too
+		Tower.upgradeFloor(d, ledger(d), 2, economy)
+		expect(Tower.menuKey(d, economy) ~= green).toBe(true)
+	end)
+
 	it("refuses a floor the player cannot afford and leaves coins alone", function()
 		local d = fresh()
 		d.coins = 24999
