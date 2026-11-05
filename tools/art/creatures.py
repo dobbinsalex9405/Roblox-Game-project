@@ -575,6 +575,10 @@ def blob(c, H, kind, col, accent, glow=None):
             x = round(sx * 0.6 * k) - (1 if sx < 0 else 0)
             head.put((x, round(-3.0 * k), round(3.2 * k)), INK)
             head.put((x + sx, round(-3.2 * k), round(3.8 * k)), INK)
+        if getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the shell
+            import kit_refit
+            kit_refit.lift(c, max(1, round(1.0 * k)))
     elif kind == 'axolotl':
         body.ell((0, 0.8 * k, 2.2 * k), (1.8 * k, 3.4 * k, 1.6 * k), col)
         head.ell((0, -2.4 * k, 3.4 * k), (2.4 * k, 1.8 * k, 1.8 * k), col)

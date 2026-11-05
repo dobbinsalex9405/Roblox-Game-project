@@ -337,7 +337,9 @@ def cup(c, H, col, col2, a):
                 if z == z1:
                     part.put((x, y, z), light(col, 0.35))
                 continue
-            if math.cos(ang(x, y) * 8) > 0.55:
+            # the ribs only on the Blender build: the in-game boxes stay in
+            # budget with a plain pumpkin
+            if getattr(c, 'fine', False) and math.cos(ang(x, y) * 8) > 0.55:
                 part.put((x, y, z), rib)
         # a curly stem and a leaf on the rim at the back
         st = c.part('stem', 'static')
