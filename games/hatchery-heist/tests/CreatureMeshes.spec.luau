@@ -39,6 +39,8 @@ local ANIMS = {
 	"leg5R",
 	"leg6L",
 	"leg6R",
+	"finL", -- fins paddle when a fish swims (Walk "swim")
+	"finR",
 }
 
 -- Triangles a client draws per creature close up (LOD0), at most, by tier;

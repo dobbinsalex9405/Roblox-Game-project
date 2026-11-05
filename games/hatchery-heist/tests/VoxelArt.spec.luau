@@ -38,6 +38,8 @@ local ANIMS = {
 	"leg5R",
 	"leg6L",
 	"leg6R",
+	"finL", -- fins paddle when a fish swims (Walk "swim")
+	"finR",
 }
 
 -- Parts a client builds per creature, at most, by tier. Commons are cheap so
