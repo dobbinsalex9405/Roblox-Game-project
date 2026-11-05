@@ -15,6 +15,10 @@
   their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
+- The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
+  its own display (coin packs, passes, Shield Refill), price tags, a Buy
+  prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
+  and dark unlit price tags that stay readable in the lit room.
 
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
