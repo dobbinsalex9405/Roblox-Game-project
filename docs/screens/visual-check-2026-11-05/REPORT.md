@@ -530,3 +530,14 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
    - *Note:* the toast sits between the banner and the Buy prompt, and its first word runs under the odds card (`97g-hh-refusal-toast.jpg`).
 4. **Nest view: PASS.** The Golden Egg and coloured eggs read clearly over the ring (`97g-hh-nest-from-path.jpg`).
    - *Note:* the sign backs are plain dark slabs. From the far side of the ring you see blank boards; a wood back or a small egg icon would look nicer.
+
+## #112 @ 2df231c (fresh-player fixes, stacked on #97 e94c6b4)
+
+**FAIL: stopped at the first failure.** Phone size (viewport about 858x418; the window was not in front, because Alex was using the laptop).
+
+- **Welcome card: PASS.** All four tips fit without scrolling (`112-hh-welcome-four-tips-phone.jpg`).
+- **Coin panel: PASS.** Bar BackgroundTransparency is 0.05, and the base sign no longer shows through.
+- **Side menu: FAIL. It never appears.** After "Let's go!", `HatcheryGuide.SideMenu.Visible` stays false for good, with no window open (`112-hh-spawn-no-side-menu-phone.jpg`). Guide, Book, Tower, Pets, Daily and Music can't be reached.
+  - Cause: GuideView's new loop hides the menu while *any* enabled ScreenGui has DisplayOrder 20-49. CoreFeedback (20), CoreShop (30) and CoreTestPanel (35) are always enabled because they hold the top-bar buttons.
+  - CoreFeedback and CoreShop exist on live servers too, so this would ship.
+  - Fix: test each window's own `Window.Visible` (or keep an explicit list of the HH windows), not `ScreenGui.Enabled`.
