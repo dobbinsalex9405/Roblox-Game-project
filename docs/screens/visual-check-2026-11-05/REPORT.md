@@ -52,3 +52,11 @@ Phoenixes, Thunder Griffin, Nebula Serpent, Golden Goose and Crystal Stag on the
 much dimmer than at 16b5245 and every creature reads clearly (compare `52b-hh-big-tiers-dimmer`
 with `47c-hh-rare-tiers`); FPS 54. The new tracks 1840017271, 1846499154, 9048460919 all load
 (2:46, 2:55, 3:11) and crossfade 1 to 2 and 2 to 3 over about 2 s. Output: no errors.
+
+## Gate: #57 at d20ae77 (compared with main eecbc3e)
+
+FAIL. Chick, Ember Fox and Phoenix render the same as main on pads (same part counts 14/61/415,
+no MeshParts or blank meshes, same widths and heights within animation). But the ridden Phoenix is
+10.1 studs tall with its ring and glow, against 6.0 studs and no glow on main: d20ae77 is not based
+on eecbc3e, so #52's mount fixes (ArtScale ridden scale, CreatureLooks, Layout, init.server) are
+undone by this branch. Output: no errors.
