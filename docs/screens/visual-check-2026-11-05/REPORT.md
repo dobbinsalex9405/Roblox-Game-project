@@ -319,3 +319,15 @@ PASS. Trees stand behind every farm piece within ±12° (Barn 3, Field 67° 3, F
 more just outside that cone; `93-hh-field338` shows wood behind the field). No scenery prop sits
 inside any farm piece's footprint. No parts are named "path", so the check against paths was
 done by eye: nothing stands on the walkways.
+
+## Gate: #97 at 48dbaf4 (Egg Market)
+
+PASS except kiosk readability. 258 slats all moving; 66-82 eggs (Basic, Meadow, Moonlit) on crates
+in two lanes going opposite ways around the nest. On walking up, the Buy prompt and the egg's odds
+card appear (`97-hh-market-walkup`). Pressing E bought a Basic egg: coins went down by 50, an
+incubator started and the goal changed to "Your egg hatches in 8s"; the bought egg's crate and
+shell go fully transparent (`97-hh-market-bought`). A fresh spawn lands at the player's own base
+(134, 3, 0). Phone 844x392 at the market: 60 fps. **FAIL:** the kiosk's odds boards over the nest
+can't be read from the paths: about 34 studs away the rows are a few pixels tall
+(`97-hh-kiosk-from-path`). No game errors. A Studio "Lighting Technology Migration" notice
+popped up once and was closed with its X; it's Studio-only.
