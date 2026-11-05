@@ -18,21 +18,30 @@
    },
    "shape": {
     "body": [
-     0.95,
-     1.05,
-     1.0
-    ]
+     0.84,
+     0.92,
+     0.9
+    ],
+    "head": 0.9
    },
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#F7F4FF",
-     "color2": "#C8B8E8"
+     "amount": 0.6
     },
     {
-     "kind": "feather_wings",
+     "kind": "horse_head",
+     "color": "#FFE8F2",
+     "color2": "#B8A0D8"
+    },
+    {
+     "kind": "raised_wings",
      "color": "#FFFFFF",
-     "color2": "#BDE3FF"
+     "color2": "#BDE3FF",
+     "span": 3.8,
+     "angle": 50,
+     "drop": 0.0
     },
     {
      "kind": "mend",
@@ -1020,8 +1029,13 @@
    },
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#1E2650",
+     "amount": 0.8
+    },
+    {
+     "kind": "horse_head",
+     "color": "#2A3468",
      "color2": "#9FD6FF"
     },
     {
@@ -1061,9 +1075,15 @@
    },
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#D81E3C",
-     "color2": "#5A0A18"
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FF6A80",
+     "color2": "#5A0A18",
+     "nose": "wolf"
     },
     {
      "kind": "facets",
@@ -1215,16 +1235,22 @@
    },
    "shape": {
     "body": [
+     0.92,
      1.0,
-     1.05,
-     1.0
+     0.95
     ]
    },
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#6A7A5A",
-     "color2": "#22281A"
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#C8D4B0",
+     "color2": "#22281A",
+     "nose": "wolf"
     },
     {
      "kind": "thorn_mane",

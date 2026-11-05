@@ -167,9 +167,9 @@
    },
    "shape": {
     "body": [
-     0.9,
-     1.0,
-     1.0
+     0.84,
+     0.93,
+     0.94
     ]
    },
    "patterns": [
@@ -180,8 +180,13 @@
    ],
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#C98B5A",
+     "amount": 0.7
+    },
+    {
+     "kind": "horse_head",
+     "color": "#D9A070",
      "color2": "#3A2418"
     },
     {
@@ -596,11 +601,20 @@
     "ears": "round",
     "tail": "short"
    },
+   "shape": {
+    "body": [
+     0.9,
+     0.92,
+     0.85
+    ],
+    "head": 0.88
+   },
    "accessories": [
     {
-     "kind": "spikes",
+     "kind": "hedgehog_quills",
      "color": "#4E8F3A",
-     "color2": "#E8334A"
+     "color2": "#F2E4C4",
+     "snout": "#F3DFC4"
     },
     {
      "kind": "mend",
@@ -807,16 +821,16 @@
     "ear_col": "#9A6E42"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "cat",
     "tail": "short"
    },
    "shape": {
     "body": [
-     0.88,
-     0.95,
-     0.95
+     0.84,
+     0.9,
+     0.92
     ],
-    "head": 0.9
+    "head": 0.85
    },
    "patterns": [
     {
@@ -826,8 +840,13 @@
    ],
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#B98A5A",
+     "amount": 0.6
+    },
+    {
+     "kind": "horse_head",
+     "color": "#CDA070",
      "color2": "#3A2418"
     },
     {
@@ -1627,8 +1646,13 @@
    ],
    "accessories": [
     {
-     "kind": "long_muzzle",
+     "kind": "long_legs",
      "color": "#9FE8C0",
+     "amount": 0.7
+    },
+    {
+     "kind": "horse_head",
+     "color": "#E0FFF0",
      "color2": "#3A6A4A"
     },
     {
