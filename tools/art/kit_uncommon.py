@@ -19,7 +19,7 @@ extra keys are listed with each):
   berry (held under the chin).
 - **pot**: a honey pot hugged to the chest, honey (color2) over the rim.
 - **bubble**: a bubblegum bubble blown from the mouth.
-- **tusks**: two small tusks beside the snout.
+- **unc_tusks**: two small tusks beside the snout.
 - **snout**: a long snout or trunk from the face. `length` (in k, default
   2), `droop` (0 straight on, 1 hangs down), `r` (thickness in k), the tip
   in color2.
@@ -54,8 +54,8 @@ extra keys are listed with each):
   (puffs in color and color2; one on every `every`th spot, default 6;
   `head: true` adds a few on the crown).
 - **frizz**: curly feathers sticking out everywhere.
-- **mushrooms**: little caps on the back, spots in color2.
-- **spikes**: soft spikes over the back, tips in color2. `head: true` too,
+- **unc_mushrooms**: little caps on the back, spots in color2.
+- **unc_spikes**: soft spikes over the back, tips in color2. `head: true` too,
   `size` (in k).
 - **feelers**: whiskers, two each side of the muzzle.
 - **bigeyes**: bigger eyes (`size` in k), white shine.
@@ -1636,9 +1636,9 @@ def jellybean(c, H, col, col2, a):
 
 ACCESSORIES = {
     'cup': cup, 'mitten': mitten, 'shell': shell, 'ball': ball_acc, 'pot': pot, 'bubble': bubble,
-    'tusks': tusks, 'snout': snout, 'hornset': hornset, 'earset': earset, 'tailset': tailset,
+    'unc_tusks': tusks, 'snout': snout, 'hornset': hornset, 'earset': earset, 'tailset': tailset,
     'wingset': wingset, 'wingfold': wingfold, 'boots': boots, 'stilts': stilts, 'carapace': carapace, 'skirt': skirt,
-    'fluff': fluff, 'frizz': frizz, 'mushrooms': mushrooms, 'spikes': spikes, 'feelers': whiskers,
+    'fluff': fluff, 'frizz': frizz, 'unc_mushrooms': mushrooms, 'unc_spikes': spikes, 'feelers': whiskers,
     'bigeyes': bigeyes, 'mouth': mouth, 'sweater': sweater, 'snowcap': snowcap, 'mane_strip': mohawk,
     'crest': crest, 'beak': beak, 'fan': fan, 'leaf': leaf, 'eyedisc': eyedisc, 'cicada': cicada, 'goatee': goatee,
     'jellybean': jellybean,
