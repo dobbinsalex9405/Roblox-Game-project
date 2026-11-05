@@ -137,6 +137,29 @@ never sold.
   middle; low fences and flower beds on each base; trees and a ring of hills.
   Background music from Roblox's licensed library, with a Music on/off button
   in the side menu.
+- **Hatch reveal** (`src/client/HatchReveal.luau`): every hatch plays on
+  screen. The egg wobbles, cracks, and the creature turns under its rarity,
+  name, income and the player's exact chance (same numbers as the odds card).
+  It grows with rarity (`CreatureLooks`: wobble, rays, confetti, shake,
+  hold). Tap skips ahead; holding skips every waiting reveal (a notice lists
+  them); waiting Commons and Uncommons already in the book share one reveal.
+- **Hatchery Book** (side menu): every species on a card by tier; owned ones
+  in colour, the rest as "???" silhouettes, each with its best egg and exact
+  chance. Every species ever owned adds `economy.book.incomePerSpecies`
+  (1%) income, so a full book is +33%. Kept in `data.found`.
+- **Daily Rewards** (side menu, "!" when one is waiting; opens by itself
+  once a session for returning players): Day 1 to 7 once a UTC day, then
+  round again; a missed day starts over. Each is so many seconds of income
+  between a floor and a cap (`economy.daily`), Day 7 the biggest (45
+  minutes, at least 3,500 and at most 20,000 coins, a quarter of the 80K
+  Coins pack). Kept in `data.daily`.
+- **Farmyard** (`src/server/Farm.luau`, `atmosphere.scenery.farm`): outside
+  the ring of bases, a red barn and silo, a windmill whose sails turn on each
+  client, a duck pond, an animal pen and crop fields, among voxel trees and
+  terraced hills. Farm animals are voxel creatures drawn by CreatureView
+  (Ducklings, Chicks, Lambs, Piglets). Decoration only.
+- **Sound effects** (`config/atmosphere.luau` `sounds`): named hooks; an id
+  of 0 is silent until one is picked by ear.
 
 ## Money
 
@@ -164,7 +187,9 @@ anyone else.
 ## Save data
 
 Version 1 is in `src/shared/DataTemplate.luau`. Changes go through a migration;
-nothing is ever removed.
+nothing is ever removed. `found` (Hatchery Book) was added to version 1
+without a migration: the core's reconcile fills it in as `{}`, and join
+back-fills it from the creatures the player owns.
 
 ## Status
 

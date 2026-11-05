@@ -315,6 +315,43 @@ local function build(anchor: BasePart, speciesId: string)
 	)
 end
 
+-- A still copy of a creature for a picture (the hatch reveal, the Hatchery
+-- Book): anchored boxes with its feet at the origin, facing -Z like on a pad.
+-- Returns the model and its size in studs, or nil for a species without art.
+function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (Model?, Vector3)
+	local art = VoxelArt.species[speciesId]
+	if art == nil then
+		return nil, Vector3.zero
+	end
+	local s = studsPerVoxel or VoxelArt.voxel
+	local model = Instance.new("Model")
+	model.Name = speciesId
+	local colors: { Color3 } = {}
+	local glows: { boolean } = {}
+	for i, hex in art.palette do
+		colors[i], glows[i] = rgb(hex)
+	end
+	for _, part in art.parts do
+		local boxes = part.boxes
+		for i = 1, #boxes, 7 do
+			local x, y, z = boxes[i], boxes[i + 1], boxes[i + 2]
+			local sx, sy, sz = boxes[i + 3], boxes[i + 4], boxes[i + 5]
+			local box = visualPart(
+				part.name,
+				Vector3.new(sx * s, sy * s, sz * s),
+				CFrame.new((x + sx / 2) * s, (y + sy / 2) * s, (z + sz / 2) * s)
+			)
+			box.Anchored = true
+			box.Color = colors[boxes[i + 6]]
+			if glows[boxes[i + 6]] then
+				box.Material = Enum.Material.Neon
+			end
+			box.Parent = model
+		end
+	end
+	return model, Vector3.new(art.size[1], art.size[2], art.size[3]) * s
+end
+
 local function watch(inst: Instance)
 	if not inst:IsA("BasePart") then
 		return

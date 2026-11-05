@@ -11,6 +11,7 @@ local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
+local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
 
 local Hud = {}
@@ -154,7 +155,14 @@ function Hud.start(ctx: Context.Context)
 	ctx.on(ctx.remotes["HH:Notice"], function(text: string)
 		show(text)
 	end)
-	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string)
+	-- The reveal plays each hatch; a notice covers any it has no room for.
+	local reveal = HatchReveal.start(ctx, function(text: string)
+		show(text, 6)
+	end)
+	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string, eggId: string, isNew: boolean)
+		if reveal.show(speciesId, eggId, isNew) then
+			return
+		end
 		local species = ctx.config.creatures.species[speciesId]
 		local rarity = if species then species.rarity else "Common"
 		show(`You hatched a {rarity} {Layout.displayName(speciesId)}!`, 4)

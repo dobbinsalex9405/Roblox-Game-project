@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+- Fixed: an incubator could keep saying "Ready!" after its egg hatched.
+- The odds card and the odds board use one text size per list, so long
+  names no longer show smaller than their neighbours.
+- Hatch reveal: every hatch plays on screen. The egg wobbles, cracks in a
+  flash, and the creature turns under its rarity, name, income and exact
+  chance, with rays, glow, confetti and screen shake as rarity rises. Tap to
+  skip ahead, hold to skip all; small repeat hatches share one reveal.
+- Hatchery Book in the side menu: all 33 creatures by tier, "???"
+  silhouettes until found, each with its best egg and odds. Every species
+  found adds +1% income.
+- Daily Rewards in the side menu: a seven-day streak of growing coin
+  rewards that scale with income up to a cap (Day 7 at most 20,000); a
+  missed day starts over.
+- Farmyard map: a red barn and silo, a turning windmill, a duck pond, an
+  animal pen and crop fields around the ring of bases, with voxel trees and
+  terraced hills in place of the round ones.
+- Sound effect hooks for the egg, the reveal, the book and rewards (silent
+  until sounds are picked).
+
 - Creatures (Alex, Nov 5): 33 voxel creatures in seven tiers, from ten
   small Commons up to two huge Godlies, replacing the coloured balls. Each
   tier moves and shines more than the last: Commons bob and blink; Rares

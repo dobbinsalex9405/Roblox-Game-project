@@ -89,10 +89,54 @@ function Hatchery.slotCount(d: Data, economy: any, perks: Perks): number
 	return d.slots + (if perks.extraIncubators then economy.incubators.passBonusSlots else 0)
 end
 
--- Coins per second from placed creatures, with rebirth and pass multipliers.
+-- Hatchery Book: notes that the player owns a species, at `at` (unix
+-- seconds). Returns true the first time.
+function Hatchery.noteFound(d: Data, speciesId: string, at: number): boolean
+	if d.found == nil then
+		d.found = {}
+	end
+	if d.found[speciesId] ~= nil then
+		return false
+	end
+	d.found[speciesId] = at
+	return true
+end
+
+-- Adds every species the player owns now to the book (for saves made before
+-- the book existed). Returns how many were new.
+function Hatchery.backfillFound(d: Data): number
+	local added = 0
+	for _, creature in d.creatures do
+		if Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt or 0) then
+			added += 1
+		end
+	end
+	return added
+end
+
+-- How many of the game's species are in the player's book.
+function Hatchery.foundCount(d: Data, creatureConfig: any): number
+	local n = 0
+	for speciesId in d.found or {} do
+		if creatureConfig.species[speciesId] ~= nil then
+			n += 1
+		end
+	end
+	return n
+end
+
+-- The book's income bonus: 0.07 means +7%.
+function Hatchery.bookBonus(d: Data, config: any): number
+	return Hatchery.foundCount(d, config.creatures) * config.economy.book.incomePerSpecies
+end
+
+-- Coins per second from placed creatures, with rebirth, pass and book
+-- multipliers.
 function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
 	local base = Creatures.baseIncome(d.creatures, config.creatures)
-	return base * Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+	return base
+		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+		* (1 + Hatchery.bookBonus(d, config))
 end
 
 -- Adds earnings since `lastIncomeAt` to the pending pile at full rate.
@@ -423,6 +467,7 @@ function Hatchery.hatch(
 	d.nextUid += 1
 	place(d, creature, creatureConfig, economy.creaturePads)
 	table.insert(d.creatures, creature)
+	Hatchery.noteFound(d, creature.speciesId, now)
 	local sold = trimStorage(d, ledger, creatureConfig, economy)
 	return creature, nil, sold
 end
@@ -462,6 +507,7 @@ function Hatchery.receive(
 	d.nextUid += 1
 	place(d, creature, creatureConfig, economy.creaturePads)
 	table.insert(d.creatures, creature)
+	Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt)
 	return creature, trimStorage(d, ledger, creatureConfig, economy)
 end
 

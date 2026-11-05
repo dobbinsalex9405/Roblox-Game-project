@@ -292,6 +292,22 @@ describe("Hatchery Heist sessions", function()
 		local progression = h.eventsOf("progression")
 		expect(progression[#progression][1]).toBe("Rebirth")
 	end)
+
+	it("claims the daily reward once a day through the server", function()
+		local h = Harness.new()
+		local player = Fakes.player(9)
+		h.join(player)
+		local before = h.get(player).coins
+		expect((h.actions:claimDaily(player))).toBe(true)
+		local reward = economy.daily.rewards[1].minCoins
+		expect(h.get(player).coins).toBe(before + reward)
+		expect(h.lastNotice(player)).toBe(`Day 1 reward: +{reward} coins!`)
+		expect((h.actions:claimDaily(player))).toBe(false)
+		expect(h.get(player).coins).toBe(before + reward)
+		h.wait(player, 86400)
+		expect((h.actions:claimDaily(player))).toBe(true)
+		expect(h.get(player).daily.streak).toBe(2)
+	end)
 end)
 
 -- The Studio test panel's "Give a creature": guard walks and rides can be

@@ -2,6 +2,30 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Hatch reveal and Hatchery Book (Hatchery Heist)
+
+- **The book's reward is income, not luck.** Each species found adds +1%
+  income (`economy.book.incomePerSpecies`). A luck bonus would make every
+  player's odds different from the config and need its own exact-odds
+  display; income keeps odds the same for everyone.
+- **`found` joined save version 1 without a migration.** Reconcile adds the
+  missing key and join back-fills it from owned creatures. A version bump
+  would make any rollback refuse saves that loaded on the newer build.
+- **The reveal and the book show the server's odds for the player** (the
+  odds card's numbers, boosts included), using config odds only until the
+  server's arrive, so the three can never disagree.
+- **Daily rewards are coins scaled to income, with a floor and a cap.**
+  Fixed amounts are worthless after an hour of play; free eggs would need a
+  free incubator and a paid-random-item policy check. Uncapped, Day 7 at 200
+  coins a second paid 540K, about 7x the 80K Coins pack, so each day has a
+  `maxCoins` (Day 1 2,000 up to Day 7 20,000, a quarter of that pack) and
+  Config.spec fails if any day goes over a quarter. Days are UTC days so the
+  server's check is simple and the same everywhere.
+- **Waiting small hatches share one reveal.** Commons and Uncommons already
+  in the book group into "+N more"; anything new or Rare and up keeps its
+  own reveal. Holding the screen skips everything waiting and lists it in a
+  notice. A player with 12 incubators is never held up long.
+
 ## 2026-11-05: Rarer odds and voxel creatures (Hatchery Heist)
 
 - **Odds tables may total more than 10,000.** `Odds` takes an optional
