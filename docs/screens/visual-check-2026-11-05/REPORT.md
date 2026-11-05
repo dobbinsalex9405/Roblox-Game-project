@@ -338,3 +338,11 @@ PASS. Ember Fox, Frost Wolf, Crystal Stag and Moon Unicorn draw as coloured Mesh
 texture loads), not voxel boxes (`94b-hh-glow-species-meshes`). Output has "creature glow meshes
 missing; drawing the creature without them meshes=<Species>_body_glow" for all four and no
 "drawing voxel boxes" line.
+
+## Re-gate: #91 at 1a77df3 (scope: floors 5-10)
+
+PASS. Every Build tap on floors 2-10 registered, as did all 4 Upgrade taps on each of floors 5-10
+(coins kept changing over 1,000-coin boundaries while I clicked). The menu shows floors 5-10 "Fully
+furnished" (`91b-hh-floors5-10-furnished`); floor 10 used real mouse clicks. Standing on each of
+floors 5-10, all 4 decor groups load, and no furniture part sits in the ladder opening
+(`91b-hh-penthouse`).
