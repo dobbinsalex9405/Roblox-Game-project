@@ -15,6 +15,7 @@ import math
 from voxkit import hexc
 
 INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
+GLOW_TIERS = ('Ultra Rare', 'Epic', 'Legendary', 'Godly')
 GLOW_TAIL = hexc('#FFF27A')
 
 PLANS = {
@@ -76,23 +77,27 @@ def antennae(head, k, x, y, z, length, col, back=0.0, spread=0.35):
 def legs(body, k, spots, col, out=0.9, height=1.0, w=None, c=None, n=None, first=0):
     """Six (or more) thin legs: for each (x, y) on the body's side a rod down
     and out to the ground. With `c`, each leg is its own part hinged at the
-    hip (front to back; `n` legs a side in all, these from number `first`)."""
+    hip (front to back; `n` legs a side in all, these from number `first`).
+    Each leg is drawn on the right and mirrored exactly for the left."""
     w = w if w is not None else max(0, round(0.18 * k))
     n = n or len(spots)
     for i, (x, y) in enumerate(sorted(spots, key=lambda s: s[1])):
+        top = (x * k, y * k, height * k)
+        foot = ((x + out) * k, y * k, 0)
+        steps = max(2, round(max(out, height) * k * 1.5))
+        cells = set()
+        for j in range(steps + 1):
+            t = j / steps
+            px = top[0] + (foot[0] - top[0]) * t
+            pz = top[2] + (foot[2] - top[2]) * t
+            bx = math.floor(px)
+            for dx in range(w + 1):
+                for dy in range(w + 1):
+                    cells.add((bx + dx, math.floor(top[1]) + dy, max(0, math.floor(pz))))
         for sx in (-1, 1):
-            top = (sx * x * k, y * k, height * k)
-            foot = (sx * (x + out) * k, y * k, 0)
-            part = body if c is None else _leg(c, sx, first + i, n, top)
-            steps = max(2, round(max(out, height) * k * 1.5))
-            for j in range(steps + 1):
-                t = j / steps
-                px = top[0] + (foot[0] - top[0]) * t
-                pz = top[2] + (foot[2] - top[2]) * t
-                bx = math.floor(px)
-                for dx in range(w + 1):
-                    for dy in range(w + 1):
-                        part.put((bx + (dx if sx > 0 else -dx), math.floor(top[1]) + dy, max(0, math.floor(pz))), col)
+            part = body if c is None else _leg(c, sx, first + i, n, (sx * top[0], top[1], top[2]))
+            for (cx, cy, cz) in cells:
+                part.put((cx if sx > 0 else _mx(cx), cy, cz), col)
 
 
 def _leg(c, sx, i, n, hip):
@@ -105,18 +110,23 @@ def bent_legs(body, k, ys, col, hip=(0.8, 2.0), knee=(1.8, 3.4), foot=2.6, r=0.3
     spider's or an ant's: for each y on the body a hip at (x, z), a knee
     further out and higher, a foot further out still. Legs splay forward at
     the front and back at the rear by `splay`. With `c`, each leg is its own
-    part hinged at the hip."""
+    part hinged at the hip. Drawn on the right and mirrored exactly for the
+    left."""
+    from voxkit import Part
     ys = sorted(ys)
     mid = (ys[0] + ys[-1]) / 2
     for i, y in enumerate(ys):
         dy = (y - mid) * splay
+        a = (hip[0] * k, y * k, hip[1] * k)
+        b = (knee[0] * k, (y + dy * 0.5) * k, knee[1] * k)
+        f = (foot * k, (y + dy) * k, 0)
+        tmp = Part('tmp')
+        line(tmp, a, b, col, r=r * k)
+        line(tmp, b, f, col, r=r * k * 0.85)
         for sx in (-1, 1):
-            a = (sx * hip[0] * k, y * k, hip[1] * k)
-            b = (sx * knee[0] * k, (y + dy * 0.5) * k, knee[1] * k)
-            f = (sx * foot * k, (y + dy) * k, 0)
-            part = body if c is None else _leg(c, sx, i, len(ys), a)
-            line(part, a, b, col, r=r * k)
-            line(part, b, f, col, r=r * k * 0.85)
+            part = body if c is None else _leg(c, sx, i, len(ys), (sx * a[0], a[1], a[2]))
+            for (x, yy, z), v in tmp.v.items():
+                part.v[(x if sx > 0 else _mx(x), yy, z)] = v
 
 
 # --------------------------------------------------------------- critters
@@ -205,12 +215,20 @@ def critter(c, H, kind, col, accent=None, wing=None):
         shell = c.part('shell', 'static')
         shell.ell((0, 0.6 * k, 2.6 * k), (1.8 * k, 2.4 * k, 1.4 * k), col, cond=lambda x, y, z: z >= round(2.4 * k) and y < round(2.2 * k))
         shell.paint(lambda p, cc, g: (_dark(col, 0.25), False) if abs(p[0] + .5) < 0.5 else None)
-        lamp = c.part('lamp', 'glow')
-        lamp.ell((0, 3.0 * k, 1.9 * k), (1.2 * k, 1.0 * k, 1.0 * k), wing or GLOW_TAIL, True)
+        # only Ultra Rare and up may glow in game (VoxelArt.spec): below
+        # that the lantern is a bright, solid yellow
+        glows = getattr(c, 'rarity', '') in GLOW_TIERS
+        lamp = c.part('lamp', 'glow' if glows else 'static')
+        # (a big round lantern out behind the shell, so it shows from the front too)
+        lamp.ell((0, 3.3 * k, 2.1 * k), (1.35 * k, 1.25 * k, 1.25 * k), wing or GLOW_TAIL, glows)
         head.ell((0, -2.0 * k, 2.4 * k), (1.4 * k, 1.2 * k, 1.3 * k), accent)
         face(c, head, k, 2.4, x_off=0.45, size=0.5)
         antennae(head, k, 0.4, -2.6, 3.4, 1.6, INK, back=-0.2, spread=0.4)
         legs(body, k, [(0.8, -0.8), (0.9, 0.4), (0.8, 1.6)], INK, out=0.6, height=1.0, c=c)
+        if getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the body
+            import kit_refit
+            kit_refit.lift(c, max(1, round(0.5 * k)))
     elif kind == 'pillbug':
         # a domed back of overlapping plates
         # (raised a little on short legs, so it can be seen to walk)
@@ -221,6 +239,10 @@ def critter(c, H, kind, col, accent=None, wing=None):
         face(c, head, k, 1.6, x_off=0.4, size=0.5, cheek_z=1.0)
         antennae(head, k, 0.6, -3.0, 2.0, 1.4, _dark(col, 0.4), back=-0.3, spread=0.5)
         legs(body, k, [(1.1, -1.2), (1.3, 0.4), (1.1, 2.0)], _dark(col, 0.4), out=0.5, height=0.8, c=c)
+        if getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the shell
+            import kit_refit
+            kit_refit.lift(c, max(1, round(1.0 * k)))
     elif kind in ('worm', 'slug'):
         if kind == 'worm':
             # segments along the ground, the front one rearing up as a head
@@ -337,7 +359,8 @@ def shore(c, H, kind, col, accent=None, belly=None):
                 # would be empty without them)
                 body.box((x, round(y * k), 0), (x, round(y * k), round(0.6 * k)), belly or col)
         sp = c.part('spines', 'static')
-        n = 46
+        # fewer spikes on the in-game build, to keep a Common in its box budget
+        n = 46 if getattr(c, 'fine', False) else 30
         for i in range(n):
             # a Fibonacci sphere of spikes, none on the face or underneath
             zz = 1 - 2 * (i + .5) / n
@@ -358,7 +381,11 @@ def shore(c, H, kind, col, accent=None, belly=None):
             shell.ell((0, 2.2 * k, 5.4 * k), (1.3 * k, 1.4 * k, 1.4 * k), accent)
             shell.ell((0, 2.6 * k, 6.6 * k), (0.6 * k + .3, 0.6 * k + .3, 0.7 * k + .3), accent)
             band = belly or WHITE
-            shell.paint(lambda p, cc, g: (band, False) if int((p[2] - p[1] * 0.6) / max(1, 0.8 * k)) % 2 == 0 else None)
+            # bands on the mesh build only: the in-game boxes keep a plain
+            # shell to stay in a Common's box budget
+            if getattr(c, 'fine', False):
+                bw = max(1, 0.8 * k)
+                shell.paint(lambda p, cc, g: (band, False) if int((p[2] - p[1] * 0.6) / bw) % 2 == 0 else None)
             body.ell((0, -1.2 * k, 1.6 * k), (1.8 * k, 1.4 * k, 1.3 * k), col)
             head.ell((0, -2.0 * k, 2.2 * k), (1.3 * k, 0.8 * k, 0.8 * k), col)
             ez, ey = 3.6, -2.2
@@ -395,6 +422,10 @@ def shore(c, H, kind, col, accent=None, belly=None):
             body.ell((cx, -3.4 * k, 3.0 * k), (0.9 * big * k, 1.1 * big * k, 0.8 * big * k), col)
             body.ell((cx + sx * 0.25 * k, -4.4 * k * (0.85 + 0.15 * big), 3.4 * k), (0.4 * big * k + .3, 0.6 * big * k, 0.3 * big * k + .3), accent)
         legs(body, k, [(1.0, -0.6), (1.1, 0.2), (1.0, 1.0)], col, out=0.9, height=1.4, c=c)
+        if kind == 'hermit' and getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the shell
+            import kit_refit
+            kit_refit.lift(c, max(1, round(0.5 * k)))
     elif kind in ('seal', 'walrus'):
         # a plump seal sitting up: big round chest, head raised, flippers
         tusks = kind == 'walrus'
@@ -446,12 +477,22 @@ def shore(c, H, kind, col, accent=None, belly=None):
         if belly:
             body.paint(lambda p, cc, g: (belly, False) if p[2] < 1.0 * k else None)
             head.paint(lambda p, cc, g: (belly, False) if p[2] < 1.1 * k else None)
-        for sx in (-1, 1):
-            for ly in (-1.1, 1.8):
-                hip = (sx * 1.1 * k, ly * k, 1.2 * k)
-                foot = (sx * 2.1 * k, (ly - 0.3) * k, 0.4 * k)
-                line(body, hip, foot, col, r=0.45 * k)
-                body.ell((sx * 2.2 * k, (ly - 0.5) * k, 0.3 * k), (0.55 * k, 0.55 * k, 0.3 * k + .2), col)
+        # four legs, each its own part hinged at the hip: out and down from
+        # the side to a round foot, drawn on the right and mirrored
+        from voxkit import Part
+        for i, ly in enumerate((-1.1, 1.8)):
+            hip = (1.1 * k, ly * k, 1.2 * k)
+            foot = (2.0 * k, (ly - 0.3) * k, 0.5 * k)
+            tmp = Part('tmp')
+            line(tmp, hip, foot, col, r=0.45 * k)
+            tmp.ell((2.1 * k, (ly - 0.5) * k, 0.3 * k), (0.55 * k, 0.55 * k, 0.3 * k + .2), col)
+            for (x, y, z) in list(tmp.v):
+                if z > 0:
+                    tmp.v.setdefault((x, y, z - 1), tmp.v[(x, y, z)])
+            for sx in (-1, 1):
+                leg = _leg(c, sx, i, 2, (sx * hip[0], hip[1], hip[2]))
+                for (x, y, z), v in tmp.v.items():
+                    leg.v[(x if sx > 0 else _mx(x), y, z)] = v
         face(c, head, k, 2.9, x_off=0.6, size=0.55, cheek_z=2.0)
         mouth = head.front(0, round(1.6 * k))
         if mouth and k >= 1:
@@ -459,6 +500,10 @@ def shore(c, H, kind, col, accent=None, belly=None):
                 g = head.front(x, round(1.6 * k) + (1 if x in (-round(0.6 * k), round(0.6 * k) - 1) else 0))
                 if g:
                     head.put(g, INK)
+        if getattr(c, 'fine', False):
+            # up off the ground on its legs, so they show and step
+            import kit_refit
+            kit_refit.lift(c, max(1, round(0.5 * k)))
     elif kind in ('beaver', 'platypus'):
         from creatures import quadruped
         quadruped(c, H, col, belly=belly, snout=None if kind == 'platypus' else (belly or col),

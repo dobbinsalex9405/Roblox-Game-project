@@ -13,9 +13,9 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
 | `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |
 | `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
-| `kit_puff.py` | The `puff` plan: small round invented critters that hop on two stubby feet (kinds pebble, seed, puddle, tadpole, fuzz, gum, mushroom, acorn, cone, ball); other kits add kinds with `kit_puff.add_kind` |
+| `kit_puff.py` | The `puff` plan: small round invented critters that hop on two stubby feet (kinds pebble, seed, puddle, tadpole, fuzz, gum, mushroom, acorn, cone, pip, ball); other kits add kinds with `kit_puff.add_kind` |
 | `kit_mammal.py` | The `mammal` plan: Rare four-legged animals with their own shapes (camel, ermine, musk ox, sand cat, sea otter) |
-| `kit_extras.py` | More accessories for roster entries: `ridge` (back spikes), `third_eye`, `butter` (a pat on the head), `twin_tail` |
+| `kit_extras.py` | More accessories for roster entries: `ridge` (back spikes), `third_eye`, `butter` (a pat on the head), `twin_tail`, `droopy_ears`, `fringe`, `shag`, `long_snout`, `streaks`, `cap`, `eye_ring`, `speckles`, `button_eye`, `knit_head`, `small_ears`, `stand_tall`, `rostrum`, `bristles`, `frog_eyes`; plans `twig` (stick insect), `termite`, `wasp`, `strider` (water strider), `shieldbug` and `shrimp` |
 | `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
