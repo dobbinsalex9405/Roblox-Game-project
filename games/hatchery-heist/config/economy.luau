@@ -61,10 +61,21 @@ return {
 		},
 	},
 
-	-- Hatchery Book: every species a player has ever owned adds this much
-	-- income (0.01 = +1%), so a full book of 33 is +33%.
+	-- Hatchery Book: a full book adds `maxBonus` income (0.25 = +25%), however
+	-- many creatures the game has. Each tier owns a share of it, split evenly
+	-- between that tier's creatures, so adding Commons lowers each Common's
+	-- part instead of raising the ceiling. Shares add up to 1.
 	book = {
-		incomePerSpecies = 0.01,
+		maxBonus = 0.25,
+		tierShare = {
+			Common = 0.2,
+			Uncommon = 0.15,
+			Rare = 0.15,
+			["Ultra Rare"] = 0.15,
+			Epic = 0.15,
+			Legendary = 0.1,
+			Godly = 0.1,
+		},
 	},
 
 	-- Multiplier for the Double Coins pass.

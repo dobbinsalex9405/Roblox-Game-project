@@ -49,6 +49,7 @@ export type Actions = {
 	buySlot: (self: Actions, player: any) -> (boolean, string?),
 	collect: (self: Actions, player: any) -> (boolean, string?),
 	claimDaily: (self: Actions, player: any) -> (boolean, string?),
+	seeBook: (self: Actions, player: any) -> (),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
@@ -347,6 +348,14 @@ function Actions.new(options: Options): Actions
 			onboarding(player, step)
 		end
 		return ok, err
+	end
+
+	-- The player opened the Hatchery Book: its NEW badges clear.
+	function actions.seeBook(_self: Actions, player: any)
+		change(player, function(d)
+			Hatchery.seeBook(d, options.now())
+			return nil
+		end)
 	end
 
 	-- Daily Rewards: today's coins, once a UTC day (shared/Daily.luau).

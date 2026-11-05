@@ -169,15 +169,24 @@ describe("Hatchery", function()
 				end
 			end
 		end
-		-- The rarest Basic outcome (a Phoenix, 2 in 100,000) comes exactly twice
-		-- a cycle; the Commons split their tier as evenly as whole numbers allow.
+		-- A cycle is at most the 100,000 the odds are written in (shorter when
+		-- every weight shares a factor), and the rarest Basic outcome (a
+		-- Phoenix, 2 in 100,000) comes exactly as often as its odds say.
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
-		expect(#Hatchery.fixedOrderCycle(basic)).toBe(100000)
+		local cycle = Hatchery.fixedOrderCycle(basic)
+		expect(100000 % #cycle).toBe(0)
+		local phoenixes = 0
+		for _, id in cycle do
+			if id == "Phoenix" then
+				phoenixes += 1
+			end
+		end
+		expect(phoenixes * 100000 / #cycle).toBe(2)
 		local first = {}
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "Bunny", "Chick", "Duckling", "Hamster" })
+		expect(first).toEqual({ "Bunny", "Chick", "Chipmunk", "Duckling" })
 		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(0)
 		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(1)
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
@@ -270,7 +279,14 @@ describe("Hatchery", function()
 		expect(Hatchery.noteFound(d, "Chick", 20)).toBe(false)
 		expect(d.found.Chick).toBe(10)
 		expect(Hatchery.foundCount(d, config.creatures)).toBe(1)
-		local per = economy.book.incomePerSpecies
+		-- One Common of N: the Common share of the capped bonus, split N ways.
+		local commons = 0
+		for _, s in config.creatures.species do
+			if s.rarity == "Common" then
+				commons += 1
+			end
+		end
+		local per = economy.book.maxBonus * economy.book.tierShare.Common / commons
 		expect(Hatchery.bookBonus(d, config)).toBe(per)
 		expect(Hatchery.incomePerSecond(d, config, NO_PERKS)).toBe(1 * (1 + per))
 		-- Unknown ids (a species since removed) never count.

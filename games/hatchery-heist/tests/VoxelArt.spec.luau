@@ -43,6 +43,26 @@ describe("Voxel art", function()
 		end
 	end)
 
+	it("rides every part on the body: each parent chain ends at the body, with no loop", function()
+		for id, art in VoxelArt.species do
+			local parentOf: { [string]: string? } = {}
+			for _, part in art.parts do
+				parentOf[part.name] = part.parent
+			end
+			for _, part in art.parts do
+				local at, steps = part.name, 0
+				while parentOf[at] ~= nil and steps <= #art.parts do
+					at = parentOf[at] :: string
+					steps += 1
+				end
+				local ok = at == "body" and steps <= #art.parts
+				expect(if ok then "body" else `{id}.{part.name}: chain ends at {at} after {steps}`).toBe(
+					"body"
+				)
+			end
+		end
+	end)
+
 	it("is well formed: whole boxes, known colours, parents and animations", function()
 		for id, art in VoxelArt.species do
 			local names: { [string]: boolean } = {}
@@ -87,7 +107,7 @@ describe("Voxel art", function()
 		end
 	end)
 
-	it("makes creatures bigger and more detailed as rarity rises", function()
+	it("makes creatures more detailed as rarity rises", function()
 		-- Per tier, by each creature's longest side: the biggest and the most
 		-- detailed of the tier below never clearly beat the smallest and the
 		-- plainest of the tier above.
@@ -100,12 +120,12 @@ describe("Voxel art", function()
 			most[r] = math.max(most[r] or 0, n)
 			fewest[r] = math.min(fewest[r] or math.huge, n)
 		end
+		-- How big a creature stands in the game comes from Layout.raritySize
+		-- (art is drawn exactly as tall as its stand-in), so only detail is
+		-- checked here, not the art's own height.
 		for r = 2, #RARITIES do
-			expect(shortest[r]).toBeAtLeast(tallest[r - 1] - 2)
 			expect(fewest[r]).toBeAtLeast(math.floor(most[r - 1] * 0.6))
 		end
-		-- Legendary and Godly are huge next to a Common.
-		expect(shortest[6]).toBeAtLeast(tallest[1] * 3.5)
 	end)
 
 	it("only glows from Ultra Rare up", function()
@@ -189,6 +209,30 @@ describe("Creature looks by tier", function()
 				expect(math.abs(drawn - standIn) < 1e-6 and "fits" or `{speciesId}: {drawn} for {standIn}`).toBe(
 					"fits"
 				)
+			end
+		end
+	end)
+
+	-- Studio gate, Nov 5: the Butterfly's head rode on its left wing and the
+	-- wing on its head, and it drew as one dark cube. Every part's chain of
+	-- parents must end at the body.
+	it("never lets two parts ride on each other", function()
+		for speciesId, art in VoxelArt.species do
+			local parentOf: { [string]: string? } = {}
+			for _, part in art.parts do
+				parentOf[part.name] = part.parent
+			end
+			for _, part in art.parts do
+				local name: string? = part.name
+				local steps = 0
+				while name and parentOf[name] do
+					name = parentOf[name]
+					steps += 1
+					if steps > #art.parts then
+						break
+					end
+				end
+				expect(if steps <= #art.parts then "ok" else `{speciesId}.{part.name} loops`).toBe("ok")
 			end
 		end
 	end)

@@ -395,8 +395,18 @@ do
 	local coinsBefore = dBefore.coins
 	-- 1 hour away at half rate
 	local penguin = config.creatures.species.Penguin.coinsPerSecond
-	-- The Penguin is the one species in the Hatchery Book: +1 book bonus.
-	local book = 1 + economy.book.incomePerSpecies
+	-- The Penguin is the one species in the Hatchery Book: its tier's share
+	-- of the capped book bonus.
+	local uncommons = 0
+	for _, s in config.creatures.species do
+		if s.rarity == config.creatures.species.Penguin.rarity then
+			uncommons += 1
+		end
+	end
+	local bookBonus = economy.book.maxBonus
+		* economy.book.tierShare[config.creatures.species.Penguin.rarity]
+		/ uncommons
+	local book = 1 + bookBonus
 	local away = math.floor(penguin * book * 3600 * economy.offline.rate)
 	local h2 = Sim.new({ store = h.store, start = h.clock.now() + 3600 })
 	h2.join(p)
@@ -404,7 +414,9 @@ do
 	check(
 		d.pendingCoins == pendingBefore + away,
 		"offline",
-		`1h away with a Penguin ({penguin}/s): +{d.pendingCoins - pendingBefore} to the pile (expected {away} = 50% rate, book +1%)`
+		`1h away with a Penguin ({penguin}/s): +{d.pendingCoins - pendingBefore} to the pile (expected {away} = 50% rate, book +{math.floor(
+			bookBonus * 1000 + 0.5
+		) / 10}%)`
 	)
 	check(
 		h2.welcomes[1] and h2.welcomes[1].coins == away and h2.welcomes[1].ready == 2,

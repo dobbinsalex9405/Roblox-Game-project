@@ -161,6 +161,103 @@ def crab(c, H, col, accent):
     return c
 
 
+def lizard(c, H, kind, col, accent, belly=None):
+    """Small lizards, low and long with a big round head: gecko, chameleon,
+    iguana, bearded (a bearded dragon). `accent` is the crest, spines, beard
+    or the gecko's spots; `belly` the underside and chin."""
+    from creatures import eyes, blush
+    k = H / 10.0
+    fine = getattr(c, 'fine', False)
+    body = c.part('body')
+    head = c.part('head', 'static', (0, -2.2 * k, 3.4 * k))
+    tail = c.part('tail', 'static', (0, 3.0 * k, 2.1 * k))
+    body.ell((0, 0.8 * k, 2.2 * k), (1.8 * k, 2.8 * k, 1.5 * k), col)
+    if belly:
+        body.paint(lambda p, cc, g: (belly, False) if p[2] < 1.6 * k else None)
+    # four short legs splayed out to the sides, toes forward
+    lw = max(1, round(0.7 * k))
+    for sx in (-1, 1):
+        for ly in (-0.9 * k, 2.4 * k):
+            x0 = round(sx * 1.6 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
+            body.box((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, round(1.6 * k)), col)
+            xt = x0 + sx * lw
+            body.box((xt, round(ly) - 1, 0), (xt + (sx if k >= 1.5 else 0), round(ly) + lw - 1, 0), col)
+    # a big round head, a little wider than tall, with a short flat muzzle
+    head.ell((0, -2.4 * k, 3.9 * k), (max(2.0 * k, 2.1), 1.75 * k, max(1.9 * k, 1.6)), col)  # wide enough for eyes in the small build
+    head.ell((0, -3.4 * k, 3.0 * k), (1.2 * k, 1.3 * k, 1.0 * k), col)
+    if belly:
+        head.paint(lambda p, cc, g: (belly, False) if p[2] < 2.5 * k else None)
+    # the tail: a tapering line of balls, curling up at the tip for a chameleon
+    n = 12
+    for i in range(n):
+        t = i / (n - 1)
+        r = (0.95 - 0.55 * t) * k
+        if kind == 'chameleon' and t > 0.5:
+            a = (t - 0.5) / 0.5 * math.pi * 1.5
+            y, z = 4.6 * k + 1.1 * k * math.sin(a), 1.6 * k + 1.1 * k * (1 - math.cos(a))
+        else:
+            y, z = 3.0 * k + 3.2 * k * t, 2.0 * k - 1.1 * k * t
+        zc = max(r, z)
+        tail.ell((0, y, zc), (r, 0.6 * k, r), col)
+        for x in (-1, 0):  # never thinner than two voxels, in the small in-game build too
+            tail.put((x, math.floor(y), math.floor(zc)), col)
+    if kind == 'chameleon' and fine:
+        # turret eyes: a ball of skin on each side the eyes sit in
+        for sx in (-1, 1):
+            head.ell((sx * 1.2 * k, -3.2 * k, 4.4 * k), (0.8 * k, 0.7 * k, 0.8 * k), col)
+    es = max(1, round(0.8 * k))
+    ze = min(round(3.6 * k), max(p[2] for p in head.v) - es)  # on the face in the small build too
+    eyes(c, head, max(1, round(1.0 * k)), ze, es)
+    blush(head, round(1.7 * k), round(2.9 * k))
+    ac = hexc(accent) if isinstance(accent, str) else accent
+    if kind == 'gecko':
+        # round spots along the back and tail
+        for part in (body, tail):
+            zmid = 2.1 * k
+            part.paint(lambda p, cc, g: (ac, False) if not g and p[2] >= zmid and _hash(p[0] // 2, p[1] // 2, p[2] // 2, 3) % 4 == 0 else None)
+    elif kind == 'chameleon':
+        # a rounded casque on the back of the head and a ridge down the back
+        cq = c.part('crest', 'static')
+        cq.ell((0, -1.7 * k, 5.4 * k), (0.45 * k + .3, 1.1 * k, 1.1 * k), ac)
+        for p in list(body.v):
+            if p[0] in (-1, 0) and p[2] == max(q[2] for q in body.v if q[0] == p[0] and q[1] == p[1]):
+                body.put(p, ac)
+    elif kind in ('iguana', 'bearded'):
+        # a row of spines down the back and onto the tail
+        sp = c.part('spines', 'static')
+        step = max(2, round(0.9 * k))
+        for part in (body, tail):
+            # the tail's spines belong to the tail, so they stay on it when
+            # shape() rescales the body and only shifts the tail
+            dest = sp if part is body else tail
+            tops = {}
+            for (x, y, z) in part.v:
+                if x == 0:
+                    tops[y] = max(tops.get(y, -1), z)
+            for y, z in tops.items():
+                if y % step == 0 and y > -1.8 * k:
+                    for dz in ((1, 2) if fine else (1,)):
+                        dest.put((0, y, z + dz), ac)
+                        dest.put((-1, y, z + dz), ac)
+        if kind == 'iguana':
+            # a dewlap under the chin
+            for i in range(max(2, round(1.0 * k))):
+                head.box((-1, round(-3.4 * k) + i // 2, round(1.9 * k) - i), (0, round(-3.0 * k), round(1.9 * k) - i), ac)
+        else:
+            # a spiky beard: the chin and jaw speckled in the accent colour,
+            # with a few spikes standing proud at the sides
+            head.paint(lambda p, cc, g: (ac, False) if not g and p[2] < 2.7 * k and (p[0] + p[1] + p[2]) % 2 == 0 else None)
+            bd = c.part('beard', 'static')
+            zj = round(2.4 * k)
+            for (x, y, z) in list(head.v):
+                if z == zj and (y % 2 == 0) and abs(x + .5) > 1.0 * k:
+                    nx = x + (1 if x >= 0 else -1)
+                    if (nx, y, z) not in head.v:
+                        bd.put((nx, y, z), ac)
+    else:
+        raise ValueError(f'lizard: unknown kind {kind}')
+    return c
+
 # ------------------------------------------------------------------ patterns
 
 def pattern(c, H, kind, col, parts=('body',)):
@@ -284,7 +381,7 @@ def accessory(c, H, kind, col, col2=None):
 
 # --------------------------------------------------------------------- shape
 
-HEAD_PARTS = ('head', 'eyes', 'ears', 'crest', 'mane', 'horn', 'antlers')
+HEAD_PARTS = ('head', 'eyes', 'ears', 'crest', 'mane', 'horn', 'antlers', 'beard')
 
 
 def _rescale(parts, centre, s):

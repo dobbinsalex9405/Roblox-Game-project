@@ -1,6 +1,7 @@
 --!strict
 -- Whole sessions through the real core services and Actions: the M2 bar is
 -- "10 minutes of play survive a rejoin".
+local Book = require("../src/shared/Book")
 local Creatures = require("../src/shared/Creatures")
 local Fakes = require("../../../packages/core/tests/Fakes")
 local Harness = require("./Harness")
@@ -207,7 +208,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Bunny", "Chick", "Duckling" })
+		expect(outcomes).toEqual({ "Bunny", "Chick", "Chipmunk" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -224,8 +225,12 @@ describe("Hatchery Heist sessions", function()
 			h.wait(player, 15)
 			assert(h.actions:hatch(player, incubator.slot))
 		end
-		expect(seen.Chick).toBe(true)
-		expect(seen.Duckling).toBe(true)
+		-- 30 rolls among 16 Commons: many different creatures, not a fixed list.
+		local kinds = 0
+		for _ in seen do
+			kinds += 1
+		end
+		expect(kinds).toBeAtLeast(8)
 	end)
 
 	it("refuses what the player cannot do and leaves coins alone", function()
@@ -307,6 +312,22 @@ describe("Hatchery Heist sessions", function()
 		h.wait(player, 86400)
 		expect((h.actions:claimDaily(player))).toBe(true)
 		expect(h.get(player).daily.streak).toBe(2)
+	end)
+
+	it("opening the Hatchery Book clears its NEW cards", function()
+		local h = Harness.new()
+		local player = Fakes.player(10)
+		h.join(player)
+		h.actions:change(player, function(d)
+			d.found.Chick = h.clock.now()
+			return nil
+		end)
+		local d = h.get(player)
+		expect(Book.newCount(d.found, config.creatures.species, d.bookSeenAt)).toBe(1)
+		h.wait(player, 5)
+		h.actions:seeBook(player)
+		d = h.get(player)
+		expect(Book.newCount(d.found, config.creatures.species, d.bookSeenAt)).toBe(0)
 	end)
 end)
 

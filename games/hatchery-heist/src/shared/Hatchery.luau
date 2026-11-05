@@ -9,6 +9,7 @@
 -- ledger passed in. Nothing here yields, reads a clock or rolls dice: time and
 -- hatch outcomes are arguments, which keeps every rule unit-testable.
 
+local Book = require("./Book")
 local Creatures = require("./Creatures")
 
 export type Data = { [string]: any }
@@ -125,9 +126,16 @@ function Hatchery.foundCount(d: Data, creatureConfig: any): number
 	return n
 end
 
--- The book's income bonus: 0.07 means +7%.
+-- The book's income bonus: 0.07 means +7%, at most economy.book.maxBonus
+-- for a full book (shared/Book.luau).
 function Hatchery.bookBonus(d: Data, config: any): number
-	return Hatchery.foundCount(d, config.creatures) * config.economy.book.incomePerSpecies
+	return Book.bonus(d.found, config.creatures.species, config.economy.book)
+end
+
+-- The player opened the Hatchery Book at `at`: cards found since stop
+-- being NEW.
+function Hatchery.seeBook(d: Data, at: number)
+	d.bookSeenAt = math.max(d.bookSeenAt or 0, at)
 end
 
 -- Coins per second from placed creatures, with rebirth, pass and book

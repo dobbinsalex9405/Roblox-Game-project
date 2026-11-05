@@ -70,7 +70,8 @@ return function(Schema: any, Odds: any)
 			),
 		}),
 		book = Schema.record({
-			incomePerSpecies = Schema.number({ min = 0, max = 0.1 }),
+			maxBonus = Schema.number({ min = 0, max = 1 }),
+			tierShare = Schema.map(Schema.string({ maxLength = 20 }), Schema.number({ min = 0, max = 1 })),
 		}),
 		offline = Schema.record({
 			rate = Schema.number({ min = 0, max = 1 }),
