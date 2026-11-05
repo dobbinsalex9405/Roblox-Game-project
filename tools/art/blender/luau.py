@@ -14,7 +14,8 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from describe import manifest  # noqa: E402
+from describe import creatures, manifest  # noqa: E402
+from creatures import in_game  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 OUT = os.path.join(ROOT, 'games', 'hatchery-heist', 'src', 'shared', 'CreatureMeshes.luau')
@@ -57,8 +58,12 @@ def assets():
 
 def write():
     ids = assets()
-    m = manifest()
-    known = {c['id'] for c in m['creatures']}
+    every = creatures()
+    kept, waiting = in_game(every)
+    if waiting:
+        print('meshes not in config/creatures.luau yet (left out): ' + ', '.join(waiting))
+    m = manifest(kept)
+    known = {c.species for c in every}  # uploaded before the config lists it is fine
     for k in ids:
         assert k in known, f'assets.json names {k}, which is not a creature'
     L = [
