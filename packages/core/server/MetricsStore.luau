@@ -9,17 +9,22 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Log = require(ReplicatedStorage.Core.Log)
 local Metrics = require(ReplicatedStorage.Core.Metrics)
+local Stores = require(ReplicatedStorage.Core.Stores)
 
 local log = Log.new("Metrics")
 
 local MetricsStore = {}
 
 -- Returns a writer: given one day's delta, merges it into the store. Returns
--- false when the write failed and the delta should be kept for next time.
+-- false when the write failed and the delta should be kept for next time
+-- (always, without DataStores).
 function MetricsStore.writer(storeName: string?): (delta: Metrics.Day) -> boolean
-	local store = DataStoreService:GetDataStore(storeName or Metrics.STORE)
+	local store = Stores.open(DataStoreService, storeName or Metrics.STORE)
 	local shard = Metrics.shard(if game.JobId ~= "" then game.JobId else "studio")
 	return function(delta: Metrics.Day): boolean
+		if store == nil then
+			return false
+		end
 		local key = Metrics.key(delta.day, shard)
 		local ok, err = pcall(function()
 			store:UpdateAsync(key, function(stored: any)

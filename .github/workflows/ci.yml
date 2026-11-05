@@ -60,6 +60,11 @@ jobs:
       - name: Boot every game (server start, player join, client UI)
         run: lune run tools/boot/run all --built
 
+      # The same file opened in Studio, where an unpublished place has no
+      # DataStores: every game must still start and let a player in.
+      - name: Boot every game as an unpublished place in Studio
+        run: lune run tools/boot/run all --built --studio --unpublished
+
       - name: Key flows (headless playtests)
         run: tools/keyflows.sh all
 
