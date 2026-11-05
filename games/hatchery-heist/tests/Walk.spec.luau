@@ -315,4 +315,35 @@ describe("Walk roles", function()
 		expect(Walk.role("crest", "glow")).toBe("glow")
 		expect(Walk.role("body", "static")).toBe("body")
 	end)
+
+	-- Godly thread, Nov 5: a 6-stud-tall Clockwork Leviathan is about 15 studs
+	-- long, past a spot's 10-stud depth. It lies along its three spots' row,
+	-- walks it nose first, never turns across it, and stays inside its cell.
+	it("lays a creature too long for the depth along its row and keeps it there", function()
+		expect(Walk.lie(4, 15, cfg.margin)).toBe(math.pi / 2)
+		expect(Walk.lie(12, 5, cfg.margin)).toBe(0)
+		expect(Walk.lie(3, 4, cfg.margin)).toBe(nil)
+
+		local lie = Walk.lie(4, 15, cfg.margin) :: number
+		local rx, rz = Walk.range(3, 15, cfg.margin, 4)
+		expect(rx > 0).toBe(true)
+		local seed = Walk.seed("leviathan")
+		for i = 0, 400 do
+			local at = Walk.at(seed, rx, rz, 2000 + i * 0.29, cfg, lie)
+			-- Along the row: its nose and tail stay inside the 30-stud row.
+			expect(math.abs(at.x) + 15 / 2 <= 15 + 1e-6).toBe(true)
+			expect(math.abs(at.z) < 1e-9).toBe(true)
+			-- Side-on the whole time: it never turns across the row.
+			local side = math.abs(at.yaw - lie) < 1e-9
+			expect(side and "along" or `yaw {at.yaw} at step {i}`).toBe("along")
+		end
+
+		-- One lying broadside sidesteps, always facing the yard.
+		local wide = Walk.lie(12, 5, cfg.margin) :: number
+		local wx, wz = Walk.range(3, 12, cfg.margin, 5)
+		for i = 0, 200 do
+			local at = Walk.at(seed, wx, wz, 3000 + i * 0.31, cfg, wide)
+			expect(math.abs(at.yaw) < 1e-9).toBe(true)
+		end
+	end)
 end)

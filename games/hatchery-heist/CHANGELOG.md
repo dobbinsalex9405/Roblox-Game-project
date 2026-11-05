@@ -5,26 +5,41 @@
 - Fix: a creature's legs, wings, tails and heads no longer flicker where
   they swing against the body (a bunny's hind feet kicking back in a hop
   showed a striped patch at the hip).
-- Fix: a creature no longer stays blocky for a whole server when Roblox
-  turns away one of its model loads. Loads go a few at a time and retry,
-  and the server log says why a creature stayed on its blocks. A missing
-  glow accent (Ember Fox's glowing paws) no longer sends the whole creature
-  back to blocks.
-- 61 more Commons can hatch from the Basic and Meadow eggs (91 Commons in
-  all): pups, kittens, parrots, woodland and pond critters, beetles and more.
-  Egg tier odds are unchanged; the new creatures share the Common chance.
 - Glowing paw soles and other small glowing bits on creatures no longer go
   missing after upload: each glow piece is now a closed shape.
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.
-- Fix: climbing the tower ladder from inside the tower no longer gets you
-  stuck under the next floor. Each floor has an opening beside the ladder
-  you climb through and step off onto.
-- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
-  phone.
-- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
-  no longer says "(Tower menu)".
+- Every creature walks on its own legs: birds step on two little legs and
+  flick their wings out, bunnies push off with their hind feet, frogs kick
+  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
+  two alternating sets and spiders on eight; ladybugs, turtles and pill
+  bugs no longer slide along on their bellies. Legendaries and Godlies
+  fly, with their legs trailing. The 3D design viewer's walk clips match.
+- Fix: crabs and lizards had thinner legs on their left side, a seal's
+  belly was taken for one of its legs, and a widened body (Guinea Pig)
+  could end up with mismatched legs; every creature's legs now mirror.
+- Creatures walk on real legs: every leg is its own part that swings from
+  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
+  slither or hover).
+- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
+  crayfish and lobsters now walk on all their legs, and dragonflies,
+  fireflies and the Phoenix hover.
+- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
+  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
+  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
+  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
+  cheeks.
+- Long Godlies (the Clockwork Leviathan, the Cosmic Whale) lie along their
+  three spots at full Godly height and pace up and down them, instead of
+  reaching into the spots in front and behind.
+
+- Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
+  set with F (snare) or R (slime), with a short hold, from closer by.
+
+- Sound effects: the egg shakes and cracks, each reveal has its own sting,
+  new Book entries, rewards and menu buttons all make a sound now.
+
 - Creatures on your tower walk around their spot: they turn, walk, stop,
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
@@ -43,6 +58,15 @@
   their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
+
+- Fix: a creature no longer stays blocky for a whole server when Roblox
+  turns away one of its model loads. Loads go a few at a time and retry,
+  and the server log says why a creature stayed on its blocks. A missing
+  glow accent (Ember Fox's glowing paws) no longer sends the whole creature
+  back to blocks.
+- 61 more Commons can hatch from the Basic and Meadow eggs (91 Commons in
+  all): pups, kittens, parrots, woodland and pond critters, beetles and more.
+  Egg tier odds are unchanged; the new creatures share the Common chance.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
@@ -50,15 +74,6 @@
   phone.
 - Fix: prices read "25K coins", not "25.00K coins". The next floor's label
   no longer says "(Tower menu)".
-- Every creature walks on its own legs: birds step on two little legs and
-  flick their wings out, bunnies push off with their hind feet, frogs kick
-  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
-  two alternating sets and spiders on eight; ladybugs, turtles and pill
-  bugs no longer slide along on their bellies. Legendaries and Godlies
-  fly, with their legs trailing. The 3D design viewer's walk clips match.
-- Fix: crabs and lizards had thinner legs on their left side, a seal's
-  belly was taken for one of its legs, and a widened body (Guinea Pig)
-  could end up with mismatched legs; every creature's legs now mirror.
 - The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
@@ -75,10 +90,6 @@
   what the cheapest egg costs, and Buy only shows on eggs you can afford
   (unless you can afford none). On a phone the odds card is smaller, and the
   guide's gold arrow steps aside once you reach the market.
-
-- Creature legs, tails and little bug legs that only touched the body at a
-  corner no longer look like they float: every loose piece is now joined to
-  the body.
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
@@ -103,21 +114,6 @@
   and three sizes, with bushes, mossy rocks, flowers, grass and glowing
   mushroom rings, pines on the hills, a painted storybook sky with voxel
   clouds and floating islands, and a grass texture on the ground.
-
-- Small trees and a bush now frame each piece of the farm between the
-  bases, the wood grows behind the farm too, and the Star Pines stand on
-  the hills (one on every other hill) instead of on flat grass.
-- Creatures walk on real legs: every leg is its own part that swings from
-  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
-  slither or hover).
-- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
-  crayfish and lobsters now walk on all their legs, and dragonflies,
-  fireflies and the Phoenix hover.
-- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
-  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
-  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
-  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
-  cheeks.
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.

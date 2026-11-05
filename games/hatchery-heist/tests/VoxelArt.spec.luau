@@ -243,6 +243,27 @@ describe("Creature looks by tier", function()
 		end
 	end)
 
+	-- Godly thread, Nov 5: at 6 studs tall the Clockwork Leviathan is about 15
+	-- studs long. It lies along its three spots' 30-stud row (Walk.lie) and
+	-- keeps its height; only a creature longer than the row (less 2 studs)
+	-- is scaled down, evenly, keeping its proportions.
+	it("keeps a long Godly's height and only shrinks one longer than its row", function()
+		-- The Leviathan: 6 tall, 15 long fits a 28-stud row as it is.
+		expect(ArtScale.drawScale(6, 6, 15, 28)).toBe(1)
+		-- A 40-stud serpent is scaled to the row, still 2.5 times as long as tall.
+		local k = ArtScale.drawScale(6, 6, 40, 28)
+		expect(math.abs(40 * k - 28) < 1e-9).toBe(true)
+		expect(math.abs((40 * k) / (6 * k) - 40 / 6) < 1e-9).toBe(true)
+		-- Every creature drawn today at Godly size (6 studs) fits a one-spot
+		-- row (8 studs), so none is shrunk.
+		for speciesId, art in VoxelArt.species do
+			local artHeight = art.size[2] * VoxelArt.voxel
+			local artLength = math.max(art.size[1], art.size[3]) * VoxelArt.voxel
+			local k6 = ArtScale.drawScale(6, artHeight, artLength, 28)
+			expect(math.abs(artHeight * k6 - 6) < 1e-6 and "fits" or `{speciesId} shrank`).toBe("fits")
+		end
+	end)
+
 	-- Studio gate, Nov 5: the Butterfly's head rode on its left wing and the
 	-- wing on its head, and it drew as one dark cube. Every part's chain of
 	-- parents must end at the body.

@@ -169,6 +169,13 @@ function Layout.raritySize(rarity: string): number
 	return RARITY_SIZES[rarity] or RARITY_SIZES.Common
 end
 
+-- A creature too long for a spot's 10-stud depth lies along its floor's
+-- row (Walk.lie): a Godly takes three spots, 30 studs. Only one longer than
+-- its spots' row less ROW_MARGIN studs is scaled down evenly to fit
+-- (ArtScale.drawScale), so the Clockwork Leviathan keeps its Godly height.
+-- Ridden or carried, the cap scales with the creature's size.
+Layout.ROW_MARGIN = 2
+
 -- A ridden creature is one stud taller than on its pad, up to 6 studs, so a
 -- Legendary still fits through the yard and its rider stays on screen.
 Layout.MOUNT_MAX = 6

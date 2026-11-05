@@ -38,22 +38,46 @@ Non-obvious choices, newest first, so a later session can trust them.
   (was 30) and Uncommon 44 (was 40), in `to_config.BOX_BUDGET` and
   `VoxelArt.spec`. Dalmatian Pup went 28 -> 31 with its four legs split out.
 
-## 2026-11-05: Tower upgrades furnish the room, built on each client
+## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
 
-- **Each upgrade is one room-wide layer** you see from the doorway, plus
-  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
-  four ceiling lights (real lights), 4 corner plants and a crest. The
-  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
-  shows. Floor 1 is a fixed starter room, as it has no upgrades.
-- **The client furnishes, not the server.** A furnished floor is about
-  1,500 boxes, ten floors on every base would be far too many Parts to
-  replicate. The server writes two plot attributes (`TowerFloors`,
-  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
-  nearest its camera, a few hundred boxes a frame, and drops them again
-  far away.
-- **Space rules are tested**, not eyeballed: creature cells, elevator
-  shaft and door, ladder opening, windows, pictures, ceiling
-  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
+  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
+  finds the rest (quadrupeds, lizards) after the build and skips any creature
+  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
+  front to back, each its own anim, hinged at the hip.
+- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
+  never opens a hole in it; small birds' folded wings are only what shows
+  outside the body.
+- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
+  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
+- **Legendary and Godly always hover** (they float in CreatureLooks), so a
+  Phoenix does not waddle in mid-air.
+- **Sideways bug legs swing about the vertical axis**, lifting as they reach
+  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
+- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
+  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
+  Python and `Walk.spec` checks the game gives the same numbers; CI checks
+  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
+- **swim and finL/finR exist before any fish** so the pond batch can add fish
+  with data only.
+
+## 2026-11-05: Long Godlies lie along their row (Hatchery Heist)
+
+- A Godly takes three spots: an area 30 studs along the row and 10 deep.
+  A creature longer nose to tail than the depth allows (the Clockwork
+  Leviathan, the Cosmic Whale) is turned to lie along the row instead of
+  being shrunk (`Walk.lie`), so it keeps its tier's full height. Only a
+  creature longer than its row less `Layout.ROW_MARGIN` (2 studs, so 28 for
+  a Godly) is scaled down evenly (`ArtScale.drawScale`). One wider than the
+  depth faces the yard and sidesteps.
+- A creature lying lengthwise keeps that heading: it paces up and down its
+  row and never turns end for end or to face the yard, because turning on
+  the spot would sweep its length across the spots in front and behind.
+  Chosen over capping length at the 10-stud depth (it shrank the Leviathan
+  to well under a Godly's height) and over per-creature bounds (one more
+  number to set on every new creature). Ridden or carried, the cap scales
+  with the size.
+
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
 - **Each creature wanders only its own cell** (the 10-stud spots it takes),
@@ -74,6 +98,23 @@ Non-obvious choices, newest first, so a later session can trust them.
   only within `animateOtherStuds` (60). Four full neighbours at 180 studs
   took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
   rest cheap.
+
+## 2026-11-05: Tower upgrades furnish the room, built on each client
+
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
 
 ## 2026-11-05: Roster creatures reach the game through a generated config block
 
@@ -133,45 +174,6 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Signs are blank:** stalls, the Theme Stand, Book stand, arch, silo and
   notice board carry a blank cream face; the game writes the text
   (SurfaceGui), at the prop's `anchor` (the face centre).
-
-## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
-
-- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
-  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
-  finds the rest (quadrupeds, lizards) after the build and skips any creature
-  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
-  front to back, each its own anim, hinged at the hip.
-- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
-  never opens a hole in it; small birds' folded wings are only what shows
-  outside the body.
-- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
-  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
-- **Legendary and Godly always hover** (they float in CreatureLooks), so a
-  Phoenix does not waddle in mid-air.
-- **Sideways bug legs swing about the vertical axis**, lifting as they reach
-  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
-- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
-  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
-  Python and `Walk.spec` checks the game gives the same numbers; CI checks
-  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
-- **swim and finL/finR exist before any fish** so the pond batch can add fish
-  with data only.
-
-## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
-
-- **Each creature wanders only its own cell** (the 10-stud spots it takes),
-  not the whole floor: no collision avoidance needed, the Steal prompt on
-  its pad stays beside it, and raids and income need no change.
-- **A schedule, not physics**: position and facing are a pure function of
-  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
-  nothing replicates. The client moves the server's invisible stand-in
-  locally; the server never sees it move.
-- **The step phase follows distance walked**, so feet do not slide; legged
-  bodies dip as the legs spread (feet stay planted), legless stand-ins
-  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
-  each species' legs), falling back to the leg part names.
-- **Cull by floor, not distance**: decks hide other floors anyway, and a
-  full tower is 80 creatures.
 
 ## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
 
