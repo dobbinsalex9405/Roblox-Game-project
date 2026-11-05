@@ -126,7 +126,7 @@ def speckle(part, cols_from, col, every, glow=False, zmin=None):
     part.paint(f)
 
 
-def cracks(part, cols_from, col, k, glow=True, scale=1.0):
+def cracks(part, cols_from, col, k, glow=True, scale=1.0, width=0.65):
     """Glowing seams: lines where two jittered rock cells meet (a Voronoi
     pattern), so lava runs in clean veins between plates."""
     s = max(5, round(2.4 * k * scale))
@@ -143,7 +143,7 @@ def cracks(part, cols_from, col, k, glow=True, scale=1.0):
         ds = sorted((sx - x) ** 2 + (sy - y) ** 2 + (sz - z) ** 2
                     for i in (ci - 1, ci, ci + 1) for j in (cj - 1, cj, cj + 1) for l in (cl - 1, cl, cl + 1)
                     for (sx, sy, sz) in (seed(i, j, l),))
-        return (col, glow) if ds[1] ** 0.5 - ds[0] ** 0.5 < 0.65 else None
+        return (col, glow) if ds[1] ** 0.5 - ds[0] ** 0.5 < width else None
     part.paint(f)
 
 
@@ -233,15 +233,43 @@ def grand_bird(c, H, col, belly, beak, wing, wing_cols, tip, crest=None, feet=P(
 # ------------------------------------------------------- Ember (fire) set
 
 def lava_drake(c, H):
-    plan('drake', c, H, {'col': '#2A2230', 'belly': '#4A3A44', 'accent': '#3A2E3A', 'glow': '#FF7A1A', 'horn': '#5A4A55',
-                         'wing': '#3A2A30'}, kind='drake', wings='bat', horns='swept')
+    """Cracked obsidian drake: glossy black scales split by thin glowing
+    lava seams, a long dragon snout with a molten mouth, big bat wings."""
+    obs, obs_l = P('#1E1A24'), P('#3A3442')
+    plan('drake', c, H, {'col': '#1E1A24', 'belly': '#2C2632', 'accent': '#2C2632', 'glow': '#FF7A1A', 'horn': '#5A4A55',
+                         'wing': '#2A2230', 'eye': '#FFB01A'}, kind='drake', wings='none', horns='swept')
     k = H / 10.0
+    body = c.part('body')
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
+    # big membrane wings, so it reads as a drake from the front too
+    km.wing_bat(c, k, (1.4 * k, 0.4 * k, round(bz1 - 0.9 * k)), 5.6, dark(P('#1E1A24'), 0.1), P('#3A1E1E'), glow=P('#FF7A1A'),
+                rise=1.8)
+    # a longer dragon snout with a glowing mouth line
+    head = c.part('head')
+    (hx0, hy0, hz0), (hx1, hy1, hz1) = bounds_of(head)
+    front = [q for q in head.v if q[1] <= hy0 + 1]
+    sz = sum(q[2] for q in front) / max(1, len(front))
+    head.ell((0, hy0 - 0.3 * k, sz + 0.1 * k), (0.75 * k, 1.1 * k, 0.6 * k), obs)
+    nz = round(sz - 0.35 * k)
+    for x in range(-round(0.7 * k), round(0.7 * k)):
+        f = head.front(x, nz)
+        if f:
+            head.put(f, FIRE[1], True)
+    for sx in (1, -1):  # nostrils
+        f = head.front(round(sx * 0.35 * k) - (1 if sx < 0 else 0), round(sz + 0.25 * k))
+        if f:
+            head.put(f, FIRE[2], True)
+    # glossy obsidian with a lighter sheen on top
+    for p in c.parts:
+        if p.anim in ('glow', 'blink', 'orbit'):
+            continue
+        p.paint(lambda q, cc, g: (obs_l, False) if cc == obs and (q[0] * 7 + q[1] * 3 + q[2] * 5) % 13 == 0 else None)
+    # thin lava seams between the plates
     for name in ('body', 'tail', 'head', 'wingL', 'wingR', 'legFL', 'legFR', 'legBL', 'legBR'):
         p = part_or_none(c, name)
         if p:
-            cracks(p, (P('#2A2230'), P('#4A3A44'), P('#3A2230'), dark(P('#2A2230'), 0.2)), FIRE[1], k, scale=0.9)
-    # a glowing magma belly and molten tail tip
-    c.part('body').paint(lambda p, cc, g: (FIRE[1], True) if cc == P('#4A3A44') and p[2] % 3 == 0 else None)
+            cracks(p, (obs, obs_l, P('#2C2632'), dark(obs, 0.1)), FIRE[1], k, scale=1.3, width=0.32)
+    # a molten tail tip
     tail = c.part('tail')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(tail)
     tip = c.part('tailflame', 'glow')
@@ -306,24 +334,39 @@ def cerberus_pup(c, H):
 
 
 def magma_golem(c, H):
+    """A hulking rock golem split by thin lava seams, a molten core in its
+    chest and lava pouring from its shoulders, elbows and knees."""
     plan('upright', c, H, {'col': '#3A3438', 'belly': '#4A4248', 'glow': '#FF7A1A', 'eye': '#FFB627'}, kind='golem')
     k = H / 10.0
-    rock = (P('#3A3438'), P('#4A4248'), dark(P('#3A3438'), 0.12), dark(P('#3A3438'), 0.35))
+    rock = (P('#3A3438'), P('#4A4248'), dark(P('#3A3438'), 0.12), dark(P('#3A3438'), 0.2), dark(P('#3A3438'), 0.25),
+            dark(P('#3A3438'), 0.3))
     for p in c.parts:
         if p.name not in ('eyes',):
-            cracks(p, rock, FIRE[1], k, scale=0.8)
-    # a glowing core in the chest and lava dripping from the arms
+            cracks(p, rock, FIRE[1], k, scale=1.1, width=0.3)
     body = c.part('body')
-    body.paint(lambda p, cc, g: (FIRE[2], True) if p[1] < -1.5 * k and (p[0] + .5) ** 2 + (p[2] - 5.8 * k) ** 2 < (0.8 * k) ** 2 else None)
-    drips = c.part('drips', 'glow')
-    for side in (1, -1):
-        x = side * 2.9 * k
-        for i in range(round(1.4 * k)):
-            drips.ell((x - (0.5 if side < 0 else 0), -0.4 * k, 2.0 * k - i), (0.5, 0.5, 0.6), FIRE[1] if i < 0.8 * k else FIRE[2], True)
-    # rocky shoulder spikes
-    sp = c.part('spikes', 'static')
-    for side in (1, -1):
-        horn(sp, (side * 2.0 * k, 0.4 * k, 6.6 * k), (side * 2.8 * k, 0.6 * k, 8.0 * k), 0.6 * k, rock[0], FIRE[2], glow=True, both=False)
+    # a molten core glowing through the chest plate
+    chest = [q for q, (cc, g) in body.v.items() if cc == P('#4A4248')]
+    if chest:
+        cx = sum(q[0] for q in chest) / len(chest)
+        cz = sum(q[2] for q in chest) / len(chest)
+        y0 = min(q[1] for q in chest)
+        body.paint(lambda q, cc, g: ((FIRE[2] if (q[0] + .5 - cx) ** 2 + (q[2] - cz) ** 2 < (0.45 * k) ** 2 else FIRE[1]), True)
+                   if q[1] <= y0 + 1 and (q[0] + .5 - cx) ** 2 + (q[2] - cz) ** 2 < (0.85 * k) ** 2 else None)
+    # lava pouring from every joint: a glowing seam round it and a stream
+    # running down the rock, ending in a fat drip
+    for (jx, jy, jz) in getattr(c, 'joints', []):
+        # the front face below the joint: a stream two voxels wide
+        owner = {}
+        for p in [body] + [q for q in c.parts if q.name.startswith('leg')]:
+            for q in p.v:
+                owner[q] = p
+        x = round(jx) - (1 if jx < 0 else 0)
+        for z in range(round(jz), max(0, round(jz - 1.3 * k)), -1):
+            for xx in (x, x + (1 if jx >= 0 else -1)):
+                col_ys = [q[1] for q in owner if q[0] == xx and q[2] == z]
+                if col_ys:
+                    f = (xx, min(col_ys), z)
+                    owner[f].v[f] = (FIRE[1] if z > jz - 0.8 * k else FIRE[2], True)
     return c
 
 
@@ -1456,30 +1499,52 @@ def twin_drake(c, H):
 
 
 def coral_seahorse(c, H):
+    """A coral-pink seahorse: a curled tail, a crown of three branching coral
+    prongs and glowing bubbles rising round it."""
     plan('upright', c, H, {'col': '#FF8A6A', 'belly': '#FFD6B8', 'accent': '#FF6A9A', 'glow': '#7FFFE6'}, kind='seahorse')
     k = H / 10.0
-    # the coral crown: branching pink and orange coral on its head
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
-    cr = c.part('coral', 'static', ((x0 + x1) / 2, (y0 + y1) / 2, z1))
     cx, cy = (x0 + x1 + 1) / 2 - 0.5, (y0 + y1) / 2
-    for i, (dx, dy, h, col) in enumerate(((0, 0, 2.2, P('#FF6A9A')), (0.8, 0.4, 1.6, P('#FFB36A')), (-0.8, 0.4, 1.7, P('#FF8FBF')),
-                                          (0.3, 0.9, 1.3, P('#FFE14D')))):
-        base = (cx + dx * k * 0.5, cy + dy * k * 0.5, z1)
-        tip = (cx + dx * k, cy + dy * k, z1 + h * k)
-        rod(cr, base, tip, 0.35 * k, col)
-        rod(cr, tip, (tip[0] + 0.5 * k * (1 if dx >= 0 else -1), tip[1], tip[2] + 0.6 * k), 0.28 * k, col)
-        cr.ell(tip, (0.45 * k, 0.45 * k, 0.45 * k), light(col, 0.3), True)
-    # rising bubbles, a short glowing chain from its snout
+    # the coral crown: three clear branching prongs, coral pink with pale tips
+    cr = c.part('coral', 'static', (cx, cy, z1))
+    coral, tipc = P('#FF5F8A'), P('#FFC2D4')
+    for dx, dy, h in ((0.0, 0.3, 2.6), (1.1, 0.5, 2.0), (-1.1, 0.5, 2.0)):
+        base = (cx + dx * 0.4 * k, cy + dy * k, z1 - 0.4 * k)
+        tip = (cx + dx * k, cy + dy * k + 0.2 * k, z1 + h * k)
+        rod(cr, base, tip, 0.24 * k, coral)
+        cr.ell(tip, (0.28 * k, 0.28 * k, 0.28 * k), tipc)
+        # two side branches off each prong
+        for f, side in ((0.45, 1), (0.7, -1)):
+            mid = tuple(base[j] + (tip[j] - base[j]) * f for j in range(3))
+            out = 1 if dx > 0 else -1 if dx < 0 else side
+            end = (mid[0] + out * 0.8 * k, mid[1] + 0.1 * k, mid[2] + 0.7 * k)
+            rod(cr, mid, end, 0.19 * k, coral)
+            cr.ell(end, (0.24 * k, 0.24 * k, 0.24 * k), tipc)
+    # a chain of bubbles from its snout
     bub = c.part('bubbles', 'glow')
+    bcol = P('#5FE8FF')
     f = head.front(math.floor(cx), z1 - round(0.6 * k)) or (math.floor(cx), y0, z1 - round(0.6 * k))
-    bz = f[2] + 0.3 * k
-    by = f[1] - 0.2 * k
-    for i in range(4):
+    bz, by = f[2] + 0.3 * k, f[1] - 0.2 * k
+    for i in range(3):
         r = (0.32 + 0.1 * i) * k
-        bub.ell((cx, by - 0.1 * k * i, bz), (r, r, r), P('#C8FFF4'), True)
-        bub.paint(lambda q, cc, g: (WHITE, True) if cc == P('#C8FFF4') and (q[0] + q[2]) % 4 == 0 else None)
-        bz += r + (0.32 + 0.1 * (i + 1)) * k - 1  # the next bubble just overlaps this one
+        bub.ell((cx, by - 0.1 * k * i, bz), (r, r, r), bcol, True)
+        bz += r + (0.32 + 0.1 * (i + 1)) * k - 1
+    bub.paint(lambda q, cc, g: (WHITE, True) if cc == bcol and (q[0] + q[2]) % 5 == 0 and q[1] == min(
+        p[1] for p in bub.v if p[0] == q[0] and p[2] == q[2]) else None)
+    # bubbles rising round it in a slow spiral
+    body = c.part('body')
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
+    ring_c = ((bx0 + bx1 + 1) / 2, (by0 + by1) / 2, bz0)
+    orb = orbit_part(c, 'risingbubbles', ring_c)
+    Rr = 2.3 * k
+    for i in range(6):
+        a = i / 6 * math.pi * 2
+        r = (0.28 + 0.06 * (i % 3)) * k
+        z = bz0 + (0.6 + i * 0.9) * k
+        x, y = ring_c[0] + math.cos(a) * Rr, ring_c[1] + math.sin(a) * Rr
+        orb.ell((x, y, z), (r, r, r), bcol, True)
+        orb.put((round(x - r * 0.4), round(y - r * 0.6), round(z + r * 0.4)), WHITE, True)
     return c
 
 
@@ -1593,6 +1658,26 @@ def meteor_beetle(c, H):
         cracks(shell, (P('#4A4048'), P('#6A5E66')), FIRE[1], k, scale=0.7)
         top = max(q[2] for q in shell.v)
         shell.paint(lambda p, cc, g: (FIRE[2], True) if p[2] >= top - 1 and (p[0] + p[1]) % 4 == 0 else None)
+    # bright ember eyes (black eyes vanish on the dark rock face), each
+    # with a white-hot glint in its top corner
+    eyes = part_or_none(c, 'eyes')
+    if eyes:
+        head = part_or_none(c, 'head')
+        # redraw the eyes as two 2x2 ember eyes set apart on the face front
+        # (the bug plan's single-voxel eyes ran together on this head)
+        zc = min(q[2] for q in eyes.v)
+        for q in list(eyes.v):
+            head.v[q] = (P('#2A2228'), False)
+        eyes.v = {}
+        for sx in (1, -1):
+            for dx in (1, 2):
+                x = dx if sx > 0 else -dx - 1
+                for z in (zc, zc + 1):
+                    f = head.front(x, z)
+                    if f:
+                        del head.v[f]
+                        glint = z == zc + 1 and dx == 2
+                        eyes.v[f] = (FIRE[3] if glint else FIRE[1], True)
     # a smoking trail of embers off the back
     sm = c.part('smoke', 'glow')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(shell or c.part('body'))
@@ -1748,11 +1833,87 @@ def _finished(fn):
     return build
 
 
+def storm_griffin(base):
+    """Thunder Griffin with the sheet's storm-cloud wings: dark storm-grey
+    and indigo feathers with pale cloud puffs along the top, glowing yellow
+    zig-zag bolts across each wing and lightning crackling off the tail."""
+    def build(c, H):
+        base(c, H)
+        k = H / 10.0
+        storm = {P('#7A4E2A'): P('#2C3150'), P('#A8743F'): P('#3E4670'), P('#FFFFFF'): P('#6A7298')}
+        cloud, cloud_l = P('#8E97BC'), P('#B8C0DE')
+        volt, gold = P('#4FD8FF'), P('#FFE14D')
+        for name in ('wingL', 'wingR'):
+            w = part_or_none(c, name)
+            if not w:
+                continue
+            w.paint(lambda q, cc, g: (storm[cc], g) if cc in storm and not g else None)
+            (x0, y0, z0), (x1, y1, z1) = bounds_of(w)
+            # cloud puffs rolling along the top edge
+            tops = {}
+            for (x, y, z) in w.v:
+                if z > tops.get(x, (None, -1))[1]:
+                    tops[x] = (y, z)
+            xs = sorted(tops)
+            for x in xs[::max(2, round(0.7 * k))]:
+                y, z = tops[x]
+                w.ell((x + .5, y + .5, z - 0.1 * k), (0.75 * k, 0.6 * k, 0.55 * k), cloud)
+                w.ell((x + .5, y - 0.2 * k, z + 0.2 * k), (0.45 * k, 0.4 * k, 0.35 * k), cloud_l)
+            # the raised wing faces front: zig-zag bolts painted across its
+            # front face (and mirrored on the back), root to tip
+            # the old cyan stripes and white-hot tips become dark storm feathers;
+            # only the bolts glow
+            w.paint(lambda q, cc, g: (P('#3E4670'), False) if g and cc in (P('#D8FBFF'), volt) else None)
+            out = 1 if x1 > 0 else -1
+            root_x, tip_x = (x0, x1) if out > 0 else (x1, x0)
+            face = {}
+            back = {}
+            for (x, y, z) in w.v:
+                if y < face.get((x, z), 10 ** 6):
+                    face[(x, z)] = y
+                if y > back.get((x, z), -10 ** 6):
+                    back[(x, z)] = y
+            for b, zf in enumerate((0.42, 0.7)):
+                zc = z0 + (z1 - z0) * zf
+                pts = [(root_x + (tip_x - root_x) * (0.12 + 0.82 * i / 6), zc + (0.8 * k if i % 2 else -0.8 * k) * (0.5 + 0.5 * i / 6))
+                       for i in range(7)]
+                col = gold if b == 0 else volt
+                for (ax, az), (bx, bz) in zip(pts, pts[1:]):
+                    m = max(1, round(max(abs(bx - ax), abs(bz - az))))
+                    for j in range(m + 1):
+                        px, pz = round(ax + (bx - ax) * j / m), round(az + (bz - az) * j / m)
+                        for dz in (0, 1):
+                            key = (px, pz + dz)
+                            if key in face:
+                                w.v[(px, face[key], pz + dz)] = (col, True)
+                                w.v[(px, back[key], pz + dz)] = (col, True)
+        # lightning crackling off the tail tip
+        tail = part_or_none(c, 'tail')
+        if tail:
+            glows = [q for q, (cc, g) in tail.v.items() if g]
+            if glows:
+                cx = sum(q[0] for q in glows) / len(glows)
+                cy = sum(q[1] for q in glows) / len(glows)
+                cz = sum(q[2] for q in glows) / len(glows)
+                for a, (ux, uy, uz) in enumerate(((0.9, 0.5, 0.6), (-0.9, 0.5, 0.6), (0.0, 1.0, -0.3), (0.3, 0.6, 1.0))):
+                    end = (cx + ux * 1.6 * k, cy + uy * 1.6 * k, cz + uz * 1.6 * k)
+                    bolt(tail, (cx, cy, cz), end, gold if a % 2 == 0 else volt, True, zig=0.35 * k, r=0.6)
+        return c
+    return build
+
+
 def finish_existing(roster):
     """The Legendaries built before this batch (Phoenix, Thunder Griffin)
-    get the same weld, so the loose-piece check passes for every Legendary."""
-    return [(sid, tier, _finished(fn)) if tier == 'Legendary' and sid in ('Phoenix', 'ThunderGriffin') else (sid, tier, fn)
-            for sid, tier, fn in roster]
+    get the same weld, so the loose-piece check passes for every Legendary;
+    Thunder Griffin also gets the sheet's storm-cloud wings and lightning."""
+    out = []
+    for sid, tier, fn in roster:
+        if tier == 'Legendary' and sid == 'ThunderGriffin':
+            fn = _finished(storm_griffin(fn))
+        elif tier == 'Legendary' and sid == 'Phoenix':
+            fn = _finished(fn)
+        out.append((sid, tier, fn))
+    return out
 
 
 ROSTER = [(sid, tier, _finished(fn if fn else meteor_beetle)) for sid, tier, fn in ROSTER]
