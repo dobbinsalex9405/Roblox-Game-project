@@ -237,13 +237,14 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 	-- floor and off onto the grass). Invisible walls on its three outer
 	-- sides, and a landing over the inner part of the top floor's opening so
 	-- the step back onto the floor is short; the climber, hugging the
-	-- ladder, rises past the landing's edge. Built at floor 1's height;
-	-- syncTower moves it to the top built floor.
+	-- ladder, rises past the landing's edge. Parked at floor 2's height
+	-- (the lowest top a ladder has); syncTower moves it to the top floor.
 	local stop = Instance.new("Model")
 	stop.Name = "LadderStop"
 	local lx, lz = Layout.LADDER.X, Layout.LADDER.Z
 	local holeLo, holeHi = Geometry.LADDER_HOLE_MIN, Geometry.LADDER_HOLE_MAX
 	local h = LADDER_STOP_HEIGHT
+	local parked = Layout.floorTop(2)
 	local edge = hi[1] -- the decks' right edge
 	local far = lx + 1.4
 	local pieces = {
@@ -264,15 +265,13 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 		local piece = part({
 			Name = w.name,
 			Size = Vector3.new(w.x1 - w.x0, w.y1 - w.y0, w.z1 - w.z0),
-			CFrame = at(
-				Vector3.new((w.x0 + w.x1) / 2, Layout.FLOOR_TOP + (w.y0 + w.y1) / 2, (w.z0 + w.z1) / 2)
-			),
-			Transparency = if w.name == "Landing" then 1 else 1,
+			CFrame = at(Vector3.new((w.x0 + w.x1) / 2, parked + (w.y0 + w.y1) / 2, (w.z0 + w.z1) / 2)),
+			Transparency = 1,
 			CanCollide = false,
 		})
 		piece.Parent = stop
 	end
-	stop.WorldPivot = at(Vector3.new(0, Layout.FLOOR_TOP, 0))
+	stop.WorldPivot = at(Vector3.new(0, parked, 0))
 	stop.Parent = tower
 end
 
