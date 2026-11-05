@@ -117,4 +117,38 @@ Geometry.TRAP_SPOTS = { { -10, -22 }, { 10, -22 }, { -27, 10 }, { 17, 27 } }
 Geometry.DECOY_SPOTS = { { -27, -4 }, { -27, 4 }, { -27, 22 } }
 Geometry.SHIELD_PYLON = { 27, 20 }
 
+-- The odds sign at each Egg Market stop (Studio gates, Nov 5): just outside
+-- the belt, its inner end beside the left post of the stop's arch (left for
+-- a player walking in), turned `turn` degrees from facing straight out so it
+-- faces the path a player walks in on. Its face is raised (about 4 to 7 studs)
+-- so the follow camera sees it over the character, in three big lines.
+-- Layout.marketSign places it; the farm hub keeps its pieces clear of it
+-- (tests/HubLayout.spec).
+Geometry.MARKET_SIGN = table.freeze({
+	width = 10, -- the face, studs
+	height = 3.3,
+	bottom = 3.9, -- the face's lower edge above the ground
+	frame = 0.3, -- the wooden frame round the face
+	depth = 1, -- face, frame and legs, front to back
+	innerOut = 30, -- the frame's inner end: studs from the centre...
+	innerLeft = 7.3, -- ...and studs left of the stop's path, walking in
+	turn = 20,
+})
+
+-- Sign `index`'s centre (x, z), the way its face looks (x, z, unit) and the
+-- way across it, from the inner end to the outer (x, z, unit).
+function Geometry.marketSign(index: number): (number, number, number, number, number, number)
+	local sign = Geometry.MARKET_SIGN
+	local a = angle(index)
+	local ox, oz = math.cos(a), math.sin(a) -- out from the centre
+	local lx, lz = -math.sin(a), math.cos(a) -- left, for a player walking in
+	local t = math.rad(sign.turn)
+	local ax, az = ox * math.sin(t) + lx * math.cos(t), oz * math.sin(t) + lz * math.cos(t)
+	local fx, fz = ox * math.cos(t) - lx * math.sin(t), oz * math.cos(t) - lz * math.sin(t)
+	local half = sign.width / 2 + sign.frame
+	local cx = ox * sign.innerOut + lx * sign.innerLeft + ax * half
+	local cz = oz * sign.innerOut + lz * sign.innerLeft + az * half
+	return cx, cz, fx, fz, ax, az
+end
+
 return Geometry
