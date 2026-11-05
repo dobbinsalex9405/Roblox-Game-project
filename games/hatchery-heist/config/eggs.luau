@@ -61,7 +61,7 @@ local eggs: { Egg } = {
 	},
 	{
 		id = "MoonlitEgg",
-		priceCoins = 40000,
+		priceCoins = 15000,
 		hatchSeconds = 120,
 		total = TOTAL,
 		outcomes = {

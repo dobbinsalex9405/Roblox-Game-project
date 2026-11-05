@@ -24,6 +24,13 @@ Non-obvious choices, newest first, so a later session can trust them.
   camera rewrites `LocalTransparencyModifier` on character parts and a
   hidden mount would reappear. `LookFade` carries ghost (ridden, guarding)
   and gone (carried).
+- **Income roughly doubles per tier and tops out at 1,000/s** (Common 1 to
+  Godly 1,000), on the scale the economy was built for (the old Phoenix was
+  600/s), not 40,000/s. Rarity pays in looks and bragging more than coins,
+  so coin packs, slots and rebirth stay meaningful: the 80K pack is at least
+  five minutes of an Epic's income (tested). The Moonlit Egg is 15,000 coins
+  (about 12 minutes of its average hatch's income to pay back, against
+  about 8 for a Meadow Egg).
 - **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
   number on its own line); CI re-runs the exporter and fails if it differs.
 

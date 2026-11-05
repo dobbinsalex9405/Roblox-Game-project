@@ -11,7 +11,7 @@
   carried one up to 4, and guards turn to face where they walk.
 - Odds are far rarer: every egg now rolls out of 100,000, so the rarest
   hatch is 1 in 50,000, and the odds card shows each chance as a percentage
-  and as "1 in N". A new Moonlit Egg (40,000 coins, 5% of the belt) holds
+  and as "1 in N". A new Moonlit Egg (15,000 coins, 5% of the belt) holds
   the Moon Unicorn and a 1 in 50,000 Nebula Serpent.
 
 - First look (Alex's Nov 4 play test): a welcome screen on a new player's

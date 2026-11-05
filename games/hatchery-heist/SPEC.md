@@ -71,7 +71,7 @@ row as a percentage and as "1 in N". The rarest belt hatch is a Godly at
 | --- | ---: | ---: | --- |
 | Basic | 50 coins | 70% | Phoenix 1 in 50,000 |
 | Meadow | 2,500 coins | 25% | Thunder Griffin 1 in 33,333 |
-| Moonlit | 40,000 coins | 5% | Nebula Serpent 1 in 50,000 |
+| Moonlit | 15,000 coins | 5% | Nebula Serpent 1 in 50,000 |
 | Premium | Robux (not on sale yet) | | Golden Goose 1 in 10,000 |
 
 ## Mounts (approved Nov 1, 2026)
