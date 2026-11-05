@@ -160,10 +160,14 @@ never sold.
   It grows with rarity (`CreatureLooks`: wobble, rays, confetti, shake,
   hold). Tap skips ahead; holding skips every waiting reveal (a notice lists
   them); waiting Commons and Uncommons already in the book share one reveal.
-- **Hatchery Book** (side menu): every species on a card by tier; owned ones
-  in colour, the rest as "???" silhouettes, each with its best egg and exact
-  chance. Every species ever owned adds `economy.book.incomePerSpecies`
-  (1%) income, so a full book is +33%. Kept in `data.found`.
+- **Hatchery Book** (side menu): one tab per tier ("Common 3/30"), every
+  species on a card; owned ones in colour, the rest as "???" silhouettes,
+  each with its best egg and exact chance. Only cards on screen hold a 3D
+  model, so a tab of hundreds stays light. The income bonus is capped: a full
+  book is `economy.book.maxBonus` (+25%) whatever the roster, each tier owns
+  `tierShare` of it, split evenly across its creatures. Cards found since the
+  book was last opened say NEW (red dot on their tab, a count on the menu
+  button). Kept in `data.found` and `data.bookSeenAt`.
 - **Daily Rewards** (side menu, "!" when one is waiting; opens by itself
   once a session for returning players): Day 1 to 7 once a UTC day, then
   round again; a missed day starts over. Each is so many seconds of income
@@ -206,7 +210,9 @@ anyone else.
 Version 1 is in `src/shared/DataTemplate.luau`. Changes go through a migration;
 nothing is ever removed. `found` (Hatchery Book) was added to version 1
 without a migration: the core's reconcile fills it in as `{}`, and join
-back-fills it from the creatures the player owns.
+back-fills it from the creatures the player owns. `bookSeenAt` was added the
+same way (reconcile fills in 0, so a returning player's first look marks
+their whole book NEW once).
 
 ## Status
 
