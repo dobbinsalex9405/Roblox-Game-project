@@ -60,8 +60,14 @@ return {
 		-- centre; bases fill 78 to 145, the hub stays inside 72.
 		nature = {
 			seed = 11,
-			gapTrees = { "PuffOakM", "BlossomM" }, -- one in each gap between bases, alternating
-			gapRadius = 152,
+			-- Each gap between bases holds a piece of the farm; a small tree
+			-- stands on each side of it, with a bush at the foot of one.
+			gap = {
+				trees = { "PuffOakS", "BlossomS" }, -- alternating round the ring
+				bushes = { "BerryBush", "HydrangeaBush" },
+				radius = 186, -- studs from the centre, level with the farm
+				degrees = 12, -- each side of the gap's middle
+			},
 			wood = {
 				count = 42, -- trees round the outside of the ring
 				radiusMin = 166,
@@ -70,13 +76,13 @@ return {
 				scaleMax = 1.15,
 				minSpacing = 9, -- studs between trunks at least
 				-- how often each species is picked (relative)
+				-- (Star Pines stand on the hills, not in the wood)
 				species = {
-					PuffOak = 30,
-					StarPine = 24,
-					Blossom = 14,
-					Willow = 12,
-					AmberOak = 10,
-					Toadstool = 10,
+					PuffOak = 40,
+					AmberOak = 18,
+					Blossom = 18,
+					Willow = 14,
+					Toadstool = 12,
 				},
 			},
 			scatter = {
@@ -88,7 +94,8 @@ return {
 				tufts = 80,
 				mushroomRings = 8,
 			},
-			hillPines = 6, -- big Star Pines on top of every other hill (up to this many)
+			hillPines = 11, -- big Star Pines on top of every other hill (up to this many)
+			hillPine = "StarPineM", -- scaled up 1.2 to 1.7 times with the hill
 		},
 		-- The farmyard outside the ring of bases (src/server/Farm.luau).
 		-- Angles in degrees round the ring; bases sit at 0, 45, 90 ..., so
@@ -100,7 +107,7 @@ return {
 			pen = { angle = 292.5, radius = 182 },
 			fields = { 67.5, 157.5, 247.5, 337.5 },
 			fieldRadius = 188,
-			clearAngle = 13, -- degrees round each farm spot kept free of trees
+			clearRadius = 32, -- studs round each farm spot kept free of trees and props
 			windmillTurnSeconds = 9, -- one full turn of the sails
 		},
 	},

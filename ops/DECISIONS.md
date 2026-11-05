@@ -72,6 +72,16 @@ Non-obvious choices, newest first, so a later session can trust them.
   face, a Texture or a TextureID draws nothing ("Asset type does not match",
   found on #66's gate). upload.py checks the type that comes back and
   luau.py writes 0 for anything not recorded as an Image.
+- **The farm clears circles, not wedges** (gate follow-up). Trees once kept
+  13 degrees each side of every farm piece clear at every distance, which
+  emptied the gaps between bases (each holds a farm piece) and the wood
+  behind them. Now each piece keeps `farm.clearRadius` studs round itself
+  clear, a small tree stands on each side of every gap's farm piece (a bush
+  at the foot of one), and the wood fills in behind.
+- **Star Pines only on the hills** (gate follow-up): on flat grass in the
+  wood they read as random, on the hilltops as landmarks. Every other hill
+  gets one, the medium model scaled up (the large one's detail is never
+  seen from there), so 11 hill pines cost about what 6 large ones did.
 - **Uploads ride the creature workflow** (`art = nature`): a new workflow
   cannot be started until it is on main, and the ids are committed back onto
   the branch that ran it so they arrive in the same PR.

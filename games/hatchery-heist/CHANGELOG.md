@@ -20,6 +20,9 @@
   and three sizes, with bushes, mossy rocks, flowers, grass and glowing
   mushroom rings, pines on the hills, a painted storybook sky with voxel
   clouds and floating islands, and a grass texture on the ground.
+- Small trees and a bush now frame each piece of the farm between the
+  bases, the wood grows behind the farm too, and the Star Pines stand on
+  the hills (one on every other hill) instead of on flat grass.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
