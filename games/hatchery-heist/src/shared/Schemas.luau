@@ -220,6 +220,14 @@ return function(Schema: any, Odds: any)
 			moonAngularSize = Schema.number({ min = 0, max = 60 }),
 			starCount = Schema.integer({ min = 0, max = 5000 }),
 		}),
+		skybox = Schema.record({
+			cloudCover = unit,
+			atmosphereDensity = unit,
+			haze = Schema.number({ min = 0, max = 10 }),
+		}),
+		ground = Schema.record({
+			grassTileStuds = Schema.number({ min = 4, max = 256 }),
+		}),
 		clouds = Schema.record({
 			cover = unit,
 			density = unit,
@@ -242,6 +250,7 @@ return function(Schema: any, Odds: any)
 			faceFrontAfter = Schema.number({ min = 0, max = 30 }),
 			margin = Schema.number({ min = 0, max = 4 }),
 			cullFloors = Schema.integer({ min = 0, max = 10 }),
+			cullOutsideStuds = Schema.number({ min = 40, max = 1000 }),
 		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),
@@ -250,10 +259,41 @@ return function(Schema: any, Odds: any)
 			Schema.record({
 				hillRadius = Schema.number({ min = 200, max = 1000 }),
 				hillCount = Schema.integer({ min = 0, max = 60 }),
-				treeCount = Schema.integer({ min = 0, max = 120 }),
-				treeRadiusMin = Schema.number({ min = 160, max = 250 }),
-				treeRadiusMax = Schema.number({ min = 160, max = 250 }),
 				seed = Schema.integer(),
+				nature = Schema.record({
+					seed = Schema.integer({ min = 1 }),
+					gap = Schema.record({
+						trees = Schema.array(Schema.string({ minLength = 1, maxLength = 40 }), {
+							minLength = 1,
+							maxLength = 8,
+						}),
+						bushes = Schema.array(Schema.string({ minLength = 1, maxLength = 40 }), {
+							maxLength = 8,
+						}),
+						radius = Schema.number({ min = 146, max = 250 }),
+						degrees = Schema.number({ min = 0, max = 22 }),
+					}),
+					wood = Schema.record({
+						count = Schema.integer({ min = 0, max = 150 }),
+						radiusMin = Schema.number({ min = 150, max = 300 }),
+						radiusMax = Schema.number({ min = 150, max = 300 }),
+						scaleMin = Schema.number({ min = 0.5, max = 2 }),
+						scaleMax = Schema.number({ min = 0.5, max = 2 }),
+						minSpacing = Schema.number({ min = 0, max = 40 }),
+						species = Schema.map(Schema.string({ maxLength = 40 }), Schema.number({ min = 0 })),
+					}),
+					scatter = Schema.record({
+						radiusMin = Schema.number({ min = 146, max = 300 }),
+						radiusMax = Schema.number({ min = 146, max = 300 }),
+						bushes = Schema.integer({ min = 0, max = 200 }),
+						rocks = Schema.integer({ min = 0, max = 200 }),
+						flowers = Schema.integer({ min = 0, max = 200 }),
+						tufts = Schema.integer({ min = 0, max = 400 }),
+						mushroomRings = Schema.integer({ min = 0, max = 60 }),
+					}),
+					hillPines = Schema.integer({ min = 0, max = 60 }),
+					hillPine = Schema.string({ minLength = 1, maxLength = 40 }),
+				}),
 				farm = Schema.record({
 					barn = farmSpot,
 					windmill = farmSpot,
@@ -261,13 +301,54 @@ return function(Schema: any, Odds: any)
 					pen = farmSpot,
 					fields = Schema.array(Schema.number({ min = 0, max = 360 }), { maxLength = 8 }),
 					fieldRadius = Schema.number({ min = 160, max = 260 }),
-					clearAngle = Schema.number({ min = 0, max = 45 }),
+					clearRadius = Schema.number({ min = 0, max = 80 }),
 					windmillTurnSeconds = Schema.number({ min = 1, max = 120 }),
 				}),
+				-- The farm hub (tests/HubLayout.spec.luau checks the fit).
+				hub = Schema.optional(Schema.record({
+					innerRadius = Schema.number({ min = 20, max = 60 }),
+					outerRadius = Schema.number({ min = 40, max = 100 }),
+					pathWidth = Schema.number({ min = 4, max = 30 }),
+					shop = Schema.record({
+						angle = Schema.number({ min = 0, max = 360 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+						width = Schema.number({ min = 1, max = 60 }),
+						depth = Schema.number({ min = 1, max = 60 }),
+					}),
+					arch = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+					}),
+					lamps = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radii = Schema.array(Schema.number({ min = 20, max = 100 }), { maxLength = 8 }),
+						side = Schema.number({ min = 0, max = 30 }),
+					}),
+					signposts = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+						side = Schema.number({ min = 0, max = 30 }),
+					}),
+					pieces = Schema.array(
+						Schema.record({
+							id = Schema.string({ maxLength = 40 }),
+							angle = Schema.number({ min = 0, max = 360 }),
+							radius = Schema.number({ min = 20, max = 100 }),
+							yaw = Schema.optional(Schema.number({ min = -360, max = 360 })),
+						}),
+						{ maxLength = 80 }
+					),
+				})),
 			}),
 			function(v: any): (boolean, string?)
-				if v.treeRadiusMax < v.treeRadiusMin then
-					return false, "treeRadiusMax must be at least treeRadiusMin"
+				if v.nature.wood.radiusMax < v.nature.wood.radiusMin then
+					return false, "nature.wood.radiusMax must be at least radiusMin"
+				end
+				if v.nature.wood.scaleMax < v.nature.wood.scaleMin then
+					return false, "nature.wood.scaleMax must be at least scaleMin"
+				end
+				if v.nature.scatter.radiusMax < v.nature.scatter.radiusMin then
+					return false, "nature.scatter.radiusMax must be at least radiusMin"
 				end
 				return true
 			end
@@ -446,6 +527,21 @@ return function(Schema: any, Odds: any)
 	end
 
 	-- Builds the Config.load input from the raw config modules.
+	Schemas.shophouse = Schema.record({
+		angle = Schema.number({ min = 0, max = 360 }),
+		radius = Schema.number({ min = 34, max = 70 }),
+		groundY = Schema.number({ min = -1, max = 2 }),
+		promptDistance = Schema.number({ min = 4, max = 14 }),
+		title = Schema.string({ maxLength = 30 }),
+		coinsHeader = Schema.string({ maxLength = 24 }),
+		passesHeader = Schema.string({ maxLength = 24 }),
+		lightScale = Schema.number({ min = 0, max = 3 }),
+		lightRangeScale = Schema.number({ min = 0.1, max = 2 }),
+		lightColor = Schema.array(Schema.number({ min = 0, max = 255 }), { minLength = 3, maxLength = 3 }),
+		neon = Schema.boolean(),
+		animateRange = Schema.number({ min = 0, max = 400 }),
+	})
+
 	function Schemas.sections(config: { [string]: any }): { [string]: Section }
 		local sections = {}
 		for name, value in config do
