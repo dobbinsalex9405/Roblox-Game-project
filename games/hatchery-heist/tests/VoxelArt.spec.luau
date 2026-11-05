@@ -4,6 +4,7 @@
 -- of each tier (CreatureLooks) must only grow with rarity.
 local VoxelArt = require("../src/shared/VoxelArt")
 local CreatureLooks = require("../src/shared/CreatureLooks")
+local ArtScale = require("../src/shared/ArtScale")
 local creatures = require("../config/creatures")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
@@ -156,5 +157,49 @@ describe("Creature looks by tier", function()
 		-- even a Godly's stays short enough to sit through.
 		expect(CreatureLooks.Common.wobble + CreatureLooks.Common.hold).toBeAtMost(4)
 		expect(CreatureLooks.Godly.wobble + CreatureLooks.Godly.hold).toBeAtMost(10)
+	end)
+
+	-- Studio playtest: four or five Legendaries and Godlies on one base washed
+	-- it out in bloom. The biggest tiers glow less brightly per voxel (they
+	-- have the most glowing voxels), and their lights stay modest.
+	it("keeps the big tiers' glow from washing out a base", function()
+		local prev: CreatureLooks.Look? = nil
+		for _, rarity in RARITIES do
+			local look = CreatureLooks[rarity]
+			expect(look.neon > 0 and look.neon <= 1).toBe(true)
+			if prev then
+				expect(look.neon).toBeAtMost(prev.neon)
+			end
+			prev = look
+		end
+		expect(CreatureLooks.Legendary.neon).toBeAtMost(0.7)
+		expect(CreatureLooks.Godly.neon).toBeAtMost(0.6)
+		expect(CreatureLooks.Godly.light).toBeAtMost(16)
+	end)
+
+	-- Studio playtest: a ridden Phoenix stood 6.5 studs (its crest above its
+	-- body), over the 6-stud mount limit. Whatever its pad size, a ridden
+	-- (pad + 1, at most 6) or carried (at most 4) creature's whole art, crest
+	-- and all, fits its stand-in. The sizes mirror Layout.mountSize and
+	-- Layout.carrySize, which need the engine to load.
+	it("fits a ridden or carried creature's whole art inside its stand-in", function()
+		for speciesId, art in VoxelArt.species do
+			local artHeight = art.size[2] * VoxelArt.voxel
+			for pad = 1, 12, 0.5 do
+				for _, standIn in { math.min(pad + 1, 6), math.min(pad, 4) } do
+					if standIn ~= pad then
+						local drawn = artHeight * ArtScale.drawScale(standIn, pad, artHeight)
+						expect(
+							drawn <= standIn + 1e-6 and "fits"
+								or `{speciesId} on pad {pad}: {drawn} in {standIn}`
+						).toBe("fits")
+					end
+				end
+			end
+		end
+		-- A small creature still rides a little bigger than on its pad.
+		expect(ArtScale.drawScale(3, 2, 1.5)).toBe(1.5)
+		-- On its own pad (stand-in at full size) a creature keeps its size.
+		expect(ArtScale.drawScale(9, 9, 10.4)).toBe(1)
 	end)
 end)

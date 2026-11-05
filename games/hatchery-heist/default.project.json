@@ -86,14 +86,14 @@
           "Anchored": true,
           "Size": [
             12,
-            1,
+            0.4,
             12
           ],
           "CFrame": {
             "CFrame": {
               "position": [
                 0,
-                0.5,
+                0.1,
                 26
               ],
               "orientation": [

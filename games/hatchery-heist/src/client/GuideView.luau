@@ -323,9 +323,23 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	goalStroke.Color = GOLD
 	goalStroke.Thickness = 2
 	goalStroke.Parent = goal
+	-- A gold "GOAL" tag, drawn rather than a glyph: arrow characters are not
+	-- in the game's fonts and showed as a missing-glyph box.
+	local tag = Instance.new("TextLabel")
+	tag.Name = "Tag"
+	tag.AnchorPoint = Vector2.new(0, 0.5)
+	tag.Position = UDim2.new(0, 6, 0.5, 0)
+	tag.Size = UDim2.fromOffset(46, 24)
+	tag.BackgroundColor3 = GOLD
+	tag.Font = Enum.Font.GothamBold
+	tag.TextSize = 13
+	tag.TextColor3 = PANEL
+	tag.Text = "GOAL"
+	corner(tag, 6)
+	tag.Parent = goal
 	local goalText = text(goal, "Text", "", 16, true)
-	goalText.Position = UDim2.fromOffset(10, 3)
-	goalText.Size = UDim2.new(1, -20, 1, -6)
+	goalText.Position = UDim2.fromOffset(58, 3)
+	goalText.Size = UDim2.new(1, -66, 1, -6)
 	goal.Parent = gui
 
 	local welcome, go = welcomeWindow(gui)
@@ -369,10 +383,31 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	arrow.AlwaysOnTop = true
 	arrow.LightInfluence = 0
 	arrow.Enabled = false
-	local arrowText = text(arrow, "Text", "▼", 48, true)
-	arrowText.Size = UDim2.fromScale(1, 1)
-	arrowText.TextColor3 = GOLD
-	arrowText.TextStrokeTransparency = 0.2
+	-- A downward arrow drawn from two frames (a stem and a diamond tip): the
+	-- triangle character is not in every font and could show as a box.
+	local stem = Instance.new("Frame")
+	stem.Name = "Stem"
+	stem.AnchorPoint = Vector2.new(0.5, 0)
+	stem.Position = UDim2.fromScale(0.5, 0.05)
+	stem.Size = UDim2.fromScale(0.26, 0.45)
+	stem.BackgroundColor3 = GOLD
+	stem.BorderSizePixel = 0
+	stem.Parent = arrow
+	local tip = Instance.new("Frame")
+	tip.Name = "Tip"
+	tip.AnchorPoint = Vector2.new(0.5, 0.5)
+	tip.Position = UDim2.fromScale(0.5, 0.58)
+	tip.Size = UDim2.fromScale(0.5, 0.5)
+	tip.Rotation = 45
+	tip.BackgroundColor3 = GOLD
+	tip.BorderSizePixel = 0
+	tip.Parent = arrow
+	for _, piece in { stem, tip } do
+		local edge = Instance.new("UIStroke")
+		edge.Color = PANEL
+		edge.Thickness = 2
+		edge.Parent = piece
+	end
 
 	local function attachToCharacter(): Attachment?
 		local character = player.Character
@@ -413,7 +448,7 @@ function GuideView.start(ctx: Context.Context): SideMenu
 				hidePointer()
 			else
 				goal.Visible = true
-				goalText.Text = `➜ {step.text}`
+				goalText.Text = step.text
 				local target = step.target and findTarget(plot, step.target)
 				if target and attachToCharacter() then
 					-- Half the part's height in the world (incubators lie on their side).

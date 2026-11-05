@@ -2,6 +2,46 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+
+## 2026-11-05: Hatchery Heist floor height and music fades
+
+- **Bases are lowered, not rebuilt.** Alex found the 1-stud floor step "way
+  too high". The whole base's frame moves down 0.7 studs (`Layout.PLOT_Y`),
+  so the floor is a 0.3-stud deck (0.1 above the plaza) and every position
+  inside a base keeps its old numbers. The floor is 0.4 studs thick so its
+  centre stays above the ground for the boot check's buried-part rule, and
+  the server asserts at start-up that every floor top is between 0.05 and
+  0.5 studs, so CI's boot check fails if it creeps back up.
+- **Music never jumps in.** It used to start whenever the first track
+  finished loading, with a 2 s fade that is half volume after half a second,
+  which startled Alex. Now it waits until the player has spawned, rises
+  over 4 s on a Sine-in curve (quiet at first), crossfades 3 s between
+  tracks before each ends, and the Music button fades over 2 s. The numbers
+  are in `atmosphere.music`.
+- **Fantasy music, picked from metadata.** Alex asked to drop the
+  bagpipe-style tracks for something "lord of the rings themed". The Studio
+  thread searched Roblox's licensed APM library and picked Magical Surprise
+  (1840017271), Magic Castle (1846499154) and Wildflower Meadows
+  (9048460919), avoiding tracks titled or described as frantic. Nobody has
+  listened to them yet (the cloud has no audio), so Alex should listen once
+  on Staging; alternates 1840511859, 1838199820 and 1839975977 are noted in
+  `atmosphere.music`.
+- **Ridden art fits its stand-in.** The server sizes a mount's ball (6
+  studs at most), but tall art like the Phoenix's crest stood 6.5 studs. A
+  ridden or carried creature is now drawn at whichever is smaller: the
+  ball's share of the pad size, or the ball's height over the art's height
+  (`ArtScale.drawScale`). Pad creatures are unchanged.
+- **Big tiers glow less, and your own mount not at all.** Legendaries and
+  Godlies have the most Neon voxels, and in Studio a base of them washed out
+  in bloom. Each tier now has a `neon` share (Epic 0.85, Legendary 0.65,
+  Godly 0.55) that darkens its glow colours, lights are dimmer (range 14
+  and 16, brightness 1), and a test keeps these from rising. The creature
+  you ride yourself is drawn without Neon, light, sparkles, ring or orbs on
+  your own screen only, because it fills the camera.
+- **No typed symbols outside the fonts.** The goal line's "➜" and the guide
+  arrow's "▼" are not in the game fonts and showed as boxes. The goal line
+  has a drawn gold "GOAL" tag and the arrow is two frames. Emoji are fine:
+  Roblox draws them with its emoji font.
 ## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
 
 - **Meshes are generated from the voxel art, not modelled separately.**
