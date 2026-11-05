@@ -17,6 +17,7 @@ local function load()
 		raids = require("../config/raids"),
 		monetization = require("../config/monetization"),
 		atmosphere = require("../config/atmosphere"),
+		shophouse = require("../config/shophouse"),
 	}
 end
 

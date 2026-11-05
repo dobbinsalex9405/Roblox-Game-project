@@ -24,10 +24,10 @@ import vkit  # noqa: E402
 from vkit import PAL, VOX  # noqa: E402
 from voxkit import greedy_boxes, merged_boxes  # noqa: E402
 import props  # noqa: E402
-try:
-    import decor  # noqa: E402,F401  (registers more props)
-except ImportError:
-    decor = None
+import decor  # noqa: E402,F401  (registers more props)
+import apartment  # noqa: E402,F401
+import tower  # noqa: E402,F401
+import hub  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 OUT = os.path.join(ROOT, 'games', 'hatchery-heist', 'src', 'shared', 'WorldArt.luau')
@@ -41,6 +41,10 @@ def coarse(grid, f, thr=0.4, glow_frac=0.12):
     if vkit.FAMILY:
         lut = np.arange(len(PAL), dtype=C.dtype)
         for a, b in vkit.FAMILY.items():
+            seen = {a}
+            while b in vkit.FAMILY and b not in seen:  # follow chains: a speckle of a speckle
+                seen.add(b)
+                b = vkit.FAMILY[b]
             lut[a] = b
         C = lut[C]
     pad0 = [int(o[i] % f) for i in range(3)]
@@ -193,6 +197,7 @@ def export(only=None):
         lines.append(f'\t\t\tsize = {{ {size[0]}, {size[1]}, {size[2]} }},')
         if p.anchor is not None:
             ax, ay, az = (c / vs for c in p.anchor)
+            dump[pid]['anchor'] = [float(num(ax + ox)), float(num(az + oz)), float(num(ay + oy))]
             lines.append(f'\t\t\tanchor = {{ {num(ax + ox)}, {num(az + oz)}, {num(ay + oy)} }},')
         if p.floor is not None:
             lines.append(f'\t\t\tfloor = {p.floor},')
