@@ -19,6 +19,6 @@
     {"id": "Monarch", "rarity": "Common", "plan": "bug", "colors": {"col": "#FF8A1F", "accent": "#2A2433", "wing": "#2A2433"}, "options": {"kind": "butterfly"}},
     {"id": "StagBeetle", "rarity": "Common", "plan": "bug", "colors": {"col": "#5A3A2A", "accent": "#A86A3A"}, "options": {"kind": "beetle"}, "shape": {"body": [1.1, 1.15, 1.2]}, "accessories": [{"kind": "mandibles", "color": "#A86A3A"}]},
     {"id": "JewelBeetle", "rarity": "Common", "plan": "bug", "colors": {"col": "#2FBF71", "accent": "#FFD43B"}, "options": {"kind": "beetle"}, "shape": {"body": [1.0, 1.0, 1.2]}},
-    {"id": "Silkworm", "rarity": "Common", "plan": "bug", "colors": {"col": "#F4F1EA", "accent": "#E2DCCF"}, "options": {"kind": "caterpillar"}, "accessories": [{"kind": "feelers", "color": "#8A8478", "color2": "#B8AE98"}]}
+    {"id": "Silkworm", "rarity": "Common", "plan": "bug", "colors": {"col": "#F4F1EA", "accent": "#E2DCCF"}, "options": {"kind": "caterpillar"}, "accessories": [{"kind": "short_feelers", "color": "#8A8478", "color2": "#B8AE98"}]}
   ]
 }
