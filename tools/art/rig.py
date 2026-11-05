@@ -106,7 +106,7 @@ def split_legs(c, Part):
     # ankle above the ground (webbed feet). Separate thin legs that stand
     # close (a spider's, an ant's) only meet at the body, so they stay apart.
     ankle = {}
-    for i, piece in enumerate(_pieces({p for p in body.v if p[2] <= base + 2})):
+    for i, piece in enumerate(_pieces({p for p in body.v if p[2] <= min(base + 2, hip)})):
         for (x, y, z) in piece:
             ankle.setdefault((x, y), i)
     merged = True
@@ -183,6 +183,17 @@ def split_legs(c, Part):
             else:
                 for i, piece in enumerate(sorted(pieces, key=lambda q: centre(q)[1])[:6]):
                     groups[f'leg{i + 1}{side}'] = [piece]
+    left = sum(1 for name in groups if name.endswith('L'))
+    if left * 2 != len(groups):
+        # The meshes (the finer build) are symmetric, so unpaired legs there
+        # are a bug. The coarse in-game boxes can lose a thin leg to rounding:
+        # there each side swings as one leg.
+        if getattr(c, 'fine', False):
+            raise ValueError(f'{c.species}: legs {sorted(groups)} are not in left/right pairs')
+        sides = {}
+        for name, pieces in groups.items():
+            sides.setdefault('leg' + name[-1], []).extend(pieces)
+        groups = sides
     names = []
     for name in sorted(groups):
         vox = set().union(*groups[name])
