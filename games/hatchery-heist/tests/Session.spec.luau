@@ -208,7 +208,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Bunny", "Chick", "Duckling" })
+		expect(outcomes).toEqual({ "Bunny", "Chick", "Chipmunk" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -225,8 +225,12 @@ describe("Hatchery Heist sessions", function()
 			h.wait(player, 15)
 			assert(h.actions:hatch(player, incubator.slot))
 		end
-		expect(seen.Chick).toBe(true)
-		expect(seen.Duckling).toBe(true)
+		-- 30 rolls among 16 Commons: many different creatures, not a fixed list.
+		local kinds = 0
+		for _ in seen do
+			kinds += 1
+		end
+		expect(kinds).toBeAtLeast(8)
 	end)
 
 	it("refuses what the player cannot do and leaves coins alone", function()

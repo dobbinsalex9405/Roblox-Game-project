@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
+  Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
+  Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala
+  from the Meadow Egg. They share the Common chance, so no other tier moves.
+- Fix: the "every creature" list's rows now really stop short of the scroll
+  bar (the inset was removed each time the list redrew).
+
 - Hatchery Book: one tab per tier, NEW on creatures found since you last
   looked (and a count on the Book button), and only on-screen cards draw a
   3D model, so the book stays quick as the roster grows.
