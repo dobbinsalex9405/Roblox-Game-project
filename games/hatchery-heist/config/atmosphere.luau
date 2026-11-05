@@ -137,25 +137,27 @@ return {
 			lamps = { id = "LampPost", radii = { 41 }, side = 6.5 },
 			-- A signpost at the market end of every path (left side).
 			signposts = { id = "Signpost", radius = 35, side = 7.5 },
+			-- The pieces nearest the market stand back from it (r39 and up)
+			-- so the odds sign beside each stop (Layout.marketSign) has room.
 			pieces = {
 				-- 67.5: the Hatchery Barn, the hub's landmark, and the Book stand
-				{ id = "BookStand", angle = 67.5, radius = 37 },
+				{ id = "BookStand", angle = 67.5, radius = 41 },
 				{ id = "HatcheryBarn", angle = 67.5, radius = 56 },
 				-- 112.5: the Theme Stand by the market, two market stalls behind
-				{ id = "ThemeStand", angle = 112.5, radius = 37 },
+				{ id = "ThemeStand", angle = 112.5, radius = 41 },
 				{ id = "StallRed", angle = 106, radius = 54 },
 				{ id = "StallBlue", angle = 119, radius = 54 },
 				-- 157.5: the Daily Rewards mailbox, the well and the windmill
-				{ id = "Mailbox", angle = 157.5, radius = 35 },
+				{ id = "Mailbox", angle = 157.5, radius = 39 },
 				{ id = "Well", angle = 149, radius = 44 },
 				{ id = "Windmill", angle = 157.5, radius = 57 },
 				-- 202.5: the notice board, the hen house, the egg cart and the silo
-				{ id = "NoticeBoard", angle = 202.5, radius = 35 },
+				{ id = "NoticeBoard", angle = 202.5, radius = 39 },
 				{ id = "EggCart", angle = 194, radius = 45 },
 				{ id = "ChickenCoop", angle = 211, radius = 46 },
 				{ id = "Silo", angle = 202.5, radius = 60 },
 				-- 247.5: the flower stall, a planter and a haystack
-				{ id = "StallGreen", angle = 247.5, radius = 40 },
+				{ id = "StallGreen", angle = 247.5, radius = 42 },
 				{ id = "FlowerPlanter", angle = 247.5, radius = 52 },
 				{ id = "HayStack", angle = 239, radius = 58 },
 				-- 292.5: a little green with benches and the duck pond
@@ -169,6 +171,12 @@ return {
 				{ id = "VegetablePatch", angle = 337.5, radius = 57 },
 			},
 		},
+	},
+	-- The guide's gold arrow and beam hide once you are this close (studs,
+	-- flat) to where they point, so they never sit on top of the Buy prompt
+	-- you came for (Studio gate, Nov 5).
+	guide = {
+		arrivedStuds = 8,
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only

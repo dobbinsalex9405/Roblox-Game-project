@@ -92,6 +92,40 @@ Non-obvious choices, newest first, so a later session can trust them.
   palettes; models keep their ids.
 
 
+
+## 2026-11-05: One shared Egg Market in the middle (Hatchery Heist)
+
+- **Two lanes as one schedule**: egg n rides lane n % 2 + 1, one every 0.5 s,
+  so purchases still name one egg number and the remotes did not change.
+  Lanes are two rings (r 22 and 27.5) turning opposite ways; the plan's
+  "two lanes" did not fit side by side on the art's 3.2-stud belt.
+- **First buyer wins, on the server**: a shared sold list in Actions; the
+  server tells every client (`HH:EggSold`) so the egg leaves its pedestal.
+  With the belt shared, the server also checks reach (`buyReach`, 20 studs
+  flat from where the clock has the egg), so nobody buys from across the map.
+- **No gaps in the belt**: the plan's eight gaps facing the bases became
+  belt parts that never collide, so players walk straight over it; the hub
+  thread's entrance arches mark the eight ways in.
+- **Eggs, pedestals and slats are client-only** and move together in one
+  `BulkMoveTo` each frame (about 1,900 small parts); the pedestal is three
+  boxes instead of the art's 48 to keep that number down. Eggs are pooled.
+- **Odds on a sign at each stop, not boards in the middle** (Studio gates,
+  Nov 5): boards big enough to read from the path hid the Golden Nest and
+  still failed on a phone, and a full tier table on a small sign was too
+  small too. Each stop gets a 10 x 3.3-stud sign beside its arch's left post,
+  face 3.9 to 7.2 studs up so the follow camera sees it over the character,
+  turned 20 degrees toward the path in. Three lines in about 1-stud type:
+  the egg and its price, then its two rarest tiers' exact "1 in N", the next
+  egg every 4 seconds. The odds card beside the Buy prompt keeps every tier.
+  To make room, the five hub pieces nearest the market (Book stand, Theme
+  stand, mailbox, notice board, flower stall) stand 2 to 4 studs further out.
+- **Buy only where you can pay**: the belt's nearest prompt was often a
+  dearer egg, so a player sees Buy only on eggs they can afford, unless they
+  can afford none (then pressing Buy says what eggs cost).
+- **One placer for WorldArt props** (`shared/VoxelProp`), with `register`
+  for other generated prop modules (the shop's), so every thread places
+  props the same way.
+
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
 - **A creature's spot is one number**, `creature.slot` = (floor − 1) × 8 +
