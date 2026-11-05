@@ -79,6 +79,15 @@ return {
 		startFadeSeconds = 4, -- from silence at join, slow at first
 		crossfadeSeconds = 3, -- each track fades into the next
 	},
+	-- Creatures on tower floors wander their own spot (shared/Walk).
+	wander = {
+		speed = 2.4, -- studs per second while walking
+		segmentSeconds = 7, -- each turn, walk and stand
+		turnSeconds = 0.6, -- turning on the spot before a walk
+		faceFrontAfter = 1.5, -- stand this long, then turn to face the centre
+		margin = 0.6, -- studs kept clear of the spot's edge
+		cullFloors = 1, -- creatures more floors than this from you are not drawn
+	},
 	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
 	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
 	-- id 0 = silent until one is picked; the game works the same either way.

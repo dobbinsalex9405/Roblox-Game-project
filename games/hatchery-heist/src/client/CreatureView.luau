@@ -36,6 +36,12 @@ local CreatureLooks = require(Shared.CreatureLooks)
 local CreatureMeshes = require(Shared.CreatureMeshes)
 local Layout = require(Shared.Layout)
 local VoxelArt = require(Shared.VoxelArt)
+local Walk = require(Shared.Walk)
+
+local GameConfig = ReplicatedStorage.GameConfig
+local wander = (require(GameConfig.atmosphere) :: any).wander :: Walk.Config
+local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
+local FLOOR_HEIGHT = 12 -- Geometry.FLOOR_HEIGHT
 
 local CreatureView = {}
 
@@ -75,9 +81,24 @@ type Visual = {
 	nextBlink: number,
 	blinkUntil: number,
 	connections: { RBXScriptConnection },
+	-- Walking (shared/Walk): only creatures standing on a tower floor wander.
+	gait: Walk.Gait,
+	legged: boolean,
+	roam: Roam?,
+	moving: number,
+	stepPhase: number,
+	wingPhase: number,
+	culled: boolean,
 }
 
+-- A floor creature's cell: where the server stood it (home), its schedule's
+-- seed and how far it may stray.
+type Roam = { home: CFrame, seed: number, rx: number, rz: number }
+
 local visuals: { [BasePart]: Visual } = {}
+-- Where the server put each floor creature's stand-in, before this client
+-- started walking it around (kept across redraws).
+local homes: { [BasePart]: CFrame } = {}
 
 local function rgb(hex: string): (Color3, boolean)
 	local r = tonumber(string.sub(hex, 1, 2), 16) or 255
@@ -123,6 +144,10 @@ local function remove(anchor: BasePart)
 		c:Disconnect()
 	end
 	v.model:Destroy()
+	local home = homes[anchor]
+	if home then
+		anchor.CFrame = home
+	end
 end
 
 local function applyFade(v: Visual)
@@ -236,6 +261,30 @@ local function build(anchor: BasePart, speciesId: string)
 	local model = Instance.new("Model")
 	model.Name = "Look"
 
+	-- Gait from the meshes' data, else from the parts' names.
+	local anims: { [string]: boolean } = {}
+	for _, part in (if mesh then mesh.parts else (art :: VoxelArt.Art).parts) :: { any } do
+		anims[part.anim] = true
+	end
+	local legged = false
+	for anim in anims do
+		if Walk.isLeg(anim) then
+			legged = true
+		end
+	end
+	local gait: Walk.Gait = Walk.gaitOf(if mesh then (mesh :: any).gait else nil, anims, look.hover > 0)
+
+	-- Only a creature standing on a floor pad wanders, around its cell.
+	local roam: Roam? = nil
+	local pad = anchor.Parent
+	local uid = anchor:GetAttribute("Uid")
+	if anchor.Name == "Creature" and pad and string.match(pad.Name, "^Pad%d+$") and type(uid) == "string" then
+		local home = homes[anchor] or anchor.CFrame
+		homes[anchor] = home
+		local rx, rz = Walk.range(slotsByRarity[rarity] or 1, math.max(size.X, size.Z), wander.margin)
+		roam = { home = home, seed = Walk.seed(uid), rx = rx, rz = rz }
+	end
+
 	local v: Visual = {
 		anchor = anchor,
 		species = speciesId,
@@ -258,6 +307,13 @@ local function build(anchor: BasePart, speciesId: string)
 		nextBlink = os.clock() + 1 + math.random() * 3,
 		blinkUntil = 0,
 		connections = {},
+		gait = gait,
+		legged = legged,
+		roam = roam,
+		moving = 0,
+		stepPhase = 0,
+		wingPhase = 0,
+		culled = false,
 	}
 
 	local glowColor: Color3? = nil
@@ -525,28 +581,52 @@ local function watch(inst: Instance)
 end
 
 -- One pose per frame for every creature near the camera.
-local function animate(v: Visual, now: number)
+local function walkPose(v: Visual, anim: string): CFrame
+	local p = Walk.pose(v.gait, anim, v.stepPhase, v.moving, v.height, v.legged)
+	return CFrame.new(p.dx, p.dy, 0) * CFrame.Angles(p.rx, p.ry, p.rz)
+end
+
+local function animate(v: Visual, now: number, dt: number)
 	local look = v.look
 	local t = now + v.phase
 	local h = v.height
+	local walking = v.moving > 0
+	-- Wings keep their own phase so a faster beat while moving never jumps.
+	local big = look.hover > 0
+	v.wingPhase += dt * (if big then 2.6 else 4.5) * Walk.wingRate(v.gait, v.moving)
 	for _, m in v.motors do
 		local anim = m.anim
 		local pose: CFrame
 		if anim == "body" then
-			local lift = h * (look.hover + look.bob * (0.5 + 0.5 * math.sin(t * look.bobSpeed * math.pi * 2)))
-			local sway = if look.moves.head then math.sin(t * 0.4) * 0.05 else 0
+			-- Standing still it breathes (bobs) less as it walks.
+			local still = 1 - v.moving
+			local lift = h
+				* (look.hover + still * look.bob * (0.5 + 0.5 * math.sin(t * look.bobSpeed * math.pi * 2)))
+			local sway = if look.moves.head then still * math.sin(t * 0.4) * 0.05 else 0
 			pose = CFrame.new(0, lift, 0) * CFrame.Angles(0, sway, 0)
-		elseif anim == "head" and look.moves.head then
-			pose = CFrame.Angles(math.sin(t * 1.1) * 0.07, math.sin(t * 0.5) * 0.2, 0)
+			if walking then
+				pose *= walkPose(v, anim)
+			end
+		elseif anim == "head" and (look.moves.head or walking) then
+			local still = if look.moves.head then 1 - v.moving else 0
+			pose = CFrame.Angles(still * math.sin(t * 1.1) * 0.07, still * math.sin(t * 0.5) * 0.2, 0)
+			if walking then
+				pose *= walkPose(v, anim)
+			end
 		elseif anim == "ears" and look.moves.ears then
 			local k = t % 3.3
 			pose = if k < 0.3 then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
-		elseif anim == "tail" and look.moves.tail then
-			pose = CFrame.Angles(0, math.sin(t * 6) * 0.35, 0)
-		elseif (anim == "wingL" or anim == "wingR") and look.moves.wings then
-			local big = look.hover > 0
-			local a = math.sin(t * (if big then 2.6 else 4.5)) * (if big then 0.45 else 0.25)
+		elseif anim == "tail" and (look.moves.tail or walking) then
+			local wag = if look.moves.tail then math.sin(t * 6) * 0.35 * (1 - v.moving) else 0
+			pose = CFrame.Angles(0, wag, 0)
+			if walking then
+				pose *= walkPose(v, anim)
+			end
+		elseif (anim == "wingL" or anim == "wingR") and (look.moves.wings or v.gait == "hover") then
+			local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
 			pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+		elseif Walk.isLeg(anim) then
+			pose = walkPose(v, anim)
 		else
 			continue
 		end
@@ -591,6 +671,33 @@ local function animate(v: Visual, now: number)
 	end
 end
 
+-- Hide or show a floor creature (its model and its name label).
+local function setCulled(v: Visual, culled: boolean)
+	if culled == v.culled then
+		return
+	end
+	v.culled = culled
+	v.model.Parent = if culled then nil else v.anchor
+	local label = v.anchor:FindFirstChildOfClass("BillboardGui")
+	if label then
+		label.Enabled = not culled
+	end
+end
+
+-- Walk a floor creature to where its schedule has it now. Ridden, guarding
+-- or carried creatures (faded) stand at home.
+local function stroll(v: Visual, roam: Roam, serverNow: number)
+	if v.fade > 0 then
+		v.moving = 0
+		v.anchor.CFrame = roam.home
+		return
+	end
+	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander)
+	v.anchor.CFrame = roam.home * CFrame.new(at.x, 0, at.z) * CFrame.Angles(0, at.yaw, 0)
+	v.moving = at.moving
+	v.stepPhase = Walk.phase(v.gait, at.travelled, v.height)
+end
+
 -- Meshes for a species just arrived: redraw its creatures with them.
 local function meshesArrived(model: Instance)
 	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
@@ -628,15 +735,35 @@ function CreatureView.start()
 	end
 	ReplicatedStorage.ChildAdded:Connect(watchMeshFolder)
 
-	RunService.RenderStepped:Connect(function()
+	RunService.RenderStepped:Connect(function(dt: number)
 		local camera = Workspace.CurrentCamera
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		local now = os.clock()
+		local serverNow = Workspace:GetServerTimeNow()
+		-- Floor creatures more than `cullFloors` floors from you are not drawn:
+		-- the decks hide them anyway, and a full tower is 80 creatures.
+		local character = Players.LocalPlayer.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		for anchor, v in visuals do
 			if anchor.Parent == nil then
 				remove(anchor)
-			elseif v.fade < 1 and (anchor.Position - eye).Magnitude <= ANIMATE_RANGE + v.height * 4 then
-				animate(v, now)
+				continue
+			end
+			local roam = v.roam
+			if roam then
+				local apart = if root
+					then math.abs(roam.home.Position.Y - root.Position.Y) / FLOOR_HEIGHT
+					else 0
+				setCulled(v, math.floor(apart + 0.5) > wander.cullFloors)
+				if v.culled then
+					continue
+				end
+			end
+			if v.fade < 1 and (anchor.Position - eye).Magnitude <= ANIMATE_RANGE + v.height * 4 then
+				if roam then
+					stroll(v, roam, serverNow)
+				end
+				animate(v, now, dt)
 			end
 		end
 	end)

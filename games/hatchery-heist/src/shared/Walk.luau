@@ -1,0 +1,329 @@
+--!strict
+-- How a creature wanders its spot on a tower floor and how its body moves
+-- while it walks (Alex, Nov 5: "I want the creatures to actually walk, not
+-- just tilt side to side"). Pure maths, shared so it is tested; the client
+-- (CreatureView) moves the stand-in and poses the joints from it.
+--
+-- Where: each creature wanders its own cell, the spots it takes on its floor
+-- (10 studs a spot, `Walk.range`), so two creatures never walk into each
+-- other and a raider's Steal prompt on the pad stays next to it. The server
+-- never moves anything: placement, raids and income ignore the wandering.
+--
+-- When: a fixed schedule from the creature's uid and the server clock, so
+-- every player sees it at the same place. Each `segmentSeconds` it turns
+-- toward a new point in its cell, walks there, and stands; after a long
+-- stand it turns to face the yard, so players see its face.
+--
+-- How: one gait per species (CreatureMeshes.gait, set from its legs by the
+-- art tools): trot (four legs in diagonal pairs), waddle (two legs and a
+-- roll), hop, scuttle (bug legs in two sets of three), slither (a body wave)
+-- and hover (a lean and faster wing beats). A creature whose parts have no
+-- legs (some voxel stand-ins) bounces its body in time with the steps.
+
+local Walk = {}
+
+export type Config = {
+	speed: number, -- studs per second while walking
+	segmentSeconds: number, -- one turn, walk and stand
+	turnSeconds: number, -- turning on the spot before a walk
+	faceFrontAfter: number, -- stand this long, then turn to the yard
+	margin: number, -- studs kept clear of the cell's edge
+	cullFloors: number, -- creatures this many floors from you or more are not drawn
+}
+
+export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover"
+
+Walk.GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover" } :: { Gait }
+
+-- Studs moved per full step cycle, as a share of the creature's height.
+local STRIDE: { [Gait]: number } = {
+	trot = 0.9,
+	waddle = 0.5,
+	hop = 0.8,
+	scuttle = 0.4,
+	slither = 1.2,
+	hover = 1.0,
+}
+
+-- 32-bit FNV-1a of a string: the creature's own seed.
+function Walk.seed(uid: string): number
+	local h = 2166136261
+	for i = 1, #uid do
+		h = bit32.bxor(h, string.byte(uid, i))
+		h = (h * 16777619) % 4294967296
+	end
+	return h
+end
+
+-- A repeatable number in [0, 1) for (seed, n).
+local function noise(seed: number, n: number): number
+	local h = bit32.bxor(seed, (n * 2654435761) % 4294967296)
+	h = bit32.bxor(h, bit32.rshift(h, 15))
+	h = (h * 2246822519) % 4294967296
+	h = bit32.bxor(h, bit32.rshift(h, 13))
+	h = (h * 3266489917) % 4294967296
+	h = bit32.bxor(h, bit32.rshift(h, 16))
+	return h / 4294967296
+end
+
+-- How far from its cell's centre a creature may stand, in studs, along the
+-- floor's row (x) and across it (z). `spots`: spots it takes (1 to 3);
+-- `footprint`: its width in studs.
+function Walk.range(spots: number, footprint: number, margin: number): (number, number)
+	local rx = math.max(0, (spots * 10 - footprint) / 2 - margin)
+	local rz = math.max(0, (10 - footprint) / 2 - margin)
+	return rx, rz
+end
+
+-- The yaw (about Y) that faces a creature drawn facing -Z along (dx, dz).
+function Walk.yawOf(dx: number, dz: number): number
+	return math.atan2(-dx, -dz)
+end
+
+local function lerpAngle(a: number, b: number, u: number): number
+	local d = (b - a + math.pi) % (2 * math.pi) - math.pi
+	return a + d * u
+end
+
+local function smooth(u: number): number
+	u = math.clamp(u, 0, 1)
+	return u * u * (3 - 2 * u)
+end
+
+type Segment = {
+	fromX: number,
+	fromZ: number,
+	toX: number,
+	toZ: number,
+	startYaw: number,
+	walkYaw: number,
+	walkSeconds: number,
+	restYaw: number,
+	faceFront: boolean,
+}
+
+local function waypoint(seed: number, k: number, rx: number, rz: number): (number, number)
+	return (noise(seed, k * 2) * 2 - 1) * rx, (noise(seed, k * 2 + 1) * 2 - 1) * rz
+end
+
+-- Segment k's plan. Each segment's rest yaw is the next one's start, so the
+-- creature never snaps round; segment k - 1 is planned without its own
+-- start, which only its turn uses.
+local function plan(seed: number, k: number, rx: number, rz: number, cfg: Config, startYaw: number?): Segment
+	local fx, fz = waypoint(seed, k - 1, rx, rz)
+	local tx, tz = waypoint(seed, k, rx, rz)
+	local dx, dz = tx - fx, tz - fz
+	local distance = math.sqrt(dx * dx + dz * dz)
+	local walkYaw = if distance > 1e-3 then Walk.yawOf(dx, dz) else (startYaw or 0)
+	local free = cfg.segmentSeconds - cfg.turnSeconds
+	local walkSeconds = math.min(distance / cfg.speed, free * 0.7)
+	local stand = free - walkSeconds
+	local faceFront = stand >= cfg.faceFrontAfter + cfg.turnSeconds
+	return {
+		fromX = fx,
+		fromZ = fz,
+		toX = tx,
+		toZ = tz,
+		startYaw = startYaw or walkYaw,
+		walkYaw = walkYaw,
+		walkSeconds = walkSeconds,
+		restYaw = if faceFront then 0 else walkYaw,
+		faceFront = faceFront,
+	}
+end
+
+export type State = {
+	x: number, -- studs from the cell's centre, along the row
+	z: number, -- studs from the cell's centre, across the row
+	yaw: number, -- radians; 0 faces the yard
+	moving: number, -- 0 standing to 1 walking, eased at both ends
+	travelled: number, -- studs walked in this segment, for the step phase
+}
+
+-- Where the creature with `seed` is at server time `now`, in a cell of
+-- half-size (rx, rz).
+function Walk.at(seed: number, rx: number, rz: number, now: number, cfg: Config): State
+	local D = cfg.segmentSeconds
+	local offset = noise(seed, 999983) * D
+	local clock = now + offset
+	local k = math.floor(clock / D)
+	local u = clock - k * D
+	local previous = plan(seed, k - 1, rx, rz, cfg, nil)
+	local seg = plan(seed, k, rx, rz, cfg, previous.restYaw)
+	local T = cfg.turnSeconds
+	if u < T then
+		return {
+			x = seg.fromX,
+			z = seg.fromZ,
+			yaw = lerpAngle(seg.startYaw, seg.walkYaw, smooth(u / T)),
+			moving = 0,
+			travelled = 0,
+		}
+	end
+	local w = u - T
+	local dx, dz = seg.toX - seg.fromX, seg.toZ - seg.fromZ
+	local distance = math.sqrt(dx * dx + dz * dz)
+	if w < seg.walkSeconds then
+		local p = smooth(w / seg.walkSeconds)
+		-- Ease in and out over a quarter of a second at each end.
+		local ramp = math.min(1, w / 0.25, (seg.walkSeconds - w) / 0.25)
+		return {
+			x = seg.fromX + dx * p,
+			z = seg.fromZ + dz * p,
+			yaw = seg.walkYaw,
+			moving = math.clamp(ramp, 0, 1),
+			travelled = distance * p,
+		}
+	end
+	local stood = w - seg.walkSeconds
+	local yaw = seg.walkYaw
+	if seg.faceFront and stood > cfg.faceFrontAfter then
+		yaw = lerpAngle(seg.walkYaw, 0, smooth((stood - cfg.faceFrontAfter) / T))
+	end
+	return { x = seg.toX, z = seg.toZ, yaw = yaw, moving = 0, travelled = distance }
+end
+
+-- The step phase in cycles for `travelled` studs at height `height`.
+function Walk.phase(gait: Gait, travelled: number, height: number): number
+	return travelled / math.max(0.2, (STRIDE[gait] or 1) * height)
+end
+
+-- The gait for a species: CreatureMeshes' when it has one, else from the
+-- leg parts it has, else a trot (a body bounce when it has no legs).
+function Walk.gaitOf(given: string?, anims: { [string]: boolean }, hovers: boolean): Gait
+	if given and STRIDE[given :: Gait] then
+		return given :: Gait
+	end
+	if hovers then
+		return "hover"
+	end
+	if anims.leg1L or anims.leg1R then
+		return "scuttle"
+	end
+	if anims.legL or anims.legR then
+		return "waddle"
+	end
+	return "trot"
+end
+
+local LEG_SETS: { [string]: number } = {
+	-- +1 swings with the first beat, -1 against it.
+	legFL = 1,
+	legBR = 1,
+	legFR = -1,
+	legBL = -1,
+	legL = 1,
+	legR = -1,
+	leg1L = 1,
+	leg2R = 1,
+	leg3L = 1,
+	leg1R = -1,
+	leg2L = -1,
+	leg3R = -1,
+}
+
+function Walk.isLeg(anim: string): boolean
+	return LEG_SETS[anim] ~= nil
+end
+
+export type Pose = {
+	rx: number, -- radians about X (pitch, legs swing)
+	ry: number, -- radians about Y (yaw)
+	rz: number, -- radians about Z (roll)
+	dx: number, -- studs sideways
+	dy: number, -- studs up
+}
+
+local STILL: Pose = { rx = 0, ry = 0, rz = 0, dx = 0, dy = 0 }
+
+-- A joint's walking pose: `phase` in step cycles, `moving` 0 to 1, `h` the
+-- creature's height, `legged` whether the creature has leg parts. Wings use
+-- `Walk.wingRate` instead. Returns STILL for joints the gait leaves alone.
+function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: number, legged: boolean): Pose
+	if moving <= 0 then
+		return STILL
+	end
+	local a = phase * 2 * math.pi
+	local s = math.sin(a)
+	local side = LEG_SETS[anim]
+	if side then
+		if gait == "trot" then
+			return { rx = 0.55 * moving * side * s, ry = 0, rz = 0, dx = 0, dy = 0 }
+		elseif gait == "waddle" then
+			return { rx = 0.6 * moving * side * s, ry = 0, rz = 0, dx = 0, dy = 0 }
+		elseif gait == "scuttle" then
+			return { rx = 0.4 * moving * side * s, ry = 0, rz = 0, dx = 0, dy = 0 }
+		elseif gait == "hop" then
+			-- Legs push back on take-off and tuck in the air.
+			local u = phase % 1
+			return { rx = -0.7 * moving * math.sin(u * math.pi), ry = 0, rz = 0, dx = 0, dy = 0 }
+		end
+		return STILL
+	end
+	if anim == "body" then
+		if gait == "trot" then
+			-- Two small bobs per cycle (one per footfall), a slight rock; a
+			-- legless stand-in bounces higher so the steps still read.
+			local bob = (1 - math.cos(2 * a)) / 2
+			local lift = if legged then 0.03 else 0.08
+			return {
+				rx = 0.04 * moving * math.sin(2 * a),
+				ry = 0,
+				rz = 0,
+				dx = 0,
+				dy = h * lift * moving * bob,
+			}
+		elseif gait == "waddle" then
+			local bob = (1 - math.cos(2 * a)) / 2
+			return {
+				rx = 0,
+				ry = 0.06 * moving * s,
+				rz = 0.14 * moving * s,
+				dx = 0,
+				dy = h * 0.04 * moving * bob,
+			}
+		elseif gait == "hop" then
+			local u = phase % 1
+			local arc = math.sin(u * math.pi)
+			return {
+				rx = -0.25 * moving * math.cos(u * math.pi),
+				ry = 0,
+				rz = 0,
+				dx = 0,
+				dy = h * 0.35 * moving * arc,
+			}
+		elseif gait == "scuttle" then
+			local jitter = (1 - math.cos(4 * a)) / 2
+			return { rx = 0, ry = 0.06 * moving * s, rz = 0, dx = 0, dy = h * 0.015 * moving * jitter }
+		elseif gait == "slither" then
+			return { rx = 0, ry = 0.28 * moving * s, rz = 0, dx = h * 0.08 * moving * s, dy = 0 }
+		elseif gait == "hover" then
+			return { rx = -0.14 * moving, ry = 0, rz = 0.05 * moving * s, dx = 0, dy = h * 0.06 * moving }
+		end
+	elseif anim == "head" then
+		if gait == "waddle" then
+			-- A bird's head pecks forward each step.
+			return { rx = 0.12 * moving * math.max(0, math.sin(2 * a)), ry = 0, rz = 0, dx = 0, dy = 0 }
+		elseif gait == "slither" then
+			return { rx = 0, ry = -0.22 * moving * s, rz = 0, dx = 0, dy = 0 }
+		end
+	elseif anim == "tail" then
+		if gait == "slither" then
+			return { rx = 0, ry = 0.5 * moving * math.sin(a - 1.2), rz = 0, dx = 0, dy = 0 }
+		end
+	end
+	return STILL
+end
+
+-- Wing beats per second times this while moving (hovering flyers work
+-- harder to travel).
+function Walk.wingRate(gait: Gait, moving: number): number
+	return 1 + (if gait == "hover" then 0.8 else 0.3) * moving
+end
+
+-- Which floor (1 up) a height in studs above the ground floor's deck is on.
+function Walk.floorAt(above: number, floorHeight: number): number
+	return math.max(1, math.floor((above + 1) / floorHeight) + 1)
+end
+
+return Walk
