@@ -485,14 +485,13 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	end)
 
 	-- Redraw an open window when the save changes (a purchase, a move, a
-	-- new hatch, coins going up so a button turns green).
+	-- new hatch, a button turning green).
 	local lastTower, lastHerd = "", ""
 	ctx.onData(function(d: { [string]: any })
 		if towerGui.Enabled then
-			local key =
-				`{Tower.owned(d)}|{table.concat(d.floorUpgrades or {}, ",")}|{d.coins // 1000}|{tostring(
-					elevatorMode
-				)}`
+			-- only when a button changes, never on every coin (a rebuilt
+			-- button loses the click being made on it)
+			local key = `{Tower.menuKey(d, economy)}|{tostring(elevatorMode)}`
 			if key ~= lastTower then
 				lastTower = key
 				drawTower()

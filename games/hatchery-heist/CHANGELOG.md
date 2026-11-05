@@ -24,6 +24,8 @@
   spots, then a big rug, then glowing ceiling lights, then corner plants
   and the floor's crest, each growing in with a sparkle. The Tower menu
   shows what the next upgrade brings.
+- Fix: with a big income, Upgrade and Build taps in the Tower menu were
+  sometimes lost (the menu rebuilt itself every time coins went up).
 - Only creatures on a floor earn. The rest wait in your inventory (now 150,
   up from 30); "Your Creatures" moves them, and Place best fills the tower
   with your strongest. Old bases are placed best first on the next join.
