@@ -49,6 +49,7 @@ local ATTRIBUTE = "CreatureLook"
 local MESH_FOLDER = "CreatureMeshes" -- server/CreatureAssets fills it
 local ANIMATE_RANGE = 160 -- studs from the camera; further creatures hold still
 local RING_TRANSPARENCY = 0.45
+local ORBIT_SECONDS = 9 -- an "orbit" part's turn (the Nebula Serpent's planets)
 local LIGHT_BRIGHTNESS = 1 -- was 1.5 to 2.5 pulsing: a base of Legendaries washed out
 
 -- A glow colour at `neon` of its full brightness (CreatureLooks.neon).
@@ -625,6 +626,10 @@ local function animate(v: Visual, now: number, dt: number)
 		elseif (anim == "wingL" or anim == "wingR") and (look.moves.wings or v.gait == "hover") then
 			local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
 			pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+		elseif anim == "orbit" then
+			-- Turns about its pivot's vertical axis (the Nebula Serpent's
+			-- planets), one turn every ORBIT_SECONDS.
+			pose = CFrame.Angles(0, t / ORBIT_SECONDS * 2 * math.pi, 0)
 		elseif Walk.isLeg(anim) then
 			pose = walkPose(v, anim)
 		else
