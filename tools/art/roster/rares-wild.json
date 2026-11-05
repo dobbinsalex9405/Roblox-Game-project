@@ -105,31 +105,19 @@
   {
    "id": "GiraffeCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "giraffe"
+   },
    "colors": {
     "col": "#F5C26B",
     "belly": "#FFF0CC",
     "snout": "#FFE6B0",
-    "tail_col": "#F5C26B"
-   },
-   "options": {
-    "ears": "pointy",
-    "tail": "long"
-   },
-   "shape": {
-    "body": [
-     0.9,
-     1.0,
-     1.0
-    ],
-    "head": 0.95
+    "accent": "#B8732E",
+    "tail_col": "#6A3E1A"
    },
    "accessories": [
-    {
-     "kind": "neck",
-     "color": "#F5C26B"
-    },
     {
      "kind": "giraffepatches",
      "color": "#B8732E"
@@ -137,173 +125,101 @@
     {
      "kind": "ossicones",
      "color": "#F5C26B",
-     "color2": "#FFD873",
-     "glow": false
-    },
-    {
-     "kind": "tailtip",
-     "color": "#6A3E1A"
+     "color2": "#FFD873"
     }
    ]
   },
   {
    "id": "ZebraFoal",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "foal"
+   },
    "colors": {
     "col": "#FAFAFA",
     "snout": "#3A3A4A",
-    "ear_col": "#FAFAFA",
+    "accent": "#2A2A35",
     "tail_col": "#2A2A35"
-   },
-   "options": {
-    "ears": "pointy",
-    "tail": "long"
-   },
-   "shape": {
-    "body": [
-     0.92,
-     1.05,
-     1.0
-    ]
    },
    "accessories": [
     {
      "kind": "zebra",
      "color": "#2A2A35"
-    },
-    {
-     "kind": "mohawk",
-     "color": "#2A2A35",
-     "color2": "#FAFAFA"
     }
    ]
   },
   {
    "id": "HippoCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
-   "colors": {
-    "col": "#B8A0B8",
-    "snout": "#F2B8C8"
-   },
    "options": {
-    "ears": "round",
-    "tail": "short",
-    "pig": true
+    "kind": "hippo"
    },
-   "shape": {
-    "body": [
-     1.0,
-     1.0,
-     0.95
-    ],
-    "head": 1.0
+   "colors": {
+    "col": "#9A88A8",
+    "snout": "#E8B0C0"
    },
    "accessories": [
     {
-     "kind": "cheekglow",
-     "color": "#FFB3D1"
+     "kind": "flower",
+     "color": "#FFB3D1",
+     "color2": "#FFE27A",
+     "glow": true
     }
    ]
   },
   {
    "id": "RhinoCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "rhino"
+   },
    "colors": {
     "col": "#A8A8B4",
-    "belly": "#C2C2CC",
-    "snout": "#B8B8C4"
+    "accent": "#E8E0D0",
+    "glow": "#FFF4D6"
    },
-   "options": {
-    "ears": "pointy",
-    "tail": "short"
-   },
-   "shape": {
-    "body": [
-     1.05,
-     1.05,
-     1.0
-    ],
-    "head": 1.0
-   },
-   "accessories": [
-    {
-     "kind": "nosehorn",
-     "color": "#E8E0D0",
-     "color2": "#FFF4D6"
-    }
-   ]
+   "accessories": []
   },
   {
    "id": "CheetahCub",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "cheetah"
+   },
    "colors": {
     "col": "#F2C25E",
     "belly": "#FFF2D6",
-    "snout": "#FFF2D6",
-    "tail_col": "#F2C25E"
+    "accent": "#2A2020"
    },
-   "options": {
-    "ears": "round",
-    "tail": "striped"
-   },
-   "patterns": [
-    {
-     "kind": "spots",
-     "color": "#3A2A20",
-     "parts": [
-      "body",
-      "head"
-     ]
-    },
-    {
-     "kind": "tips",
-     "color": "#D0CCD4"
-    }
-   ],
    "accessories": [
     {
-     "kind": "tearlines",
-     "color": "#2A2020"
+     "kind": "tailglow",
+     "color": "#FFE27A"
     }
-   ],
-   "shape": {
-    "body": [
-     0.98,
-     0.98,
-     0.98
-    ],
-    "head": 0.98
-   }
+   ]
   },
   {
    "id": "OkapiCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "foal"
+   },
    "colors": {
     "col": "#5A2E2A",
     "belly": "#7A4438",
     "snout": "#E8DCC8",
-    "ear_col": "#5A2E2A"
-   },
-   "options": {
-    "ears": "pointy",
-    "tail": "long"
-   },
-   "shape": {
-    "body": [
-     0.95,
-     1.1,
-     1.05
-    ]
+    "accent": "#3A1E1A",
+    "tail_col": "#3A1E1A"
    },
    "accessories": [
     {
@@ -360,6 +276,14 @@
      "kind": "bigbeak",
      "color": "#FFB627",
      "color2": "#FF4D5E"
+    },
+    {
+     "kind": "beakbands",
+     "color": "#FFD43B"
+    },
+    {
+     "kind": "glinteyes",
+     "color": "#4AA8FF"
     }
    ]
   },
@@ -393,23 +317,14 @@
   {
    "id": "PolarBearCub",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "bear"
+   },
    "colors": {
     "col": "#F8FAFF",
     "snout": "#EEF2FA"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "short"
-   },
-   "shape": {
-    "body": [
-     1.0,
-     1.0,
-     1.0
-    ],
-    "head": 1.0
    },
    "accessories": [
     {
@@ -421,51 +336,37 @@
   {
    "id": "SnowLeopardCub",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "snowleopard"
+   },
    "colors": {
     "col": "#E6E8EE",
     "belly": "#FAFBFD",
-    "snout": "#FAFBFD",
-    "tail_col": "#E6E8EE"
+    "accent": "#7A7E92"
    },
-   "options": {
-    "ears": "round",
-    "tail": "bushy"
-   },
-   "patterns": [
+   "accessories": [
     {
-     "kind": "spots",
-     "color": "#6A6E80",
-     "parts": [
-      "body",
-      "head",
-      "tail"
-     ]
+     "kind": "flakes",
+     "color": "#BDEBFF"
     }
-   ],
-   "accessories": []
+   ]
   },
   {
    "id": "ReindeerCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "foal"
+   },
    "colors": {
     "col": "#9A6A44",
     "belly": "#F2E6D8",
-    "snout": "#F2E6D8"
-   },
-   "options": {
-    "ears": "pointy",
-    "tail": "short"
-   },
-   "shape": {
-    "body": [
-     0.95,
-     1.05,
-     1.05
-    ]
+    "snout": "#F2E6D8",
+    "accent": "#6A4628",
+    "tail_col": "#F2E6D8"
    },
    "patterns": [
     {
@@ -725,6 +626,10 @@
      "kind": "casque",
      "color": "#FF8A1A",
      "color2": "#FFD43B"
+    },
+    {
+     "kind": "glinteyes",
+     "color": "#F4F4F8"
     }
    ]
   },
@@ -739,10 +644,7 @@
     "wing": "#D8D2C4",
     "feet": "#FFC21A"
    },
-   "options": {
-    "tuft": true,
-    "big_eyes": true
-   },
+   "options": {},
    "shape": {
     "head": 1.05
    },
@@ -751,31 +653,29 @@
      "kind": "hookbeak",
      "color": "#FFC21A",
      "color2": "#3A3A4A"
+    },
+    {
+     "kind": "glinteyes",
+     "color": "#F6F4EE"
+    },
+    {
+     "kind": "hoverlift",
+     "color": "#FFFFFF"
     }
    ]
   },
   {
    "id": "FlyingSquirrel",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "hover",
+   "options": {
+    "kind": "squirrel"
+   },
    "colors": {
     "col": "#A8A4B0",
     "belly": "#F4F2F6",
-    "snout": "#F4F2F6",
     "tail_col": "#A8A4B0"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "bushy"
-   },
-   "shape": {
-    "body": [
-     0.873,
-     0.97,
-     0.825
-    ],
-    "head": 0.97
    },
    "accessories": [
     {
@@ -805,24 +705,14 @@
   {
    "id": "AmethystMole",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
+   "options": {
+    "kind": "mole"
+   },
    "colors": {
     "col": "#4A4058",
-    "snout": "#FF9EB8",
-    "ear_col": "#4A4058"
-   },
-   "options": {
-    "ears": "round",
-    "tail": "short"
-   },
-   "shape": {
-    "body": [
-     0.921,
-     0.967,
-     0.811
-    ],
-    "head": 0.875
+    "snout": "#FF9EB8"
    },
    "accessories": [
     {

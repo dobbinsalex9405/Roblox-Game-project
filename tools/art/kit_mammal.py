@@ -22,6 +22,22 @@ legs an exact mirror of the right):
   over the crown, white cheeks, small pale ears.
 - **lamb**: a curly woolly body on thin dark legs, a dark face with a
   woolly cap and pale eyes, ears sticking out sideways.
+- **foal** / **giraffe**: long legs, a long horse-like head on an upright
+  neck with a short mane, small upright ears, a tufted tail (zebra, okapi,
+  reindeer calves); the giraffe's neck is about twice as long.
+- **bear**: chunky shoulders on thick legs, a round head with a short
+  lighter snout and a big black nose, small round ears.
+- **mole**: a long low velvet body, a long pointed pink nose, tiny eyes,
+  big pink digging paws held out at the shoulders.
+- **squirrel**: a small body, tufted ears and a big bushy tail curling up
+  over its back.
+- **cheetah** / **snowleopard**: big-cat cubs with small round ears: the
+  cheetah slim and leggy with solid spots and tear lines, the snow leopard
+  stocky with rosettes and a very thick, long tail.
+- **hippo**: a barrel body on short legs, a very wide flat-fronted muzzle
+  with nostrils on top, tiny round ears.
+- **rhino**: a heavy body, a long low head sloping to the nose with the big
+  horn at its tip (a small one behind), small tube ears.
 - **otter**: floats on its back (gait `swim`): pale face, paws on its chest
   holding a shell with a glowing pearl, webbed hind feet up as `finL`/`finR`,
   a flat `tail`.
@@ -48,6 +64,18 @@ def _h(*a):
     for x in a:
         v = ((v ^ (int(x) & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
     return v
+
+
+def _hm(*a):
+    """A well-mixed hash of small integers (neighbouring voxels differ)."""
+    v = 0x9E3779B9
+    for x in a:
+        v ^= (int(x) * 0x85EBCA6B) & 0xFFFFFFFF
+        v = ((v << 13) | (v >> 19)) & 0xFFFFFFFF
+        v = (v * 0xC2B2AE35 + 0x27D4EB2F) & 0xFFFFFFFF
+    v ^= v >> 16
+    v = (v * 0x7FEB352D) & 0xFFFFFFFF
+    return v ^ (v >> 15)
 
 
 def _mirror(part):
@@ -509,8 +537,314 @@ def _lamb(c, k, cols):
     _mirror(tail)
 
 
+# ------------------------------------------------------------------ foal
+
+def _foal(c, k, cols, neck=1.0):
+    """A foal or calf on long legs: a long horse-like head on an upright
+    neck with a short mane, small upright pointed ears, side eyes with a
+    glint, a slim body, a thin tail with a tuft. `neck` stretches the neck
+    (a giraffe's is about 2)."""
+    col = cols['col']
+    belly = cols.get('belly') or col
+    snout = cols.get('snout') or _light(col, 0.3)
+    mane = cols.get('accent') or _dark(col, 0.35)
+    hoof = _dark(cols.get('tail_col') or col, 0.45)
+    w = max(2, round(0.55 * k))
+    _legs(c, k, ((0.75, -0.9), (0.75, 2.0)), 3.3 * k, w, col, foot=hoof, foot_h=0.3)
+    body = c.part('body')
+    body.ell((0, 0.6 * k, 4.0 * k), (1.15 * k, 2.1 * k, 1.05 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < 3.5 * k and abs(p[0] + .5) < 0.8 * k else None)
+    nz = 4.6 * k + 2.0 * k * neck  # where the neck meets the head
+    head = c.part('head', 'head', (0, -1.1 * k, 4.6 * k))
+    line(head, (0, -1.1 * k, 4.4 * k), (0, -1.9 * k, nz), col, r=0.55 * k)
+    # a short upright mane along the back of the neck
+    for i in range(int(2.0 * k * neck) + 1):
+        t = i / max(1, 2.0 * k * neck)
+        y = -1.1 * k - t * 0.8 * k + 0.55 * k
+        z = 4.6 * k + t * 2.0 * k * neck
+        for x in (-1, 0):
+            head.put((x, math.floor(y), math.floor(z)), mane)
+            head.put((x, math.floor(y) + 1, math.floor(z)), mane)
+    head.ell((0, -2.2 * k, nz + 0.4 * k), (0.72 * k, 0.8 * k, 0.68 * k), col)
+    head.ell((0, -3.2 * k, nz), (0.55 * k, 0.8 * k, 0.5 * k), snout)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    for x in (round(0.25 * k), -round(0.25 * k) - 1):
+        head.put((x, fy, zt), INK)
+    _side_eyes(c, head, round(-2.45 * k), round(nz + 0.45 * k), brow=_light(col, 0.3))
+    ears = c.part('ears', 'ears', (0, -2.0 * k, nz + 1.0 * k))
+    n = max(3, round(0.8 * k))
+    for i in range(n):
+        x = round(0.5 * k) + i // 3
+        ears.put((x, round(-2.0 * k), round(nz + 0.9 * k) + i), col)
+        if i < n - 1:
+            ears.put((x + 1, round(-2.0 * k), round(nz + 0.9 * k) + i), col)
+    _mirror(ears)
+    tail = c.part('tail', 'tail', (0, 2.6 * k, 4.4 * k))
+    tc = cols.get('tail_col') or mane
+    line(tail, (0, 2.6 * k, 4.4 * k), (0, 3.1 * k, 3.0 * k), col, r=0.25 * k)
+    tail.ell((0, 3.15 * k, 2.6 * k), (0.32 * k, 0.3 * k, 0.55 * k), tc)
+    _mirror(tail)
+
+
+def _giraffe(c, k, cols):
+    _foal(c, k, cols, neck=1.9)
+
+
+# ------------------------------------------------------------------ bear
+
+def _bear(c, k, cols):
+    col = cols['col']
+    snout = cols.get('snout') or _light(col, 0.25)
+    pad = cols.get('accent') or _dark(col, 0.45)
+    w = max(2, round(0.85 * k))
+    _legs(c, k, ((0.95, -1.1), (0.95, 1.7)), 1.9 * k, w, col, foot=_dark(col, 0.08), foot_h=0.25)
+    body = c.part('body')
+    body.ell((0, 0.4 * k, 3.0 * k), (1.6 * k, 2.3 * k, 1.45 * k), col)
+    body.ell((0, -0.6 * k, 3.4 * k), (1.45 * k, 1.3 * k, 1.3 * k), col)  # chunky shoulders
+    head = c.part('head', 'head', (0, -1.6 * k, 3.9 * k))
+    head.ell((0, -2.2 * k, 4.2 * k), (1.15 * k, 1.05 * k, 1.0 * k), col)
+    head.ell((0, -3.25 * k, 3.8 * k), (0.62 * k, 0.6 * k, 0.48 * k), snout)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    for x in (0, -1):
+        head.put((x, fy, zt), INK)
+        head.put((x, fy, zt - 1), INK)
+    _mirror(head)
+    face(c, head, k, 4.45, x_off=0.45, size=0.35, cheeks=True, cheek_z=4.0, cheek_x=0.95)
+    _ears_round(c, k, 0.85, -2.0, 5.1, (0.36 * k, 0.24 * k, 0.32 * k), col, (0, -2.0 * k, 5.0 * k))
+    tail = c.part('tail', 'tail', (0, 2.6 * k, 3.4 * k))
+    tail.ell((0, 2.75 * k, 3.4 * k), (0.32 * k, 0.3 * k, 0.32 * k), col)
+    _mirror(tail)
+    del pad
+
+
+# ------------------------------------------------------------------ mole
+
+def _mole(c, k, cols):
+    col = cols['col']
+    pink = cols.get('snout') or hexc('#FF9EB8')
+    _legs(c, k, ((0.75, -0.6), (0.75, 1.9)), 1.2 * k, 2, _dark(col, 0.1), foot=pink, foot_h=0.25)
+    body = c.part('body')
+    # a long, low velvet sausage
+    body.ell((0, 0.6 * k, 2.0 * k), (1.35 * k, 2.4 * k, 1.15 * k), col)
+    head = c.part('head', 'head', (0, -1.5 * k, 2.2 * k))
+    head.ell((0, -1.9 * k, 2.2 * k), (1.05 * k, 1.0 * k, 0.95 * k), col)
+    # a long pointed pink nose
+    line(head, (0, -2.6 * k, 2.1 * k), (0, -3.6 * k, 1.9 * k), pink, r=0.38 * k)
+    head.ell((0, -3.75 * k, 1.9 * k), (0.45 * k, 0.3 * k, 0.4 * k), pink)
+    _mirror(head)
+    # tiny eyes, squinting
+    face(c, head, k, 2.75, x_off=0.55, size=0.25, cheeks=False)
+    # big pink digging paws held out at the shoulders
+    paws = c.part('paws', 'static')
+    for i in range(3):
+        paws.ell((1.35 * k, -1.2 * k + i * 0.35 * k, 1.5 * k), (0.5 * k, 0.22 * k + .3, 0.55 * k), pink)
+    for q in list(paws.v):
+        if q[2] <= round(1.0 * k) and q[1] < -1.2 * k:
+            paws.v[q] = (_dark(pink, 0.25), False)  # claws
+    _mirror(paws)
+    tail = c.part('tail', 'tail', (0, 2.9 * k, 2.0 * k))
+    line(tail, (0, 2.9 * k, 2.0 * k), (0, 3.6 * k, 2.3 * k), pink, r=0.22 * k)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ squirrel
+
+def _squirrel(c, k, cols):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.4)
+    _legs(c, k, ((0.6, -0.8), (0.6, 1.4)), 1.5 * k, 2, col, foot=_dark(col, 0.15), foot_h=0.25)
+    body = c.part('body')
+    body.ell((0, 0.4 * k, 2.4 * k), (1.15 * k, 1.75 * k, 1.15 * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < 2.4 * k and abs(p[0] + .5) < 0.75 * k and p[1] < 0.6 * k else None)
+    head = c.part('head', 'head', (0, -1.2 * k, 3.1 * k))
+    head.ell((0, -1.8 * k, 3.5 * k), (1.0 * k, 0.95 * k, 0.9 * k), col)
+    head.ell((0, -2.7 * k, 3.15 * k), (0.45 * k, 0.4 * k, 0.38 * k), belly)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), INK)
+    head.put((-1, fy, zt), INK)
+    _mirror(head)
+    face(c, head, k, 3.7, x_off=0.5, size=0.36, cheeks=True, cheek_z=3.3, cheek_x=0.85)
+    # ears with tufts
+    ears = c.part('ears', 'ears', (0, -1.7 * k, 4.3 * k))
+    for i in range(max(3, round(0.9 * k))):
+        ears.put((round(0.55 * k), round(-1.7 * k), round(4.2 * k) + i), col if i < 2 else _dark(col, 0.2))
+        ears.put((round(0.55 * k) + 1, round(-1.7 * k), round(4.2 * k) + i), col if i < 1 else _dark(col, 0.2))
+    _mirror(ears)
+    # a big bushy tail curling up over the back
+    tail = c.part('tail', 'tail', (0, 2.0 * k, 2.4 * k))
+    tc = cols.get('tail_col') or col
+    for i in range(9):
+        t = i / 8
+        ang = t * math.pi * 1.1
+        y = 2.2 * k + math.sin(ang) * 1.4 * k
+        z = 2.0 * k + (1 - math.cos(ang)) * 1.9 * k
+        r = (0.55 + 0.35 * math.sin(t * math.pi)) * k
+        tail.ell((0, y, z), (r * 0.9, r, r), tc)
+    tail.paint(lambda p, cc, g: (_light(tc, 0.2), False) if _h(*p) % 5 == 0 else None)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ big cats
+
+def _spots(part, k, col, rosette=False):
+    """Spots over a part's surface, sized to the voxels: a cheetah's are
+    scattered single dark voxels; a snow leopard's rosettes are small broken
+    rings (two or three dark voxels round a lighter centre)."""
+    vs = part.v
+    surf = [p for p in vs if any(n not in vs for n in (
+        (p[0] + 1, p[1], p[2]), (p[0] - 1, p[1], p[2]), (p[0], p[1] + 1, p[2]),
+        (p[0], p[1] - 1, p[2]), (p[0], p[1], p[2] + 1)))]
+    if not rosette:
+        for p in surf:
+            if not vs[p][1] and _hm(*p) % 5 == 0:
+                vs[p] = (col, False)
+        return
+    ring = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
+    for p in surf:
+        if vs[p][1] or _hm(*p, 7) % 7:
+            continue
+        h = _hm(*p, 9)
+        for j, d in enumerate(ring):
+            q = (p[0] + d[0], p[1] + d[1], p[2] + d[2])
+            if q in vs and (h >> j) % 3 and q in set(surf):
+                vs[q] = (col, False)
+
+
+def _bigcat(c, k, cols, snow=False):
+    col = cols['col']
+    belly = cols.get('belly') or _light(col, 0.5)
+    spot = cols.get('accent') or hexc('#2A2020')
+    w = max(2, round((0.62 if snow else 0.5) * k))
+    hz = (2.0 if snow else 2.7) * k
+    _legs(c, k, ((0.7, -0.9), (0.7, 2.0)), hz, w, col, foot=belly, foot_h=0.2)
+    body = c.part('body')
+    bz = hz + (0.5 if snow else 0.45) * k
+    body.ell((0, 0.6 * k, bz), ((1.2 if snow else 1.0) * k, 2.0 * k, (1.1 if snow else 0.9) * k), col)
+    body.paint(lambda p, cc, g: (belly, False) if p[2] < bz - 0.4 * k and abs(p[0] + .5) < 0.75 * k else None)
+    head = c.part('head', 'head', (0, -1.3 * k, bz + 0.6 * k))
+    hzc = bz + 1.0 * k
+    head.ell((0, -2.0 * k, hzc), ((1.1 if snow else 0.95) * k, 0.95 * k, 0.88 * k), col)
+    head.ell((0, -2.85 * k, hzc - 0.35 * k), (0.48 * k, 0.4 * k, 0.38 * k), belly)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    head.put((0, fy, zt), hexc('#E8909A') if snow else INK)
+    head.put((-1, fy, zt), hexc('#E8909A') if snow else INK)
+    _mirror(head)
+    face(c, head, k, hzc / k + 0.15, x_off=0.42, size=0.36, cheeks=False)
+    if not snow:  # a cheetah's dark tear lines from the eyes to the mouth
+        eyes = next(p for p in c.parts if p.name == 'eyes')
+        for (x, y, z) in list(eyes.v):
+            if x >= 0 and eyes.v[(x, y, z)][0] == INK:
+                for dz in range(1, max(2, round(0.7 * k))):
+                    q = head.front(x, z - dz)
+                    if q:
+                        head.v[q] = (_mix(spot, col, 0.35), False)
+        _mirror(head)
+    _ears_round(c, k, 0.72, -1.8, hzc / k + 0.85, (0.3 * k, 0.18 * k, 0.26 * k), col, (0, -1.8 * k, hzc + 0.8 * k))
+    for part in [body] + [p for p in c.parts if p.name.startswith('leg')]:
+        _spots(part, k, spot, rosette=snow)
+    tail = c.part('tail', 'tail', (0, 2.5 * k, bz))
+    if snow:  # very thick and long, curling up at the end
+        line(tail, (0, 2.5 * k, bz), (0, 5.0 * k, bz - 1.2 * k), col, r=0.6 * k)
+        line(tail, (0, 5.0 * k, bz - 1.2 * k), (0, 6.3 * k, bz - 0.2 * k), col, r=0.6 * k)
+        _spots(tail, k, spot, rosette=True)
+    else:  # long and thin, ringed dark at the end, a white tip
+        line(tail, (0, 2.5 * k, bz), (0, 4.4 * k, bz - 1.1 * k), col, r=0.3 * k)
+        line(tail, (0, 4.4 * k, bz - 1.1 * k), (0, 5.1 * k, bz - 0.5 * k), col, r=0.3 * k)
+        tail.paint(lambda p, cc, g: (WHITE, False) if p[1] > 4.85 * k else (spot, False) if p[1] > 3.6 * k and (p[1] // 2) % 2 == 0 else None)
+        _spots(tail, k, spot)
+    _mirror(tail)
+
+
+def _cheetah(c, k, cols):
+    _bigcat(c, k, cols, snow=False)
+
+
+def _snowleopard(c, k, cols):
+    _bigcat(c, k, cols, snow=True)
+
+
+# ------------------------------------------------------------------ hippo
+
+def _hippo(c, k, cols):
+    col = cols['col']
+    snout = cols.get('snout') or _light(col, 0.3)
+    w = max(2, round(0.85 * k))
+    _legs(c, k, ((1.0, -1.0), (1.0, 1.9)), 1.3 * k, w, _dark(col, 0.08), foot=_dark(col, 0.3), foot_h=0.25)
+    body = c.part('body')
+    body.ell((0, 0.5 * k, 2.6 * k), (1.75 * k, 2.4 * k, 1.5 * k), col)
+    body.paint(lambda p, cc, g: (_light(col, 0.15), False) if p[2] < 1.9 * k else None)
+    head = c.part('head', 'head', (0, -1.5 * k, 3.0 * k))
+    head.ell((0, -2.2 * k, 3.2 * k), (1.25 * k, 1.1 * k, 1.0 * k), col)
+    # a very wide, flat-fronted muzzle
+    head.ell((0, -3.1 * k, 2.7 * k), (1.35 * k, 0.75 * k, 0.8 * k), snout)
+    cut = round(-3.55 * k)
+    for q in [q for q in head.v if q[1] < cut]:
+        del head.v[q]
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] <= fy + 1)
+    # nostrils on top of the muzzle, near the front
+    for x in (round(0.5 * k), -round(0.5 * k) - 1):
+        q = (x, fy + 1, zt)
+        if q in head.v:
+            head.v[q] = (_dark(snout, 0.5), False)
+    _mirror(head)
+    face(c, head, k, 3.75, x_off=0.55, size=0.36, cheeks=False)
+    _ears_round(c, k, 0.85, -1.8, 4.2, (0.24 * k, 0.16 * k, 0.22 * k), col, (0, -1.8 * k, 4.1 * k))
+    tail = c.part('tail', 'tail', (0, 2.8 * k, 2.8 * k))
+    line(tail, (0, 2.8 * k, 2.8 * k), (0, 3.2 * k, 2.2 * k), col, r=0.24 * k)
+    _mirror(tail)
+
+
+# ------------------------------------------------------------------ rhino
+
+def _rhino(c, k, cols):
+    col = cols['col']
+    horn = cols.get('accent') or hexc('#E8E0D0')
+    glow = cols.get('glow')
+    w = max(2, round(0.8 * k))
+    _legs(c, k, ((1.0, -1.0), (1.0, 2.0)), 1.7 * k, w, col, foot=_dark(col, 0.25), foot_h=0.25)
+    body = c.part('body')
+    body.ell((0, 0.6 * k, 2.9 * k), (1.6 * k, 2.4 * k, 1.4 * k), col)
+    body.paint(lambda p, cc, g: (_dark(col, 0.08), False) if (p[1] - round(0.2 * k)) % max(3, round(1.4 * k)) == 0 and p[2] > 2.2 * k else None)
+    # a long, low, heavy head sloping down to the nose
+    head = c.part('head', 'head', (0, -1.3 * k, 3.0 * k))
+    line(head, (0, -1.6 * k, 3.1 * k), (0, -3.4 * k, 2.3 * k), col, r=0.85 * k)
+    head.ell((0, -1.9 * k, 3.2 * k), (1.0 * k, 0.9 * k, 0.9 * k), col)
+    fy = min(p[1] for p in head.v)
+    zt = max(p[2] for p in head.v if p[1] == fy)
+    # the big horn at the nose tip, a small one behind it
+    hp = c.part('horns', 'static')
+    n = max(4, round(1.6 * k))
+    for i in range(n):
+        t = i / (n - 1)
+        r = 0.42 * k * (1 - 0.75 * t) + .3
+        hp.ell((0, fy + 0.6 * k - t * 0.5 * k, zt + 0.2 * k + t * 1.5 * k), (r, r, .6), horn, bool(glow) and t > 0.7)
+    for i in range(max(2, round(0.6 * k))):
+        r = 0.3 * k * (1 - 0.5 * i / max(1, round(0.6 * k))) + .3
+        hp.ell((0, -2.5 * k, zt + 0.4 * k + i), (r, r, .6), horn)
+    if glow:
+        hp.paint(lambda p, cc, g: (glow, True) if p[2] >= max(q[2] for q in hp.v) - 1 else None)
+    _mirror(hp)
+    _side_eyes(c, head, round(-2.3 * k), round(3.0 * k), brow=_light(col, 0.2))
+    # small tube ears
+    ears = c.part('ears', 'ears', (0, -1.6 * k, 3.9 * k))
+    for i in range(max(3, round(0.7 * k))):
+        r = 0.25 * k + .3
+        ears.ell((0.7 * k, -1.6 * k, 3.85 * k + i), (r, r, .6), col)
+    _mirror(ears)
+    tail = c.part('tail', 'tail', (0, 2.9 * k, 3.2 * k))
+    line(tail, (0, 2.9 * k, 3.2 * k), (0, 3.3 * k, 2.4 * k), col, r=0.22 * k)
+    _mirror(tail)
+
+
 KINDS = {'camel': _camel, 'ermine': _ermine, 'ferret': _ermine, 'muskox': _muskox, 'sandcat': _sandcat, 'otter': _otter,
-         'hamster': _hamster, 'mouse': _mouse, 'badger': _badger, 'lamb': _lamb}
+         'hamster': _hamster, 'mouse': _mouse, 'badger': _badger, 'lamb': _lamb, 'foal': _foal, 'giraffe': _giraffe,
+         'bear': _bear, 'mole': _mole, 'squirrel': _squirrel, 'cheetah': _cheetah, 'snowleopard': _snowleopard,
+         'hippo': _hippo, 'rhino': _rhino}
 GAITS = {'otter': 'swim'}
 
 

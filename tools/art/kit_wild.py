@@ -761,6 +761,9 @@ def zebra(c, H, col, col2=None):
     """Bold stripes all round the body, legs and head (a zebra's)."""
     k = H / 10.0
     w = max(1, round(0.55 * k))
+    for part in [p for p in c.parts if p.name.startswith('leg')]:
+        hoof = 0.35 * k
+        part.paint(lambda p, cc, g: (col, False) if not g and p[2] >= hoof and (p[2] // w) % 2 == 0 else None)
     for name in ('body', 'head', 'tail'):
         part = kit._find(c, name)
         if part and name == 'head':
@@ -796,9 +799,14 @@ def tigerstripes(c, H, col, col2=None):
 def leggings(c, H, col, col2=None):
     """Stripes across the lower legs (an okapi's, a sand cat's)."""
     k = H / 10.0
-    body = kit._find(c, 'body')
     w = max(1, round(0.4 * k))
-    body.paint(lambda p, cc, g: (col, False) if p[2] < 1.6 * k and (p[2] // w) % 2 == 0 else None)
+    legs = [p for p in c.parts if p.name.startswith('leg')]
+    top = 1.6 * k
+    if legs:  # legs drawn as their own parts: stripe their upper two thirds
+        top = 0.7 * max(q[2] for p in legs for q in p.v)
+    for part in [kit._find(c, 'body')] + legs:
+        if part is not None:
+            part.paint(lambda p, cc, g: (col, False) if 0.3 * k <= p[2] < top and (p[2] // w) % 2 == 0 else None)
 
 
 def tearlines(c, H, col, col2=None):
@@ -2190,7 +2198,29 @@ def mantisantennae(c, H, col, col2=None):
         head.put((-x - 1, y, z), col)
 
 
+def beakbands(c, H, col=None, col2=None):
+    """Repaints a big beak in rainbow bands from root to tip (a keel-billed
+    toucan's): green, blue, yellow, orange, red."""
+    beak = kit._find(c, 'beak')
+    if not beak or not beak.v:
+        return
+    ys = [p[1] for p in beak.v]
+    y0, y1 = max(ys), min(ys)
+    bands = [hexc('#6CD66A'), hexc('#4AA8FF'), hexc('#FFD43B'), hexc('#FF9F40'), hexc('#FF4D5E')]
+    beak.paint(lambda p, cc, g: (bands[min(4, int((y0 - p[1]) / max(1, y0 - y1 + 1) * 5))], False))
+
+
+def hoverlift(c, H, col=None, col2=None):
+    """Lifts the whole creature so it clearly hovers: its feet hang clear
+    of the ground."""
+    k = H / 10.0
+    lift = max(2, round(0.8 * k))
+    for p in c.parts:
+        _shift(p, dz=lift)
+
+
 ACCESSORIES = {
+    'beakbands': beakbands, 'hoverlift': hoverlift,
     'glinteyes': glinteyes, 'mantisantennae': mantisantennae,
     'nostrils': nostrils,
     'knucklearms': knucklearms,
