@@ -15,6 +15,7 @@ import math
 from voxkit import hexc
 
 INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
+GLOW_TIERS = ('Ultra Rare', 'Epic', 'Legendary', 'Godly')
 GLOW_TAIL = hexc('#FFF27A')
 
 PLANS = {
@@ -193,8 +194,11 @@ def critter(c, H, kind, col, accent=None, wing=None):
         shell = c.part('shell', 'static')
         shell.ell((0, 0.6 * k, 2.6 * k), (1.8 * k, 2.4 * k, 1.4 * k), col, cond=lambda x, y, z: z >= round(2.4 * k) and y < round(2.2 * k))
         shell.paint(lambda p, cc, g: (_dark(col, 0.25), False) if abs(p[0] + .5) < 0.5 else None)
-        lamp = c.part('lamp', 'glow')
-        lamp.ell((0, 3.0 * k, 1.9 * k), (1.2 * k, 1.0 * k, 1.0 * k), wing or GLOW_TAIL, True)
+        # only Ultra Rare and up may glow in game (VoxelArt.spec): below
+        # that the lantern is a bright, solid yellow
+        glows = getattr(c, 'rarity', '') in GLOW_TIERS
+        lamp = c.part('lamp', 'glow' if glows else 'static')
+        lamp.ell((0, 3.0 * k, 1.9 * k), (1.2 * k, 1.0 * k, 1.0 * k), wing or GLOW_TAIL, glows)
         head.ell((0, -2.0 * k, 2.4 * k), (1.4 * k, 1.2 * k, 1.3 * k), accent)
         face(c, head, k, 2.4, x_off=0.45, size=0.5)
         antennae(head, k, 0.4, -2.6, 3.4, 1.6, INK, back=-0.2, spread=0.4)
@@ -306,7 +310,8 @@ def shore(c, H, kind, col, accent=None, belly=None):
                 x = round(sx * 1.0 * k)
                 body.box((x if sx > 0 else _mx(x), round(y * k), 0), (x if sx > 0 else _mx(x), round(y * k), round(0.6 * k)), belly or col)
         sp = c.part('spines', 'static')
-        n = 46
+        # fewer spikes on the in-game build, to keep a Common in its box budget
+        n = 46 if getattr(c, 'fine', False) else 30
         for i in range(n):
             # a Fibonacci sphere of spikes, none on the face or underneath
             zz = 1 - 2 * (i + .5) / n
@@ -327,7 +332,9 @@ def shore(c, H, kind, col, accent=None, belly=None):
             shell.ell((0, 2.2 * k, 5.4 * k), (1.3 * k, 1.4 * k, 1.4 * k), accent)
             shell.ell((0, 2.6 * k, 6.6 * k), (0.6 * k + .3, 0.6 * k + .3, 0.7 * k + .3), accent)
             band = belly or WHITE
-            shell.paint(lambda p, cc, g: (band, False) if int((p[2] - p[1] * 0.6) / max(1, 0.8 * k)) % 2 == 0 else None)
+            # wider bands on the in-game build, to keep a Common in its box budget
+            bw = max(1, 0.8 * k) if getattr(c, 'fine', False) else max(2, 1.2 * k)
+            shell.paint(lambda p, cc, g: (band, False) if int((p[2] - p[1] * 0.6) / bw) % 2 == 0 else None)
             body.ell((0, -1.2 * k, 1.6 * k), (1.8 * k, 1.4 * k, 1.3 * k), col)
             head.ell((0, -2.0 * k, 2.2 * k), (1.3 * k, 0.8 * k, 0.8 * k), col)
             ez, ey = 3.6, -2.2
