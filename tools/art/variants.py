@@ -29,8 +29,9 @@ the ROSTER, so a new Common needs no code. One entry:
 
 More plans and accessories live in kit modules: every `kit_*.py` next to
 this file is imported, and its `PLANS` ({plan: (colours, options)}),
-`BUILDERS` ({plan: fn(c, H, cols, opts)}) and `ACCESSORIES` ({kind: fn(c,
-H, col, col2)}) are added here. A name two modules both define is an error,
+`BUILDERS` ({plan: fn(c, H, cols, opts)}), `ACCESSORIES` ({kind: fn(c,
+H, col, col2[, a])}, `a` the roster dict, for its own settings) and
+`PATTERNS` ({kind: fn(c, H, col, parts, p)}) are added here. A name two modules both define is an error,
 so batches never overwrite each other's plans.
 
 Files are read in name order, so a batch file per thread never collides
@@ -68,7 +69,7 @@ PLANS = {
 # More plans and accessories, each kit in its own module (kit_*.py, found by
 # name) so batches add them without editing the same lines.
 sys.path.insert(0, HERE)
-EXTRA_BUILDERS, EXTRA_ACCESSORIES = {}, {}
+EXTRA_BUILDERS, EXTRA_ACCESSORIES, EXTRA_PATTERNS = {}, {}, {}
 _OWNER = {}
 
 
@@ -78,9 +79,10 @@ def _load_kits():
         name = os.path.splitext(os.path.basename(path))[0]
         mod = importlib.import_module(name)
         for table, into in ((getattr(mod, 'PLANS', {}), PLANS), (getattr(mod, 'BUILDERS', {}), EXTRA_BUILDERS),
-                            (getattr(mod, 'ACCESSORIES', {}), EXTRA_ACCESSORIES)):
+                            (getattr(mod, 'ACCESSORIES', {}), EXTRA_ACCESSORIES),
+                            (getattr(mod, 'PATTERNS', {}), EXTRA_PATTERNS)):
             for key, val in table.items():
-                kind = 'accessory' if into is EXTRA_ACCESSORIES else 'plan'
+                kind = {id(EXTRA_ACCESSORIES): 'accessory', id(EXTRA_PATTERNS): 'pattern'}.get(id(into), 'plan')
                 if (kind, key) in _OWNER and _OWNER[(kind, key)] != name:
                     raise RuntimeError(f'{name}.py and {_OWNER[(kind, key)]}.py both define the {kind} "{key}"')
                 _OWNER[(kind, key)] = name
@@ -88,7 +90,7 @@ def _load_kits():
 
 
 _load_kits()
-PATTERNS = {'spots', 'stripes', 'socks', 'saddle', 'tips', 'back'}
+PATTERNS = {'spots', 'stripes', 'socks', 'saddle', 'tips', 'back'} | set(EXTRA_PATTERNS)
 ACCESSORIES = {'beanie', 'bow', 'flower', 'sprout', 'scarf', 'bell', 'horns', 'beard'} | set(EXTRA_ACCESSORIES)
 GAITS = ('trot', 'waddle', 'hop', 'scuttle', 'slither', 'hover', 'swim')
 HEX = re.compile(r'^#[0-9A-Fa-f]{6}$')
@@ -219,13 +221,21 @@ def builder(entry):
             kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))
         for p in entry.get('patterns', []):
             with _glowing(c, p.get('glow')):
-                kit.pattern(c, H, p['kind'], p['color'], tuple(p.get('parts', ['body'])))
+                if p['kind'] in EXTRA_PATTERNS:
+                    EXTRA_PATTERNS[p['kind']](c, H, hexc(p['color']), tuple(p.get('parts', ['body'])), p)
+                else:
+                    kit.pattern(c, H, p['kind'], p['color'], tuple(p.get('parts', ['body'])))
         for a in entry.get('accessories', []):
             with _glowing(c, a.get('glow')):
                 if a['kind'] in EXTRA_ACCESSORIES:
-                    EXTRA_ACCESSORIES[a['kind']](c, H, hexc(a['color']), hexc(a['color2']) if a.get('color2') else None)
+                    fn = EXTRA_ACCESSORIES[a['kind']]
+                    args = (c, H, hexc(a['color']), hexc(a['color2']) if a.get('color2') else None)
+                    # a kit accessory may take the roster entry too, for its own settings
+                    fn(*args, a) if fn.__code__.co_argcount >= 5 else fn(*args)
                 else:
                     kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
+        if entry.get('gait'):
+            c.gait_hint = entry['gait']  # the sheet's gait wins over one a body plan set
         return c
 
     return build
