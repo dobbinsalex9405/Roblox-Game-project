@@ -556,8 +556,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
-		tris = 7492,
-		trisLod1 = 750,
+		tris = 7716,
+		trisLod1 = 778,
 		parts = {
 			{
 				name = "body",
@@ -594,11 +594,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Butterfly_eyes",
-						center = { 0, 0.6518, -0.5 },
-						size = { 0.407, 0.1035, 0.107 },
+						center = { 0, 0.6018, -0.5 },
+						size = { 0.607, 0.2035, 0.307 },
 					},
 				},
-				lod1 = { name = "Butterfly_eyes_lod1", center = { 0, 0.65, -0.5 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Butterfly_eyes_lod1", center = { 0, 0.6, -0.5 }, size = { 0.6, 0.2, 0.3 } },
 			},
 			{
 				name = "wingL",
@@ -666,7 +666,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		height = 1.8,
 		size = { 1.2, 1.8, 1.8 },
 		tris = 9968,
-		trisLod1 = 818,
+		trisLod1 = 812,
 		parts = {
 			{
 				name = "body",
