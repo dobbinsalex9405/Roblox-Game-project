@@ -2,6 +2,24 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
+
+- **Each creature wanders only its own cell** (the 10-stud spots it takes),
+  not the whole floor: no collision avoidance needed, the Steal prompt on
+  its pad stays beside it, and raids and income need no change.
+- **A schedule, not physics**: position and facing are a pure function of
+  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
+  nothing replicates. The client moves the server's invisible stand-in
+  locally; the server never sees it move.
+- **The step phase follows distance walked**, so feet do not slide; legged
+  bodies dip as the legs spread (feet stay planted), legless stand-ins
+  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
+  each species' legs), falling back to the leg part names.
+- **Cull by floor inside a tower, by distance outside**: inside, decks hide
+  other floors and a full tower is 80 creatures; from the yard upper floors
+  must not look empty, so every floor shows up to `cullOutsideStuds` (180,
+  far meshes and no animation past the animate range keep it cheap).
+
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
 - **What:** 25 hub props in `tools/art/world/hub.py` (kinds `building` and
@@ -33,6 +51,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Signs are blank:** stalls, the Theme Stand, Book stand, arch, silo and
   notice board carry a blank cream face; the game writes the text
   (SurfaceGui), at the prop's `anchor` (the face centre).
+
 ## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
 
 - **Body plans that know their legs draw them as parts** (`rig.leg_part`:

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
@@ -13,8 +14,10 @@
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
   snakes slither and flyers hover with faster wing beats.
-- Creatures more than one floor away from you are not drawn, so a full
-  tower stays smooth.
+- Creatures whose models have no separate legs walk with their whole body:
+  they rock from foot to foot, nod, bounce and swing their tails and ears.
+- Inside a tower, creatures more than one floor from you are not drawn,
+  so a full tower stays smooth; from the yard every floor shows.
 - A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
   longer also gets the generic rainbow cubes.
 - Crabs and lobsters with up to six legs a side walk on all of them.
@@ -22,6 +25,13 @@
   their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
+- Fix: climbing the tower ladder from inside the tower no longer gets you
+  stuck under the next floor. Each floor has an opening beside the ladder
+  you climb through and step off onto.
+- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
+  phone.
+- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
+  no longer says "(Tower menu)".
 - Every creature walks on its own legs: birds step on two little legs and
   flick their wings out, bunnies push off with their hind feet, frogs kick
   their back legs, beetles, ants, crabs and pill bugs walk on six legs in
