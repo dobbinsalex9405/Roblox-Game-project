@@ -30,6 +30,25 @@ describe("Walk schedule", function()
 		end
 	end)
 
+	it("keeps spot 5's creatures out of the elevator shaft on every floor", function()
+		-- The shaft: base x up to -17 and z from 17. Spot 5 stands at (-15, 15).
+		for _, pad in { 5, 13, 77 } do
+			for _, spots in { 1, 2, 3 } do
+				local footprint = 3
+				local cx, cz, rx, rz = Walk.cell(pad, spots, footprint, cfg.margin)
+				local standX = -15 + (spots - 1) * 5
+				local minX = standX + cx - rx - footprint / 2
+				local maxZ = 15 + cz + rz + footprint / 2
+				expect(minX >= -17).toBe(true)
+				expect(maxZ <= 17).toBe(true)
+			end
+		end
+		-- Every other spot wanders its whole cell.
+		local cx, cz = Walk.cell(6, 1, 2, cfg.margin)
+		expect(cx).toBe(0)
+		expect(cz).toBe(0)
+	end)
+
 	it("is the same for every player (a function of uid and server time)", function()
 		local seed = Walk.seed("abc")
 		local a = Walk.at(seed, 3, 2, 12345.6, cfg)

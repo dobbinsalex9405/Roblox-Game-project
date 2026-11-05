@@ -435,10 +435,16 @@ def shape(c, body=(1.0, 1.0, 1.0), head=1.0):
         import rig
         # legs a body plan drew as their own parts stretch with the body,
         # hips and all, so they stay on the ground and under it
+        # Legs a body plan drew as their own parts move with the body (each
+        # by its hip's scaled offset) but keep their shape and height:
+        # resampling a one-voxel leg would thin it away.
         legs = [p for p in c.parts if p.name in rig.LEG_NAMES]
-        _rescale([b] + [p for p in c.parts if p.name in ('shell', 'spines')] + legs, (0, cy, 0), body)
+        _rescale([b] + [p for p in c.parts if p.name in ('shell', 'spines')], (0, cy, 0), body)
         for p in legs:
-            p.pivot = (p.pivot[0] * body[0], cy + (p.pivot[1] - cy) * body[1], p.pivot[2] * body[2])
+            dx = round(p.pivot[0] * body[0] - p.pivot[0])
+            dy = round(cy + (p.pivot[1] - cy) * body[1] - p.pivot[1])
+            p.v = {(x + dx, y + dy, z): v for (x, y, z), v in p.v.items()}
+            p.pivot = (p.pivot[0] + dx, p.pivot[1] + dy, p.pivot[2])
         # the head and tail move with the body's front, back and top
         dy_front = min(p[1] for p in b.v) - front0
         dy_back = max(p[1] for p in b.v) - max(ys)
