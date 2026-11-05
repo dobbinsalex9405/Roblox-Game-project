@@ -2,6 +2,28 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Hatchery Heist world art direction and format
+
+- **Storybook Farm look.** Three directions were rendered (Storybook Farm,
+  Toybox Bright, Enchanted Grove; renders in project files
+  `art/hatchery-heist/world-refs/`). Alex asked for a full playtest by
+  morning and was away, so the world thread picked Storybook Farm: it
+  matches a hatchery on a farm and floor 1's barn, reads well on phones and
+  keeps creatures as the stars. The glowing, magical feel comes in on the
+  upper tower floors. Restyle if Alex prefers another direction.
+- **One model, two outputs.** Every world prop is modelled once at 0.1-stud
+  voxels (`tools/art/world/`). Mesh uploads are not possible yet, so
+  `export.py` also writes `shared/WorldArt.luau`: each prop resampled to the
+  finest voxel size (0.1 to 1.2 studs) whose merged boxes fit its budget,
+  with speckle colours folded into their base colour. Budgets: trees and
+  the Golden Nest 160 boxes (at 80 they looked like blobs; the polish thread
+  places about a dozen trees as single models), elevator 200, decor 80.
+  The Draco `.glb` meshes for the later upload go to the 3D viewer.
+- **Thin parts are drawn thick enough to survive.** Anything under about
+  0.2 studs (strings, wands, stands) vanishes in the Parts version, so props
+  keep those at 0.2 studs or more; `partsheet.py` renders every Parts
+  version for a quick check.
+
 ## 2026-11-05: Design viewer (tools/designs)
 
 - **A folder that opens from disk, not a hosted page.** Alex asked for a
