@@ -43,3 +43,12 @@ Music candidates for Hatchery Heist (chosen from library metadata, not by ear):
 
 Named `<pr>-<game>-<step>`; `47b` = 62ae0d9, `47c` = 16b5245. `50-hh-output.txt` is the Output
 text for #50.
+
+## Follow-up: #52 at e26fc1c
+
+PASS on all items. Phoenix mount is 6.0 studs tall (visible parts y 0.3 to 6.3), with no neon, ring,
+orbs, light or particles on your own mount; the rider stays in view and Get off works. With two
+Phoenixes, Thunder Griffin, Nebula Serpent, Golden Goose and Crystal Stag on the base, the glow is
+much dimmer than at 16b5245 and every creature reads clearly (compare `52b-hh-big-tiers-dimmer`
+with `47c-hh-rare-tiers`); FPS 54. The new tracks 1840017271, 1846499154, 9048460919 all load
+(2:46, 2:55, 3:11) and crossfade 1 to 2 and 2 to 3 over about 2 s. Output: no errors.
