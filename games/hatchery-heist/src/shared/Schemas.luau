@@ -48,8 +48,11 @@ return function(Schema: any, Odds: any)
 			incomeBonusPerRebirth = positive,
 		}),
 		conveyor = Schema.record({
-			spawnSeconds = Schema.number({ min = 0.5, max = 60 }),
+			spawnSeconds = Schema.number({ min = 0.25, max = 60 }),
 			travelSeconds = Schema.number({ min = 2, max = 120 }),
+			lanes = Schema.integer({ min = 1, max = 2 }),
+			buyReach = Schema.number({ min = 10, max = 60 }),
+			signSeconds = Schema.number({ min = 1, max = 30 }),
 			weights = Schema.map(id, Schema.integer({ min = 1 })),
 		}),
 		tower = Schema.record({
@@ -354,6 +357,10 @@ return function(Schema: any, Odds: any)
 				return true
 			end
 		),
+		-- The guide's arrow and beam (client/GuideView).
+		guide = Schema.record({
+			arrivedStuds = Schema.number({ min = 2, max = 30 }),
+		}),
 		music = Schema.record({
 			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),
 			volume = Schema.number({ min = 0, max = 1 }),

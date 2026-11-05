@@ -10,6 +10,9 @@
   and the server log says why a creature stayed on its blocks. A missing
   glow accent (Ember Fox's glowing paws) no longer sends the whole creature
   back to blocks.
+- 61 more Commons can hatch from the Basic and Meadow eggs (91 Commons in
+  all): pups, kittens, parrots, woodland and pond critters, beetles and more.
+  Egg tier odds are unchanged; the new creatures share the Common chance.
 - Glowing paw soles and other small glowing bits on creatures no longer go
   missing after upload: each glow piece is now a closed shape.
 - Creature legs, tails and little bug legs that only touched the body at a
@@ -60,6 +63,18 @@
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
   and dark unlit price tags that stay readable in the lit room.
+- Fix: after a respawn you are sent back to your base again, not left at
+  the plaza.
+- The Egg Market: the conveyors at the front of each base are gone. One
+  round belt in the middle of the map carries eggs for everyone, on two
+  lanes turning opposite ways, each egg on its own pedestal. Whoever buys an
+  egg first gets it. Moonlit Eggs come along three times as often (the mix
+  is now 55% Basic, 30% Meadow, 15% Moonlit), and a sign beside each
+  stop shows each egg in turn: its price and its rarest chances, in big
+  type. Pressing Buy on an egg you can't afford says which egg it was and
+  what the cheapest egg costs, and Buy only shows on eggs you can afford
+  (unless you can afford none). On a phone the odds card is smaller, and the
+  guide's gold arrow steps aside once you reach the market.
 
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to

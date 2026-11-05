@@ -4421,6 +4421,4177 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				},
 			},
 		},
+		Silkie = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "6B7CA0", "FFFFFF", "F7F3EC" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-3, 0, 0, 2, 2, 2, 1, 1, 0, 0, 2, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -3, 2, 0, 2, 2, 3, 2, 1, 2, 0, 2, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2,
+					},
+				},
+				{
+					name = "hat",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-1, 5, -3, 2, 1, 5, 2, -2, 5, 0, 1, 1, 1, 2, 1, 5, 0, 1, 1, 1, 2, -1, 6, -1, 2, 1, 3, 2,
+					},
+				},
+			},
+		},
+		Dove = {
+			rarity = "Common",
+			size = { 6, 9, 6 },
+			palette = { "F2A0A8", "EEF1F7", "FFFFFF", "D3DAE6", "5A8A3C", "8CCB6A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 1, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "sprout",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						0, 7, -1, 1, 1, 1, 5, -1, 8, -1, 2, 1, 1, 6,
+					},
+				},
+			},
+		},
+		Crow = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "7A7E92", "33354A", "3F4258", "E84855" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 3, 1, 2, -1, 1, 0, 2, 2, 1, 3, -1, 1, 2, 2, 2, 1, 2, -2, 2, 0, 1, 1, 3, 2, 1, 2, 0, 1, 1, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 1, 2, -1, 5, -3, 2, 1, 3, 1, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "scarf",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 3, 0, 4, 1, 3, 4, -1, 4, 0, 2, 1, 3, 4,
+					},
+				},
+			},
+		},
+		SpottedPiglet = {
+			rarity = "Common",
+			size = { 5, 8, 7 },
+			palette = { "FFC9D4", "3A3640", "FFA3B8", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, 0.5 },
+					boxes = {
+						-2.5, 1, -0.5, 4, 1, 1, 1, -1.5, 1, 0.5, 2, 3, 2, 1, -2.5, 1, 2.5, 1, 1, 1, 1, 0.5, 1, 2.5, 1, 1, 1, 1, -1.5, 2, -1.5, 2, 1, 3, 1, -2.5, 2, 0.5, 4, 1, 1, 1, -1.5, 2, 2.5, 1, 1, 1, 2, -0.5, 2, 2.5, 1, 1, 1, 1,
+						-1.5, 3, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						0.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, 0 },
+					boxes = {
+						-2.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 3 },
+					boxes = {
+						0.5, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 3 },
+					boxes = {
+						-2.5, 0, 2.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -1 },
+					boxes = {
+						-1.5, 3, -2.5, 2, 3, 2, 1, -1.5, 4, -3.5, 1, 1, 3, 3, -0.5, 4, -3.5, 1, 1, 3, 4, -2.5, 4, -2.5, 4, 1, 2, 1, -1.5, 4, -0.5, 2, 2, 1, 1, -2.5, 5, -1.5, 1, 1, 1, 1, 0.5, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -1 },
+					boxes = {
+						-2.5, 5, -2.5, 1, 1, 1, 4, 0.5, 5, -2.5, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -1.5 },
+					boxes = {
+						-2.5, 6, -1.5, 5, 1, 1, 1, -1.5, 7, -1.5, 1, 1, 1, 1, 0.5, 7, -1.5, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		BeaverKit = {
+			rarity = "Common",
+			size = { 6, 6, 7 },
+			palette = { "8A4524", "B8703E", "F2D2A8", "1B1B2F", "2E2622" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-3, 1, -1.5, 2, 1, 1, 1, -1, 1, -1.5, 2, 1, 3, 2, 1, 1, -1.5, 2, 1, 1, 1, -3, 1, 1.5, 2, 1, 1, 1, 1, 1, 1.5, 2, 1, 1, 1, -1, 2, -0.5, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 2, 1, -1 },
+					boxes = {
+						1, 0, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1 },
+					boxes = {
+						-3, 0, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 1, 2 },
+					boxes = {
+						1, 0, 1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 2 },
+					boxes = {
+						-3, 0, 1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1 },
+					boxes = {
+						-1, 2, -2.5, 2, 3, 2, 1, -1, 3, -3.5, 1, 1, 3, 3, 0, 3, -3.5, 1, 1, 3, 4, -2, 3, -2.5, 4, 1, 2, 1, -1, 3, -0.5, 2, 2, 1, 1, -2, 4, -1.5, 1, 1, 1, 1, 1, 4, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 2.5, -1 },
+					boxes = {
+						-2, 4, -2.5, 1, 1, 1, 4, 1, 4, -2.5, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 5, -1.5 },
+					boxes = {
+						-2, 5, -1.5, 1, 1, 1, 1, 1, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2 },
+					boxes = {
+						-1, 3, 2.5, 2, 1, 1, 5,
+					},
+				},
+			},
+		},
+		BearCub = {
+			rarity = "Common",
+			size = { 4, 8, 7 },
+			palette = { "5E3E2A", "C9A27A", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-2, 1, -0.5, 4, 2, 1, 1, -1, 1, 0.5, 2, 3, 2, 1, -2, 1, 2.5, 1, 1, 1, 1, 1, 1, 2.5, 1, 1, 1, 1, -1, 2, -1.5, 2, 1, 5, 1, -2, 2, 0.5, 4, 1, 2, 1, -1, 3, -0.5, 2, 1, 1, 1, -2, 3, 0.5, 1, 1, 1, 1,
+						1, 3, 0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, 0 },
+					boxes = {
+						1, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, 0 },
+					boxes = {
+						-2, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 3 },
+					boxes = {
+						1, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 3 },
+					boxes = {
+						-2, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1 },
+					boxes = {
+						-1, 3, -2.5, 2, 3, 2, 1, -1, 4, -3.5, 1, 1, 3, 2, 0, 4, -3.5, 1, 1, 3, 3, -2, 4, -2.5, 4, 1, 2, 1, -1, 4, -0.5, 2, 2, 1, 1, -2, 5, -1.5, 1, 1, 1, 1, 1, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1 },
+					boxes = {
+						-2, 5, -2.5, 1, 1, 1, 3, 1, 5, -2.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -1.5 },
+					boxes = {
+						-2, 6, -1.5, 1, 2, 1, 1, 1, 6, -1.5, 1, 2, 1, 1,
+					},
+				},
+			},
+		},
+		Skunk = {
+			rarity = "Common",
+			size = { 4, 7, 8 },
+			palette = { "2E2E3A", "FFFFFF", "45455A", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 1, -1, 4, 1, 1, 1, -1, 1, 0, 2, 1, 2, 1, -2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, -1, 2, -2, 2, 1, 5, 2, -2, 2, 0, 4, 1, 1, 2, -1, 3, -1, 2, 1, 3, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -0.5 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 2.5 },
+					boxes = {
+						1, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 2.5 },
+					boxes = {
+						-2, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-1, 3, -3, 2, 2, 2, 1, -1, 4, -4, 1, 1, 3, 3, 0, 4, -4, 1, 1, 3, 4, -2, 4, -3, 4, 1, 2, 1, -1, 4, -1, 2, 1, 1, 1, -1, 5, -3, 2, 1, 3, 2, -2, 5, -2, 1, 1, 1, 2, 1, 5, -2, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-2, 5, -3, 1, 1, 1, 4, 1, 5, -3, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -2 },
+					boxes = {
+						-2, 6, -2, 1, 1, 1, 1, 1, 6, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						-1, 3, 3, 2, 1, 1, 1, -1, 4, 3, 2, 1, 1, 2,
+					},
+				},
+			},
+		},
+		Opossum = {
+			rarity = "Common",
+			size = { 4, 7, 10 },
+			palette = { "B8B4BC", "FFB3C7", "1B1B2F", "F2F0F4", "3A3640" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -2, 4, 1, 1, 1, -1, 1, -1, 2, 3, 2, 1, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 2, -3, 2, 1, 3, 1, -2, 2, -1, 4, 1, 1, 1, -1, 2, 1, 2, 1, 1, 1, -1, 3, -2, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 1.5 },
+					boxes = {
+						1, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 1.5 },
+					boxes = {
+						-2, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-1, 3, -4, 2, 2, 2, 1, -1, 4, -5, 1, 1, 3, 2, 0, 4, -5, 1, 1, 3, 3, -2, 4, -4, 4, 1, 2, 1, -1, 4, -2, 2, 1, 1, 1, -1, 5, -4, 2, 1, 3, 4, -2, 5, -3, 1, 1, 1, 4, 1, 5, -3, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-2, 5, -4, 1, 1, 1, 3, 1, 5, -4, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -3 },
+					boxes = {
+						-2, 6, -3, 1, 1, 1, 5, 1, 6, -3, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 1.5 },
+					boxes = {
+						0, 3, 2, 1, 1, 2, 2, 0, 4, 4, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
+		Stoat = {
+			rarity = "Common",
+			size = { 4, 6, 12 },
+			palette = { "A86A3E", "FFF3E0", "1B1B2F", "2E2E3A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -2, 1, 1, 1, 1, -1, 1, -2, 2, 2, 3, 2, 1, 1, -2, 1, 1, 1, 1, -2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, -1, 2, -3, 2, 1, 1, 2, -2, 2, -1, 1, 1, 1, 1, 1, 2, -1, 1, 1, 1, 1,
+						-1, 2, 1, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 2 },
+					boxes = {
+						1, 0, 1, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 2 },
+					boxes = {
+						-2, 0, 1, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -3.5 },
+					boxes = {
+						-1, 2, -5, 2, 3, 2, 1, -1, 3, -6, 1, 1, 3, 2, 0, 3, -6, 1, 1, 3, 3, -2, 3, -5, 4, 1, 2, 1, -1, 3, -3, 2, 2, 1, 1, -2, 4, -4, 1, 1, 1, 1, 1, 4, -4, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 2.5, -3.5 },
+					boxes = {
+						-2, 4, -5, 1, 1, 1, 3, 1, 4, -5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 5, -4 },
+					boxes = {
+						-2, 5, -4, 1, 1, 1, 1, 1, 5, -4, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						0, 3, 3, 1, 1, 2, 1, 0, 4, 5, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		Hare = {
+			rarity = "Common",
+			size = { 4, 10, 7 },
+			palette = { "A88A6A", "F2E8DA", "1B1B2F", "FF8FB1", "3A3640" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-2, 1, -0.5, 1, 1, 1, 1, -1, 1, -0.5, 2, 2, 3, 2, 1, 1, -0.5, 1, 1, 1, 1, -2, 1, 2.5, 1, 1, 1, 1, 1, 1, 2.5, 1, 1, 1, 1, -1, 2, -1.5, 2, 1, 1, 2, -2, 2, 0.5, 4, 1, 1, 1, -1, 2, 2.5, 2, 1, 1, 1,
+						-1, 3, -0.5, 2, 2, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, 0 },
+					boxes = {
+						1, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, 0 },
+					boxes = {
+						-2, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 3 },
+					boxes = {
+						1, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 3 },
+					boxes = {
+						-2, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, -1 },
+					boxes = {
+						-1, 4, -2.5, 2, 3, 2, 1, -1, 5, -3.5, 1, 1, 3, 2, 0, 5, -3.5, 1, 1, 3, 3, -2, 5, -2.5, 4, 1, 2, 1, -1, 5, -0.5, 2, 2, 1, 1, -2, 6, -1.5, 1, 1, 1, 1, 1, 6, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 4.5, -1 },
+					boxes = {
+						-2, 6, -2.5, 1, 1, 1, 3, 1, 6, -2.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 7, -1.5 },
+					boxes = {
+						-1, 7, -2.5, 1, 2, 1, 4, 1, 7, -2.5, 1, 2, 1, 4, -1, 7, -1.5, 1, 2, 1, 1, 1, 7, -1.5, 1, 2, 1, 1, -1, 9, -2.5, 1, 1, 2, 5, 1, 9, -2.5, 1, 1, 2, 5,
+					},
+				},
+			},
+		},
+		Boarlet = {
+			rarity = "Common",
+			size = { 5, 8, 7 },
+			palette = { "8A6248", "E8C9A0", "5A3E2E", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, 0.5 },
+					boxes = {
+						-2.5, 1, -0.5, 4, 1, 1, 1, -1.5, 1, 0.5, 2, 1, 2, 1, -2.5, 1, 2.5, 1, 1, 1, 1, 0.5, 1, 2.5, 1, 1, 1, 1, -1.5, 2, -1.5, 2, 1, 1, 2, -1.5, 2, -0.5, 2, 2, 1, 1, -2.5, 2, 0.5, 4, 1, 1, 2, -1.5, 2, 1.5, 2, 2, 1, 1,
+						-1.5, 2, 2.5, 2, 1, 1, 2, -1.5, 3, 0.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						0.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, 0 },
+					boxes = {
+						-2.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 3 },
+					boxes = {
+						0.5, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 3 },
+					boxes = {
+						-2.5, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -1 },
+					boxes = {
+						-1.5, 3, -2.5, 2, 3, 2, 1, -1.5, 4, -3.5, 1, 1, 3, 3, -0.5, 4, -3.5, 1, 1, 3, 4, -2.5, 4, -2.5, 4, 1, 2, 1, -1.5, 4, -0.5, 2, 2, 1, 1, -2.5, 5, -1.5, 1, 1, 1, 1, 0.5, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -1 },
+					boxes = {
+						-2.5, 5, -2.5, 1, 1, 1, 4, 0.5, 5, -2.5, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -1.5 },
+					boxes = {
+						-2.5, 6, -1.5, 5, 1, 1, 1, -1.5, 7, -1.5, 1, 1, 1, 1, 0.5, 7, -1.5, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		BlueJay = {
+			rarity = "Common",
+			size = { 6, 8, 8 },
+			palette = { "FF9F1C", "3F7FD6", "F2F4FA", "3A3640", "2E5FB0", "2E2E3A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 0, -1, 1, 2, 2, 1, 1, 0, -1, 1, 2, 2, 1, -1, 0, 0, 2, 3, 1, 2, -1, 1, -1, 2, 2, 1, 3, -1, 1, 1, 2, 2, 1, 2, -2, 2, -1, 1, 1, 3, 2, 1, 2, -1, 1, 1, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, -0.5 },
+					boxes = {
+						-1, 4, -2, 2, 1, 1, 2, -1, 5, -4, 2, 1, 3, 4, -2, 5, -1, 4, 1, 1, 2, -1, 5, 0, 2, 2, 1, 2, -1, 6, -2, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 0.5 },
+					boxes = {
+						-3, 2, 0, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 0.5 },
+					boxes = {
+						2, 2, 0, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "crest",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 7, -1, 1, 1, 1, 2, 0, 7, 0, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "tail",
+					anim = "tail",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						-1, 3, 2, 2, 1, 2, 5,
+					},
+				},
+				{
+					name = "scarf",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 3, -1, 4, 1, 3, 6, -1, 4, -1, 2, 1, 3, 6,
+					},
+				},
+			},
+		},
+		Goldfinch = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "FF9F1C", "FFD43B", "FFE88A", "2E2E3A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 5, 4, -2, 5, 0, 4, 1, 1, 4, -1, 6, -1, 2, 1, 3, 4,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		Dragonfly = {
+			rarity = "Common",
+			size = { 6, 5, 3 },
+			palette = { "2EA8E0", "1F5F8A", "1B1B2F", "DDF6FF" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-1, 1, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1 },
+					boxes = {
+						-1, 1, -1.5, 2, 1, 1, 1, -1, 2, -1.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -0.5, 1, 0.5 },
+					boxes = {
+						-2, 0, -0.5, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 0.5, 1, 0.5 },
+					boxes = {
+						0, 0, -0.5, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -0.5, 1, 0.5 },
+					boxes = {
+						-2, 0, 0.5, 2, 1, 1, 3, -1, 1, 0.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 0.5, 1, 0.5 },
+					boxes = {
+						0, 0, 0.5, 2, 1, 1, 3, 0, 1, 0.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -0.5, 3, 0.5 },
+					boxes = {
+						-2, 3, -0.5, 2, 1, 2, 4, -3, 4, -0.5, 1, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 0.5, 3, 0.5 },
+					boxes = {
+						0, 3, -0.5, 2, 1, 2, 4, 2, 4, -0.5, 1, 1, 2, 2,
+					},
+				},
+			},
+		},
+		Ant = {
+			rarity = "Common",
+			size = { 4, 6, 7 },
+			palette = { "D9432F", "1B1B2F", "84312F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-1, 1, 1.5, 2, 2, 1, 1, -1, 2, -0.5, 2, 1, 2, 1, -1, 2, 2.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1 },
+					boxes = {
+						-1, 2, -2.5, 2, 2, 1, 1, -1, 3, -1.5, 2, 1, 1, 1, -1, 4, -1.5, 2, 2, 1, 2, -1, 5, -3.5, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -0.5, 2, -0.5 },
+					boxes = {
+						-2, 0, -1.5, 1, 3, 1, 3, -1, 2, -1.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 0.5, 2, -0.5 },
+					boxes = {
+						1, 0, -1.5, 1, 3, 1, 3, 0, 2, -1.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -0.5, 2, 0 },
+					boxes = {
+						-2, 0, -0.5, 1, 3, 1, 3,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 0.5, 2, 0 },
+					boxes = {
+						1, 0, -0.5, 1, 3, 1, 3,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -0.5, 2, 0.5 },
+					boxes = {
+						-2, 0, 0.5, 1, 3, 1, 3,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 0.5, 2, 0.5 },
+					boxes = {
+						1, 0, 0.5, 1, 3, 1, 3,
+					},
+				},
+			},
+		},
+		Grasshopper = {
+			rarity = "Common",
+			size = { 4, 6, 7 },
+			palette = { "5FA83F", "8BD45F", "C8F2A8" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 1, -1.5, 2, 1, 3, 1, -1, 2, -1.5, 2, 1, 3, 2, -1, 3, -0.5, 2, 1, 3, 3,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2 },
+					boxes = {
+						-1, 2, -3.5, 2, 1, 2, 2, -1, 3, -2.5, 2, 1, 1, 2, -1, 4, -2.5, 2, 1, 1, 1, -2, 5, -1.5, 1, 1, 1, 1, 1, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -0.5, 1.5, -1.5 },
+					boxes = {
+						-2, 0, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 0.5, 1.5, -1.5 },
+					boxes = {
+						0, 0, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -0.5, 1.5, -0.5 },
+					boxes = {
+						-2, 0, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 0.5, 1.5, -0.5 },
+					boxes = {
+						0, 0, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -1, 2, 0 },
+					boxes = {
+						-2, 0, 2.5, 1, 1, 1, 1, -2, 1, 1.5, 1, 3, 1, 1, -2, 3, 0.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 1, 2, 0 },
+					boxes = {
+						1, 0, 2.5, 1, 1, 1, 1, 1, 1, 1.5, 1, 3, 1, 1, 1, 2, 0.5, 1, 2, 1, 2,
+					},
+				},
+			},
+		},
+		Cricket = {
+			rarity = "Common",
+			size = { 4, 6, 7 },
+			palette = { "3A2A20", "6A4A30", "A8835A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 1, -1.5, 2, 1, 3, 1, -1, 2, -1.5, 2, 1, 3, 2, -1, 3, -0.5, 2, 1, 3, 3,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2 },
+					boxes = {
+						-1, 2, -3.5, 2, 1, 2, 2, -1, 3, -2.5, 2, 1, 1, 2, -1, 4, -2.5, 2, 1, 1, 1, -2, 5, -1.5, 1, 1, 1, 1, 1, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -0.5, 1.5, -1.5 },
+					boxes = {
+						-2, 0, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 0.5, 1.5, -1.5 },
+					boxes = {
+						0, 0, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -0.5, 1.5, -0.5 },
+					boxes = {
+						-2, 0, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 0.5, 1.5, -0.5 },
+					boxes = {
+						0, 0, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -1, 2, 0 },
+					boxes = {
+						-2, 0, 2.5, 1, 1, 1, 1, -2, 1, 1.5, 1, 3, 1, 1, -2, 3, 0.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 1, 2, 0 },
+					boxes = {
+						1, 0, 2.5, 1, 1, 1, 1, 1, 1, 1.5, 1, 3, 1, 1, 1, 2, 0.5, 1, 2, 1, 2,
+					},
+				},
+			},
+		},
+		Earthworm = {
+			rarity = "Common",
+			size = { 4, 5, 8 },
+			palette = { "F29A9A", "D9737A", "FFFFFF", "FFD43B" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -1, 0, -1 },
+					boxes = {
+						-2, 0, -1, 2, 2, 1, 1, -2, 0, 0, 2, 1, 1, 2, -2, 0, 1, 2, 1, 3, 1, -2, 1, -2, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -1, 2.5, -2.5 },
+					boxes = {
+						-2, 2, -3, 2, 2, 2, 1,
+					},
+				},
+				{
+					name = "flower",
+					anim = "static",
+					parent = "head",
+					pivot = { -1, 0, -1 },
+					boxes = {
+						0, 4, -4, 1, 1, 1, 3, -1, 4, -3, 1, 1, 1, 3, 0, 4, -3, 1, 1, 1, 4, 1, 4, -3, 1, 1, 1, 3, 0, 4, -2, 1, 1, 1, 3,
+					},
+				},
+			},
+		},
+		Inchworm = {
+			rarity = "Common",
+			size = { 2, 4, 7 },
+			palette = { "A8E05F", "7FC23F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1.5 },
+					boxes = {
+						-1, 0, -1.5, 2, 2, 1, 1, -1, 0, -0.5, 2, 1, 1, 2, -1, 0, 0.5, 2, 1, 3, 1, -1, 1, -2.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -3 },
+					boxes = {
+						-1, 2, -3.5, 2, 2, 2, 1,
+					},
+				},
+			},
+		},
+		BananaSlug = {
+			rarity = "Common",
+			size = { 2, 4, 7 },
+			palette = { "FFD43B", "F2B820" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 0, -2.5, 2, 1, 6, 1, -1, 1, -1.5, 2, 1, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2 },
+					boxes = {
+						-1, 1, -3.5, 2, 1, 2, 1, -1, 2, -3.5, 2, 2, 1, 1,
+					},
+				},
+			},
+		},
+		Mantis = {
+			rarity = "Common",
+			size = { 4, 8, 6 },
+			palette = { "6AB83F", "8FD45F", "C8F2A8" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 1, 0, 2, 1, 3, 1, -1, 2, -2, 2, 1, 1, 1, 0, 2, -1, 1, 3, 1, 2, -1, 2, 0, 2, 1, 3, 3, -1, 3, -3, 2, 1, 1, 1, -1, 3, -2, 2, 1, 1, 2, -1, 3, -1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1.5 },
+					boxes = {
+						-1, 4, -2, 2, 2, 1, 2, -1, 6, -1, 2, 1, 1, 1, -2, 7, -2, 1, 1, 1, 1, 1, 7, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -0.5, 1.5, 0.5 },
+					boxes = {
+						-2, 0, 0, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 0.5, 1.5, 0.5 },
+					boxes = {
+						0, 0, 0, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -0.5, 1.5, 1.5 },
+					boxes = {
+						-2, 0, 1, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 0.5, 1.5, 1.5 },
+					boxes = {
+						0, 0, 1, 2, 1, 1, 1,
+					},
+				},
+			},
+		},
+		Moth = {
+			rarity = "Common",
+			size = { 6, 6, 6 },
+			palette = { "1B1B2F", "6A5A48", "D9C3A0", "F2E6D0", "FFFFFF" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 0, 0, 2, 2, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1.5 },
+					boxes = {
+						-1, 1, -2, 2, 2, 1, 2, -1, 2, -3, 2, 1, 1, 2, -1, 3, -2, 2, 3, 1, 1,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -0.5, 2.5, 0.5 },
+					boxes = {
+						-2, 2, 1, 1, 2, 1, 3, -2, 3, -1, 1, 2, 1, 3, -2, 3, 0, 1, 1, 1, 4, -2, 3, 2, 1, 1, 1, 4, -2, 4, -2, 1, 1, 1, 4, -2, 4, 0, 1, 1, 1, 3, -3, 5, -1, 1, 1, 1, 3, -3, 5, 0, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 0.5, 2.5, 0.5 },
+					boxes = {
+						1, 2, 1, 1, 2, 1, 3, 1, 3, -1, 1, 2, 1, 3, 1, 3, 0, 1, 1, 1, 4, 1, 3, 2, 1, 1, 1, 4, 1, 4, -2, 1, 1, 1, 4, 1, 4, 0, 1, 1, 1, 3, 2, 5, -1, 1, 1, 1, 3, 2, 5, 0, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Monarch = {
+			rarity = "Common",
+			size = { 6, 6, 6 },
+			palette = { "1B1B2F", "2A2433", "FF8A1F", "FFFFFF" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 0, 0, 2, 2, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1.5 },
+					boxes = {
+						-1, 1, -2, 2, 2, 1, 2, -1, 2, -3, 2, 1, 1, 2, -1, 3, -2, 2, 2, 1, 1,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -0.5, 2.5, 0.5 },
+					boxes = {
+						-2, 2, 1, 1, 2, 1, 3, -2, 3, -1, 1, 2, 1, 3, -2, 3, 0, 1, 1, 1, 2, -2, 3, 2, 1, 1, 1, 2, -2, 4, -2, 1, 1, 1, 2, -2, 4, 0, 1, 1, 1, 3, -3, 5, -1, 1, 1, 1, 3, -3, 5, 0, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 0.5, 2.5, 0.5 },
+					boxes = {
+						1, 2, 1, 1, 2, 1, 3, 1, 3, -1, 1, 2, 1, 3, 1, 3, 0, 1, 1, 1, 2, 1, 3, 2, 1, 1, 1, 2, 1, 4, -2, 1, 1, 1, 2, 1, 4, 0, 1, 1, 1, 3, 2, 5, -1, 1, 1, 1, 3, 2, 5, 0, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		JewelBeetle = {
+			rarity = "Common",
+			size = { 6, 4, 6 },
+			palette = { "1B1B2F", "FFD43B", "2FBF71" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 0, -1, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -1.5 },
+					boxes = {
+						-1, 1, -3, 2, 1, 1, 1, -1, 2, -3, 2, 2, 1, 2,
+					},
+				},
+				{
+					name = "shell",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 1, -2, 2, 1, 1, 3, -2, 1, 0, 4, 1, 1, 3, -1, 1, 1, 2, 1, 1, 3, -1, 2, -1, 2, 2, 3, 2, -2, 2, 0, 1, 2, 2, 3, 1, 2, 0, 1, 2, 2, 3,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -0.5, 2, -0.5 },
+					boxes = {
+						-3, 0, -1, 1, 2, 1, 1, -2, 1, -1, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -1.5, 2, 1.5 },
+					boxes = {
+						-3, 0, 1, 1, 2, 1, 1, -2, 1, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -0.5, 2, 2.5 },
+					boxes = {
+						-3, 0, 2, 1, 2, 1, 1, -2, 1, 2, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 0.5, 2, -0.5 },
+					boxes = {
+						2, 0, -1, 1, 2, 1, 1, 0, 1, -1, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 1.5, 2, 1.5 },
+					boxes = {
+						2, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 0.5, 2, 2.5 },
+					boxes = {
+						2, 0, 2, 1, 2, 1, 1, 0, 1, 2, 2, 1, 1, 1,
+					},
+				},
+			},
+		},
+		CorgiPup = {
+			rarity = "Common",
+			size = { 5, 7, 9 },
+			palette = { "FFF6EA", "E89A4F", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, 0.5 },
+					boxes = {
+						-2.5, 1, -0.5, 4, 1, 1, 1, -1.5, 1, 0.5, 2, 2, 2, 1, -2.5, 1, 2.5, 1, 1, 2, 1, 0.5, 1, 2.5, 1, 1, 2, 1, -1.5, 2, -1.5, 2, 1, 2, 1, -2.5, 2, 0.5, 1, 1, 1, 2, 0.5, 2, 0.5, 1, 1, 1, 2, -1.5, 2, 2.5, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						0.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, 0 },
+					boxes = {
+						-2.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 3.5 },
+					boxes = {
+						0.5, 0, 2.5, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 3.5 },
+					boxes = {
+						-2.5, 0, 2.5, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, -2 },
+					boxes = {
+						-1.5, 2, -3.5, 2, 3, 2, 2, -1.5, 3, -4.5, 1, 1, 3, 1, -0.5, 3, -4.5, 1, 1, 3, 3, -2.5, 3, -3.5, 4, 1, 2, 2, -1.5, 3, -1.5, 2, 2, 1, 2, -2.5, 4, -2.5, 1, 1, 1, 2, 0.5, 4, -2.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 2.5, -2 },
+					boxes = {
+						-2.5, 4, -3.5, 1, 1, 1, 3, 0.5, 4, -3.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 5, -2.5 },
+					boxes = {
+						-2.5, 5, -2.5, 5, 1, 1, 2, -1.5, 6, -2.5, 1, 1, 1, 2, 0.5, 6, -2.5, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
+		DalmatianPup = {
+			rarity = "Common",
+			size = { 5, 7, 10 },
+			palette = { "FFFFFF", "2E2E3E", "F4F4F8", "1B1B2F", "FFD43B", "E84855" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-2.5, 1, -2, 4, 1, 1, 1, -1.5, 1, -1, 2, 2, 2, 1, -2.5, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, -2.5, 2, -1, 1, 1, 1, 1, 0.5, 2, -1, 1, 1, 1, 1, -1.5, 2, 1, 1, 1, 1, 2, -0.5, 2, 1, 1, 1, 1, 1,
+						-1.5, 3, 0, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						0.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-2.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 1.5 },
+					boxes = {
+						0.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-2.5, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-1.5, 3, -4, 2, 1, 2, 1, -1.5, 4, -5, 1, 1, 2, 3, -0.5, 4, -5, 1, 1, 3, 4, -2.5, 4, -4, 3, 1, 1, 2, 0.5, 4, -4, 1, 1, 2, 1, -1.5, 4, -3, 2, 1, 1, 2, -1.5, 4, -2, 2, 2, 1, 1, -1.5, 5, -4, 2, 1, 2, 1,
+						0.5, 5, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-2.5, 5, -4, 1, 1, 1, 4, 0.5, 5, -4, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -3 },
+					boxes = {
+						-2.5, 4, -3, 1, 3, 2, 2, 1.5, 4, -3, 1, 3, 2, 2,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 1.5 },
+					boxes = {
+						-0.5, 3, 2, 1, 1, 2, 1, -0.5, 4, 4, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "scarf",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-0.5, 2, -4, 1, 1, 1, 5, -1.5, 2, -3, 2, 1, 2, 6, -1.5, 3, -2, 2, 1, 2, 6,
+					},
+				},
+			},
+		},
+		HuskyPup = {
+			rarity = "Common",
+			size = { 5, 8, 8 },
+			palette = { "FFFFFF", "6E7891", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, 0 },
+					boxes = {
+						-2.5, 1, -1, 4, 1, 1, 1, -1.5, 1, 0, 2, 2, 2, 1, -2.5, 1, 2, 1, 1, 1, 1, 0.5, 1, 2, 1, 1, 1, 1, -1.5, 2, -2, 2, 1, 5, 2, -2.5, 2, -1, 4, 1, 3, 2, -1.5, 3, -1, 2, 1, 3, 2, -2.5, 3, 0, 1, 1, 1, 2,
+						0.5, 3, 0, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -0.5 },
+					boxes = {
+						0.5, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -0.5 },
+					boxes = {
+						-2.5, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 2.5 },
+					boxes = {
+						0.5, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 2.5 },
+					boxes = {
+						-2.5, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -1.5 },
+					boxes = {
+						-1.5, 3, -3, 2, 2, 2, 1, -1.5, 4, -4, 2, 1, 4, 2, -2.5, 4, -3, 4, 1, 2, 2, -1.5, 5, -3, 2, 1, 3, 2, -2.5, 5, -2, 1, 1, 1, 2, 0.5, 5, -2, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -1.5 },
+					boxes = {
+						-2.5, 5, -3, 1, 1, 1, 3, 0.5, 5, -3, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -2 },
+					boxes = {
+						-2.5, 6, -2, 5, 1, 1, 2, -1.5, 7, -2, 1, 1, 1, 2, 0.5, 7, -2, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 2.5 },
+					boxes = {
+						-1.5, 3, 3, 2, 2, 1, 2,
+					},
+				},
+			},
+		},
+		ShibaPup = {
+			rarity = "Common",
+			size = { 5, 9, 7 },
+			palette = { "E8893A", "FFF1DC", "1B1B2F", "E84855" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, 0.5 },
+					boxes = {
+						-2.5, 1, -0.5, 1, 1, 1, 1, -1.5, 1, -0.5, 2, 1, 3, 2, 0.5, 1, -0.5, 1, 1, 1, 1, -2.5, 1, 2.5, 1, 1, 1, 1, 0.5, 1, 2.5, 1, 1, 1, 1, -2.5, 2, 0.5, 1, 1, 1, 1, -1.5, 2, 0.5, 2, 1, 2, 2, 0.5, 2, 0.5, 1, 1, 1, 1,
+						-1.5, 2, 2.5, 2, 1, 1, 1, -1.5, 3, 1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						0.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, 0 },
+					boxes = {
+						-2.5, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 3 },
+					boxes = {
+						0.5, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 3 },
+					boxes = {
+						-2.5, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -1 },
+					boxes = {
+						-1.5, 3, -2.5, 2, 3, 2, 1, -1.5, 4, -3.5, 1, 1, 3, 2, -0.5, 4, -3.5, 1, 1, 3, 3, -2.5, 4, -2.5, 4, 1, 2, 1, -1.5, 4, -0.5, 2, 2, 1, 1, -2.5, 5, -1.5, 1, 1, 1, 1, 0.5, 5, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -1 },
+					boxes = {
+						-2.5, 5, -2.5, 1, 1, 1, 3, 0.5, 5, -2.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -1.5 },
+					boxes = {
+						-2.5, 6, -1.5, 5, 1, 1, 1, -1.5, 7, -1.5, 1, 2, 1, 1, 0.5, 7, -1.5, 1, 2, 1, 1,
+					},
+				},
+				{
+					name = "scarf",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 0, 0.5 },
+					boxes = {
+						-1.5, 2, -1.5, 2, 1, 2, 4, -1.5, 3, -0.5, 2, 1, 2, 4,
+					},
+				},
+			},
+		},
+		Dachshund = {
+			rarity = "Common",
+			size = { 5, 6, 11 },
+			palette = { "9A5530", "C98552", "1B1B2F", "6E3A1E" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, -1.5 },
+					boxes = {
+						-2.5, 1, -3.5, 1, 1, 2, 1, -1.5, 1, -3.5, 2, 1, 5, 2, 0.5, 1, -3.5, 1, 1, 2, 1, -2.5, 1, 1.5, 1, 1, 1, 1, 0.5, 1, 1.5, 1, 1, 1, 1, -1.5, 2, -2.5, 2, 1, 4, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -2.5 },
+					boxes = {
+						0.5, 0, -3.5, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -2.5 },
+					boxes = {
+						-2.5, 0, -3.5, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 2 },
+					boxes = {
+						0.5, 0, 1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 2 },
+					boxes = {
+						-2.5, 0, 1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, -3 },
+					boxes = {
+						-1.5, 2, -4.5, 2, 3, 2, 1, -1.5, 3, -5.5, 1, 1, 2, 2, -0.5, 3, -5.5, 1, 1, 3, 3, -2.5, 3, -4.5, 4, 1, 1, 1, 0.5, 3, -3.5, 1, 2, 1, 1, -1.5, 3, -2.5, 2, 2, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 2.5, -3 },
+					boxes = {
+						-2.5, 4, -4.5, 1, 1, 1, 3, 0.5, 4, -4.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 5, -3.5 },
+					boxes = {
+						-2.5, 3, -3.5, 1, 3, 2, 4, 1.5, 3, -3.5, 1, 3, 2, 4,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 2 },
+					boxes = {
+						-0.5, 3, 2.5, 1, 1, 2, 1, -0.5, 4, 4.5, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		Pomeranian = {
+			rarity = "Common",
+			size = { 6, 9, 8 },
+			palette = { "F2A65A", "FFE3BF", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -1, 0, 0 },
+					boxes = {
+						-3, 1, -1, 1, 2, 1, 1, -2, 1, -1, 2, 2, 3, 2, 0, 1, -1, 1, 2, 1, 1, -3, 1, 2, 1, 1, 1, 1, 0, 1, 2, 1, 1, 1, 1, -2, 2, -2, 2, 1, 4, 2, -3, 2, 0, 4, 1, 2, 1, -2, 2, 2, 2, 1, 1, 1,
+						-2, 3, -1, 2, 1, 3, 1, -3, 3, 0, 1, 1, 1, 1, 0, 3, 0, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 0.5, 1, -0.5 },
+					boxes = {
+						0, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2.5, 1, -0.5 },
+					boxes = {
+						-3, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 0.5, 1, 2.5 },
+					boxes = {
+						0, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2.5, 1, 2.5 },
+					boxes = {
+						-3, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -1, 3.5, -1.5 },
+					boxes = {
+						-2, 3, -3, 2, 4, 2, 1, -2, 4, -4, 1, 1, 3, 2, -1, 4, -4, 1, 1, 3, 3, -3, 4, -3, 4, 1, 2, 1, -2, 4, -1, 2, 3, 1, 1, -3, 5, -2, 4, 1, 1, 1, -3, 6, -2, 1, 1, 1, 1, 0, 6, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -1, 3.5, -1.5 },
+					boxes = {
+						-3, 5, -3, 1, 2, 1, 3, 0, 5, -3, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -1, 6, -2 },
+					boxes = {
+						-3, 7, -2, 6, 1, 1, 1, -2, 8, -2, 1, 1, 1, 1, 0, 8, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -1, 2.5, 2.5 },
+					boxes = {
+						-2, 3, 3, 2, 2, 1, 2,
+					},
+				},
+			},
+		},
+		TabbyKitten = {
+			rarity = "Common",
+			size = { 5, 8, 10 },
+			palette = { "F2A65A", "FFF1DC", "C2662A", "1B1B2F", "E08A3E" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-2.5, 1, -2, 1, 1, 1, 1, -1.5, 1, -2, 2, 2, 3, 2, 0.5, 1, -2, 1, 1, 1, 1, -2.5, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, -1.5, 2, -3, 2, 1, 1, 3, -2.5, 2, -1, 4, 1, 1, 3, -1.5, 2, 1, 2, 1, 1, 3,
+						-1.5, 3, -2, 2, 1, 1, 1, -1.5, 3, -1, 2, 1, 1, 3, -1.5, 3, 0, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						0.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-2.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 1.5 },
+					boxes = {
+						0.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-2.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-1.5, 3, -4, 2, 2, 2, 1, -1.5, 4, -5, 2, 1, 3, 3, -2.5, 4, -4, 4, 1, 1, 1, -2.5, 4, -3, 4, 2, 1, 3, -1.5, 4, -2, 2, 2, 1, 1, -1.5, 5, -4, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-2.5, 5, -4, 1, 1, 1, 4, 0.5, 5, -4, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -3 },
+					boxes = {
+						-2.5, 6, -3, 5, 1, 1, 5, -1.5, 7, -3, 1, 1, 1, 5, 0.5, 7, -3, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 1.5 },
+					boxes = {
+						-0.5, 3, 2, 1, 1, 2, 1, -0.5, 4, 4, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		CalicoKitten = {
+			rarity = "Common",
+			size = { 5, 8, 10 },
+			palette = { "FFFFFF", "3A3440", "F2A65A", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-2.5, 1, -2, 4, 1, 1, 1, -1.5, 1, -1, 2, 3, 2, 2, -2.5, 1, 1, 1, 1, 1, 2, 0.5, 1, 1, 1, 1, 1, 2, -1.5, 2, -3, 2, 1, 3, 1, -2.5, 2, -1, 4, 1, 1, 2, -1.5, 2, 1, 1, 1, 1, 3, -0.5, 2, 1, 1, 1, 1, 2,
+						-1.5, 3, -2, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						0.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-2.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 1.5 },
+					boxes = {
+						0.5, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-2.5, 0, 1, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-1.5, 3, -4, 2, 3, 2, 1, -1.5, 4, -5, 1, 1, 4, 1, -0.5, 4, -5, 1, 1, 3, 4, -2.5, 4, -4, 3, 1, 2, 3, 0.5, 4, -4, 1, 1, 2, 1, -0.5, 4, -2, 1, 2, 1, 1, -2.5, 5, -3, 1, 1, 1, 1, 0.5, 5, -3, 1, 1, 1, 1,
+						-1.5, 5, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-2.5, 5, -4, 1, 1, 1, 4, 0.5, 5, -4, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -3 },
+					boxes = {
+						-2.5, 6, -3, 5, 1, 1, 3, -1.5, 7, -3, 1, 1, 1, 3, 0.5, 7, -3, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 1.5 },
+					boxes = {
+						-0.5, 3, 2, 1, 1, 2, 2, -0.5, 4, 4, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
+		SiameseKitten = {
+			rarity = "Common",
+			size = { 5, 8, 10 },
+			palette = { "5A3E30", "F5EBDA", "6B4A3A", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-2.5, 1, -2, 4, 1, 1, 1, -1.5, 1, -1, 2, 1, 2, 1, -2.5, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, -1.5, 2, -3, 2, 1, 5, 2, -2.5, 2, -1, 4, 1, 1, 2, -1.5, 3, -2, 2, 1, 3, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						0.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-2.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 1.5 },
+					boxes = {
+						0.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-2.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-1.5, 3, -4, 2, 3, 2, 2, -1.5, 4, -5, 1, 1, 3, 3, -0.5, 4, -5, 1, 1, 3, 4, -2.5, 4, -4, 4, 1, 2, 2, -1.5, 4, -2, 2, 2, 1, 2, -2.5, 5, -3, 1, 1, 1, 2, 0.5, 5, -3, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-2.5, 5, -4, 1, 1, 1, 4, 0.5, 5, -4, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -3 },
+					boxes = {
+						-2.5, 6, -3, 5, 1, 1, 1, -1.5, 7, -3, 1, 1, 1, 1, 0.5, 7, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 1.5 },
+					boxes = {
+						-0.5, 3, 2, 1, 1, 2, 1, -0.5, 4, 4, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		TuxedoKitten = {
+			rarity = "Common",
+			size = { 5, 8, 10 },
+			palette = { "FFFFFF", "64647C", "1B1B2F", "FFD43B", "E84855" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-2.5, 1, -2, 4, 1, 1, 1, -1.5, 1, -1, 2, 2, 2, 1, -2.5, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 1, 1, 1, -1.5, 2, -3, 2, 1, 3, 1, -2.5, 2, -1, 4, 1, 1, 2, -1.5, 2, 1, 2, 1, 1, 2, -1.5, 3, -2, 2, 1, 3, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						0.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-2.5, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 1.5 },
+					boxes = {
+						0.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-2.5, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-1.5, 3, -4, 2, 2, 2, 2, -1.5, 4, -5, 1, 1, 3, 1, -0.5, 4, -5, 1, 1, 1, 3, -2.5, 4, -4, 2, 1, 2, 2, 0.5, 4, -4, 1, 1, 2, 2, -1.5, 4, -2, 2, 2, 1, 2, -1.5, 5, -4, 1, 1, 2, 2, -2.5, 5, -3, 1, 1, 1, 2,
+						-0.5, 5, -3, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 3.5, -2.5 },
+					boxes = {
+						-2.5, 5, -4, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 6, -3 },
+					boxes = {
+						-2.5, 6, -3, 5, 1, 1, 2, -1.5, 7, -3, 1, 1, 1, 2, 0.5, 7, -3, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 2.5, 1.5 },
+					boxes = {
+						-0.5, 3, 2, 1, 1, 2, 2, -0.5, 4, 4, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "bow",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 0, -1 },
+					boxes = {
+						-0.5, 5, -4, 1, 1, 1, 4, 0.5, 5, -4, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		PersianKitten = {
+			rarity = "Common",
+			size = { 4, 8, 8 },
+			palette = { "F1ECF7", "FFFFFF", "1B1B2F", "FFB3C7", "7FC8FF" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 1, -1, 4, 2, 1, 1, -1, 1, 0, 2, 3, 2, 1, -2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, -1, 2, -2, 2, 1, 5, 1, -2, 2, 0, 4, 1, 2, 1, -1, 3, -1, 2, 1, 1, 1, -2, 3, 0, 1, 1, 1, 1,
+						1, 3, 0, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -0.5 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 2.5 },
+					boxes = {
+						1, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 2.5 },
+					boxes = {
+						-2, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-1, 3, -3, 2, 3, 2, 1, -1, 4, -4, 1, 1, 3, 2, 0, 4, -4, 1, 1, 3, 3, -2, 4, -3, 4, 1, 2, 1, -1, 4, -1, 2, 3, 1, 1, -2, 5, -2, 2, 2, 1, 1, 1, 5, -2, 1, 1, 1, 1, -1, 6, -3, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-2, 5, -3, 1, 2, 1, 3, 1, 5, -3, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -2 },
+					boxes = {
+						-2, 7, -2, 1, 1, 1, 4, 1, 7, -2, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						-1, 3, 3, 2, 2, 1, 1,
+					},
+				},
+				{
+					name = "bow",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						0, 6, -2, 1, 1, 1, 2, 1, 6, -2, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		DutchBunny = {
+			rarity = "Common",
+			size = { 4, 9, 7 },
+			palette = { "FFFFFF", "3A3440", "1B1B2F", "FF8FB1" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-2, 1, -0.5, 4, 1, 1, 1, -1, 1, 0.5, 2, 3, 2, 2, -2, 1, 2.5, 1, 1, 1, 2, 1, 1, 2.5, 1, 1, 1, 2, -1, 2, -1.5, 2, 1, 3, 1, -2, 2, 0.5, 4, 1, 1, 2, -1, 2, 2.5, 2, 1, 1, 2, -1, 3, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, 0 },
+					boxes = {
+						1, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, 0 },
+					boxes = {
+						-2, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 3 },
+					boxes = {
+						1, 0, 2.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 3 },
+					boxes = {
+						-2, 0, 2.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1 },
+					boxes = {
+						-1, 3, -2.5, 2, 3, 2, 1, -1, 4, -3.5, 1, 1, 4, 1, 0, 4, -3.5, 1, 1, 3, 3, -2, 4, -2.5, 4, 1, 2, 1, 0, 4, -0.5, 1, 2, 1, 1, -2, 5, -1.5, 1, 1, 1, 1, 1, 5, -1.5, 1, 1, 1, 1, -1, 5, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1 },
+					boxes = {
+						-2, 5, -2.5, 1, 1, 1, 3, 1, 5, -2.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -1.5 },
+					boxes = {
+						-1, 6, -2.5, 1, 3, 1, 4, 1, 6, -2.5, 1, 3, 1, 4, -1, 6, -1.5, 1, 3, 1, 2, 1, 6, -1.5, 1, 3, 1, 2,
+					},
+				},
+			},
+		},
+		Gerbil = {
+			rarity = "Common",
+			size = { 4, 8, 10 },
+			palette = { "D9A066", "FFF6EA", "1B1B2F", "E8B888", "C4884E" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -2, 1, 1, 1, 1, -1, 1, -2, 2, 2, 3, 2, 1, 1, -2, 1, 1, 1, 1, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 2, -3, 2, 1, 1, 2, -2, 2, -1, 4, 1, 1, 1, -1, 2, 1, 2, 1, 1, 1,
+						-1, 3, -2, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 1.5 },
+					boxes = {
+						1, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 1.5 },
+					boxes = {
+						-2, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-1, 3, -4, 2, 3, 2, 1, -1, 4, -5, 1, 1, 3, 2, 0, 4, -5, 1, 1, 3, 3, -2, 4, -4, 4, 1, 2, 1, -1, 4, -2, 2, 2, 1, 1, -2, 5, -3, 1, 1, 1, 1, 1, 5, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-2, 5, -4, 1, 1, 1, 3, 1, 5, -4, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -3 },
+					boxes = {
+						-2, 6, -3, 1, 2, 1, 4, 1, 6, -3, 1, 2, 1, 4,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 1.5 },
+					boxes = {
+						0, 3, 2, 1, 1, 2, 5, 0, 4, 4, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Gecko = {
+			rarity = "Common",
+			size = { 6, 5, 9 },
+			palette = { "FFD166", "FFF2C8", "5A4636", "FF8FB1", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-2, 1, -1.5, 1, 1, 1, 1, -1, 1, -1.5, 2, 1, 3, 2, 1, 1, -1.5, 1, 1, 1, 1, -2, 1, 1.5, 1, 1, 1, 1, 1, 1, 1.5, 1, 1, 1, 1, -1, 2, -1.5, 1, 1, 3, 1, 0, 2, -1.5, 1, 1, 1, 3, 0, 2, -0.5, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 2, 1, -1.5 },
+					boxes = {
+						2, 0, -2.5, 1, 1, 2, 1, 1, 0, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-3, 0, -2.5, 1, 1, 2, 1, -2, 0, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 1, 1.5 },
+					boxes = {
+						2, 0, 0.5, 1, 1, 2, 1, 1, 0, 1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-3, 0, 0.5, 1, 1, 2, 1, -2, 0, 1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2.5 },
+					boxes = {
+						-1, 2, -4.5, 2, 1, 3, 1, -2, 2, -3.5, 1, 1, 1, 4, 1, 2, -3.5, 1, 1, 1, 4, -2, 2, -2.5, 1, 2, 1, 1, 1, 2, -2.5, 1, 2, 1, 1, -1, 3, -3.5, 2, 2, 2, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 1.5, 2 },
+					boxes = {
+						-1, 0, 3.5, 2, 2, 1, 1, -1, 1, 1.5, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 2.5, -2.5 },
+					boxes = {
+						-2, 3, -3.5, 1, 1, 1, 5, 1, 3, -3.5, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Iguana = {
+			rarity = "Common",
+			size = { 6, 5, 9 },
+			palette = { "7ED957", "C8F2A8", "3E9A4A", "FF8FB1", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-2, 1, -1.5, 1, 1, 1, 1, -1, 1, -1.5, 2, 1, 3, 2, 1, 1, -1.5, 1, 1, 1, 1, -2, 1, 1.5, 1, 1, 1, 1, 1, 1, 1.5, 1, 1, 1, 1, -1, 2, -1.5, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 2, 1, -1.5 },
+					boxes = {
+						2, 0, -2.5, 1, 1, 2, 1, 1, 0, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, -1.5 },
+					boxes = {
+						-3, 0, -2.5, 1, 1, 2, 1, -2, 0, -1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 1, 1.5 },
+					boxes = {
+						2, 0, 0.5, 1, 1, 2, 1, 1, 0, 1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 1.5 },
+					boxes = {
+						-3, 0, 0.5, 1, 1, 2, 1, -2, 0, 1.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2.5 },
+					boxes = {
+						-1, 1, -3.5, 2, 2, 2, 3, -1, 2, -4.5, 2, 1, 2, 1, -2, 2, -3.5, 4, 1, 1, 4, -2, 2, -2.5, 1, 2, 1, 1, 1, 2, -2.5, 1, 2, 1, 1, -1, 3, -3.5, 2, 2, 2, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 1.5, 2 },
+					boxes = {
+						-1, 0, 3.5, 2, 2, 1, 1, -1, 1, 1.5, 2, 1, 2, 1, -1, 2, 3.5, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 2.5, -2.5 },
+					boxes = {
+						-2, 3, -3.5, 1, 1, 1, 5, 1, 3, -3.5, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "spines",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 2, 1.5, 2, 1, 1, 3, -1, 3, -0.5, 2, 1, 1, 3,
+					},
+				},
+			},
+		},
+		MacawChick = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "8A8A9A", "E84855", "FFD43B", "F4F0EA", "3F7FD6" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 4, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Cockatoo = {
+			rarity = "Common",
+			size = { 6, 8, 6 },
+			palette = { "8A8A9A", "FFFFFF", "FFFDF0", "3A3440", "FFD43B" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 4, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2, -2, 7, 1, 1, 1, 1, 5, 1, 7, 1, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "crest",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-1, 7, 0, 1, 1, 1, 5, 0, 7, 1, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Lorikeet = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "FF9F1C", "3F7FD6", "FF8C1A", "E84855", "4FBF5F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 4, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		SunConure = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "8A8A9A", "FFB627", "FFE14D", "3A3440", "4FBF5F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 4, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Chinchilla = {
+			rarity = "Common",
+			size = { 4, 8, 8 },
+			palette = { "B8B8C8", "F0F0F4", "1B1B2F", "FFC2D8", "9A9AAA" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 1, -1, 1, 2, 1, 1, -1, 1, -1, 2, 2, 3, 2, 1, 1, -1, 1, 2, 1, 1, -2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, -1, 2, -2, 2, 1, 4, 2, -2, 2, 0, 4, 1, 2, 1, -1, 2, 2, 2, 1, 1, 1,
+						-1, 3, -1, 2, 1, 3, 1, -2, 3, 0, 1, 1, 1, 1, 1, 3, 0, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -0.5 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 2.5 },
+					boxes = {
+						1, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 2.5 },
+					boxes = {
+						-2, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-1, 3, -3, 2, 3, 2, 1, -1, 4, -4, 1, 1, 3, 2, 0, 4, -4, 1, 1, 3, 3, -2, 4, -3, 4, 1, 2, 1, -1, 4, -1, 2, 2, 1, 1, -2, 5, -2, 1, 1, 1, 1, 1, 5, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-2, 5, -3, 1, 1, 1, 3, 1, 5, -3, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -2 },
+					boxes = {
+						-2, 6, -2, 1, 2, 1, 4, 1, 6, -2, 1, 2, 1, 4,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						-1, 3, 3, 2, 2, 1, 5,
+					},
+				},
+			},
+		},
+		FancyRat = {
+			rarity = "Common",
+			size = { 4, 7, 10 },
+			palette = { "FFFFFF", "7E7E8E", "FFE8F0", "1B1B2F", "FFC2D8" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -2, 4, 1, 1, 1, -1, 1, -1, 2, 3, 2, 2, -2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, -1, 2, -3, 2, 1, 3, 1, -2, 2, -1, 4, 1, 1, 2, -1, 2, 1, 2, 1, 1, 2, -1, 3, -2, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 1.5 },
+					boxes = {
+						1, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 1.5 },
+					boxes = {
+						-2, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-1, 3, -4, 2, 3, 2, 1, -1, 4, -5, 1, 1, 3, 3, 0, 4, -5, 1, 1, 3, 4, -2, 4, -4, 4, 1, 2, 1, -1, 4, -2, 2, 2, 1, 1, -2, 5, -3, 1, 1, 1, 1, 1, 5, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-2, 5, -4, 1, 1, 1, 4, 1, 5, -4, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -3 },
+					boxes = {
+						-2, 6, -3, 1, 1, 1, 5, 1, 6, -3, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 1.5 },
+					boxes = {
+						0, 3, 2, 1, 1, 2, 5, 0, 4, 4, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Marmoset = {
+			rarity = "Common",
+			size = { 4, 7, 8 },
+			palette = { "8A8078", "C8C0B8", "F2E8DC", "1B1B2F", "FFFFFF" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 1, -1, 1, 1, 1, 1, -1, 1, -1, 2, 2, 3, 2, 1, 1, -1, 1, 1, 1, 1, -2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, -1, 2, -2, 2, 1, 1, 2, -2, 2, 0, 4, 1, 1, 1, -1, 2, 2, 2, 1, 1, 1,
+						-1, 3, -1, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -0.5 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 2.5 },
+					boxes = {
+						1, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 2.5 },
+					boxes = {
+						-2, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-1, 3, -3, 2, 3, 2, 1, -1, 4, -4, 1, 1, 3, 3, 0, 4, -4, 1, 1, 3, 4, -2, 4, -3, 4, 1, 2, 1, -1, 4, -1, 2, 2, 1, 1, -2, 5, -2, 1, 1, 1, 1, 1, 5, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1.5 },
+					boxes = {
+						-2, 5, -3, 1, 1, 1, 4, 1, 5, -3, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -2 },
+					boxes = {
+						-2, 6, -2, 1, 1, 1, 5, 1, 6, -2, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						-1, 3, 3, 2, 1, 1, 1,
+					},
+				},
+			},
+		},
+		PacmanFrog = {
+			rarity = "Common",
+			size = { 6, 5, 4 },
+			palette = { "FFF2C8", "E8C04A", "6CB84A", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 0, -1, 2, 2, 1, 1, -1, 0, 0, 2, 3, 1, 2, -1, 1, -2, 2, 1, 1, 1, -3, 1, -1, 2, 1, 1, 1, 1, 1, -1, 2, 2, 1, 1, -3, 1, 0, 2, 2, 2, 2, 1, 1, 0, 2, 2, 2, 2, -1, 1, 1, 2, 2, 1, 2,
+						-3, 2, -1, 1, 1, 1, 1, -2, 2, -1, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -1.5 },
+					boxes = {
+						-1, 2, -2, 2, 1, 2, 2, -2, 3, -2, 1, 1, 2, 2, -1, 3, -2, 2, 1, 2, 4, 1, 3, -2, 1, 1, 2, 2, -1, 3, 0, 2, 1, 1, 2, -2, 4, -2, 4, 1, 1, 2, -1, 4, -1, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 2, 1 },
+					boxes = {
+						-3, 0, -1, 1, 1, 2, 1, -3, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1, 1, -1 },
+					boxes = {
+						-2, 0, -2, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 2, 1 },
+					boxes = {
+						2, 0, -1, 1, 1, 2, 1, 2, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1 },
+					boxes = {
+						1, 0, -2, 1, 1, 2, 1,
+					},
+				},
+			},
+		},
+		Bullfrog = {
+			rarity = "Common",
+			size = { 6, 5, 4 },
+			palette = { "E9E07A", "4E8F3A", "3D7430", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 0, -1, 2, 2, 1, 1, -1, 0, 0, 2, 3, 1, 2, -1, 1, -2, 2, 1, 1, 1, -3, 1, -1, 2, 1, 1, 1, 1, 1, -1, 2, 2, 1, 1, -3, 1, 0, 2, 2, 2, 2, 1, 1, 0, 2, 2, 2, 2, -1, 1, 1, 2, 2, 1, 2,
+						-3, 2, -1, 1, 1, 1, 1, -2, 2, -1, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -1.5 },
+					boxes = {
+						-1, 2, -2, 2, 1, 2, 2, -2, 3, -2, 1, 1, 2, 2, -1, 3, -2, 2, 1, 2, 4, 1, 3, -2, 1, 1, 2, 2, -1, 3, 0, 2, 1, 1, 2, -2, 4, -2, 4, 1, 1, 2, -1, 4, -1, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 2, 1 },
+					boxes = {
+						-3, 0, -1, 1, 1, 2, 1, -3, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1, 1, -1 },
+					boxes = {
+						-2, 0, -2, 1, 1, 2, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 2, 1 },
+					boxes = {
+						2, 0, -1, 1, 1, 2, 1, 2, 0, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1 },
+					boxes = {
+						1, 0, -2, 1, 1, 2, 1,
+					},
+				},
+			},
+		},
+		TreeFrog = {
+			rarity = "Common",
+			size = { 6, 6, 4 },
+			palette = { "FF9A3C", "FFF2B0", "7CE04A", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 0, -1, 2, 2, 2, 1, -1, 1, -2, 2, 1, 1, 1, -2, 1, -1, 1, 1, 3, 1, 1, 1, -1, 1, 1, 3, 1, -1, 1, 1, 2, 1, 1, 1, -2, 2, -1, 1, 1, 1, 2, 1, 2, -1, 1, 1, 1, 2, -2, 2, 0, 4, 1, 2, 3,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -1.5 },
+					boxes = {
+						-1, 2, -2, 2, 1, 2, 3, -2, 3, -2, 1, 1, 2, 3, -1, 3, -2, 2, 1, 2, 4, 1, 3, -2, 1, 1, 2, 3, -1, 3, 0, 2, 1, 1, 3, -2, 4, -2, 4, 2, 1, 3, -1, 4, -1, 2, 2, 1, 3,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 2, 1 },
+					boxes = {
+						-3, 0, -1, 1, 1, 2, 2, -3, 0, 1, 1, 2, 1, 3, -3, 1, 0, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1, 1, -1 },
+					boxes = {
+						-2, 0, -2, 1, 1, 2, 2,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 2, 2, 1 },
+					boxes = {
+						2, 0, -1, 1, 1, 2, 2, 2, 0, 1, 1, 2, 1, 3, 2, 1, 0, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, -1 },
+					boxes = {
+						1, 0, -2, 1, 1, 2, 2,
+					},
+				},
+			},
+		},
+		Cygnet = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "4A4A55", "BDB9B2", "DCD9D3" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 1, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
+		Kingfisher = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "FF6A3D", "2E8BD8", "FF8A3D", "2A2433", "1E6FB8" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 4, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		Platypus = {
+			rarity = "Common",
+			size = { 4, 6, 10 },
+			palette = { "7A5A44", "B08A6A", "3E3E4A", "30303F", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-2, 1, -1, 1, 1, 1, 1, -1, 1, -1, 2, 2, 3, 2, 1, 1, -1, 1, 1, 1, 1, -2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, -1, 2, -2, 2, 1, 1, 2, -2, 2, 0, 4, 1, 1, 1, -1, 2, 2, 2, 1, 1, 1,
+						-1, 3, -1, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -0.5 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 2.5 },
+					boxes = {
+						1, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 2.5 },
+					boxes = {
+						-2, 0, 2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -1.5 },
+					boxes = {
+						-1, 3, -3, 2, 2, 2, 1, -1, 4, -5, 2, 1, 4, 3, -2, 4, -3, 4, 1, 2, 1, -1, 4, -1, 2, 2, 1, 1, -1, 5, -5, 2, 1, 1, 3, -1, 5, -4, 2, 1, 1, 4, -1, 5, -3, 2, 1, 1, 3, -2, 5, -2, 4, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3, -1.5 },
+					boxes = {
+						-2, 5, -3, 1, 1, 1, 5, 1, 5, -3, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 2.5 },
+					boxes = {
+						-1, 0, 3, 2, 1, 2, 3,
+					},
+				},
+			},
+		},
+		WaterVole = {
+			rarity = "Common",
+			size = { 4, 7, 10 },
+			palette = { "7A6250", "B9A08A", "1B1B2F", "5A4A3E" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -2, 1, 1, 1, 1, -1, 1, -2, 2, 2, 3, 2, 1, 1, -2, 1, 1, 1, 1, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 2, -3, 2, 1, 1, 2, -2, 2, -1, 4, 1, 1, 1, -1, 2, 1, 2, 1, 1, 1,
+						-1, 3, -2, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 1.5 },
+					boxes = {
+						1, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 1.5 },
+					boxes = {
+						-2, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-1, 3, -4, 2, 3, 2, 1, -1, 4, -5, 1, 1, 3, 2, 0, 4, -5, 1, 1, 3, 3, -2, 4, -4, 4, 1, 2, 1, -1, 4, -2, 2, 2, 1, 1, -2, 5, -3, 1, 1, 1, 1, 1, 5, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-2, 5, -4, 1, 1, 1, 3, 1, 5, -4, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -3 },
+					boxes = {
+						-2, 6, -3, 1, 1, 1, 1, 1, 6, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 1.5 },
+					boxes = {
+						0, 3, 2, 1, 1, 2, 4, 0, 4, 4, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		SealPup = {
+			rarity = "Common",
+			size = { 4, 5, 7 },
+			palette = { "FFFFFF", "F4F1EA", "1B1B2F", "D8D3C8" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 0, -1.5, 2, 3, 1, 1, -1, 0, -0.5, 2, 2, 3, 2, -1, 1, -2.5, 2, 1, 3, 1, -2, 1, -1.5, 4, 1, 1, 1, -2, 1, -0.5, 4, 2, 1, 2, -1, 2, -2.5, 2, 1, 1, 1, -1, 2, 0.5, 2, 1, 1, 2, -1, 3, -0.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -2 },
+					boxes = {
+						-1, 3, -3.5, 2, 1, 1, 1, -1, 3, -2.5, 2, 1, 2, 2, -1, 4, -2.5, 2, 1, 1, 3, -1, 4, -1.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0.5, 2.5 },
+					boxes = {
+						-1, 0, 2.5, 2, 1, 1, 4,
+					},
+				},
+				{
+					name = "legL",
+					anim = "legL",
+					parent = "body",
+					pivot = { -2, 1, -1 },
+					boxes = {
+						-2, 0, -1.5, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "legR",
+					anim = "legR",
+					parent = "body",
+					pivot = { 2, 1, -1 },
+					boxes = {
+						1, 0, -1.5, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		HarborSeal = {
+			rarity = "Common",
+			size = { 4, 5, 7 },
+			palette = { "C9D0D8", "8C96A3", "6E7884", "1B1B2F", "6A7480" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 0, -1.5, 2, 3, 1, 1, -1, 0, -0.5, 2, 2, 3, 2, -1, 1, -2.5, 2, 1, 3, 1, -2, 1, -1.5, 4, 1, 1, 1, -2, 1, -0.5, 4, 2, 1, 2, -1, 2, -2.5, 2, 1, 1, 1, -1, 2, 0.5, 2, 1, 1, 2, -1, 3, -0.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -2 },
+					boxes = {
+						-1, 3, -3.5, 2, 1, 1, 1, -1, 3, -2.5, 2, 1, 2, 2, -1, 4, -2.5, 1, 1, 1, 3, 0, 4, -2.5, 1, 1, 1, 4, -1, 4, -1.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0.5, 2.5 },
+					boxes = {
+						-1, 0, 2.5, 2, 1, 1, 5,
+					},
+				},
+				{
+					name = "legL",
+					anim = "legL",
+					parent = "body",
+					pivot = { -2, 1, -1 },
+					boxes = {
+						-2, 0, -1.5, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "legR",
+					anim = "legR",
+					parent = "body",
+					pivot = { 2, 1, -1 },
+					boxes = {
+						1, 0, -1.5, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		WalrusPup = {
+			rarity = "Common",
+			size = { 4, 5, 7 },
+			palette = { "B0785A", "FFFFFF", "1B1B2F", "8A5A44" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 0, -1.5, 2, 2, 4, 1, -1, 1, -2.5, 2, 2, 3, 1, -2, 1, -1.5, 4, 1, 2, 1, -2, 2, -0.5, 4, 1, 1, 1, -1, 2, 0.5, 2, 1, 1, 1, -1, 3, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -2 },
+					boxes = {
+						-1, 2, -3.5, 2, 2, 1, 2, -1, 3, -2.5, 2, 1, 2, 1, -1, 4, -2.5, 2, 1, 1, 3, -1, 4, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0.5, 2.5 },
+					boxes = {
+						-1, 0, 2.5, 2, 1, 1, 4,
+					},
+				},
+				{
+					name = "legL",
+					anim = "legL",
+					parent = "body",
+					pivot = { -2, 1, -1 },
+					boxes = {
+						-2, 0, -1.5, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "legR",
+					anim = "legR",
+					parent = "body",
+					pivot = { 2, 1, -1 },
+					boxes = {
+						1, 0, -1.5, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		Starfish = {
+			rarity = "Common",
+			size = { 4, 4, 2 },
+			palette = { "FFD0A8", "FF8A4D", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, -1, 0 },
+					boxes = {
+						-2, 0, -1, 4, 1, 1, 1, -2, 0, 0, 4, 1, 1, 2, -2, 2, -1, 1, 1, 1, 1, 1, 2, -1, 1, 1, 1, 1, -2, 2, 0, 1, 1, 1, 2, 1, 2, 0, 1, 1, 1, 2, -1, 3, -1, 1, 1, 2, 2, 0, 3, -1, 1, 1, 1, 1,
+						0, 3, 0, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2, -1.5 },
+					boxes = {
+						-1, 1, -1, 2, 1, 1, 3, -1, 1, 0, 2, 2, 1, 2, -1, 2, -1, 2, 1, 1, 2,
+					},
+				},
+			},
+		},
+		Lobster = {
+			rarity = "Common",
+			size = { 6, 5, 10 },
+			palette = { "D9432F", "FF7A5A", "FF8FB1", "FFFFFF", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -3, 1, 1, 1, 1, 1, 1, -3, 1, 1, 1, 1, -1, 1, -2, 2, 1, 5, 1, -3, 2, -5, 1, 1, 1, 2, 2, 2, -5, 1, 1, 1, 2, -3, 2, -4, 2, 1, 1, 1, 1, 2, -4, 2, 1, 1, 1, -1, 2, -2, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -2.5 },
+					boxes = {
+						-1, 1, -3, 2, 2, 1, 1, -2, 2, -3, 1, 1, 1, 3, 1, 2, -3, 1, 1, 1, 3, -2, 3, -3, 1, 1, 1, 1, -1, 3, -3, 2, 1, 1, 2, 1, 3, -3, 1, 1, 1, 1, -2, 4, -3, 1, 1, 1, 4, 1, 4, -3, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 1, 3.5 },
+					boxes = {
+						-1, 0, 4, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3, -2.5 },
+					boxes = {
+						-2, 4, -4, 1, 1, 1, 5, 1, 4, -4, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -1, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -1, 1, 0 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		Crayfish = {
+			rarity = "Common",
+			size = { 6, 5, 10 },
+			palette = { "3F6FB8", "7FA8E0", "FF8FB1", "FFFFFF", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -3, 1, 1, 1, 1, 1, 1, -3, 1, 1, 1, 1, -1, 1, -2, 2, 1, 5, 1, -3, 2, -5, 1, 1, 1, 2, 2, 2, -5, 1, 1, 1, 2, -3, 2, -4, 2, 1, 1, 1, 1, 2, -4, 2, 1, 1, 1, -1, 2, -2, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -2.5 },
+					boxes = {
+						-1, 1, -3, 2, 2, 1, 1, -2, 2, -3, 1, 1, 1, 3, 1, 2, -3, 1, 1, 1, 3, -2, 3, -3, 1, 1, 1, 1, -1, 3, -3, 2, 1, 1, 2, 1, 3, -3, 1, 1, 1, 1, -2, 4, -3, 1, 1, 1, 4, 1, 4, -3, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 1, 3.5 },
+					boxes = {
+						-1, 0, 4, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3, -2.5 },
+					boxes = {
+						-2, 4, -4, 1, 1, 1, 5, 1, 4, -4, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -1, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 1, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -1, 1, 0 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		GullChick = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "8A8478", "C9C4B8", "E8E4DA", "3A3A3A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 3, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 1, 1, 1, 1, 2, 0, 1, 2, 3, 2, -2, 2, 1, 1, 2, 2, 2,
+						-2, 3, 0, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 1, 1, 1, 1, 0, 4, -1, 1, 1, 3, 2, -1, 4, 0, 1, 3, 2, 2, -1, 5, -3, 2, 1, 4, 4, -2, 5, 0, 4, 1, 1, 2, 0, 5, 1, 1, 2, 1, 2, -1, 6, -1, 2, 1, 1, 2, 0, 6, 0, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
+		SeaTurtle = {
+			rarity = "Common",
+			size = { 6, 4, 7 },
+			palette = { "8FD3C0", "3E8E7E", "2F7A3A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 0, -0.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -2 },
+					boxes = {
+						-1, 1, -3.5, 2, 2, 1, 1,
+					},
+				},
+				{
+					name = "shell",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 1, -2.5, 2, 2, 2, 2, -2, 1, -1.5, 1, 2, 3, 2, 1, 1, -1.5, 1, 2, 1, 3, -1, 1, -0.5, 1, 3, 1, 2, 0, 1, -0.5, 1, 3, 1, 3, 1, 1, -0.5, 1, 2, 2, 2, -1, 1, 0.5, 1, 3, 1, 3, 0, 1, 0.5, 1, 2, 2, 2,
+						-1, 1, 1.5, 1, 2, 1, 2, -1, 3, -1.5, 2, 1, 1, 2, 0, 3, 0.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -3, 2, -0.5 },
+					boxes = {
+						-3, 0, -1.5, 1, 2, 2, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -3, 2, 2.5 },
+					boxes = {
+						-3, 0, 1.5, 1, 2, 2, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 3, 2, -0.5 },
+					boxes = {
+						2, 0, -1.5, 1, 2, 2, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 3, 2, 2.5 },
+					boxes = {
+						2, 0, 1.5, 1, 2, 2, 1,
+					},
+				},
+			},
+		},
 	},
 }
 

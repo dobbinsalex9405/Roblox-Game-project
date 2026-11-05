@@ -45,7 +45,7 @@ local ANIMS = {
 -- Parts a client builds per creature, at most, by tier. Commons are cheap so
 -- a base full of them stays light; Godlies may be lavish because they are
 -- one in tens of thousands.
-local BUDGET = { 30, 40, 60, 80, 120, 450, 800 }
+local BUDGET = { 36, 44, 60, 80, 120, 450, 800 }
 
 local function rank(rarity: string): number
 	return table.find(RARITIES, rarity) or 0
