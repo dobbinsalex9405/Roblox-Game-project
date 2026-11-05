@@ -1180,6 +1180,67 @@ def throat(c, H, col, col2=None):
     head.paint(lambda p, cc, g: (col, True) if p[2] <= hlo[2] + 0.6 * k and p[1] < (hlo[1] + hhi[1]) / 2 and abs(p[0] + .5) < 1.4 * k else None)
 
 
+def eyering(c, H, col, col2=None):
+    """A pale ring round each eye, so an eye set in a dark band still reads
+    (an angelfish's): head and body voxels next to the eyes take col."""
+    k = H / 10.0
+    eyes = kit._find(c, 'eyes')
+    if not eyes:
+        return
+    ev = list(eyes.v)
+    r = max(1.5, 0.45 * k)
+    near = lambda p: any((p[0] - e[0]) ** 2 + (p[1] - e[1]) ** 2 + (p[2] - e[2]) ** 2 <= r * r for e in ev)
+    for part in (_head(c), kit._find(c, 'body')):
+        if part is not None:
+            part.paint(lambda p, cc, g: (col, False) if p not in eyes.v and near(p) else None)
+
+
+def narwhaltusk(c, H, col, col2=None):
+    """A narwhal's tusk: replaces the plan's tusk with a long, thin, straight
+    one (about the body's length, two voxels thick) from the upper lip,
+    banded cream (col) and tan (col2) for the spiral, the tip glowing."""
+    k = H / 10.0
+    old = kit._find(c, 'tusk')
+    if old:
+        c.parts.remove(old)
+    head = _head(c)
+    body = kit._find(c, 'body')
+    (lo, hi) = _bounds(body)
+    (hlo, hhi) = _bounds(head)
+    fy = hlo[1]
+    z0 = round((hlo[2] + hhi[2]) / 2 + 0.35 * k)
+    zrow = [p for p in head.v if p[2] == z0 and p[0] in (-1, 0)]
+    if zrow:
+        fy = min(p[1] for p in zrow)
+    n = max(8, round((hi[1] - hlo[1] + 1) * 0.9))  # about the whole body's length
+    tan = col2 or _dark(col, 0.25)
+    tusk = c.part('tusk', 'static', (0, fy, z0))
+    band = max(2, round(0.5 * k))
+    for i in range(n):
+        y = fy - 1 - i
+        z = z0 + i // max(4, round(2.0 * k))  # tilts up a little
+        glow = i >= n - max(2, round(0.6 * k))
+        cc = col if (i // band) % 2 == 0 else tan
+        thick = 2 if i < n - 2 else 1
+        for x in ((-1, 0) if thick == 2 else (0,)):
+            for dz in range(thick):
+                tusk.put((x, y, z + dz - (thick - 1) // 2), cc, glow)
+    # the root sits in the lip
+    for x in (-1, 0):
+        tusk.put((x, fy, z0), col)
+
+
+def speckles(c, H, col, col2=None):
+    """Light single-voxel speckles over the back and head (a narwhal's)."""
+    for name in ('body', 'head'):
+        part = kit._find(c, name)
+        if not part:
+            continue
+        (lo, hi) = _bounds(part)
+        mid = (lo[2] + hi[2]) / 2
+        part.paint(lambda p, cc, g, mid=mid: (col, False) if p[2] > mid - 1 and kit._hash(*p, 41) % 11 == 0 else None)
+
+
 def cheekglow(c, H, col, col2=None):
     """Round cheeks glowing frosty col."""
     k = H / 10.0
@@ -1605,7 +1666,7 @@ ACCESSORIES = {
     'icing': icing, 'facedisc': facedisc, 'twohead': twohead, 'crocsnout': crocsnout, 'bflywings': bflywings,
     'glideflaps': glideflaps, 'bigbeak': bigbeak, 'longbeak': longbeak, 'hookbeak': hookbeak, 'casque': casque,
     'wingless': wingless, 'crowncrest': crowncrest, 'shellheld': shellheld, 'bolttail': bolttail,
-    'cheekglow': cheekglow, 'throat': throat, 'gust': gust, 'embers': embers, 'flakes': flakes, 'clover': clover,
+    'cheekglow': cheekglow, 'eyering': eyering, 'narwhaltusk': narwhaltusk, 'speckles': speckles, 'throat': throat, 'gust': gust, 'embers': embers, 'flakes': flakes, 'clover': clover,
     'petalcrown': petalcrown, 'cobweb': cobweb, 'knees': knees, 'fuzz': fuzz, 'wingspots': wingspots,
     'bigwings': bigwings, 'wingtails': wingtails, 'clearwings': clearwings, 'honeybelly': honeybelly,
     'bighorn': bighorn, 'gear': gear, 'geode': geode, 'yarn': yarn, 'teddy': teddy, 'cactus': cactus,
