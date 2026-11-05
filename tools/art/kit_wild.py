@@ -1023,11 +1023,12 @@ def wraps(c, H, col, col2=None):
     eyes = kit._find(c, 'eyes')
     # sit low: the legs become short nubs under the ball
     zb = min(p[2] for p in body.v)
-    drop = max(0, zb - 1)
+    drop = max(0, zb - 2)
     for p in c.parts:
         if p.name in rig.LEG_NAMES:
-            p.v = {q: v for q, v in p.v.items() if q[2] <= 1}
-            p.pivot = (p.pivot[0], p.pivot[1], 2)
+            # three voxels each (the rig's minimum), mostly tucked under
+            p.v = {q: v for q, v in p.v.items() if q[2] <= 2}
+            p.pivot = (p.pivot[0], p.pivot[1], 3)
         else:
             p.v = {(x, y, z - drop): v for (x, y, z), v in p.v.items()}
             p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] - drop)
@@ -2583,7 +2584,7 @@ def shineeyes(c, H, col=None, col2=None, a=None):
                 else:
                     cc, g = col, True
             elif dx == 1 and dz == 1:
-                cc, g = WHITE, False
+                cc, g = (INK, False) if a.get('square') else (WHITE, False)
             elif col is None or col == INK:
                 cc, g = INK, False
             else:

@@ -804,7 +804,8 @@
     },
     {
      "kind": "shineeyes",
-     "color": "#1B1B2F"
+     "color": "#1B1B2F",
+     "square": true
     }
    ],
    "shape": {
