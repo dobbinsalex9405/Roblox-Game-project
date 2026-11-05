@@ -162,13 +162,20 @@ function NaturePlan.plan(
 		end
 	end
 
-	-- the wood: species by weight, bigger trees further out
+	-- the wood: species by weight, bigger trees further out. Each tree first
+	-- tries its own slice of the ring, so the wood goes all the way round
+	-- (random angles left bare patches behind some farm pieces); a slice
+	-- with no room left gives its tree to anywhere on the ring.
 	local w = config.wood
 	local tries = 0
 	local placed = 0
-	while placed < w.count and tries < w.count * 30 do
+	local slotTries = 0
+	while placed < w.count and tries < w.count * 60 do
 		tries += 1
-		local angle = r.range(0, math.pi * 2)
+		slotTries += 1
+		local angle = if slotTries <= 30
+			then (placed + r.next()) / w.count * math.pi * 2
+			else r.range(0, math.pi * 2)
 		local radius = r.range(w.radiusMin, w.radiusMax)
 		if not clear(math.cos(angle) * radius, math.sin(angle) * radius) then
 			continue
@@ -188,6 +195,7 @@ function NaturePlan.plan(
 		if free(x, z, math.max(need, w.minSpacing * 0.5)) then
 			add(model, x, z, scale, true)
 			placed += 1
+			slotTries = 0
 		end
 	end
 
