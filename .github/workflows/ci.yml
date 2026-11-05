@@ -68,6 +68,29 @@ jobs:
       - name: Key flows (headless playtests)
         run: tools/keyflows.sh all
 
+      # What a joining player sees and taps, on Staging builds (real product
+      # ids, no secrets): world, spawn, HUD at phone/tablet/desktop, every
+      # first-screen button and what it opens. ops/VISUAL_PLAYTEST.md.
+      - name: Player's-eye audit (renders + checks)
+        run: lune run tools/audit/run all
+
+      - name: Audit summary
+        if: always()
+        run: |
+          for f in build/audit/*/report.md; do
+            [ -f "$f" ] && { cat "$f"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          done
+          true
+
+      - name: Keep the audit images and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-${{ github.sha }}
+          path: build/audit
+          retention-days: 30
+          if-no-files-found: ignore
+
       - name: Strict type check (luau-lsp)
         run: tools/typecheck.sh
 

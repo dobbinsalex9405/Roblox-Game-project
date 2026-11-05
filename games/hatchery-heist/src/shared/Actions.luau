@@ -52,6 +52,9 @@ export type Actions = {
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
+	-- Studio test panel only: adds a creature of any species, placed like a
+	-- hatch. Returns whether it worked and what to show.
+	grantCreature: (self: Actions, player: any, speciesId: string) -> (boolean, string),
 	-- For the raid layer (Raids.luau): one atomic update with income brought
 	-- up to date; `fn` returns a refusal or nil.
 	change: (
@@ -411,6 +414,39 @@ function Actions.new(options: Options): Actions
 			options.mount(player, nil)
 		end
 		return ok, err
+	end
+
+	function actions.grantCreature(_self: Actions, player: any, speciesId: string): (boolean, string)
+		if config.creatures.species[speciesId] == nil then
+			return false, `No creature called {speciesId}.`
+		end
+		-- Record the first egg that can hatch it, so it looks like any other.
+		local eggId: string? = nil
+		for _, egg in config.eggs do
+			for _, outcome in egg.outcomes do
+				if eggId == nil and outcome.id == speciesId then
+					eggId = egg.id
+				end
+			end
+		end
+		local creature: any = nil
+		local now = options.now()
+		local ok, err = change(player, function(d, ledger)
+			creature = Hatchery.receive(d, ledger, {
+				speciesId = speciesId,
+				mutation = "None",
+				eggId = eggId or config.eggs[1].id,
+				hatchedAt = now,
+			}, config.creatures, economyConfig)
+			return nil
+		end)
+		if not ok or creature == nil then
+			return false, `Could not add {speciesId}: {err or "unknown"}.`
+		end
+		if creature.slot == nil then
+			return true, `{speciesId} added to storage (every pad holds a better creature).`
+		end
+		return true, `{speciesId} added on pad {creature.slot}, ready to ride or guard.`
 	end
 
 	return (actions :: any) :: Actions

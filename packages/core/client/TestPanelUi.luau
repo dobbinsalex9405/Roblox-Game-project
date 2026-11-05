@@ -2,7 +2,8 @@
 -- Studio-only test panel (server half: server/TestPanel.luau). A "Test" button
 -- next to Shop opens buttons to add currency, own passes for the session, run
 -- fake product purchases through the real receipt path (and replay them to
--- prove nothing is granted twice), and reset the save. It is never created
+-- prove nothing is granted twice), run the game's own test actions (such as
+-- giving any creature), and reset the save. It is never created
 -- outside Studio, and the server ignores it outside Studio anyway.
 
 local Players = game:GetService("Players")
@@ -14,10 +15,13 @@ local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 local ClientNet = require(script.Parent.ClientNet)
 local UiKit = require(script.Parent.UiKit)
 
+type GameAction = { name: string, title: string, choices: { string } }
+
 type Info = {
 	currencies: { { key: string, balance: number } },
 	passes: { { key: string, owned: boolean } },
 	products: { string },
+	actions: { GameAction }?,
 }
 
 local AMOUNTS = { 1000, 100000, 10000000 }
@@ -55,6 +59,7 @@ function TestPanelUi.start()
 	local resultText = "Studio only. Nothing here exists on a live server."
 	local info: Info? = nil
 	local confirmResetUntil = 0
+	local typed: { [string]: string } = {} -- each game action's text box, kept across redraws
 
 	local function command(action: string, key: string, amount: number)
 		ClientNet.fire(ShopRemotes["Test:Command"], action, key, amount)
@@ -128,6 +133,47 @@ function TestPanelUi.start()
 			UiKit.button(row, "Replay", 90, 30, UiKit.MUTED).Activated:Connect(function()
 				command("replay", key, 0)
 			end)
+		end
+
+		-- The game's own actions (CoreServer addTestAction): a box to type any
+		-- choice, then a button per choice.
+		local gameActions: { GameAction } = current.actions or {}
+		for _, action in gameActions do
+			local card = section(action.title)
+			local row = UiKit.row(card, 32)
+			local box = Instance.new("TextBox")
+			box.Size = UDim2.new(1, -100, 0, 30)
+			box.PlaceholderText = "Type an id"
+			box.Text = typed[action.name] or ""
+			box.ClearTextOnFocus = false
+			box.TextScaled = true
+			box.Font = Enum.Font.Gotham
+			box.TextColor3 = Color3.new(1, 1, 1)
+			box.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+			box.LayoutOrder = 1
+			box.Parent = row
+			box:GetPropertyChangedSignal("Text"):Connect(function()
+				typed[action.name] = box.Text
+			end)
+			local give = UiKit.button(row, "Give", 90, 30)
+			give.LayoutOrder = 2
+			give.Activated:Connect(function()
+				local choice = string.gsub(box.Text, "%s", "")
+				if choice ~= "" then
+					command("game", `{action.name}/{choice}`, 0)
+				end
+			end)
+			local choiceRow: Frame? = nil
+			for index, choice in action.choices do
+				if (index - 1) % 3 == 0 then
+					choiceRow = UiKit.row(card, 32)
+				end
+				local b = UiKit.button(choiceRow :: Frame, choice, 110, 30, UiKit.MUTED)
+				b.LayoutOrder = index
+				b.Activated:Connect(function()
+					command("game", `{action.name}/{choice}`, 0)
+				end)
+			end
 		end
 
 		local reset = section("Save")

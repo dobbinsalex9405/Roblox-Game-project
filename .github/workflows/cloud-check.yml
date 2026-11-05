@@ -1,0 +1,103 @@
+name: Real-engine check
+
+# Runs the player's-eye audit, then tools/cloud/probe.luau inside a real
+# Roblox server for each game's Staging place (Open Cloud Luau Execution).
+# The place is SAVED as a new Staging version, never published: players and
+# live servers do not see it. The verifier runs this for a PR's head before
+# its OK (ops/VISUAL_PLAYTEST.md). Needs the Staging keys to carry Luau
+# Execution access (ops/SETUP.md).
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or commit to check"
+        required: true
+        default: main
+      game:
+        description: "One game folder name, or all"
+        required: true
+        default: all
+
+permissions:
+  contents: read
+
+jobs:
+  games:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.list.outputs.list }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - id: list
+        env:
+          WANT: ${{ inputs.game }}
+        run: |
+          list=$(find games -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort | python3 -c '
+          import json, os, sys
+          want = os.environ["WANT"].strip()
+          games = [g.strip() for g in sys.stdin if g.strip()]
+          if want != "all":
+              if want not in games:
+                  sys.exit(f"No such game: {want}")
+              games = [want]
+          print(json.dumps([{"name": g, "secret": "ROBLOX_API_KEY_" + g.upper().replace("-", "_")} for g in games]))')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+
+  check:
+    needs: games
+    name: Real engine / ${{ matrix.game.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+    strategy:
+      fail-fast: false
+      matrix:
+        game: ${{ fromJSON(needs.games.outputs.list) }}
+    env:
+      ROBLOX_API_KEY: ${{ secrets[matrix.game.secret] }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
+
+      - name: Install packages
+        run: wally install
+        working-directory: deps
+
+      - name: Build for Staging
+        run: tools/build.sh ${{ matrix.game.name }}
+        env:
+          BUILD_ENVIRONMENT: staging
+
+      - name: Player's-eye audit (renders + checks)
+        run: lune run tools/audit/run --built ${{ matrix.game.name }}
+
+      - name: Real-engine check
+        if: always()
+        run: lune run tools/cloud/run ${{ matrix.game.name }}
+
+      - name: Summary
+        if: always()
+        run: |
+          for f in build/audit/${{ matrix.game.name }}/report.md build/cloud/${{ matrix.game.name }}.md; do
+            [ -f "$f" ] && { cat "$f"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          done
+          true
+
+      - name: Keep the reports and images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-engine-${{ matrix.game.name }}-${{ github.run_id }}
+          path: |
+            build/audit/${{ matrix.game.name }}
+            build/cloud
+          retention-days: 30
+          if-no-files-found: ignore

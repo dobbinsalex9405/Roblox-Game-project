@@ -89,6 +89,32 @@ Non-obvious choices, newest first, so a later session can trust them.
   catalogue, so ids are picked in Studio's Creator Store (by Roblox) on the
   laptop. With no ids, there is no music and no Music button.
 
+## 2026-11-04: Visual playtests in the cloud first, Studio's MCP server last
+
+- Alex asked for a playtest that sees each game as a player does, required
+  before any game change, run from the cloud where possible. Headless checks
+  had passed builds whose ground covered every base and spawn.
+- **Tier 1, a rendered audit in CI** (`tools/audit/`): the boot shim plus a
+  software renderer (boxes, flat colours, a bitmap font) and world, HUD and
+  click checks. Free, runs on every PR, and caught the floor bug, a nest on a
+  spawn and a phone overflow before any person looked. It builds Staging so
+  the Robux shop and odds are exercised, and clicks inside every panel.
+- **Tier 2, Open Cloud Luau Execution** (`tools/cloud/`): the same rules plus
+  real collision geometry and Roblox's own text metrics inside a real Roblox
+  server, against a saved (never published) Staging version. It has no
+  players, physics or rendering, so it cannot take screenshots.
+- **Tier 3, Studio's built-in MCP server** on the laptop for real pixels:
+  play-solo, walk, tap, capture the viewport. It replaces clicking Studio
+  with screen control.
+- Rejected: GitHub's Windows runners (Studio needs a signed-in account,
+  which means a cookie; the Player is blocked on VMs) and a rented cloud
+  Windows machine with Studio (about $50 to $80 a month on a schedule); the
+  latter is Alex's call if the laptop becomes the bottleneck.
+- The gate is a commit status (`visual-playtest`, `.github/workflows/visual-gate.yml`)
+  because GitHub Free cannot require checks on a private repo; the verifier
+  merges only when it is green.
+
+
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
 - `rojo build` does not write a part's `Position` into the place file, so the

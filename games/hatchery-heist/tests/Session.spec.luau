@@ -309,3 +309,48 @@ describe("Hatchery Heist sessions", function()
 		expect(h.get(player).daily.streak).toBe(2)
 	end)
 end)
+
+-- The Studio test panel's "Give a creature": guard walks and rides can be
+-- checked in Studio without hatching the right egg first.
+describe("Studio grant", function()
+	it("puts any species on a pad, ready to ride and guard", function()
+		local h = Harness.new()
+		local player = Fakes.player(1)
+		h.join(player)
+		-- A species only the second egg holds, so the recorded egg is checked.
+		local first: { [string]: boolean } = {}
+		for _, outcome in config.eggs[1].outcomes do
+			first[outcome.id] = true
+		end
+		local speciesId: string? = nil
+		for _, outcome in config.eggs[2].outcomes do
+			if speciesId == nil and not first[outcome.id] then
+				speciesId = outcome.id
+			end
+		end
+		local id = speciesId :: string
+		local ok, text = h.actions:grantCreature(player, id)
+		expect(ok).toBe(true)
+		expect(text).toBe(`{id} added on pad 1, ready to ride or guard.`)
+		local d = h.get(player)
+		expect(#d.creatures).toBe(1)
+		local c = d.creatures[1]
+		expect(c.speciesId).toBe(id)
+		expect(c.slot).toBe(1)
+		expect(c.eggId).toBe(config.eggs[2].id) -- the egg that holds it
+		assert(h.actions:ride(player, c.uid))
+		assert(h.actions:dismount(player))
+		assert(h.raids:toggleGuard(player, c.uid))
+		expect(h.get(player).guardUid).toBe(c.uid)
+	end)
+
+	it("refuses an unknown species and changes nothing", function()
+		local h = Harness.new()
+		local player = Fakes.player(1)
+		h.join(player)
+		local ok, text = h.actions:grantCreature(player, "NoSuchCreature")
+		expect(ok).toBe(false)
+		expect(text).toBe("No creature called NoSuchCreature.")
+		expect(#h.get(player).creatures).toBe(0)
+	end)
+end)
