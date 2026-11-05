@@ -852,7 +852,7 @@ def nebula_serpent(c, H):
         # the worlds turn together, so they only need to be clear of the
         # body (above) and of each other at rest, which their angles see to
     # four-point star crystals between the worlds
-    for ang, zc in ((math.radians(20), 5.2), (math.radians(118), 3.0), (math.radians(205), 7.4), (math.radians(300), 4.6))[:4 if fine else 1]:
+    for ang, zc in ((math.radians(20), 5.2), (math.radians(118), 3.0), (math.radians(205), 7.4), (math.radians(300), 4.6))[:4 if fine else 0]:
         z = zc * k
         dist = max(reach(z - 3, z + 3) + 0.5 * k, 3.4 * k)
         px, py = mid_x + math.cos(ang) * dist, mid_y + math.sin(ang) * dist
