@@ -198,7 +198,8 @@ def critter(c, H, kind, col, accent=None, wing=None):
         # that the lantern is a bright, solid yellow
         glows = getattr(c, 'rarity', '') in GLOW_TIERS
         lamp = c.part('lamp', 'glow' if glows else 'static')
-        lamp.ell((0, 3.0 * k, 1.9 * k), (1.2 * k, 1.0 * k, 1.0 * k), wing or GLOW_TAIL, glows)
+        # (a big round lantern out behind the shell, so it shows from the front too)
+        lamp.ell((0, 3.3 * k, 2.1 * k), (1.35 * k, 1.25 * k, 1.25 * k), wing or GLOW_TAIL, glows)
         head.ell((0, -2.0 * k, 2.4 * k), (1.4 * k, 1.2 * k, 1.3 * k), accent)
         face(c, head, k, 2.4, x_off=0.45, size=0.5)
         antennae(head, k, 0.4, -2.6, 3.4, 1.6, INK, back=-0.2, spread=0.4)
@@ -332,9 +333,11 @@ def shore(c, H, kind, col, accent=None, belly=None):
             shell.ell((0, 2.2 * k, 5.4 * k), (1.3 * k, 1.4 * k, 1.4 * k), accent)
             shell.ell((0, 2.6 * k, 6.6 * k), (0.6 * k + .3, 0.6 * k + .3, 0.7 * k + .3), accent)
             band = belly or WHITE
-            # wider bands on the in-game build, to keep a Common in its box budget
-            bw = max(1, 0.8 * k) if getattr(c, 'fine', False) else max(2, 1.2 * k)
-            shell.paint(lambda p, cc, g: (band, False) if int((p[2] - p[1] * 0.6) / bw) % 2 == 0 else None)
+            # bands on the mesh build only: the in-game boxes keep a plain
+            # shell to stay in a Common's box budget
+            if getattr(c, 'fine', False):
+                bw = max(1, 0.8 * k)
+                shell.paint(lambda p, cc, g: (band, False) if int((p[2] - p[1] * 0.6) / bw) % 2 == 0 else None)
             body.ell((0, -1.2 * k, 1.6 * k), (1.8 * k, 1.4 * k, 1.3 * k), col)
             head.ell((0, -2.0 * k, 2.2 * k), (1.3 * k, 0.8 * k, 0.8 * k), col)
             ez, ey = 3.6, -2.2
