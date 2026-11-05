@@ -6,6 +6,9 @@
 -- published, an outage), is simply missing there, and the client draws its
 -- VoxelArt boxes as before. Loads run in the background, so start-up never
 -- waits on them; the client swaps a creature to its meshes when they land.
+-- A few loads at a time, each retried with a pause: InsertService turns
+-- away bursts now and then, which once left one species on its boxes for
+-- the whole server. The warning names why a species stayed on boxes.
 --
 -- InsertService only loads assets owned by the experience's owner, so the
 -- uploads must be made by the group that owns the place (ops/ASSETS.md).
@@ -14,16 +17,20 @@ local InsertService = game:GetService("InsertService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Log = require(ReplicatedStorage.Core.Log)
+local Util = require(ReplicatedStorage.Core.Util)
 local CreatureMeshes = require(ReplicatedStorage.Shared.CreatureMeshes)
 
 local CreatureAssets = {}
 
 CreatureAssets.FOLDER = "CreatureMeshes"
+CreatureAssets.WORKERS = 4 -- loads in flight at once
+CreatureAssets.RETRY_SECONDS = { 2, 5, 10 } -- pauses between tries of one load
 
 -- Every MeshPart the creature needs, found by name anywhere in what loaded
 -- (the importer may nest them under the file's joints). Returns nil when
--- one is missing, so a half-imported asset never draws a half creature.
-local function collect(loaded: Instance, speciesId: string): Model?
+-- one is missing, so a half-imported asset never draws a half creature;
+-- the second value then says why.
+local function collect(loaded: Instance, speciesId: string): (Model?, string?)
 	local entry = CreatureMeshes[speciesId]
 	local found: { [string]: MeshPart } = {}
 	for _, d in loaded:GetDescendants() do
@@ -32,7 +39,7 @@ local function collect(loaded: Instance, speciesId: string): Model?
 		end
 	end
 	if entry.textureId <= 0 then
-		return nil -- no colours uploaded: grey meshes would be worse than boxes
+		return nil, "no colour image uploaded" -- grey meshes would be worse than boxes
 	end
 	local model = Instance.new("Model")
 	model.Name = speciesId
@@ -41,7 +48,7 @@ local function collect(loaded: Instance, speciesId: string): Model?
 			local mp: MeshPart? = found[mesh.name]
 			if mp == nil then
 				model:Destroy()
-				return nil
+				return nil, `mesh {mesh.name} missing from asset {entry.assetId}`
 			end
 			-- The colours are the uploaded palette image, never the importer's
 			-- own PBR textures (their TexturePacks fail to build).
@@ -55,29 +62,49 @@ local function collect(loaded: Instance, speciesId: string): Model?
 			mp.Parent = model
 		end
 	end
-	return model
+	return model, nil
 end
 
 function CreatureAssets.start(log: Log.Logger)
 	local folder = Instance.new("Folder")
 	folder.Name = CreatureAssets.FOLDER
 	folder.Parent = ReplicatedStorage
+	local queue: { string } = {}
 	for speciesId, entry in CreatureMeshes do
-		if entry.assetId <= 0 then
-			continue
+		if entry.assetId > 0 then
+			table.insert(queue, speciesId)
 		end
-		task.spawn(function()
-			local ok, loaded = pcall(function()
+	end
+	table.sort(queue)
+	local function loadOne(speciesId: string)
+		local entry = CreatureMeshes[speciesId]
+		local loaded, err = Util.retry(
+			function(): Instance
 				return InsertService:LoadAsset(entry.assetId)
-			end)
-			local model = if ok and typeof(loaded) == "Instance" then collect(loaded, speciesId) else nil
-			if ok and typeof(loaded) == "Instance" then
-				loaded:Destroy()
+			end,
+			CreatureAssets.RETRY_SECONDS,
+			function(seconds)
+				task.wait(seconds)
 			end
-			if model then
-				model.Parent = folder
-			else
-				log:warn("creature meshes did not load; drawing voxel boxes", { species = speciesId })
+		)
+		local model, why = nil, err
+		if loaded then
+			model, why = collect(loaded, speciesId)
+			loaded:Destroy()
+		end
+		if model then
+			model.Parent = folder
+		else
+			log:warn("creature meshes did not load; drawing voxel boxes", {
+				species = speciesId,
+				reason = if why then string.sub(why, 1, 200) else "unknown",
+			})
+		end
+	end
+	for _ = 1, CreatureAssets.WORKERS do
+		task.spawn(function()
+			while #queue > 0 do
+				loadOne(table.remove(queue, 1) :: string)
 			end
 		end)
 	end
