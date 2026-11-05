@@ -11,6 +11,7 @@
 
 local Book = require("./Book")
 local Creatures = require("./Creatures")
+local Tower = require("./Tower")
 
 export type Data = { [string]: any }
 
@@ -138,11 +139,32 @@ function Hatchery.seeBook(d: Data, at: number)
 	d.bookSeenAt = math.max(d.bookSeenAt or 0, at)
 end
 
--- Coins per second from placed creatures, with rebirth, pass and book
--- multipliers.
+-- Coins per second from creatures placed on the tower, each times its
+-- floor's bonus, with rebirth, pass and book multipliers.
 function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
-	local base = Creatures.baseIncome(d.creatures, config.creatures)
+	local base = 0
+	for _, c in d.creatures do
+		if c.slot then
+			base += Hatchery.creatureIncome(c, config.creatures) * Tower.multiplier(
+				d,
+				Tower.floorOf(c.slot),
+				config.economy
+			)
+		end
+	end
 	return base
+		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+		* (1 + Hatchery.bookBonus(d, config))
+end
+
+-- One placed creature's coins per second with every bonus, as the Creatures
+-- menu shows it; 0 in the inventory.
+function Hatchery.earning(d: Data, creature: any, config: any, perks: Perks): number
+	if creature.slot == nil then
+		return 0
+	end
+	return Hatchery.creatureIncome(creature, config.creatures)
+		* Tower.multiplier(d, Tower.floorOf(creature.slot), config.economy)
 		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
 		* (1 + Hatchery.bookBonus(d, config))
 end
@@ -355,51 +377,9 @@ function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: stri
 	return list[lo] - at
 end
 
--- Places a new creature: the first free pad, or, when every pad is full, the
--- pad of the weakest placed creature if the new one earns more (the weaker
--- one moves to storage). Otherwise the new creature goes to storage. The
--- creature being ridden and the guard keep their pads.
-local function place(d: Data, creature: any, creatureConfig: any, creaturePads: number)
-	local usedPads: { [number]: boolean } = {}
-	local weakest: any = nil
-	for _, other in d.creatures do
-		if other.slot then
-			usedPads[other.slot] = true
-			local income = Hatchery.creatureIncome(other, creatureConfig)
-			if
-				other.uid ~= d.mountUid
-				and other.uid ~= d.guardUid
-				and (weakest == nil or income < Hatchery.creatureIncome(weakest, creatureConfig))
-			then
-				weakest = other
-			end
-		end
-	end
-	for pad = 1, creaturePads do
-		if not usedPads[pad] then
-			creature.slot = pad
-			return
-		end
-	end
-	if
-		weakest
-		and Hatchery.creatureIncome(creature, creatureConfig)
-			> Hatchery.creatureIncome(weakest, creatureConfig)
-	then
-		creature.slot = weakest.slot
-		weakest.slot = nil
-	end
-end
-
--- Whether every creature pad holds a creature.
-function Hatchery.padsFull(d: Data, creaturePads: number): boolean
-	local used = 0
-	for _, c in d.creatures do
-		if c.slot then
-			used += 1
-		end
-	end
-	return used >= creaturePads
+-- Whether the tower has no room left for even a 1-slot creature.
+function Hatchery.padsFull(d: Data, creatureConfig: any, economy: any): boolean
+	return Tower.full(d, creatureConfig, economy)
 end
 
 -- Coins a stored creature sells for when storage overflows.
@@ -473,7 +453,7 @@ function Hatchery.hatch(
 		hatchedAt = now,
 	}
 	d.nextUid += 1
-	place(d, creature, creatureConfig, economy.creaturePads)
+	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, now)
 	local sold = trimStorage(d, ledger, creatureConfig, economy)
@@ -513,7 +493,7 @@ function Hatchery.receive(
 		hatchedAt = from.hatchedAt,
 	}
 	d.nextUid += 1
-	place(d, creature, creatureConfig, economy.creaturePads)
+	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt)
 	return creature, trimStorage(d, ledger, creatureConfig, economy)
@@ -546,7 +526,7 @@ function Hatchery.ride(d: Data, uid: string, creatureConfig: any): (number?, str
 		return nil, "That creature is guarding your base."
 	end
 	if creature.slot == nil then
-		return nil, "Only a creature on a pad can be ridden."
+		return nil, "Only a creature on a floor can be ridden."
 	end
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then

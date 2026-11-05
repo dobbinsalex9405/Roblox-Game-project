@@ -169,14 +169,14 @@ local function play(h, player, seconds, strategy, log)
 				stored += 1
 			end
 		end
-		if onPads >= economy.creaturePads and padsFullAt == nil then
+		if Hatchery.padsFull(d, config.creatures, economy) and padsFullAt == nil then
 			padsFullAt = now - t0
-			mark("all 20 pads full")
+			mark("tower full")
 		end
 		for i = lastNotices + 1, #h.notices do
 			if h.notices[i].player == player then
 				refusals += 1
-				if string.find(h.notices[i].text, "Storage is full") and storageSoldAt == nil then
+				if string.find(h.notices[i].text, "Inventory is full") and storageSoldAt == nil then
 					storageSoldAt = now - t0
 					mark("first storage auto-sell")
 				end

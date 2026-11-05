@@ -2,6 +2,23 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The 10-floor tower (Hatchery Heist)
+
+- **A creature's spot is one number**, `creature.slot` = (floor − 1) × 8 +
+  spot, the first spot it covers. Old saves already had `slot` as a pad
+  number, so one field, one migration (`towerVersion`), and raids, the
+  guard and the client keep addressing creatures by pad.
+- **New hatches never swap.** The old rule (a better creature evicts the
+  weakest) would shuffle a player's hand-placed tower; it goes to the
+  highest floor with room, else the inventory, and Place best is one tap.
+- **Big creatures sit in one row** (Epic 2, Legendary and Godly 3 spots), so
+  a floor's two rows of 4 always fit one 3-spot creature plus one more.
+- **Floors and upgrades survive rebirth**: they are the long-term coin sink
+  that rebirth must not wipe, or 165M floors would never be bought twice.
+- **Inventory 150** (was 30): with only placed creatures earning, the
+  inventory is where a collection lives; overflow still sells the weakest.
+- **The raider must stand on the floor** (server checks height): the ladder
+  is the only way up for a raider, which gives owners time to react.
 ## 2026-11-05: Hatchery Heist towers are cozy apartments, the farm is only the centre
 
 - **Alex's direction (10:52Z):** no farm theme on the towers; a farm in the
