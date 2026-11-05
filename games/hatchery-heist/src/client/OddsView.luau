@@ -44,15 +44,19 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
+-- Row height in pixels: 22 on the odds card, 16 on the board over the belt,
+-- which lists up to 15 rows per egg.
+local rowHeight = 22
+
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
 	local frame = Instance.new("Frame")
 	frame.Name = `Row{order}`
 	frame.LayoutOrder = order
 	frame.BackgroundTransparency = 1
-	frame.Size = UDim2.new(1, 0, 0, 22)
+	frame.Size = UDim2.new(1, 0, 0, rowHeight)
 	local name = Instance.new("TextLabel")
 	name.BackgroundTransparency = 1
-	name.Size = UDim2.fromScale(0.68, 1)
+	name.Size = UDim2.fromScale(0.5, 1)
 	name.TextXAlignment = Enum.TextXAlignment.Left
 	name.Font = if bold then Enum.Font.GothamBold else Enum.Font.Gotham
 	name.TextScaled = true
@@ -61,8 +65,8 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	name.Parent = frame
 	local value = Instance.new("TextLabel")
 	value.BackgroundTransparency = 1
-	value.Position = UDim2.fromScale(0.68, 0)
-	value.Size = UDim2.fromScale(0.32, 1)
+	value.Position = UDim2.fromScale(0.5, 0)
+	value.Size = UDim2.fromScale(0.5, 1)
 	value.TextXAlignment = Enum.TextXAlignment.Right
 	value.Font = Enum.Font.GothamBold
 	value.TextScaled = true
@@ -73,7 +77,11 @@ local function row(parent: Instance, order: number, left: string, right: string,
 end
 
 -- Fills `container` (which should have a UIListLayout) with one egg's odds.
-function OddsView.render(container: GuiObject, eggId: string)
+-- `compact` is the board over the belt: names without the rarity word (the
+-- colour says it) and the exact percentage only. The card beside the Buy
+-- prompt always shows the full rows.
+function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
+	rowHeight = if compact then 16 else 22
 	for _, child in container:GetChildren() do
 		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
 			child:Destroy()
@@ -97,7 +105,7 @@ function OddsView.render(container: GuiObject, eggId: string)
 			local rarity = species[outcome.id].rarity
 			local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)
 			local isNext = outcome.id == nextId
-			local count = outcome.weight * cycle // 10000
+			local count = outcome.weight * cycle // (egg.total or 10000)
 			row(
 				container,
 				i + 1,
@@ -130,8 +138,8 @@ function OddsView.render(container: GuiObject, eggId: string)
 		row(
 			container,
 			i + 1,
-			`{Layout.displayName(r.id)} ({rarity})`,
-			r.percent,
+			if compact then Layout.displayName(r.id) else `{Layout.displayName(r.id)} ({rarity})`,
+			if compact then r.percent else `{r.percent} · {r.oneIn}`,
 			Layout.rarityColor(rarity),
 			false
 		)

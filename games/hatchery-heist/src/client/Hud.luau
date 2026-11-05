@@ -229,11 +229,11 @@ function Hud.start(ctx: Context.Context)
 				c.Name = eggId
 				c.BackgroundTransparency = 1
 				c.Size = UDim2.new(1 / #ids, -12, 1, 0)
-				listLayout(c, 10)
+				listLayout(c, 2)
 				c.Parent = holder
 				column = c
 			end
-			OddsView.render(column :: Frame, eggId)
+			OddsView.render(column :: Frame, eggId, true)
 		end
 	end
 

@@ -1,7 +1,8 @@
 --!strict
 -- Module 7: Odds.
--- One odds table per roll, stored as whole-number weights out of 10,000, so
--- shown percentages are exact to two decimals and always total exactly 100%.
+-- One odds table per roll, stored as whole-number weights out of 10,000 (or
+-- out of a larger power of ten, `total`, for tables with very rare outcomes),
+-- so shown percentages are exact and always total exactly 100%.
 -- The server rolls from the same effective table that `display` returns, so
 -- the odds screen and the roll can never disagree. Boosts and exclusions
 -- (outcomes a player can only get once) recompute that one table, and
@@ -20,6 +21,9 @@ export type TableDef = {
 	id: string,
 	paid: boolean,
 	outcomes: { Outcome },
+	-- What the weights total: 10,000 when left out (1 = 0.01%). A larger power
+	-- of ten allows rarer outcomes: 100,000 makes 1 = 0.001% (1 in 100,000).
+	total: number?,
 }
 
 export type Boost = {
@@ -30,12 +34,14 @@ export type Boost = {
 export type DisplayRow = {
 	id: string,
 	weight: number,
-	percent: string, -- "12.34%"
+	percent: string, -- "12.34%" (more decimals for tables out of more than 10,000)
+	oneIn: string, -- "1 in 8.3", "1 in 5,556"
 }
 
 export type Display = {
 	tableId: string,
 	paid: boolean,
+	total: number,
 	boosts: { string },
 	rows: { DisplayRow },
 }
@@ -43,7 +49,7 @@ export type Display = {
 export type PolicyCheck = { paidRandomAllowed: (self: any, player: any) -> boolean }
 
 export type Options = {
-	-- Returns a whole number in [1, 10000]. Roblox: Random.new():NextInteger(1, 10000).
+	-- Returns a whole number in [min, max]. Roblox: Random.new():NextInteger(min, max).
 	randomInteger: ((min: number, max: number) -> number)?,
 }
 
@@ -61,12 +67,32 @@ export type Odds = {
 }
 
 local TOTAL = 10000
+local MAX_TOTAL = 10000000
 local ID_PATTERN = "^[%a][%w_]*$"
 
 local log = Log.new("Odds")
 
 local Odds = {}
 Odds.TOTAL = TOTAL
+
+-- What a table's weights total: its `total`, or 10,000.
+function Odds.totalOf(def: { total: number? }): number
+	return def.total or TOTAL
+end
+
+local function validTotal(total: any): boolean
+	if type(total) ~= "number" or total < 100 or total > MAX_TOTAL then
+		return false
+	end
+	local n = total
+	while n > 1 do
+		if n % 10 ~= 0 then
+			return false
+		end
+		n //= 10
+	end
+	return true
+end
 
 -- Throws with every problem in a table definition.
 function Odds.validate(def: TableDef)
@@ -76,8 +102,14 @@ function Odds.validate(def: TableDef)
 	)
 	assert(type(def.paid) == "boolean", `odds table {def.id} must say paid = true or false`)
 	assert(#def.outcomes >= 1, `odds table {def.id} has no outcomes`)
+	assert(
+		def.total == nil or validTotal(def.total),
+		`odds table {def.id}: total must be a power of ten from 100 to {MAX_TOTAL}`
+	)
+	local total = Odds.totalOf(def)
 	local seen: { [string]: boolean } = {}
 	local sum = 0
+	local smallest = Odds.formatPercent(1, total)
 	for _, outcome in def.outcomes do
 		assert(
 			type(outcome.id) == "string" and string.match(outcome.id, ID_PATTERN),
@@ -88,17 +120,19 @@ function Odds.validate(def: TableDef)
 		local w = outcome.weight
 		assert(
 			type(w) == "number" and w // 1 == w and w >= 1,
-			`odds table {def.id}: {outcome.id} needs a whole weight of at least 1 (0.01%)`
+			`odds table {def.id}: {outcome.id} needs a whole weight of at least 1 ({smallest})`
 		)
 		sum += w
 	end
-	assert(sum == TOTAL, `odds table {def.id}: weights total {sum}, must total exactly {TOTAL}`)
+	assert(sum == total, `odds table {def.id}: weights total {sum}, must total exactly {total}`)
 end
 
--- Rescales raw (possibly fractional) weights to whole numbers totalling 10,000
--- with the largest-remainder method. Every outcome with raw weight > 0 keeps at
--- least 1, so anything possible is still shown and still rollable.
-function Odds.normalize(raw: { Outcome }): { Outcome }
+-- Rescales raw (possibly fractional) weights to whole numbers totalling
+-- `target` (10,000 when left out) with the largest-remainder method. Every
+-- outcome with raw weight > 0 keeps at least 1, so anything possible is still
+-- shown and still rollable.
+function Odds.normalize(raw: { Outcome }, target: number?): { Outcome }
+	local TOTAL = target or TOTAL
 	local total = 0
 	for _, o in raw do
 		assert(o.weight >= 0 and o.weight == o.weight, "weights must be non-negative numbers")
@@ -154,9 +188,47 @@ function Odds.normalize(raw: { Outcome }): { Outcome }
 	return result
 end
 
-function Odds.formatPercent(weight: number): string
-	-- weight / 100 has at most two decimals because weights are whole numbers out of 10,000.
-	return string.format("%d.%02d%%", weight // 100, weight % 100)
+-- The exact percentage for a whole weight out of `total` (10,000 when left
+-- out): two decimals out of 10,000, three out of 100,000, and so on, so the
+-- shown figure is never rounded.
+function Odds.formatPercent(weight: number, total: number?): string
+	local t = total or TOTAL
+	local unit = t // 100 -- weight units per 1%
+	local decimals = 0
+	local n = unit
+	while n > 1 do
+		decimals += 1
+		n //= 10
+	end
+	if decimals == 0 then
+		return `{weight}%`
+	end
+	return string.format(`%d.%0{decimals}d%%`, weight // unit, weight % unit)
+end
+
+local function commas(n: number): string
+	local out = tostring(n)
+	repeat
+		local count
+		out, count = string.gsub(out, "^(%d+)(%d%d%d)", "%1,%2")
+	until count == 0
+	return out
+end
+
+-- "1 in N" for a whole weight out of `total`: one decimal under 100, a whole
+-- number with thousands commas from 100 up. A rounded reading of the exact
+-- percentage, shown beside it.
+function Odds.formatOneIn(weight: number, total: number?): string
+	local t = total or TOTAL
+	local n = t / weight
+	if n < 100 then
+		local tenths = math.floor(n * 10 + 0.5) / 10
+		if tenths == math.floor(tenths) then
+			return `1 in {math.floor(tenths)}`
+		end
+		return string.format("1 in %.1f", tenths)
+	end
+	return `1 in {commas(math.floor(n + 0.5))}`
 end
 
 function Odds.new(options: Options?): Odds
@@ -218,25 +290,31 @@ function Odds.new(options: Options?): Odds
 			end
 			table.insert(raw, { id = o.id, weight = weight })
 		end
-		return Odds.normalize(raw)
+		return Odds.normalize(raw, Odds.totalOf(def))
 	end
 
 	function odds.display(self: Odds, tableId: string, player: any): Display
 		local def = getTable(tableId)
 		local rows = {}
+		local total = Odds.totalOf(def)
 		for _, o in self:effective(tableId, player) do
-			table.insert(rows, { id = o.id, weight = o.weight, percent = Odds.formatPercent(o.weight) })
+			table.insert(rows, {
+				id = o.id,
+				weight = o.weight,
+				percent = Odds.formatPercent(o.weight, total),
+				oneIn = Odds.formatOneIn(o.weight, total),
+			})
 		end
 		local boostIds = {}
 		local active: { Boost } = (boosts[player] and boosts[player][tableId]) or {}
 		for _, boost in active do
 			table.insert(boostIds, boost.id)
 		end
-		return { tableId = tableId, paid = def.paid, boosts = boostIds, rows = rows }
+		return { tableId = tableId, paid = def.paid, total = total, boosts = boostIds, rows = rows }
 	end
 
-	local function rollFrom(outcomes: { Outcome }): string
-		local pick = randomInteger(1, TOTAL)
+	local function rollFrom(outcomes: { Outcome }, total: number): string
+		local pick = randomInteger(1, total)
 		local cumulative = 0
 		for _, o in outcomes do
 			cumulative += o.weight
@@ -244,7 +322,7 @@ function Odds.new(options: Options?): Odds
 				return o.id
 			end
 		end
-		error("odds table does not total 10,000")
+		error(`odds table does not total {total}`)
 	end
 
 	-- Rolls a free table (no Robux involved anywhere in the path).
@@ -253,7 +331,7 @@ function Odds.new(options: Options?): Odds
 		if def.paid then
 			error(`odds table {tableId} is paid; use rollPaid so the policy check runs`, 2)
 		end
-		return rollFrom(self:effective(tableId, player))
+		return rollFrom(self:effective(tableId, player), Odds.totalOf(def))
 	end
 
 	-- Rolls a paid table after checking the player may receive paid random items.
@@ -264,7 +342,7 @@ function Odds.new(options: Options?): Odds
 		if not policy:paidRandomAllowed(player) then
 			return nil, "paid random items are restricted for this player"
 		end
-		return rollFrom(self:effective(tableId, player)), nil
+		return rollFrom(self:effective(tableId, player), Odds.totalOf(def)), nil
 	end
 
 	function odds.setBoosts(_self: Odds, player: any, tableId: string, list: { Boost })

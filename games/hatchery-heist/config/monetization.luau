@@ -95,12 +95,12 @@ return {
 			PremiumEgg = {
 				name = "Premium Egg",
 				robux = 49,
-				description = "One Premium Egg, with a chance at a Dragonling or Phoenix. Exact odds are shown before you buy.",
+				description = "One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy.",
 			},
 			LuckBoost = {
 				name = "Luck Boost",
 				robux = 49,
-				description = "Better odds of Rare, Epic and Legendary hatches for 15 minutes. The boosted odds are shown.",
+				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
 			},
 		},
 	},
@@ -108,8 +108,8 @@ return {
 		LuckBoost = {
 			durationSeconds = 900,
 			-- Multiplier per rarity on the eggs listed.
-			eggs = { "BasicEgg", "MeadowEgg", "PremiumEgg" },
-			rarityMultipliers = { Rare = 1.5, Epic = 2, Legendary = 2 },
+			eggs = { "BasicEgg", "MeadowEgg", "MoonlitEgg", "PremiumEgg" },
+			rarityMultipliers = { Rare = 1.5, ["Ultra Rare"] = 1.75, Epic = 2, Legendary = 2, Godly = 2 },
 		},
 	},
 }

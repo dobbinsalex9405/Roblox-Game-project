@@ -21,7 +21,7 @@ Layout.BELT_END = Vector3.new(26, 2.5, -26)
 
 Layout.COLLECT_PAD = Vector3.new(27, 1.2, -8)
 Layout.REBIRTH_STAND = Vector3.new(27, 4, 8)
-Layout.ODDS_BOARD = Vector3.new(0, 11, -19)
+Layout.ODDS_BOARD = Vector3.new(0, 13, -19) -- centre of a 30 x 12 board
 Layout.SIGN = Vector3.new(0, 9, 30)
 Layout.SPAWN = Vector3.new(0, 4, 24)
 
@@ -49,21 +49,36 @@ function Layout.beltPoint(progress: number): Vector3
 	return Layout.BELT_START:Lerp(Layout.BELT_END, math.clamp(progress, 0, 1))
 end
 
+-- The seven tiers, lowest first, and the studio's rarity colours (the voxel
+-- style guide: cards, rings, hatch flashes and name banners).
+Layout.RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
+
 local RARITY_COLORS: { [string]: Color3 } = {
-	Common = Color3.fromRGB(200, 200, 200),
-	Uncommon = Color3.fromRGB(90, 200, 90),
-	Rare = Color3.fromRGB(70, 140, 255),
-	Epic = Color3.fromRGB(170, 85, 255),
-	Legendary = Color3.fromRGB(255, 170, 40),
+	Common = Color3.fromRGB(174, 184, 196),
+	Uncommon = Color3.fromRGB(95, 208, 104),
+	Rare = Color3.fromRGB(63, 169, 245),
+	["Ultra Rare"] = Color3.fromRGB(0, 214, 201),
+	Epic = Color3.fromRGB(177, 92, 255),
+	Legendary = Color3.fromRGB(255, 194, 26),
+	Godly = Color3.fromRGB(255, 77, 94),
 }
 
+-- Rough height in studs, for things that need a size before the model loads
+-- (labels, the ridden seat). The voxel model sets the real size.
 local RARITY_SIZES: { [string]: number } = {
 	Common = 2,
-	Uncommon = 2.4,
-	Rare = 2.8,
-	Epic = 3.2,
-	Legendary = 3.6,
+	Uncommon = 2.5,
+	Rare = 3.2,
+	["Ultra Rare"] = 4,
+	Epic = 5,
+	Legendary = 9,
+	Godly = 11,
 }
+
+-- 1 for Common up to 7 for Godly.
+function Layout.rarityRank(rarity: string): number
+	return table.find(Layout.RARITIES, rarity) or 1
+end
 
 function Layout.rarityColor(rarity: string): Color3
 	return RARITY_COLORS[rarity] or RARITY_COLORS.Common
@@ -73,9 +88,23 @@ function Layout.raritySize(rarity: string): number
 	return RARITY_SIZES[rarity] or RARITY_SIZES.Common
 end
 
+-- A ridden creature is one stud taller than on its pad, up to 6 studs, so a
+-- Legendary still fits through the yard and its rider stays on screen.
+Layout.MOUNT_MAX = 6
+function Layout.mountSize(rarity: string): number
+	return math.min(Layout.raritySize(rarity) + 1, Layout.MOUNT_MAX)
+end
+
+-- A creature carried overhead by a raider, up to 4 studs.
+Layout.CARRY_MAX = 4
+function Layout.carrySize(rarity: string): number
+	return math.min(Layout.raritySize(rarity), Layout.CARRY_MAX)
+end
+
 local EGG_COLORS: { [string]: Color3 } = {
 	BasicEgg = Color3.fromRGB(245, 235, 210),
 	MeadowEgg = Color3.fromRGB(150, 210, 110),
+	MoonlitEgg = Color3.fromRGB(90, 80, 200),
 	PremiumEgg = Color3.fromRGB(255, 200, 60),
 }
 

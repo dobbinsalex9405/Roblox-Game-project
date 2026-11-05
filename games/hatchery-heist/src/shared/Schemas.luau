@@ -70,7 +70,15 @@ return function(Schema: any, Odds: any)
 			species = Schema.map(
 				id,
 				Schema.record({
-					rarity = Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
+					rarity = Schema.oneOf({
+						"Common",
+						"Uncommon",
+						"Rare",
+						"Ultra Rare",
+						"Epic",
+						"Legendary",
+						"Godly",
+					}),
 					coinsPerSecond = Schema.number({ min = 0 }),
 					mountSpeed = Schema.number({ min = 16, max = 60 }),
 				}),
@@ -92,6 +100,8 @@ return function(Schema: any, Odds: any)
 			priceCoins = Schema.optional(Schema.integer({ min = 1 })),
 			productKey = Schema.optional(id),
 			hatchSeconds = Schema.integer({ min = 0, max = 24 * 60 * 60 }),
+			-- What the weights add up to (a power of ten; 10,000 when left out).
+			total = Schema.optional(Schema.integer({ min = 100, max = 10000000 })),
 			outcomes = Schema.array(
 				Schema.record({ id = id, weight = Schema.integer({ min = 1 }) }),
 				{ minLength = 1 }
@@ -245,7 +255,7 @@ return function(Schema: any, Odds: any)
 				durationSeconds = Schema.integer({ min = 1 }),
 				eggs = Schema.array(id, { minLength = 1 }),
 				rarityMultipliers = Schema.map(
-					Schema.oneOf({ "Common", "Uncommon", "Rare", "Epic", "Legendary" }),
+					Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }),
 					Schema.number({ min = 0.01, max = 100 })
 				),
 			})
@@ -281,6 +291,7 @@ return function(Schema: any, Odds: any)
 			local ok, err = pcall(Odds.validate, {
 				id = egg.id,
 				paid = egg.productKey ~= nil,
+				total = egg.total,
 				outcomes = egg.outcomes,
 			})
 			if not ok then

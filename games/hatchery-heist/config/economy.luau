@@ -27,7 +27,7 @@ return {
 	conveyor = {
 		spawnSeconds = 3, -- one new egg this often
 		travelSeconds = 18, -- time an egg takes to ride the whole belt
-		weights = { BasicEgg = 75, MeadowEgg = 25 },
+		weights = { BasicEgg = 70, MeadowEgg = 25, MoonlitEgg = 5 },
 	},
 
 	-- Creatures that can earn at once; when every pad is full, a better hatch

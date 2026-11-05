@@ -142,32 +142,43 @@ describe("Hatchery", function()
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()
-		for _, check in { { egg = "BasicEgg", cycle = 50 }, { egg = "MeadowEgg", cycle = 100 } } do
-			local egg = Hatchery.eggById(config.eggs, check.egg)
+		for _, eggId in { "BasicEgg", "MeadowEgg", "MoonlitEgg", "PremiumEgg" } do
+			local egg = Hatchery.eggById(config.eggs, eggId)
+			local cycle = Hatchery.fixedOrderCycle(egg)
+			local total = egg.total or 10000
 			local counts: { [string]: number } = {}
-			for i = 0, check.cycle - 1 do
-				local id = Hatchery.fixedOrderOutcome(egg, i)
+			for _, id in cycle do
 				counts[id] = (counts[id] or 0) + 1
-				-- The cycle repeats, so the shown next outcome never changes meaning.
-				expect(Hatchery.fixedOrderOutcome(egg, i + check.cycle)).toBe(id)
 			end
 			for _, o in egg.outcomes do
-				expect(counts[o.id]).toBe(o.weight * check.cycle // 10000)
+				expect(counts[o.id]).toBe(o.weight * #cycle // total)
+			end
+			-- The cycle repeats, so the shown next outcome never changes meaning.
+			for _, i in { 0, 1, 2, 777 } do
+				expect(Hatchery.fixedOrderOutcome(egg, i + #cycle)).toBe(Hatchery.fixedOrderOutcome(egg, i))
+			end
+			-- The shown wait always lands on that outcome.
+			for _, o in egg.outcomes do
+				for _, from in { 0, 5, #cycle - 1 } do
+					local wait = Hatchery.fixedOrderWait(egg, from, o.id) :: number
+					expect(Hatchery.fixedOrderOutcome(egg, from + wait)).toBe(o.id)
+					for ahead = 0, math.min(wait, 200) - 1 do
+						expect(Hatchery.fixedOrderOutcome(egg, from + ahead) ~= o.id).toBe(true)
+					end
+				end
 			end
 		end
-		-- The rarest Basic outcome comes once in 50, not once in 4.
+		-- The rarest Basic outcome (a Phoenix, 1 in 50,000) comes exactly once a cycle.
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
+		expect(#Hatchery.fixedOrderCycle(basic)).toBe(50000)
 		local first = {}
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "Chick", "Duckling", "Chick", "Chick" })
-		expect(#Hatchery.fixedOrderCycle(basic)).toBe(50)
+		expect(first).toEqual({ "Chick", "Duckling", "Bunny", "Piglet" })
 		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(0)
 		expect(Hatchery.fixedOrderWait(basic, 0, "Duckling")).toBe(1)
-		local turtle = Hatchery.fixedOrderWait(basic, 0, "Turtle") :: number
-		expect(Hatchery.fixedOrderOutcome(basic, turtle)).toBe("Turtle")
-		expect(Hatchery.fixedOrderWait(basic, 0, "Phoenix")).toBeNil()
+		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 
 	it("rides only creatures on a pad", function()
