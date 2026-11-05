@@ -5,7 +5,7 @@
     {"id": "Damselfly", "rarity": "Common", "plan": "critter", "colors": {"col": "#3FD6B0", "accent": "#1E7A6A", "wing": "#E8FFF8"}, "options": {"kind": "dragonfly"}, "shape": {"body": [0.8, 1.1, 0.85], "head": 1.1}, "accessories": [{"kind": "fold_wings", "color": "#E8FFF8", "color2": "#1E7A6A"}]},
     {"id": "Firefly", "rarity": "Common", "plan": "critter", "colors": {"col": "#4A4038", "accent": "#FF6A4D", "wing": "#FFF27A"}, "options": {"kind": "firefly"}},
     {"id": "Ant", "rarity": "Common", "plan": "critter", "colors": {"col": "#D9432F", "accent": "#A8301F"}, "options": {"kind": "ant"}},
-    {"id": "LeafAnt", "rarity": "Common", "plan": "critter", "colors": {"col": "#A8673A", "accent": "#7A4A2A"}, "options": {"kind": "ant"}, "accessories": [{"kind": "leaf", "color": "#6CCB5F", "color2": "#3E8A3C"}]},
+    {"id": "LeafAnt", "rarity": "Common", "plan": "critter", "colors": {"col": "#A8673A", "accent": "#7A4A2A"}, "options": {"kind": "ant"}, "accessories": [{"kind": "carry_leaf", "color": "#6CCB5F", "color2": "#3E8A3C"}]},
     {"id": "Grasshopper", "rarity": "Common", "plan": "critter", "colors": {"col": "#8BD45F", "accent": "#5FA83F", "wing": "#C8F2A8"}, "options": {"kind": "grasshopper"}},
     {"id": "Cricket", "rarity": "Common", "plan": "critter", "colors": {"col": "#6A4A30", "accent": "#3A2A20", "wing": "#A8835A"}, "options": {"kind": "grasshopper"}, "shape": {"head": 1.1}},
     {"id": "GardenSpider", "rarity": "Common", "plan": "critter", "colors": {"col": "#E89A3C", "accent": "#FFF1DC"}, "options": {"kind": "spider"}},
