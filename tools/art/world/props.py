@@ -235,7 +235,7 @@ for _ek, _en in (('basic', 'BasicEgg'), ('meadow', 'MeadowEgg'), ('moonlit', 'Mo
 
     def _mk(p, k=_ek):
         draw_egg(p.part('body'), 0, 0, 0, k)
-    prop(_en, 'egg', (-_e['w'] / 2 - 0.05, -_e['w'] / 2 - 0.05, 0), (_e['w'] / 2 + 0.05, _e['w'] / 2 + 0.05, _e['h'] + 0.05), budget=60,
+    prop(_en, 'egg', (-_e['w'] / 2 - 0.05, -_e['w'] / 2 - 0.05, 0), (_e['w'] / 2 + 0.05, _e['w'] / 2 + 0.05, _e['h'] + 0.05), budget=90,
          note=f"{_e['w']} wide, {_e['h']} tall")(_mk)
 
 RING_R = 22.0
@@ -379,7 +379,7 @@ def _shaft_top(p):
     w.seg((0, -0.25, 1.25), (0, 0.25, 1.25), 0.15, col('#F4C542'))
 
 
-@prop('LadderSection', 'ladder', (-1.0, -0.2, 0), (1.0, 0.2, 1.0), budget=8, factors=(2, 5),
+@prop('LadderSection', 'ladder', (-1.0, -0.2, 0), (1.0, 0.2, 1.0), budget=12, factors=(2, 5),
       note='2 wide, 1 tall: two rails and one rung; stack for any height')
 def _ladder(p):
     g = p.part('body')
