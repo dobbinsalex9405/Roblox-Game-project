@@ -461,4 +461,23 @@ def shape(c, body=(1.0, 1.0, 1.0), head=1.0):
     if h and h.v and head != 1.0:
         xs, ys, zs = zip(*h.v)
         centre = (0, (min(ys) + max(ys) + 1) / 2, min(zs))  # grows up and out from the neck
+        eyes = _find(c, 'eyes')
+        eyes0 = dict(eyes.v) if eyes else {}
         _rescale([p for p in c.parts if p.name in HEAD_PARTS], centre, (head, head, head))
+        # One-voxel eyes can fall between the samples and vanish (Hen, Quail
+        # at head 0.9). In the full-detail build an eye side that was lost is
+        # put back: each voxel moved to its scaled spot and cut into the
+        # head's front there, as creatures.eyes() does.
+        if getattr(c, 'fine', False) and eyes0:
+            for side in (lambda x: x < 0, lambda x: x >= 0):
+                if any(side(v[0]) for v in eyes.v) or not any(side(v[0]) for v in eyes0):
+                    continue
+                for (x, y, z), cv in eyes0.items():
+                    if not side(x):
+                        continue
+                    nx = math.floor(centre[0] + (x + .5 - centre[0]) * head)
+                    nz = math.floor(centre[2] + (z + .5 - centre[2]) * head)
+                    f = h.front(nx, nz)
+                    if f:
+                        del h.v[f]
+                        eyes.put(f, cv[0])

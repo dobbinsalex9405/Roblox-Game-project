@@ -1955,8 +1955,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "waddle",
 		height = 2.1,
 		size = { 1.2, 2.1, 1.4 },
-		tris = 9540,
-		trisLod1 = 906,
+		tris = 9736,
+		trisLod1 = 942,
 		parts = {
 			{
 				name = "body",
@@ -1976,6 +1976,16 @@ local CreatureMeshes: { [string]: Creature } = {
 					{ name = "Hen_head", center = { 0, 1.6517, -0.15 }, size = { 0.807, 0.7035, 0.707 } },
 				},
 				lod1 = { name = "Hen_head_lod1", center = { 0, 1.65, -0.15 }, size = { 0.8, 0.7, 0.7 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.46, -0.08 },
+				meshes = {
+					{ name = "Hen_eyes", center = { 0, 1.7517, -0.45 }, size = { 0.407, 0.1035, 0.107 } },
+				},
+				lod1 = { name = "Hen_eyes_lod1", center = { 0, 1.75, -0.45 }, size = { 0.4, 0.1, 0.1 } },
 			},
 			{
 				name = "wingL",
@@ -2043,9 +2053,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0, 0.1 },
 				meshes = {
-					{ name = "Hen_wattles", center = { 0, 1.3018, -0.35 }, size = { 0.207, 0.4035, 0.107 } },
+					{ name = "Hen_wattles", center = { 0, 1.4017, -0.35 }, size = { 0.207, 0.4035, 0.107 } },
 				},
-				lod1 = { name = "Hen_wattles_lod1", center = { 0, 1.3, -0.35 }, size = { 0.2, 0.4, 0.1 } },
+				lod1 = { name = "Hen_wattles_lod1", center = { 0, 1.4, -0.35 }, size = { 0.2, 0.4, 0.1 } },
 			},
 		},
 	},
@@ -2531,8 +2541,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.4,
 		size = { 1.4, 1.4, 1.9 },
-		tris = 10104,
-		trisLod1 = 852,
+		tris = 10248,
+		trisLod1 = 890,
 		parts = {
 			{
 				name = "body",
@@ -2596,6 +2606,16 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 				},
 				lod1 = { name = "Mole_head_lod1", center = { -0.05, 0.8, -0.55 }, size = { 0.9, 0.4, 0.8 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.72, -0.37 },
+				meshes = {
+					{ name = "Mole_eyes", center = { 0, 1.0517, -0.8 }, size = { 0.407, 0.1035, 0.107 } },
+				},
+				lod1 = { name = "Mole_eyes_lod1", center = { 0, 1.05, -0.8 }, size = { 0.4, 0.1, 0.1 } },
 			},
 			{
 				name = "ears",
