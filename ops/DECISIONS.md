@@ -9,7 +9,9 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
   draws a showpiece with smaller voxels in the Blender build (the serpent at
   1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
-  have changed the Goose Alex approved.
+  have changed the Goose Alex approved. **1.6x is the standard for every
+  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
+  keeps its approved build unless its size changes.
 - **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
   serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
   the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
