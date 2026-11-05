@@ -243,6 +243,9 @@ return function(Schema: any, Odds: any)
 			margin = Schema.number({ min = 0, max = 4 }),
 			cullFloors = Schema.integer({ min = 0, max = 10 }),
 		}),
+		creatureLod = Schema.record({
+			farStuds = Schema.number({ min = 10, max = 200 }),
+		}),
 		scenery = Schema.check(
 			Schema.record({
 				hillRadius = Schema.number({ min = 200, max = 1000 }),

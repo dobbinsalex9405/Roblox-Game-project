@@ -14,6 +14,11 @@
   snakes slither and flyers hover with faster wing beats.
 - Creatures more than one floor away from you are not drawn, so a full
   tower stays smooth.
+- A Godly with its own orbiting pieces (the Nebula Serpent's planets) no
+  longer also gets the generic rainbow cubes.
+- Crabs and lobsters with up to six legs a side walk on all of them.
+- Creature meshes more than 30 studs away draw their lighter far version,
+  so a busy yard of detailed Godlies stays smooth.
 
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to

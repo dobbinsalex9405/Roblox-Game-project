@@ -39,7 +39,10 @@ local VoxelArt = require(Shared.VoxelArt)
 local Walk = require(Shared.Walk)
 
 local GameConfig = ReplicatedStorage.GameConfig
-local wander = (require(GameConfig.atmosphere) :: any).wander :: Walk.Config
+local atmosphere = require(GameConfig.atmosphere) :: any
+local wander = atmosphere.wander :: Walk.Config
+local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
+local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
 local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
 local FLOOR_HEIGHT = 12 -- Geometry.FLOOR_HEIGHT
 
@@ -90,11 +93,16 @@ type Visual = {
 	stepPhase: number,
 	wingPhase: number,
 	culled: boolean,
+	-- Meshed creatures: the close-up pieces that have a far (LOD1) version,
+	-- and those far pieces; one set is in the model at a time.
+	near: { BasePart },
+	far: { BasePart },
+	showingFar: boolean,
 }
 
--- A floor creature's cell: where the server stood it (home), its schedule's
--- seed and how far it may stray.
-type Roam = { home: CFrame, seed: number, rx: number, rz: number }
+-- A floor creature's cell: the middle of its wander area (home), where the
+-- server stood it (stand), its schedule's seed and how far it may stray.
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -145,6 +153,11 @@ local function remove(anchor: BasePart)
 		c:Disconnect()
 	end
 	v.model:Destroy()
+	-- whichever mesh set was out of the model
+	local outside: { BasePart } = if v.showingFar then v.near else v.far
+	for _, p in outside do
+		p:Destroy()
+	end
 	local home = homes[anchor]
 	if home then
 		anchor.CFrame = home
@@ -282,8 +295,14 @@ local function build(anchor: BasePart, speciesId: string)
 	if anchor.Name == "Creature" and pad and string.match(pad.Name, "^Pad%d+$") and type(uid) == "string" then
 		local home = homes[anchor] or anchor.CFrame
 		homes[anchor] = home
-		local rx, rz = Walk.range(slotsByRarity[rarity] or 1, math.max(size.X, size.Z), wander.margin)
-		roam = { home = home, seed = Walk.seed(uid), rx = rx, rz = rz }
+		local index = pad:GetAttribute("Pad")
+		local cx, cz, rx, rz = Walk.cell(
+			if type(index) == "number" then index else 1,
+			slotsByRarity[rarity] or 1,
+			math.max(size.X, size.Z),
+			wander.margin
+		)
+		roam = { home = home * CFrame.new(cx, 0, cz), stand = home, seed = Walk.seed(uid), rx = rx, rz = rz }
 	end
 
 	local v: Visual = {
@@ -315,6 +334,9 @@ local function build(anchor: BasePart, speciesId: string)
 		stepPhase = 0,
 		wingPhase = 0,
 		culled = false,
+		near = {},
+		far = {},
+		showingFar = false,
 	}
 
 	local glowColor: Color3? = nil
@@ -355,10 +377,22 @@ local function build(anchor: BasePart, speciesId: string)
 	if mesh and source then
 		for _, part in mesh.parts do
 			local root = addRoot(part.name, feet * CFrame.new(vec(part.pivot, k)))
+			local lod = part.lod1
+			local farReady = lod ~= nil and source:FindFirstChild(lod.name) ~= nil
 			for _, m in part.meshes do
 				local piece = meshPiece(source, m, k, feet * CFrame.new(vec(m.center, k)))
 				weld(root, piece)
 				keep(piece, part.anim, if m.glow then (rgb(m.glow)) else nil)
+				if farReady then
+					table.insert(v.near, piece)
+				end
+			end
+			if lod and farReady then
+				local piece = meshPiece(source, lod, k, feet * CFrame.new(vec(lod.center, k)))
+				weld(root, piece)
+				keep(piece, part.anim, if lod.glow then (rgb(lod.glow)) else nil)
+				piece.Parent = nil
+				table.insert(v.far, piece)
 			end
 			table.insert(joints, { name = part.name, anim = part.anim, parent = part.parent })
 		end
@@ -457,7 +491,15 @@ local function build(anchor: BasePart, speciesId: string)
 		end
 	end
 
-	if look.orbit > 0 and not ownMount then
+	-- A creature with its own "orbit" part (the Nebula Serpent's planets)
+	-- skips the generic rainbow cubes.
+	local ownOrbit = false
+	for _, joint in joints do
+		if joint.anim == "orbit" then
+			ownOrbit = true
+		end
+	end
+	if look.orbit > 0 and not ownMount and not ownOrbit then
 		local hub = visualPart("Orbit", Vector3.new(0.05, 0.05, 0.05), feet * CFrame.new(0, height * 0.55, 0))
 		hub.Transparency = 1
 		hub.Parent = model
@@ -623,14 +665,21 @@ local function animate(v: Visual, now: number, dt: number)
 			if walking then
 				pose *= walkPose(v, anim)
 			end
-		elseif (anim == "wingL" or anim == "wingR") and (look.moves.wings or v.gait == "hover") then
-			local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
-			pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+		elseif anim == "wingL" or anim == "wingR" then
+			if look.moves.wings or v.gait == "hover" then
+				local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
+				pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+			elseif walking then
+				-- Tiers that don't flap still move their wings with the gait.
+				pose = walkPose(v, anim)
+			else
+				continue
+			end
 		elseif anim == "orbit" then
 			-- Turns about its pivot's vertical axis (the Nebula Serpent's
 			-- planets), one turn every ORBIT_SECONDS.
 			pose = CFrame.Angles(0, t / ORBIT_SECONDS * 2 * math.pi, 0)
-		elseif Walk.isLeg(anim) then
+		elseif Walk.isLeg(anim) or anim == "finL" or anim == "finR" then
 			pose = walkPose(v, anim)
 		else
 			continue
@@ -676,6 +725,20 @@ local function animate(v: Visual, now: number, dt: number)
 	end
 end
 
+-- Swap a meshed creature between its close-up and far meshes.
+local function setFar(v: Visual, far: boolean)
+	if far == v.showingFar or #v.far == 0 then
+		return
+	end
+	v.showingFar = far
+	for _, p in v.near do
+		p.Parent = if far then nil else v.model
+	end
+	for _, p in v.far do
+		p.Parent = if far then v.model else nil
+	end
+end
+
 -- Hide or show a floor creature (its model and its name label).
 local function setCulled(v: Visual, culled: boolean)
 	if culled == v.culled then
@@ -694,7 +757,7 @@ end
 local function stroll(v: Visual, roam: Roam, serverNow: number)
 	if v.fade > 0 then
 		v.moving = 0
-		v.anchor.CFrame = roam.home
+		v.anchor.CFrame = roam.stand
 		return
 	end
 	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander)
@@ -764,7 +827,12 @@ function CreatureView.start()
 					continue
 				end
 			end
-			if v.fade < 1 and (anchor.Position - eye).Magnitude <= ANIMATE_RANGE + v.height * 4 then
+			local distance = (anchor.Position - eye).Magnitude
+			if #v.far > 0 then
+				local limit = FAR_STUDS + (if v.showingFar then -LOD_SLACK else LOD_SLACK)
+				setFar(v, distance > limit)
+			end
+			if v.fade < 1 and distance <= ANIMATE_RANGE + v.height * 4 then
 				if roam then
 					stroll(v, roam, serverNow)
 				end
