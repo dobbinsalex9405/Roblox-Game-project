@@ -1,0 +1,185 @@
+{
+ "images": {
+  "Grass": {
+   "assetId": 112320273350355,
+   "hash": "0c6e4d9fd934514c"
+  },
+  "SkyboxBk": {
+   "assetId": 136586341945218,
+   "hash": "af0a86908481223a"
+  },
+  "SkyboxDn": {
+   "assetId": 97140843426703,
+   "hash": "665f87d0b9677882"
+  },
+  "SkyboxFt": {
+   "assetId": 80795920678386,
+   "hash": "0805d72f01a3a8be"
+  },
+  "SkyboxLf": {
+   "assetId": 76702310583506,
+   "hash": "a7cb8fe5d6f6eae0"
+  },
+  "SkyboxRt": {
+   "assetId": 105958960888635,
+   "hash": "7e9333a615cc1816"
+  },
+  "SkyboxUp": {
+   "assetId": 98205653565652,
+   "hash": "a6cec8789bd20189"
+  }
+ },
+ "models": {
+  "AmberOakL": {
+   "assetId": 126156234114169,
+   "hash": "4bd1cf72f7ead8d9",
+   "version": "1"
+  },
+  "AmberOakM": {
+   "assetId": 91107050778235,
+   "hash": "6c39b59b61f932dd",
+   "version": "1"
+  },
+  "BerryBush": {
+   "assetId": 77972763636792,
+   "hash": "ad319979f583ad01",
+   "version": "1"
+  },
+  "BlossomL": {
+   "assetId": 81495310820946,
+   "hash": "9824efba2227aa69",
+   "version": "1"
+  },
+  "BlossomM": {
+   "assetId": 114412101726581,
+   "hash": "3f31742bdb7a5b8a",
+   "version": "1"
+  },
+  "BlossomS": {
+   "assetId": 97230449178424,
+   "hash": "e3b9651a67e38786",
+   "version": "1"
+  },
+  "FlowerPatchPink": {
+   "assetId": 91639153416378,
+   "hash": "834c1b75a9025c69",
+   "version": "1"
+  },
+  "FlowerPatchSunny": {
+   "assetId": 102587730446970,
+   "hash": "d9d648d102582df8",
+   "version": "1"
+  },
+  "FlowerPatchViolet": {
+   "assetId": 113691543919073,
+   "hash": "4865afcb0bfc9f21",
+   "version": "1"
+  },
+  "GrassTuft": {
+   "assetId": 130020589340843,
+   "hash": "679d476e732bcb4e",
+   "version": "1"
+  },
+  "GrassTuftTall": {
+   "assetId": 79656383876223,
+   "hash": "f5e5eaee7618575d",
+   "version": "1"
+  },
+  "HedgeBlock": {
+   "assetId": 136216704022954,
+   "hash": "228155c26aaa3129",
+   "version": "1"
+  },
+  "HydrangeaBush": {
+   "assetId": 119763572244746,
+   "hash": "5460f32dee01bcb4",
+   "version": "1"
+  },
+  "MushroomRing": {
+   "assetId": 81192012034896,
+   "hash": "c26cbe78d24bdf2e",
+   "version": "1"
+  },
+  "PuffOakL": {
+   "assetId": 107955857977349,
+   "hash": "072f520b4e8cee76",
+   "version": "1"
+  },
+  "PuffOakM": {
+   "assetId": 70732474625060,
+   "hash": "70065dee6eff88db",
+   "version": "1"
+  },
+  "PuffOakS": {
+   "assetId": 128758862949048,
+   "hash": "61042ee40fb13e12",
+   "version": "1"
+  },
+  "RockL": {
+   "assetId": 98378608117531,
+   "hash": "c9c860385596a4bd",
+   "version": "1"
+  },
+  "RockM": {
+   "assetId": 91405988641605,
+   "hash": "268a0918a66f8a7d",
+   "version": "1"
+  },
+  "RockS": {
+   "assetId": 129569994960250,
+   "hash": "0cc70389d8d2b9a0",
+   "version": "1"
+  },
+  "StarPineL": {
+   "assetId": 80238329108297,
+   "hash": "d497588280bbd5a4",
+   "version": "1"
+  },
+  "StarPineM": {
+   "assetId": 98524750118990,
+   "hash": "f8cea807a2a92330",
+   "version": "1"
+  },
+  "StarPineS": {
+   "assetId": 73431767124221,
+   "hash": "b7d823a28219a7ea",
+   "version": "1"
+  },
+  "SteppingStones": {
+   "assetId": 96638699176942,
+   "hash": "ec0a08e236b0ff09",
+   "version": "1"
+  },
+  "ToadstoolL": {
+   "assetId": 76370581028973,
+   "hash": "a13296dc6ab7b3b0",
+   "version": "1"
+  },
+  "ToadstoolM": {
+   "assetId": 77232345696991,
+   "hash": "dd39aa3c35a9a851",
+   "version": "1"
+  },
+  "ToadstoolS": {
+   "assetId": 76242624526271,
+   "hash": "b8ac9c8762085664",
+   "version": "1"
+  },
+  "WillowL": {
+   "assetId": 104507860029851,
+   "hash": "f7524fd3781efdcc",
+   "version": "1"
+  },
+  "WillowM": {
+   "assetId": 79830504023580,
+   "hash": "d16d9d64e0944672",
+   "version": "1"
+  },
+  "WillowS": {
+   "assetId": 128792062557298,
+   "hash": "927b22da3b454dd2",
+   "version": "1"
+  }
+ },
+ "note": "Roblox asset ids for the outdoor nature models and images (tools/art/env/upload.py)."
+}

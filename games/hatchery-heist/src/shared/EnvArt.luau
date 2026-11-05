@@ -32,7 +32,7 @@ export type Images = {
 local EnvArt: { models: { [string]: Model }, images: Images } = {
 	models = {
 		AmberOakL = {
-			assetId = 0,
+			assetId = 126156234114169,
 			kind = "tree",
 			size = { 18, 24, 17.6 },
 			tris = 10682,
@@ -85,7 +85,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		AmberOakM = {
-			assetId = 0,
+			assetId = 91107050778235,
 			kind = "tree",
 			size = { 12.8, 18, 13.2 },
 			tris = 5806,
@@ -148,7 +148,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		BerryBush = {
-			assetId = 0,
+			assetId = 77972763636792,
 			kind = "bush",
 			size = { 4.2, 2.6, 4 },
 			tris = 1868,
@@ -169,7 +169,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		BlossomL = {
-			assetId = 0,
+			assetId = 81495310820946,
 			kind = "tree",
 			size = { 17.6, 19.2, 18 },
 			tris = 8694,
@@ -233,7 +233,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		BlossomM = {
-			assetId = 0,
+			assetId = 114412101726581,
 			kind = "tree",
 			size = { 12.8, 14.4, 12 },
 			tris = 4914,
@@ -302,7 +302,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		BlossomS = {
-			assetId = 0,
+			assetId = 97230449178424,
 			kind = "tree",
 			size = { 9.1, 9.8, 8.75 },
 			tris = 2576,
@@ -376,7 +376,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		FlowerPatchPink = {
-			assetId = 0,
+			assetId = 91639153416378,
 			kind = "flowers",
 			size = { 2.7, 1.2, 2.6 },
 			tris = 1992,
@@ -450,7 +450,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		FlowerPatchSunny = {
-			assetId = 0,
+			assetId = 102587730446970,
 			kind = "flowers",
 			size = { 2.8, 1.1, 2.5 },
 			tris = 1964,
@@ -524,7 +524,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		FlowerPatchViolet = {
-			assetId = 0,
+			assetId = 113691543919073,
 			kind = "flowers",
 			size = { 2.8, 1.1, 2.4 },
 			tris = 1914,
@@ -598,7 +598,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		GrassTuft = {
-			assetId = 0,
+			assetId = 130020589340843,
 			kind = "grass",
 			size = { 1.4, 1.1, 1.5 },
 			tris = 766,
@@ -619,7 +619,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		GrassTuftTall = {
-			assetId = 0,
+			assetId = 79656383876223,
 			kind = "grass",
 			size = { 1.6, 1.7, 1.4 },
 			tris = 1118,
@@ -657,7 +657,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		HedgeBlock = {
-			assetId = 0,
+			assetId = 136216704022954,
 			kind = "bush",
 			size = { 6, 2.4, 2.4 },
 			tris = 1508,
@@ -672,7 +672,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		HydrangeaBush = {
-			assetId = 0,
+			assetId = 119763572244746,
 			kind = "bush",
 			size = { 4, 2.4, 4 },
 			tris = 1898,
@@ -731,7 +731,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		MushroomRing = {
-			assetId = 0,
+			assetId = 81192012034896,
 			kind = "shrooms",
 			size = { 2.4, 0.9, 2.3 },
 			tris = 674,
@@ -759,7 +759,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		PuffOakL = {
-			assetId = 0,
+			assetId = 107955857977349,
 			kind = "tree",
 			size = { 17.2, 24, 17.6 },
 			tris = 10896,
@@ -812,7 +812,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		PuffOakM = {
-			assetId = 0,
+			assetId = 70732474625060,
 			kind = "tree",
 			size = { 13.2, 18, 13.6 },
 			tris = 5986,
@@ -875,7 +875,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		PuffOakS = {
-			assetId = 0,
+			assetId = 128758862949048,
 			kind = "tree",
 			size = { 8.4, 12, 8.4 },
 			tris = 2598,
@@ -923,7 +923,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		RockL = {
-			assetId = 0,
+			assetId = 98378608117531,
 			kind = "rock",
 			size = { 8.1, 5.1, 6.3 },
 			tris = 2840,
@@ -976,7 +976,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		RockM = {
-			assetId = 0,
+			assetId = 91405988641605,
 			kind = "rock",
 			size = { 4.2, 2.6, 3.4 },
 			tris = 1626,
@@ -994,7 +994,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		RockS = {
-			assetId = 0,
+			assetId = 129569994960250,
 			kind = "rock",
 			size = { 2.1, 1.35, 1.8 },
 			tris = 782,
@@ -1057,7 +1057,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		StarPineL = {
-			assetId = 0,
+			assetId = 80238329108297,
 			kind = "tree",
 			size = { 18.9, 28.35, 18.45 },
 			tris = 10588,
@@ -1146,7 +1146,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		StarPineM = {
-			assetId = 0,
+			assetId = 98524750118990,
 			kind = "tree",
 			size = { 13.6, 19.2, 13.2 },
 			tris = 6728,
@@ -1220,7 +1220,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		StarPineS = {
-			assetId = 0,
+			assetId = 73431767124221,
 			kind = "tree",
 			size = { 9.6, 13.6, 9.2 },
 			tris = 3308,
@@ -1304,7 +1304,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		SteppingStones = {
-			assetId = 0,
+			assetId = 96638699176942,
 			kind = "rock",
 			size = { 6.45, 0.3, 2.4 },
 			tris = 866,
@@ -1354,7 +1354,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		ToadstoolL = {
-			assetId = 0,
+			assetId = 76370581028973,
 			kind = "tree",
 			size = { 12, 12.9, 12 },
 			tris = 6902,
@@ -1380,7 +1380,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		ToadstoolM = {
-			assetId = 0,
+			assetId = 77232345696991,
 			kind = "tree",
 			size = { 8.5, 9, 8.5 },
 			tris = 5120,
@@ -1411,7 +1411,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		ToadstoolS = {
-			assetId = 0,
+			assetId = 76242624526271,
 			kind = "tree",
 			size = { 5.6, 6, 5.6 },
 			tris = 3634,
@@ -1437,7 +1437,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		WillowL = {
-			assetId = 0,
+			assetId = 104507860029851,
 			kind = "tree",
 			size = { 18, 24.3, 18 },
 			tris = 13086,
@@ -1513,7 +1513,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		WillowM = {
-			assetId = 0,
+			assetId = 79830504023580,
 			kind = "tree",
 			size = { 13.2, 18, 13.6 },
 			tris = 8990,
@@ -1569,7 +1569,7 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 			},
 		},
 		WillowS = {
-			assetId = 0,
+			assetId = 128792062557298,
 			kind = "tree",
 			size = { 9.1, 11.9, 9.1 },
 			tris = 5320,
@@ -1616,13 +1616,13 @@ local EnvArt: { models: { [string]: Model }, images: Images } = {
 		},
 	},
 	images = {
-		SkyboxBk = 0,
-		SkyboxDn = 0,
-		SkyboxFt = 0,
-		SkyboxLf = 0,
-		SkyboxRt = 0,
-		SkyboxUp = 0,
-		Grass = 0,
+		SkyboxBk = 136586341945218,
+		SkyboxDn = 97140843426703,
+		SkyboxFt = 80795920678386,
+		SkyboxLf = 76702310583506,
+		SkyboxRt = 105958960888635,
+		SkyboxUp = 98205653565652,
+		Grass = 112320273350355,
 	},
 }
 
