@@ -52,7 +52,7 @@
     "tail_col": "#3A3640"
    },
    "options": {
-    "ears": "floppy",
+    "ears": "hanging",
     "tail": "flame"
    },
    "patterns": [
@@ -67,6 +67,10 @@
      "kind": "embers",
      "color": "#FFB23F",
      "color2": "#FF5A1A"
+    },
+    {
+     "kind": "glow_eyes",
+     "color": "#FFB23F"
     },
     {
      "kind": "mend",
@@ -102,7 +106,8 @@
     {
      "kind": "ice_crest",
      "color": "#9FE4FF",
-     "color2": "#E8FBFF"
+     "color2": "#E8FBFF",
+     "glow": true
     },
     {
      "kind": "mend",
@@ -215,9 +220,18 @@
      "kind": "spots",
      "color": "#FF6A1A",
      "glow": true
+    },
+    {
+     "kind": "spots",
+     "color": "#FFD23A",
+     "glow": true
     }
    ],
    "accessories": [
+    {
+     "kind": "cracks",
+     "color": "#B4A49C"
+    },
     {
      "kind": "cracks",
      "color": "#FFA02A",
@@ -244,8 +258,7 @@
     "glow": "#9FE4FF"
    },
    "options": {
-    "big_eyes": true,
-    "tuft": true
+    "big_eyes": true
    },
    "patterns": [
     {
@@ -260,8 +273,21 @@
    ],
    "accessories": [
     {
+     "kind": "facial_disc",
+     "color": "#A8CDEB"
+    },
+    {
      "kind": "glow_eyes",
      "color": "#5FD3FF"
+    },
+    {
+     "kind": "owl_tufts",
+     "color": "#C8E2F7",
+     "color2": "#9FE4FF"
+    },
+    {
+     "kind": "snowflakes",
+     "color": "#BDF2FF"
     },
     {
      "kind": "mend",
@@ -279,7 +305,7 @@
     "col": "#C9A15A",
     "belly": "#F3E6C8",
     "snout": "#F3E6C8",
-    "ear_col": "#4E8F3A",
+    "ear_col": "#A9813A",
     "tail_col": "#3A6E2C"
    },
    "options": {
@@ -293,6 +319,15 @@
      1.0
     ]
    },
+   "patterns": [
+    {
+     "kind": "stripes",
+     "color": "#4E8F3A",
+     "parts": [
+      "body"
+     ]
+    }
+   ],
    "accessories": [
     {
      "kind": "ear_leaves",
@@ -300,9 +335,9 @@
      "color2": "#3F8F3A"
     },
     {
-     "kind": "vines",
-     "color": "#3F8F3A",
-     "color2": "#8FE36A"
+     "kind": "cheek_ruff",
+     "color": "#F3E6C8",
+     "color2": "#FFFFFF"
     },
     {
      "kind": "mend",
@@ -327,10 +362,6 @@
     {
      "kind": "bolt_mark",
      "color": "#FFE84A"
-    },
-    {
-     "kind": "sparks",
-     "color": "#FFD21A"
     },
     {
      "kind": "mend",
@@ -397,6 +428,11 @@
      "kind": "ice",
      "color": "#8FDCFF",
      "color2": "#E8FBFF"
+    },
+    {
+     "kind": "turtle_beak",
+     "color": "#5A8AA8",
+     "color2": "#3A6A88"
     },
     {
      "kind": "mend",

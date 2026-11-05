@@ -136,6 +136,14 @@
    "options": {
     "tail": "long"
    },
+   "shape": {
+    "body": [
+     0.9,
+     0.92,
+     0.92
+    ],
+    "head": 0.94
+   },
    "accessories": [
     {
      "kind": "sparks",
@@ -1275,9 +1283,9 @@
    "colors": {
     "col": "#E8EEF6",
     "head": "#FFFFFF",
-    "beak": "#9FD6FF",
-    "wing": "#D6E6F6",
-    "talon": "#8FC8F0",
+    "beak": "#4F8FD0",
+    "wing": "#A9CBEB",
+    "talon": "#5F9FD8",
     "glow": "#7FD4FF"
    },
    "options": {
@@ -1285,10 +1293,11 @@
    },
    "shape": {
     "body": [
-     0.92,
-     0.95,
-     0.95
-    ]
+     0.88,
+     0.9,
+     0.9
+    ],
+    "head": 0.92
    },
    "accessories": [
     {
