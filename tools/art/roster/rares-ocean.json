@@ -161,7 +161,13 @@
     "col": "#5B8CFF",
     "accent": "#FFD43B",
     "belly": "#DDE7FF"
-   }
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    }
+   ]
   },
   {
    "id": "RexHatchling",

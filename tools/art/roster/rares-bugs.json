@@ -7,21 +7,16 @@
    "plan": "critter",
    "gait": "scuttle",
    "options": {
-    "kind": "spider"
+    "kind": "tarantula"
    },
    "colors": {
     "col": "#6A4A32",
-    "accent": "#FF8A3D"
+    "accent": "#E8641A"
    },
    "accessories": [
     {
-     "kind": "fuzz",
-     "color": "#8A6448"
-    },
-    {
-     "kind": "knees",
-     "color": "#FF8A3D",
-     "glow": true
+     "kind": "eyering",
+     "color": "#F2E3C8"
     }
    ]
   },
@@ -44,9 +39,18 @@
      "color": "#C8562E"
     },
     {
-     "kind": "wingspots",
+     "kind": "eyespots",
      "color": "#F2E3C8",
      "color2": "#FFE27A"
+    },
+    {
+     "kind": "snaketips",
+     "color": "#F2C28A",
+     "color2": "#FFF4D6"
+    },
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
     }
    ]
   },
@@ -64,9 +68,14 @@
    },
    "accessories": [
     {
-     "kind": "petalcrown",
+     "kind": "petallegs",
      "color": "#FFB3D6",
-     "color2": "#FFF27A"
+     "color2": "#FFF4FA"
+    },
+    {
+     "kind": "raptorarms",
+     "color": "#FFC8E0",
+     "color2": "#FF7AB0"
     }
    ]
   },
@@ -87,6 +96,10 @@
      "kind": "bighorn",
      "color": "#5A4630",
      "color2": "#C8FF6A"
+    },
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
     }
    ]
   },
@@ -110,9 +123,13 @@
      "color2": "#E8FFB0"
     },
     {
-     "kind": "wingspots",
+     "kind": "eyespots",
      "color": "#FFD873",
-     "color2": "#E8FFB0"
+     "color2": "#8A5A2A"
+    },
+    {
+     "kind": "wingedge",
+     "color": "#8ED868"
     }
    ]
   },
@@ -133,7 +150,11 @@
     {
      "kind": "clearwings",
      "color": "#DDEEF5",
-     "color2": "#FF9418"
+     "color2": "#FF6A1A"
+    },
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
     }
    ]
   },
@@ -183,11 +204,11 @@
    "plan": "critter",
    "gait": "scuttle",
    "options": {
-    "kind": "spider"
+    "kind": "tarantula"
    },
    "colors": {
     "col": "#8A8A98",
-    "accent": "#C8C8D8"
+    "accent": "#5A5A68"
    },
    "accessories": [
     {
@@ -207,7 +228,8 @@
    "colors": {
     "col": "#E8A23A",
     "accent": "#FFE27A"
-   }
+   },
+   "accessories": []
   }
  ]
 }
