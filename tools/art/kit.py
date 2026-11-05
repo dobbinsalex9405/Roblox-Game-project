@@ -121,9 +121,12 @@ def bug(c, H, kind, col, accent, wing=None):
             head.put((-1, round(-3.4 * k) - i // 2, round(2.2 * k) + i), accent)
         for sx in (-1, 1):
             for i, ly in enumerate((-1.0 * k, 0.8 * k, 2.6 * k)):
-                x = round(sx * 2.2 * k) - (1 if sx < 0 else 0)
-                # a leg out from under the shell: a thigh in, then down
-                inner = round(sx * 1.4 * k) - (1 if sx < 0 else 0)
+                # a leg out from under the shell: a thigh from just inside
+                # the body's edge at this row (the middle pair sits where it
+                # bulges most), then down, so every leg shows the same length
+                hw = 2.2 * k * math.sqrt(max(0.0, 1 - ((ly - 0.8 * k) / (2.6 * k)) ** 2))
+                x = round(sx * (hw + 0.6 * k)) - (1 if sx < 0 else 0)
+                inner = round(sx * hw) - (1 if sx < 0 else 0) - sx
                 leg = _leg(c, sx, i, 3, (inner + .5, round(ly) + .5, round(0.9 * k) + 1))
                 leg.box((min(x, inner), round(ly), round(0.9 * k)), (max(x, inner), round(ly), round(0.9 * k)), INK)
                 leg.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), INK)
