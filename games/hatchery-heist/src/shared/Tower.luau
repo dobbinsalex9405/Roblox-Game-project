@@ -10,6 +10,7 @@
 -- tests check every rule.
 
 local Geometry = require("./Geometry")
+local Numbers = require("./Numbers")
 
 export type Data = { [string]: any }
 
@@ -324,6 +325,11 @@ function Tower.upgradeFloor(d: Data, ledger: Ledger, floor: number, economy: any
 	end
 	d.floorUpgrades[floor] = Tower.upgrades(d, floor) + 1
 	return true, nil
+end
+
+-- The label over the next floor to buy.
+function Tower.floorLabel(floor: number, price: number): string
+	return `Floor {floor}: {Numbers.short(price)} coins`
 end
 
 return Tower

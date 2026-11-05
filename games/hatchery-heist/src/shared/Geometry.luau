@@ -78,6 +78,11 @@ Geometry.LADDER = { 25.2, 14.5 }
 Geometry.LADDER_HOLE_MIN = { 21, 12.5 }
 Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
 
+-- The label floating over the next floor to buy ("Floor 10: 165M coins"),
+-- in studs: wide enough for the longest one at full text height, with room
+-- to spare (Studio gate, #84: the text was filling its box edge to edge).
+Geometry.FLOOR_LABEL = { width = 32, height = 2.2 }
+
 -- Base-local positions of things raids care about. Layout uses the same
 -- numbers for the parts. Pad `index` counts across the whole tower: pads 1
 -- to 8 are on floor 1, 9 to 16 on floor 2, and so on. Returns x, z and the

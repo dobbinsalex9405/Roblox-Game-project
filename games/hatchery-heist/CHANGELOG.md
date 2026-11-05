@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the price label over the next floor to buy no longer fills its box
+  edge to edge; it has room for the longest price ("Floor 10: 165M coins").
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.

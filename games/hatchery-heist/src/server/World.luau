@@ -703,10 +703,6 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 	end
 end
 
-local function shortCoins(n: number): string
-	return `{Layout.shortNumber(n)} coins`
-end
-
 -- Shows the floors the owner has built, the next one as a ghost with its
 -- price, each floor's upgrades, and the ladder up to the top floor.
 local function syncTower(model: Model, d: { [string]: any }?, config: any?)
@@ -750,9 +746,10 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		local label = deck:FindFirstChild("Label")
 		if floor == owned + 1 and claimed and nextPrice then
 			if label == nil then
-				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(16, 2.4), "")
+				local size = Geometry.FLOOR_LABEL
+				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(size.width, size.height), "")
 			end
-			setLabel(deck, `Floor {floor}: {shortCoins(nextPrice)}`)
+			setLabel(deck, Tower.floorLabel(floor, nextPrice))
 		elseif label then
 			label:Destroy()
 		end
