@@ -7,6 +7,9 @@
   and the server log says why a creature stayed on its blocks. A missing
   glow accent (Ember Fox's glowing paws) no longer sends the whole creature
   back to blocks.
+- 61 more Commons can hatch from the Basic and Meadow eggs (91 Commons in
+  all): pups, kittens, parrots, woodland and pond critters, beetles and more.
+  Egg tier odds are unchanged; the new creatures share the Common chance.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
