@@ -346,7 +346,11 @@ def ice_crest(c, H, col, col2=None):
 
 
 def gems(c, H, col, col2=None):
-    """A cluster of gem crystals on the middle of the back."""
+    """A cluster of gem crystals on the middle of the back. Only in the fine
+    (mesh) build: at in-game box size the cluster alone would take a third
+    of an Epic's box budget."""
+    if not getattr(c, 'fine', False):
+        return
     k = H / 10.0
     col2 = col2 or _light(col, 0.5)
     sp = _spine(c, 1, 0.5, 0.5)
