@@ -219,18 +219,28 @@ def ears(c, H, color, color2=None, a=None):
         for (x, y, z), cc in cells.items():
             _sym(ep, x, y, z, cc)
     elif style == 'folded':
-        # small flaps at the top corners, folding forward and down
-        w = max(2, round(0.7 * k))
-        h = max(2, round(0.7 * k))
-        x0 = max(1, round(half - 0.55 * k))
-        yf = math.floor(min(p[1] for p in back))
-        for i in range(h):
-            for dx in range(w - (1 if i == h - 1 else 0)):
-                x = x0 + dx + i // 2
-                y = yf - (1 if i > 0 else 0)
-                _sym(ep, x, y, top + 1 - i, col)
-                if i == 0:
-                    _sym(ep, x, y + 1, top + 1, col)
+        # a pug's: a small flap lying on the head's top corner, its tip
+        # folded down over the side, every voxel on the head's surface
+        w = max(2, round(0.8 * k))
+        yf = math.floor(min(p[1] for p in back)) + max(0, round(0.2 * k))
+        x0 = max(1, round(half - 0.9 * k))
+        cells = {}
+        for y in range(yf, yf + w):
+            outer = None
+            for x in range(x0, x0 + w + 1):
+                zs = [p[2] for p in head.v if p[0] == x and p[1] == y]
+                if not zs:
+                    break
+                cells[(x, y, max(zs) + 1)] = col
+                outer = (x, max(zs))
+            if outer:
+                x, zt_ = outer
+                for z in range(zt_ - max(1, round(0.6 * k)), zt_ + 1):
+                    xs = [p[0] for p in head.v if p[1] == y and p[2] == z and p[0] >= 0]
+                    if xs:
+                        cells[(max(xs) + 1, y, z)] = col
+        for (x, y, z), cc in cells.items():
+            _sym(ep, x, y, z, cc)
     for p in [p for p in ep.v if p in taken]:
         del ep.v[p]
 
