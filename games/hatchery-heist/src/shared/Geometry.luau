@@ -61,12 +61,44 @@ function Geometry.distance(ax: number, az: number, bx: number, bz: number): numb
 	return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
 end
 
--- Base-local positions (x, z) of things raids care about. Layout uses the
--- same numbers for the parts.
-function Geometry.pad(index: number): (number, number)
-	local column = (index - 1) % 5
-	local row = (index - 1) // 5
-	return -20 + column * 10, row * 7
+-- The tower: floor 1 is the base's ground, and each floor above stands
+-- FLOOR_HEIGHT studs higher, over the back half of the base.
+Geometry.FLOORS = 10
+Geometry.FLOOR_HEIGHT = 12
+Geometry.SPOTS_PER_FLOOR = 8 -- 4 across, 2 deep
+Geometry.SPOT_COLUMNS = 4
+-- The tower's footprint in base-local x, z (floors 2 and up).
+Geometry.TOWER_MIN = { -24, -3 }
+Geometry.TOWER_MAX = { 24, 23 }
+
+-- Base-local positions of things raids care about. Layout uses the same
+-- numbers for the parts. Pad `index` counts across the whole tower: pads 1
+-- to 8 are on floor 1, 9 to 16 on floor 2, and so on. Returns x, z and the
+-- height above floor 1.
+function Geometry.pad(index: number): (number, number, number)
+	local floor = (index - 1) // Geometry.SPOTS_PER_FLOOR
+	local spot = (index - 1) % Geometry.SPOTS_PER_FLOOR
+	local column = spot % Geometry.SPOT_COLUMNS
+	local row = spot // Geometry.SPOT_COLUMNS
+	return -15 + column * 10, 5 + row * 10, floor * Geometry.FLOOR_HEIGHT
+end
+
+-- Where a creature taking `span` side-by-side pads from pad `index` stands:
+-- the middle of its pads (x, z, height), which is also where its prompts
+-- sit and what a raider's reach is measured from.
+function Geometry.padCentre(index: number, span: number): (number, number, number)
+	local x, z, height = Geometry.pad(index)
+	return x + (span - 1) * 5, z, height
+end
+
+-- Whether a character whose root is `rootAbove` studs above the ground
+-- floor's top stands on the floor of pad `index` (not under it or above it).
+-- A standing R15 root is about 3 studs above the deck it stands on; raiders
+-- reach upper floors by the ladder, so a steal needs this to be true.
+function Geometry.onFloorOfPad(index: number, rootAbove: number): boolean
+	local _, _, height = Geometry.pad(index)
+	local above = rootAbove - height
+	return above >= -2 and above <= Geometry.FLOOR_HEIGHT - 2
 end
 
 Geometry.TRAP_SPOTS = { { -10, -22 }, { 10, -22 }, { -27, 10 }, { 17, 27 } }

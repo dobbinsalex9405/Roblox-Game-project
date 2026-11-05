@@ -96,8 +96,11 @@ def split_legs(c, Part):
     if hip > z0 and _slab_pieces(body.v, z0 + 1) > _slab_pieces(body.v, z0):
         base = z0 + 1
     feet = _plan_pieces({(x, y) for (x, y, z) in body.v if z == base})
-    if base > z0:  # a belly just off the ground spans the middle: not a leg
-        feet = [f for f in feet if not (min(x for x, _ in f) < 0 <= max(x for x, _ in f))]
+    # a belly on (or just off) the ground spans the middle: not a leg (a
+    # seal's, or a bug's resting on its feet)
+    side_feet = [f for f in feet if not (min(x for x, _ in f) < 0 <= max(x for x, _ in f))]
+    if base > z0 or len(side_feet) >= 2:
+        feet = side_feet
     if base > z0:  # the lower tips belong to the feet above them
         tips = _plan_pieces({(x, y) for (x, y, z) in body.v if z == z0})
         feet = [f for f in feet if not any(f & t for t in tips)] + [

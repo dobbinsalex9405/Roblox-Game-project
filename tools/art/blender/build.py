@@ -350,8 +350,11 @@ def export_files(out_dir, c, coll, joints):
         bake_anim=True,
         bake_anim_use_nla_strips=True,
         bake_anim_use_all_actions=False,
-        path_mode='COPY',
-        embed_textures=True,
+        # no textures in the FBX: Roblox would turn them into a PBR
+        # SurfaceAppearance whose TexturePack fails; the palette goes up as
+        # its own image (upload.py) and the game sets each MeshPart's TextureID
+        path_mode='STRIP',
+        embed_textures=False,
     )
 
 

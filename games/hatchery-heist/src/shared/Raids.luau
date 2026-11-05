@@ -156,7 +156,7 @@ function Raids.new(options: Options): Raids
 			end
 		end
 		if target == nil then
-			return false, "There is nothing on that pad."
+			return false, "There is nothing there."
 		end
 		if target.uid == d.mountUid then
 			return false, "Its owner is riding it."
