@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Creature legs, tails and little bug legs that only touched the body at a
+  corner no longer look like they float: every loose piece is now joined to
+  the body.
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),

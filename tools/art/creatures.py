@@ -744,5 +744,7 @@ def build_all(detail=None):
                     del part.v[v]
         c.parts = [p for p in c.parts if p.v]
         rig.split_legs(c, Part)  # walking legs, each its own part
+        if c.fine:
+            c.floating = rig.weld(c)  # no loose pieces in the meshes
         out.append(c)
     return out
