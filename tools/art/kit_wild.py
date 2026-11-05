@@ -61,7 +61,7 @@ def octopus(c, H, kind, col, accent=None, belly=None):
         # the mantle is the head (it carries the face); the body is the
         # skirt the arms hang from
         mantle = c.part('head', 'static', (0, 0.6 * k, 4.0 * k))
-        mantle.ell((0, 0.6 * k, 5.2 * k), (2.5 * k, 2.5 * k, 2.8 * k), col)
+        mantle.ell((0, 0.6 * k, 5.2 * k), (2.3 * k, 2.3 * k, 2.6 * k), col)
         body.ell((0, 0.4 * k, 3.0 * k), (2.2 * k, 2.2 * k, 1.2 * k), col)
         # freckles on top of the mantle, glowing a little at Rare and up
         glowing = c.rarity not in ('Common', 'Uncommon')
@@ -85,7 +85,7 @@ def octopus(c, H, kind, col, accent=None, belly=None):
                 if t > 0.8:  # the tip curls up and back in
                     reach -= (t - 0.8) * 2.0 * k
                     z += (t - 0.8) * 4.0 * k
-                pts.append((ox * reach, 0.4 * k + oy * reach, z, (0.75 - 0.45 * t) * k))
+                pts.append((ox * reach, 0.4 * k + oy * reach, z, (0.62 - 0.38 * t) * k))
             for j, (x, y, z, r) in enumerate(pts):
                 if sock:
                     # knitted bands along the arm, a contrasting toe
@@ -255,12 +255,18 @@ def ruff(c, H, col, col2=None):
     mane = c.part('mane', 'static', (0, cy, cz))
     tip = col2 or _light(col, 0.3)
     hv = set(head.v) | set(c.part('eyes').v) | set(c.part('ears').v if kit._find(c, 'ears') else {})
-    for a in range(40):
-        ang = a / 40 * 2 * math.pi
-        for layer, (s, r) in enumerate(((1.0, 0.75), (1.22, 0.55))):
-            px, pz = cx + math.cos(ang) * rx * s, cz + math.sin(ang) * rz * s * 0.95
-            mane.ell((px, cy + 0.5 * k, pz), (r * k, (0.8 + 0.2 * layer) * k, r * k), tip if layer else col,
-                     cond=lambda x, y, z: (x, y, z) not in hv and z >= 1)
+    for a in range(32):
+        ang = a / 32 * 2 * math.pi
+        px, pz = cx + math.cos(ang) * rx * 1.05, cz + math.sin(ang) * rz * 1.0
+        mane.ell((px, cy + 0.5 * k, pz), (0.6 * k, 0.7 * k, 0.6 * k), col,
+                 cond=lambda x, y, z: (x, y, z) not in hv and z >= 1)
+    # the outer tufts a lighter shade
+    far = {}
+    for (x, y, z) in mane.v:
+        d = math.hypot(x + .5 - cx, (z + .5 - cz) * rx / max(rz, 1))
+        far[(x, y, z)] = d
+    edge = max(far.values()) - 0.35 * k if far else 0
+    mane.paint(lambda p, cc, g: (tip, False) if far.get(p, 0) >= edge and kit._hash(*p, 37) % 2 == 0 else None)
     _mirror(mane)
 
 
@@ -268,8 +274,8 @@ def neck(c, H, col, col2=None):
     """A long neck: lifts the head (and everything on it) and fills a neck
     from the shoulders up to it, patched in col2 if given (a giraffe)."""
     k = H / 10.0
-    lift = round(2.6 * k)
-    fwd = round(0.6 * k)
+    lift = round(3.6 * k)
+    fwd = round(1.0 * k)
     head = _head(c)
     hp = set(kit.HEAD_PARTS)
     for p in c.parts:
@@ -280,11 +286,14 @@ def neck(c, H, col, col2=None):
     (hlo, hhi) = _bounds(head)
     base = (0, blo[1] + 1.4 * k, bhi[2] - 0.8 * k)
     top = (0, (hlo[1] + hhi[1]) / 2 + 0.6 * k, hlo[2] + 1.2 * k)
-    line(body, base, top, col, r=1.05 * k)
-    if col2:
-        for (px, py, pz, r) in ((0.9, -2.6, 6.4, 0.55), (-0.9, -3.4, 7.6, 0.5), (0.8, -3.8, 8.6, 0.45), (-0.8, -2.2, 5.2, 0.55)):
-            body.paint(lambda p, cc, g, px=px, py=py, pz=pz, r=r: (col2, False) if cc == col and (
-                (abs(p[0] + .5) - abs(px) * k) ** 2 + (p[1] + .5 - py * k + fwd * 0.5) ** 2 + (p[2] + .5 - pz * k) ** 2) < (r * k) ** 2 else None)
+    before = set(body.v)
+    line(body, base, top, col, r=0.95 * k)
+    if col2:  # patches on the new neck
+        s = max(2, round(1.1 * k))
+        for p in set(body.v) - before:
+            h = kit._hash(p[0] // s, p[1] // s, p[2] // s, 29)
+            if h % 3 == 0:
+                body.v[p] = (col2, False)
 
 
 def ossicones(c, H, col, col2=None):
@@ -307,16 +316,19 @@ def nosehorn(c, H, col, col2=None):
     behind it, the tip in col2."""
     k = H / 10.0
     head = _head(c)
-    fy = _front_y(head)
-    zs = [p[2] for p in head.v if p[1] <= fy + 1]
-    zt = max(zs)
+    (lo, hi) = _bounds(head)
+    zn = round(lo[2] + (hi[2] - lo[2]) * 0.55)  # just above the nose
+    f = head.front(0, zn) or head.front(-1, zn)
+    fy = f[1] if f else _front_y(head)
+    zt = zn
     part = c.part('horn', 'static')
-    for (dy, h, r0) in ((1.0, 2.0, 0.65), (2.6, 1.0, 0.45)):
+    for (dy, h, r0) in ((0.6, 2.0, 0.65), (2.0, 1.0, 0.45)):
         n = max(2, round(h * k))
         for i in range(n):
             r = r0 * k * (1 - i / (n + 0.5))
             tipc = col2 if (col2 and i >= n - max(1, round(0.4 * k))) else col
-            part.ell((0, fy + dy * k - i * 0.25, zt + 0.5 + i), (max(r, .5), max(r, .5), .5), tipc)
+            part.ell((0, fy + dy * k - 0.4 * k - i * 0.6, zt + 0.5 + i), (max(r, .5), max(r, .5), .5), tipc)
+    _mirror(part)
 
 
 def hump(c, H, col, col2=None):
@@ -324,7 +336,7 @@ def hump(c, H, col, col2=None):
     k = H / 10.0
     body = kit._find(c, 'body')
     (lo, hi) = _bounds(body)
-    body.ell((0, (lo[1] + hi[1]) / 2 + 0.3 * k, hi[2] - 0.2 * k), (1.3 * k, 1.5 * k, 1.4 * k), col,
+    body.ell((0, (lo[1] + hi[1]) / 2 + 0.5 * k, hi[2] + 0.2 * k), (1.4 * k, 1.6 * k, 1.6 * k), col,
              cond=lambda x, y, z: z >= hi[2] - 0.6 * k)
 
 
@@ -535,8 +547,34 @@ def zebra(c, H, col, col2=None):
     w = max(1, round(0.55 * k))
     for name in ('body', 'head', 'tail'):
         part = kit._find(c, name)
-        if part:
+        if part and name == 'head':
+            # forehead and cheeks in bands across, the muzzle left dark
+            (lo, hi) = _bounds(part)
+            part.paint(lambda p, cc, g, lo=lo, hi=hi: (col, False) if not g and (p[2] // w) % 2 == 0 and p[2] > lo[2] + (hi[2] - lo[2]) * 0.45 else None)
+        elif part:
             part.paint(lambda p, cc, g: (col, False) if not g and ((p[1] + p[2] // 2) // w) % 2 == 0 and abs(p[0] + .5) > 0.35 * k else None)
+
+
+def tigerstripes(c, H, col, col2=None):
+    """Thin tiger stripes: bands down the sides of the body and legs,
+    three short ones on the forehead, rings on the tail. The belly keeps its
+    colour (col2, if given, is left unpainted)."""
+    k = H / 10.0
+    period = max(3, round(1.3 * k))
+    w = max(1, round(0.35 * k))
+    body = kit._find(c, 'body')
+    if body:
+        body.paint(lambda p, cc, g: (col, False) if not g and cc != col2 and (p[1] + p[2] // 2) % period < w and abs(p[0] + .5) > 0.5 * k else None)
+    head = kit._find(c, 'head')
+    if head:
+        (lo, hi) = _bounds(head)
+        zf = lo[2] + (hi[2] - lo[2]) * 0.62
+        head.paint(lambda p, cc, g: (col, False) if not g and p[2] >= zf and abs(p[0] + .5) in (0.5, 1.5 + round(0.6 * k), ) and p[1] < (lo[1] + hi[1]) / 2 else None)
+        head.paint(lambda p, cc, g: (col, False) if not g and p[2] >= zf and p[1] < (lo[1] + hi[1]) / 2 and (abs(p[0] + .5) < 0.6 or abs(abs(p[0] + .5) - 1.2 * k) < 0.6) and (p[2] - round(zf)) % 2 == 0 else None)
+        head.paint(lambda p, cc, g: (col, False) if not g and abs(p[0] + .5) > (hi[0] - lo[0]) / 2 - 0.4 * k and p[2] % period < w else None)
+    tl = kit._find(c, 'tail')
+    if tl:
+        tl.paint(lambda p, cc, g: (col, False) if p[1] % period < w + 1 else None)
 
 
 def leggings(c, H, col, col2=None):
@@ -581,6 +619,46 @@ def twinkle(c, H, col, col2=None):
         top = [p for p in side if p[2] == zt]
         p = max(top, key=lambda q: q[0]) if sx > 0 else min(top, key=lambda q: q[0])
         eyes.v[p] = (col, True)
+
+
+def eartips(c, H, col, col2=None):
+    """The tips of the ears glow softly in col: a Rare's shine."""
+    k = H / 10.0
+    ears = kit._find(c, 'ears')
+    if not ears or not ears.v:
+        return
+    top = max(p[2] for p in ears.v)
+    lo = min(p[2] for p in ears.v)
+    cut = top - max(1, round(min(0.5 * k, (top - lo) * 0.3)))
+    ears.paint(lambda p, cc, g: (col, True) if p[2] > cut else None)
+
+
+def tailglow(c, H, col, col2=None):
+    """The end of the tail glows softly in col."""
+    tl = kit._find(c, 'tail')
+    if not tl or not tl.v:
+        return
+    ys = [p[1] for p in tl.v]
+    cut = min(ys) + (max(ys) - min(ys)) * 0.75
+    tl.paint(lambda p, cc, g: (col, True) if p[1] >= cut else None)
+
+
+def berryeyes(c, H, col, col2=None):
+    """Big glossy berry eyes in col, each with a glinting highlight."""
+    eyes = kit._find(c, 'eyes')
+    head = _head(c)
+    if not eyes or not eyes.v:
+        return
+    for (x, y, z) in list(eyes.v):
+        eyes.v[(x, y, z)] = (col, False)
+        for n in ((x, y, z + 1), (x + (1 if x >= 0 else -1), y, z), (x, y, z - 1)):
+            if n in head.v:
+                head.v[n] = (_dark(col, 0.15), False)
+    for sx in (-1, 1):
+        side = [p for p in eyes.v if (p[0] >= 0) == (sx > 0)]
+        if side:
+            top = max(side, key=lambda p: (p[2], -p[0] * sx))
+            eyes.v[top] = (_light(col, 0.6), True)
 
 
 def screenface(c, H, col, col2=None):
@@ -1047,7 +1125,7 @@ def shellheld(c, H, col, col2=None):
     shell = c.part('clam', 'static')
     zc = lo[2] + (hi[2] - lo[2]) * 0.62
     yc = _front_y(body, round(zc)) - 0.2 * k
-    shell.ell((0, yc, zc), (1.1 * k, 0.4 * k + .3, 0.85 * k), col, cond=lambda x, y, z: z >= zc - 0.6 * k)
+    shell.ell((0, yc - 0.3 * k, zc), (1.4 * k, 0.5 * k + .3, 1.1 * k), col, cond=lambda x, y, z: z >= zc - 0.8 * k)
     shell.paint(lambda p, cc, g: (col2 or _dark(col, 0.25), False) if p[0] % 2 == 0 else None)
     kit.ball(shell, (0, yc - 0.2 * k, zc - 0.5 * k), (0.25 * k + .2, 0.25 * k + .2, 0.25 * k + .2), hexc('#FFF4F8'))
     for p in list(shell.v):
@@ -1069,6 +1147,18 @@ def bolttail(c, H, col, col2=None):
         a = (x, y, z)
         x, y, z = x + dx * k, y + abs(dy) * k * (1 if dy > 0 else 0.3), z + dz * k
         line(tl, a, (x, y, z), col, r=(0.45 - 0.07 * i) * k, glow=True)
+
+
+def throat(c, H, col, col2=None):
+    """A glowing patch on the throat (a hummingbird's ruby gorget): the
+    front of the body just under the head."""
+    k = H / 10.0
+    body = kit._find(c, 'body')
+    head = _head(c)
+    (hlo, hhi) = _bounds(head)
+    zt = hlo[2] + 1
+    body.paint(lambda p, cc, g: (col, True) if zt - 1.4 * k <= p[2] <= zt + 1 and p[1] <= _front_y(body, p[2]) + 0.6 * k and abs(p[0] + .5) < 1.4 * k else None)
+    head.paint(lambda p, cc, g: (col, True) if p[2] <= hlo[2] + 0.6 * k and p[1] < (hlo[1] + hhi[1]) / 2 and abs(p[0] + .5) < 1.4 * k else None)
 
 
 def cheekglow(c, H, col, col2=None):
@@ -1111,7 +1201,7 @@ def flakes(c, H, col, col2=None):
         part = kit._find(c, name)
         if part:
             surf = {p for p in part.v if any(n not in part.v for n in ((p[0] + 1, p[1], p[2]), (p[0] - 1, p[1], p[2]), (p[0], p[1], p[2] + 1), (p[0], p[1] + 1, p[2]), (p[0], p[1] - 1, p[2])))}
-            part.paint(lambda p, cc, g: (col, True) if p in surf and kit._hash(*p, 23) % 19 == 0 else None)
+            part.paint(lambda p, cc, g: (col, True) if p in surf and kit._hash(*p, 23) % 9 == 0 else None)
 
 
 def clover(c, H, col, col2=None):
@@ -1402,10 +1492,11 @@ def trunk(c, H, col, col2=None):
     n = 12
     for i in range(n + 1):
         t = i / n
-        y = fy + 0.7 * k - t * 1.4 * k - max(0, t - 0.7) * 1.5 * k
-        z = zc - t * 2.6 * k + max(0, t - 0.75) ** 2 * 10 * k
-        r = (0.8 - 0.35 * t) * k
-        part.ell((0, y, z), (r, r, r), (col2 if (col2 and t > 0.88) else col))
+        y = fy + 0.3 * k - t * 1.6 * k - max(0, t - 0.6) * 2.4 * k
+        z = zc - t * 2.4 * k + max(0, t - 0.65) ** 2 * 14 * k
+        r = (0.75 - 0.3 * t) * k
+        crease = i % 2 == 1 and t < 0.85
+        part.ell((0, y, z), (r, r, r), (col2 if (col2 and t > 0.88) else (_dark(col, 0.12) if crease else col)))
     _mirror(part)
 
 
@@ -1460,7 +1551,7 @@ def longfur(c, H, col, col2=None):
     for (x, y, z) in skirt:
         if abs(x + .5) < (hi[0] - lo[0]) / 2 - 1.2 and lo[1] + 1 < y < hi[1] - 1:
             continue  # only the outer edge hangs
-        drop = floor + (kit._hash(x, y, 41) % max(1, round(0.5 * k)))
+        drop = max(floor, z - round(1.6 * k)) + (kit._hash(x, y, 41) % max(1, round(0.5 * k)))
         for zz in range(drop, z):
             body.put((x, y, zz), col if (x + y + zz) % 5 else _dark(col, 0.15))
 
@@ -1484,13 +1575,13 @@ ACCESSORIES = {
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
     'glowstripe': glowstripe, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'tailtip': tailtip,
-    'mohawk': mohawk, 'zebra': zebra, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle,
-    'screenface': screenface, 'antenna': antenna, 'wraps': wraps, 'beetleshell': beetleshell, 'teapot': teapot,
+    'mohawk': mohawk, 'zebra': zebra, 'tigerstripes': tigerstripes, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle, 'eartips': eartips, 'tailglow': tailglow,
+    'screenface': screenface, 'berryeyes': berryeyes, 'antenna': antenna, 'wraps': wraps, 'beetleshell': beetleshell, 'teapot': teapot,
     'donut': donut, 'wrapper': wrapper, 'cherry': cherry, 'frosting': frosting, 'pancakes': pancakes,
     'icing': icing, 'facedisc': facedisc, 'twohead': twohead, 'crocsnout': crocsnout, 'bflywings': bflywings,
     'glideflaps': glideflaps, 'bigbeak': bigbeak, 'longbeak': longbeak, 'hookbeak': hookbeak, 'casque': casque,
     'wingless': wingless, 'crowncrest': crowncrest, 'shellheld': shellheld, 'bolttail': bolttail,
-    'cheekglow': cheekglow, 'gust': gust, 'embers': embers, 'flakes': flakes, 'clover': clover,
+    'cheekglow': cheekglow, 'throat': throat, 'gust': gust, 'embers': embers, 'flakes': flakes, 'clover': clover,
     'petalcrown': petalcrown, 'cobweb': cobweb, 'knees': knees, 'fuzz': fuzz, 'wingspots': wingspots,
     'bigwings': bigwings, 'wingtails': wingtails, 'clearwings': clearwings, 'honeybelly': honeybelly,
     'bighorn': bighorn, 'gear': gear, 'geode': geode, 'yarn': yarn, 'teddy': teddy, 'cactus': cactus,
