@@ -146,6 +146,10 @@ describe("Walk gaits", function()
 		expect(near(Walk.pose("scuttle", "leg2R", 0.25, 1, 1, true).rx, a)).toBe(true)
 		expect(near(Walk.pose("scuttle", "leg3L", 0.25, 1, 1, true).rx, a)).toBe(true)
 		expect(near(Walk.pose("scuttle", "leg1R", 0.25, 1, 1, true).rx, -a)).toBe(true)
+		-- crabs and lobsters go up to six a side, still alternating
+		expect(near(Walk.pose("scuttle", "leg4R", 0.25, 1, 1, true).rx, a)).toBe(true)
+		expect(near(Walk.pose("scuttle", "leg4L", 0.25, 1, 1, true).rx, -a)).toBe(true)
+		expect(near(Walk.pose("scuttle", "leg6L", 0.25, 1, 1, true).rx, -a)).toBe(true)
 	end)
 
 	it("lifts the body off the ground in a hop and waves it in a slither", function()

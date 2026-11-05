@@ -244,6 +244,12 @@ local LEG_SETS: { [string]: number } = {
 	leg1R = -1,
 	leg2L = -1,
 	leg3R = -1,
+	leg4R = 1,
+	leg5L = 1,
+	leg6R = 1,
+	leg4L = -1,
+	leg5R = -1,
+	leg6L = -1,
 }
 
 function Walk.isLeg(anim: string): boolean
