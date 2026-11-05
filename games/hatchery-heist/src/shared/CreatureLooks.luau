@@ -14,6 +14,13 @@
 --   orbit      glowing cubes circling it, 0 = none
 --   pulse      glowing voxels breathe brighter and dimmer
 --   shimmer    glowing voxels drift through the rainbow (Godly)
+--
+-- The hatch reveal (client HatchReveal) grows with rarity too:
+--   wobble     seconds the egg shakes before it cracks
+--   rays       light rays turning behind the creature, 0 = none
+--   confetti   confetti pieces when it appears, 0 = none
+--   shake      how hard the screen shakes as it appears, in pixels
+--   hold       seconds the reveal stays up before closing by itself
 
 export type Look = {
 	bob: number,
@@ -26,6 +33,11 @@ export type Look = {
 	orbit: number,
 	pulse: boolean,
 	shimmer: boolean,
+	wobble: number,
+	rays: number,
+	confetti: number,
+	shake: number,
+	hold: number,
 }
 
 local function moves(head: boolean, ears: boolean, tail: boolean, wings: boolean, blink: boolean)
@@ -44,6 +56,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = false,
 		shimmer = false,
+		wobble = 1.0,
+		rays = 0,
+		confetti = 0,
+		shake = 0,
+		hold = 2.2,
 	},
 	Uncommon = {
 		bob = 0.04,
@@ -56,6 +73,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = false,
 		shimmer = false,
+		wobble = 1.2,
+		rays = 0,
+		confetti = 0,
+		shake = 0,
+		hold = 2.4,
 	},
 	Rare = {
 		bob = 0.04,
@@ -68,6 +90,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = false,
 		shimmer = false,
+		wobble = 1.5,
+		rays = 8,
+		confetti = 0,
+		shake = 0,
+		hold = 2.8,
 	},
 	["Ultra Rare"] = {
 		bob = 0.04,
@@ -80,6 +107,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = true,
 		shimmer = false,
+		wobble = 1.9,
+		rays = 10,
+		confetti = 0,
+		shake = 0,
+		hold = 3.2,
 	},
 	Epic = {
 		bob = 0.035,
@@ -92,6 +124,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = true,
 		shimmer = false,
+		wobble = 2.4,
+		rays = 12,
+		confetti = 40,
+		shake = 0,
+		hold = 3.6,
 	},
 	Legendary = {
 		bob = 0.03,
@@ -104,6 +141,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = true,
 		shimmer = false,
+		wobble = 3.2,
+		rays = 16,
+		confetti = 80,
+		shake = 10,
+		hold = 4.5,
 	},
 	Godly = {
 		bob = 0.03,
@@ -116,6 +158,11 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 8,
 		pulse = true,
 		shimmer = true,
+		wobble = 4.0,
+		rays = 20,
+		confetti = 120,
+		shake = 16,
+		hold = 5.5,
 	},
 }
 

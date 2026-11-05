@@ -210,6 +210,13 @@ return function(Schema: any, Odds: any)
 			volume = Schema.number({ min = 0, max = 1 }),
 			fadeSeconds = Schema.number({ min = 0, max = 10 }),
 		}),
+		sounds = Schema.map(
+			Schema.string({ maxLength = 30 }),
+			Schema.record({
+				id = Schema.integer({ min = 0 }),
+				volume = unit,
+			})
+		),
 	})
 
 	-- Name, Robux price and description of each pass and product on Roblox

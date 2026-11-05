@@ -34,7 +34,7 @@ export type Options = {
 	plotOf: (player: any) -> number?,
 	-- Effects on the player.
 	notify: (player: any, text: string) -> (),
-	hatched: (player: any, speciesId: string) -> (),
+	hatched: (player: any, speciesId: string, eggId: string) -> (),
 	welcome: (player: any, coins: number, readyEggs: number) -> (),
 	mount: (player: any, speed: number?) -> (), -- speed nil = dismount
 }
@@ -295,7 +295,7 @@ function Actions.new(options: Options): Actions
 			onboarding(player, step)
 			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
-			options.hatched(player, creature.speciesId)
+			options.hatched(player, creature.speciesId, creature.eggId)
 			if #sold > 0 then
 				local pending: SoldNotice = soldNotice[player]
 					or { at = -math.huge, count = 0, coins = 0, what = "" }

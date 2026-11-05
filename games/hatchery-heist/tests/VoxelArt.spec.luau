@@ -133,6 +133,12 @@ describe("Creature looks by tier", function()
 				expect(look.particles).toBeAtLeast(prev.particles)
 				expect(look.hover).toBeAtLeast(prev.hover)
 				expect(look.orbit).toBeAtLeast(prev.orbit)
+				-- The hatch reveal builds up more for rarer creatures.
+				expect(look.wobble).toBeAtLeast(prev.wobble)
+				expect(look.rays).toBeAtLeast(prev.rays)
+				expect(look.confetti).toBeAtLeast(prev.confetti)
+				expect(look.shake).toBeAtLeast(prev.shake)
+				expect(look.hold).toBeAtLeast(prev.hold)
 				for name, on in prev.moves :: { [string]: boolean } do
 					if on then
 						expect(`{rarity} {name}: {(look.moves :: any)[name]}`).toBe(`{rarity} {name}: true`)
@@ -146,5 +152,9 @@ describe("Creature looks by tier", function()
 		end
 		expect(CreatureLooks.Godly.shimmer).toBe(true)
 		expect(CreatureLooks.Common.light).toBe(0)
+		-- A Common's reveal is quick so a player hatching dozens isn't held up;
+		-- even a Godly's stays short enough to sit through.
+		expect(CreatureLooks.Common.wobble + CreatureLooks.Common.hold).toBeAtMost(4)
+		expect(CreatureLooks.Godly.wobble + CreatureLooks.Godly.hold).toBeAtMost(10)
 	end)
 end)
