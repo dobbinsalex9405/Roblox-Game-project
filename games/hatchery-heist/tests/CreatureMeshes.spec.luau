@@ -175,6 +175,15 @@ describe("Creature meshes", function()
 			end
 		end
 		expect(crabLegs >= 6 and "walks" or `Crab: {crabLegs} legs`).toBe("walks")
+		-- a bird's flat toes stay part of its foot: two legs, not four
+		local gooseLegs = {}
+		for _, part in CreatureMeshes.GoldenGoose.parts do
+			if string.match(part.name, "^leg") then
+				table.insert(gooseLegs, part.name)
+			end
+		end
+		table.sort(gooseLegs)
+		expect(table.concat(gooseLegs, " ")).toBe("legL legR")
 	end)
 
 	it("stay within the triangle budgets", function()

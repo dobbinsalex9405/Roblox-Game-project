@@ -121,6 +121,20 @@ def split_legs(c, Part):
                     break
             if merged:
                 break
+    # A bird's toes lying flat in front of its leg (nothing above them)
+    # belong to that leg: a goose's webbed foot, not a leg of its own.
+    # Only winged creatures: a lobster's or cricket's short legs stay legs.
+    winged = any(p.name in ('wingL', 'wingR') for p in c.parts)
+    above = {(x, y) for (x, y, z) in body.v if z == base + 1}
+    flat = [f for f in feet if not (f & above)]
+    standing = [f for f in feet if f & above]
+    if winged and flat and len(standing) >= 2:
+        for f in flat:
+            fx = sum(x for x, _ in f) / len(f)
+            side = [g for g in standing if (sum(x for x, _ in g) / len(g) < -0.5) == (fx < -0.5)] or standing
+            near = min(side, key=lambda g: min((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 for a in f for b in g))
+            near |= f
+        feet = standing
     if len(feet) < 2:
         return []
     owner = {}

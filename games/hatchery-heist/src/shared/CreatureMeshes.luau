@@ -5947,11 +5947,11 @@ local CreatureMeshes: { [string]: Creature } = {
 	GoldenGoose = {
 		assetId = 0,
 		rarity = "Godly",
-		gait = "trot",
+		gait = "waddle",
 		height = 4.4,
 		size = { 5.6, 4.4, 4 },
 		tris = 37252,
-		trisLod1 = 1532,
+		trisLod1 = 1524,
 		parts = {
 			{
 				name = "body",
@@ -5968,71 +5968,39 @@ local CreatureMeshes: { [string]: Creature } = {
 				lod1 = { name = "GoldenGoose_body_lod1", center = { 0, 1.8, 0.2 }, size = { 2, 2.8, 2 } },
 			},
 			{
-				name = "leg2R",
-				anim = "leg2R",
+				name = "legR",
+				anim = "legR",
 				parent = "body",
-				pivot = { 0.35, 0.4, 0.1 },
-				meshes = {
-					{ name = "GoldenGoose_leg2R", center = { 0.35, 0.2, 0.1 }, size = { 0.107, 0.4, 0.207 } },
-				},
-				lod1 = {
-					name = "GoldenGoose_leg2R_lod1",
-					center = { 0.3, 0.2, 0.1 },
-					size = { 0.2, 0.4, 0.2 },
-				},
-			},
-			{
-				name = "leg2L",
-				anim = "leg2L",
-				parent = "body",
-				pivot = { -0.35, 0.4, 0.1 },
+				pivot = { 0.35, 0.4, -0.0286 },
 				meshes = {
 					{
-						name = "GoldenGoose_leg2L",
-						center = { -0.35, 0.2, 0.1 },
-						size = { 0.107, 0.4, 0.207 },
+						name = "GoldenGoose_legR",
+						center = { 0.35, 0.2, -0.05 },
+						size = { 0.307, 0.4, 0.507 },
 					},
 				},
 				lod1 = {
-					name = "GoldenGoose_leg2L_lod1",
-					center = { -0.3, 0.2, 0.1 },
-					size = { 0.2, 0.4, 0.2 },
+					name = "GoldenGoose_legR_lod1",
+					center = { 0.3, 0.2, -0.1 },
+					size = { 0.2, 0.4, 0.6 },
 				},
 			},
 			{
-				name = "leg1R",
-				anim = "leg1R",
+				name = "legL",
+				anim = "legL",
 				parent = "body",
-				pivot = { 0.35, 0.4, -0.2 },
+				pivot = { -0.35, 0.4, -0.0286 },
 				meshes = {
 					{
-						name = "GoldenGoose_leg1R",
-						center = { 0.35, 0.0517, -0.2 },
-						size = { 0.307, 0.1035, 0.207 },
+						name = "GoldenGoose_legL",
+						center = { -0.35, 0.2, -0.05 },
+						size = { 0.307, 0.4, 0.507 },
 					},
 				},
 				lod1 = {
-					name = "GoldenGoose_leg1R_lod1",
-					center = { 0.3, 0.1, -0.2 },
-					size = { 0.2, 0.2, 0.4 },
-				},
-			},
-			{
-				name = "leg1L",
-				anim = "leg1L",
-				parent = "body",
-				pivot = { -0.35, 0.4, -0.2 },
-				meshes = {
-					{
-						name = "GoldenGoose_leg1L",
-						center = { -0.35, 0.0517, -0.2 },
-						size = { 0.307, 0.1035, 0.207 },
-					},
-				},
-				lod1 = {
-					name = "GoldenGoose_leg1L_lod1",
-					center = { -0.3, 0.1, -0.2 },
-					size = { 0.2, 0.2, 0.4 },
+					name = "GoldenGoose_legL_lod1",
+					center = { -0.3, 0.2, -0.1 },
+					size = { 0.2, 0.4, 0.6 },
 				},
 			},
 			{
