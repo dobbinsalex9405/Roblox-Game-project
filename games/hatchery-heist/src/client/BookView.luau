@@ -9,8 +9,9 @@
 -- side-menu button counts them.
 --
 -- Built for hundreds of cards: a tab's cards are plain frames, and only the
--- ones on screen (and a row either side) hold a 3D model, so a long Common
--- page never has more than a few dozen ViewportFrames alive.
+-- ones on screen (and a row either side) get a ViewportFrame and a 3D model,
+-- made when the card scrolls near and destroyed when it leaves, so a long
+-- Common page never has more than a few dozen ViewportFrames alive.
 -- Opened from the side menu; the server keeps the book (data.found).
 
 local Players = game:GetService("Players")
@@ -73,8 +74,7 @@ end
 type Card = {
 	frame: Frame,
 	entry: Book.Entry,
-	view: ViewportFrame,
-	camera: Camera,
+	view: ViewportFrame?, -- only while the card is near the screen
 	model: Model?,
 	looks: { [BasePart]: { color: Color3, material: Enum.Material, texture: string } },
 	name: TextLabel,
@@ -103,6 +103,17 @@ local function showModel(card: Card, owned: boolean)
 	if model == nil then
 		return
 	end
+	local view = Instance.new("ViewportFrame")
+	view.Name = "View"
+	view.BackgroundTransparency = 1
+	view.Position = UDim2.fromOffset(4, 4)
+	view.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
+	view.Ambient = Color3.fromRGB(170, 170, 185)
+	view.LightDirection = Vector3.new(-0.6, -1, 0.5)
+	local camera = Instance.new("Camera")
+	camera.FieldOfView = 30
+	camera.Parent = view
+	view.CurrentCamera = camera
 	for _, p in model:GetDescendants() do
 		if p:IsA("BasePart") then
 			local texture = if p:IsA("MeshPart") then p.TextureID else ""
@@ -116,21 +127,24 @@ local function showModel(card: Card, owned: boolean)
 			end
 		end
 	end
-	model.Parent = card.view
+	model.Parent = view
 	local fitSize = math.max(size.X, size.Y, size.Z)
 	local distance = (fitSize / 2) / math.tan(math.rad(15)) * 1.2
 	local target = Vector3.new(0, size.Y / 2, 0)
 	local offset = CFrame.Angles(0, math.rad(-28), 0) * CFrame.Angles(math.rad(-12), 0, 0)
-	card.camera.CFrame = CFrame.lookAt(target + offset * Vector3.new(0, 0, -distance), target)
+	camera.CFrame = CFrame.lookAt(target + offset * Vector3.new(0, 0, -distance), target)
+	view.Parent = card.frame
+	card.view = view
 	card.model = model
 end
 
 local function dropModel(card: Card)
-	if card.model then
-		card.model:Destroy()
-		card.model = nil
-		card.looks = {}
+	if card.view then
+		card.view:Destroy() -- the model and camera with it
+		card.view = nil
 	end
+	card.model = nil
+	card.looks = {}
 end
 
 function BookView.start(ctx: Context.Context, menu: Menu)
@@ -312,19 +326,6 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			stroke(frame, color, 2)
 			frame.Parent = grid
 
-			local view = Instance.new("ViewportFrame")
-			view.Name = "View"
-			view.BackgroundTransparency = 1
-			view.Position = UDim2.fromOffset(4, 4)
-			view.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
-			view.Ambient = Color3.fromRGB(170, 170, 185)
-			view.LightDirection = Vector3.new(-0.6, -1, 0.5)
-			view.Parent = frame
-			local camera = Instance.new("Camera")
-			camera.FieldOfView = 30
-			camera.Parent = view
-			view.CurrentCamera = camera
-
 			local name = text(frame, "Species", "", 14)
 			name.Position = UDim2.fromOffset(4, CARD.X - 6)
 			name.Size = UDim2.new(1, -8, 0, 18)
@@ -350,8 +351,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			table.insert(tab.cards, {
 				frame = frame,
 				entry = entry,
-				view = view,
-				camera = camera,
+				view = nil,
 				model = nil,
 				looks = {},
 				name = name,
