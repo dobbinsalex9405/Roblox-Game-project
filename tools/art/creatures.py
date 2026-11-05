@@ -321,6 +321,17 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
             for i in range(max(2, round(1.8 * k))):
                 w = max(0, round((1.8 * k - i) * 0.35))
                 earp.box((round(bx - w), round(-2.4 * k), round(7.6 * k) + i), (round(bx + w), round(-2.4 * k) + max(0, round(0.4 * k)), round(7.6 * k) + i), ec)
+        elif ears == 'cat':  # short, wide-based triangles set on the head corners
+            n = max(3, round(1.6 * k) + 1)
+            y0 = round(-2.5 * k)
+            for i in range(n):
+                t = i / (n - 1)
+                w = (1.0 - t) * 0.85 * k  # tapers to a single-voxel tip
+                cx = bx * 1.1 + sx * t * 0.15 * k
+                z = round(7.2 * k) + i
+                earp.box((round(cx - w), y0, z), (round(cx + w), y0 + max(0, round(0.3 * k)), z), ec)
+                if k >= 1.2 and w >= 1.5 and i >= 1:  # pink inner ear on the front face
+                    earp.box((round(cx - w + 1), y0 - 1, z), (round(cx + w - 1), y0 - 1, z), BLUSH)
         elif ears == 'big':  # fennec
             for i in range(max(3, round(3.2 * k))):
                 w = max(0, round((3.2 * k - i) * 0.4))
@@ -807,5 +818,7 @@ def build_all(detail=None):
                         del part.v[v]
         c.parts = [p for p in c.parts if p.v]
         rig.split_legs(c, Part)  # walking legs, each its own part
+        if c.fine:
+            c.floating = rig.weld(c)  # no loose pieces in the meshes
         out.append(c)
     return out
