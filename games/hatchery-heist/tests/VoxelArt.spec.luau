@@ -192,4 +192,28 @@ describe("Creature looks by tier", function()
 			end
 		end
 	end)
+
+	-- Studio gate, Nov 5: the Butterfly's head rode on its left wing and the
+	-- wing on its head, and it drew as one dark cube. Every part's chain of
+	-- parents must end at the body.
+	it("never lets two parts ride on each other", function()
+		for speciesId, art in VoxelArt.species do
+			local parentOf: { [string]: string? } = {}
+			for _, part in art.parts do
+				parentOf[part.name] = part.parent
+			end
+			for _, part in art.parts do
+				local name: string? = part.name
+				local steps = 0
+				while name and parentOf[name] do
+					name = parentOf[name]
+					steps += 1
+					if steps > #art.parts then
+						break
+					end
+				end
+				expect(if steps <= #art.parts then "ok" else `{speciesId}.{part.name} loops`).toBe("ok")
+			end
+		end
+	end)
 end)

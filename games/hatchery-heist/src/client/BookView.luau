@@ -93,17 +93,23 @@ type Tab = {
 	entries: { Book.Entry },
 }
 
--- Puts a creature's model in a card and points the camera at it.
-local function showModel(card: Card)
+-- Puts a creature's model in a card and points the camera at it. A creature
+-- not found yet is darkened BEFORE it goes in the card, so it never shows in
+-- colour, not even for a frame (Studio gate, Nov 5).
+local function showModel(card: Card, owned: boolean)
 	local model, size = CreatureView.staticModel(card.entry.speciesId)
 	card.looks = {}
-	card.found = nil -- re-apply the silhouette or colours
+	card.found = owned
 	if model == nil then
 		return
 	end
 	for _, p in model:GetDescendants() do
 		if p:IsA("BasePart") then
 			card.looks[p] = { color = p.Color, material = p.Material }
+			if not owned then
+				p.Color = SHADOW
+				p.Material = Enum.Material.SmoothPlastic
+			end
 		end
 	end
 	model.Parent = card.view
@@ -194,7 +200,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local tabList = Instance.new("UIListLayout")
 	tabList.FillDirection = Enum.FillDirection.Horizontal
 	tabList.SortOrder = Enum.SortOrder.LayoutOrder
-	tabList.Padding = UDim.new(0, 6)
+	tabList.Padding = UDim.new(0, 4)
 	tabList.Parent = tabBar
 	local tabPad = Instance.new("UIPadding")
 	tabPad.PaddingTop = UDim.new(0, 4)
@@ -243,11 +249,11 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			corner(button, 10)
 			stroke(button, color, 2)
 			local bpad = Instance.new("UIPadding")
-			bpad.PaddingLeft = UDim.new(0, 12)
-			bpad.PaddingRight = UDim.new(0, 12)
+			bpad.PaddingLeft = UDim.new(0, 8)
+			bpad.PaddingRight = UDim.new(0, 8)
 			bpad.Parent = button
 			button.Parent = tabBar
-			local label = text(button, "Label", entry.rarity, 15)
+			local label = text(button, "Label", entry.rarity, 14)
 			label.Size = UDim2.fromScale(0, 1)
 			label.AutomaticSize = Enum.AutomaticSize.X
 			-- A red dot while the tier has NEW cards.
@@ -358,13 +364,15 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		if tab == nil or not gui.Enabled then
 			return
 		end
+		local d = ctx.data()
+		local found = if d then d.found or {} else {}
 		local top = body.AbsolutePosition.Y - CARD.Y
 		local bottom = body.AbsolutePosition.Y + body.AbsoluteSize.Y + CARD.Y
 		for _, card in tab.cards do
 			local y = card.frame.AbsolutePosition.Y
 			local near = y + CARD.Y >= top and y <= bottom
 			if near and card.model == nil then
-				showModel(card)
+				showModel(card, found[card.entry.speciesId] ~= nil)
 			elseif not near and card.model then
 				dropModel(card)
 			end

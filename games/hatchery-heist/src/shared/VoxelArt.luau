@@ -2264,7 +2264,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				{
 					name = "head",
 					anim = "static",
-					parent = "wingL",
+					parent = "body",
 					pivot = { 0, 2.5, -1.5 },
 					boxes = {
 						-1, 1, -2, 2, 2, 1, 2, -1, 2, -3, 2, 1, 1, 2, -1, 3, -2, 2, 2, 1, 1,
@@ -2273,7 +2273,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				{
 					name = "wingL",
 					anim = "wingL",
-					parent = "head",
+					parent = "body",
 					pivot = { -0.5, 2.5, 0.5 },
 					boxes = {
 						-2, 2, 1, 1, 2, 1, 3, -2, 3, -1, 1, 2, 1, 3, -2, 3, 0, 1, 1, 1, 4, -2, 3, 2, 1, 1, 1, 4, -2, 4, -2, 1, 1, 1, 4, -2, 4, 0, 1, 1, 1, 3, -3, 5, -1, 1, 1, 1, 3, -3, 5, 0, 1, 1, 1, 5,
@@ -2282,7 +2282,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				{
 					name = "wingR",
 					anim = "wingR",
-					parent = "head",
+					parent = "body",
 					pivot = { 0.5, 2.5, 0.5 },
 					boxes = {
 						1, 2, 1, 1, 2, 1, 3, 1, 3, -1, 1, 2, 1, 3, 1, 3, 0, 1, 1, 1, 4, 1, 3, 2, 1, 1, 1, 4, 1, 4, -2, 1, 1, 1, 4, 1, 4, 0, 1, 1, 1, 3, 2, 5, -1, 1, 1, 1, 3, 2, 5, 0, 1, 1, 1, 5,

@@ -316,7 +316,7 @@ local CreatureMeshes: { [string]: Creature } = {
 			{
 				name = "wingL",
 				anim = "wingL",
-				parent = "head",
+				parent = "body",
 				pivot = { -0.12, 0.6, 0.17 },
 				meshes = {
 					{
@@ -330,7 +330,7 @@ local CreatureMeshes: { [string]: Creature } = {
 			{
 				name = "wingR",
 				anim = "wingR",
-				parent = "head",
+				parent = "body",
 				pivot = { 0.12, 0.6, 0.17 },
 				meshes = {
 					{

@@ -6,6 +6,10 @@
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala
   from the Meadow Egg. They share the Common chance, so no other tier moves.
+- Fix: the Butterfly drew as one dark cube (its head and a wing were each
+  attached to the other); the art tools no longer let parts loop.
+- Fix: Book cards for creatures not found yet no longer flash in colour
+  before turning into silhouettes.
 - Fix: the "every creature" list's rows now really stop short of the scroll
   bar (the inset was removed each time the list redrew).
 
