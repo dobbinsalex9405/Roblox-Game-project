@@ -25,3 +25,6 @@ roblox.yml
 # Screen-control tool: its Python environment
 /tools/screen-control/.venv/
 __pycache__/
+
+# Design viewer: npm packages for bundling (tools/designs/viewer)
+/tools/designs/viewer/node_modules/

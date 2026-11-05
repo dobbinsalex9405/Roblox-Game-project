@@ -1,0 +1,258 @@
+{
+  "comment": "Where each model the games build goes in the design viewer. tools/designs/build.mjs reads this. Rules are tried top to bottom; the first whose `match` fits wins. `match` keys: game, where (the Workspace folders, joined with ' > '), name, creature, map. `folder` and `name` may use {game}, {name}, {rarity}. A model no rule matches lands in Other, so nothing is ever hidden.",
+  "games": {
+    "hatchery-heist": "Hatchery Heist",
+    "tidecatch-cove": "Tidecatch Cove",
+    "street-food-empire": "Street Food Empire",
+    "depthbound": "Depthbound"
+  },
+  "folders": [
+    "Creatures",
+    "Characters",
+    "Eggs",
+    "Buildings",
+    "World",
+    "Nature",
+    "Decor and props",
+    "Plots and bases",
+    "Maps",
+    "Concepts",
+    "Other"
+  ],
+  "tiers": [
+    "Common",
+    "Uncommon",
+    "Rare",
+    "Ultra Rare",
+    "Epic",
+    "Legendary",
+    "Godly"
+  ],
+  "rules": [
+    {
+      "match": {
+        "creature": true
+      },
+      "folder": "Creatures/{game}/{rarity}"
+    },
+    {
+      "match": {
+        "map": true
+      },
+      "folder": "Maps",
+      "name": "{game} map"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "ConveyorEggs"
+      },
+      "folder": "Eggs/{game}"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm",
+        "name": "Barn"
+      },
+      "folder": "Buildings/{game}/Farm"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm",
+        "name": "Windmill"
+      },
+      "folder": "Buildings/{game}/Farm"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm",
+        "name": "Pen"
+      },
+      "folder": "Buildings/{game}/Farm",
+      "name": "Animal pen"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm > BarnAnimals"
+      },
+      "folder": "Characters/{game}/Farm animals",
+      "name": "Barn animal"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm > PondAnimals"
+      },
+      "folder": "Characters/{game}/Farm animals",
+      "name": "Pond animal"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm > PenAnimals"
+      },
+      "folder": "Characters/{game}/Farm animals",
+      "name": "Pen animal"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm",
+        "name": "Pond"
+      },
+      "folder": "Nature/{game}"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Farm",
+        "name": "Field"
+      },
+      "folder": "Nature/{game}/Crop fields",
+      "name": "Crop field"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Trees",
+        "name": "Tree"
+      },
+      "folder": "Nature/{game}/Trees"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery > Trees",
+        "name": "Flower"
+      },
+      "folder": "Nature/{game}/Flower patches",
+      "name": "Flower patch"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery",
+        "name": "Hills"
+      },
+      "folder": "Nature/{game}"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery",
+        "name": "GoldenNest"
+      },
+      "folder": "Decor and props/{game}",
+      "name": "Golden nest"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Scenery",
+        "name": "PlotDecor"
+      },
+      "folder": "Decor and props/{game}",
+      "name": "Plot flower beds"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "",
+        "name": "Scenery"
+      },
+      "folder": "Plots and bases/{game}",
+      "name": "Centre ground"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Plots",
+        "name": "Plot"
+      },
+      "folder": "Plots and bases/{game}",
+      "name": "Player plot"
+    },
+    {
+      "match": {
+        "game": "tidecatch-cove",
+        "where": "Map > Docks"
+      },
+      "folder": "Buildings/{game}/Fishing docks",
+      "name": "{name} dock"
+    },
+    {
+      "match": {
+        "game": "tidecatch-cove",
+        "where": "Map > Coves",
+        "name": "Cove"
+      },
+      "folder": "Plots and bases/{game}",
+      "name": "Player cove"
+    },
+    {
+      "match": {
+        "game": "tidecatch-cove",
+        "where": "",
+        "name": "Map"
+      },
+      "folder": "Plots and bases/{game}",
+      "name": "Centre ground"
+    },
+    {
+      "match": {
+        "game": "street-food-empire",
+        "where": "Plots",
+        "name": "Plot"
+      },
+      "folder": "Plots and bases/{game}",
+      "name": "Player plot"
+    },
+    {
+      "match": {
+        "game": "street-food-empire",
+        "where": "",
+        "name": "Street"
+      },
+      "folder": "Plots and bases/{game}"
+    },
+    {
+      "match": {
+        "game": "street-food-empire",
+        "name": "Queue"
+      },
+      "folder": "Characters/{game}",
+      "name": "Customer"
+    },
+    {
+      "match": {
+        "game": "depthbound",
+        "where": "",
+        "name": "Camp"
+      },
+      "folder": "Buildings/{game}"
+    },
+    {
+      "match": {
+        "game": "depthbound",
+        "where": "",
+        "name": "Mine"
+      },
+      "folder": "Plots and bases/{game}"
+    },
+    {
+      "match": {
+        "name": "SpawnLocation"
+      },
+      "folder": "Plots and bases/{game}",
+      "name": "Spawn pad"
+    },
+    {
+      "match": {},
+      "folder": "Other/{game}"
+    }
+  ]
+}

@@ -109,6 +109,8 @@ tools/typecheck.sh                             # strict types
 - `ops/PUBLISH_CHECKS.md`: the gate before every publish and the checks after.
 - `ops/VISUAL_PLAYTEST.md`: the required player's-eye check on every game
   change (audit, real-engine check, Studio play-solo) and its report.
+- `tools/designs/README.md`: the design viewer on Alex's desktop; where every
+  new model is dropped (`/mnt/project-files/designs/...`) so Alex can see it.
 - `games/<game>/SPEC.md`: what each game is.
 
 **Launch gate for the next wave of games:** 14 days after a launch, D1
