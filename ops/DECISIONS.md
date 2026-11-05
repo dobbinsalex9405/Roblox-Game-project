@@ -2,6 +2,27 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
+
+- **Each creature wanders only its own cell** (the 10-stud spots it takes),
+  not the whole floor: no collision avoidance needed, the Steal prompt on
+  its pad stays beside it, and raids and income need no change.
+- **A schedule, not physics**: position and facing are a pure function of
+  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
+  nothing replicates. The client moves the server's invisible stand-in
+  locally; the server never sees it move.
+- **The step phase follows distance walked**, so feet do not slide; legged
+  bodies dip as the legs spread (feet stay planted), legless stand-ins
+  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
+  each species' legs), falling back to the leg part names.
+- **Cull by distance only**, never by floor: culling by floor left whole
+  floors looking empty, from the yard and inside your own tower (Studio
+  gates). Your own tower draws to `cullStuds` (180); other players' towers
+  to `cullOtherStuds` (100: the neighbours either side, 84 away) and move
+  only within `animateOtherStuds` (60). Four full neighbours at 180 studs
+  took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
+  rest cheap.
+
 ## 2026-11-05: Tower upgrades furnish the room, built on each client
 
 - **Each upgrade is one room-wide layer** you see from the doorway, plus
@@ -18,6 +39,33 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Space rules are tested**, not eyeballed: creature cells, elevator
   shaft and door, ladder opening, windows, pictures, ceiling
   (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
+## 2026-11-05: Roster creatures reach the game through a generated config block
+
+- **What:** `tools/art/to_config.py` writes a marked block at the end of
+  `species` in Hatchery Heist's `config/creatures.luau`: every creature that
+  is on the master list, built by tools/art and uploaded (assets.json, Image
+  colours) and not written by hand. Income is a stable hash inside its
+  tier's band (Common 1-3, Uncommon 4-10, Rare 15-35, Ultra Rare 60-90, Epic
+  130-200, Legendary 400-500, Godly 800-1000), mount speed per tier, pools by
+  family (Barnyard: Farm, Pet, City, Garden; Moonlit: Spooky, Mutant,
+  Fantasy, Mythic, Spirit, Cosmic, Crystal, Mechanical, Elemental, Dino;
+  everything else Meadow), moved to the first egg that rolls the tier if
+  its family's egg does not. CI runs `--check`.
+- **Review gate:** only ids in `tools/art/roster/master/reviewed.txt` enter
+  the block. `to_config.py --promoted <PROMOTED.log>` adds every id the
+  strict reviewer promoted (ids are only added). Nothing ships unreviewed.
+- **Why:** builders ship roster JSON only; without this step reviewed
+  creatures reached the design viewer but never an egg. One block in the
+  same file (not a second module) keeps a single `require` and lets a hand
+  entry override any generated one by moving its line out.
+- **In-game art rules:** a built creature whose voxel boxes break a
+  VoxelArt.spec rule (box budget per tier, glow below Ultra Rare) is left
+  out and printed by the generator until its builder fixes it.
+- **Limit to fix before Rare+ batches:** an egg tier's weight must be at
+  least its member count (Schemas.crossCheck), and tiers are written out of
+  100,000. Basic egg Legendary is 2 and Epic 18, so Legendary/Epic batches
+  need either more-precise totals or fewer creatures per pool.
 
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
@@ -91,6 +139,40 @@ Non-obvious choices, newest first, so a later session can trust them.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
 
+
+
+## 2026-11-05: One shared Egg Market in the middle (Hatchery Heist)
+
+- **Two lanes as one schedule**: egg n rides lane n % 2 + 1, one every 0.5 s,
+  so purchases still name one egg number and the remotes did not change.
+  Lanes are two rings (r 22 and 27.5) turning opposite ways; the plan's
+  "two lanes" did not fit side by side on the art's 3.2-stud belt.
+- **First buyer wins, on the server**: a shared sold list in Actions; the
+  server tells every client (`HH:EggSold`) so the egg leaves its pedestal.
+  With the belt shared, the server also checks reach (`buyReach`, 20 studs
+  flat from where the clock has the egg), so nobody buys from across the map.
+- **No gaps in the belt**: the plan's eight gaps facing the bases became
+  belt parts that never collide, so players walk straight over it; the hub
+  thread's entrance arches mark the eight ways in.
+- **Eggs, pedestals and slats are client-only** and move together in one
+  `BulkMoveTo` each frame (about 1,900 small parts); the pedestal is three
+  boxes instead of the art's 48 to keep that number down. Eggs are pooled.
+- **Odds on a sign at each stop, not boards in the middle** (Studio gates,
+  Nov 5): boards big enough to read from the path hid the Golden Nest and
+  still failed on a phone, and a full tier table on a small sign was too
+  small too. Each stop gets a 10 x 3.3-stud sign beside its arch's left post,
+  face 3.9 to 7.2 studs up so the follow camera sees it over the character,
+  turned 20 degrees toward the path in. Three lines in about 1-stud type:
+  the egg and its price, then its two rarest tiers' exact "1 in N", the next
+  egg every 4 seconds. The odds card beside the Buy prompt keeps every tier.
+  To make room, the five hub pieces nearest the market (Book stand, Theme
+  stand, mailbox, notice board, flower stall) stand 2 to 4 studs further out.
+- **Buy only where you can pay**: the belt's nearest prompt was often a
+  dearer egg, so a player sees Buy only on eggs they can afford, unless they
+  can afford none (then pressing Buy says what eggs cost).
+- **One placer for WorldArt props** (`shared/VoxelProp`), with `register`
+  for other generated prop modules (the shop's), so every thread places
+  props the same way.
 
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
