@@ -460,3 +460,362 @@ def taller_spines(c, H, col, col2=None, a=None):
 
 
 ACCESSORIES['taller_spines'] = taller_spines
+
+
+def ape_face(c, H, col, col2=None, a=None):
+    """A baby orangutan's face: a pale disc over the front of the head (col)
+    with two small dark eyes (col2), one voxel wide and two high, no glints,
+    so they read as eyes and not as dark glasses; and a few spiky tufts of
+    hair on the crown (a.hair, default the head's own colour, darkened)."""
+    a = a or {}
+    head, eyes = _find(c, 'head'), _find(c, 'eyes')
+    if head is None or not head.v:
+        return
+    eye = col2 or INK
+    (x0, y0, z0), (x1, y1, z1) = _bounds(head.v)
+    old = list(eyes.v) if eyes is not None else []
+    if eyes is not None:
+        eyes.v = {}
+    # fill the sockets the old eyes sat in, out to the face's front plane
+    yfront = y0 + 1 if any(q[1] == y0 + 1 for q in head.v) else y0
+    for p in old:
+        for y in range(min(p[1], yfront), p[1] + 1):
+            if (p[0], y, p[2]) not in head.v:
+                head.put((p[0], y, p[2]), col)
+    # the disc: the whole front but the outer column each side, corners off
+    xa, xb = x0 + 1, x1 - 1
+    zlo = z0 + 1
+    for x in range(xa, xb + 1):
+        for z in range(zlo, z1 + 1):
+            edge_x = x in (xa, xb)
+            if edge_x and z in (zlo, z1):
+                continue
+            f = head.front(x, z)
+            if f:
+                cur = head.v[f][0]
+                # keep the pink cheeks and the dark nose/mouth
+                if cur in (hexc('#FF8FB1'),) or sum(cur[:3]) < 200:
+                    continue
+                head.put(f, col)
+    # small eyes, one voxel in from the disc's edge, two high, near the top
+    ez = z1 - 2
+    for x in (xa + 1, _mx(xa + 1)):
+        for z in (ez, ez + 1):
+            f = head.front(x, z)
+            if f:
+                head.put(f, eye)
+    # hair tufts on the crown: alternate spikes, taller in the middle
+    hair = hexc(a['hair']) if a.get('hair') else myth.dark(head.v[next(iter(head.v))][0], 0.15)
+    for x in range(x0 + 1, 0):
+        tall = 2 if (x - x0) % 2 == 0 else 1
+        top = [p for p in head.v if p[0] == x and p[2] == z1]
+        if not top:
+            continue
+        y = sorted(p[1] for p in top)[len(top) // 2]
+        for dz in range(1, tall + 1):
+            head.put((x, y, z1 + dz), hair)
+            head.put((_mx(x), y, z1 + dz), hair)
+
+
+ACCESSORIES['ape_face'] = _fine_only(ape_face)
+
+
+def arm_hair(c, H, col, col2=None, a=None):
+    """Long shaggy hair hanging off the outside of an ape's arms (an
+    orangutan's): every other voxel down the outer side of each arm grows a
+    strand one voxel out, in col, alternating with a strand one lower."""
+    a = a or {}
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    half = a.get('half', 1.6) * _k(H) + 0.6
+    arm = [p for p in body.v if abs(p[0] + .5) > half]
+    outer = {}
+    for (x, y, z) in arm:
+        key = (y, z, x >= 0)
+        if key not in outer or abs(x + .5) > abs(outer[key][0] + .5):
+            outer[key] = (x, y, z)
+    for (y, z, right), (x, _, _) in outer.items():
+        if (y + z) % 2:
+            continue
+        s = 1 if right else -1
+        body.put((x + s, y, z), col)
+        if (z // 2) % 2 == 0 and (x + s, y, z - 1) not in body.v:
+            body.put((x + s, y, z - 1), col)
+
+
+ACCESSORIES['arm_hair'] = _fine_only(arm_hair)
+
+
+def mitten_plus(c, H, col, col2=None, a=None):
+    """Makes kit_uncommon's mitten read as a mitten (run after it, same
+    colours): the knit grows a rounded fingertip end past the rump, a big
+    thumb sticks out and up from the +x flank (the one the hero camera
+    sees), and the white cuff rolls out one voxel all round the opening.
+    All of it stays above the belly, clear of the legs."""
+    a = a or {}
+    k = _k(H)
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    red = hexc(a.get('knit', '#E84855'))
+    knit = [p for p, v in body.v.items() if v[0] == red]
+    if not knit:
+        return
+    cuffs = {hexc('#FFFFFF'), hexc('#F1EDE6')}
+    cuff = [p for p, v in body.v.items() if v[0] in cuffs]
+    rib = myth.dark(red, 0.15)
+    # drop kit_uncommon's small thumb (the knit with no mirror on -x)
+    for (x, y, z) in knit:
+        if x >= 0 and (_mx(x), y, z) not in body.v:
+            del body.v[(x, y, z)]  # (redrawn below in the same place, bigger)
+    knit = [p for p, v in body.v.items() if v[0] == red]
+    (x0, y0, z0), (x1, y1, z1) = _bounds(knit)
+    cx, cz = -0.5, (z0 + z1) / 2 + 0.5
+
+    def knit_col(x, y, z):  # plain knit: the rib rows cost faces (tri budget)
+        return red
+
+    # the fingertip end: a half-ellipsoid behind the rump
+    from voxkit import Part
+    tip = Part('tip')
+    tip.ell((cx + .5, y1 - 0.6 * k, cz), ((x1 - x0 + 1) / 2 * 0.95, 1.9 * k, (z1 - z0 + 1) / 2 * 0.95), red)
+    for (x, y, z) in (tip.v if a.get('tip', True) else ()):
+        if y > y1 - 1 and z >= z0 and (x, y, z) not in body.v:
+            body.put((x, y, z), knit_col(x, y, z))
+    # the thumb: a fat rod from the flank, out, up and a little forward
+    # on the +x flank (the one the hero camera sees; a.side -1 for the
+    # other), halfway back so the head never hides it: out to the side,
+    # then up past the mitten's top
+    ym = y0 + (y1 - y0) * 0.5
+    sd = a.get('side', 1)
+    xe = x1 if sd > 0 else x0 + 1
+    base = (xe - sd * 0.3 * k, ym, cz)
+    mid = (xe + sd * 0.9 * k, ym - 0.2 * k, cz + 0.5 * k)
+    end = (xe + sd * 1.2 * k, ym - 0.4 * k, z1 + 0.8 * k)
+    th = Part('thumb')
+    for (p, q) in ((base, mid), (mid, end)):
+        n = 6
+        for i in range(n + 1):
+            t = i / n
+            pt = tuple(p[j] + (q[j] - p[j]) * t for j in range(3))
+            th.ell(pt, (0.65 * k, 0.65 * k, 0.65 * k), red)
+    for (x, y, z) in th.v:
+        if z >= z0 and (x, y, z) not in body.v:
+            body.put((x, y, z), knit_col(x, y, z))
+    # the cuff rolls out one voxel all round the opening
+    if cuff:
+        yf = min(p[1] for p in cuff)
+        ring = [p for p in cuff if p[1] <= yf + 1]
+        for (x, y, z) in ring:
+            for dx, dz in ((1, 0), (-1, 0)):
+                q = (x + dx, y, z + dz)
+                if q not in body.v and q[2] >= z0 + 2:  # clear of the legs
+                    body.put(q, hexc('#FFFFFF'))
+
+
+ACCESSORIES['mitten_plus'] = _fine_only(mitten_plus)
+
+
+def slope_back(c, H, col=None, col2=None, a=None):
+    """A hyena's sloping back: the front stands taller and the rump sits
+    lower. Everything above the hips is lifted by `front` voxels at the
+    front legs, going linearly to `back` voxels (negative: lowered) at the
+    back legs; the legs grow or shrink by the same amount at their tops, so
+    the feet stay on the floor. Run it after every accessory that draws on
+    the body, before the legs are split off (accessories always are)."""
+    import rig
+    a = a or {}
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    zs = [p[2] for p in body.v]
+    z0, top = min(zs), max(zs)
+    hip = z0
+    while hip + 1 < top and rig._slab_pieces(body.v, hip + 1) >= 2:
+        hip += 1
+    legs = [p for p in body.v if p[2] <= hip]
+    if not legs:
+        return
+    yf, yb = min(p[1] for p in legs), max(p[1] for p in legs)
+    up, down = a.get('front', 1), a.get('back', -1)
+
+    def lift(y):
+        t = 0.0 if yb == yf else min(1.0, max(0.0, (y - yf) / (yb - yf)))
+        return round(up + (down - up) * t)
+
+    for p in c.parts:
+        if not p.v:
+            continue
+        nv = {}
+        for (x, y, z), v in p.v.items():
+            u = lift(y)
+            if p is body and z <= hip:
+                if u < 0 and z > hip + u:
+                    continue  # the top of a back leg, shortened
+                nv[(x, y, z)] = v
+                if u > 0 and z == hip:  # the top of a front leg, grown
+                    for d in range(1, u + 1):
+                        nv[(x, y, z + d)] = v
+            else:
+                nv[(x, y, z + u)] = v
+        p.v = nv
+        if p is not body and getattr(p, 'pivot', None):
+            px, py, pz = p.pivot
+            p.pivot = (px, py, pz + lift(py))
+
+
+ACCESSORIES['slope_back'] = slope_back
+
+
+def flank_spots(c, H, col, col2=None, a=None):
+    """Clear dark spots on the body's sides (a spotted hyena's): 2x2 voxel
+    spots on the outermost voxels of each flank, on a staggered grid
+    `every` voxels apart (default 4), above the legs and below the back
+    line, mirrored left and right."""
+    a = a or {}
+    import rig
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    zs = [p[2] for p in body.v]
+    z0, top = min(zs), max(zs)
+    hip = z0
+    while hip + 1 < top and rig._slab_pieces(body.v, hip + 1) >= 2:
+        hip += 1
+    n = a.get('every', 4)
+    side = {}
+    for (x, y, z) in body.v:
+        if x < 0 or z <= hip + 1 or z >= top - 1:
+            continue
+        if (y, z) not in side or x > side[(y, z)][0]:
+            side[(y, z)] = (x, y, z)
+    for (y, z), q in side.items():
+        row = (z - hip) // 2
+        if (y + 2 * (row % 2)) % n in (0, 1) and (z - hip) % (n - 1) in (1, 2):
+            body.put(q, col)
+            body.put((_mx(q[0]), y, z), col)
+
+
+ACCESSORIES['flank_spots'] = flank_spots
+
+
+def origami_frog(c, H, col, col2=None, a=None):
+    """Rebuilds the blob frog as a folded-paper (origami) jumping frog: a
+    low pyramid body with a diamond base and a ridge down the back, a
+    wedge head that narrows to a point, two folded paper eye points, and
+    flat angular legs (a Z-folded back leg, a straight front leg). Every
+    face is a flat plane: the facets on the left and right take two paper
+    shades (col and a little darker), and the creases where facets meet,
+    the back ridge and the leg folds are drawn in col2 (a pale crease
+    line). Same parts, pivots and voxel scale as the blob it replaces."""
+    a = a or {}
+    k = _k(H)
+    body, head, eyes = _find(c, 'body'), _find(c, 'head'), _find(c, 'eyes')
+    if body is None or head is None:
+        return
+    paper = col
+    side = myth.dark(col, 0.22)
+    crease = col2 or myth.light(col, 0.55)
+    ink = INK
+
+    def shade(x, u, v, edge):
+        if edge:
+            return crease
+        return paper if x >= 0 else side
+
+    # Voxels cannot draw sloped paper without stairs, so every surface is a
+    # flat plane on the grid (paper lies flat) and the folds are drawn as
+    # crease lines on those planes.
+    # body: two stacked flat diamond tiers (the folded base and the back
+    # flap on it), flat on top, the creases from the corners and the ridge
+    A, B = 3.0 * k, 2.8 * k
+    yc = 0.4 * k
+    zb, zm, zt = round(0.4 * k), round(1.6 * k), round(2.6 * k)
+    flap = myth.light(col, 0.18)
+    body.v = {}
+    for z in range(zb, zt + 1):
+        top = z > zm
+        ax, by = (A * 0.62, B * 0.7) if top else (A, B)
+        for x in range(-round(A) - 1, round(A) + 1):
+            for y in range(round(yc - B) - 1, round(yc + B) + 2):
+                u, v = abs(x + .5) / ax, abs(y + .5 - yc) / by
+                if u + v > 1:
+                    continue
+                face = z == (zt if top else zm)
+                edge = face and (abs(u - v) < 0.1 or (top and u < 0.1))
+                # the sides: two shades split at the middle, like light on folds
+                wall = side if (x < 0) == (y + .5 < yc) else myth.dark(col, 0.1)
+                body.put((x, y, z), crease if edge else (flap if top else paper) if face else wall)
+    # head: a flat triangle in plan, pointing forward, one tier, with a
+    # crease down the middle and along its edges
+    head.v = {}
+    y_back, y_tip = round(yc - B * 0.55), round(yc - B - 1.6 * k)
+    for y in range(y_tip, y_back + 1):
+        t = (y_back - y) / max(1, y_back - y_tip)  # 0 at the back, 1 at the tip
+        w = (2.3 * k) * (1 - 0.85 * t)
+        for z in range(zb + 1, zt + 1):
+            for x in range(-round(w) - 1, round(w) + 1):
+                u = abs(x + .5) / max(0.6, w)
+                if u > 1:
+                    continue
+                face = z == zt
+                edge = face and u < 0.2 and t < 0.75
+                head.put((x, y, z), crease if edge else paper if face else side)
+    # eye points: small folded cones on the head's top, ink dot in front
+    if eyes is not None:
+        eyes.v = {}
+    ey = round(y_back - 0.6 * k)
+    ex = max(1, round(1.1 * k))
+    ztop = max(p[2] for p in head.v if p[1] == ey) if any(p[1] == ey for p in head.v) else zt
+    for x in (ex, _mx(ex)):
+        for dz in range(1, 3):
+            for dx in ((0, 1) if dz == 1 else (0,)):
+                xx = x + (dx if x >= 0 else -dx)
+                head.put((xx, ey, ztop + dz), paper if x >= 0 else side)
+                if dz == 1:
+                    head.put((xx, ey + 1, ztop + dz), crease)
+        (eyes or head).put((x, ey - 1, ztop + 1), ink)
+    # legs: flat angular folds, 2 voxels thick
+    def slab(part, pts, w, zt_of):
+        for (p, q) in zip(pts, pts[1:]):
+            n = max(2, int(math.dist(p, q) * 2))
+            for i in range(n + 1):
+                tt = i / n
+                x = p[0] + (q[0] - p[0]) * tt
+                y = p[1] + (q[1] - p[1]) * tt
+                z = p[2] + (q[2] - p[2]) * tt
+                for dx in range(-w // 2, w - w // 2):
+                    for dz in (0, 1):
+                        part.put((math.floor(x + dx), math.floor(y), max(0, math.floor(z) - dz)),
+                                 crease if dz == 0 and i in (0, n) else paper if x >= 0 else side)
+
+    hx = A * 0.75
+    drawn = {}
+    for kind in ('B', 'F'):
+        from voxkit import Part
+        r = Part('leg')
+        if kind == 'B':
+            pts = [(hx - 0.4 * k, yc + 1.0 * k, 1.8 * k), (hx + 1.3 * k, yc + 2.6 * k, 1.6 * k),
+                   (hx + 1.6 * k, yc - 0.4 * k, 1.0)]
+        else:
+            pts = [(hx - 0.6 * k, yc - 1.6 * k, 1.8 * k), (hx + 0.5 * k, yc - B - 0.2 * k, 1.0)]
+        slab(r, pts, 2, None)
+        fx, fy, _ = pts[-1]  # a foot: a flat patch on the floor, crease at the toes
+        for dx in range(-1, 2):
+            for dy in range(-1, 1):
+                r.put((math.floor(fx + dx), math.floor(fy + dy), 0), crease if dy == -1 else paper)
+        drawn[kind] = ({q: v for q, v in r.v.items() if q[0] >= 0}, pts[0])
+    for p in c.parts:
+        if p.name not in ('legFL', 'legFR', 'legBL', 'legBR'):
+            continue
+        right, hip = drawn[p.name[3]]
+        if p.name.endswith('R'):
+            p.v = dict(right)
+            p.pivot = (hip[0], hip[1], hip[2])
+        else:
+            p.v = {(_mx(x), y, z): ((side if v[0] == paper else v[0]), v[1]) for (x, y, z), v in right.items()}
+            p.pivot = (-hip[0], hip[1], hip[2])  # the leg turns where it meets the body
+
+
+ACCESSORIES['origami_frog'] = _fine_only(origami_frog)
