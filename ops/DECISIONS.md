@@ -2,6 +2,32 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Outdoor nature, skybox and grass as uploaded art (Hatchery Heist)
+
+- **Trees are meshes, one MeshPart per colour, with no texture.** The
+  creature meshes' palette texture failed to load for some creatures (#66);
+  a colour per MeshPart cannot fail that way and needs no image asset.
+- **Flat, greedy-merged voxel faces at 0.3 to 0.45 studs for trees.** Same
+  voxels per object as a 0.1-stud creature; the pillow bevel would be
+  0.01 studs deep and five times the triangles. About 56 trees and 160
+  small props come to about 600,000 triangles before Roblox's automatic
+  LOD; mostly medium trees near the bases, more large ones further out.
+  The counts are in `scenery.nature` if phones struggle.
+- **Five species, not more:** Puff Oak (with an amber autumn variant), Blossom
+  Tree, Star Pine (glowing star), Moonberry Willow, Toadstool Tree. Fantasy
+  but readable, saturated storybook colours, so the world is not a plain
+  farm.
+- **The skybox is painted to survive any face order.** Roblox's docs do not
+  say which way each face points; the top cap depends on height only and the
+  seams follow one shared mirrored shape. Painted features sit at 10 to 31
+  degrees, above the 9 degree hill line.
+- **Images upload as Decals; the game resolves a decal id to its image**
+  (InsertService) and otherwise uses the id as an image, because Open Cloud
+  answers with one or the other.
+- **Uploads ride the creature workflow** (`art = nature`): a new workflow
+  cannot be started until it is on main, and the ids are committed back onto
+  the branch that ran it so they arrive in the same PR.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150

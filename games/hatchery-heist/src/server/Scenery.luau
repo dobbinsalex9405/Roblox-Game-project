@@ -1,17 +1,24 @@
 --!strict
 -- Light, sky and scenery, from config/atmosphere.luau: a sunny meadow with a
 -- sandy yard, the Golden Nest in the middle, low fences and flowers on every
--- base, a farmyard around the ring (Farm.luau), voxel trees between and around
--- the bases and a ring of terraced hills that hides the edge of the map. Decoration only: nothing here collides with players
--- (except the hills and tree trunks, which are outside the play area) or
--- changes gameplay, and everything sits on top of the ground.
+-- base, a farmyard around the ring (Farm.luau), a wood of voxel trees between
+-- and around the bases with bushes, rocks and flowers (shared/NaturePlan, the
+-- meshes from EnvAssets) and a ring of terraced hills that hides the edge of
+-- the map. Until a tree's meshes load it is drawn as boxes. The uploaded
+-- skybox and grass tile arrive the same way (`skybox`, `grass`). Decoration
+-- only: nothing here collides with players (except the hills and tree
+-- trunks, which are outside the play area) or changes gameplay, and
+-- everything sits on top of the ground.
 
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local EnvArt = require(ReplicatedStorage.Shared.EnvArt)
 local Layout = require(ReplicatedStorage.Shared.Layout)
+local NaturePlan = require(ReplicatedStorage.Shared.NaturePlan)
 
+local EnvAssets = require(script.Parent.EnvAssets)
 local Farm = require(script.Parent.Farm)
 
 local Scenery = {}
@@ -133,7 +140,7 @@ local FLOWER_COLORS = {
 
 -- A voxel tree: a square trunk and a canopy of a few big leafy cubes,
 -- turned a little so a wood of them does not look stamped out.
-local function tree(parent: Instance, at: Vector3, scale: number, rng: Random)
+local function tree(parent: Instance, at: Vector3, scale: number, rng: Random): Model
 	local model = Instance.new("Model")
 	model.Name = "Tree"
 	local height = 8 * scale
@@ -165,6 +172,7 @@ local function tree(parent: Instance, at: Vector3, scale: number, rng: Random)
 		})
 	end
 	model.Parent = parent
+	return model
 end
 
 local function flowers(parent: Instance, at: Vector3, rng: Random)
@@ -217,7 +225,7 @@ function Scenery.light(config: any)
 	atmosphere.Haze = a.haze
 	atmosphere.Parent = Lighting
 
-	-- Roblox's built-in sky textures; no uploaded assets.
+	-- Roblox's built-in sky until the uploaded skybox loads (`skybox`).
 	local sky = Instance.new("Sky")
 	sky.SunAngularSize = config.sky.sunAngularSize
 	sky.MoonAngularSize = config.sky.moonAngularSize
@@ -361,6 +369,49 @@ local function dressPlot(parent: Instance, index: number, rng: Random)
 	model.Parent = parent
 end
 
+-- The uploaded grass tile, laid over the ground and the hill tops.
+function Scenery.grass(url: string, config: any)
+	local studs = config.ground.grassTileStuds
+	local function lay(p: BasePart)
+		local texture = Instance.new("Texture")
+		texture.Name = "GrassTile"
+		texture.Face = Enum.NormalId.Top
+		texture.Texture = url
+		texture.StudsPerTileU = studs
+		texture.StudsPerTileV = studs
+		texture.Parent = p
+	end
+	local ground = Workspace:FindFirstChild("Baseplate")
+	if ground and ground:IsA("BasePart") then
+		lay(ground)
+	end
+	local scenery = Workspace:FindFirstChild("Scenery")
+	local hills = scenery and scenery:FindFirstChild("Hills")
+	if hills then
+		for _, hill in hills:GetChildren() do
+			if hill:IsA("BasePart") then
+				lay(hill)
+			end
+		end
+	end
+end
+
+-- Once the uploaded skybox is on: its painted clouds and mountains show
+-- through thinner moving clouds and haze.
+function Scenery.skybox(config: any)
+	local k = config.skybox
+	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere")
+	if atmosphere then
+		atmosphere.Density = k.atmosphereDensity
+		atmosphere.Haze = k.haze
+	end
+	local terrain = Workspace:FindFirstChildOfClass("Terrain")
+	local clouds = terrain and terrain:FindFirstChildOfClass("Clouds")
+	if clouds then
+		clouds.Cover = k.cloudCover
+	end
+end
+
 function Scenery.build(config: any)
 	Scenery.light(config)
 
@@ -386,38 +437,12 @@ function Scenery.build(config: any)
 		return true
 	end
 
-	-- One tree in each gap between neighbouring bases...
-	local trees = Instance.new("Folder")
-	trees.Name = "Trees"
-	trees.Parent = folder
-	for index = 1, Layout.PLOTS do
-		local angle = (index - 0.5) / Layout.PLOTS * math.pi * 2
-		local r = Layout.RING_RADIUS + 40
-		if not clear(angle) then
-			continue
-		end
-		tree(trees, Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r), 1.3, rng)
-	end
-	-- ...and a wood all around the outside of the ring.
-	for i = 1, s.treeCount do
-		local angle = (i + rng:NextNumber(-0.35, 0.35)) / s.treeCount * math.pi * 2
-		local r = rng:NextNumber(s.treeRadiusMin, s.treeRadiusMax)
-		local scale = rng:NextNumber(0.9, 1.6)
-		local bloom = rng:NextNumber()
-		if not clear(angle) then
-			continue
-		end
-		tree(trees, Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r), scale, rng)
-		if bloom < 0.5 then
-			flowers(trees, Vector3.new(math.cos(angle) * (r - 8), 0, math.sin(angle) * (r - 8)), rng)
-		end
-	end
-
 	-- Rolling hills hide the edge of the world. Their centres stay above
 	-- the ground so nothing is ever built inside it.
 	local hills = Instance.new("Folder")
 	hills.Name = "Hills"
 	hills.Parent = folder
+	local tops: { NaturePlan.Hill } = {}
 	for i = 1, s.hillCount do
 		local angle = (i + rng:NextNumber(-0.3, 0.3)) / s.hillCount * math.pi * 2
 		local r = s.hillRadius + rng:NextNumber(-15, 25)
@@ -439,6 +464,45 @@ function Scenery.build(config: any)
 			hill.CastShadow = false
 			y += height
 		end
+		table.insert(
+			tops,
+			{ x = math.cos(angle) * r, z = math.sin(angle) * r, top = y, width = size * 0.44 * 0.7 }
+		)
+	end
+
+	-- Trees, bushes, rocks and flowers (shared/NaturePlan). A tree is drawn
+	-- as boxes until its meshes load; the small things wait for theirs.
+	local trees = Instance.new("Folder")
+	trees.Name = "Trees"
+	trees.Parent = folder
+	local spots = NaturePlan.plan(s.nature, Layout.PLOTS, clear, tops)
+	for _, spot in spots do
+		local frame = CFrame.new(spot.x, spot.y, spot.z) * CFrame.Angles(0, spot.yaw, 0)
+		local placeholder: Model? = nil
+		if spot.tree then
+			-- the box tree is about 16.5 studs tall at scale 1
+			local height = EnvArt.models[spot.model].size[2] * spot.scale
+			placeholder = tree(trees, frame.Position, math.clamp(height / 16.5, 0.6, 1.8), rng)
+		end
+		EnvAssets.when(spot.model, function(template: Model)
+			if placeholder then
+				placeholder:Destroy()
+			end
+			local placed = EnvAssets.place(template, frame, spot.scale, trees)
+			if spot.tree then
+				-- a solid trunk so nobody walks through a tree
+				local size = EnvArt.models[spot.model].size
+				local width = math.min(size[1], size[3]) * spot.scale * 0.14
+				local trunk = part(placed, {
+					Name = "Trunk",
+					Size = Vector3.new(width, size[2] * spot.scale * 0.45, width),
+					CFrame = frame * CFrame.new(0, size[2] * spot.scale * 0.225, 0),
+					Transparency = 1,
+					CastShadow = false,
+				})
+				trunk.CanCollide = true
+			end
+		end)
 	end
 
 	folder.Parent = Workspace

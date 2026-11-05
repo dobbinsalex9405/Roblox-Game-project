@@ -5,9 +5,20 @@ name: Upload creature meshes
 # and opens a draft PR that records the asset ids (tools/art/blender/
 # assets.json and the regenerated CreatureMeshes.luau). Nothing reaches
 # players until that PR is verified and merged.
+#
+# With art = nature it does the same for the outdoor nature instead
+# (tools/art/env: trees, bushes, rocks, flowers, the skybox faces and the
+# grass tile) and commits the ids (tools/art/env/assets.json, env.json and
+# EnvArt.luau) back onto the branch it ran on, or onto a new branch when
+# run on main.
 on:
   workflow_dispatch:
     inputs:
+      art:
+        description: "What to upload"
+        type: choice
+        options: [creatures, nature]
+        default: creatures
       only:
         description: "Creatures to upload, comma separated (blank = all)"
         required: false
@@ -22,7 +33,61 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  nature:
+    if: inputs.art == 'nature'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: staging
+    env:
+      ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY_HATCHERY_HEIST }}
+      ROBLOX_GROUP_ID: ${{ vars.ROBLOX_GROUP_ID }}
+      ONLY: ${{ inputs.only }} # used as "$ONLY", never pasted into a script
+      BRANCH: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Blender (bpy from pip)
+        run: pip install --target="$RUNNER_TEMP/bpy" bpy==5.1.2 pillow
+
+      - name: Build the nature meshes, sky and grass
+        run: |
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/env/build.py "$RUNNER_TEMP/nature" --no-render
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/env/sky.py "$RUNNER_TEMP/images"
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/env/grass.py "$RUNNER_TEMP/images"
+
+      - name: Upload to Roblox
+        run: |
+          args=()
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/env/upload.py "$RUNNER_TEMP/nature" "$RUNNER_TEMP/images" "${args[@]}"
+
+      - name: Record the asset ids
+        run: python3 tools/art/env/luau.py
+
+      - name: Commit the ids
+        run: |
+          files=(tools/art/env/assets.json tools/art/env/env.json games/hatchery-heist/src/shared/EnvArt.luau)
+          if git diff --quiet -- "${files[@]}" && [ -z "$(git status --porcelain -- "${files[@]}")" ]; then
+            echo "No asset ids changed."; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          target="$BRANCH"
+          if [ "$target" = "main" ]; then
+            target="nature-assets/${{ github.run_id }}"
+            git checkout -b "$target"
+          fi
+          git add "${files[@]}"
+          git commit -m "Hatchery Heist: nature asset ids (run ${{ github.run_id }})"
+          git push origin "HEAD:refs/heads/$target"
+          echo "::notice::Pushed the ids to $target"
+
   upload:
+    if: inputs.art != 'nature'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: staging

@@ -68,3 +68,12 @@ again with that group's key. Production then needs its own ids (see
   most 4,000 triangles a creature (most about 1,000). This keeps a floor of 8
   to 10 creatures light on a phone.
 - The palette textures are tiny (64 × 16 to 64 × 64 pixels).
+
+## Outdoor nature, skybox and grass
+
+The trees, bushes, rocks, flowers, the six skybox faces and the grass tile
+go the same way, from `tools/art/env` (its README says how). Run the
+**Upload creature meshes** workflow with **art = nature** on a branch; it
+commits `tools/art/env/assets.json`, `env.json` and `EnvArt.luau` back onto
+that branch. `server/EnvAssets` loads the models into ServerStorage and
+Scenery places copies; until a tree loads the game draws its box tree.
