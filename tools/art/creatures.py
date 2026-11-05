@@ -705,7 +705,7 @@ def _legacy(c, H, accs):
     to a creature from the list below: (kind, colour, colour2, options)."""
     import kit_legacy
     for kind, col, col2, opts in accs:
-        kit_legacy.ACCESSORIES[kind](c, H, hexc(col), hexc(col2) if col2 else None, dict(opts, kind=kind))
+        kit_legacy.ACCESSORIES['lg_' + kind](c, H, hexc(col), hexc(col2) if col2 else None, dict(opts, kind=kind))
     return c
 
 ROSTER = [

@@ -1040,3 +1040,6 @@ def goatee(c, H, col, col2=None, a=None):
 ACCESSORIES['llama_neck'] = llama_neck
 ACCESSORIES['goatee'] = goatee
 ACCESSORIES['round_top'] = round_top
+
+# Every kind carries the kit's own prefix, so no other kit's accessory name can clash with it.
+ACCESSORIES = {'lg_' + name: fn for name, fn in ACCESSORIES.items()}
