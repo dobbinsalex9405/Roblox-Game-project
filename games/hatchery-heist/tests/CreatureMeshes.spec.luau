@@ -5,7 +5,6 @@
 -- stay inside the tiers' triangle budgets (build.py splits any mesh over
 -- 18,000 triangles; Roblox allows 20,000 a MeshPart).
 local CreatureMeshes = require("../src/shared/CreatureMeshes")
-local VoxelArt = require("../src/shared/VoxelArt")
 local creatures = require("../config/creatures")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
