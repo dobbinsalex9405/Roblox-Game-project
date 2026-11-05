@@ -650,3 +650,29 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Finding: the Roblox player list (CoreGui, top right) covers the Guide button.** With the player list open (the desktop default), the "LoopLabGames" panel sits right on top of 📖 Guide. Tapping Guide hits the player list instead and opens its "Examine Avatar" card (`112d-guide-under-playerlist.jpg`). The Guide button never received Activated in three tries.
   - Phones hide the player list by default, so this mainly affects desktop players.
   - Fix: start the side menu below the player list (for example under y 110 px), or hide the PlayerList CoreGui. HH has a single score, so the list adds little.
+
+## #74 @ 1ef9dd3 (full creature meshes, legs and gaits), local build
+
+**PASS.** Local build only; the cloud place was never opened. Desktop maximised. Set-up: floors 2-4 built, then given via the Test panel: Beetle, Bluebird, Bunny, CrystalStag, Duckling, Earthworm, EmberFox, Frog, FrostWolf, Grasshopper, Hedgehog, MoonUnicorn, NebulaSerpent, Snail, ThunderGriffin.
+
+1. **Gaits on the tower floors, sampled 8 s at 10 Hz while walking:**
+   - Every legged creature's leg joints swing:
+     - Quadrupeds about 0.5 rad: EmberFox, FrostWolf, Hedgehog, CrystalStag, MoonUnicorn.
+     - Grasshopper's six legs 0.69 rad; Beetle's six legs 0.28-0.30 rad (scuttle).
+     - Bluebird and Duckling (two legs) waddle.
+   - Hoppers lift the body about 0.7 studs per hop: Bunny, Frog, Grasshopper.
+   - ThunderGriffin hovers with its body bobbing up to 0.68, legs moving.
+   - Snail and Earthworm creep (body offset ≤0.08, no legs) with no spinning.
+   - NebulaSerpent's body wave goes up to 1.2.
+   - Close-ups of Bunny, Beetle, Bluebird, FrostWolf, ThunderGriffin and NebulaSerpent show no flicker at the leg joints and no legs passing through bodies (`74-hh-bunny-beetle-bluebird.jpg`, `74-hh-frostwolf-trot.jpg`, `74-hh-thundergriffin.jpg`, `74-hh-nebulaserpent.jpg`).
+2. **The seven named creatures:**
+   - All draw with meshes, and Output has **no** "drawing voxel boxes" or "glow meshes missing" line (unlike Staging at fca8d30).
+   - Hedgehog: 8 MeshParts, no ears, no boxes.
+   - EmberFox, FrostWolf, CrystalStag: one neon `legXX_glow` paw block per leg (0.29x0.10x0.29), plus a mane/body glow.
+   - MoonUnicorn: 6 glow parts. ThunderGriffin: 6 glow parts including the tail. NebulaSerpent: head present, 10 glow parts.
+   - *Note:* FrostWolf's `mane_glow` is a thin neon bar (0.21x1.25x0.42) standing behind the head. From the side it reads like a stray white stick (`74-hh-frostwolf-trot.jpg`). It's by design, but polish may want it wider or shorter.
+3. **Reveal and Book:**
+   - The Tabby Kitten reveal shows a whole, textured creature (`74-hh-reveal-tabby.jpg`).
+   - In the Common tab, all 91 cards have mesh models (4-10 MeshParts) and no boxes.
+   - In the Uncommon tab, all 7 silhouettes and the found Hedgehog are whole (`74-hh-book-uncommon.jpg`). As on #115, newly shown cards take a moment before their first render.
+4. **First screen:** welcome card, HUD, side menu and shield look as before. Nothing regressed (`74-hh-first-screen.jpg`).
