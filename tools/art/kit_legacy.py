@@ -322,7 +322,7 @@ def polka(c, H, col, col2=None, a=None):
     guineafowl's): one voxel dots on a staggered grid."""
     a = a or {}
     k = _k(H)
-    step = max(3, round(a.get('step', 1.3) * k))
+    step = max(2, round(a.get('step', 1.3) * k))
     names = a.get('parts', ['body', 'wingL', 'wingR', 'tail'])
     for name in names:
         part = _find(c, name)
@@ -337,14 +337,26 @@ def polka(c, H, col, col2=None, a=None):
             # only the surface
             if all(n in vox for n in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1))):
                 continue
-            row = z // step
-            off = (step // 2) if row % 2 else 0
-            if z % step == 0 and (y + off) % step == 0 and (x + off) % step in (0,):
-                vox[(x, y, z)] = (col, False)
-            elif z % step == 0 and (x + off) % step == 0 and (y + off) % step == 0:
-                vox[(x, y, z)] = (col, False)
-            elif z % step == 0 and abs(x) > 0 and (y + x + off) % step == 0 and (abs(x + .5) > 1.5 * k):
-                vox[(x, y, z)] = (col, False)
+        # one dot per step-sized cell of space the surface passes through,
+        # on a hashed voxel of that cell, never touching another dot: even
+        # spacing on the top, the sides and the wings alike
+        cells = {}
+        for (x, y, z), (cc, g) in vox.items():
+            if g or cc in (INK, WHITE) or z < zfrom:
+                continue
+            if all(n in vox for n in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1), (x, y, z - 1))):
+                continue
+            key = (x // step, y // step, z // step)
+            h = ((x * 73856093) ^ (y * 19349663) ^ (z * 83492791)) & 0xffff
+            if key not in cells or h < cells[key][0]:
+                cells[key] = (h, (x, y, z))
+        dots = set()
+        for _, p in sorted(cells.values()):
+            x, y, z = p
+            if any((x + dx, y + dy, z + dz) in dots for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1)):
+                continue
+            dots.add(p)
+            vox[p] = (col, False)
 
 
 # ------------------------------------------------------------------ heads

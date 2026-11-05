@@ -1272,7 +1272,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		height = 2.2,
 		size = { 1.2, 2.2, 2.1 },
 		tris = 11392,
-		trisLod1 = 964,
+		trisLod1 = 1042,
 		parts = {
 			{
 				name = "body",
