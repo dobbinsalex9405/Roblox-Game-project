@@ -31,7 +31,7 @@ export type Creature = {
 
 local CreatureMeshes: { [string]: Creature } = {
 	Beetle = {
-		assetId = 0,
+		assetId = 71950813452077,
 		rarity = "Common",
 		height = 0.8,
 		size = { 1, 0.8, 1.6 },
@@ -80,7 +80,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Bluebird = {
-		assetId = 0,
+		assetId = 80164917359004,
 		rarity = "Common",
 		height = 1.9,
 		size = { 1.2, 1.9, 1.4 },
@@ -123,7 +123,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Bumblebee = {
-		assetId = 0,
+		assetId = 137863202285617,
 		rarity = "Common",
 		height = 1.1,
 		size = { 1.2, 1.1, 1.6 },
@@ -265,7 +265,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Butterfly = {
-		assetId = 0,
+		assetId = 95471060225988,
 		rarity = "Common",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
@@ -344,7 +344,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Calf = {
-		assetId = 0,
+		assetId = 102259764137875,
 		rarity = "Common",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.9 },
@@ -413,7 +413,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Caterpillar = {
-		assetId = 0,
+		assetId = 126532331969186,
 		rarity = "Common",
 		height = 1.1,
 		size = { 0.8, 1.1, 2.1 },
@@ -511,7 +511,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Chipmunk = {
-		assetId = 0,
+		assetId = 97080174184231,
 		rarity = "Common",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.9 },
@@ -578,7 +578,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Crab = {
-		assetId = 0,
+		assetId = 120148575986382,
 		rarity = "Common",
 		height = 1.1,
 		size = { 1.8, 1.1, 1.1 },
@@ -664,7 +664,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Fawn = {
-		assetId = 0,
+		assetId = 101243518036208,
 		rarity = "Common",
 		height = 2.1,
 		size = { 1, 2.1, 1.9 },
@@ -723,7 +723,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Foal = {
-		assetId = 0,
+		assetId = 99098614718205,
 		rarity = "Common",
 		height = 2,
 		size = { 1, 2, 2.2 },
@@ -831,7 +831,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	GoatKid = {
-		assetId = 0,
+		assetId = 124544802455507,
 		rarity = "Common",
 		height = 1.9,
 		size = { 1.2, 1.9, 1.7 },
@@ -910,7 +910,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	GuineaPig = {
-		assetId = 0,
+		assetId = 112552193065577,
 		rarity = "Common",
 		height = 1.6,
 		size = { 1.5, 1.6, 1.8 },
@@ -1038,7 +1038,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Hen = {
-		assetId = 0,
+		assetId = 112598712381113,
 		rarity = "Common",
 		height = 1.9,
 		size = { 1.4, 1.9, 1.4 },
@@ -1077,7 +1077,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Koala = {
-		assetId = 0,
+		assetId = 106919904082707,
 		rarity = "Common",
 		height = 2.1,
 		size = { 1.4, 2.1, 1.7 },
@@ -1234,7 +1234,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	LopBunny = {
-		assetId = 0,
+		assetId = 86636891991373,
 		rarity = "Common",
 		height = 1.8,
 		size = { 1.4, 1.8, 1.8 },
@@ -1311,7 +1311,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Mole = {
-		assetId = 0,
+		assetId = 110615694736963,
 		rarity = "Common",
 		height = 1.4,
 		size = { 1.4, 1.4, 1.9 },
@@ -1433,7 +1433,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	OtterPup = {
-		assetId = 0,
+		assetId = 74882698190928,
 		rarity = "Common",
 		height = 1.5,
 		size = { 1, 1.5, 2.6 },
@@ -1500,7 +1500,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Parakeet = {
-		assetId = 0,
+		assetId = 106393238211519,
 		rarity = "Common",
 		height = 2,
 		size = { 1, 2, 1.3 },
@@ -1612,7 +1612,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Robin = {
-		assetId = 0,
+		assetId = 74016969660691,
 		rarity = "Common",
 		height = 1.7,
 		size = { 1.4, 1.7, 1.3 },
@@ -1700,7 +1700,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Toad = {
-		assetId = 0,
+		assetId = 135837297701031,
 		rarity = "Common",
 		height = 1.3,
 		size = { 1.4, 1.3, 1.3 },
