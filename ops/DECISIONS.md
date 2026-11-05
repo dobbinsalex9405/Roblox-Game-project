@@ -18,6 +18,32 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Space rules are tested**, not eyeballed: creature cells, elevator
   shaft and door, ladder opening, windows, pictures, ceiling
   (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+## 2026-11-05: Roster creatures reach the game through a generated config block
+
+- **What:** `tools/art/to_config.py` writes a marked block at the end of
+  `species` in Hatchery Heist's `config/creatures.luau`: every creature that
+  is on the master list, built by tools/art and uploaded (assets.json, Image
+  colours) and not written by hand. Income is a stable hash inside its
+  tier's band (Common 1-3, Uncommon 4-10, Rare 15-35, Ultra Rare 60-90, Epic
+  130-200, Legendary 400-500, Godly 800-1000), mount speed per tier, pools by
+  family (Barnyard: Farm, Pet, City, Garden; Moonlit: Spooky, Mutant,
+  Fantasy, Mythic, Spirit, Cosmic, Crystal, Mechanical, Elemental, Dino;
+  everything else Meadow), moved to the first egg that rolls the tier if
+  its family's egg does not. CI runs `--check`.
+- **Review gate:** only ids in `tools/art/roster/master/reviewed.txt` enter
+  the block. `to_config.py --promoted <PROMOTED.log>` adds every id the
+  strict reviewer promoted (ids are only added). Nothing ships unreviewed.
+- **Why:** builders ship roster JSON only; without this step reviewed
+  creatures reached the design viewer but never an egg. One block in the
+  same file (not a second module) keeps a single `require` and lets a hand
+  entry override any generated one by moving its line out.
+- **HOLD list:** built creatures that break an in-game art rule (voxel box
+  budget, glow below Ultra Rare) stay out until fixed: Firefly,
+  BeardedDragon, SeaUrchin, HermitCrab.
+- **Limit to fix before Rare+ batches:** an egg tier's weight must be at
+  least its member count (Schemas.crossCheck), and tiers are written out of
+  100,000. Basic egg Legendary is 2 and Epic 18, so Legendary/Epic batches
+  need either more-precise totals or fewer creatures per pool.
 
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
