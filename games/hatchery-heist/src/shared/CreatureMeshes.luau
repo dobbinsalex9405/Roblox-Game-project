@@ -3051,7 +3051,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Hedgehog = {
 		assetId = 83813792125695,
-		textureId = 94569272805128,
+		textureId = 91022007223048,
 		rarity = "Uncommon",
 		gait = "trot",
 		height = 1.2,
@@ -3170,7 +3170,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Kitten = {
 		assetId = 88352589006478,
-		textureId = 135608709611834,
+		textureId = 87883810930419,
 		rarity = "Uncommon",
 		gait = "trot",
 		height = 2,
@@ -4285,7 +4285,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	EmberFox = {
 		assetId = 115947540552349,
-		textureId = 112696943223997,
+		textureId = 86931945166448,
 		rarity = "Ultra Rare",
 		gait = "trot",
 		height = 2.6,
@@ -4460,7 +4460,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	FrostWolf = {
 		assetId = 118793263738444,
-		textureId = 95821417286983,
+		textureId = 89186228144075,
 		rarity = "Ultra Rare",
 		gait = "trot",
 		height = 2.6,
@@ -4648,7 +4648,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	StormHawk = {
 		assetId = 113835090859855,
-		textureId = 114287162798682,
+		textureId = 112226885630559,
 		rarity = "Ultra Rare",
 		gait = "waddle",
 		height = 2.5,
@@ -4808,7 +4808,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	CrystalStag = {
 		assetId = 76176813759498,
-		textureId = 120662993255744,
+		textureId = 92502293027004,
 		rarity = "Epic",
 		gait = "trot",
 		height = 3.3,
@@ -5020,7 +5020,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Dragonling = {
 		assetId = 112243397048228,
-		textureId = 79940757641376,
+		textureId = 130084316419531,
 		rarity = "Epic",
 		gait = "trot",
 		height = 2.8,
@@ -5264,7 +5264,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	MoonUnicorn = {
 		assetId = 110066245966043,
-		textureId = 99640012709661,
+		textureId = 71273978261219,
 		rarity = "Epic",
 		gait = "trot",
 		height = 3.2,
@@ -5499,7 +5499,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Phoenix = {
 		assetId = 71414247546855,
-		textureId = 133302477876061,
+		textureId = 119510102249743,
 		rarity = "Legendary",
 		gait = "hover",
 		height = 3.9,
@@ -5688,7 +5688,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	ThunderGriffin = {
 		assetId = 97687610747222,
-		textureId = 90646532567032,
+		textureId = 84712318410980,
 		rarity = "Legendary",
 		gait = "trot",
 		height = 3.2,
