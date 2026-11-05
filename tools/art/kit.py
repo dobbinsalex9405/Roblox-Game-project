@@ -246,7 +246,10 @@ def lizard(c, H, kind, col, accent, belly=None):
         else:
             # a spiky beard: the chin and jaw speckled in the accent colour,
             # with a few spikes standing proud at the sides
-            head.paint(lambda p, cc, g: (ac, False) if not g and p[2] < 2.7 * k and (p[0] + p[1] + p[2]) % 2 == 0 else None)
+            # (solid in the small in-game build, where a speckle would cost a
+            # box per voxel and break the Common part budget)
+            head.paint(lambda p, cc, g: (ac, False) if not g and p[2] < 2.7 * k and (
+                not fine or (p[0] + p[1] + p[2]) % 2 == 0) else None)
             bd = c.part('beard', 'static')
             zj = round(2.4 * k)
             for (x, y, z) in list(head.v):
