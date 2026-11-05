@@ -642,3 +642,11 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Output (real findings, not the in-place rewrite):**
   - `creature meshes did not load; drawing voxel boxes reason=mesh Hedgehog_ears missing from asset 83813792125695` and `NebulaSerpent_head missing from asset 133734762072662`: those two assets are missing a named part.
   - Glow meshes are missing for CrystalStag, EmberFox, FrostWolf, MoonUnicorn and ThunderGriffin (wing glow2). Those creatures draw without glow.
+
+## #112 remerged head @ 5fa4ac7 (side menu re-check)
+
+**PASS for #112, plus one finding that comes from the layout, not from #112.** Local build, phone size.
+- **Side menu hides and comes back cleanly** on every window, over five open/close cycles: Daily, Tower, Pets, Core Shop and Book. Each open logged `side=false`; each close logged `side=true`. It was present after "Let's go!" and at the end.
+- **Finding: the Roblox player list (CoreGui, top right) covers the Guide button.** With the player list open (the desktop default), the "LoopLabGames" panel sits right on top of 📖 Guide. Tapping Guide hits the player list instead and opens its "Examine Avatar" card (`112d-guide-under-playerlist.jpg`). The Guide button never received Activated in three tries.
+  - Phones hide the player list by default, so this mainly affects desktop players.
+  - Fix: start the side menu below the player list (for example under y 110 px), or hide the PlayerList CoreGui. HH has a single score, so the list adds little.
