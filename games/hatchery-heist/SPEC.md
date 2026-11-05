@@ -10,13 +10,21 @@ spec wins until Alex says otherwise.
 
 Eight bases sit in a ring around a shared yard; each player gets one.
 
-1. **Conveyor.** Eggs ride along the front of the base on a fixed server-time
-   schedule (`economy.conveyor`): one every `spawnSeconds`, crossing in
-   `travelSeconds`, the kind picked by `weights`. Walk up to an egg and buy it
-   with coins; it goes straight into the first free incubator. The odds card
-   for that egg is on screen while the Buy prompt is, and the board above the
-   belt lists every belt egg's odds by tier. The card's "See every creature"
-   button lists each creature's exact chance. Buy stays off until the odds are known.
+1. **Egg Market.** One round belt in the middle of the map, around the
+   Golden Nest, shared by everyone (`economy.conveyor`, `server/Market`,
+   `client/ConveyorView`): two lanes turning opposite ways, a new egg every
+   `spawnSeconds` taking turns between them, once round in `travelSeconds`,
+   the kind picked by `weights`. Each egg rides its own pedestal, bobbing and
+   turning. Walk up to an egg and buy it with coins; it goes straight into
+   the first free incubator. Whoever buys an egg first gets it: the server
+   refuses the rest ("Someone else got that egg first.") and every player
+   sees it leave its pedestal. The server sells only within `buyReach` of
+   the egg. The odds card for that egg is on screen while the Buy prompt is,
+   and a raised sign beside each of the eight stops shows a belt egg's
+   name, price and its two rarest tiers as "1 in N", one egg at a time
+   (`conveyor.signSeconds`; `Geometry.MARKET_SIGN`; the Golden Nest stays
+   clear). The card's "See every creature" button lists each creature's
+   exact chance. Buy stays off until the odds are known.
 2. **Incubators.** 3 to start, more for coins (`economy.incubators.slotCosts`),
    +2 with the Extra Incubators pass. An egg hatches `hatchSeconds` after it
    was bought, by the saved clock, so it keeps going while the player is away.
@@ -115,17 +123,17 @@ studs, a carried one at most `Layout.CARRY_MAX`.
 (`config/creatures.luau`) and may set an in-tier `weight` (1 by default).
 `Eggs.expand` splits each tier's weight between its creatures, largest
 remainder first, so every tier's chance is exact and adding a creature only
-splits its own tier. The odds card and board show one line per tier; the
+splits its own tier. The odds card shows one line per tier; the
 "See every creature" list shows each creature as a percentage and as
 "1 in N". The rarest belt hatch is a Godly at 1 in 50,000 from the Moonlit
 Egg. Each creature also has an optional `element`, unused until elements
 roll out with a much larger roster.
 
-| Egg | Price | Belt share | Best odds |
+| Egg | Price | Market share | Best odds |
 | --- | ---: | ---: | --- |
-| Basic | 50 coins | 70% | Phoenix 1 in 50,000 |
-| Meadow | 2,500 coins | 25% | Thunder Griffin 1 in 33,333 |
-| Moonlit | 15,000 coins | 5% | Nebula Serpent 1 in 50,000 |
+| Basic | 50 coins | 55% | Phoenix 1 in 50,000 |
+| Meadow | 2,500 coins | 30% | Thunder Griffin 1 in 33,333 |
+| Moonlit | 15,000 coins | 15% | Nebula Serpent 1 in 50,000 |
 | Premium | Robux (not on sale yet) | | Golden Goose 1 in 10,000 |
 
 ## Mounts (approved Nov 1, 2026)
