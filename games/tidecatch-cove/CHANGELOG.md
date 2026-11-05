@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Fix: on a landscape phone the Pools, Bucket and shop panels were taller
+  than the screen, so the Unlock and Sell all buttons were cut off. Panels
+  now fit 90% of the screen height and their lists scroll.
+- Fix: the map was buried in the ground. The Baseplate was placed with a
+  property Rojo drops when it builds the place, so it sat ten studs too high
+  and covered every floor, pad and label. It is now placed with CFrame, and
+  the boot check fails when anything is built inside the ground.
+
 - Player analytics (shared core): the daily scoreboard now shows time played
   and session lengths, D7 and D30 returns, players who come with or bring
   friends, Robux by item and by where in the game it was bought, purchase

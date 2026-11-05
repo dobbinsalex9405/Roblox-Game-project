@@ -25,7 +25,10 @@ function ShopView.start(ctx: Context.Context)
 	gui.Parent = ctx.player:WaitForChild("PlayerGui")
 
 	local panel =
-		Ui.panel(gui, "Shop", UDim2.fromOffset(340, 400), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
+		Ui.panel(gui, "Shop", UDim2.new(0, 340, 0.9, 0), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
+	local panelFit = Instance.new("UISizeConstraint") -- never taller than the screen
+	panelFit.MaxSize = Vector2.new(340, 400)
+	panelFit.Parent = panel
 	panel.Visible = false
 	local title = Ui.label(panel, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	title.TextXAlignment = Enum.TextXAlignment.Left
