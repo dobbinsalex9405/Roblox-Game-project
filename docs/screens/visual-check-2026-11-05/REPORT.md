@@ -331,3 +331,10 @@ shell go fully transparent (`97-hh-market-bought`). A fresh spawn lands at the p
 can't be read from the paths: about 34 studs away the rows are a few pixels tall
 (`97-hh-kiosk-from-path`). No game errors. A Studio "Lighting Technology Migration" notice
 popped up once and was closed with its X; it's Studio-only.
+
+## Re-gate: #94 at f8f36be
+
+PASS. Ember Fox, Frost Wolf, Crystal Stag and Moon Unicorn draw as coloured MeshParts (6-7 each,
+texture loads), not voxel boxes (`94b-hh-glow-species-meshes`). Output has "creature glow meshes
+missing; drawing the creature without them meshes=<Species>_body_glow" for all four and no
+"drawing voxel boxes" line.
