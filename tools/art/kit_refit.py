@@ -51,8 +51,9 @@ dict, its extra keys are the settings named below):
 - **chameleon**: a tall casque, turret eyes on the sides and a tail rolled
   in a spiral (colour: casque; color2: eye turrets).
 
-- **eye_line**: a waxwing's mask, one voxel tall through the eyes from the
-  beak's base to the back of the head, with a shine on each eye.
+- **eye_line**: a waxwing's mask, one voxel tall from the beak's base to
+  each eye, then angling up the side of the head into the crest; the eyes
+  stand on it, dark 2x2 with a shine in the top outer corner.
 - **tern_cap**: a tern's black cap from the beak's base over the crown and
   down the nape, the eyes keeping a shine.
 - **fork_tail**: a long tail splitting into two thin spreading prongs
@@ -1329,22 +1330,53 @@ def _shine(c, head, e):
 
 
 def eye_line(c, H, color, color2=None, a=None):
-    """A waxwing's mask: a line one voxel tall through the eyes, from the
-    beak's base round to the back of the head, with a white shine on top of
-    each eye so the eyes still show in it."""
-    a = a or {}
+    """A waxwing's mask: a line one voxel tall from beside the beak's base
+    to the front of each eye, then from behind the eye angling up the side
+    of the head into the crest. Each eye is a dark 2x2 block on the line,
+    standing 1 voxel above it, with one white shine in its top outer corner
+    (#96)."""
     col = _rgb(color)
     head = _find(c, 'head')
     le, re_, e = _eye_info(c)
     if head is None or not (le or re_):
         return
     ez = min(p[2] for p in le + re_)
-    back = max(p[1] for p in head.v) - max(1, round(float(a.get('short', 0.3)) * H / 10.0))
-    for q, (cc, g) in list(head.v.items()):
-        if q[2] == ez and q[1] <= back and cc not in (INK, WHITE):
-            head.v[q] = (col, False)
-    if _fine(c):
-        _shine(c, head, e)
+    ex = min(p[0] for p in re_) if re_ else -max(p[0] for p in le) - 1
+    _clear_eyes(c, head)
+    hc = _main(head)
+    L = ez - 1
+    fine = _fine(c)
+    w = 2 if fine else 1
+    for side in (1, -1):
+        def X(x):
+            return x if side > 0 else _mx(x)
+        # the line on the face: from the beak's side to the eye's front
+        for x in range(0, ex):
+            f = head.front(X(x), L)
+            if f and head.v[f][0] == hc:
+                head.v[f] = (col, False)
+        # the eye: its bottom row on the line, standing 1 voxel above it
+        for dx in range(w):
+            for dz in range(w):
+                f = head.front(X(ex + dx), L + dz)
+                if f:
+                    del head.v[f]
+                    shine = fine and dx == w - 1 and dz == w - 1
+                    e.put(f, WHITE if shine else INK)
+        # behind the eye: along the outermost voxels, rising toward the crest
+        f = head.front(X(ex + w), L) or head.front(X(ex + w - 1), L)
+        if not f:
+            continue
+        y0 = f[1]
+        ys = sorted({p[1] for p in head.v if p[1] > y0})
+        for i, y in enumerate(ys):
+            z = L + (i + 1) // 2
+            row = [p for p in head.v if p[1] == y and p[2] == z]
+            if not row:
+                break
+            q = max(row, key=lambda p: p[0] * side)
+            if head.v[q][0] == hc:
+                head.v[q] = (col, False)
 
 
 def tern_cap(c, H, color, color2=None, a=None):
