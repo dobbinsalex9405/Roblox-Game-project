@@ -77,7 +77,9 @@ def write():
         '-- meshes that ride on it. Studs, at the creature\'s size on a pad; Y up,',
         '-- front -Z, feet at the origin. `assetId` is the uploaded Model holding',
         '-- MeshParts named after the meshes; 0 = not uploaded, so the game draws',
-        '-- the VoxelArt boxes instead.',
+        '-- the VoxelArt boxes instead. `gait` is how it walks: trot, waddle, hop,',
+        '-- scuttle, slither or hover; legs are parts legFL/FR/BL/BR, legL/R or',
+        '-- leg1L..leg3R, each swung about its pivot (the hip).',
         '',
         'export type Mesh = { name: string, center: { number }, size: { number }, glow: string? }',
         'export type Part = {',
@@ -91,6 +93,7 @@ def write():
         'export type Creature = {',
         '\tassetId: number,',
         '\trarity: string,',
+        '\tgait: string,',
         '\theight: number,',
         '\tsize: { number },',
         '\ttris: number,',
@@ -104,6 +107,7 @@ def write():
         L.append(f'\t{c["id"]} = {{')
         L.append(f'\t\tassetId = {ids.get(c["id"], 0)},')
         L.append(f'\t\trarity = "{c["rarity"]}",')
+        L.append(f'\t\tgait = "{c["gait"]}",')
         L.append(f'\t\theight = {num(c["heightStuds"])},')
         L.append(f'\t\tsize = {vec(c["sizeStuds"])},')
         L.append(f'\t\ttris = {c["tris"]},')

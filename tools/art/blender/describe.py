@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 from creatures import HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
+import rig  # noqa: E402
 
 RANK = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
 
@@ -50,7 +51,7 @@ def parent_of(part, parts):
         return None
     if part.name in ('eyes', 'ears'):
         return 'head'
-    if part.name in ('head', 'wingL', 'wingR', 'tail'):
+    if part.name in ('head', 'wingL', 'wingR', 'tail') or part.name.startswith('leg'):
         return 'body'  # a moving part rides the body, never another mover (no parent loops)
     scored = []
     for other in parts:
@@ -116,7 +117,14 @@ def describe(c):
     for part in c.parts:
         pivot = voxmesh.to_game(part.pivot, centre, V)
         meshes, mlist = [], []
-        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of):
+        # where a leg meets the body, both sides are flat (hidden at rest)
+        if part.name == 'body':
+            flat = {v for o in c.parts if o.name.startswith('leg') for v in o.v}
+        elif part.name.startswith('leg'):
+            flat = set(next((o.v for o in c.parts if o.name == 'body'), ()))
+        else:
+            flat = ()
+        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of, flat=flat):
             if not md.tris:
                 continue
             name = f'{c.species}_{md.name}'
@@ -161,6 +169,7 @@ def describe(c):
         'id': c.species,
         'rarity': c.rarity,
         'element': getattr(c, 'element', 'plain'),
+        'gait': rig.gait(c),
         'heightStuds': round(size[1], 4),
         'sizeStuds': r4(size),
         'voxelStuds': round(V, 5),
