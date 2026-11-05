@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed (#49): a server error on every frame while any base had no guard
+  (every new player), which also stopped every other base's guard from
+  moving. The boot check now plays 30 frames, so per-frame errors fail CI.
 - Player analytics (shared core): the daily scoreboard now shows time played
   and session lengths, D7 and D30 returns, players who come with or bring
   friends, Robux by item and by where in the game it was bought, purchase

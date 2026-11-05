@@ -39,8 +39,20 @@ local function gap(name: string)
 	Shim.gaps[name] = (Shim.gaps[name] or 0) + 1
 end
 
+-- Lune's Instances cannot take nil for an Instance-valued property other than
+-- Parent ("Failed to convert from 'nil' into 'Ref'"), and the shim cannot
+-- override built-in properties. In Roblox `box.Adornee = nil` is always legal,
+-- so this is a gap in the shim, never a bug in the game: it is counted with
+-- the other gaps instead of failing the boot check.
+local LUNE_NIL_REF = "Failed to convert from 'nil' into 'Ref'"
+
 local function record(where: string, message: any)
-	table.insert(Shim.errors, { where = where, message = tostring(message) })
+	local text = tostring(message)
+	if string.find(text, LUNE_NIL_REF, 1, true) then
+		gap("setting an Instance property to nil (legal in Roblox; Lune cannot)")
+		return
+	end
+	table.insert(Shim.errors, { where = where, message = text })
 end
 
 local function say(prefix: string, ...: any)

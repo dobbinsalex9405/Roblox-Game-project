@@ -8,6 +8,7 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local economyConfig = require("../config/economy")
+local creaturesConfig = require("../config/creatures")
 local raidsConfig = require("../config/raids")
 
 -- Two players on one server: an owner with creatures on pads 1-3 and a
@@ -283,5 +284,30 @@ describe("Raids", function()
 		expect(d.guardUid).toBe("")
 		expect(Defenses.carrySpeed(32, raidsConfig)).toBe(32 * raidsConfig.carryMountFactor)
 		expect(Defenses.carrySpeed(nil, raidsConfig)).toBe(raidsConfig.carryWalkSpeed)
+	end)
+
+	-- #49: a base with no guard (every new player) made the guard loop index
+	-- `false` on every frame, because `d and d.guardUid ~= "" and ...` is
+	-- `false`, not nil, and the loop only skipped nil.
+	it("a base with no guard has no guard, as nil, never false", function()
+		local species = creaturesConfig.species
+		local d: any = {
+			creatures = { { uid = "1", speciesId = "Chick", mutation = "None", slot = 2 } },
+			guardUid = "",
+			mountUid = "",
+		}
+		for _, data in { d, nil } do
+			local creature, kind = Defenses.guardOf(data, species)
+			expect(creature).toBeNil()
+			expect(kind).toBeNil()
+		end
+		d.guardUid = "9" -- a guard that was sold or stolen
+		expect((Defenses.guardOf(d, species))).toBeNil()
+		d.guardUid = "1"
+		local creature, kind = Defenses.guardOf(d, species)
+		expect(creature.uid).toBe("1")
+		expect(kind).toBe(species.Chick)
+		d.creatures[1].speciesId = "Retired" -- a species removed from the config
+		expect((Defenses.guardOf(d, species))).toBeNil()
 	end)
 end)
