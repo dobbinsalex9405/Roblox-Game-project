@@ -292,6 +292,41 @@ return function(Schema: any, Odds: any)
 					clearRadius = Schema.number({ min = 0, max = 80 }),
 					windmillTurnSeconds = Schema.number({ min = 1, max = 120 }),
 				}),
+				-- The farm hub (tests/HubLayout.spec.luau checks the fit).
+				hub = Schema.optional(Schema.record({
+					innerRadius = Schema.number({ min = 20, max = 60 }),
+					outerRadius = Schema.number({ min = 40, max = 100 }),
+					pathWidth = Schema.number({ min = 4, max = 30 }),
+					shop = Schema.record({
+						angle = Schema.number({ min = 0, max = 360 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+						width = Schema.number({ min = 1, max = 60 }),
+						depth = Schema.number({ min = 1, max = 60 }),
+					}),
+					arch = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+					}),
+					lamps = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radii = Schema.array(Schema.number({ min = 20, max = 100 }), { maxLength = 8 }),
+						side = Schema.number({ min = 0, max = 30 }),
+					}),
+					signposts = Schema.record({
+						id = Schema.string({ maxLength = 40 }),
+						radius = Schema.number({ min = 20, max = 100 }),
+						side = Schema.number({ min = 0, max = 30 }),
+					}),
+					pieces = Schema.array(
+						Schema.record({
+							id = Schema.string({ maxLength = 40 }),
+							angle = Schema.number({ min = 0, max = 360 }),
+							radius = Schema.number({ min = 20, max = 100 }),
+							yaw = Schema.optional(Schema.number({ min = -360, max = 360 })),
+						}),
+						{ maxLength = 80 }
+					),
+				})),
 			}),
 			function(v: any): (boolean, string?)
 				if v.nature.wood.radiusMax < v.nature.wood.radiusMin then
