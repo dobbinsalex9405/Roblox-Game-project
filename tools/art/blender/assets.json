@@ -1,0 +1,217 @@
+{
+ "models": {
+  "Axolotl": {
+   "assetId": 93299309721117,
+   "version": "1"
+  },
+  "Beetle": {
+   "assetId": 71950813452077,
+   "version": "1"
+  },
+  "Bluebird": {
+   "assetId": 80164917359004,
+   "version": "1"
+  },
+  "Bumblebee": {
+   "assetId": 137863202285617,
+   "version": "1"
+  },
+  "Bunny": {
+   "assetId": 104598696622884,
+   "version": "1"
+  },
+  "Butterfly": {
+   "assetId": 95471060225988,
+   "version": "1"
+  },
+  "Calf": {
+   "assetId": 102259764137875,
+   "version": "1"
+  },
+  "Caterpillar": {
+   "assetId": 126532331969186,
+   "version": "1"
+  },
+  "Chick": {
+   "assetId": 74180591280310,
+   "version": "1"
+  },
+  "Chipmunk": {
+   "assetId": 97080174184231,
+   "version": "1"
+  },
+  "Crab": {
+   "assetId": 120148575986382,
+   "version": "1"
+  },
+  "CrystalStag": {
+   "assetId": 76176813759498,
+   "version": "1"
+  },
+  "Dragonling": {
+   "assetId": 112243397048228,
+   "version": "1"
+  },
+  "Duckling": {
+   "assetId": 102220359849826,
+   "version": "1"
+  },
+  "EmberFox": {
+   "assetId": 115947540552349,
+   "version": "1"
+  },
+  "Fawn": {
+   "assetId": 101243518036208,
+   "version": "1"
+  },
+  "Fennec": {
+   "assetId": 106352067459997,
+   "version": "1"
+  },
+  "Foal": {
+   "assetId": 99098614718205,
+   "version": "1"
+  },
+  "FoxKit": {
+   "assetId": 105624438454758,
+   "version": "1"
+  },
+  "Frog": {
+   "assetId": 97442222723304,
+   "version": "1"
+  },
+  "FrostWolf": {
+   "assetId": 118793263738444,
+   "version": "1"
+  },
+  "GoatKid": {
+   "assetId": 124544802455507,
+   "version": "1"
+  },
+  "GoldenGoose": {
+   "assetId": 78366279913804,
+   "version": "1"
+  },
+  "Gosling": {
+   "assetId": 130561605368036,
+   "version": "1"
+  },
+  "GuineaPig": {
+   "assetId": 112552193065577,
+   "version": "1"
+  },
+  "Hamster": {
+   "assetId": 139623795240964,
+   "version": "1"
+  },
+  "Hedgehog": {
+   "assetId": 83813792125695,
+   "version": "1"
+  },
+  "Hen": {
+   "assetId": 112598712381113,
+   "version": "1"
+  },
+  "Kitten": {
+   "assetId": 88352589006478,
+   "version": "1"
+  },
+  "Koala": {
+   "assetId": 106919904082707,
+   "version": "1"
+  },
+  "Ladybug": {
+   "assetId": 102641076306308,
+   "version": "1"
+  },
+  "Lamb": {
+   "assetId": 138591886331754,
+   "version": "1"
+  },
+  "LopBunny": {
+   "assetId": 86636891991373,
+   "version": "1"
+  },
+  "Mole": {
+   "assetId": 110615694736963,
+   "version": "1"
+  },
+  "MoonUnicorn": {
+   "assetId": 110066245966043,
+   "version": "1"
+  },
+  "Mouse": {
+   "assetId": 92364934149108,
+   "version": "1"
+  },
+  "NebulaSerpent": {
+   "assetId": 133734762072662,
+   "version": "1"
+  },
+  "OtterPup": {
+   "assetId": 74882698190928,
+   "version": "1"
+  },
+  "Owlet": {
+   "assetId": 127514852994147,
+   "version": "1"
+  },
+  "PandaCub": {
+   "assetId": 133358910111184,
+   "version": "1"
+  },
+  "Parakeet": {
+   "assetId": 106393238211519,
+   "version": "1"
+  },
+  "Penguin": {
+   "assetId": 82084154556622,
+   "version": "1"
+  },
+  "Phoenix": {
+   "assetId": 71414247546855,
+   "version": "1"
+  },
+  "Piglet": {
+   "assetId": 106002945781471,
+   "version": "1"
+  },
+  "Puppy": {
+   "assetId": 127990885620508,
+   "version": "1"
+  },
+  "Raccoon": {
+   "assetId": 114013898990968,
+   "version": "1"
+  },
+  "Robin": {
+   "assetId": 74016969660691,
+   "version": "1"
+  },
+  "Snail": {
+   "assetId": 134232233539311,
+   "version": "1"
+  },
+  "Squirrel": {
+   "assetId": 92755741632027,
+   "version": "1"
+  },
+  "StormHawk": {
+   "assetId": 113835090859855,
+   "version": "1"
+  },
+  "ThunderGriffin": {
+   "assetId": 97687610747222,
+   "version": "1"
+  },
+  "Toad": {
+   "assetId": 135837297701031,
+   "version": "1"
+  },
+  "Turtle": {
+   "assetId": 123806255045156,
+   "version": "1"
+  }
+ },
+ "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py)."
+}
