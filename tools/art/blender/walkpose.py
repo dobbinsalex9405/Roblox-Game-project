@@ -37,6 +37,19 @@ HOP_AIR = 0.6
 STILL = (0.0, 0.0, 0.0, 0.0, 0.0)  # rx, ry, rz, dx, dy
 
 
+WALKS_BY_NAME = ('head', 'tail', 'ears')
+
+
+def role(name, anim):
+    """Walk.role: the joint a part animates as. A part named head, tail or
+    ears tagged 'static' still nods and swings as one."""
+    if name == 'body':
+        return 'body'
+    if anim == 'static' and name in WALKS_BY_NAME:
+        return name
+    return anim
+
+
 def is_leg(anim):
     return anim in LEG_SETS
 
