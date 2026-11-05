@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Every creature walks on its own legs: birds step on two little legs and
+  flick their wings out, bunnies push off with their hind feet, frogs kick
+  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
+  two alternating sets and spiders on eight; ladybugs, turtles and pill
+  bugs no longer slide along on their bellies. Legendaries and Godlies
+  fly, with their legs trailing. The 3D design viewer's walk clips match.
 - Creatures on your tower walk around their spot: they turn, walk, stop,
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
