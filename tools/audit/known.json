@@ -1,0 +1,11 @@
+{
+  "_readme": "FAILs the player's-eye audit already found and that are being fixed: each one shows as KNOWN instead of failing CI. Add an entry only with a reason that names who fixes it; remove it in the PR that fixes it (the audit warns when an entry no longer matches). ops/VISUAL_PLAYTEST.md.",
+  "known": [
+    {
+      "game": "tidecatch-cove",
+      "rule": "hud.text-tiny",
+      "contains": "TidecatchHud.Pools.List.Pool",
+      "reason": "pool rows' info line is scaled text in a small box, about 8 px on a phone; found 2026-11-04, sent to the Tidecatch Cove fix thread"
+    }
+  ]
+}
