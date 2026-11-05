@@ -811,12 +811,19 @@ def frost_saber(c, H):
         front = [q for q in col_v if q[1] <= yf + 1]
         zb = min(q[2] for q in front)
         yb = min(q[1] for q in front if q[2] == zb)
-        rows = [(zb + 1, yb, 2), (zb, yb, 2), (zb - 1, yb, 2), (zb - 2, yb, 2), (zb - 3, yb, 1), (zb - 4, yb - 1, 1), (zb - 5, yb - 1, 1)]
+        rows = [(zb + 1, yb, 2), (zb, yb, 2), (zb - 1, yb, 1), (zb - 2, yb, 1), (zb - 3, yb + 1, 1), (zb - 4, yb + 1, 1)]
         for i, (z, y, w) in enumerate(rows):
             tip = i >= len(rows) - 2
             for xx in (cells if w == 2 else (inner,)):
                 head.v.pop((xx, y, z), None)
                 fangs.put((xx, y, z), P('#2EA8FF') if tip else P('#DDF3FF'), tip)
+        mouth_z, mouth_y = zb + 1, yb
+    # a dark mouth line between the fangs, so they read as coming from the jaw
+    for x in range(-xi, xi):
+        col_v = [q for q in head.v if q[0] == x and q[2] == mouth_z]
+        if col_v:
+            f = min(col_v, key=lambda q: q[1])
+            head.v[f] = (P('#2E3A5A'), False)
     # no glowing stripes on the neck and chest front: the fangs hang there
     body = c.part('body')
     body.paint(lambda p, cc, g: (P('#C8DDF0'), False) if g and p[1] < -1.6 * k else None)
