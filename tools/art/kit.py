@@ -252,11 +252,30 @@ def lizard(c, H, kind, col, accent, belly=None):
                 not fine or (p[0] + p[1] + p[2]) % 2 == 0) else None)
             bd = c.part('beard', 'static')
             zj = round(2.4 * k)
-            for (x, y, z) in list(head.v):
-                if z == zj and (y % 2 == 0) and abs(x + .5) > 1.0 * k:
-                    nx = x + (1 if x >= 0 else -1)
-                    if (nx, y, z) not in head.v:
-                        bd.put((nx, y, z), ac)
+            if not fine:
+                for (x, y, z) in list(head.v):
+                    if z == zj and (y % 2 == 0) and abs(x + .5) > 1.0 * k:
+                        nx = x + (1 if x >= 0 else -1)
+                        if (nx, y, z) not in head.v:
+                            bd.put((nx, y, z), ac)
+            else:
+                # the beard proper: a fringe of 2-voxel spikes all round the
+                # jaw and throat, pointing out and down, in a darker shade so
+                # it reads as a beard and not as a face mask
+                dk = tuple(max(0, int(v * 0.72)) for v in ac[:3]) if isinstance(ac, tuple) else ac
+                hv = set(head.v)
+                for (x, y, z) in list(hv):
+                    if z != zj or (x + y) % 2:
+                        continue
+                    if y > -1.6 * k:
+                        continue
+                    sx = 1 if x >= 0 else -1
+                    if (x + sx, y, z) not in hv and abs(x + .5) > 0.6 * k:
+                        bd.put((x + sx, y, z), dk)
+                zb = min(z for (x, y, z) in hv)
+                for (x, y, z) in list(hv):
+                    if z == zb and (x + y) % 2 == 0 and y < -2.0 * k:
+                        bd.put((x, y, z - 1), dk)
     else:
         raise ValueError(f'lizard: unknown kind {kind}')
     return c
