@@ -280,8 +280,8 @@ def orbit_ring(c, k, items, margin=0.9):
     xs = [p[0] + .5 for p in taken]
     ys = [p[1] + .5 for p in taken]
     top = max(p[2] for p in taken) + 1
+    bottom = min(p[2] for p in taken)
     mx, my = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
-    limit = ORBIT_SWEEP * top
     orbit = c.part('orbit', 'orbit', (mx, my, 0))
     reach_at = {}
     for (x, y, z) in taken:
@@ -293,27 +293,35 @@ def orbit_ring(c, k, items, margin=0.9):
         return max([reach_at.get(z, 0.0) for z in range(math.floor(z0), math.ceil(z1) + 1)] or [0.0])
 
     placed = []
+    cur_top = top
     for ang, zk, rk, draw in items:
         r = rk * k
-        want = zk * k
+        want = bottom + zk * k
         best = None
         for dz in sorted(range(-round(top), round(top) + 1), key=abs):
             z = want + dz
-            if z - r < 0.4 * r or z + r > top - 1:
+            # a piece may ride above the body (a halo of moons over a whale's
+            # back); the height it adds counts towards the sweep limit
+            if z - r < bottom + 0.4 * r or z + r > top + 2.5 * r:
                 continue
+            height = max(cur_top, math.ceil(z + r + 1)) - bottom
             dist = reach(z - r - 1, z + r + 1) + r + margin * k
-            if dist + r <= limit:
+            if dist + r + 1.5 <= (ORBIT_SWEEP - 0.02) * height:
                 best = (z, dist)
                 break
         if best is None:
             raise ValueError(f'{c.species}: orbit piece at {ang} deg, r {rk} does not fit within {ORBIT_SWEEP}x height')
         z, dist = best
+        cur_top = max(cur_top, math.ceil(z + r + 1))
         a = math.radians(ang)
         centre = (mx + math.cos(a) * dist, my + math.sin(a) * dist, z)
         draw(orbit, centre, r)
         placed.append(centre)
     for p in [p for p in orbit.v if p in taken]:
         del orbit.v[p]
+    ratio = sweep_ratio(c)
+    if ratio > ORBIT_SWEEP:
+        raise ValueError(f'{c.species}: orbit sweeps {ratio:.2f}x the height, over {ORBIT_SWEEP}')
     return orbit
 
 
@@ -323,7 +331,7 @@ def sweep_ratio(c):
     if orbit is None or not orbit.v:
         return 0.0
     allv = solid_voxels(c, skip=())
-    top = max(p[2] for p in allv) + 1
+    top = max(p[2] for p in allv) + 1 - min(p[2] for p in allv)
     mx, my = orbit.pivot[0], orbit.pivot[1]
     far = max(math.hypot(x + .5 - mx, y + .5 - my) + 0.71 for (x, y, z) in orbit.v)
     return far / top
@@ -442,3 +450,48 @@ def tidy(c, depth=2):
             if all((x + dx, y + dy, z + dz) in bv for dx in r for dy in r for dz in r
                    if abs(dx) + abs(dy) + abs(dz) == depth):
                 del part.v[p]
+
+
+def tilt(c, degrees, about=(0.0, 0.0, 0.0)):
+    """Pitch the whole creature nose-up by `degrees` about the x axis
+    through `about` (a whale rising, a leviathan breaching), resampling
+    every part (each new voxel takes the colour of the voxel it came from,
+    so no holes open), then set it back on the ground (lowest voxel z = 0)."""
+    a = math.radians(degrees)
+    ca, sa = math.cos(a), math.sin(a)
+    _, ay, az = about
+
+    def fwd(y, z):  # source -> target; front is -y, so nose-up lifts -y
+        y, z = y - ay, z - az
+        return ay + y * ca + z * sa, az - y * sa + z * ca
+
+    def back(y, z):
+        y, z = y - ay, z - az
+        return ay + y * ca - z * sa, az + y * sa + z * ca
+    for part in c.parts:
+        if not part.v:
+            continue
+        ys, zs = [], []
+        for (x, y, z) in part.v:
+            for dy in (0, 1):
+                for dz in (0, 1):
+                    ty, tz = fwd(y + dy, z + dz)
+                    ys.append(ty)
+                    zs.append(tz)
+        out = {}
+        xs = {p[0] for p in part.v}
+        for x in xs:
+            for ty in range(math.floor(min(ys)), math.ceil(max(ys)) + 1):
+                for tz in range(math.floor(min(zs)), math.ceil(max(zs)) + 1):
+                    sy, sz = back(ty + .5, tz + .5)
+                    q = (x, math.floor(sy), math.floor(sz))
+                    if q in part.v:
+                        out[(x, ty, tz)] = part.v[q]
+        part.v = out
+        px, py, pz = part.pivot
+        py, pz = fwd(py, pz)
+        part.pivot = (px, py, pz)
+    low = min(p[2] for part in c.parts for p in part.v)
+    for part in c.parts:
+        part.v = {(x, y, z - low): v for (x, y, z), v in part.v.items()}
+        part.pivot = (part.pivot[0], part.pivot[1], part.pivot[2] - low)
