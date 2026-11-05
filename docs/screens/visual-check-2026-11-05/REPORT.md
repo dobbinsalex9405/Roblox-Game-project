@@ -508,3 +508,25 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - Moonlit: 58 / 38 / 3.7 / 0.29 / 0.008 / 0.002 %.
   - The per-creature "1 in N" for a new Meadow Common is 77.6.
 - **Output:** nothing new beyond the texture-processing notices.
+
+## #97 @ e94c6b4 (3-line signs, affordable-only Buy, refusal toast)
+
+**PASS, with three small notes.** Phone 844x392.
+
+1. **Sign at 10 studs, follow camera behind the character walking in to Stop1: PASS.**
+   - The sign is on the left. All three lines read clearly at about 14 px, e.g. "Moonlit Egg · 15K" / "Legendary 1 in 12,500" / "Godly 1 in 50,000".
+   - The character doesn't cover it, and its top sits just under the GOAL banner (`97g-hh-sign-10studs-walkin-phone.jpg`).
+   - Text bounds are 0.90 studs per line, and `TextFits` is true for every line, including the longest ("Legendary 1 in 33,333").
+   - At 14 studs the top line touches the banner's lower edge (`97g-hh-sign-14studs-walkin-phone.jpg`).
+   - *Note:* standing at the stop itself, the GOAL banner and then the odds card cover the sign's right half (`97g-hh-at-stop-live-camera.jpg`, `97g-hh-at-stop-buy-oddscard.jpg`). That's fine, because the odds card shows the same information there.
+2. **Fresh player at the stop: PASS.**
+   - With 200 coins, only Basic Egg Buy prompts are enabled; every Meadow and Moonlit Buy prompt is disabled, and only Basic ones fire PromptShown.
+   - At 0 coins, all of them enable.
+   - The odds card is 280x214 px (75% scale) at the top left.
+   - The Stop1 GuideArrow is disabled and no Beam is on within 4 studs of the stop.
+3. **Coins refusal: PASS.**
+   - At 0 coins, Buy on a Meadow Egg shows "Not enough coins: a Meadow Egg costs 2.5K. Basic Eggs cost 50."
+   - The egg stays on the market (`MarketEggs.MeadowEgg`, transparency 0.00 at +0.6 s and +3.6 s).
+   - *Note:* the toast sits between the banner and the Buy prompt, and its first word runs under the odds card (`97g-hh-refusal-toast.jpg`).
+4. **Nest view: PASS.** The Golden Egg and coloured eggs read clearly over the ring (`97g-hh-nest-from-path.jpg`).
+   - *Note:* the sign backs are plain dark slabs. From the far side of the ring you see blank boards; a wood back or a small egg icon would look nicer.
