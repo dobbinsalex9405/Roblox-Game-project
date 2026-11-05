@@ -122,6 +122,20 @@ directly: start and stop a play-solo test, walk the character, tap the
 screen, read the console and **capture the real viewport**. No mouse
 clicking with screen control is needed.
 
+Tier 3 runs in a **Remote Control** thread on the laptop, which any thread
+can start at any time. There are two routes:
+
+- **Studio MCP (preferred):** the steps below.
+- **Screen control (fallback):** the `screen-control` MCP server
+  (`tools/screen-control/`) drives Studio by screenshots, clicks and keys:
+  open the place, press Play, walk with the keys, screenshot each step.
+  Use it whenever the Studio MCP route is unavailable.
+
+Version caveat (2026-11-05): `Roblox_Studio` is registered on the laptop,
+but after Studio auto-updated, Claude Code 2.1.317 rejects it with "Server's
+protocol version is not supported: 2026-07-28". Until Claude Code is updated
+on the laptop (check with `claude mcp list`), use the screen-control route.
+
 One-time setup (laptop thread or Alex):
 
 1. In Studio: Assistant panel, "…" menu, **Settings**, **MCP Servers**: turn
