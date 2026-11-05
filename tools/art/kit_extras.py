@@ -10,10 +10,23 @@ kit.accessory:
 - **twin_tail**: the tail split into two that fork apart (color tints the
   tips; the tails keep their own colour).
 
+- **droopy_ears**: soft rounded ears hanging down the sides of the head.
+- **fringe**: a shaggy fringe over the eyes and crown (a sheepdog's).
+- **shag**: ragged fur tufts along the body's sides.
+- **long_snout**: a long tapered snout with a coloured tip (color2).
+- **streaks**: short dark streaks on the back and folded wings.
+- **cap**: the top of the head painted down to the eyes.
+- **eye_ring**: a light ring around each eye on a dark face.
+- **speckles**: small scattered light dots all over.
+
+- **button_eye**: one big sewn-on button for an eye (a sock puppet's).
+- **knit_head**: knitted bands across the head (a sock's cuff).
+
+And one plan, **twig**: a stick insect, thin everywhere (colours col, accent).
+
 Each is fn(c, H, color, color2, a) (variants.py's kit hook): colours are RGB
 tuples, color2 may be None, `a` is the roster entry's accessory dict.
 Same art frame as kit.py (x right, y back, front is -y, z up), k = H / 10."""
-import math
 
 from voxkit import hexc
 
@@ -24,6 +37,13 @@ def _rgb(col, default=None):
     if col is None:
         return default
     return hexc(col) if isinstance(col, str) else col
+
+
+def _hash(*v):
+    h = 2166136261
+    for x in v:
+        h = ((h ^ (int(x) & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
+    return h
 
 
 def _find(c, name):
@@ -40,28 +60,33 @@ def ridge(c, H, color, color2=None, a=None):
     if body is None or not body.v:
         return
     sp = c.part('ridge', 'static')
-    # from the crown of the head down the back to the tail: the top of the
+    # from the front of the crown down the back to the tail: the top of the
     # head and body together, along the midline
     solid = set(body.v) | (set(head.v) if head is not None else set())
     if head is not None and head.v:
         hy = [p[1] for p in head.v]
-        y_front = (min(hy) + max(hy)) / 2
+        y_front = min(hy) + (max(hy) - min(hy)) * 0.3
     else:
         ys = [p[1] for p in body.v]
         y_front = min(ys) + (max(ys) - min(ys)) * 0.2
-    step = max(2, round(0.7 * k))
-    height = max(2, round(0.9 * k))
+    step = max(2, round(0.8 * k))
+    height = max(3, round(1.4 * k))
     tops = {}
     for (x, y, z) in solid:
         if x in (-1, 0) and y >= y_front:
             tops[(x, y)] = max(z, tops.get((x, y), z))
+    if not tops:
+        return
+    y0 = min(y for _, y in tops)
     for (x, y), z in sorted(tops.items()):
-        if (y - math.ceil(y_front)) % step:
+        # a continuous base along the spine joins the spikes into one ridge
+        sp.put((x, y, z + 1), col)
+        if (y - y0) % step:
             continue
-        # the spike leans back as it rises; it is two voxels wide at the root
-        for i in range(height):
-            if i == 0 or x == 0 or i < height - 1:
-                sp.put((x, y + (i * 2 // height), z + 1 + i), tip if i == height - 1 else col)
+        # a spike two voxels wide, leaning back a voxel near its tip
+        for i in range(1, height):
+            lean = 1 if i >= height - 1 else 0
+            sp.put((x, y + lean, z + 1 + i), tip if i == height - 1 else col)
 
 
 def third_eye(c, H, color, color2=None, a=None):
@@ -137,4 +162,275 @@ def twin_tail(c, H, color, color2=None, a=None):
     tail.v = out
 
 
-ACCESSORIES = {'ridge': ridge, 'third_eye': third_eye, 'butter': butter, 'twin_tail': twin_tail}
+def fringe(c, H, color, color2=None, a=None):
+    """A shaggy fringe hanging over the eyes from the top of the head (a
+    sheepdog's): a layer in front of the face down to mid-eye, ragged at the
+    bottom, so the eyes peek out underneath."""
+    k = H / 10.0
+    col = _rgb(color)
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or not head.v:
+        return
+    fr = c.part('fringe', 'static')
+    ez = max(p[2] for p in eyes.v) if eyes is not None and eyes.v else None
+    zt = max(p[2] for p in head.v)
+    bottom = ez if ez is not None else zt - round(1.5 * k)
+    xs = [p[0] for p in head.v]
+    for x in range(min(xs), max(xs) + 1):
+        # ragged: every other column hangs down to the eyes, the rest stop
+        # just above them, so the eyes peek out between the locks
+        low = bottom + (1 if x % 2 else 0)
+        for z in range(low, zt + 1):
+            f = head.front(x, z)
+            if f:
+                fr.put((f[0], f[1] - 1, f[2]), col)
+    # over the crown too, so it reads as a mop of hair
+    for p in list(head.v):
+        if p[2] >= zt - max(1, round(0.4 * k)):
+            fr.put((p[0], p[1], p[2] + 1), col)
+
+
+def shag(c, H, color, color2=None, a=None):
+    """Shaggy fur: ragged tufts hanging from the body's sides and belly
+    edge, in color (default the body's own)."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    sh = c.part('shag', 'static')
+    zs = [p[2] for p in body.v]
+    zlo, zhi = min(zs), max(zs)
+    mid = zlo + (zhi - zlo) * 0.45
+    solid = set(body.v)
+    for (x, y, z), (cc, g) in list(body.v.items()):
+        if z < mid or z > zhi - 1:
+            continue
+        side = 1 if x >= 0 else -1
+        out = (x + side, y, z)
+        if out in solid or (x + y * 3 + z * 7) % 3:
+            continue
+        col = _rgb(color, cc)
+        for i in range(max(1, round(0.5 * k))):
+            if (x + side, y, z - i) not in solid:
+                sh.put((x + side, y, z - i), col)
+
+
+def long_snout(c, H, color, color2=None, a=None):
+    """A long tapered snout (a shrew's), out from the middle of the face,
+    ending in a coloured tip (color2, default pink)."""
+    k = H / 10.0
+    col = _rgb(color)
+    tip = _rgb(color2, hexc('#FF9FBF'))
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or not head.v:
+        return
+    ez = min(p[2] for p in eyes.v) if eyes is not None and eyes.v else max(p[2] for p in head.v) - round(1.5 * k)
+    z0 = ez - max(1, round(0.6 * k))
+    front = head.front(0, z0) or head.front(-1, z0)
+    if not front:
+        return
+    sn = c.part('snout', 'static')
+    n = max(3, round(1.8 * k))
+    for i in range(n):
+        t = i / max(1, n - 1)
+        tall = t < 0.5  # two voxels tall near the face, one at the end
+        dz = -round(0.3 * t * k)  # tipping down a little
+        for x in (-1, 0):
+            for z in ((z0 + dz - 1, z0 + dz) if tall else (z0 + dz,)):
+                sn.put((x, front[1] - 1 - i, z), tip if i == n - 1 else col)
+
+
+def streaks(c, H, color, color2=None, a=None):
+    """Short dark streaks on the back and the folded wings (a sparrow's)."""
+    col = _rgb(color)
+    for name in ('body', 'wingL', 'wingR'):
+        part = _find(c, name)
+        if part is None or not part.v:
+            continue
+        zs = [p[2] for p in part.v]
+        mid = min(zs) + (max(zs) - min(zs)) * (0.45 if name == 'body' else 0.0)
+        part.paint(lambda p, cc, g: (col, False) if not g and p[2] >= mid and p[1] >= -1
+                   and (p[1] * 2 + p[2] + (p[0] // 2) * 3) % 5 == 0 else None)
+
+
+def cap(c, H, color, color2=None, a=None):
+    """Paints the top of the head (a bird's cap) down to just above the eyes."""
+    k = H / 10.0
+    col = _rgb(color)
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or not head.v:
+        return
+    ez = max(p[2] for p in eyes.v) if eyes is not None and eyes.v else max(p[2] for p in head.v) - round(1.2 * k)
+    head.paint(lambda p, cc, g: (col, False) if not g and p[2] > ez else None)
+
+
+def _main_colour(part):
+    """The colour most of a part is painted in."""
+    counts = {}
+    for cc, g in part.v.values():
+        counts[cc] = counts.get(cc, 0) + 1
+    return max(counts, key=counts.get) if counts else None
+
+
+def eye_ring(c, H, color, color2=None, a=None):
+    """A light ring around each eye, so dark eyes show on a dark face. Only
+    the face's own colour is repainted (never a beak or cheek)."""
+    col = _rgb(color)
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or eyes is None or not eyes.v:
+        return
+    base = _main_colour(head)
+    cells = {(e[0], e[2]) for e in eyes.v}
+    for (x, y, z) in list(eyes.v):
+        out = 1 if x >= 0 else -1
+        # above, below and on the outer side: the inner side stays dark, so
+        # the two rings never join across the face
+        for dx, dz in ((0, 1), (out, 0), (out, 1)):
+            if (x + dx, z + dz) in cells:
+                continue
+            f = head.front(x + dx, z + dz)
+            if f and head.v[f][0] == base:
+                head.put(f, col)
+
+
+def speckles(c, H, color, color2=None, a=None):
+    """Small scattered light dots all over (a starling's), on each part's own
+    colour only (never the beak, feet or eyes)."""
+    col = _rgb(color)
+    for name in ('body', 'head', 'wingL', 'wingR'):
+        part = _find(c, name)
+        if part is None or not part.v:
+            continue
+        counts = {}
+        for cc, g in part.v.values():
+            counts[cc] = counts.get(cc, 0) + 1
+        base = set(sorted(counts, key=counts.get)[-2:])  # its own colour and belly, not beak or feet
+        part.paint(lambda p, cc, g, base=base: (col, False) if not g and cc in base and cc != col
+                   and _hash(p[0], p[1], p[2], 17) % 100 < 12 and p[2] > 1 else None)
+
+
+def droopy_ears(c, H, color, color2=None, a=None):
+    """Replaces the ears with soft rounded ears that hang down the sides of
+    the head (a sheepdog's or spaniel's), in color."""
+    k = H / 10.0
+    col = _rgb(color)
+    head = _find(c, 'head')
+    ears = _find(c, 'ears')
+    if head is None or not head.v:
+        return
+    if ears is None:
+        ears = c.part('ears', 'static', head.pivot)
+    ears.v = {}
+    xs = [p[0] for p in head.v]
+    ys = [p[1] for p in head.v]
+    zs = [p[2] for p in head.v]
+    half = (max(xs) - min(xs) + 1) / 2
+    yc = (min(ys) + max(ys)) / 2 + 0.2 * k
+    ztop = max(zs) - 0.6 * k
+    for sx in (-1, 1):
+        cx = sx * (half - 0.1 * k)
+        ears.ell((cx, yc, ztop - 1.3 * k), (0.55 * k, 0.9 * k, 1.5 * k), col,
+                 cond=lambda x, y, z, sx=sx: (x + .5) * sx >= half - 0.5 * k)
+
+
+def button_eye(c, H, color, color2=None, a=None):
+    """One big round sewn-on button for an eye (a sock puppet's): a disc in
+    color with two thread holes (color2, default dark) over the right eye.
+    The other eye is closed (painted over in the face's colour)."""
+    k = H / 10.0
+    col = _rgb(color)
+    hole = _rgb(color2, INK)
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or eyes is None or not eyes.v:
+        return
+    base = _main_colour(head)
+    right = [p for p in eyes.v if p[0] >= 0]
+    if not right:
+        return
+    cx = sum(p[0] for p in right) / len(right) + .5
+    cz = sum(p[2] for p in right) / len(right) + .5
+    r = max(1.6, 0.9 * k)
+    for p in list(eyes.v):
+        eyes.v[p] = (base, False)  # closed: the button covers one, the other is shut
+    bt = c.part('button', 'static')
+    for x in range(int(cx - r) - 1, int(cx + r) + 2):
+        for z in range(int(cz - r) - 1, int(cz + r) + 2):
+            if (x + .5 - cx) ** 2 + (z + .5 - cz) ** 2 > r * r:
+                continue
+            f = head.front(x, z)
+            if not f:
+                continue
+            centre = abs(x + .5 - cx) < 1.0 and abs(z + .5 - cz) < 1.0
+            for e in eyes.v:
+                if (e[0], e[2]) == (x, z):
+                    f = e if e[1] < f[1] else f
+            holes = centre and (x + z) % 2 == 0
+            bt.put((f[0], f[1] - 1, f[2]), hole if holes else col)
+
+
+def knit_head(c, H, color, color2=None, a=None):
+    """Knitted bands across the head, top to bottom, alternating its own
+    colour and color (a sock's cuff)."""
+    k = H / 10.0
+    col = _rgb(color)
+    head = _find(c, 'head')
+    if head is None or not head.v:
+        return
+    w = max(1, round(0.6 * k))
+    zlo = min(p[2] for p in head.v)
+    head.paint(lambda p, cc, g: (col, False) if not g and ((p[2] - zlo) // w) % 2 == 1 else None)
+
+
+ACCESSORIES = {'button_eye': button_eye, 'knit_head': knit_head, 'droopy_ears': droopy_ears, 'ridge': ridge, 'third_eye': third_eye, 'butter': butter, 'twin_tail': twin_tail, 'fringe': fringe,
+               'shag': shag, 'long_snout': long_snout, 'streaks': streaks, 'cap': cap, 'eye_ring': eye_ring,
+               'speckles': speckles}
+
+
+# ------------------------------------------------------------------ plans
+
+def twig(c, H, cols, opts):
+    """Plan "twig": a stick insect, thin everywhere: a body two voxels
+    across like a twig, a small narrow head, six long thin legs (each its own
+    leg part), long thin antennae. Colours col (the twig), accent (knots)."""
+    import kit_pond
+    k = H / 10.0
+    col = cols['col']
+    acc = cols.get('accent') or tuple(round(v * 0.75) for v in col)
+    body = c.part('body')
+    hz = round(2.2 * k)  # the twig's underside, held up on the legs
+    y0, y1 = round(-1.6 * k), round(6.4 * k)
+    for y in range(y0, y1 + 1):
+        t = (y - y0) / max(1, y1 - y0)
+        knot = (y - y0) % max(3, round(1.6 * k)) == 0
+        for x in (-1, 0):
+            body.put((x, y, hz), acc if knot else col)
+            if t < 0.8:  # two voxels tall, thinning to one at the tail end
+                body.put((x, y, hz + 1), acc if knot else col)
+    head = c.part('head', 'static', (0, y0, hz + 1))
+    hy = y0 - max(2, round(1.0 * k))
+    for x in (-2, -1, 0, 1):
+        for y in range(hy, y0):
+            for z in (hz, hz + 1, hz + 2):
+                if abs(x + .5) > 1 and z == hz + 2:
+                    continue  # rounded top corners
+                head.put((x, y, z), col)
+    from creatures import eyes
+    eyes(c, head, 1, hz + 1, 1)
+    # antennae: long and thin, up and forward from the top of the head
+    n = max(4, round(2.4 * k))
+    for sx in (-1, 1):
+        for i in range(n):
+            x = (0 + i // 3) if sx > 0 else -1 - i // 3
+            head.put((x, hy - 1 - i, hz + 3 + i // 2), acc)
+    # six long thin legs, splayed out to the ground
+    kit_pond.legs(body, k, [(0.5, -0.6), (0.5, 1.8), (0.5, 4.2)], acc, out=1.8, height=hz / k, w=0, c=c)
+    return c
+
+
+PLANS = {'twig': ({'col', 'accent'}, {})}
+BUILDERS = {'twig': twig}

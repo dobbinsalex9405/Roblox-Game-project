@@ -119,11 +119,10 @@ def face(c, head, k, z, x_off=0.9, size=0.6, smile=True, cheeks=True):
     if cheeks and k >= 1:
         blush(head, round((x_off + 0.9) * k), round((z - 0.7) * k))
     if smile and getattr(c, 'fine', False):
-        zm = round((z - 1.0) * k)
-        w = max(1, round(0.5 * k))
-        for x in range(-w, w):
-            corner = x in (-w, w - 1)
-            f = head.front(x, zm + (1 if corner else 0))
+        # a small mouth, two voxels wide, a little below and between the eyes
+        zm = round((z - 1.2) * k)
+        for x in (-1, 0):
+            f = head.front(x, zm)
             if f:
                 head.put(f, INK)
 
@@ -202,14 +201,6 @@ def _puddle(c, H, k, body, head, cols, opts):
     for part in (body, head):
         part.paint(lambda p, cc, g: (light(col, 0.3), False) if p[2] >= hi - round(0.5 * k) else None)
         part.paint(lambda p, cc, g: (acc, False) if p[2] <= lo + round(0.4 * k) else None)
-    # drips: little drops around the base
-    drops = c.part('drops', 'static')
-    for i in range(6):
-        a = i / 6 * 2 * math.pi + 0.4
-        x, y = 4.2 * k * math.cos(a), 3.6 * k * math.sin(a)
-        if y < -1.5 * k:
-            continue  # keep the front clear for the face
-        drops.ell((x, y, 0.4 * k), (0.4 * k + .2, 0.4 * k + .2, 0.3 * k + .2), light(col, 0.15))
     return {'shine': True}
 
 
@@ -218,17 +209,20 @@ def _tadpole(c, H, k, body, head, cols, opts):
     col = cols['col']
     tail = c.part('tail', 'tail', (0, 2.0 * k, 2.0 * k))
     fin = cols.get('accent') or light(col, 0.3)
-    n = 9
+    # a flat tail fin two voxels thick, tall at the root and tapering to a
+    # point, with a gentle S along its length and a paler rim
+    y0 = round(1.8 * k)
+    n = max(6, round(5.5 * k))
+    zc0 = 2.0 * k
     for i in range(n):
         t = i / (n - 1)
-        r = (1.7 - 1.3 * t) * k
-        y = (2.0 + i * 0.75) * k
-        z = (2.0 + 0.5 * math.sin(t * math.pi * 1.5)) * k
-        x = 0.7 * k * math.sin(t * math.pi * 1.6)
-        # a flat fin: thin side to side, tall top to bottom, paler at the edge
-        tail.ell((x, y, z), (max(0.6, 0.45 * r), 0.55 * k + .3, r), col)
-        tail.ell((x, y, z), (max(0.6, 0.3 * r), 0.55 * k + .3, r * 1.25), fin,
-                 cond=lambda xx, yy, zz, z=z, r=r: abs(zz + .5 - z) > r * 0.8)
+        half = max(0.5, (1.5 * (1 - t) ** 0.8) * k)
+        zc = zc0 + 0.35 * k * math.sin(t * math.pi * 1.4)
+        lo, hi = math.floor(zc - half), math.ceil(zc + half) - 1
+        for z in range(max(0, lo), hi + 1):
+            rim = z in (max(0, lo), hi) and hi - lo >= 2
+            for x in (-1, 0):
+                tail.put((x, y0 + i, z), fin if rim else col)
     for p in list(tail.v):
         if p in body.v or p in head.v:
             del tail.v[p]
@@ -302,8 +296,12 @@ def _acorn(c, H, k, body, head, cols, opts):
     cap_col = cols.get('tuft') or hexc('#8A5A33')
     top = max(p[2] for p in list(body.v) + list(head.v))
     cap = c.part('cap', 'static')
-    cz = top - 1.0 * k
-    cap.ell((0, 0.3 * k, cz), (3.6 * k, 3.4 * k, 1.9 * k), cap_col, cond=lambda x, y, z: z + .5 >= cz - 0.2 * k)
+    bottom = min(p[2] for p in list(body.v) + list(head.v))
+    # the brim covers the top third, above the eyes; the small in-game build
+    # has too few voxels for that, so its cap sits on top
+    brim = top - 0.3 * (top - bottom) if getattr(c, 'fine', False) else top + 0.5
+    cz = brim + 1.2 * k
+    cap.ell((0, 0.3 * k, cz), (3.6 * k, 3.4 * k, 1.9 * k), cap_col, cond=lambda x, y, z: z + .5 >= brim)
     for p in list(cap.v):
         head.v.pop(p, None)
         body.v.pop(p, None)
@@ -312,7 +310,7 @@ def _acorn(c, H, k, body, head, cols, opts):
     for i in range(max(2, round(1.0 * k))):
         cap.put((0, round(0.3 * k), cz2 + 1 + i), dark(cap_col, 0.35))
         cap.put((-1, round(0.3 * k), cz2 + 1 + i), dark(cap_col, 0.35))
-    return {'face_z': 0.25}
+    return {'face_z': 0.05}
 
 
 def _cone(c, H, k, body, head, cols, opts):
@@ -331,6 +329,12 @@ def _cone(c, H, k, body, head, cols, opts):
     return {'feet_w': 0.45, 'feet_h': 1.2}
 
 
+def _pip(c, H, k, body, head, cols, opts):
+    """A round fluffball bird: a ball with a short beak and bird feet, no
+    wings to be seen."""
+    return {'beak': cols.get('accent') or hexc('#FF9418'), 'big_eyes': True, 'no_mouth': True}
+
+
 def _ball(c, H, k, body, head, cols, opts):
     """A plain ball (the default)."""
     return None
@@ -339,7 +343,7 @@ def _ball(c, H, k, body, head, cols, opts):
 for _name, _fn, _gait in (
         ('ball', _ball, 'hop'), ('pebble', _pebble, 'hop'), ('seed', _seed, 'hop'), ('puddle', _puddle, 'hop'),
         ('tadpole', _tadpole, 'slither'), ('fuzz', _fuzz, 'hop'), ('gum', _gum, 'hop'),
-        ('mushroom', _mushroom, 'hop'), ('acorn', _acorn, 'hop'), ('cone', _cone, 'hop')):
+        ('mushroom', _mushroom, 'hop'), ('acorn', _acorn, 'hop'), ('cone', _cone, 'hop'), ('pip', _pip, 'waddle')):
     add_kind(_name, _fn, _gait)
 
 # Ball proportions per kind (in k): radius (x, y, z) and how high the
@@ -355,6 +359,7 @@ SHAPES = {
     'mushroom': (2.1, 2.0, 2.7),
     'acorn': (2.6, 2.5, 2.9),
     'cone': (2.4, 2.4, 3.3),
+    'pip': (3.0, 3.0, 3.0),
 }
 
 
@@ -377,7 +382,17 @@ def puff(c, H, kind, cols, opts):
         shine(head, centre, r, k)
     big = opts.get('big_eyes', False) or extra.get('big_eyes', False)
     fz = cz / k + extra.get('face_z', 0.15) * rz
-    face(c, head, k, fz, x_off=0.9 if not big else 1.0, size=0.6 if not big else 0.85)
+    face(c, head, k, fz, x_off=0.9 if not big else 1.0, size=0.6 if not big else 0.85, smile=not extra.get('no_mouth'))
+    if extra.get('beak'):
+        # a short beak, two voxels wide, just proud of the face below the eyes
+        zb = round((fz - 1.0) * k)
+        for x in (-1, 0):
+            for z in (zb - 1, zb):
+                f = head.front(x, z)
+                if f:
+                    head.put((f[0], f[1] - 1, f[2]), extra['beak'])
+                    if z == zb:
+                        head.put((f[0], f[1] - 2, f[2]), extra['beak'])
     if legged:
         feet(c, k, cols.get('feet') or dark(col, 0.25), fh + round(0.35 * k),
              x=min(1.4, rx * 0.45), w=extra.get('feet_w', 0.8), toe=0.5)
