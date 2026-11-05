@@ -28,9 +28,14 @@ CreatureAssets.RETRY_SECONDS = { 2, 5, 10 } -- pauses between tries of one load
 
 -- Every MeshPart the creature needs, found by name anywhere in what loaded
 -- (the importer may nest them under the file's joints). Returns nil when
--- one is missing, so a half-imported asset never draws a half creature;
--- the second value then says why.
-local function collect(loaded: Instance, speciesId: string): (Model?, string?)
+-- a solid mesh is missing, so a half-imported asset never draws a half
+-- creature; the second value then says why. A missing glow mesh (a thin
+-- accent: glowing paws, a belly stripe) only loses that accent. The four
+-- species that kept falling back to boxes (EmberFox, FrostWolf, CrystalStag,
+-- MoonUnicorn) are exactly the ones with a ground-level paw-glow mesh, so a
+-- dropped glow mesh is the likely cause; the third value names what was
+-- left out, and the log line says it.
+local function collect(loaded: Instance, speciesId: string): (Model?, string?, string?)
 	local entry = CreatureMeshes[speciesId]
 	local found: { [string]: MeshPart } = {}
 	for _, d in loaded:GetDescendants() do
@@ -43,13 +48,18 @@ local function collect(loaded: Instance, speciesId: string): (Model?, string?)
 	end
 	local model = Instance.new("Model")
 	model.Name = speciesId
+	local skipped: { string } = {}
 	for _, part in entry.parts do
 		for _, mesh in part.meshes do
 			local mp: MeshPart? = found[mesh.name]
-			if mp == nil then
+			if mp == nil and mesh.glow ~= nil then
+				table.insert(skipped, mesh.name)
+				continue
+			elseif mp == nil then
 				model:Destroy()
-				return nil, `mesh {mesh.name} missing from asset {entry.assetId}`
+				return nil, `mesh {mesh.name} missing from asset {entry.assetId}`, nil
 			end
+			assert(mp)
 			-- The colours are the uploaded palette image, never the importer's
 			-- own PBR textures (their TexturePacks fail to build).
 			for _, child in mp:GetChildren() do
@@ -62,7 +72,7 @@ local function collect(loaded: Instance, speciesId: string): (Model?, string?)
 			mp.Parent = model
 		end
 	end
-	return model, nil
+	return model, nil, if #skipped > 0 then table.concat(skipped, ", ") else nil
 end
 
 function CreatureAssets.start(log: Log.Logger)
@@ -87,12 +97,18 @@ function CreatureAssets.start(log: Log.Logger)
 				task.wait(seconds)
 			end
 		)
-		local model, why = nil, err
+		local model, why, skipped = nil, err, nil
 		if loaded then
-			model, why = collect(loaded, speciesId)
+			model, why, skipped = collect(loaded, speciesId)
 			loaded:Destroy()
 		end
 		if model then
+			if skipped then
+				log:warn("creature glow meshes missing; drawing the creature without them", {
+					species = speciesId,
+					meshes = skipped,
+				})
+			end
 			model.Parent = folder
 		else
 			log:warn("creature meshes did not load; drawing voxel boxes", {
