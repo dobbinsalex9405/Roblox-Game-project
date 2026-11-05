@@ -42,8 +42,9 @@ pulse, light, sparkles, rarity ring, hover, orbiting lights. See
 ## Blender meshes (`blender/`)
 
 The same creatures as polished voxel meshes: each voxel face a bevelled
-square, twice the voxels for the small tiers, glowing parts as their own
-meshes, one joint per part. See `ops/ASSETS.md` for how they reach the game.
+square, every tier rebuilt from 0.1-stud voxels, glowing parts as their own
+(flat) meshes, a flat far version (`_lod1`) of every part, one joint per
+part. See `ops/ASSETS.md` for how they reach the game.
 
 | File | What it is |
 | --- | --- |

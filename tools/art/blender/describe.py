@@ -10,17 +10,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
-from creatures import build_all  # noqa: E402
+from creatures import HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
 
 RANK = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
 
-# More, smaller voxels for the smaller tiers, at the same size in studs: a
-# 2-stud Common gets 16 voxels of height (room for eyes, cheeks, sturdy
-# legs) instead of the in-game boxes' 8. The showpieces are built huge
-# already, so they keep one voxel = 0.25 studs.
-DETAIL = {'Common': 2, 'Uncommon': 2, 'Rare': 2, 'Ultra Rare': 1.5, 'Epic': 1.5, 'Legendary': 1, 'Godly': 1}
+# Every tier is built from the same small voxel, VOXEL_STUDS, at its own
+# size in studs on a pad (TIER_STUDS, from the plan Alex reviews; Epic and up
+# are only a little bigger than Commons and take extra slots instead). The art
+# in creatures.py is drawn HEIGHT voxels tall, so each tier is built at
+# DETAIL times that: more voxels, same shape. The game scales a creature's
+# meshes to its stand-in, so a change here needs no game code.
+VOXEL_STUDS = 0.1
+TIER_STUDS = {'Common': 2, 'Uncommon': 2.2, 'Rare': 2.4, 'Ultra Rare': 2.7, 'Epic': 3, 'Legendary': 3.4, 'Godly': 3.8}
+DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 
 
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
@@ -76,6 +80,8 @@ def r4(v):
 
 def creatures(tiers=None, only=None):
     cs = build_all(DETAIL)
+    for c in cs:
+        c.voxel = VOXEL_STUDS
     if tiers:
         cs = [c for c in cs if c.rarity in tiers]
     if only:
@@ -91,7 +97,8 @@ def describe(c):
     centre = ((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2])
     V = c.voxel
     p = pal.Palette()
-    parts, parts_meta, total, glows = [], [], 0, set()
+    parts, parts_meta, total, total_lod, glows = [], [], 0, 0, set()
+    lods = voxmesh.lod1_meshes(c.parts, centre, V, p.cell_of, c.species)
     for part in c.parts:
         pivot = voxmesh.to_game(part.pivot, centre, V)
         meshes, mlist = [], []
@@ -113,6 +120,18 @@ def describe(c):
             total += len(md.tris)
             meshes.append((kind, rgb, md, name))
             mlist.append(entry)
+        lod = lods[part.name]
+        lod_entry = None
+        if lod.tris:
+            lo_m, hi_m = lod.bounds()
+            lod_entry = {
+                'name': lod.name,
+                'center': r4([(a + b) / 2 for a, b in zip(lo_m, hi_m)]),
+                'size': r4([b - a for a, b in zip(lo_m, hi_m)]),
+                'tris': len(lod.tris),
+            }
+            total_lod += len(lod.tris)
+            meshes.append(('lod1', None, lod, lod.name))
         parts.append((part, pivot, meshes))
         parts_meta.append({
             'name': part.name,
@@ -120,11 +139,13 @@ def describe(c):
             'parent': parent_of(part, c.parts),
             'pivot': r4(pivot),
             'meshes': mlist,
+            'lod1': lod_entry,
         })
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
         'id': c.species,
         'rarity': c.rarity,
+        'element': getattr(c, 'element', 'plain'),
         'heightStuds': round(size[1], 4),
         'sizeStuds': r4(size),
         'voxelStuds': round(V, 5),
@@ -132,6 +153,7 @@ def describe(c):
         'glow': bool(glows),
         'glowColors': sorted(glows),
         'tris': total,
+        'trisLod1': total_lod,
         'parts': parts_meta,
         'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 1.0, 'loop': True}},
         'files': {'glb': f'{c.species}.glb', 'fbx': f'{c.species}.fbx', 'texture': f'{c.species}_palette.png'},
