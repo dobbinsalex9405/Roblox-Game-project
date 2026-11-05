@@ -932,10 +932,10 @@ def shieldbug(c, H, cols, opts):
     k = H / 10.0
     col = cols['col']
     acc = cols.get('accent') or tuple(round(v * 0.6) for v in col)
-    leg = cols.get('leg') or INK
+    leg = cols.get('leg') or tuple(round(v * 0.55) for v in col)
     rim = tuple(min(255, round(v * 1.15)) for v in col)
     body = c.part('body')
-    z0, z1 = round(1.3 * k), round(3.2 * k)  # underside, flat top
+    z0, z1 = round(2.0 * k), round(3.5 * k)  # underside, flat top
     yf, ys, yb = -1.0 * k, 0.4 * k, 3.4 * k  # front, end of the shoulders, the point
     W = 2.5 * k
     for y in range(math.floor(yf), math.ceil(yb) + 1):
@@ -949,9 +949,9 @@ def shieldbug(c, H, cols, opts):
         for x in range(0, n):
             for z in range(z0, z1 + 1):
                 edge = x == n - 1
-                if edge and z == z1:
-                    continue  # bevel the top edge down one
-                cc = rim if edge and z == z1 - 1 else col
+                if edge and z >= z1 - 1 or x == n - 2 and z == z1:
+                    continue  # bevel the top edge down, two steps
+                cc = rim if (edge and z == z1 - 2) or (x == n - 2 and z == z1 - 1) else col
                 body.put((x, y, z), cc)
                 body.put((-x - 1, y, z), cc)
     # the triangular plate in the middle of the back
@@ -965,20 +965,44 @@ def shieldbug(c, H, cols, opts):
     for x in range(-math.floor(W * 0.7), math.floor(W * 0.7)):
         for y in range(math.floor(yf + 0.4 * k), math.floor(yb - 0.8 * k)):
             body.put((x, y, z0 - 1), leg)
-    head = c.part('head', 'static', (0, yf, round(2.0 * k)))
+    head = c.part('head', 'static', (0, yf, round(2.4 * k)))
     for x in range(-round(0.8 * k), round(0.8 * k)):
         for y in range(round(yf - 0.9 * k), round(yf)):
-            for z in range(round(1.4 * k), round(2.6 * k)):
+            for z in range(round(2.0 * k), round(3.2 * k)):
                 head.put((x, y, z), col)
-    eyes(c, head, max(1, round(0.4 * k)), round(1.9 * k), max(1, round(0.35 * k)))
-    # antennae: thin, forward and out from the top of the head
+    eyes(c, head, max(1, round(0.4 * k)), round(2.5 * k), max(1, round(0.35 * k)))
+    # antennae: one voxel thin, a step up then forward and out
     hy = round(yf - 0.9 * k)
+    zt = round(3.2 * k) - 1
+    n = max(3, round(1.2 * k))
     for sx in (-1, 1):
-        cells = {}
-        _rod(cells, (0.3 * k, hy, round(2.6 * k)), (1.2 * k, hy - 1.2 * k, round(2.6 * k) + 1.6 * k), leg)
-        for (x, y, z), cc in cells.items():
-            head.put((x if sx > 0 else -x - 1, y, z), cc)
-    _insect_legs(c, k, (-0.5, 0.6, 1.7), leg, hip=(1.0, z0 / k), knee=(2.3, z0 / k + 0.5), foot=2.8, splay=0.5)
+        cells = []
+        x, y, z = max(0, round(0.3 * k)), hy, zt
+        cells.append((x, y, z))
+        z += 1
+        cells.append((x, y, z))
+        for i in range(n):
+            y -= 1
+            cells.append((x, y, z))
+            if i % 2 == 1:
+                x += 1
+                cells.append((x, y, z))
+        for (x, y, z) in cells:
+            head.put((x if sx > 0 else -x - 1, y, z), leg)
+    # six thin legs: straight out from under the shield's edge, then down
+    import rig
+    xe = math.floor(W * 0.75)
+    for i, ly in enumerate((-0.4, 0.8, 2.0)):
+        y = round(ly * k)
+        out = max(2, round(0.6 * k))
+        for sx in (-1, 1):
+            part = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 3, (sx * (xe + 0.5), y + 0.5, z0 - 0.5))
+            for j in range(out + 1):
+                xx = xe + j
+                part.put((xx if sx > 0 else -xx - 1, y, z0 - 1), leg)
+            xx = xe + out
+            for z in range(0, z0 - 1):
+                part.put((xx if sx > 0 else -xx - 1, y, z), leg)
     return c
 
 
