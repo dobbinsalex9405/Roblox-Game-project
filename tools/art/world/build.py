@@ -111,13 +111,14 @@ def aim(co, lo, hi, yaw=-35, pitch=22, k=1.0):
     co.rotation_euler = (c - eye).to_track_quat('-Z', 'Y').to_euler()
 
 
-def mesh_prop(p, coll, mats):
-    """Pillow meshes, one object per part (and glow), parented to an empty."""
+def mesh_prop(p, coll, mats, light=False):
+    """Pillow meshes (flat greedy quads when `light`), one object per part
+    (and glow), parented to an empty."""
     root = bpy.data.objects.new(p.id, None)
     coll.objects.link(root)
     obs = []
     for name, anim, parent, pivot, g in p.parts:
-        for ob in vkit.grid_objects(g, f'{p.id}_{name}', coll, mats):
+        for ob in vkit.grid_objects(g, f'{p.id}_{name}', coll, mats, light=light):
             ob.parent = root
             obs.append(ob)
     return root, obs
@@ -211,7 +212,9 @@ def build_one(pid, out, designs, fast, worldart):
     coll = bpy.data.collections.new(pid)
     s.collection.children.link(coll)
     mats = vkit.materials()
-    root, obs = mesh_prop(p, coll, mats)
+    # tower pieces are big flat walls: flat greedy quads keep them light enough
+    # for the viewer (and near the 20k-triangle MeshPart cap)
+    root, obs = mesh_prop(p, coll, mats, light=p.kind == 'tower')
     lo, hi = bounds(obs)
     size = hi - lo
     tris = sum(len(o.data.polygons) for o in obs) * 2
