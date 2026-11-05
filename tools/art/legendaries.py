@@ -322,7 +322,7 @@ def sun_scarab(c, H):
     return c
 
 
-def _split_heads(c, k, col, snout, light_c, turn=20.0):
+def _split_heads(c, k, col, snout, light_c, turn=25.0):
     """Three heads that read as three: the side heads turn out by `turn`
     degrees about their own pivots, a one-voxel gap parts them from the
     middle head, every muzzle is lighter and each side head gets ears."""
@@ -337,7 +337,7 @@ def _split_heads(c, k, col, snout, light_c, turn=20.0):
         hp = part_or_none(c, name)
         if hp is None:
             continue
-        hp.pivot = (hp.pivot[0] + side * round(0.3 * k), hp.pivot[1], hp.pivot[2])
+        hp.pivot = (hp.pivot[0] + side * round(0.9 * k), hp.pivot[1] - round(0.9 * k), hp.pivot[2])
         # the side head's eyes and a copy of the middle head's ears move with it
         mine = {q: v for q, v in eyes.v.items() if (q[0] + 0.5) * side > thr}
         for q in mine:
@@ -358,7 +358,8 @@ def _split_heads(c, k, col, snout, light_c, turn=20.0):
         ys = [q[1] for q in src]
         zs = sorted({q[2] for q in src})
         pad = round(1.0 * k)
-        shift = round(0.3 * k)
+        shift = round(0.9 * k)
+        fwd = -round(0.9 * k)
         out = {}
         for x in range(min(xs) - pad, max(xs) + pad + 1):
             for y in range(min(ys) - pad, max(ys) + pad + 1):
@@ -370,12 +371,12 @@ def _split_heads(c, k, col, snout, light_c, turn=20.0):
                 for z in zs:
                     v = src.get((q0[0], q0[1], z))
                     if v is not None:
-                        out[(x + shift * side, y, z)] = v
+                        out[(x + shift * side, y + fwd, z)] = v
         eye_set = {q for q in mine}
         hp.v, new_eyes = {}, {}
         rot_eyes = set()
         for (x, y, z), v in out.items():
-            dx, dy = x - shift * side + 0.5 - px, y + 0.5 - py
+            dx, dy = x - shift * side + 0.5 - px, y - fwd + 0.5 - py
             sx = round(px + dx * ca + dy * sa - 0.5)
             sy = round(py - dx * sa + dy * ca - 0.5)
             if (sx, sy, z) in eye_set:
@@ -391,6 +392,61 @@ def _split_heads(c, k, col, snout, light_c, turn=20.0):
             if any((q[0] + dx, q[1] + dy, q[2]) in mid for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
                 del new_eyes[q]
         eyes.v.update(new_eyes)
+    # the middle head leads: a touch bigger, three voxels forward and one up,
+    # so all three faces show from the front and the hero view; its neck
+    # stretches to meet it
+    dy, dz = -3, 1
+    mid_eyes = {q: v for q, v in eyes.v.items() if abs(q[0] + 0.5) <= thr}
+    hx = [q[0] for q in head.v]
+    hz = [q[2] for q in head.v]
+    hyv = [q[1] for q in head.v]
+    cx = (min(hx) + max(hx) + 1) / 2
+    cyc = (min(hyv) + max(hyv) + 1) / 2
+    czc = (min(hz) + max(hz) + 1) / 2
+    sc = 1.1
+
+    def grow(vox):
+        out = {}
+        xs = [q[0] for q in vox]
+        ys = [q[1] for q in vox]
+        zs = [q[2] for q in vox]
+        for x in range(min(xs) - 2, max(xs) + 3):
+            for y in range(min(ys) - 2, max(ys) + 3):
+                for z in range(min(zs) - 2, max(zs) + 3):
+                    sx = math.floor(cx + (x + 0.5 - cx) / sc)
+                    sy = math.floor(cyc + (y + 0.5 - cyc) / sc)
+                    sz = math.floor(czc + (z + 0.5 - czc) / sc)
+                    v = vox.get((sx, sy, sz))
+                    if v is not None:
+                        out[(x, y + dy, z + dz)] = v
+        return out
+    both = dict(head.v)
+    both.update(mid_eyes)
+    grown = grow(both)
+    head.v = {q: v for q, v in grown.items() if v not in mid_eyes.values() or q not in grow(mid_eyes)}
+    ge = grow(mid_eyes)
+    for q in ge:
+        head.v.pop(q, None)
+    for q in mid_eyes:
+        del eyes.v[q]
+    eyes.v.update(ge)
+    if ears:
+        ears.v = {(x, y + dy, z + dz + 1): v for (x, y, z), v in ears.v.items()}
+        ears.pivot = (ears.pivot[0], ears.pivot[1] + dy, ears.pivot[2] + dz)
+    head.pivot = (head.pivot[0], head.pivot[1] + dy, head.pivot[2] + dz)
+    eyes.pivot = head.pivot
+    # the stretched neck under the moved head
+    body = c.part('body')
+    for t in range(4):
+        body.ell((0, -2.6 * k + dy * t / 3, 3.8 * k + 1.3 * k + dz * t / 3), (1.0 * k, 0.9 * k, 1.2 * k), col)
+    # side heads must still clear the middle one
+    mid = set(head.v) | set(eyes.v)
+    for name in ('headL', 'headR'):
+        hp = part_or_none(c, name)
+        if hp:
+            for q in list(hp.v):
+                if any((q[0] + a, q[1] + b, q[2] + d) in head.v for a in (-1, 0, 1) for b in (-1, 0, 1) for d in (-1, 0, 1)):
+                    del hp.v[q]
 
 
 def cerberus_pup(c, H):
@@ -741,23 +797,30 @@ def frost_saber(c, H):
     head = c.part('head')
     # a clean face (the stripes stay on the body and tail), so the fangs read
     head.paint(lambda p, cc, g: (P('#C8DDF0'), False) if g and cc == P('#2EA8FF') else None)
-    (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
-    top = round(z0 + 0.75 * k)
-    n = round(2.4 * k)
-    xi = round(0.35 * k)
+    # each fang grows out of the upper jaw (the jaw's front-bottom voxels
+    # become tooth), runs four voxels past the jaw line and curves forward,
+    # white-blue with a glowing tip, in front of the chest
+    xi = round(0.3 * k)
     for cells in ((xi, xi + 1), (-xi - 2, -xi - 1)):
         inner = cells[0] if cells[0] >= 0 else cells[1]
-        f = head.front(inner, top)
-        if not f:
+        col_v = [q for q in head.v if q[0] == inner]
+        if not col_v:
             continue
-        for j in range(n):
-            s2 = j / max(1, n - 1)
-            col = P('#2EA8FF') if s2 > 0.7 else P('#86D2FA')
-            y = f[1] - 1 - (1 if s2 > 0.6 else 0)
-            for xx in (cells if s2 < 0.7 else (inner,)):
-                fangs.put((xx, y, top - j), col, s2 > 0.7)
-    # frost spikes along the spine
+        # the jaw line at this column: the lowest voxel among the front ones
+        yf = min(q[1] for q in col_v)
+        front = [q for q in col_v if q[1] <= yf + 1]
+        zb = min(q[2] for q in front)
+        yb = min(q[1] for q in front if q[2] == zb)
+        rows = [(zb + 1, yb, 2), (zb, yb, 2), (zb - 1, yb, 2), (zb - 2, yb, 2), (zb - 3, yb, 1), (zb - 4, yb - 1, 1), (zb - 5, yb - 1, 1)]
+        for i, (z, y, w) in enumerate(rows):
+            tip = i >= len(rows) - 2
+            for xx in (cells if w == 2 else (inner,)):
+                head.v.pop((xx, y, z), None)
+                fangs.put((xx, y, z), P('#2EA8FF') if tip else P('#DDF3FF'), tip)
+    # no glowing stripes on the neck and chest front: the fangs hang there
     body = c.part('body')
+    body.paint(lambda p, cc, g: (P('#C8DDF0'), False) if g and p[1] < -1.6 * k else None)
+    # frost spikes along the spine
     sp = c.part('frost', 'glow')
     for y in range(round(-1.4 * k), round(3.2 * k), max(2, round(0.9 * k))):
         t = top_of(body, 0, y)
@@ -2451,9 +2514,8 @@ def meteor_beetle(c, H):
         rock = (P('#4A4048'),)
         speckle(shell, rock, P('#6A5E66'), 4)
         # craters, and the shell glowing hot through cracks
-        cracks(shell, (P('#4A4048'), P('#6A5E66')), FIRE[1], k, scale=0.7)
-        top = max(q[2] for q in shell.v)
-        shell.paint(lambda p, cc, g: (FIRE[2], True) if p[2] >= top - 1 and (p[0] + p[1]) % 4 == 0 else None)
+        # thin, irregular glowing lava cracks over dark rock (not bands)
+        cracks(shell, (P('#4A4048'), P('#6A5E66')), FIRE[1], k, scale=1.15, width=0.3)
     # bright ember eyes (black eyes vanish on the dark rock face), each
     # with a white-hot glint in its top corner
     eyes = part_or_none(c, 'eyes')
@@ -2478,15 +2540,15 @@ def meteor_beetle(c, H):
     # sit on the cracks, each two puffs, no stalk
     sm = c.part('smoke', 'glow')
     sh = shell or c.part('body')
-    for (fx, fy) in ((-1.0, 1.0), (0.9, 2.0)):
+    for (fx, fy) in ((-0.9, 1.4), (0.8, 2.3)):
         x, y = round(fx * k), round(fy * k)
         t = top_of(sh, x, y)
         if t is None:
             continue
-        # each wisp drifts back as it rises, swelling then thinning
-        sm.ell((x + 0.5, y + 0.5, t + 0.2 * k), (0.55 * k, 0.55 * k, 0.4 * k), P('#A29EAA'))
-        sm.ell((x + 0.5, y + 0.5 + 0.55 * k, t + 0.8 * k), (0.72 * k, 0.72 * k, 0.5 * k), P('#C0BCC8'))
-        sm.ell((x + 0.5, y + 0.5 + 1.15 * k, t + 1.3 * k), (0.5 * k, 0.55 * k, 0.4 * k), P('#DCD8E2'))
+        # small round wisps that lean well back as they rise off the crack
+        sm.ell((x + 0.5, y + 0.5, t + 0.1 * k), (0.4 * k, 0.4 * k, 0.35 * k), P('#8E8A96'))
+        sm.ell((x + 0.5, y + 0.5 + 0.6 * k, t + 0.5 * k), (0.45 * k, 0.45 * k, 0.38 * k), P('#B4B0BC'))
+        sm.ell((x + 0.5, y + 0.5 + 1.2 * k, t + 0.75 * k), (0.32 * k, 0.32 * k, 0.3 * k), P('#D4D0DA'))
     return c
 
 
