@@ -690,23 +690,29 @@ def sparks(c, H, col, col2=None):
         n = max(2, round((0.9 if i % 2 else 1.3) * k))
         for j in range(n):
             x = 0 if (j // max(1, round(0.4 * k))) % 2 == 0 else (1 if i % 2 else -1)
-            part.put((x, y, z0 + 1 + j), col, True)
-            part.put((x - 1, y, z0 + 1 + j), col, True)
+            sc = col2 if (col2 and i % 2) else col
+            part.put((x, y, z0 + 1 + j), sc, True)
+            part.put((x - 1, y, z0 + 1 + j), sc, True)
 
 
 def whiskers(c, H, col, col2=None):
-    """Three whiskers a side from the muzzle, frosty and glowing."""
+    """Two fine whiskers a side from the muzzle, pale, each with a frosted
+    tip that glows (col)."""
     k = H / 10.0
     head = _head(c)
     fy = _front_y(head)
     (lo, hi) = _bounds(head)
     z0 = lo[2] + (hi[2] - lo[2]) * 0.3
     part = c.part('whiskers', 'static')
-    for sx in (1,):
-        for j, dz in enumerate((-0.35, 0.0, 0.35)):
-            a = (sx * 0.9 * k, fy + 0.6 * k, z0 + dz * k)
-            b = (sx * 2.9 * k, fy + 0.9 * k, z0 + dz * k * 2.2)
-            line(part, a, b, col, glow=True)
+    stem = _mix(col, hexc('#7FA8C8'), 0.6)
+    for dz in (0.0, 0.5):
+        a = (1.0 * k, fy + 0.6 * k, z0 + dz * k)
+        b = (1.9 * k, fy + 0.8 * k, z0 + dz * k * 1.5)
+        n = max(2, round(0.9 * k))
+        for i in range(n + 1):
+            t = i / n
+            q = (math.floor(a[0] + (b[0] - a[0]) * t), math.floor(a[1] + (b[1] - a[1]) * t), math.floor(a[2] + (b[2] - a[2]) * t))
+            part.put(q, col if i == n else stem, i == n)
     _mirror(part)
 
 
@@ -1004,43 +1010,87 @@ def antenna(c, H, col, col2=None):
 
 
 def wraps(c, H, col, col2=None):
-    """Mummy bandages: diagonal wraps over the body and head in col, with
-    darker gaps, leaving one eye peeking out."""
+    """Mummy bandages: diagonal wraps over the body, level wraps round the
+    head (col, darker gaps), the snout, nose and ears left bare so the
+    head reads, one eye wrapped over (the other peeks out), and a loose
+    bandage end trailing from the side of the head."""
     k = H / 10.0
     w = max(2, round(0.7 * k))
-    gap = col2 or _dark(col, 0.25)
-    for name in ('body', 'head', 'tail'):
-        part = kit._find(c, name)
-        if not part:
-            continue
-        part.paint(lambda p, cc, g: ((gap if ((p[2] + p[1] // 2 + (p[0] if name == 'head' else 0) // 3) % w) == 0 else col), False))
+    gap = col2 or _dark(col, 0.3)
+    head = _head(c)
+    body = kit._find(c, 'body')
     eyes = kit._find(c, 'eyes')
+    ez = min((q[2] for q in eyes.v), default=None) if eyes and eyes.v else None
+    fy = _front_y(head)
+    for name in ('body', 'tail'):
+        part = kit._find(c, name)
+        if part:
+            part.paint(lambda p, cc, g: ((gap if ((p[2] + p[1] // 2) % w) == 0 else _dark(col, 0.1)), False))
+    (hlo, hhi) = _bounds(head)
+
+    def headwrap(p, cc, g):
+        x, y, z = p
+        if ez is not None and z < ez and y <= fy + max(1, round(0.5 * k)):
+            return None  # the snout and nose stay bare
+        return ((gap if z % w == 0 else _light(col, 0.12)), False)
+
+    head.paint(headwrap)
     if eyes:  # wrap over the left eye
         for p in [p for p in eyes.v if p[0] < 0]:
             del eyes.v[p]
-            _head(c).put(p, col)
-    # a loose bandage end trailing from the back
-    body = kit._find(c, 'body')
-    (lo, hi) = _bounds(body)
+            head.put(p, _light(col, 0.12))
+    # a loose bandage end hanging from the head's right side
     loose = c.part('bandage', 'static')
-    for i in range(max(3, round(1.8 * k))):
-        loose.put((round(0.8 * k), hi[1] + 1 + i // 2, hi[2] - round(1.0 * k) - i), col)
-        loose.put((round(0.8 * k) + 1, hi[1] + 1 + i // 2, hi[2] - round(1.0 * k) - i), col)
+    xs = hhi[0] + 1
+    yb = round((hlo[1] + hhi[1]) / 2)
+    zt = round(hlo[2] + (hhi[2] - hlo[2]) * 0.7)
+    for i in range(max(4, round(2.2 * k))):
+        loose.put((xs + (i // 3), yb + i // 2, zt - i), col)
+        loose.put((xs + (i // 3), yb + 1 + i // 2, zt - i), col)
+    del body
 
 
 def beetleshell(c, H, col, col2=None):
-    """A shiny beetle's shell over the back, split down the middle (col2)."""
+    """A big glossy beetle's shell covering the back: two wing-case halves
+    (elytra) with a dark centre line (col2), shading from col to teal
+    (iridescent), with a pale gloss streak on each half."""
     k = H / 10.0
     body = kit._find(c, 'body')
     (lo, hi) = _bounds(body)
     shell = c.part('shell', 'static')
-    yc = (lo[1] + hi[1]) / 2 + 0.3 * k
-    ztop = hi[2]
-    shell.ell((0, yc, ztop - 1.0 * k), ((hi[0] - lo[0] + 1) / 2 + 0.3 * k, (hi[1] - lo[1]) / 2 * 0.8, 1.7 * k), col,
-              cond=lambda x, y, z: z >= ztop - 1.2 * k)
+    teal = hexc('#2AC8C0')
+    z0 = lo[2] + max(1, round(0.25 * (hi[2] - lo[2])))
+    yc = (lo[1] + hi[1]) / 2
+    cols = {}
+    for (x, y, z) in body.v:
+        if z < z0:
+            continue
+        cols.setdefault((x, z), []).append(y)
+    for (x, z), ys in cols.items():
+        shell.put((x, max(ys) + 1, z), col)
+    rows = {}
+    for (x, y, z) in body.v:
+        if z >= z0 and y >= yc + 0.25 * (hi[1] - lo[1]):
+            rows.setdefault((y, z), []).append(x)
+    for (y, z), xs in rows.items():
+        shell.put((max(xs) + 1, y, z), col)
+        shell.put((min(xs) - 1, y, z), col)
+    zs = [q[2] for q in shell.v]
+    zl, zh = min(zs), max(zs)
     seam = col2 or _dark(col, 0.5)
-    shell.paint(lambda p, cc, g: (seam, False) if abs(p[0] + .5) < 0.6 else None)
-    shell.paint(lambda p, cc, g: (_light(col, 0.5), False) if p[0] > 0.6 * k and p[1] < yc and p[2] > ztop + 0.2 * k else None)
+    xm = max(abs(q[0] + .5) for q in shell.v) or 1
+
+    def shade(p, cc, g):
+        x, y, z = p
+        if abs(x + .5) < 1:
+            return (seam, False)
+        t = (z - zl) / max(1, zh - zl)
+        base = _mix(col, teal, 0.15 + 0.6 * t)
+        if 0.45 < abs(x + .5) / xm < 0.7 and t > 0.45:
+            return (_light(base, 0.45), False)  # the gloss
+        return (base, False)
+
+    shell.paint(shade)
 
 
 def teapot(c, H, col, col2=None):
@@ -1159,37 +1209,61 @@ def frosting(c, H, col, col2=None):
 
 
 def pancakes(c, H, col, col2=None):
-    """The body as a stack of pancakes: browned edges in col every layer, a
-    butter pat (col2) on top with a glowing syrup drip."""
+    """The body as a stack of pancakes (browned edges in col every layer),
+    a pat of butter (col2) on the very top, and glossy syrup pooled round
+    it and running down the stack's sides in drips."""
     k = H / 10.0
     body = kit._find(c, 'body')
+    head = _head(c)
     (lo, hi) = _bounds(body)
     layer = max(2, round(0.9 * k))
     body.paint(lambda p, cc, g: (col, False) if (p[2] - lo[2]) % layer == 0 and p[2] > lo[2] else None)
+    syrup = hexc('#A8561C')
+    gloss = hexc('#D88A3A')
+    # the butter: a square pat on the head's crown, its top lighter
+    top = max(p[2] for p in head.v if p[0] in (-1, 0))
+    ys = [p[1] for p in head.v if p[0] in (-1, 0) and p[2] == top]
+    yc = round(sum(ys) / len(ys))
     pat = c.part('butter', 'static')
-    y, zt = kit.crown(c)
-    top = max(p[2] for p in body.v)
-    yc = (lo[1] + hi[1]) / 2 + 0.6 * k
-    zb = _top_at(c, 0, round(yc)) or top
-    pat.box((-round(0.7 * k), round(yc - 0.7 * k), zb + 1), (round(0.7 * k) - 1, round(yc + 0.7 * k) - 1, zb + max(1, round(0.5 * k))), col2 or hexc('#FFE27A'))
-    syrup = hexc('#C8721C')
-    for i in range(max(2, round(1.6 * k))):
-        x = round(1.6 * k)
-        pt = (x, round(yc) + (i // 3), zb - i)
-        body.put(pt, syrup, True)
-    del y, zt
+    b = max(2, round(0.8 * k))
+    butter = col2 or hexc('#FFE27A')
+    pat.box((-b, yc - b + 1, top + 1), (b - 1, yc + b, top + 1), butter)
+    pat.box((-b + 1, yc - b + 2, top + 2), (b - 2, yc + b - 1, top + 2), _light(butter, 0.4))
+    # syrup pooled on the crown round the butter
+    head.paint(lambda p, cc, g: (syrup, False) if p[2] >= top - 1 and abs(p[0] + .5) < b + 2 and abs(p[1] + .5 - yc) < b + 2 and (p[0], p[1], p[2] + 1) not in head.v else None)
+    # drips down the stack's sides: from the top layer, a voxel proud
+    zt = hi[2]
+    drips = c.part('syrup', 'static')
+    cx, cyb = -0.5, (lo[1] + hi[1] + 1) / 2
+    for n, ang in enumerate((-60, 0, 60, 120, 180, 240)):
+        a = math.radians(ang)
+        length = (3, 5, 2, 4, 3, 5)[n] * max(1, round(0.45 * k))
+        for i in range(length):
+            z = zt - i
+            ring = [p for p in body.v if p[2] == z]
+            if not ring:
+                break
+            far = max(ring, key=lambda p: (p[0] + .5 - cx) * math.cos(a) + (p[1] + .5 - cyb) * math.sin(a))
+            q = (far[0] + round(math.cos(a)), far[1] + round(math.sin(a)), z)
+            if q not in body.v:
+                drips.put(q, gloss if i == 0 else syrup, i == 0)
+    body.paint(lambda p, cc, g: (syrup, False) if p[2] == zt else None)
 
 
 def icing(c, H, col, col2=None):
-    """A cinnamon-roll shell: a spiral of dark cinnamon with white icing
-    (col) drizzled over the top."""
+    """A cinnamon-roll shell: a spiral of dark cinnamon (col2) with a
+    white icing swirl (col) between its turns, so the roll's swirl shows
+    on both sides of the shell."""
     k = H / 10.0
     shell = kit._find(c, 'shell') or kit._find(c, 'body')
     (lo, hi) = _bounds(shell)
     cy, cz = (lo[1] + hi[1] + 1) / 2, (lo[2] + hi[2] + 1) / 2
     cinnamon = col2 or hexc('#8A4A1E')
-    shell.paint(lambda p, cc, g: (cinnamon, False) if int((math.hypot(p[1] + .5 - cy, p[2] + .5 - cz) + math.atan2(p[2] + .5 - cz, p[1] + .5 - cy) * 0.35 * k) / max(1, 0.6 * k)) % 2 == 0 else None)
-    shell.paint(lambda p, cc, g: (col, False) if p[2] > cz + 0.4 * k and (p[1] + p[0] // 2) % max(2, round(1.1 * k)) == 0 else None)
+
+    def band(p):
+        return int((math.hypot(p[1] + .5 - cy, p[2] + .5 - cz) + math.atan2(p[2] + .5 - cz, p[1] + .5 - cy) * 0.35 * k) / max(1, 0.6 * k)) % 3
+
+    shell.paint(lambda p, cc, g: (cinnamon, False) if band(p) == 0 else (col, False) if band(p) == 1 else None)
 
 
 def facedisc(c, H, col, col2=None):
@@ -1212,33 +1286,44 @@ def facedisc(c, H, col, col2=None):
 
 
 def twohead(c, H, col, col2=None):
-    """A second head beside the first (a two-headed turtle): the head moves
-    left, a copy of it (with its own blinking eyes) sits on the right,
-    turned out a little the other way."""
+    """Two heads side by side on two necks (a two-headed turtle), clearly
+    apart and angled away from each other: the plan's head moves left and
+    turns out left, a copy (with its own blinking eyes) sits on the right
+    turned out right, a gap between them."""
     k = H / 10.0
     head = kit._find(c, 'head')
     eyes = kit._find(c, 'eyes')
     if not head:
         return
-    off = round(1.0 * k)
+    (lo, hi) = _bounds(head)
+    w = hi[0] - lo[0] + 1
+    off = w // 2 + 1  # each head's middle this far out: a gap of two between
+    yb = hi[1]
+
+    def moved(q, sx):
+        x, y, z = q
+        splay = round((yb - y) * 0.45)  # the further forward, the further out
+        return (x + sx * (off + splay), y, z)
+
     hv = dict(head.v)
     ev = dict(eyes.v) if eyes else {}
-    head.v = {(x - off, y, z): v for (x, y, z), v in hv.items()}
+    head.v = {moved(q, -1): v for q, v in hv.items()}
     head.pivot = (head.pivot[0] - off, head.pivot[1], head.pivot[2])
     if eyes:
-        eyes.v = {(x - off, y, z): v for (x, y, z), v in ev.items()}
-    h2 = c.part('head2', 'static', (off, head.pivot[1], head.pivot[2]))
-    for (x, y, z), v in hv.items():
-        h2.put((x + off, y + (1 if x >= 0 else 0), z), *v)
+        eyes.v = {moved(q, -1): v for q, v in ev.items()}
+        eyes.pivot = head.pivot
+    h2 = c.part('head2', 'head', (off, head.pivot[1], head.pivot[2]))
+    for q, v in hv.items():
+        h2.v[moved(q, 1)] = v
     if eyes:
         e2 = c.part('eyes2', 'blink', h2.pivot)
-        for (x, y, z), v in ev.items():
-            e2.put((x + off, y + (1 if x >= 0 else 0), z), *v)
-    # the two necks join the body: fill between
+        for q, v in ev.items():
+            e2.v[moved(q, 1)] = v
+    # the two necks, from the shell's front out to each head
     body = kit._find(c, 'body')
-    (lo, hi) = _bounds(head)
+    zc = (lo[2] + hi[2]) / 2 - 0.2 * k
     for sx in (-1, 1):
-        line(body, (sx * off, lo[1] + 1.2 * k, (lo[2] + hi[2]) / 2), (sx * off * 0.4, lo[1] + 2.4 * k, (lo[2] + hi[2]) / 2 - 0.2 * k), col, r=0.7 * k)
+        line(body, (sx * 0.6 * k, yb + 1.6 * k, zc), (sx * (off + 0.3 * k), yb - 0.2 * k, zc + 0.1 * k), col, r=0.55 * k)
 
 
 def crocsnout(c, H, col, col2=None):
@@ -1966,25 +2051,70 @@ def yarn(c, H, col, col2=None):
 
 
 def teddy(c, H, col, col2=None):
-    """A stitched teddy: dashed seams (col) down the middle of the body and
-    head, a patch on one side, and button eyes (col2) with glinting holes."""
+    """A stitched teddy: big round BUTTON eyes (dark discs with four light
+    thread holes and a shine), a dashed seam (col) down the middle of the
+    head and body, and two patchwork patches (col2 and a second shade) with
+    dashed stitches round their edges."""
     k = H / 10.0
-    for name in ('body', 'head'):
-        part = kit._find(c, name)
-        if part:
-            part.paint(lambda p, cc, g: (col, False) if p[0] in (-1, 0) and p[1] % 2 == 0 else None)
+    head = kit._find(c, 'head')
     body = kit._find(c, 'body')
-    (lo, hi) = _bounds(body)
-    patch = _light(col2 or hexc('#7FB3FF'), 0.3)
-    body.paint(lambda p, cc, g: (patch, False) if p[0] > 0 and abs(p[1] + .5 - (lo[1] + hi[1]) / 2) < 0.9 * k and abs(p[2] + .5 - (lo[2] + hi[2]) / 2) < 0.8 * k else None)
+    for part in (body, head):
+        if part:
+            part.paint(lambda p, cc, g: (col, False) if p[0] in (-1, 0) and p[1] % 2 == 0 and p[2] % 2 == 0 else None)
     eyes = kit._find(c, 'eyes')
-    if eyes and col2:
-        for p in eyes.v:
-            eyes.v[p] = (col2, False)
-        for sx in (-1, 1):
-            side = sorted(p for p in eyes.v if (p[0] >= 0) == (sx > 0))
-            if side:
-                eyes.v[side[len(side) // 2]] = (WHITE, True)
+    if eyes and eyes.v and head:
+        right = [q for q in eyes.v if q[0] >= 0]
+        ez = round(sum(q[2] for q in right) / len(right))
+        base = max(set(v[0] for v in head.v.values()), key=lambda cc: sum(1 for v in head.v.values() if v[0] == cc))
+        for q in list(eyes.v):
+            head.v[q] = (base, False)
+        eyes.v = {}
+        D = 4 if (max(q[0] for q in head.v) >= 5) else 2
+        x0 = 2
+        disc, hole = hexc('#2A1E1A'), hexc('#8A6A50')
+        for dx in range(D):
+            for dz in range(D):
+                if D == 4 and dx in (0, 3) and dz in (0, 3):
+                    continue  # a round button
+                f = head.front(x0 + dx, ez - D // 2 + 1 + dz)
+                if not f:
+                    continue
+                del head.v[f]
+                if D == 4 and dx in (1, 2) and dz in (1, 2):
+                    cc = hole
+                elif (D == 4 and dx == 3 and dz == 2) or (D == 2 and dx == 1 and dz == 1):
+                    cc = WHITE  # the button's shine
+                else:
+                    cc = disc
+                # the button stands a voxel proud of the face
+                eyes.put((f[0], f[1] - 1, f[2]), cc)
+                head.put(f, disc)
+        for (x, y, z), v in list(eyes.v.items()):
+            head.v.pop((-x - 1, y, z), None)
+            head.v[(-x - 1, y + 1, z)] = head.v.get((x, y + 1, z), v)
+            eyes.v[(-x - 1, y, z)] = v
+    # two patches: one on the body's right side, one on the head's left
+    stitch = _dark(col, 0.1)
+    p2 = col2 or hexc('#5B8CFF')
+    p1 = hexc('#FF7AA8')
+    for part, side, pc in ((body, 1, p2), (head, -1, p1)):
+        if not part:
+            continue
+        (lo, hi) = _bounds(part)
+        yc = (lo[1] + hi[1]) / 2 + (0.0 if part is body else 0.5 * k)
+        zc = (lo[2] + hi[2]) / 2 + (0.0 if part is body else -0.3 * k)
+        h = max(2, round(0.9 * k))
+        surf = {}
+        for (x, y, z) in part.v:
+            if abs(y + .5 - yc) <= h and abs(z + .5 - zc) <= h:
+                key = (y, z)
+                if side > 0:
+                    surf[key] = max(surf.get(key, x), x)
+                else:
+                    surf[key] = min(surf.get(key, x), x)
+        for (y, z), x in surf.items():
+            edge = abs(y + .5 - yc) > h - 1 or abs(z + .5 - zc) > h - 1
+            part.v[(x, y, z)] = (stitch if edge and (y + z) % 2 == 0 else pc, False)
 
 
 def cactus(c, H, col, col2=None):
@@ -2003,26 +2133,59 @@ def cactus(c, H, col, col2=None):
 
 
 def bubble(c, H, col, col2=None):
-    """A soap bubble round the whole creature, drawn as glowing rainbow
-    rings (the bubble's shine) so the creature inside stays in view."""
+    """A soap bubble round the whole creature: a sparse dotted shell (pale
+    single voxels spread evenly over a sphere, so it reads as a thin clear
+    film and the creature inside stays in view), a rainbow sheen sweeping
+    over its upper side (col, col2 and two more shades, glowing) and a
+    white shine spot."""
     k = H / 10.0
     (lo, hi) = c.bounds()
-    cx = (lo[0] + hi[0]) / 2
-    cy = (lo[1] + hi[1]) / 2
-    cz = (lo[2] + hi[2]) / 2 + 0.4 * k
+    cx = (lo[0] + hi[0] + 1) / 2
+    cy = (lo[1] + hi[1] + 1) / 2
+    cz = (lo[2] + hi[2] + 1) / 2 + 0.4 * k
     R = max(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]) / 2 + 0.9 * k
-    part = c.part('bubble', 'static')
-    shades = [col, col2 or hexc('#FFB3F0'), hexc('#B3FFF0'), hexc('#FFF6B3')]
-    n = 160
+    # it turns slowly ('orbit'), so the sheen drifts round like a real
+    # bubble's, and floats free of the creature inside
+    part = c.part('bubble', 'orbit', (cx, cy, cz))
+    film = hexc('#DDF3FF')
+    sheen = [col2 or hexc('#FF8AE0'), hexc('#B98AFF'), col, hexc('#8AFFD8'), hexc('#FFF38A')]
+    n = max(50, int(4 * math.pi * R * R / 27))
+    golden = math.pi * (3 - math.sqrt(5))
     for i in range(n):
-        a = i / n * 2 * math.pi
-        for (u, v, w) in ((math.cos(a), math.sin(a), 0.0), (math.cos(a), 0.0, math.sin(a)), (0.0, math.cos(a), math.sin(a))):
+        zz = 1 - 2 * (i + .5) / n
+        rr = math.sqrt(max(0.0, 1 - zz * zz))
+        a = i * golden
+        u, v, w = math.cos(a) * rr, math.sin(a) * rr, zz
+        z = cz + w * R
+        if z < 0.3 * k:
+            continue
+        q = (math.floor(cx + u * R), math.floor(cy + v * R), math.floor(z))
+        part.put(q, film)
+    # the sheen: an unbroken rainbow arc sweeping over the upper front-left
+    ax = (-0.55, -0.45, 0.7)
+    al = math.sqrt(sum(a * a for a in ax))
+    ax = tuple(a / al for a in ax)
+    e1 = (ax[1], -ax[0], 0.0)
+    e1l = math.sqrt(e1[0] ** 2 + e1[1] ** 2)
+    e1 = (e1[0] / e1l, e1[1] / e1l, 0.0)
+    e2 = (ax[1] * e1[2] - ax[2] * e1[1], ax[2] * e1[0] - ax[0] * e1[2], ax[0] * e1[1] - ax[1] * e1[0])
+    for band, h in enumerate((0.58,)):
+        rr = math.sqrt(1 - h * h)
+        m = int(2 * math.pi * R * rr * 1.6)
+        for i in range(m):
+            a = -1.9 + 3.8 * i / m  # about 220 degrees of the ring
+            u = ax[0] * h + rr * (math.cos(a) * e1[0] + math.sin(a) * e2[0])
+            v = ax[1] * h + rr * (math.cos(a) * e1[1] + math.sin(a) * e2[1])
+            w = ax[2] * h + rr * (math.cos(a) * e1[2] + math.sin(a) * e2[2])
             z = cz + w * R
             if z < 0.3 * k:
                 continue
-            part.put((math.floor(cx + u * R), math.floor(cy + v * R), math.floor(z)), shades[(i // 10) % 4], True)
-    # a shine highlight high on one of the rings
-    part.ell((cx + 0.707 * R, cy, cz + 0.707 * R), (0.35 * k, 0.35 * k, 0.35 * k), WHITE, True)
+            q = (math.floor(cx + u * R), math.floor(cy + v * R), math.floor(z))
+            part.put(q, sheen[min(len(sheen) - 1, int((a + 1.9) / 3.8 * len(sheen)))], True)
+    # the shine spot
+    sx, sy, sz = cx - 0.45 * R, cy - 0.35 * R, cz + 0.75 * R
+    for d in ((0, 0, 0), (1, 0, 0), (0, 0, 1), (1, 0, 1)):
+        part.put((math.floor(sx) + d[0], math.floor(sy), math.floor(sz) + d[2]), WHITE, True)
 
 
 def trunk(c, H, col, col2=None):
@@ -2236,6 +2399,151 @@ def nostrils(c, H, col, col2=None):
             head.v[q] = (col, False)
 
 
+def unicornhorn(c, H, col, col2=None):
+    """ONE spiral horn on the forehead (a unicorn's), gold (col) with a
+    pale spiral stripe (col2) that glows, leaning a little forward; any
+    stalks on the head are cut down short."""
+    k = H / 10.0
+    head = _head(c)
+    mid = [p for p in head.v if p[0] in (-1, 0)]
+    crown = max(p[2] for p in mid)
+    for p in [p for p in head.v if p[2] > crown + 1]:
+        del head.v[p]  # short eye stalks
+    fy = min(p[1] for p in mid if p[2] == crown)
+    horn = c.part('horn', 'static')
+    n = max(5, round(2.2 * k))
+    stripe = col2 or hexc('#FFF6C8')
+    for i in range(n):
+        t = i / (n - 1)
+        d = 2 if t < 0.5 else 1
+        y0 = fy - round(t * 1.2)
+        for x in (-1, 0):
+            for y in range(y0, y0 + d):
+                spiral = (i + (x + 1) + (y - y0)) % 3 == 0
+                horn.put((x, y, crown + 1 + i), stripe if spiral else col, spiral or i == n - 1)
+
+
+def finchbeak(c, H, col, col2=None):
+    """A finch's small pointed beak in place of the plan's flat bill: a
+    short cone, two wide, narrowing to a darker point (col2)."""
+    k = H / 10.0
+    head = _head(c)
+    for q in [q for q, v in head.v.items() if v[0] in (hexc('#FF9418'), hexc('#FFB627'))]:
+        del head.v[q]
+    (lo, hi) = _bounds(head)
+    zb = round(lo[2] + (hi[2] - lo[2]) * 0.42)
+    ys = [p[1] for p in head.v if p[0] in (-1, 0) and zb <= p[2] <= zb + 1]
+    fy = min(ys) if ys else _front_y(head)
+    beak = c.part('beak', 'static')
+    for x in (-1, 0):
+        for z in (zb, zb + 1):
+            beak.put((x, fy - 1, z), col)
+        beak.put((x, fy - 2, zb), col2 or _dark(col, 0.3))
+
+
+def glowstripe(c, H, col, col2=None):
+    """A glowing ember stripe (col) from the tip of the nose, over the crown
+    and all along the back to the tail (an ash badger's)."""
+    for name in ('head', 'body', 'tail'):
+        part = kit._find(c, name)
+        if not part:
+            continue
+        top = {}
+        for (x, y, z) in part.v:
+            if x in (-1, 0):
+                top[(x, y)] = max(top.get((x, y), z), z)
+        for (x, y), z in top.items():
+            part.v[(x, y, z)] = (col, True)
+
+
+def petalears(c, H, col, col2=None):
+    """Ears that look like petals: rounded tips (the top corners taken off)
+    and a darker vein (col) up the middle of each ear's front."""
+    ears = kit._find(c, 'ears')
+    if not ears or not ears.v:
+        return
+    right = {q: v for q, v in ears.v.items() if q[0] >= 0}
+    if not right:
+        return
+    xs = sorted(set(q[0] for q in right))
+    zt = max(q[2] for q in right)
+    zb = min(q[2] for q in right)
+    for q in [q for q in right if q[2] == zt and q[0] in (xs[0], xs[-1]) and len(xs) > 2]:
+        del right[q]
+    mid = xs[len(xs) // 2] if len(xs) > 2 else xs[0]
+    for (x, y, z) in list(right):
+        fy = min(q[1] for q in right if q[0] == x and q[2] == z)
+        if x == mid and y == fy and zb + 1 <= z <= zt - 2:
+            right[(x, y, z)] = (col, False)
+    ears.v = dict(right)
+    for (x, y, z), v in right.items():
+        ears.v[(-x - 1, y, z)] = v
+
+
+def zigzagtail(c, H, col, col2=None):
+    """A bold lightning-bolt tail: three zigzag strokes back from the rump
+    (col), the last one lit (col2)."""
+    k = H / 10.0
+    tail = kit._find(c, 'tail')
+    if not tail or not tail.v:
+        return
+    y0 = min(q[1] for q in tail.v)
+    z0 = round(sum(q[2] for q in tail.v) / len(tail.v))
+    tail.v = {}
+    pts = [(y0, z0), (y0 + 1.0 * k, z0 + 1.1 * k), (y0 + 1.5 * k, z0 + 0.3 * k), (y0 + 2.6 * k, z0 + 1.7 * k)]
+    for n, ((ya, za), (yb, zb)) in enumerate(zip(pts, pts[1:])):
+        steps = max(2, round(max(abs(yb - ya), abs(zb - za)) * 1.5))
+        for j in range(steps + 1):
+            t = j / steps
+            y, z = math.floor(ya + (yb - ya) * t), math.floor(za + (zb - za) * t)
+            last = n == len(pts) - 2
+            for dz in (0, 1):
+                tail.put((0, y, z + dz), (col2 or col) if last else col, last and col2 is not None)
+    for (x, y, z), v in list(tail.v.items()):
+        tail.v[(-x - 1, y, z)] = v
+
+
+def shineeyes(c, H, col=None, col2=None):
+    """Two clearly separate 2 x 2 eyes on the head's front, each with a white
+    shine in its top outer corner, never a bar or a mask: at least two
+    voxels apart, the face showing between them. col, if given, is a bright
+    iris (for a dark face), with a dark pupil low on the inside."""
+    eyes = kit._find(c, 'eyes')
+    head = _head(c)
+    if not eyes or not eyes.v or head is None:
+        return
+    right = [q for q in eyes.v if q[0] >= 0]
+    if not right:
+        return
+    fill = {}
+    for q in list(eyes.v):  # put the face back where the old eyes were
+        fill[q] = True
+    base = max(set(v[0] for v in head.v.values()), key=lambda cc: sum(1 for v in head.v.values() if v[0] == cc))
+    for q in fill:
+        head.v[q] = (base, False)
+    eyes.v = {}
+    x0 = max(1, min(q[0] for q in right))
+    z0 = min(q[2] for q in right)
+    if not (head.front(x0 + 1, z0 + 1) and head.front(x0, z0 + 1)):
+        z0 -= 1
+    for dx in (0, 1):
+        for dz in (0, 1):
+            f = head.front(x0 + dx, z0 + dz)
+            if not f:
+                continue
+            if dx == 1 and dz == 1:
+                cc, g = WHITE, False
+            elif col is None or col == INK:
+                cc, g = INK, False
+            else:
+                cc, g = (INK, False) if (dx == 0 and dz == 0) else (col, True)
+            del head.v[f]
+            eyes.put(f, cc, g)
+    for (x, y, z), v in list(eyes.v.items()):
+        head.v.pop((-x - 1, y, z), None)
+        eyes.v[(-x - 1, y, z)] = v
+
+
 def glinteyes(c, H, col, col2=None):
     """Bigger eyes that read on a grey face: each eye grows to 2 x 2 (out
     and up) with a white glint in its top outer corner, ringed in col."""
@@ -2304,7 +2612,7 @@ def hoverlift(c, H, col=None, col2=None):
 
 ACCESSORIES = {
     'beakbands': beakbands, 'hoverlift': hoverlift,
-    'glinteyes': glinteyes, 'mantisantennae': mantisantennae,
+    'glinteyes': glinteyes, 'shineeyes': shineeyes, 'unicornhorn': unicornhorn, 'finchbeak': finchbeak, 'glowstripe': glowstripe, 'petalears': petalears, 'zigzagtail': zigzagtail, 'mantisantennae': mantisantennae,
     'nostrils': nostrils,
     'knucklearms': knucklearms,
     'clockshell': clockshell,
