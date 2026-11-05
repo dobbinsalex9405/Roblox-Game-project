@@ -94,6 +94,16 @@ end
 local ids = Monetization.resolve(monetization, Build.environment)
 
 World.build()
+-- Each base's floor shows only a low lip above the grass (Alex found a
+-- 1-stud step "way too high"). The boot check runs this, so it fails CI.
+for index = 1, Layout.PLOTS do
+	local plot = World.model(index)
+	local floor = plot and plot.PrimaryPart
+	assert(floor, "every base has a floor")
+	-- CFrame, not Position: the headless boot shim keeps Position at its default.
+	local top = floor.CFrame.Position.Y + floor.Size.Y / 2
+	assert(top > 0.05 and top <= 0.5, `base {index}'s floor top is at {top}, not a low lip above the grass`)
+end
 Scenery.build(Config.get("atmosphere"))
 Mounts.start()
 CreatureAssets.start(log)

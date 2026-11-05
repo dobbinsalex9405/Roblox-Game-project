@@ -66,12 +66,18 @@ return {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
 		-- tracks from Roblox's own licensed library (Creator Store, Audio,
 		-- by Roblox): uploads by others may be private or unlicensed. Empty
-		-- = no music. Provisional picks (Roblox's licensed APM library, chosen
-		-- in Studio's Creator Store, Nov 4); confirm by ear in the next
-		-- playtest: Beautiful Morning, Mellow Landscape, Castle Reel.
-		tracks = { 1846167658, 1842262737, 1845861718 },
+		-- = no music. Fantasy picks for Alex's "lord of the rings themed" ask
+		-- (Roblox's licensed APM library, found in Studio's Creator Store,
+		-- Nov 5): Magical Surprise, Magic Castle, Wildflower Meadows. Chosen
+		-- from the library's titles and descriptions, not by ear: listen once
+		-- on Staging. Alternates if one jars: 1840511859, 1838199820,
+		-- 1839975977.
+		tracks = { 1840017271, 1846499154, 9048460919 },
 		volume = 0.25,
-		fadeSeconds = 2,
+		fadeSeconds = 2, -- the Music button fades it out and in
+		startDelaySeconds = 1, -- after the player first spawns
+		startFadeSeconds = 4, -- from silence at join, slow at first
+		crossfadeSeconds = 3, -- each track fades into the next
 	},
 	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
 	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
