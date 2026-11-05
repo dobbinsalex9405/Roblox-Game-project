@@ -243,3 +243,11 @@ coins right away. / R$ 199", passes show "Owned"). The "Coins" wall sign is read
 (`76b-hh-tags-phone-close`) but are small from the doorway (`76b-hh-shop-phone`). The Buy prompt
 "80K Coins / Buy for R$ 199" opened the test-purchase window, which I closed with its X. Output: no
 errors.
+
+## Gate: #89 at 417eb6b (farm framing, pines)
+
+PASS with one note. There are 11 Star Pines, each on its own hill and none on flat grass. Every
+farm piece has small trees on both sides about 39 studs from its centre (Puff Oak S for the barn,
+windmill, pond and pen; Blossom S for the fields) with a bush beside them (`89-hh-barn-framed`).
+Note: wood stands behind the windmill, pond, pen and two fields, but there are no trees within
+12° behind the barn or the fields at 67° and 338°. Output: no errors.
