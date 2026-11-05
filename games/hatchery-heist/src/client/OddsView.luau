@@ -4,18 +4,30 @@
 -- boosts included), never from client config. Until they arrive, eggs cannot
 -- be bought. Players who may not receive paid random items see the fixed
 -- order their eggs hatch in instead, with the next one marked.
+--
+-- Eggs roll a tier, then a creature in it, so the card and the board show
+-- one line per tier: the tier's exact share is the sum of its creatures'
+-- weights. The card's "See every creature" button opens the exact chance
+-- of every creature in the egg, which paid random items must show before
+-- purchase however many creatures there are.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 
 local CoreClient = require(ReplicatedStorage.CoreClient.CoreClient)
+local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
+local Eggs = require(Shared.Eggs)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
 
 local OddsView = {}
+
+local FONT = Enum.Font.GothamBold
+local listEgg: string? = nil -- the egg whose full list is open
+local renderList: (() -> ())? = nil
 
 local displays: { [string]: any } = {}
 local listeners: { () -> () } = {}
@@ -28,6 +40,9 @@ function OddsView.start(context: Context.Context)
 			displays[display.tableId] = display
 			for _, listener in listeners do
 				task.spawn(listener)
+			end
+			if listEgg == display.tableId and renderList then
+				renderList()
 			end
 		end
 	end)
@@ -62,8 +77,7 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels: 22 on the odds card, 16 on the board over the belt,
--- which lists up to 15 rows per egg.
+-- Row height in pixels: 22 on the odds card, 16 on the board over the belt.
 local rowHeight = 22
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
@@ -139,6 +153,30 @@ local function sameTextSize(container: GuiObject)
 	end
 end
 
+-- One line per tier, most common first: the tier's exact share of the
+-- server's table (boosts included) as a percentage and as "1 in N".
+function OddsView.tiers(display: any): { { rarity: string, weight: number, percent: string, oneIn: string } }
+	local species = ctx.config.creatures.species
+	local sums: { [string]: number } = {}
+	for _, r in display.rows do
+		local rarity = if species[r.id] then species[r.id].rarity else "Common"
+		sums[rarity] = (sums[rarity] or 0) + r.weight
+	end
+	local out = {}
+	for _, rarity in Eggs.RARITIES do
+		local weight = sums[rarity]
+		if weight then
+			table.insert(out, {
+				rarity = rarity,
+				weight = weight,
+				percent = Odds.formatPercent(weight, display.total),
+				oneIn = Odds.formatOneIn(weight, display.total),
+			})
+		end
+	end
+	return out
+end
+
 -- Fills `container` (which should have a UIListLayout) with one egg's odds.
 -- `compact` is the board over the belt: names without the rarity word (the
 -- colour says it) and the exact percentage only. The card beside the Buy
@@ -196,22 +234,165 @@ local function fill(container: GuiObject, eggId: string, compact: boolean?)
 			true
 		)
 	end
-	for i, r in display.rows do
-		local rarity = if species[r.id] then species[r.id].rarity else "Common"
+	for i, tier in OddsView.tiers(display) do
 		row(
 			container,
 			i + 1,
-			if compact then Layout.displayName(r.id) else `{Layout.displayName(r.id)} ({rarity})`,
-			if compact then r.percent else `{r.percent} · {r.oneIn}`,
-			Layout.rarityColor(rarity),
+			tier.rarity,
+			if compact then tier.percent else `{tier.percent} · {tier.oneIn}`,
+			Layout.rarityColor(tier.rarity),
 			false
 		)
+	end
+	if not compact then
+		local button = Instance.new("TextButton")
+		button.Name = "SeeEvery"
+		button.LayoutOrder = 100
+		button.Size = UDim2.new(1, 0, 0, 30)
+		button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
+		button.Font = FONT
+		button.TextSize = 15
+		button.TextColor3 = Color3.new(1, 1, 1)
+		button.Text = "See every creature"
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0, 8)
+		c.Parent = button
+		button.Activated:Connect(function()
+			OddsView.openList(eggId)
+		end)
+		button.Parent = container
 	end
 end
 
 function OddsView.render(container: GuiObject, eggId: string, compact: boolean?)
 	fill(container, eggId, compact)
 	sameTextSize(container)
+end
+
+local function corner(parent: Instance, radius: number)
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, radius)
+	c.Parent = parent
+end
+
+-- A window listing every creature an egg can hatch with its exact chance,
+-- opened from the odds card: the same numbers the server rolls from.
+local function buildList(): ScreenGui
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "OddsList"
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = 25
+	gui.Enabled = false
+	local window = Instance.new("Frame")
+	window.Name = "Window"
+	-- Below the HUD's coin bar (8 + 64 px from the top), so a phone still
+	-- shows the player's coins while the list is open.
+	window.AnchorPoint = Vector2.new(0.5, 0)
+	window.Position = UDim2.new(0.5, 0, 0, 80)
+	window.Size = UDim2.new(0, 360, 1, -90)
+	window.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+	corner(window, 12)
+	local limit = Instance.new("UISizeConstraint")
+	limit.MaxSize = Vector2.new(math.huge, 560)
+	limit.Parent = window
+	window.Parent = gui
+	local title = Instance.new("TextLabel")
+	title.Name = "Title"
+	title.BackgroundTransparency = 1
+	title.Position = UDim2.fromOffset(14, 8)
+	title.Size = UDim2.new(1, -76, 0, 32)
+	title.Font = FONT
+	title.TextSize = 20
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.TextColor3 = Color3.fromRGB(255, 220, 90)
+	title.TextTruncate = Enum.TextTruncate.AtEnd
+	title.Parent = window
+	local close = Instance.new("TextButton")
+	close.Name = "Close"
+	close.AnchorPoint = Vector2.new(1, 0)
+	close.Position = UDim2.new(1, -8, 0, 8)
+	close.Size = UDim2.fromOffset(44, 40)
+	close.BackgroundColor3 = Color3.fromRGB(215, 70, 70)
+	close.Font = FONT
+	close.TextSize = 22
+	close.TextColor3 = Color3.new(1, 1, 1)
+	close.Text = "X"
+	corner(close, 10)
+	close.Activated:Connect(function()
+		listEgg = nil
+		gui.Enabled = false
+	end)
+	close.Parent = window
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Name = "Rows"
+	scroll.BackgroundTransparency = 1
+	scroll.Position = UDim2.fromOffset(10, 54)
+	scroll.Size = UDim2.new(1, -20, 1, -64)
+	scroll.CanvasSize = UDim2.new()
+	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	scroll.ScrollBarThickness = 6
+	scroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+	local layout = Instance.new("UIListLayout")
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Padding = UDim.new(0, 2)
+	layout.Parent = scroll
+	-- Rows stop short of the scroll bar: on a phone its 6 px cut off the end
+	-- of every right-aligned "1 in N" (Studio gate, Nov 5).
+	local inset = Instance.new("UIPadding")
+	inset.PaddingRight = UDim.new(0, 10)
+	inset.Parent = scroll
+	scroll.Parent = window
+	return gui
+end
+
+function OddsView.openList(eggId: string)
+	local playerGui = ctx.player:WaitForChild("PlayerGui")
+	local existing = playerGui:FindFirstChild("OddsList") :: ScreenGui?
+	local list: ScreenGui = existing or buildList()
+	list.Parent = playerGui
+	local window = list:FindFirstChild("Window") :: Frame
+	local scroll = window:FindFirstChild("Rows") :: ScrollingFrame
+	local title = window:FindFirstChild("Title") :: TextLabel
+	listEgg = eggId
+	local function render()
+		for _, child in scroll:GetChildren() do
+			if not child:IsA("UIListLayout") then
+				child:Destroy()
+			end
+		end
+		title.Text = `{Layout.displayName(eggId)}: every creature`
+		local display = displays[eggId]
+		if display == nil then
+			return
+		end
+		local species = ctx.config.creatures.species
+		local saved = rowHeight
+		rowHeight = 24
+		for i, r in display.rows do
+			local rarity = if species[r.id] then species[r.id].rarity else "Common"
+			row(
+				scroll,
+				i,
+				`{Layout.displayName(r.id)} ({rarity})`,
+				`{r.percent} · {r.oneIn}`,
+				Layout.rarityColor(rarity),
+				false
+			)
+		end
+		rowHeight = saved
+		for _, frame in scroll:GetChildren() do
+			for _, l in frame:GetChildren() do
+				if l:IsA("TextLabel") then
+					l.TextScaled = false
+					l.TextSize = 15
+					l.TextTruncate = Enum.TextTruncate.AtEnd
+				end
+			end
+		end
+	end
+	renderList = render
+	render()
+	list.Enabled = true
 end
 
 return OddsView

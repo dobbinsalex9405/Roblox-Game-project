@@ -17,7 +17,10 @@ local Fakes = require("../../packages/core/tests/Fakes")
 local config = {
 	economy = require("../../games/hatchery-heist/config/economy"),
 	creatures = require("../../games/hatchery-heist/config/creatures"),
-	eggs = require("../../games/hatchery-heist/config/eggs"),
+	eggs = Eggs.expand(
+		require("../../games/hatchery-heist/config/eggs"),
+		require("../../games/hatchery-heist/config/creatures").species
+	),
 	monetization = require("../../games/hatchery-heist/config/monetization"),
 	raids = require("../../games/hatchery-heist/config/raids"),
 }

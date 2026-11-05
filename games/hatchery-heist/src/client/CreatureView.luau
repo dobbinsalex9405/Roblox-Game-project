@@ -220,14 +220,13 @@ local function build(anchor: BasePart, speciesId: string)
 	end
 	local rarity = if mesh then mesh.rarity else (art :: VoxelArt.Art).rarity
 	local look = CreatureLooks[rarity] or CreatureLooks.Common
-	-- k: the creature's size against its size on a pad, smaller when the
-	-- server draws it ridden or carried overhead, and then small enough that
-	-- the whole art, crest and all, fits inside the ball. s: studs per voxel.
+	-- k: scales the art so all of it, crest and all, stands as tall as the
+	-- server's ball (its size on a pad, ridden or carried). s: studs per voxel.
 	-- Meshes are drawn at their boxes' height (fit), so both paths fit the
 	-- same art height into the ball.
 	local meshFit = if mesh then fit(speciesId, mesh) else 1
 	local artHeight = if mesh then mesh.size[2] * meshFit else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
-	local k = ArtScale.drawScale(anchor.Size.Y, Layout.raritySize(rarity), artHeight)
+	local k = ArtScale.drawScale(anchor.Size.Y, artHeight)
 	local s = VoxelArt.voxel * k
 	k *= meshFit
 	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)

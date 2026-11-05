@@ -178,28 +178,18 @@ describe("Creature looks by tier", function()
 	end)
 
 	-- Studio playtest: a ridden Phoenix stood 6.5 studs (its crest above its
-	-- body), over the 6-stud mount limit. Whatever its pad size, a ridden
-	-- (pad + 1, at most 6) or carried (at most 4) creature's whole art, crest
-	-- and all, fits its stand-in. The sizes mirror Layout.mountSize and
-	-- Layout.carrySize, which need the engine to load.
-	it("fits a ridden or carried creature's whole art inside its stand-in", function()
+	-- body), over the 6-stud mount limit. Every creature's whole art, crest
+	-- and all, now stands exactly as tall as the server's stand-in, so the
+	-- pad, mount and carry sizes in Layout are the only size knobs.
+	it("draws every creature's whole art exactly as tall as its stand-in", function()
 		for speciesId, art in VoxelArt.species do
 			local artHeight = art.size[2] * VoxelArt.voxel
-			for pad = 1, 12, 0.5 do
-				for _, standIn in { math.min(pad + 1, 6), math.min(pad, 4) } do
-					if standIn ~= pad then
-						local drawn = artHeight * ArtScale.drawScale(standIn, pad, artHeight)
-						expect(
-							drawn <= standIn + 1e-6 and "fits"
-								or `{speciesId} on pad {pad}: {drawn} in {standIn}`
-						).toBe("fits")
-					end
-				end
+			for _, standIn in { 2, 3.8, 4.8, 6 } do
+				local drawn = artHeight * ArtScale.drawScale(standIn, artHeight)
+				expect(math.abs(drawn - standIn) < 1e-6 and "fits" or `{speciesId}: {drawn} for {standIn}`).toBe(
+					"fits"
+				)
 			end
 		end
-		-- A small creature still rides a little bigger than on its pad.
-		expect(ArtScale.drawScale(3, 2, 1.5)).toBe(1.5)
-		-- On its own pad (stand-in at full size) a creature keeps its size.
-		expect(ArtScale.drawScale(9, 9, 10.4)).toBe(1)
 	end)
 end)
