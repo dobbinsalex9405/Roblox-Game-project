@@ -4985,8 +4985,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 2.8,
 		size = { 1.2, 2.8, 3.7 },
-		tris = 19494,
-		trisLod1 = 2066,
+		tris = 19454,
+		trisLod1 = 2048,
 		parts = {
 			{
 				name = "body",
@@ -5145,15 +5145,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "FrostWolf_crest_glow",
-						center = { 0, 2.2, -0.5 },
-						size = { 0.4, 0.6, 0.9 },
-						glow = "9CC9F2",
-					},
-					{
-						name = "FrostWolf_crest_glow2",
-						center = { 0, 2.5, -0.25 },
-						size = { 0.2, 0.6, 0.8 },
-						glow = "DFF4FF",
+						center = { 0, 2.35, -0.4 },
+						size = { 0.4, 0.9, 1.1 },
+						glow = "BFE6FF",
 					},
 				},
 				lod1 = {
@@ -5172,7 +5166,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		height = 3.2,
 		size = { 2.8, 3.2, 2.3 },
 		tris = 18682,
-		trisLod1 = 1952,
+		trisLod1 = 1898,
 		parts = {
 			{
 				name = "body",
@@ -5812,8 +5806,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 3.1,
 		size = { 1.4, 3.1, 3.8 },
-		tris = 26332,
-		trisLod1 = 2710,
+		tris = 26680,
+		trisLod1 = 2460,
 		parts = {
 			{
 				name = "body",
@@ -5830,12 +5824,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						center = { 0, 1.2, 0.5 },
 						size = { 1, 0.6, 0.6 },
 						glow = "FFD86B",
-					},
-					{
-						name = "MoonUnicorn_body_glow2",
-						center = { 0, 1.1, 0.5 },
-						size = { 1, 1, 1.6 },
-						glow = "FFF3B0",
 					},
 				},
 				lod1 = { name = "MoonUnicorn_body_lod1", center = { 0, 1.1, 0.4 }, size = { 1.4, 1.2, 2 } },
@@ -5856,12 +5844,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						center = { 0.55, 0.05, -0.05 },
 						size = { 0.3, 0.1, 0.5 },
 						glow = "E3C9FF",
-					},
-					{
-						name = "MoonUnicorn_legFR_glow2",
-						center = { 0.5, 0.45, 0 },
-						size = { 0.2, 0.5, 0.4 },
-						glow = "FFF3B0",
 					},
 				},
 				lod1 = {
@@ -5887,12 +5869,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						size = { 0.3, 0.1, 0.5 },
 						glow = "E3C9FF",
 					},
-					{
-						name = "MoonUnicorn_legFL_glow2",
-						center = { -0.5, 0.45, 0 },
-						size = { 0.2, 0.5, 0.4 },
-						glow = "FFF3B0",
-					},
 				},
 				lod1 = {
 					name = "MoonUnicorn_legFL_lod1",
@@ -5912,12 +5888,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						center = { 0.55, 0.05, 1.2 },
 						size = { 0.3, 0.1, 0.4 },
 						glow = "E3C9FF",
-					},
-					{
-						name = "MoonUnicorn_legBR_glow2",
-						center = { 0.45, 0.65, 1.25 },
-						size = { 0.1, 0.1, 0.1 },
-						glow = "FFF3B0",
 					},
 				},
 				lod1 = {
@@ -5943,12 +5913,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						size = { 0.3, 0.1, 0.4 },
 						glow = "E3C9FF",
 					},
-					{
-						name = "MoonUnicorn_legBL_glow2",
-						center = { -0.45, 0.65, 1.25 },
-						size = { 0.1, 0.1, 0.1 },
-						glow = "FFF3B0",
-					},
 				},
 				lod1 = {
 					name = "MoonUnicorn_legBL_lod1",
@@ -5966,12 +5930,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						name = "MoonUnicorn_head",
 						center = { 0, 2.0017, -0.95 },
 						size = { 1.407, 1.2035, 1.907 },
-					},
-					{
-						name = "MoonUnicorn_head_glow",
-						center = { 0, 2, -0.9 },
-						size = { 1.4, 1.2, 1.4 },
-						glow = "FFF3B0",
 					},
 				},
 				lod1 = { name = "MoonUnicorn_head_lod1", center = { 0, 2, -0.95 }, size = { 1.4, 1.2, 1.9 } },
@@ -6023,12 +5981,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						center = { 0, 1.6518, 1.55 },
 						size = { 0.607, 1.3035, 0.707 },
 					},
-					{
-						name = "MoonUnicorn_tail_glow",
-						center = { 0, 1.7, 1.55 },
-						size = { 0.4, 0.8, 0.7 },
-						glow = "FFF3B0",
-					},
 				},
 				lod1 = {
 					name = "MoonUnicorn_tail_lod1",
@@ -6065,12 +6017,6 @@ local CreatureMeshes: { [string]: Creature } = {
 						name = "MoonUnicorn_horn",
 						center = { 0, 2.7517, -1.25 },
 						size = { 0.207, 0.7035, 0.307 },
-					},
-					{
-						name = "MoonUnicorn_horn_glow",
-						center = { 0, 2.55, -1.25 },
-						size = { 0.2, 0.1, 0.1 },
-						glow = "FFF3B0",
 					},
 				},
 				lod1 = {
