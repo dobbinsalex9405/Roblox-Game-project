@@ -204,8 +204,16 @@ def split_legs(c, Part):
                 for i, piece in enumerate(sorted(pieces, key=lambda q: centre(q)[1])[:6]):
                     groups[f'leg{i + 1}{side}'] = [piece]
     left = sum(1 for name in groups if name.endswith('L'))
-    if left * 2 != len(groups):  # every creature this rig builds is symmetric
-        raise ValueError(f'{c.species}: legs {sorted(groups)} are not in left/right pairs')
+    if left * 2 != len(groups):
+        # The meshes (the finer build) are symmetric, so unpaired legs there
+        # are a bug. The coarse in-game boxes can lose a thin leg to rounding:
+        # there each side swings as one leg.
+        if getattr(c, 'fine', False):
+            raise ValueError(f'{c.species}: legs {sorted(groups)} are not in left/right pairs')
+        sides = {}
+        for name, pieces in groups.items():
+            sides.setdefault('leg' + name[-1], []).extend(pieces)
+        groups = sides
     names = []
     for name in sorted(groups):
         vox = set().union(*groups[name])
