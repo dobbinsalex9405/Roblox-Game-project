@@ -886,8 +886,13 @@ def whale(c, H, cols, opts):
 def ray(c, H, cols, opts):
     """A manta: a raised head with curled cephalic lobes, wide wing-fins
     (finL/finR) that flap, a white underside showing at the rim, spots
-    on the back and a thin whip tail."""
-    k = H / 10.0 * 1.5
+    on the back and a thin whip tail.
+
+    A manta is wide and flat, so it has far more surface (and triangles) per
+    stud of height than most plans: it scales 1.5x at Legendary size (H 34)
+    and less at the smaller tiers, which keeps a Rare manta near 1 stud tall
+    and inside the Rare triangle budget."""
+    k = H / 10.0 * max(1.25, min(1.5, 1.5 - 0.022 * (34 - H)))
     col = cols['col']
     belly, accent, glow, iris = _cols(cols, col, belly=hexc('#F4F7FF'))
     body = c.part('body')
@@ -914,20 +919,23 @@ def ray(c, H, cols, opts):
         for x, y, z in pts:
             lobes.ell((x - (0.5 if side < 0 else 0), y, z), (0.32 * k + .3, 0.32 * k + .3, 0.42 * k), dark(col, 0.15))
     # wings are the fins: wide triangles, thick at the root, white rim below
+    # the wings are a little smaller than the body scale (k * 0.8) and thin,
+    # so a manta keeps inside the lower tiers' triangle budgets
+    kw = k * 0.8
     for sx, name in ((1, 'finR'), (-1, 'finL')):
         f = c.part(name, name, (sx * 1.3 * k, 0, cz))
-        S = round(3.6 * k)
+        S = round(3.8 * kw)
         prev = 0
         for i in range(S):
             t = i / S
-            front = -1.6 * k + t * t * 2.4 * k
-            back = 1.9 * k - t * 1.7 * k
+            front = -1.5 * k + t * t * 2.2 * k
+            back = 1.7 * k - t * 1.5 * k
             x = round(1.2 * k) + i
             # the wings sweep up in a shallow V (they flap from there)
-            lift = round(math.sin(t * math.pi * 0.5) * 2.0 * k)
+            lift = round(math.sin(t * math.pi * 0.5) * 1.9 * kw)
             # each column reaches down to the last one's top, so a steep
             # rise never leaves the wing tip loose
-            thick = max(3 if t < 0.35 else 2 if t < 0.75 else 1, lift - prev + 1)
+            thick = max(2 if t < 0.15 else 1, lift - prev + 1)
             prev = lift
             for y in range(math.floor(front), math.ceil(back) + 1):
                 edge = y >= math.ceil(back) - 1 or i >= S - 2
@@ -939,13 +947,17 @@ def ray(c, H, cols, opts):
                         colr, g = (belly if under or (edge and dz == thick - 1) else col), False
                     f.put((x if sx > 0 else mx(x), y, round(cz) + lift - dz), colr, g)
     tail = c.part('tail', 'tail', (0, 2.3 * k, cz))
+    prev = round(cz)
     for i in range(round(3.4 * k)):
         z = round(cz) - i // 6
-        tail.put((0, round(2.3 * k) + i, z), dark(col, 0.2))
-        tail.put((-1, round(2.3 * k) + i, z), dark(col, 0.2))
-        if i < 1.2 * k:
-            tail.put((0, round(2.3 * k) + i, z + 1), dark(col, 0.2))
-            tail.put((-1, round(2.3 * k) + i, z + 1), dark(col, 0.2))
+        y = round(2.3 * k) + i
+        # thick at the root; where the whip steps down a row it keeps the
+        # row above too, so it stays one face-connected piece
+        rows = {z, prev} | ({z + 1} if i < 1.2 * k else set())
+        for zz in rows:
+            tail.put((0, y, zz), dark(col, 0.2))
+            tail.put((-1, y, zz), dark(col, 0.2))
+        prev = z
     c.gait_hint = 'swim'
     return c
 
