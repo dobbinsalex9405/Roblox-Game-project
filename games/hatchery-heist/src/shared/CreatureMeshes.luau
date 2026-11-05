@@ -6204,8 +6204,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 3.2,
 		size = { 4.4, 3.2, 4.3 },
-		tris = 35388,
-		trisLod1 = 3316,
+		tris = 39788,
+		trisLod1 = 3498,
 		parts = {
 			{
 				name = "body",
@@ -6376,20 +6376,20 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "ThunderGriffin_wingR",
-						center = { 1.4, 2, -0.05 },
-						size = { 1.607, 1.6, 0.207 },
+						center = { 1.4, 2.1517, -0.1 },
+						size = { 1.607, 1.9035, 0.507 },
 					},
 					{
 						name = "ThunderGriffin_wingR_glow",
-						center = { 1.4, 2.2, -0.05 },
-						size = { 1.6, 1.4, 0.2 },
-						glow = "4FD8FF",
+						center = { 1.55, 2.05, -0.3 },
+						size = { 0.7, 1.3, 0.3 },
+						glow = "FFE14D",
 					},
 				},
 				lod1 = {
 					name = "ThunderGriffin_wingR_lod1",
-					center = { 1.4, 2.05, -0.05 },
-					size = { 1.6, 1.7, 0.2 },
+					center = { 1.4, 2.15, -0.15 },
+					size = { 1.6, 1.9, 0.6 },
 				},
 			},
 			{
@@ -6400,20 +6400,20 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "ThunderGriffin_wingL",
-						center = { -1.4, 2, -0.05 },
-						size = { 1.607, 1.6, 0.207 },
+						center = { -1.4, 2.1018, -0.1 },
+						size = { 1.607, 1.8035, 0.507 },
 					},
 					{
 						name = "ThunderGriffin_wingL_glow",
-						center = { -1.4, 2.2, -0.05 },
-						size = { 1.6, 1.4, 0.2 },
-						glow = "4FD8FF",
+						center = { -1.45, 2.05, -0.3 },
+						size = { 0.7, 1.3, 0.3 },
+						glow = "FFE14D",
 					},
 				},
 				lod1 = {
 					name = "ThunderGriffin_wingL_lod1",
-					center = { -1.4, 2.05, -0.05 },
-					size = { 1.6, 1.7, 0.2 },
+					center = { -1.4, 2.1, -0.15 },
+					size = { 1.6, 1.8, 0.6 },
 				},
 			},
 			{
@@ -6429,8 +6429,8 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 					{
 						name = "ThunderGriffin_tail_glow",
-						center = { 0, 1.6, 1.85 },
-						size = { 0.6, 0.6, 0.6 },
+						center = { -0.15, 1.6, 1.85 },
+						size = { 0.9, 0.6, 0.6 },
 						glow = "4FD8FF",
 					},
 					{
@@ -6439,11 +6439,17 @@ local CreatureMeshes: { [string]: Creature } = {
 						size = { 0.2, 0, 0.1 },
 						glow = "D8FBFF",
 					},
+					{
+						name = "ThunderGriffin_tail_glow3",
+						center = { 0.35, 1.75, 2.05 },
+						size = { 0.3, 0.3, 0.2 },
+						glow = "FFE14D",
+					},
 				},
 				lod1 = {
 					name = "ThunderGriffin_tail_lod1",
-					center = { 0, 1.45, 1.4 },
-					size = { 0.6, 0.9, 1.5 },
+					center = { -0.05, 1.45, 1.4 },
+					size = { 1.1, 0.9, 1.5 },
 				},
 			},
 		},

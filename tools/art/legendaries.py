@@ -1914,10 +1914,13 @@ def storm_griffin(base):
                 if z > tops.get(x, (None, -1))[1]:
                     tops[x] = (y, z)
             xs = sorted(tops)
-            for x in xs[::max(2, round(0.7 * k))]:
+            # chunky box puffs (cheap for the in-game box art)
+            step = max(2, round(1.6 * k))
+            for x in xs[step // 2::step]:
                 y, z = tops[x]
-                w.ell((x + .5, y + .5, z - 0.1 * k), (0.75 * k, 0.6 * k, 0.55 * k), cloud)
-                w.ell((x + .5, y - 0.2 * k, z + 0.2 * k), (0.45 * k, 0.4 * k, 0.35 * k), cloud_l)
+                hw, hd = round(0.6 * k), round(0.45 * k)
+                w.box((x - hw, y - hd, z - round(0.3 * k)), (x + hw, y + hd, z + round(0.25 * k)), cloud)
+                w.box((x - hw + 1, y - hd + 1, z + round(0.25 * k) + 1), (x + hw - 1, y + hd - 1, z + round(0.5 * k)), cloud)
             # the raised wing faces front: zig-zag bolts painted across its
             # front face (and mirrored on the back), root to tip
             # the old cyan stripes and white-hot tips become dark storm feathers;
@@ -1932,20 +1935,23 @@ def storm_griffin(base):
                     face[(x, z)] = y
                 if y > back.get((x, z), -10 ** 6):
                     back[(x, z)] = y
-            for b, zf in enumerate((0.42, 0.7)):
-                zc = z0 + (z1 - z0) * zf
-                pts = [(root_x + (tip_x - root_x) * (0.12 + 0.82 * i / 6), zc + (0.8 * k if i % 2 else -0.8 * k) * (0.5 + 0.5 * i / 6))
-                       for i in range(7)]
-                col = gold if b == 0 else volt
-                for (ax, az), (bx, bz) in zip(pts, pts[1:]):
-                    m = max(1, round(max(abs(bx - ax), abs(bz - az))))
-                    for j in range(m + 1):
-                        px, pz = round(ax + (bx - ax) * j / m), round(az + (bz - az) * j / m)
-                        for dz in (0, 1):
-                            key = (px, pz + dz)
-                            if key in face:
-                                w.v[(px, face[key], pz + dz)] = (col, True)
-                                w.v[(px, back[key], pz + dz)] = (col, True)
+            # one classic lightning bolt down the raised wing's front: tall
+            # straight drops with short jogs (vertical runs stay a few boxes
+            # in the in-game box art)
+            xm = root_x + (tip_x - root_x) * 0.55
+            zt, zb = z0 + (z1 - z0) * 0.85, z0 + (z1 - z0) * 0.12
+            jog = 0.7 * k * out
+            pts = [(xm - jog, zt), (xm - jog, zt - (zt - zb) * 0.4), (xm + jog, zt - (zt - zb) * 0.4),
+                   (xm + jog, zt - (zt - zb) * 0.7), (xm, zt - (zt - zb) * 0.7), (xm, zb)]
+            cells = set()
+            for (ax, az), (bx, bz) in zip(pts, pts[1:]):
+                ax, az, bx, bz = round(ax), round(az), round(bx), round(bz)
+                for x in range(min(ax, bx), max(ax, bx) + 1):
+                    for z in range(min(az, bz), max(az, bz) + 1):
+                        cells |= {(x, z), (x + 1, z)}
+            for q in cells:
+                if q in face:
+                    w.v[(q[0], face[q] - 1, q[1])] = (gold, True)
         # lightning crackling off the tail tip
         tail = part_or_none(c, 'tail')
         if tail:
@@ -1954,7 +1960,7 @@ def storm_griffin(base):
                 cx = sum(q[0] for q in glows) / len(glows)
                 cy = sum(q[1] for q in glows) / len(glows)
                 cz = sum(q[2] for q in glows) / len(glows)
-                for a, (ux, uy, uz) in enumerate(((0.9, 0.5, 0.6), (-0.9, 0.5, 0.6), (0.0, 1.0, -0.3), (0.3, 0.6, 1.0))):
+                for a, (ux, uy, uz) in enumerate(((0.9, 0.5, 0.6), (-0.9, 0.5, 0.6))):
                     end = (cx + ux * 1.6 * k, cy + uy * 1.6 * k, cz + uz * 1.6 * k)
                     bolt(tail, (cx, cy, cz), end, gold if a % 2 == 0 else volt, True, zig=0.35 * k, r=0.6)
         return c
