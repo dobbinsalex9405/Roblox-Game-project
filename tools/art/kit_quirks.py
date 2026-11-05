@@ -830,6 +830,66 @@ def hoverfly(c, H, col, col2, a=None):
             w.v[(x, y, z)] = (col if inner else edge, False)
 
 
+def gum_face(c, H, col, col2, a=None):
+    """A gumball that reads: the ball redrawn as a true voxel sphere (its
+    centre on a voxel corner, so every layer steps in evenly and the top is
+    a small round cap, not a plateau), two clear eyes each at least two
+    voxels square with a white glint, set evenly and flat, and a round gloss
+    high on the upper left where light would catch the ball."""
+    import kit_puff
+    from collections import Counter
+    k = H / 10.0
+    body, head, eyes_p = _find(c, 'body'), _find(c, 'head'), _find(c, 'eyes')
+    if not body or not head:
+        return
+    base = Counter(v[0] for v in head.v.values()).most_common(1)[0][0]
+    ball = set(body.v) | set(head.v) | (set(eyes_p.v) if eyes_p else set())
+    xs = [p[0] for p in ball]
+    ys = [p[1] for p in ball]
+    zs = [p[2] for p in ball]
+    R = (max(xs) - min(xs) + 1) / 2
+    cx = (min(xs) + max(xs) + 1) / 2
+    cy = round((min(ys) + max(ys) + 1) / 2)
+    cz = min(zs) + round(R)
+    body.v, head.v = {}, {}
+    if eyes_p:
+        eyes_p.v = {}
+    for x in range(math.floor(cx - R) - 1, math.ceil(cx + R) + 1):
+        for y in range(math.floor(cy - R) - 1, math.ceil(cy + R) + 1):
+            for z in range(math.floor(cz - R) - 1, math.ceil(cz + R) + 1):
+                if (x + .5 - cx) ** 2 + (y + .5 - cy) ** 2 + (z + .5 - cz) ** 2 <= R * R:
+                    front = y + .5 < cy - 0.15 * R and z + .5 > cz - 0.45 * R
+                    (head if front else body).v[(x, y, z)] = (base, False)
+    # eyes, cheeks and mouth as the puff kit draws them, the eyes bigger
+    kit_puff.face(c, head, k, (cz + 0.1 * R) / k, x_off=0.9, size=0.8)
+    # each eye a flat patch level with its frontmost voxel, ball behind it
+    eyes_p = _find(c, 'eyes')
+    for sx in (-1, 1):
+        mine = {p: v for p, v in eyes_p.v.items() if (p[0] >= 0) == (sx > 0)}
+        if not mine:
+            continue
+        y0 = min(p[1] for p in mine)
+        for (x, y, z), v in mine.items():
+            del eyes_p.v[(x, y, z)]
+            for yy in range(y0 + 1, y + 1):
+                head.v[(x, yy, z)] = (base, False)
+            eyes_p.v[(x, y0, z)] = v
+    # the gloss: the surface voxels facing up, forward and to the left
+    d = (-0.3, -0.42, 0.86)
+    n = math.sqrt(sum(t * t for t in d))
+    d = tuple(t / n for t in d)
+    for part in (head, body):
+        for (x, y, z), (cc, g) in list(part.v.items()):
+            if cc != base:
+                continue
+            v = (x + .5 - cx, y + .5 - cy, z + .5 - cz)
+            r = math.sqrt(sum(t * t for t in v)) or 1
+            if r < R - 1.2:
+                continue
+            if sum(v[i] * d[i] for i in range(3)) / r > 0.965:
+                part.v[(x, y, z)] = (WHITE, False)
+
+
 def drop_ears(c, H, col, col2, a=None):
     """Long floppy hound ears: from the top corners of the head each ear
     folds over and hangs flat against the side of the head, down past the
@@ -975,6 +1035,7 @@ ACCESSORIES = {
     'aphid': aphid,
     'drop_ears': drop_ears,
     'cone_scales': cone_scales,
+    'gum_face': gum_face,
     'hoverfly': hoverfly,
     'diving_beetle': diving_beetle,
     'tidy': tidy,
