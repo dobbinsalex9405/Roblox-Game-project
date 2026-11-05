@@ -232,3 +232,14 @@ the blue Up face at the corners (`75b-hh-sky-corner`). No asset-type errors. Two
 still prints one "Asset content representation is being generated" warning for the grass id even
 though it renders, and ContentProvider:PreloadAsync reports "Failure" for all 6 skybox ids even
 though the sky draws.
+
+## Gate 2: #76 at b024d1a (shop lighting)
+
+PASS. 0 Neon parts; lights at brightness 0.30 (0.45 for the chandelier) with ranges 8-18. The
+inside is warm and no longer washed out. Price tags are dark cards with a gold edge, unlit
+(LightInfluence 0), 3x1.5 studs, readable from the middle of the shop ("80K Coins / Adds 80000
+coins right away. / R$ 199", passes show "Owned"). The "Coins" wall sign is readable
+(`76b-hh-coin-wall`, `76b-hh-pass-wall`). At 844x392 the tags can be read up close
+(`76b-hh-tags-phone-close`) but are small from the doorway (`76b-hh-shop-phone`). The Buy prompt
+"80K Coins / Buy for R$ 199" opened the test-purchase window, which I closed with its X. Output: no
+errors.
