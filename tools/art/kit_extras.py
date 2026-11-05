@@ -22,6 +22,8 @@ kit.accessory:
 - **button_eye**: one big sewn-on button for an eye (a sock puppet's).
 - **knit_head**: knitted bands across the head (a sock's cuff).
 
+And one plan, **twig**: a stick insect, thin everywhere (colours col, accent).
+
 Each is fn(c, H, color, color2, a) (variants.py's kit hook): colours are RGB
 tuples, color2 may be None, `a` is the roster entry's accessory dict.
 Same art frame as kit.py (x right, y back, front is -y, z up), k = H / 10."""
@@ -387,3 +389,48 @@ def knit_head(c, H, color, color2=None, a=None):
 ACCESSORIES = {'button_eye': button_eye, 'knit_head': knit_head, 'droopy_ears': droopy_ears, 'ridge': ridge, 'third_eye': third_eye, 'butter': butter, 'twin_tail': twin_tail, 'fringe': fringe,
                'shag': shag, 'long_snout': long_snout, 'streaks': streaks, 'cap': cap, 'eye_ring': eye_ring,
                'speckles': speckles}
+
+
+# ------------------------------------------------------------------ plans
+
+def twig(c, H, cols, opts):
+    """Plan "twig": a stick insect, thin everywhere: a body two voxels
+    across like a twig, a small narrow head, six long thin legs (each its own
+    leg part), long thin antennae. Colours col (the twig), accent (knots)."""
+    import kit_pond
+    k = H / 10.0
+    col = cols['col']
+    acc = cols.get('accent') or tuple(round(v * 0.75) for v in col)
+    body = c.part('body')
+    hz = round(2.2 * k)  # the twig's underside, held up on the legs
+    y0, y1 = round(-1.6 * k), round(6.4 * k)
+    for y in range(y0, y1 + 1):
+        t = (y - y0) / max(1, y1 - y0)
+        knot = (y - y0) % max(3, round(1.6 * k)) == 0
+        for x in (-1, 0):
+            body.put((x, y, hz), acc if knot else col)
+            if t < 0.8:  # two voxels tall, thinning to one at the tail end
+                body.put((x, y, hz + 1), acc if knot else col)
+    head = c.part('head', 'static', (0, y0, hz + 1))
+    hy = y0 - max(2, round(1.0 * k))
+    for x in (-2, -1, 0, 1):
+        for y in range(hy, y0):
+            for z in (hz, hz + 1, hz + 2):
+                if abs(x + .5) > 1 and z == hz + 2:
+                    continue  # rounded top corners
+                head.put((x, y, z), col)
+    from creatures import eyes
+    eyes(c, head, 1, hz + 1, 1)
+    # antennae: long and thin, up and forward from the top of the head
+    n = max(4, round(2.4 * k))
+    for sx in (-1, 1):
+        for i in range(n):
+            x = (0 + i // 3) if sx > 0 else -1 - i // 3
+            head.put((x, hy - 1 - i, hz + 3 + i // 2), acc)
+    # six long thin legs, splayed out to the ground
+    kit_pond.legs(body, k, [(0.5, -0.6), (0.5, 1.8), (0.5, 4.2)], acc, out=1.8, height=hz / k, w=0, c=c)
+    return c
+
+
+PLANS = {'twig': ({'col', 'accent'}, {})}
+BUILDERS = {'twig': twig}
