@@ -1562,7 +1562,13 @@ local function defineServices()
 	ws.FindPartsInRegion3WithWhiteList = function()
 		return {}
 	end
-	ws.BulkMoveTo = function() end
+	-- Moves each part like setting its CFrame, so what a game moves this way
+	-- (the Egg Market's eggs) is where the audit draws it.
+	ws.BulkMoveTo = function(_self, parts, cframes)
+		for i, part in parts do
+			part.CFrame = cframes[i]
+		end
+	end
 	ws.Terrain = true -- built lazily by applyOverrides
 	ws.CurrentCamera = NIL -- set by the client boot
 	ws.PersistentLoaded = Signal.new("Workspace.PersistentLoaded")
