@@ -919,12 +919,16 @@ def lotus_koi(c, H):
     lot = c.part('lotus', 'glow', (0, 0, 0))
     lot.ell((0, 0.2 * k, 0.5), (2.6 * k, 2.6 * k, 0.6), P('#4FA84A'))
     lot.paint(lambda p, cc, g: (P('#2E8A3E'), False) if p[0] == 0 and p[1] > 0.2 * k else None)
-    for ring_i, (r, h, col) in enumerate(((1.5, 0.9, P('#FFB3D1')), (1.0, 1.3, P('#FF8FBF')), (0.5, 1.5, P('#FFE14D')))):
-        for a in range(8 if ring_i < 2 else 1):
-            ang = a / 8 * math.pi * 2 + ring_i * 0.4
-            px, py = math.cos(ang) * r * k, 0.2 * k + math.sin(ang) * r * k
-            crystal(lot, px, py, 1, h * k, 0.38 * k, col, light(col, 0.4), lean=(math.cos(ang) * 0.15, math.sin(ang) * 0.15),
-                    glow=ring_i == 2)
+    # an open lotus: broad petals lying outward round the stem, glowing pink
+    for ring_i, (r, ln, col) in enumerate(((1.0, 1.5, P('#FF6FAE')), (0.6, 1.1, P('#FFB3D1')))):
+        for a in range(8 if ring_i == 0 else 6):
+            ang = a / (8 if ring_i == 0 else 6) * math.pi * 2 + ring_i * 0.4
+            for st in range(round(ln * k)):
+                d = r * k + st
+                w = 0.5 * k * math.sin((st + 1) / (ln * k + 1) * math.pi)
+                px, py = math.cos(ang) * d, 0.2 * k + math.sin(ang) * d
+                lot.ell((px, py, 1.5 + st * (0.45 if ring_i else 0.3)), (max(0.6, w), max(0.6, w), 0.6),
+                        col if st < ln * k - 2 else P('#FFE3EF'), True)
     # a stem joins the lotus to the fish's belly so nothing floats loose
     for z in range(1, zb + 1):
         lot.put((0, round(0.2 * k), z), P('#2E8A3E'))
@@ -945,11 +949,12 @@ def mantis_queen(c, H):
     cr = c.part('crown', 'glow', ((x0 + x1) / 2, (y0 + y1) / 2, z1))
     cx, cy = (x0 + x1 + 1) / 2 - 0.5, (y0 + y1) / 2
     t = top_of(head, math.floor(cx), math.floor(cy)) or z1
-    cr.ell((cx, cy, t + 0.5), (0.7 * k, 0.7 * k, 0.6), GOLD, True)
+    cr.ell((cx, cy, t + 0.5), (0.85 * k, 0.85 * k, 0.6), GOLD, True)
+    cr.ell((cx, cy, t + 1.5), (0.75 * k, 0.75 * k, 0.6), GOLD_D, False)
     for a in range(6):
         ang = a / 6 * math.pi * 2
-        crystal(cr, cx + math.cos(ang) * 0.45 * k, cy + math.sin(ang) * 0.45 * k, t + 1, 1.1 * k, 0.3 * k, P('#FF8FBF'), P('#FFF0F8'),
-                lean=(math.cos(ang) * 0.3, math.sin(ang) * 0.3))
+        crystal(cr, cx + math.cos(ang) * 0.6 * k, cy + math.sin(ang) * 0.6 * k, t + 2, 1.6 * k, 0.4 * k, P('#FF3D9A'), P('#FFD0EA'),
+                lean=(math.cos(ang) * 0.35, math.sin(ang) * 0.35))
     return c
 
 
@@ -957,20 +962,47 @@ def thorn_stego(c, H):
     plan('dino', c, H, {'col': '#5C9A4A', 'belly': '#C8E0A0', 'accent': '#3A7A3A', 'glow': '#FFB3D1', 'horn': '#E8D8B0'},
          kind='stego')
     k = H / 10.0
-    # thorny vines over the plates, flowers on top
-    pl = c.part('plates')
-    pts = list(pl.v)
-    tops = {}
-    for (x, y, z) in pts:
-        if (y not in tops) or z > tops[y][2]:
-            tops[y] = (x, y, z)
-    for i, (x, y, z) in enumerate(pts):
-        if (x + y + z) % 4 == 0:
-            pl.put((x + (1 if x >= 0 else -1), y, z), P('#2E6A2E'))
+    # tall plates of woven vine down the back, in two staggered rows, edged
+    # with thorns, each crowned by a glowing blossom; thorns on the tail
+    drop(c, 'plates')
+    body = c.part('body')
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body)
+    pl = c.part('plates', 'static')
     fl = c.part('flowers', 'glow')
-    for i, (y, p) in enumerate(sorted(tops.items())):
-        if i % max(1, round(0.6 * k)) == 0:
-            flower(fl, p[0], p[1], p[2] + 1, k * 0.7, petal=(BLOSSOM, P('#FFE14D'), WHITE)[i % 3], glow=True)
+    vine, vine_d, thorn = P('#3A7A3A'), P('#2A5A2A'), P('#8A2E3A')
+    n = 6
+    for i in range(n):
+        s = i / (n - 1)
+        yc = by0 + (by1 - by0) * (0.12 + 0.72 * s)
+        h = (1.3 + 1.1 * math.sin(s * math.pi)) * k
+        L = (0.55 + 0.35 * math.sin(s * math.pi)) * k
+        side = 1 if i % 2 else -1
+        xp = side * 0.35 * k - (1 if side < 0 else 0)
+        X = round(xp)
+        t = top_of(body, X, round(yc))
+        if t is None:
+            continue
+        tip = None
+        for dz in range(round(h) + 1):
+            w = L * max(0.0, 1 - dz / max(1, h)) ** 0.8
+            X2 = round(xp + side * dz * 0.18)
+            for y in range(round(yc - w), round(yc + w) + 1):
+                edge = abs(y - yc) > w - 1
+                pl.put((X2, y, t + dz), vine_d if edge else (vine if (y + dz) % 3 else LEAF))
+                if edge and (dz + y) % 3 == 0:
+                    pl.put((X2, y + (1 if y > yc else -1), t + dz), thorn)
+            tip = (X2, round(yc), t + round(h))
+        if tip:
+            flower(fl, tip[0], tip[1], tip[2] + 1, k * 0.75, petal=(P('#FF5FA0'), P('#FFD400'), P('#FF8A3D'))[i % 3],
+                   heart=GOLD, glow=True)
+    tail = part_or_none(c, 'tail')
+    if tail:
+        (tx0, ty0, tz0), (tx1, ty1, tz1) = bounds_of(tail)
+        for (sx, dy) in ((1, -0.4), (-1, -0.4), (1, 0.5), (-1, 0.5)):
+            yy = round(ty1 - 0.6 * k + dy * k)
+            t = top_of(tail, 0, yy) or tz1
+            horn(tail, (0, yy, t - 0.5), (sx * 1.0 * k, yy + 0.3 * k, t + 1.1 * k), 0.3 * k, thorn, P('#FF5FA0'), glow=True,
+                 both=False)
     speckle(c.part('body'), (P('#5C9A4A'),), P('#4A8A3A'), 5)
     return c
 
@@ -1165,7 +1197,7 @@ def prism_peacock(c, H):
     wr.paint(lambda q, cc, g: (P('#1E9A8A'), False) if q[1] > (by0 + by1) / 2 + 1.4 * k else None)
     for q in [q for q in wr.v if q[0] < 0]:
         del wr.v[q]
-    wl = c.part('wingL', 'wingL', (-1 - wr.pivot[0], wr.pivot[1], wr.pivot[2]))
+    wl = c.part('wingL', 'wingL', (-wr.pivot[0], wr.pivot[1], wr.pivot[2]))
     for (x, y, z), val in wr.v.items():
         wl.v[(-1 - x, y, z)] = val
     # the fan tail of rainbow crystal eyes: about one and a half times the
