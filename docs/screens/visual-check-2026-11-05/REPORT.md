@@ -93,3 +93,22 @@ tight against it (`59b-hh-every-creature-phone`). All creature `assetId`s are st
 uploaded-mesh creature exists to check; the voxel Chick (2.0 studs) and Phoenix (3.4 studs) render
 with the new height maths, and the Phoenix ride is 4.4 studs with the rider seated on top, no glow.
 Output: no errors.
+
+## Gate: #65 at 17f7cfe
+
+FAIL on two items.
+- Book at 844x392: tier tabs (Common 0/30 ... Godly 0/2; the tab strip scrolls sideways, Godly
+  partly off the edge), header "Found 0/53 · Income +0% (max +25%)". Common grid scrolls fully, only
+  cards on screen get models, no clipped text. **FAIL: spoiler flash.** When the book opens or a
+  row scrolls into view, unfound "???" cards draw the creature in full colour for about a second
+  before turning into the dark silhouette (`65-hh-book-spoiler-flash-reopen`,
+  `65-hh-book-spoiler-flash-scroll`).
+- NEW flow PASS: two hatches give the Book button a "2" badge and "NEW" on the cards; closing the
+  book clears the badge, and NEW is gone on reopen.
+- Every-creature list PASS: 11 px between the numbers and the scroll bar, no clipping, opens below
+  the HUD bar.
+- New Commons: Calf, Goat Kid, Beetle, Bluebird, Bumblebee, Caterpillar, Crab, Fawn are 2.0 studs
+  in the same voxel style. **FAIL: Butterfly** renders as a single dark 0.7-stud cube. In
+  VoxelArt.luau, head's parent is wingL and wingL's parent is head (a loop), so only the body is
+  drawn. A script check of all 53 entries finds no other parent loops.
+- Output: no errors.
