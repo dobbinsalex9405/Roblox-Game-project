@@ -1,0 +1,80 @@
+name: Visual playtest gate
+
+# A PR that changes game code (games/, packages/) needs a visual playtest
+# report for its head commit before it is OK'd or merged
+# (ops/VISUAL_PLAYTEST.md). This sets the commit status "visual-playtest" on
+# the PR's head: pending until a report for that exact commit says
+# "Verdict: OK", failure when it says "not OK". Only PR comments headed
+# "Visual playtest (verifier)" from the repo's owner, members or
+# collaborators count; the PR body never does. Reads nothing else and runs no code
+# from the PR.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+  issue_comment:
+    types: [created, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  gate:
+    if: github.event_name == 'pull_request' || github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const number = context.payload.pull_request
+              ? context.payload.pull_request.number
+              : context.payload.issue.number;
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: number });
+            const head = pr.head.sha;
+            const setStatus = (state, description) =>
+              github.rest.repos.createCommitStatus({
+                owner, repo, sha: head, state, context: "visual-playtest",
+                description: description.slice(0, 140),
+                target_url: `${context.serverUrl}/${owner}/${repo}/blob/main/ops/VISUAL_PLAYTEST.md`,
+              });
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner, repo, pull_number: number, per_page: 100,
+            });
+            const touchesGame = files.some(
+              (f) => f.filename.startsWith("games/") || f.filename.startsWith("packages/"),
+            );
+            if (!touchesGame) {
+              await setStatus("success", "No game code changed: no visual playtest needed");
+              return;
+            }
+
+            const trusted = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: number, per_page: 100,
+            });
+            // Comments only (a PR body is the builder's), oldest first, so the
+            // latest report for this head wins.
+            const texts = [];
+            for (const c of comments) {
+              if (trusted.has(c.author_association)) texts.push(c.body || "");
+            }
+
+            // "### Visual playtest (verifier): <anything> @ <sha>" ... "Verdict: OK" or "Verdict: not OK"
+            let verdict = null;
+            for (const text of texts) {
+              const m = text.match(/#{2,4}\s*Visual playtest \(verifier\)[^\n]*?@\s*`?([0-9a-f]{7,40})`?/i);
+              if (!m || !head.startsWith(m[1].toLowerCase())) continue;
+              const v = text.match(/Verdict:\s*\**\s*(not ok|ok)\b/i);
+              if (v) verdict = v[1].toLowerCase();
+            }
+            if (verdict === "ok") {
+              await setStatus("success", `Visual playtest OK for ${head.slice(0, 7)}`);
+            } else if (verdict === "not ok") {
+              await setStatus("failure", `Visual playtest found problems at ${head.slice(0, 7)}`);
+            } else {
+              await setStatus("pending", `Waiting for the visual playtest report for ${head.slice(0, 7)}`);
+            }
