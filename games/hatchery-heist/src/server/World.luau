@@ -1,7 +1,7 @@
 --!strict
--- The grey-box map, built from code: 8 bases around a shared yard. Each base
--- has a conveyor belt (the client draws the eggs on it), incubators, creature
--- pads, a collect pad, a rebirth stand and an odds board.
+-- The grey-box map, built from code: 8 bases around a shared yard with the
+-- Egg Market in the middle (server/Market). Each base has incubators, its
+-- tower of creature pads, a collect pad and a rebirth stand.
 --
 -- The server owns what everyone sees (eggs in incubators, creatures on pads,
 -- the owner's name). It writes state as attributes; the owner's client adds
@@ -254,15 +254,6 @@ local function buildPlot(index: number): Model
 	floor.Parent = model
 	model.PrimaryPart = floor
 
-	local belt = part({
-		Name = "Belt",
-		Size = Vector3.new((Layout.BELT_END - Layout.BELT_START).Magnitude + 4, 1, 6),
-		CFrame = at((Layout.BELT_START + Layout.BELT_END) / 2 - Vector3.new(0, 1.5, 0)),
-		Color = Color3.fromRGB(45, 45, 50),
-		Material = Enum.Material.DiamondPlate,
-	})
-	belt.Parent = model
-
 	local incubators = Instance.new("Folder")
 	incubators.Name = "Incubators"
 	incubators.Parent = model
@@ -323,56 +314,6 @@ local function buildPlot(index: number): Model
 	})
 	billboard(rebirth, Vector3.new(0, 4.5, 0), UDim2.fromScale(8, 1.6), "Rebirth")
 	rebirth.Parent = model
-
-	local board = part({
-		Name = "OddsBoard",
-		Size = Vector3.new(30, 12, 0.4),
-		CFrame = at(Layout.ODDS_BOARD),
-		Color = Color3.fromRGB(30, 30, 40),
-	})
-	board.Parent = model
-	-- Two legs and a wooden frame, so the board stands on the floor.
-	local boardBottom = Layout.ODDS_BOARD.Y - 6
-	for _, x in { -14, 14 } do
-		local legHeight = boardBottom - Layout.FLOOR_TOP
-		part({
-			Name = "OddsBoardLeg",
-			Size = Vector3.new(0.8, legHeight, 0.8),
-			CFrame = at(Vector3.new(x, Layout.FLOOR_TOP + legHeight / 2, Layout.ODDS_BOARD.Z + 0.6)),
-			Color = Color3.fromRGB(120, 85, 55),
-			Material = Enum.Material.Wood,
-		}).Parent =
-			model
-	end
-	part({
-		Name = "OddsBoardFrame",
-		Size = Vector3.new(31, 13, 0.3),
-		CFrame = at(Layout.ODDS_BOARD + Vector3.new(0, 0, 0.35)),
-		Color = Color3.fromRGB(120, 85, 55),
-		Material = Enum.Material.Wood,
-	}).Parent =
-		model
-	-- What everyone sees on the board: its title. The owner's client hides
-	-- this and draws the real odds of their own belt over it (Hud).
-	local face = Instance.new("SurfaceGui")
-	face.Name = "Title"
-	face.Face = Enum.NormalId.Front
-	face.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-	face.PixelsPerStud = 25
-	face.LightInfluence = 0
-	local heading = Instance.new("TextLabel")
-	heading.Size = UDim2.fromScale(1, 1)
-	heading.BackgroundTransparency = 1
-	heading.Font = Enum.Font.GothamBold
-	heading.TextScaled = true
-	heading.TextColor3 = Color3.fromRGB(255, 210, 63)
-	heading.Text = "🥚 EGG ODDS 🥚"
-	local headingPad = Instance.new("UIPadding")
-	headingPad.PaddingTop = UDim.new(0.25, 0)
-	headingPad.PaddingBottom = UDim.new(0.25, 0)
-	headingPad.Parent = heading
-	heading.Parent = face
-	face.Parent = board
 
 	local post = part({
 		Name = "Sign",
@@ -565,6 +506,21 @@ function World.sendHome(player: Player)
 	end
 end
 
+-- Sends a newly spawned character home once Roblox has placed it. Roblox
+-- puts a respawned character on the SpawnLocation after CharacterAdded, so
+-- a teleport made right away was undone and the player stayed in the plaza
+-- (Studio gate, Nov 5). Wait until it is in the world, then one more frame.
+function World.sendHomeOnSpawn(player: Player, character: Model)
+	character:WaitForChild("HumanoidRootPart")
+	if not character:IsDescendantOf(Workspace) then
+		character.AncestryChanged:Wait()
+	end
+	task.wait()
+	if player.Character == character and character:IsDescendantOf(Workspace) then
+		World.sendHome(player)
+	end
+end
+
 -- Puts the player in the yard just outside base `index`, facing away from it.
 function World.pushOut(player: Player, index: number)
 	local x, z = Geometry.outsideFront(index)
@@ -708,10 +664,6 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 	end
 end
 
-local function shortCoins(n: number): string
-	return `{Layout.shortNumber(n)} coins`
-end
-
 -- Shows the floors the owner has built, the next one as a ghost with its
 -- price, and the ladder up to the top floor; tells clients each floor's
 -- upgrades so they can furnish it.
@@ -755,11 +707,10 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		local label = deck:FindFirstChild("Label")
 		if floor == owned + 1 and claimed and nextPrice then
 			if label == nil then
-				-- Wider than the text needs ("Floor 10: 165M"), so it never fills
-				-- the box and shrinks (Studio gate).
-				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(20, 2.4), "")
+				local size = Geometry.FLOOR_LABEL
+				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(size.width, size.height), "")
 			end
-			setLabel(deck, `Floor {floor}: {shortCoins(nextPrice)}`)
+			setLabel(deck, Tower.floorLabel(floor, nextPrice))
 		elseif label then
 			label:Destroy()
 		end
