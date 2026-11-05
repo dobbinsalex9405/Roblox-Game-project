@@ -356,7 +356,8 @@ function OddsView.openList(eggId: string)
 	listEgg = eggId
 	local function render()
 		for _, child in scroll:GetChildren() do
-			if not child:IsA("UIListLayout") then
+			-- Keep the layout and the inset that holds rows off the scroll bar.
+			if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
 				child:Destroy()
 			end
 		end
