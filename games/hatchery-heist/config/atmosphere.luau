@@ -225,4 +225,13 @@ return {
 		reward = { id = 100288208393628, volume = 0.6 }, -- a reward claimed (1.4 s sparkle)
 		click = { id = 73629124033518, volume = 0.4 }, -- a menu button (0.2 s)
 	},
+	-- The apartment shells (WorldArt Tower*, tools/art/world/tower.py) the
+	-- client draws over each tower's grey box: your own and the nearest
+	-- others, up to `towers` in all within `drawStuds` (a full tower is
+	-- about 4,700 boxes); the rest keep the grey box.
+	towerShells = {
+		drawStuds = 160,
+		towers = 4,
+		boxesPerFrame = 400, -- built a little each frame, so nothing hitches
+	},
 }

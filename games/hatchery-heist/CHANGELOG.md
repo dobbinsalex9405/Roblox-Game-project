@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- The apartment towers now look like apartments from outside: walls,
+  windows, balconies and a roof on every built floor of your tower and the
+  nearest towers (the rest keep their plain floors until you come close).
+- Fix: the ladder now stops at your top built floor, with a landing to step
+  off onto, instead of running past it.
+
 - Fix: the price label over the next floor to buy no longer fills its box
   edge to edge; it has room for the longest price ("Floor 10: 165M coins").
 
