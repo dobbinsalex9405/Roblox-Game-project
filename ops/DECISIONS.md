@@ -15,6 +15,25 @@ Non-obvious choices, newest first, so a later session can trust them.
   (GetDataStore throws the Studio message), so this cannot come back. Player
   saves are ProfileStore's own concern: it switches to its mock store.
 
+## 2026-11-04: Shop tabs, first-session guide and atmosphere (Hatchery Heist)
+
+- **The shared shop takes game tabs.** `CoreClient.addShopTab(name, render)`
+  puts a game's own-currency tab in front of the Robux tab and the shop
+  opens on it. Opening straight onto Robux prices read as a cash grab on a
+  first look. Games without a tab keep the old single Robux list.
+- **The guide is pure and tested** (`src/shared/Guide.luau`), like Street
+  Food Empire's, and stops after the 4th incubator, the point where the
+  playtest numbers say the loop has clicked.
+- **The welcome screen shows on a fresh save only** (no egg bought, first
+  session), so no data field or migration was needed.
+- **Scenery is decoration only.** Fences and flowers don't collide, so raid
+  routes and the movement check are unchanged. Hills and tree trunks
+  collide, but they are outside the play area.
+- **Music is licensed library audio only.** Track ids live in
+  `config/atmosphere.luau`. The cloud sandbox can't reach Roblox's
+  catalogue, so ids are picked in Studio's Creator Store (by Roblox) on the
+  laptop. With no ids, there is no music and no Music button.
+
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
 - `rojo build` does not write a part's `Position` into the place file, so the

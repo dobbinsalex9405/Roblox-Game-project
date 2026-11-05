@@ -78,6 +78,9 @@ function Hud.start(ctx: Context.Context)
 	local rebirths = label(bar, "Rebirths", UDim2.new(0.35, -8, 0.38, 0), UDim2.fromScale(0.65, 0.6))
 	rebirths.TextXAlignment = Enum.TextXAlignment.Right
 	rebirths.Font = Enum.Font.Gotham
+	-- Never an empty bar: say so while the save loads.
+	coins.Text = "Loading..."
+	pending.Text = "Loading your hatchery"
 
 	-- Get off button while riding.
 	local getOff = Instance.new("TextButton")
@@ -99,9 +102,9 @@ function Hud.start(ctx: Context.Context)
 		ctx.fire(ctx.remotes["HH:Dismount"])
 	end)
 
-	-- Notices: one line at a time under the bar.
+	-- Notices: one line at a time under the bar and the guide's goal line.
 	local notice =
-		panel(gui, "Notice", UDim2.fromOffset(360, 36), UDim2.new(0.5, 0, 0, 80), Vector2.new(0.5, 0))
+		panel(gui, "Notice", UDim2.fromOffset(360, 36), UDim2.new(0.5, 0, 0, 124), Vector2.new(0.5, 0))
 	notice.Visible = false
 	local noticeText = label(notice, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
 	local noticeId = 0
@@ -120,7 +123,7 @@ function Hud.start(ctx: Context.Context)
 	-- Raid banner under the notices: what you are carrying and how long you
 	-- have left, or an alarm while raiders are on your base.
 	local banner =
-		panel(gui, "RaidBanner", UDim2.fromOffset(360, 40), UDim2.new(0.5, 0, 0, 122), Vector2.new(0.5, 0))
+		panel(gui, "RaidBanner", UDim2.fromOffset(360, 40), UDim2.new(0.5, 0, 0, 166), Vector2.new(0.5, 0))
 	banner.Visible = false
 	local bannerText = label(banner, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
 	local function updateBanner()
@@ -186,12 +189,19 @@ function Hud.start(ctx: Context.Context)
 		if board == nil then
 			return
 		end
+		-- Everyone else sees the board's title; on your own board the real
+		-- odds replace it.
+		local title = board:FindFirstChild("Title")
+		if title and title:IsA("SurfaceGui") then
+			title.Enabled = false
+		end
 		if boardGui == nil or boardGui.Parent ~= board then
 			local sg = Instance.new("SurfaceGui")
 			sg.Name = "Odds"
 			sg.Face = Enum.NormalId.Front
 			sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 			sg.PixelsPerStud = 25
+			sg.LightInfluence = 0 -- readable in the board's own shadow
 			sg.Adornee = board
 			local holder = Instance.new("Frame")
 			holder.Name = "Holder"
