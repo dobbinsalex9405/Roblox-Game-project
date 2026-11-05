@@ -1286,6 +1286,16 @@ def mantis_queen(c, H):
             lp = rig.leg_part(c, side, i, 2, (sx * hip[0], hip[1], hip[2] + 1))
             for (x, y, z), v in tmp.v.items():
                 lp.v[(x if sx > 0 else -1 - x, y, z)] = v
+    # hinge each leg at its inner end, outside the body (after the body is
+    # drawn, voxels inside it belong to the body)
+    for name in ('legFL', 'legFR', 'legBL', 'legBR'):
+        lp = part_or_none(c, name)
+        if lp:
+            for q in [q for q in lp.v if q in body.v]:
+                del lp.v[q]
+            sx = 1 if name.endswith('R') else -1
+            inner = min(lp.v, key=lambda q: abs(q[0] + 0.5))
+            lp.pivot = (inner[0] + (0 if sx > 0 else 1), inner[1] + 0.5, inner[2] + 1)
     # the triangular head: wide at the top, coming to a point at the mouth
     head = c.part('head', 'head', (0, -1.0 * k, 5.7 * k))
     hz0, hz1 = 5.6 * k, 7.3 * k
