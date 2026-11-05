@@ -81,6 +81,9 @@ jobs:
       - name: Key flows (headless playtest)
         run: tools/keyflows.sh "${{ inputs.game }}"
 
+      - name: Player's-eye audit (world, spawn, HUD, clicks)
+        run: lune run tools/audit/run --built --no-images "${{ inputs.game }}"
+
       - name: Publish to Production
         id: publish
         env:
