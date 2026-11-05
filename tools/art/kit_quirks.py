@@ -58,6 +58,14 @@ def _line(part, a, b, col, glow=False):
         prev = p
 
 
+def _rod(part, a, b, col, w=2):
+    """A solid w x w rod from a to b, face connected end to end."""
+    for dx in range(w):
+        for dy in range(w):
+            o = (dx - (w - 1) / 2, dy - (w - 1) / 2, 0)
+            _line(part, tuple(a[i] + o[i] for i in range(3)), tuple(b[i] + o[i] for i in range(3)), col)
+
+
 def _surface_top(vox):
     """{(x, y): top z} of a voxel set."""
     out = {}
@@ -372,7 +380,7 @@ def bib(c, H, col, col2, a=None):
 
 def straw(c, H, col, col2, a=None):
     """Bits of straw stuck in the fur (a barn cat): short golden stalks
-    poking out of the back and head at a slant, one in the mouth."""
+    poking out of the back at a slant."""
     k = H / 10.0
     s = c.part('straw', 'static')
     n = max(3, round(2.0 * k))
@@ -394,18 +402,11 @@ def straw(c, H, col, col2, a=None):
             dx = 1 if h & 1 else -1
             dy = 1 if h & 2 else -1
             z = top[(x, y)]
-            for i in range(n):
-                cc = col2 if (col2 and i == n - 1) else col
-                s.put((x + dx * (i // 2), y + dy * (i // 3), z + 1 + i - i // 3), cc)
-    # one stalk held in the mouth, sticking out to one side
-    head = _find(c, 'head')
-    if head and head.v:
-        fz = min(p[2] for p in head.v) + round(1.0 * k)
-        front = [p for p in head.v if p[2] == fz]
-        if front:
-            y = min(p[1] for p in front)
-            for i in range(round(2.4 * k)):
-                s.put((-1 + i, y, fz - i // 4), col)
+            # a slanted stalk from the fur, every voxel touching the last face to face
+            _line(s, (x + .5, y + .5, z + 1.5), (x + .5 + dx * n * 0.45, y + .5 + dy * n * 0.3, z + 1.5 + n * 0.7), col)
+            tip = max(p for p in s.v if abs(p[0] - x) <= n and abs(p[1] - y) <= n)
+            if col2:
+                s.put(tip, col2)
 
 
 def mud(c, H, col, col2, a=None):
@@ -531,24 +532,28 @@ def many_legs(c, H, col, col2, a=None):
     ys = sorted({p[1] for p in body.v})
     y0, y1 = ys[0] + 0.6 * k, ys[-1] - 0.8 * k
     n = 6
-    w = max(1, round(0.25 * k))
     for i in range(n):
         y = y0 + (y1 - y0) * i / (n - 1)
-        row = [p for p in body.v if abs(p[1] - y) < 0.6 and p[2] <= lift + round(1.2 * k)]
+        # the body's half width at this segment, at hip height
+        hz = lift + round(0.6 * k)
+        row = [p for p in body.v if abs(p[1] + .5 - y) < 1 and abs(p[2] - hz) <= 1]
         half = max((abs(p[0] + .5) for p in row), default=1.0 * k)
-        for sx in (-1, 1):
-            hip = (sx * (half - 0.5 * k), y, lift + round(0.5 * k))
-            foot = (sx * (half + 0.7 * k), y + (i - 2.5) * 0.15 * k, 0)
-            leg = rig.leg_part(c, 'L' if sx < 0 else 'R', i, n, hip)
-            steps = max(3, round(abs(hip[2]) + abs(foot[0] - hip[0])))
-            for j in range(steps + 1):
-                t = j / steps
-                x = hip[0] + (foot[0] - hip[0]) * t
-                yy = hip[1] + (foot[1] - hip[1]) * t
-                z = hip[2] + (foot[2] - hip[2]) * t
-                for dx in range(w):
-                    for dy in range(w):
-                        leg.put((math.floor(x) + (dx if sx > 0 else -dx), math.floor(yy) + dy, max(0, math.floor(z))), col2 if (col2 and t > 0.75) else col)
+        # the hip sits inside the body, the knee out and up, the foot out on the ground:
+        # every leg the same size, front to back, so all six pairs visibly step.
+        # The right leg is drawn and the left is its exact mirror.
+        x0 = math.floor(half - 0.6 * k)   # inside the body
+        x1 = math.floor(half + 0.5 * k)   # the knee, out at the side
+        yi = math.floor(y)
+        hip = (x0 + .5, yi + 1, hz + 1)
+        right = rig.leg_part(c, 'R', i, n, hip)
+        # a thigh out from under the body, then a shin down to the ground,
+        # two voxels square; the foot a shade darker
+        right.box((x0, yi, hz - 1), (x1 + 1, yi + 1, hz), col)
+        right.box((x1, yi, 0), (x1 + 1, yi + 1, hz - 2), col)
+        if col2:
+            right.box((x1, yi, 0), (x1 + 1, yi + 1, 0), col2)
+        left = rig.leg_part(c, 'L', i, n, (-hip[0], hip[1], hip[2]))
+        left.v = {(-x - 1, yy, z): v for (x, yy, z), v in right.v.items()}
 
 
 def aphid(c, H, col, col2, a=None):
@@ -570,8 +575,78 @@ def aphid(c, H, col, col2, a=None):
     for sx in (-1, 1):
         x = round(sx * 0.9 * k) - (1 if sx < 0 else 0)
         z = top.get((x, yb), max(top.values()) - 1)
-        for i in range(max(2, round(1.0 * k))):
-            body.put((x, yb + i // 2, z + 1 + i), tube)
+        _line(body, (x + .5, yb + .5, z + .5), (x + .5, yb + 0.6 * k + .5, z + 1.2 * k + .5), tube)
+    # sturdier legs than the ladybug's one-voxel ones: 2 x 2, hip to foot
+    import rig
+    legs = [p for p in c.parts if p.name in rig.LEG_NAMES]
+    for leg in legs:
+        hx, hy, hz = leg.pivot
+        sx = 1 if hx >= 0 else -1
+        leg.v = {}
+        _rod(leg, (hx - sx * 0.4 * k, hy, hz + 0.3 * k), (hx + sx * 0.4 * k, hy, 0.5), tube, 2)
+
+
+def tidy(c, H, col, col2, a=None):
+    """Joins every loose piece of the creature to the main one: for each
+    piece that touches the rest only at an edge or corner, or not at all (a
+    wing tip, a diagonal tail, a back leg below a round belly), a short path
+    of voxels in that piece's own part and colour, so nothing floats once
+    bevelled. Put it last in the accessories."""
+    from collections import deque
+    import rig
+    # legs one voxel thin are thickened to two, outwards and backwards, so
+    # a leg reads as a leg at in-game size and stays whole as it swings
+    for leg in [p for p in c.parts if p.name in rig.LEG_NAMES and p.v]:
+        xs = {v[0] for v in leg.v}
+        ys = {v[1] for v in leg.v}
+        out = 1 if leg.pivot[0] >= 0 else -1
+        if len(xs) == 1:
+            leg.v.update({(x + out, y, z): cv for (x, y, z), cv in list(leg.v.items())})
+        if len(ys) == 1:
+            leg.v.update({(x, y + 1, z): cv for (x, y, z), cv in list(leg.v.items())})
+    owner = {}
+    for p in c.parts:
+        for v in p.v:
+            owner[v] = p
+    for _ in range(64):
+        left, comps = set(owner), []
+        while left:
+            st = left.pop()
+            comp, q = {st}, deque([st])
+            while q:
+                x, y, z = q.popleft()
+                for nb in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1), (x, y, z - 1)):
+                    if nb in left:
+                        left.remove(nb)
+                        comp.add(nb)
+                        q.append(nb)
+            comps.append(comp)
+        if len(comps) < 2:
+            return
+        comps.sort(key=len, reverse=True)
+        main, piece = comps[0], comps[-1]
+        # the closest pair of voxels between the piece and the main body
+        best = None
+        for v in piece:
+            for m in main:
+                d = abs(v[0] - m[0]) + abs(v[1] - m[1]) + abs(v[2] - m[2])
+                if best is None or d < best[0]:
+                    best = (d, v, m)
+        _, v, m = best
+        part = owner[v]
+        colour = part.v[v]
+        q = list(v)
+        for i in (2, 0, 1):  # up or down first, then across
+            while q[i] != m[i]:
+                q[i] += 1 if m[i] > q[i] else -1
+                t = tuple(q)
+                if t in owner:
+                    break
+                part.v[t] = colour
+                owner[t] = part
+            else:
+                continue
+            break
 
 
 ACCESSORIES = {
@@ -593,4 +668,5 @@ ACCESSORIES = {
     'book': book,
     'many_legs': many_legs,
     'aphid': aphid,
+    'tidy': tidy,
 }
