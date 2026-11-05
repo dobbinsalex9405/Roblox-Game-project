@@ -301,7 +301,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Bumblebee = {
 		assetId = 137863202285617,
-		textureId = 95418668316503,
+		textureId = 71734729270011,
 		rarity = "Common",
 		gait = "hover",
 		height = 1.3,
