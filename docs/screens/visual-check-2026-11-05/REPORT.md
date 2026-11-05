@@ -295,3 +295,10 @@ but my clicks on their Upgrade buttons didn't register, so they have no furnitur
 checked. Phone 844x392 inside the tower with 3 furnished floors: 60 fps. No game errors. Output
 also shows "creature meshes did not load; drawing voxel boxes" for FrostWolf, CrystalStag,
 EmberFox and MoonUnicorn (the #94 issue).
+
+## Gate: #94 at 9c94b08 (glow meshes)
+
+FAIL. After 20 s all four still draw as voxel boxes (Crystal Stag 108 boxes, Frost Wolf 66,
+Ember Fox 61, Moon Unicorn 104; no MeshParts). Output gives the reason each time: "mesh
+<Species>_body_glow missing from asset <id>" — CrystalStag 76176813759498, EmberFox
+115947540552349, FrostWolf 118793263738444, MoonUnicorn 110066245966043.
