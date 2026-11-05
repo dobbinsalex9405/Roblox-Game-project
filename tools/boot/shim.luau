@@ -40,8 +40,20 @@ local function gap(name: string)
 	Shim.gaps[name] = (Shim.gaps[name] or 0) + 1
 end
 
+-- Lune's Instances cannot take nil for an Instance-valued property other than
+-- Parent ("Failed to convert from 'nil' into 'Ref'"), and the shim cannot
+-- override built-in properties. In Roblox `box.Adornee = nil` is always legal,
+-- so this is a gap in the shim, never a bug in the game: it is counted with
+-- the other gaps instead of failing the boot check.
+local LUNE_NIL_REF = "Failed to convert from 'nil' into 'Ref'"
+
 local function record(where: string, message: any)
-	table.insert(Shim.errors, { where = where, message = tostring(message) })
+	local text = tostring(message)
+	if string.find(text, LUNE_NIL_REF, 1, true) then
+		gap("setting an Instance property to nil (legal in Roblox; Lune cannot)")
+		return
+	end
+	table.insert(Shim.errors, { where = where, message = text })
 end
 
 local function say(prefix: string, ...: any)
@@ -108,6 +120,29 @@ function Signal:Fire(...)
 end
 
 Shim.Signal = Signal
+
+-- Plays `frames` frames of 1/60 s: the per-frame signals a server (or, with
+-- `client`, a client) gets each frame, so code that runs every frame (guard
+-- AI, conveyors, timers) runs at least once. Nothing fires them otherwise.
+function Shim.stepFrames(frames: number, client: boolean?)
+	local rs = Shim.runService
+	if rs == nil then
+		return
+	end
+	local dt = 1 / 60
+	for frame = 1, frames do
+		local now = frame * dt
+		if client then
+			rs.PreRender:Fire(dt)
+			rs.RenderStepped:Fire(dt)
+		end
+		rs.PreAnimation:Fire(dt)
+		rs.Stepped:Fire(now, dt)
+		rs.PreSimulation:Fire(dt)
+		rs.PostSimulation:Fire(dt)
+		rs.Heartbeat:Fire(dt)
+	end
+end
 
 -- Signals that belong to instances, by instance then member name.
 local instanceSignals = {}
@@ -1083,6 +1118,7 @@ local function defineServices()
 	rs.PreAnimation = Signal.new("RunService.PreAnimation")
 	rs.PreSimulation = Signal.new("RunService.PreSimulation")
 	rs.PostSimulation = Signal.new("RunService.PostSimulation")
+	Shim.runService = rs
 	rs.BindToRenderStep = function() end
 	rs.UnbindFromRenderStep = function() end
 
