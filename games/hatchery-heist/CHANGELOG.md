@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: the price label over the next floor to buy no longer fills its box
+  edge to edge; it has room for the longest price ("Floor 10: 165M coins").
+
 - Long Godlies (the Clockwork Leviathan, the Cosmic Whale) lie along their
   three spots at full Godly height and pace up and down them, instead of
   reaching into the spots in front and behind.
