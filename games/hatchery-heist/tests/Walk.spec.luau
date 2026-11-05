@@ -203,17 +203,13 @@ describe("Walk poses over time", function()
 end)
 
 describe("Walk culling", function()
-	-- Coordinator's gate question, Nov 5: from the yard the upper floors
-	-- looked empty because every tower culled by floor, even from outside.
-	it("shows every floor of a tower to someone outside it", function()
-		expect(Walk.culled(false, 9, 60, cfg)).toBe(false)
-		expect(Walk.culled(false, 0, cfg.cullOutsideStuds + 1, cfg)).toBe(true)
-	end)
-
-	it("inside a tower, draws only the floors near yours", function()
-		expect(Walk.culled(true, 0, 5, cfg)).toBe(false)
-		expect(Walk.culled(true, cfg.cullFloors, 5, cfg)).toBe(false)
-		expect(Walk.culled(true, cfg.cullFloors + 1, 5, cfg)).toBe(true)
+	-- Studio gates, Nov 5: culling by floor left whole floors looking empty,
+	-- from the yard and inside your own tower. Only distance culls now.
+	it("draws every tower creature within cullStuds, whatever its floor", function()
+		expect(Walk.culled(0, cfg)).toBe(false)
+		expect(Walk.culled(9 * 12, cfg)).toBe(false) -- floor 10, straight up
+		expect(Walk.culled(cfg.cullStuds, cfg)).toBe(false)
+		expect(Walk.culled(cfg.cullStuds + 1, cfg)).toBe(true)
 	end)
 end)
 

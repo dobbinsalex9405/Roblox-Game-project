@@ -112,13 +112,4 @@ Geometry.TRAP_SPOTS = { { -10, -22 }, { 10, -22 }, { -27, 10 }, { 17, 27 } }
 Geometry.DECOY_SPOTS = { { -27, -4 }, { -27, 4 }, { -27, 22 } }
 Geometry.SHIELD_PYLON = { 27, 20 }
 
--- From pad `index` back to its base's origin (x, y, z in the base's axes):
--- `padFrame * CFrame.new(Geometry.toBase(index))` is the base's frame, for
--- telling whether a point is inside the tower. (Geometry.pad returns x, z,
--- height; reading it as x, y, z put floor 3 a tower-width off, Studio gate.)
-function Geometry.toBase(index: number): (number, number, number)
-	local x, z, height = Geometry.pad(index)
-	return -x, -height, -z
-end
-
 return Geometry
