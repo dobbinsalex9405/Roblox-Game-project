@@ -21,6 +21,10 @@ plain Python with numpy.
 | `build.py` | Draco `.glb` meshes, renders, `meta.json`, 3D viewer copies |
 | `partsheet.py` | One render of every prop's Parts version |
 | `refscene.py` | Renders a reference scene for direction A, B or C |
+| `shop.py` | The Golden Egg Shop (walk-in Robux shop): its props and `LAYOUT`, where the game puts each one |
+| `shopexport.py` | Writes `games/hatchery-heist/src/shared/ShopArt.luau` (props + layout) and `build/world/shopart.json` |
+| `shopbuild.py` | The shop's `.glb` files, renders, `meta.json` and viewer copies (World/Hatchery Heist/Golden Egg Shop) |
+| `shopscene.py` | Review renders of the whole shop: outside, inside, each display wall, the counter, the door |
 | `towerscene.py` | Review renders (map overview, ten-floor cutaway, one room) and the whole tower as one `.glb` |
 
 ## Changing a prop
@@ -86,3 +90,20 @@ python3 tools/art/world/rooms_layout.py          # check and write config/towerD
 stylua games/hatchery-heist/config/towerDecor.luau
 PYTHONPATH=/opt/bpy python3 tools/art/world/roomscene.py build/world/path --floor 4 --fast
 ```
+
+## The Golden Egg Shop
+
+The shop's props are in `shop.py` (kind `shop` or `shopdisplay`) and go to
+their own module, `ShopArt.luau`, not `WorldArt.luau`, so the two never
+conflict. Change the art or `LAYOUT`, then:
+
+```sh
+python3 tools/art/world/shopexport.py
+lune run tools/test/run ShopArt
+python3 tools/art/world/shopscene.py build/world/shopscenes --fast        # look at it
+python3 tools/art/world/shopbuild.py build/world/shop --whole --designs /mnt/project-files/designs
+```
+
+Every display stands for one Robux item of the Shop window (`ShopPlan`
+checks both ways). No letters or numbers in the art: the game shows props
+mirrored left to right, so text goes on the signs as SurfaceGui text.

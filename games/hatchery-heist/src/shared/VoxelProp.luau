@@ -20,25 +20,31 @@ export type Box = {
 }
 
 local cache: { [string]: { Box } } = {}
--- More props to look up after WorldArt's (another generated module in the
--- same format, such as the shop's).
-local extra: { { [string]: WorldArt.Prop } } = {}
 
-function VoxelProp.register(props: { [string]: WorldArt.Prop })
-	table.insert(extra, props)
-end
+-- More props to look up after WorldArt's (VoxelProp.register).
+local sources: { { [string]: WorldArt.Prop } } = {}
 
 local function lookup(name: string): WorldArt.Prop?
 	local prop = WorldArt.props[name]
 	if prop then
 		return prop
 	end
-	for _, props in extra do
-		if props[name] then
-			return props[name]
+	for _, source in sources do
+		local found = source[name]
+		if found then
+			return found
 		end
 	end
 	return nil
+end
+
+-- Adds props from another generated module in WorldArt's format (for
+-- example shared/ShopArt), so `boxes`, `anchor` and `build` find them too.
+-- WorldArt's own props win on a name clash.
+function VoxelProp.register(props: { [string]: WorldArt.Prop })
+	if not table.find(sources, props) then
+		table.insert(sources, props)
+	end
 end
 
 local function rgb(hex: string): (Color3, boolean)

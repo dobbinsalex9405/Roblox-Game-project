@@ -35,6 +35,7 @@ local EnvAssets = require(script.EnvAssets)
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
+local ShopHouse = require(script.ShopHouse)
 local Speed = require(script.Speed)
 local World = require(script.World)
 
@@ -50,6 +51,7 @@ local raw = {
 	raids = require(GameConfig.raids),
 	monetization = require(GameConfig.monetization),
 	atmosphere = require(GameConfig.atmosphere),
+	shophouse = require(GameConfig.shophouse),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -108,6 +110,7 @@ for index = 1, Layout.PLOTS do
 end
 local atmosphere = Config.get("atmosphere")
 Scenery.build(atmosphere)
+ShopHouse.build(Config.get("shophouse"), monetization, Config.get("raids"))
 Mounts.start()
 CreatureAssets.start(log)
 -- Nature meshes, skybox and grass tile (tools/art/env); until they load the
