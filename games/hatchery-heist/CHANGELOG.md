@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Long Godlies (the Clockwork Leviathan, the Cosmic Whale) lie along their
+  three spots at full Godly height and pace up and down them, instead of
+  reaching into the spots in front and behind.
+
 - Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
   set with F (snare) or R (slime), with a short hold, from closer by.
 

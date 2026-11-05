@@ -2,6 +2,24 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+
+## 2026-11-05: Long Godlies lie along their row (Hatchery Heist)
+
+- A Godly takes three spots: an area 30 studs along the row and 10 deep.
+  A creature longer nose to tail than the depth allows (the Clockwork
+  Leviathan, the Cosmic Whale) is turned to lie along the row instead of
+  being shrunk (`Walk.lie`), so it keeps its tier's full height. Only a
+  creature longer than its row less `Layout.ROW_MARGIN` (2 studs, so 28 for
+  a Godly) is scaled down evenly (`ArtScale.drawScale`). One wider than the
+  depth faces the yard and sidesteps.
+- A creature lying lengthwise keeps that heading: it paces up and down its
+  row and never turns end for end or to face the yard, because turning on
+  the spot would sweep its length across the spots in front and behind.
+  Chosen over capping length at the 10-stud depth (it shrank the Leviathan
+  to well under a Godly's height) and over per-creature bounds (one more
+  number to set on every new creature). Ridden or carried, the cap scales
+  with the size.
+
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
 - **Each creature wanders only its own cell** (the 10-stud spots it takes),
