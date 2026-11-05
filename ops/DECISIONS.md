@@ -2,6 +2,71 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
+
+- **Each creature wanders only its own cell** (the 10-stud spots it takes),
+  not the whole floor: no collision avoidance needed, the Steal prompt on
+  its pad stays beside it, and raids and income need no change.
+- **A schedule, not physics**: position and facing are a pure function of
+  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
+  nothing replicates. The client moves the server's invisible stand-in
+  locally; the server never sees it move.
+- **The step phase follows distance walked**, so feet do not slide; legged
+  bodies dip as the legs spread (feet stay planted), legless stand-ins
+  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
+  each species' legs), falling back to the leg part names.
+- **Cull by distance only**, never by floor: culling by floor left whole
+  floors looking empty, from the yard and inside your own tower (Studio
+  gates). Your own tower draws to `cullStuds` (180); other players' towers
+  to `cullOtherStuds` (100: the neighbours either side, 84 away) and move
+  only within `animateOtherStuds` (60). Four full neighbours at 180 studs
+  took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
+  rest cheap.
+
+## 2026-11-05: Tower upgrades furnish the room, built on each client
+
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
+## 2026-11-05: Roster creatures reach the game through a generated config block
+
+- **What:** `tools/art/to_config.py` writes a marked block at the end of
+  `species` in Hatchery Heist's `config/creatures.luau`: every creature that
+  is on the master list, built by tools/art and uploaded (assets.json, Image
+  colours) and not written by hand. Income is a stable hash inside its
+  tier's band (Common 1-3, Uncommon 4-10, Rare 15-35, Ultra Rare 60-90, Epic
+  130-200, Legendary 400-500, Godly 800-1000), mount speed per tier, pools by
+  family (Barnyard: Farm, Pet, City, Garden; Moonlit: Spooky, Mutant,
+  Fantasy, Mythic, Spirit, Cosmic, Crystal, Mechanical, Elemental, Dino;
+  everything else Meadow), moved to the first egg that rolls the tier if
+  its family's egg does not. CI runs `--check`.
+- **Review gate:** only ids in `tools/art/roster/master/reviewed.txt` enter
+  the block. `to_config.py --promoted <PROMOTED.log>` adds every id the
+  strict reviewer promoted (ids are only added). Nothing ships unreviewed.
+- **Why:** builders ship roster JSON only; without this step reviewed
+  creatures reached the design viewer but never an egg. One block in the
+  same file (not a second module) keeps a single `require` and lets a hand
+  entry override any generated one by moving its line out.
+- **In-game art rules:** a built creature whose voxel boxes break a
+  VoxelArt.spec rule (box budget per tier, glow below Ultra Rare) is left
+  out and printed by the generator until its builder fixes it.
+- **Limit to fix before Rare+ batches:** an egg tier's weight must be at
+  least its member count (Schemas.crossCheck), and tiers are written out of
+  100,000. Basic egg Legendary is 2 and Epic 18, so Legendary/Epic batches
+  need either more-precise totals or fewer creatures per pool.
+
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
 - **What:** 25 hub props in `tools/art/world/hub.py` (kinds `building` and
@@ -175,6 +240,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   behind them. Now each piece keeps `farm.clearRadius` studs round itself
   clear, a small tree stands on each side of every gap's farm piece (a bush
   at the foot of one), and the wood fills in behind.
+- **The wood is spread by slices, not at random** (gate follow-up): each
+  tree first tries its own 1/count slice of the ring, so no wedge is left
+  bare behind a farm piece (random angles left 24 degree gaps behind the
+  Barn and two fields). A slice with no room gives its tree to anywhere.
 - **Star Pines only on the hills** (gate follow-up): on flat grass in the
   wood they read as random, on the hilltops as landmarks. Every other hill
   gets one, the medium model scaled up (the large one's detail is never

@@ -40,6 +40,10 @@ tools/designs/build.sh               # builds the games, exports their models, b
 tools/designs/build.sh --skip-games  # only dropped designs changed: reuse the last export
 ```
 
+Dropped .glb files are Draco-compressed on the way in (about 10x smaller;
+cached in `build/designs/draco/`). That needs `cd tools/designs/viewer && npm
+ci` once; without it they ship as they are.
+
 Output: `/mnt/project-files/design-viewer/` in a cloud session (else
 `build/design-viewer/`). File names are content hashes, so copying the
 folder to the laptop again only copies what changed. Copy the whole folder
