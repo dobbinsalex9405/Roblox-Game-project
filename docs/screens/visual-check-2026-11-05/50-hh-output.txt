@@ -1,0 +1,9 @@
+Studio Output (get_console_output) after Play + ~15 s, build 4f145ea (+ #51 core files), Hatchery Heist:
+[profilestore]: Roblox API services unavailable - data will not be saved
+[Stores] DataStores unavailable; nothing will be saved to this store err=You must publish this place to the web to access DataStore. store=ErrorQueue
+[Stores] DataStores unavailable; nothing will be saved to this store err=You must publish this place to the web to access DataStore. store=Feedback
+[TestPanel] Studio test panel is on
+[CoreServer] core started build=4f145ea062ca game=hatchery-heist studio=true
+ContentId: rbxassetid://203785492 failed due to: Asset type does not match requested type (x3)
+AnalyticsService: LogCustomEvent event fired.
+AnalyticsService: LogOnboardingFunnelStepEvent event fired.
