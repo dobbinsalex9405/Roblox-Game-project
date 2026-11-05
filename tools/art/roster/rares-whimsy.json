@@ -795,7 +795,7 @@
    },
    "colors": {
     "col": "#F2F6FF",
-    "snout": "#8FA8C8"
+    "snout": "#E6EEF8"
    },
    "accessories": [
     {
@@ -837,7 +837,8 @@
     },
     {
      "kind": "shineeyes",
-     "color": "#1B1B2F"
+     "color": "#1B1B2F",
+     "x0": 1
     },
     {
      "kind": "petalears",
@@ -985,13 +986,16 @@
    },
    "accessories": [
     {
+     "kind": "shineeyes",
+     "color": "#7CFF6A",
+     "style": "cat",
+     "dz": -1,
+     "x0": 2
+    },
+    {
      "kind": "witchhat",
      "color": "#4A2E6A",
      "color2": "#B983FF"
-    },
-    {
-     "kind": "shineeyes",
-     "color": "#7CFF6A"
     }
    ],
    "shape": {
