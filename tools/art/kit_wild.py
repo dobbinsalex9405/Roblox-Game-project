@@ -297,6 +297,58 @@ def neck(c, H, col, col2=None):
                 body.v[p] = (col2, False)
 
 
+def giraffepatches(c, H, col, col2=None):
+    """A giraffe's coat: big brown patches (col) split by thin cream lines,
+    over the body, neck, head and upper legs (only the coat colour; the
+    belly and snout stay). Patches are cells round jittered seed points."""
+    k = H / 10.0
+    s = max(3.0, 1.25 * k)
+
+    def seed(i, j, l):
+        h = kit._hash(i, j, l, 51)
+        return ((i + 0.25 + (h % 50) / 100) * s, (j + 0.25 + (h // 50 % 50) / 100) * s, (l + 0.25 + (h // 2500 % 50) / 100) * s)
+
+    def patch(p):
+        ci, cj, cl = int(math.floor(p[0] / s)), int(math.floor(p[1] / s)), int(math.floor(p[2] / s))
+        ds = sorted(math.dist((p[0] + .5, p[1] + .5, p[2] + .5), seed(i, j, l))
+                    for i in (ci - 1, ci, ci + 1) for j in (cj - 1, cj, cj + 1) for l in (cl - 1, cl, cl + 1))
+        return ds[1] - ds[0] > 0.15 * s
+
+    coat = None
+    body = kit._find(c, 'body')
+    if body and body.v:
+        from collections import Counter
+        coat = Counter(v[0] for v in body.v.values()).most_common(1)[0][0]
+    for part in c.parts:
+        if part.name in ('body', 'head') or part.name.startswith('leg'):
+            zmin = min(q[2] for q in part.v) if part.v else 0
+            part.paint(lambda p, cc, g, zmin=zmin, part=part: (col, False) if cc == coat and patch(p) and
+                       (not part.name.startswith('leg') or p[2] > zmin + 1.2 * k) else None)
+
+
+def banana(c, H, col, col2=None):
+    """A banana held up in one hand (a baby gorilla's snack), glowing softly,
+    brown (col2) at the ends."""
+    k = H / 10.0
+    body = kit._find(c, 'body')
+    (lo, hi) = _bounds(body)
+    side = [p for p in body.v if p[0] >= hi[0] - 1]
+    hz = min(p[2] for p in side) if side else lo[2]
+    hy = min(p[1] for p in side) if side else lo[1]
+    hx = hi[0] - round(0.4 * k)
+    part = c.part('banana', 'static')
+    n = max(8, round(4.0 * k))
+    end = col2 or hexc('#6A4A22')
+    for i in range(n):
+        t = i / (n - 1)
+        # a crescent: up from the fist, bowing forward, the tip curling back
+        y = hy - 0.2 * k - math.sin(t * math.pi) * 0.9 * k
+        z = hz + 0.3 * k + t * 2.4 * k
+        r = 0.22 * k + .35
+        tip = t < 0.08 or t > 0.92
+        part.ell((hx + .5, y, z), (r, r, r), end if tip else col, not tip)
+
+
 def ossicones(c, H, col, col2=None):
     """Two giraffe horn nubs on the crown, with dark (or glowing) knobs."""
     k = H / 10.0
@@ -407,9 +459,9 @@ def crystals(c, H, col, col2=None):
         for sx in ((1,) if ox == 0 else (-1, 1)):
             x, y = sx * ox * k, yc + oy * k
             z0 = _top_at(c, math.floor(x), math.floor(y)) or hi[2]
-            n = max(2, round(h * k))
+            n = max(3, round(h * 1.5 * k))
             for i in range(n):
-                r = 0.55 * k * (1 - i / (n + 1)) + 0.3
+                r = 0.65 * k * (1 - i / (n + 1)) + 0.3
                 lx = sx * math.sin(math.radians(lean)) * i
                 part.ell((x + lx, y, z0 + i), (r, r, .6), core if r < 0.4 * k else col, r < 0.4 * k)
 
@@ -1698,7 +1750,7 @@ def flamehair(c, H, col, col2=None):
 
 
 ACCESSORIES = {
-    'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
+    'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'giraffepatches': giraffepatches, 'banana': banana, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
     'glowstripe': glowstripe, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,
     'mohawk': mohawk, 'zebra': zebra, 'tigerstripes': tigerstripes, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle, 'eartips': eartips, 'tailglow': tailglow,
