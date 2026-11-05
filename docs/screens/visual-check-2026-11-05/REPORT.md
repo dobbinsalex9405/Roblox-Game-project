@@ -457,3 +457,24 @@ Each board is 26x7 studs, centred 4.5 studs up and 15 studs from the nest, facin
   - A tap of F gave HoldBegan with no trigger. Holding R for 0.9 s triggered Slime; the server refused it for coins (174 < 2K).
 - **Phone 844x392:** Hatch and the two trap prompts are separate cards, each about 150x60 px. Slime and Snare stack in two rows with distinct key badges (`106-hh-trap-prompts-close-phone.jpg`).
 - **Stray prompts:** the only other enabled prompts in reach around the incubators are the belt Buy prompts (E, range 10), which appear and disappear as eggs pass. At the incubator front Hatch is nearer (4.7 against 7.5 or more) and is the one shown. Decoy "Place" prompts (E) are out of range there.
+
+## Fresh-player run, main @ f82fdd9, phone 844x392
+
+Screenshots `fp-*` are the whole Studio window. The game viewport is the left part. The Roblox player list (top right, "LoopLabGames") and the chat hint are Studio/desktop only; phones hide them. Run order: spawn, welcome, belt, buy, hatch, Book, Daily, Tower floor 2 (coins topped up with Test +100K, since 25K takes a fresh player far longer than 15 min), Golden Egg Shop, Robux tab.
+
+Ranked by how much each would bother a first-time player:
+
+1. **Pressing Buy on the belt often hits an expensive egg.** The belt keeps moving, so the prompt in front of you is whichever egg is nearest. My first E press hit a Meadow Egg (2.5K) and only said "Not enough coins." (`fp-04`). The toast doesn't say which egg or that Basic Eggs (white, 50) are the affordable ones. Suggestion: "That's a Meadow Egg (2.5K). Basic Eggs are 50" in the toast, and/or show Buy only on eggs you can afford while you have under 2.5K.
+2. **The belt area is crowded on phone** (`fp-03`). The auto-opening odds card covers the left third. The GOAL banner and its yellow arrow marker sit on top of the egg's Buy prompt, and "Basic Egg: 50 coins" is half covered. Suggestion: don't auto-open the odds card on phone (keep the "Egg odds" button), and hide the arrow marker once the player is at the belt.
+3. **Golden Egg Shop interior on phone:** the camera clips into the counter and walls, so you see a grey block and a floating Buy prompt, not the displays (`fp-12`). Suggestion: push the walls out or open the front, or zoom the camera in inside the shop.
+4. **"Auto-collecting N" shows from the start** (`fp-07`). The shop also lists Auto-Collect, Double Coins and Extra Incubators as **Owned** for this account. This is probably because the Studio test account is the experience's owner. Needs a check with a non-owner account in the Staging Player. If real players also see "Auto-collecting", it contradicts the goal text "Collect them at the green pad".
+5. **Tower: the Build button turns into Upgrade under your finger** (`fp-11`). After "Build 25K", the same button becomes "Upgrade 5K", so a double-tap spends 5K straight away. There's also no "Book Nook built!" moment beyond the row changing. Suggestion: about 1 s of cooldown or a "Built!" state before Upgrade appears, plus a toast or sound.
+6. **The base sign shows through the HUD at spawn** (`fp-02`). "LoopLabGames's Hatchery" sits right behind the coin panel and reads as "LoopLabGames's Ha+0/s y". A more opaque HUD panel, or moving the sign, fixes it.
+7. **Daily claim has no reward feedback** (`fp-09`). The Claim button just turns into a timer. The window covers the coin counter, so you never see +601 land. A "+601 coins" pop would help. The odd amounts (601, 901, 5.41K) also look like bugs rather than designed numbers.
+8. **The reveal creature looks grey and untextured** (Chipmunk, `fp-06`). Probably its mesh was still processing (Output: "Asset content representation is being generated"). Recheck on Staging. Also "Tap to continue" is low contrast, and the GOAL banner shows through the reveal dimmer.
+9. **The side menu draws over modal windows** (Tower, Book, Daily: `fp-08`, `fp-10`). The right edge of each window sits under the Guide/Book/Tower buttons. Raise the modals' DisplayOrder or hide the side menu while a window is open.
+10. **Tower, can't afford:** the greyed "Build 25K coins" gives no message when tapped (`fp-10`). "You need 24.2K more coins" would help.
+11. **Robux tab on phone:** about 1.5 products are visible at a time, and the window stops short of the screen bottom. A world Buy prompt shows below it (`fp-13`).
+12. **Welcome card on phone:** only 2 of its 4 tips show without scrolling (`fp-01`). "Earn coins" and "Raid and defend" are below the fold, with only a thin scrollbar hinting at them.
+
+Worked without trouble: welcome "Let's go", goal banner steps, buying a Basic Egg, 5 s incubation with "Ready!", Hatch prompt, auto-placement on a pad, income ticking, Book (Found 1/53, NEW tag), Daily claim, floor 2 build and the wall sign "2. Book Nook".
