@@ -244,6 +244,12 @@ def lava_drake(c, H):
     # big membrane wings, so it reads as a drake from the front too
     km.wing_bat(c, k, (1.4 * k, 0.4 * k, round(bz1 - 0.9 * k)), 5.6, dark(P('#1E1A24'), 0.1), P('#3A1E1E'), glow=P('#FF7A1A'),
                 rise=1.8)
+    # ember eyes that glow (dark eyes vanish on obsidian), with a hot glint
+    eyes = part_or_none(c, 'eyes')
+    if eyes:
+        top = max(q[2] for q in eyes.v)
+        for q, (cc, g) in list(eyes.v.items()):
+            eyes.v[q] = (FIRE[3] if cc == WHITE else FIRE[1], True)
     # a longer dragon snout with a glowing mouth line
     head = c.part('head')
     (hx0, hy0, hz0), (hx1, hy1, hz1) = bounds_of(head)
@@ -352,21 +358,41 @@ def magma_golem(c, H):
         y0 = min(q[1] for q in chest)
         body.paint(lambda q, cc, g: ((FIRE[2] if (q[0] + .5 - cx) ** 2 + (q[2] - cz) ** 2 < (0.45 * k) ** 2 else FIRE[1]), True)
                    if q[1] <= y0 + 1 and (q[0] + .5 - cx) ** 2 + (q[2] - cz) ** 2 < (0.85 * k) ** 2 else None)
-    # lava pouring from every joint: a glowing seam round it and a stream
-    # running down the rock, ending in a fat drip
+    # lava pouring from every joint: a glowing stream down the rock face
+    # below it, and fat drips hanging 2-3 voxels under the nearest ledge,
+    # orange fading to dark red
+    owner = {}
+    for p in [body] + [q for q in c.parts if q.name.startswith('leg')]:
+        for q in p.v:
+            owner[q] = p
+    solid = set()
+    for p in c.parts:
+        solid |= set(p.v)
+    drips = c.part('drips', 'glow')
     for (jx, jy, jz) in getattr(c, 'joints', []):
-        # the front face below the joint: a stream two voxels wide
-        owner = {}
-        for p in [body] + [q for q in c.parts if q.name.startswith('leg')]:
-            for q in p.v:
-                owner[q] = p
         x = round(jx) - (1 if jx < 0 else 0)
-        for z in range(round(jz), max(0, round(jz - 1.3 * k)), -1):
+        for z in range(round(jz), max(0, round(jz - 1.0 * k)), -1):
             for xx in (x, x + (1 if jx >= 0 else -1)):
                 col_ys = [q[1] for q in owner if q[0] == xx and q[2] == z]
                 if col_ys:
                     f = (xx, min(col_ys), z)
-                    owner[f].v[f] = (FIRE[1] if z > jz - 0.8 * k else FIRE[2], True)
+                    owner[f].v[f] = (FIRE[1] if z > jz - 0.6 * k else FIRE[2], True)
+        # the nearest underside (a rock voxel with air below it) near the joint
+        cands = [q for q in owner if abs(q[0] - jx) <= 2 and abs(q[1] - jy) <= 3 and q[2] <= jz + 2 and q[2] >= 4
+                 and (q[0], q[1], q[2] - 1) not in solid]
+        cands.sort(key=lambda q: (abs(q[2] - jz) + abs(q[1] - jy), q[1]))
+        used = set()
+        for q in cands:
+            if len(used) >= 2 or any(abs(q[0] - u[0]) < 2 and abs(q[1] - u[1]) < 2 for u in used):
+                continue
+            used.add(q)
+            owner[q].v[q] = (FIRE[1], True)
+            n = 3 if len(used) == 1 else 2
+            for i in range(1, n + 1):
+                t = (q[0], q[1], q[2] - i)
+                if t in solid or t[2] < 1:
+                    break
+                drips.put(t, (FIRE[1], FIRE[0], P('#8A1010'))[min(2, i - 1)], True)
     return c
 
 
@@ -489,31 +515,44 @@ def glacier_mammoth(c, H):
 
 
 def glacier_orca(c, H):
-    plan('whale', c, H, {'col': '#3A6A9A', 'belly': '#E6FBFF', 'glow': '#9FE7FF'}, kind='orca')
+    """An orca carved from glacier ice: a deep navy back, a pale ice belly and
+    eye patches, faceted tones, and a fanning plume of frost from the
+    blowhole."""
+    navy, ice_w = P('#18264A'), P('#D8F4FF')
+    plan('whale', c, H, {'col': '#18264A', 'belly': '#CDEFFF', 'glow': '#7FE0FF'}, kind='orca')
     k = H / 10.0 * 1.1
     for p in c.parts:
-        p.paint(lambda q, cc, g: (P('#C8F2FF'), False) if cc == WHITE else None)
-        speckle(p, (P('#3A6A9A'),), P('#5A8ABA'), 6)
-    # an ice spout from the blowhole: a fountain of crystals
+        p.paint(lambda q, cc, g: (ice_w, False) if cc == WHITE else None)
+        p.paint(lambda q, cc, g: (P('#9FB4D0'), False) if cc == P('#C8D0E0') else None)
+        # ice facets: a scatter of lighter and darker tones
+        speckle(p, (navy,), P('#26385E'), 5)
+        speckle(p, (navy,), P('#33507E'), 11)
+        speckle(p, (P('#CDEFFF'), ice_w), P('#B0E4FA'), 6)
+    # the frost plume: a fan of ice shards and frost bursting from the blowhole
     body = c.part('body')
     ys = [p[1] for p in body.v]
     y = round(min(ys) + (max(ys) - min(ys)) * 0.25)
-    # sit the spout on the highest body voxel near the blowhole
     near = [q for q in body.v if abs(q[1] - y) <= 1 and -1 <= q[0] <= 0]
     x, y, t = max(near, key=lambda q: q[2]) if near else (0, y, round(5 * k))
     spout = c.part('spout', 'glow', (x, y, t))
-    for i in range(round(1.8 * k) + 1):
-        spout.box((x - 1, y - 1, t + i), (x, y, t + i), ICE_L, True)
-    top = t + round(1.8 * k)
-    for a in range(6):
-        ang = a / 6 * math.pi * 2
-        crystal(spout, x, y, top - 1, 1.1 * k, 0.4 * k, ICE, ICE_L, lean=(math.cos(ang) * 0.7, math.sin(ang) * 0.7))
+    for i in range(round(0.6 * k)):
+        spout.box((x - 1, y - 1, t + i), (x, y, t + i), P('#BFF4FF'), True)
+    top = t + round(0.6 * k)
+    for j, (dx, dy, ln) in enumerate(((0, 0, 2.0), (0.8, 0.2, 1.6), (-0.8, 0.2, 1.6), (0.45, -0.6, 1.5), (-0.45, -0.6, 1.5),
+                                      (0.5, 0.8, 1.3), (-0.5, 0.8, 1.3))):
+        start = (x + .5 - 0.5, y + .5 - 0.5, top)
+        col = P('#5FE0FF') if j % 2 == 0 else P('#E6FBFF')
+        ln *= 1.5
+        shard(spout, start, (dx, dy, 1.0), ln * k, 0.36 * k, col, P('#9FEFFF'), glow=j % 2 == 0)
+        dl = math.sqrt(dx * dx + dy * dy + 1)
+        tip = (start[0] + dx / dl * ln * k, start[1] + dy / dl * ln * k, start[2] + ln * k / dl)
+        spout.ell(tip, (0.3 * k, 0.3 * k, 0.3 * k), P('#BFF4FF'), True)
     # icy fin edges
     for name in ('dorsal', 'finL', 'finR'):
         p = part_or_none(c, name)
         if p:
             (x0, y0, z0), (x1, y1, z1) = bounds_of(p)
-            p.paint(lambda q, cc, g: (ICE, True) if q[2] == (z1 if name == 'dorsal' else z0) else None)
+            p.paint(lambda q, cc, g: (P('#7FE0FF'), True) if q[2] == (z1 if name == 'dorsal' else z0) else None)
     return c
 
 
@@ -1023,33 +1062,42 @@ def prism_peacock(c, H):
     teal = P('#2EC4B6')
     k, lift = grand_bird(c, H, P('#2E6AC8'), P('#5A9AE8'), P('#3A3A4A'), teal, (teal, P('#5AD8C8'), P('#B8F4EE')), P('#FFFFFF'),
                          crest=P('#2EC4B6'), feet=P('#8A8A9A'), length=3.6, rise=1.6)
-    # the fan tail of rainbow crystal eyes, standing up behind it
+    # a peacock keeps its wings folded so the fan is the show: small wings
+    # folded at its sides instead of the raised grand wings
+    drop(c, 'wingL', 'wingR')
+    body0 = c.part('body')
+    (bx0, by0, bz0), (bx1, by1, bz1) = bounds_of(body0)
+    for sx, name in ((1, 'wingR'), (-1, 'wingL')):
+        w = c.part(name, name, (sx * bx1 * 0.8, (by0 + by1) / 2, (bz0 + bz1) / 2 + 0.6 * k))
+        xs = bx1 - 0.4 * k if sx > 0 else bx0 + 0.4 * k
+        w.ell((xs, (by0 + by1) / 2 + 0.6 * k, (bz0 + bz1) / 2 + 0.2 * k), (0.55 * k, 1.5 * k, 0.9 * k), teal)
+        w.paint(lambda q, cc, g: (P('#1E9A8A'), False) if q[1] > (by0 + by1) / 2 + 1.4 * k else None)
+    # the fan tail of rainbow crystal eyes, standing up tall behind it
     tail = c.part('tail', 'tail', (0, 2.6 * k, 3.2 * k + lift))
     body = c.part('body')
     cy = max(v[1] for v in body.v if abs(v[0]) < 2 and v[2] < 3.4 * k + lift) - 1
-    base_z = 2.4 * k + lift
-    R = 4.6 * k
+    base_z = 2.6 * k + lift
+    Rx, Rz = 5.7 * k, 5.1 * k
     rainbow = [P('#FF4D6D'), P('#FF9A1A'), P('#FFE14D'), P('#5CD85A'), P('#4FA8FF'), P('#9A6AFF')]
-    for x in range(-round(R), round(R) + 1):
-        for z in range(0, round(R) + 1):
-            d = math.hypot(x + .5, z)
-            if d > R or z < 0:
+    # one feathered layer, wider than tall so it frames the head
+    for x in range(-round(Rx), round(Rx) + 1):
+        for z in range(0, round(Rz) + 1):
+            d = math.hypot((x + .5) / Rx, z / Rz)
+            if d > 1:
                 continue
-            a = math.atan2(z, x + .5)
-            y = round(cy + d * 0.18)
-            tail.put((x, y, round(base_z + z)), teal if d < R * 0.5 else P('#1E9A8A'))
-            tail.put((x, y + 1, round(base_z + z)), P('#1E8A7A'))
-    # crystal eyes along the fan's edge, each a gem with a ring
-    for i in range(9):
-        a = (i + 0.5) / 9 * math.pi
-        ex, ez = math.cos(a) * R * 0.8, base_z + math.sin(a) * R * 0.8
-        col = rainbow[i % len(rainbow)]
-        tail.ell((ex, cy + R * 0.8 * 0.18 - 1, ez), (0.75 * k, 0.6, 0.75 * k), P('#FFE14D'), True)
-        tail.ell((ex, cy + R * 0.8 * 0.18 - 2, ez), (0.45 * k, 0.6, 0.45 * k), col, True)
-    for i in range(5):
-        a = (i + 0.5) / 5 * math.pi
-        ex, ez = math.cos(a) * R * 0.5, base_z + math.sin(a) * R * 0.5
-        tail.ell((ex, cy + R * 0.5 * 0.18 - 1, ez), (0.4 * k, 0.6, 0.4 * k), rainbow[(i * 2) % 6], True)
+            a = math.atan2(z / Rz, (x + .5) / Rx)
+            y = round(cy + (0.6 * k if d > 0.6 else 0))
+            col = teal if d < 0.55 else P('#1E9A8A') if d < 0.92 else P('#5AD8C8')
+            tail.put((x, y, round(base_z + z)), col)
+    # crystal eyes in two rings: a gold rim round a rainbow gem
+    for ring_r, n, size in ((0.8, 11, 0.7), (0.5, 6, 0.5)):
+        for i in range(n):
+            a = (i + 0.5) / n * math.pi
+            ex, ez = math.cos(a) * Rx * ring_r, base_z + math.sin(a) * Rz * ring_r
+            ey = cy + (0.6 * k if ring_r > 0.6 else 0) - 1
+            col = rainbow[i % len(rainbow)]
+            tail.ell((ex, ey, ez), (size * k, 0.6, size * k), P('#FFE14D'), True)
+            tail.ell((ex, ey - 1, ez), (size * 0.6 * k, 0.6, size * 0.6 * k), col, True)
     return c
 
 
@@ -1317,6 +1365,7 @@ def basilisk(c, H):
          kind='wyrm', frills=True)
     k = H / 10.0
     c.part('eyes').paint(lambda q, cc, g: (P('#FFE14D'), True) if cc != WHITE else None)
+    c.gait_hint = 'swim'  # it snakes through the air (animate thread)
     body = c.part('body')
     body.paint(lambda p, cc, g: (P('#2EAA5A'), False) if cc == P('#1E8A4A') and (p[0] + p[1] * 2 + p[2]) % 3 == 0 else None)
     head = c.part('head')
