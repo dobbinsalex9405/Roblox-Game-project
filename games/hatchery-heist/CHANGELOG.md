@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Sound effects: the egg shakes and cracks, each reveal has its own sting,
+  new Book entries, rewards and menu buttons all make a sound now.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
