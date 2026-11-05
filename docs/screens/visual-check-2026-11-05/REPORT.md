@@ -396,3 +396,21 @@ Setup: floors 2-4 built, 15 creatures given through the Test panel (2 on floor 2
   - On phone, the HUD and banner fill roughly screen y 85-220 of 392. At this distance that band is where anything 8-15 studs up lands.
   - The rows are readable once they are uncovered, which happens on desktop or when the camera is pitched up.
 - **(2) Respawn: PASS.** After a server kill, the new character was at its own base (plot-local 0, 3, 24) at the first 0.5 s sample and stayed there for 4 s. The plaza SpawnLocation (52, 0.1, 0) is transparent and nothing shows there or by the Golden Egg Shop (`97d-hh-plaza-spawn-empty-phone.jpg`).
+
+## #83 gate 5 @ 4f58308 (neighbour LOD)
+
+Setup was the same as gate 4: floors 2-4 built, 15 creatures given, then 320 server-side clones filled every free pad of Plot2/Plot8 (84 studs) and Plot3/Plot7 (155 studs). Phone 844x392, Studio window in the foreground, standing in my own yard at (100, 3.7, -30).
+
+- **Drawn:** 76 creatures in total (gate 4 drew 273).
+  - Plot1: 15, all animating.
+  - Plot8: 59 drawn, 40-100 studs away, 11 of them animating (the nearest ones).
+  - Plot2: 2 drawn at 97 studs, frozen.
+  - Plot3 and Plot7: none.
+- **fps with neighbours full: BORDERLINE, median about 54, range 50-58.**
+  - First run: default camera 55.5; looking at own tower / Plot2 / Plot8 / market 53.7 / 52.0 / 57.3 / 59.6.
+  - Two repeats: 53.8, 55.3, 50.2, 50.7, 58.2 and 52.6, 53.0, 56.7, 54.3, 51.9.
+  - **Baseline** at the same spot with the clones parked: 56.1, 59.3, 59.7, 59.5, 57.2 / 57.5, 59.0, 55.4, 57.1, 58.8 (median about 58). The neighbours now cost about 4 fps; in gate 4 they cost about 21.
+- **Client memory:** 2865 MB with clones, 2846 MB without.
+- **Neighbour animation resumes up close: PASS.** Standing at (95, 3.3, -61) next to Plot8: all 39 of 39 creatures within 60 studs animate. Beyond 60 studs, 7 of 30 animate; these are probably within 60 of the camera, which sits about 12 studs behind the character.
+- **Own tower, all floors, from the ground floor: PASS.** 15/15 drawn (floor 2 1/1, floor 3 6/6, floor 4 8/8).
+- Output: nothing new. It shows the usual unpublished-place notes, the "being generated" notices for new mesh ids, and voxel-box fallbacks.
