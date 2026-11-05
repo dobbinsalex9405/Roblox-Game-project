@@ -51,7 +51,8 @@ extra keys are listed with each):
   a filled coat (holes where the legs swing).
 - **fluff**: `style` fur (a fuzzy coat taking the colours under it, or
   color with `solid: true`; `head: true` too, `layers` thick) or popcorn
-  (puffs in color and color2).
+  (puffs in color and color2; one on every `every`th spot, default 6;
+  `head: true` adds a few on the crown).
 - **frizz**: curly feathers sticking out everywhere.
 - **mushrooms**: little caps on the back, spots in color2.
 - **spikes**: soft spikes over the back, tips in color2. `head: true` too,
@@ -1011,11 +1012,16 @@ def fluff(c, H, col, col2, a):
     if style == 'popcorn':
         body = parts[0]
         tlo, thi, belly = torso(c)
-        for (x, y, z) in surface_up(body):
-            if z < belly + (thi[2] - belly) * 0.3:
-                continue
+        every = max(1, int(a.get('every', 6)))
+        spots = [p for p in surface_up(body) if p[2] >= belly + (thi[2] - belly) * 0.3]
+        if len(parts) > 1:
+            # a few kernels on the crown too: the top of the head only, off the face
+            head = parts[1]
+            htop = max(p[2] for p in head.v)
+            spots += [p for p in surface_up(head) if p[2] >= htop - 0.6 * k and p[1] >= yface - 1.6 * k]
+        for (x, y, z) in spots:
             h = _hash(x, y, z, 21)
-            if h % 6 == 0:
+            if h % every == 0:
                 cc = col if (h >> 4) % 3 else (col2 or hexc('#FFE08A'))
                 ball(f, (x + .5, y + .5, z + 0.5 + 0.2 * k), (0.45 * k + .2,) * 3, cc)
         return
