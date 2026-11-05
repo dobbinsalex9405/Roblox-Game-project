@@ -29,10 +29,10 @@ import numpy as np  # noqa: E402
 
 import vkit  # noqa: E402
 import props  # noqa: E402
-try:
-    import decor  # noqa: E402,F401
-except ImportError:
-    decor = None
+import decor  # noqa: E402,F401
+import apartment  # noqa: E402,F401
+import tower  # noqa: E402,F401
+import hub  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 
@@ -42,15 +42,20 @@ FOLDER = {
     'pedestal': 'World/Hatchery Heist/Egg Market', 'belt': 'World/Hatchery Heist/Egg Market', 'hub': 'World/Hatchery Heist/Egg Market',
     'elevator': 'World/Hatchery Heist/Elevator and ladder', 'ladder': 'World/Hatchery Heist/Elevator and ladder',
     'plaque': 'World/Hatchery Heist/Elevator and ladder',
+    'building': 'World/Hatchery Heist/Farm hub/Buildings', 'hubprop': 'World/Hatchery Heist/Farm hub/Street props',
 }
-THEMES = ['Farmyard barn', 'Meadow cottage', 'Orchard loft', 'Mushroom grove', 'Crystal cave', 'Cloud garden', 'Ember forge',
-          'Frost hall', 'Moonlit observatory', 'Golden sky palace']
+from tower import THEMES  # noqa: E402
 
 
 def folder_of(p):
     if p.kind == 'decor':
-        theme = THEMES[p.floor - 1] if p.floor else 'Shared'
-        return f'Decor and props/Hatchery Heist/{p.floor:02d} {theme}' if p.floor else 'Decor and props/Hatchery Heist/Element rooms'
+        if not p.floor:
+            return 'World/Hatchery Heist/Farm centre'
+        return f'Decor and props/Hatchery Heist/{p.floor:02d} {THEMES[p.floor - 1]}'
+    if p.kind == 'tower':
+        if not p.floor:
+            return 'World/Hatchery Heist/Apartment tower/Roof'
+        return f'World/Hatchery Heist/Apartment tower/Floor {p.floor:02d} {THEMES[p.floor - 1]}'
     return FOLDER.get(p.kind, 'World/Hatchery Heist/Other')
 
 
@@ -227,7 +232,7 @@ def build_one(pid, out, designs, fast, worldart):
         plo, phi = bounds([pob])
         aim(co, plo, phi)
         render(s, os.path.join(d, 'parts.png'), 360 if fast else 640)
-    meta = dict(id=pid, game='Hatchery Heist', kind=p.kind, direction='Storybook Farm', note=p.note,
+    meta = dict(id=pid, game='Hatchery Heist', kind=p.kind, direction='Storybook Farm centre, cozy apartment towers', note=p.note,
                 sizeStuds=[round(size.x, 2), round(size.z, 2), round(size.y, 2)], voxelStuds=vkit.VOX, meshTris=tris,
                 partsVoxelStuds=worldart.get(pid, {}).get('voxel'),
                 partsBoxes=sum(len(pp['boxes']) // 7 for pp in worldart.get(pid, {}).get('parts', [])),

@@ -229,6 +229,19 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
 
 - The shop opens on its **Coins** tab (next incubator, free shield, traps,
   decoy egg, belt eggs); Robux items are the second tab.
+- **Golden Egg Shop** (`src/server/ShopHouse.luau`, `config/shophouse.luau`,
+  art and room layout in `src/shared/ShopArt.luau` from
+  `tools/art/world/shop.py`): a walk-in storybook shop in the yard (angle
+  22.5, radius 62, door toward the Golden Nest) where every Robux item in the
+  Shop window stands on its own display: the four coin packs from a pouch to
+  a treasure hoard on one wall, Auto-Collect, Extra Incubators, Double Coins
+  and Shield Refill on the other, a counter with a Hamster shopkeeper at the
+  back. Each plinth's tag shows the name, a line on what it does and the
+  price from Roblox ("Owned" for a pass the player has, "Coming soon" for an
+  item not on Roblox yet). Its Buy prompt sends the same `Shop:Buy` as the
+  Shop window (source `GoldenEggShop`), so the server re-checks everything.
+  An item with random results never goes on a display (`ShopPlan`): it stays
+  in the Shop window behind its odds screen.
 - Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect.
 - Products: three coin packs, Shield Refill (adds `shieldSeconds`), Instant
   Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare and better
