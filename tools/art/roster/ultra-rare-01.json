@@ -238,6 +238,12 @@
      "glow": true
     },
     {
+     "kind": "iris_eyes",
+     "color": "#FFA62B",
+     "color2": "#2A1408",
+     "iris_glow": true
+    },
+    {
      "kind": "mend",
      "color": "#000000"
     }
@@ -254,31 +260,23 @@
     "belly": "#FFFFFF",
     "beak": "#7FB8E0",
     "wing": "#C8E2F7",
+    "tail": "#C8E2F7",
     "feet": "#7FB8E0",
     "glow": "#9FE4FF"
    },
    "options": {
-    "big_eyes": true
+    "big_eyes": true,
+    "wing_span": 2.2
    },
-   "patterns": [
-    {
-     "kind": "tips",
-     "color": "#9FE4FF",
-     "parts": [
-      "wingL",
-      "wingR"
-     ],
-     "glow": true
-    }
-   ],
    "accessories": [
     {
      "kind": "facial_disc",
-     "color": "#A8CDEB"
+     "color": "#CFE0F0"
     },
     {
-     "kind": "glow_eyes",
-     "color": "#5FD3FF"
+     "kind": "iris_eyes",
+     "color": "#6CC8FF",
+     "color2": "#16253A"
     },
     {
      "kind": "owl_tufts",
@@ -288,6 +286,11 @@
     {
      "kind": "snowflakes",
      "color": "#BDF2FF"
+    },
+    {
+     "kind": "zigzag_tips",
+     "color": "#5FB4EC",
+     "color2": "#BFF0FF"
     },
     {
      "kind": "mend",
@@ -361,7 +364,8 @@
    "accessories": [
     {
      "kind": "bolt_mark",
-     "color": "#FFE84A"
+     "color": "#FFE84A",
+     "glow": true
     },
     {
      "kind": "mend",
@@ -496,8 +500,13 @@
    },
    "accessories": [
     {
+     "kind": "sheep_ears",
+     "color": "#8A94A8",
+     "color2": "#F2B8C6"
+    },
+    {
      "kind": "raindrops",
-     "color": "#7FD4FF"
+     "color": "#3FA9F5"
     },
     {
      "kind": "cloud_hump",
