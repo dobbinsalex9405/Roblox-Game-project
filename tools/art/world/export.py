@@ -158,9 +158,12 @@ def export(only=None):
         part_lines = []
         total = 0
         dump[pid] = dict(voxel=round(VOX * f, 3), palette=palette, parts=[])
+        present = {x[0] for x in parts if x[4]}
         for name, anim, parent, pivot, v in parts:
             if not v:
                 continue
+            if parent not in present:
+                parent = None
             bx = boxes_of({k: (PAL[c][0], PAL[c][1] > 0) for k, c in v.items()})
             total += len(bx)
             flat = []
