@@ -148,6 +148,14 @@ function walkDrops(root) {
   return found;
 }
 
+function mtimeOf(file) {
+  try {
+    return new Date(fs.statSync(file).mtimeMs).toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+}
+
 function readJson(file) {
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -258,14 +266,23 @@ async function build(opts) {
       byKey.set(key, item);
       items.push(item);
     }
+    // Other threads write drops while a build runs: a file that vanished or
+    // is half written is skipped this time and picked up by the next build.
     const glbs = drop.files
       .filter((f) => f.toLowerCase().endsWith(".glb"))
-      .map((f) => ({ f, mtime: fs.statSync(path.join(drop.dir, f)).mtimeMs }))
+      .map((f) => {
+        try {
+          return { f, mtime: fs.statSync(path.join(drop.dir, f)).mtimeMs, raw: fs.readFileSync(path.join(drop.dir, f)) };
+        } catch {
+          return null;
+        }
+      })
+      .filter((g) => g && g.raw.length > 0)
       .sort((a, b) => b.mtime - a.mtime);
     const meta = readJson(path.join(drop.dir, "meta.json"));
     const added = [];
-    for (const { f, mtime } of glbs) {
-      const bytes = await compressGlb(fs.readFileSync(path.join(drop.dir, f)));
+    for (const { f, mtime, raw } of glbs) {
+      const bytes = await compressGlb(raw);
       const hash = hashOf(bytes);
       writeOnce(
         path.join(dataDir, "models", `${hash}.js`),
@@ -291,7 +308,12 @@ async function build(opts) {
       .slice(0, MAX_IMAGES);
     for (const f of images) {
       const full = path.join(drop.dir, f);
-      const bytes = fs.readFileSync(full);
+      let bytes;
+      try {
+        bytes = fs.readFileSync(full);
+      } catch {
+        continue;
+      }
       const file = `data/images/${hashOf(bytes)}${path.extname(f).toLowerCase()}`;
       writeOnce(path.join(opts.out, file), bytes);
       if (drop.pictures) {
@@ -301,7 +323,7 @@ async function build(opts) {
           kind: "image",
           file,
           bytes: bytes.length,
-          updated: new Date(fs.statSync(full).mtimeMs).toISOString(),
+          updated: mtimeOf(full),
           source: path.join(...drop.rel, f),
         });
       } else {
