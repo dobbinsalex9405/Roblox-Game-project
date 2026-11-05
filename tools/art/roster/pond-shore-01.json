@@ -1,0 +1,28 @@
+{
+  "note": "Commons batch: pond and shore (Nov 5). New plans in kit_pond.py: shore (starfish, urchin, hermit, lobster, seal, walrus, newt, beaver, platypus).",
+  "creatures": [
+    {"id": "Bullfrog", "rarity": "Common", "plan": "blob", "colors": {"col": "#4E8F3A", "accent": "#E9E07A"}, "options": {"kind": "frog"}, "shape": {"body": [1.25, 1.2, 1.0], "head": 1.1}, "patterns": [{"kind": "spots", "color": "#3D7430"}]},
+    {"id": "TreeFrog", "rarity": "Common", "plan": "blob", "colors": {"col": "#7CE04A", "accent": "#FFF2B0"}, "options": {"kind": "frog"}, "shape": {"body": [0.9, 0.95, 1.05], "head": 1.2}, "patterns": [{"kind": "socks", "color": "#FF9A3C"}]},
+    {"id": "Newt", "rarity": "Common", "plan": "shore", "colors": {"col": "#7A8A44", "belly": "#FF8A2B"}, "options": {"kind": "newt"}, "patterns": [{"kind": "spots", "color": "#3E4A22", "parts": ["body", "tail"]}]},
+    {"id": "Salamander", "rarity": "Common", "plan": "shore", "colors": {"col": "#E8673A", "belly": "#FFB27A"}, "options": {"kind": "newt"}, "shape": {"head": 1.1}, "patterns": [{"kind": "spots", "color": "#8A2E1A", "parts": ["body", "head", "tail"]}]},
+    {"id": "Cygnet", "rarity": "Common", "plan": "bird", "colors": {"col": "#BDB9B2", "belly": "#DCD9D3", "beak": "#4A4A55", "feet": "#4A4A55"}, "options": {"bill": true}, "shape": {"body": [1.1, 1.05, 1.0], "head": 1.05}},
+    {"id": "Kingfisher", "rarity": "Common", "plan": "bird", "colors": {"col": "#2E8BD8", "belly": "#FF8A3D", "beak": "#2A2433", "wing": "#1E6FB8", "feet": "#FF6A3D"}, "shape": {"body": [0.95, 1.0, 0.95], "head": 1.15}},
+    {"id": "HeronChick", "rarity": "Common", "plan": "bird", "colors": {"col": "#A9B4C2", "belly": "#E6EBF0", "beak": "#FFC93C", "crest": "#6A7686", "feet": "#C9B26A"}, "options": {"tuft": true}, "shape": {"body": [0.85, 0.95, 1.2]}},
+    {"id": "Mallard", "rarity": "Common", "plan": "bird", "colors": {"col": "#8A6A3E", "belly": "#F2D27A", "beak": "#4A4030", "wing": "#6E5530"}, "options": {"bill": true}, "patterns": [{"kind": "tips", "color": "#5E4A2A", "parts": ["head"]}]},
+    {"id": "BeaverKit", "rarity": "Common", "plan": "shore", "colors": {"col": "#8A5A3C", "belly": "#C9A27E", "accent": "#4A3A33"}, "options": {"kind": "beaver"}, "shape": {"body": [1.1, 1.0, 1.0], "head": 1.05}},
+    {"id": "Platypus", "rarity": "Common", "plan": "shore", "colors": {"col": "#7A5A44", "belly": "#B08A6A", "accent": "#3E3E4A"}, "options": {"kind": "platypus"}, "shape": {"body": [1.1, 1.15, 0.9]}},
+    {"id": "WaterVole", "rarity": "Common", "plan": "quadruped", "colors": {"col": "#7A6250", "belly": "#B9A08A", "snout": "#B9A08A", "tail_col": "#5A4A3E"}, "options": {"ears": "round", "tail": "long"}, "shape": {"body": [1.1, 1.0, 0.95], "head": 1.1}},
+    {"id": "SealPup", "rarity": "Common", "plan": "shore", "colors": {"col": "#F4F1EA", "belly": "#FFFFFF", "accent": "#D8D3C8"}, "options": {"kind": "seal"}},
+    {"id": "HarborSeal", "rarity": "Common", "plan": "shore", "colors": {"col": "#8C96A3", "belly": "#C9D0D8", "accent": "#6A7480"}, "options": {"kind": "seal"}, "patterns": [{"kind": "spots", "color": "#6E7884", "parts": ["body", "head"]}]},
+    {"id": "WalrusPup", "rarity": "Common", "plan": "shore", "colors": {"col": "#B0785A", "accent": "#8A5A44"}, "options": {"kind": "walrus"}, "shape": {"body": [1.15, 1.0, 1.0]}},
+    {"id": "Starfish", "rarity": "Common", "plan": "shore", "colors": {"col": "#FF8A4D", "accent": "#FFD0A8", "belly": "#FFB27A"}, "options": {"kind": "starfish"}},
+    {"id": "SeaUrchin", "rarity": "Common", "plan": "shore", "colors": {"col": "#7A4FB8", "accent": "#B48CFF", "belly": "#5A3A8A"}, "options": {"kind": "urchin"}},
+    {"id": "HermitCrab", "rarity": "Common", "plan": "shore", "colors": {"col": "#FF7A5A", "accent": "#F2B880", "belly": "#C97A4A"}, "options": {"kind": "hermit"}},
+    {"id": "Lobster", "rarity": "Common", "plan": "shore", "colors": {"col": "#D9432F", "accent": "#FF7A5A", "belly": "#FFC2A8"}, "options": {"kind": "lobster"}},
+    {"id": "Crayfish", "rarity": "Common", "plan": "shore", "colors": {"col": "#3F6FB8", "accent": "#7FA8E0", "belly": "#C9DCF2"}, "options": {"kind": "lobster"}, "shape": {"body": [1.0, 0.9, 1.05], "head": 1.1}},
+    {"id": "FiddlerCrab", "rarity": "Common", "plan": "crab", "colors": {"col": "#8A5AB8", "accent": "#FFB35A"}, "shape": {"body": [1.15, 0.95, 0.95]}},
+    {"id": "GullChick", "rarity": "Common", "plan": "bird", "colors": {"col": "#C9C4B8", "belly": "#E8E4DA", "beak": "#3A3A3A", "feet": "#8A8478"}, "shape": {"body": [1.1, 1.05, 1.0]}, "patterns": [{"kind": "spots", "color": "#8A8478", "parts": ["body", "head"]}]},
+    {"id": "SeaTurtle", "rarity": "Common", "plan": "blob", "colors": {"col": "#8FD3C0", "accent": "#3E8E7E"}, "options": {"kind": "turtle"}, "shape": {"body": [1.1, 1.15, 0.9], "head": 1.1}},
+    {"id": "Sandpiper", "rarity": "Common", "plan": "bird", "colors": {"col": "#B89A72", "belly": "#FFFFFF", "beak": "#3A3A3A", "feet": "#3A3A3A"}, "shape": {"body": [0.85, 0.95, 0.95]}, "patterns": [{"kind": "saddle", "color": "#8A6E4A"}]}
+  ]
+}

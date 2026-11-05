@@ -9,6 +9,9 @@ the ROSTER, so a new Common needs no code. One entry:
 
 - **plan** is a body plan, and `colors` and `options` are its arguments
   (PLANS below lists them). Colours are "#RRGGBB".
+  kit_pond.py adds `critter` (dragonfly, ant, grasshopper, spider, firefly,
+  pillbug, worm, slug, mantis) and `shore` (starfish, urchin, hermit,
+  lobster, seal, walrus, newt, beaver, platypus); both take `kind`.
 - **shape** changes proportions: `"body": [width, length, height]` (0.8 to
   1.35 each) and `"head"` (0.8 to 1.3), so one plan makes many silhouettes.
 - **patterns** paint the body after it is built: spots, stripes, socks,
@@ -48,6 +51,13 @@ PLANS = {
     'bug': ({'col', 'accent', 'wing'}, {'kind': {'bee', 'butterfly', 'beetle', 'caterpillar'}}),
     'crab': ({'col', 'accent'}, {}),
 }
+# More plans, each kit in its own module so batches add plans without editing
+# the same lines: kit_pond (critter, shore).
+sys.path.insert(0, HERE)
+import kit_pond  # noqa: E402
+
+PLANS.update(kit_pond.PLANS)
+EXTRA_BUILDERS = dict(kit_pond.BUILDERS)
 PATTERNS = {'spots', 'stripes', 'socks', 'saddle', 'tips', 'back'}
 ACCESSORIES = {'beanie', 'bow', 'flower', 'sprout', 'scarf', 'bell', 'horns', 'beard'}
 HEX = re.compile(r'^#[0-9A-Fa-f]{6}$')
@@ -88,7 +98,7 @@ def check(entry, where):
             bad(f'{sid}: {plan} has no option "{name}" (it has {sorted(options)})')
         if v not in options[name]:
             bad(f'{sid}: option {name} = {v!r}; allowed {sorted(map(str, options[name]))}')
-    if plan in ('blob', 'bug') and 'kind' not in entry.get('options', {}):
+    if plan in ('blob', 'bug', 'critter', 'shore') and 'kind' not in entry.get('options', {}):
         bad(f'{sid}: a {plan} needs options.kind')
     sh = entry.get('shape', {})
     for key in sh:
@@ -160,6 +170,8 @@ def builder(entry):
             kit.bug(c, H, opts['kind'], cols['col'], cols.get('accent', kit.INK), cols.get('wing'))
         elif plan == 'crab':
             kit.crab(c, H, cols['col'], cols.get('accent', cols['col']))
+        elif plan in EXTRA_BUILDERS:
+            EXTRA_BUILDERS[plan](c, H, dict(cols), opts)
         sh = entry.get('shape')
         if sh:
             kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))

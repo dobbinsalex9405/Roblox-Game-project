@@ -10,6 +10,7 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
 | `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
 | `kit.py` | The variant kit: bug and crab plans, `shape`, patterns, accessories |
+| `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
 

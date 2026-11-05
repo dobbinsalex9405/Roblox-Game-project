@@ -2,6 +2,24 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Pond, shore and garden-bug Commons (Hatchery Heist)
+
+- **42 Commons as data** in `tools/art/roster/pond-shore-01.json` and
+  `garden-bugs-01.json`, one of three themed batches (the others: farm and
+  woodland, pets and exotic), so no animal appears twice.
+- **Two new plans in their own module, `kit_pond.py`** (`critter`, `shore`),
+  registered in `variants.py` with one `PLANS.update`. A module per batch
+  keeps parallel batch PRs off the same lines. Recolours of an existing plan
+  were kept to a few (a Commons pool of hundreds needs new silhouettes).
+- **No fish yet.** Creatures stand and wander on floors and have no hover
+  for Commons, so koi, goldfish and pufferfish wait for a swim or hover
+  animation (or a bowl prop). Pond and shore animals that walk, sit or
+  crawl filled the batch instead.
+- **The Firefly's tail glows** although glow normally starts at Ultra Rare:
+  a firefly without its light does not read. It is one small `lamp` part.
+- **Dark bodies need a light colour** around ink eyes (Salamander became a
+  red eft, the Jumping Spider is lavender): ink eyes vanish on near-black.
+
 ## 2026-11-05: Hatchery Heist world art direction and format
 
 - **Storybook Farm look.** Three directions were rendered (Storybook Farm,
