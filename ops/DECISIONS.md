@@ -2,6 +2,33 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The 18 new Godlies from the master sheet (Hatchery Heist)
+
+- **Hand-built, like the legends**, not roster data: tools/art/godlies.py
+  lists them (id, element) and creatures.py adds them to the ROSTER and to
+  FINER (1.6x, the Godly standard). godly_beasts.py draws the ones on legs,
+  godly_skies.py the fliers, floaters and swimmers; godly_common.py holds
+  the shared pieces (eyes proud of the face in a `blink` part, legs as leg
+  parts, wings, the orbit). The game picks one up when config/creatures.luau
+  lists it.
+- **One `orbit` part each, placed by `orbit_ring`**: every piece sits just
+  outside everything else at its height (plus room for the head and wings),
+  and the sweep stays at or under 0.8x the creature's height; a piece that
+  cannot fit is a build error, never a silent overlap. A round floater (the
+  Cosmic Whale) may carry its moons above its back; the added height counts.
+- **Long or wide bodies are drawn a little smaller** (Solar Lion, Omega
+  Chimera, Magma Behemoth, World Turtle, Crystal Hydra, the dragons) to stay
+  inside 100k triangles; round floaters a little bigger (Cosmic Whale,
+  Crystal Swan, Hurricane Roc) so their voxels match the rest once the game
+  scales every Godly to 6 studs.
+- **Long bodies stand up to fit a 3-spot area**: the Clockwork Leviathan
+  rises in a U (head high at the front, flukes high at the back) and the
+  Cosmic Whale swims nose-up (godly_common.tilt), so neither is longer than
+  the 10-stud depth once scaled.
+- **They hover** (rig: Legendary and Godly always hover); legs, tentacles
+  (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
+  so the hover pose tucks and paddles them.
+
 ## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
 
 - **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
