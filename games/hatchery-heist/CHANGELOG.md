@@ -7,6 +7,8 @@
   little worlds (a ringed planet, an ocean world, a lava world and a moon)
   circling it. It and the Golden Goose are each one solid piece, so
   nothing floats loose when they hover.
+- Glowing paw soles and other small glowing bits on creatures no longer go
+  missing after upload: each glow piece is now a closed shape.
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.
@@ -53,6 +55,7 @@
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.
+
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala
