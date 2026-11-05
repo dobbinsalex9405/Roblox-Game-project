@@ -83,3 +83,13 @@ FAIL on one item (phone clipping), everything else PASS.
 - Daily Rewards at 844x392: Day 5/6 labels 16 px, amounts 18 px, "coins" 13 px, intro 14 px,
   nothing clipped.
 - Output: no errors.
+
+## Re-gate: #59 at 5f170e4
+
+PASS on the gate items, with one spec note. At 844x392 the every-creature list opens below the HUD
+coin bar (window top y 80, bar bottom 72) and no row text is clipped (24 labels checked); the
+right-aligned numbers end 1 px before the scroll bar rather than the intended 10 px, so they sit
+tight against it (`59b-hh-every-creature-phone`). All creature `assetId`s are still 0, so no
+uploaded-mesh creature exists to check; the voxel Chick (2.0 studs) and Phoenix (3.4 studs) render
+with the new height maths, and the Phoenix ride is 4.4 studs with the rider seated on top, no glow.
+Output: no errors.
