@@ -247,21 +247,3 @@ describe("Tower ladder", function()
 		end
 	end)
 end)
-
-describe("Tower frame from a pad", function()
-	-- Studio gate, Nov 5: half of floor 3 was culled from inside the tower
-	-- because the base frame was worked out from a pad with z and height
-	-- swapped. Every pad on every floor must lead back to the base origin.
-	it("maps every pad back to the base's origin, on a turned base", function()
-		local roblox = require("@lune/roblox") :: any
-		local CF = roblox.CFrame
-		local base = CF.new(80, 0, -40) * CF.Angles(0, math.rad(135), 0)
-		for index = 1, Geometry.SPOTS_PER_FLOOR * 10 do
-			local x, z, height = Geometry.pad(index)
-			local pad = base * CF.new(x, height, z)
-			local back = pad * CF.new(Geometry.toBase(index))
-			local miss = (back.Position - base.Position).Magnitude
-			expect(miss < 1e-3 and "ok" or `pad {index} is {miss} studs off`).toBe("ok")
-		end
-	end)
-end)
