@@ -5,6 +5,7 @@
 - Phones: pool rows show their status in readable text instead of
   shrinking it to a few pixels; bait buttons pop when tapped, mark the
   chosen bait with a tick and say why an empty bait can't be picked.
+- Phones: every window's close button (X) is 40 by 40 px.
 - Fixed (shared core): the game now starts in Studio from a built place
   file. The error queue, feedback and metrics stores no longer stop the
   server when DataStores are unavailable (an unpublished place); they warn

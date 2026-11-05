@@ -7,6 +7,7 @@
   Studio straight away. Studio only; a live server never runs it.
 - Phones: shop buttons are 40 px tall (thumb-sized), and every shop card
   reads top to bottom (name, description, price, button).
+- Phones: every window's close button (X) is 40 by 40 px.
 - Fixed (#49): a server error on every frame while any base had no guard
   (every new player), which also stopped every other base's guard from
   moving. The boot check now plays 30 frames, so per-frame errors fail CI.

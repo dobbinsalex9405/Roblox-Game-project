@@ -213,8 +213,8 @@ function Hud.start(ctx: Context.Context): Api
 	bucket.Visible = false
 	local bucketTitle = Ui.label(bucket, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	bucketTitle.TextXAlignment = Enum.TextXAlignment.Left
-	local close = Ui.button(bucket, "Close", "X", UDim2.fromOffset(40, 34), Ui.WARN)
-	close.Position = UDim2.new(1, -46, 0, 4)
+	local close = Ui.button(bucket, "Close", "X", UDim2.fromOffset(40, 40), Ui.WARN)
+	close.Position = UDim2.new(1, -46, 0, 2)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Name = "List"
 	scroll.Size = UDim2.new(1, -12, 1, -110)

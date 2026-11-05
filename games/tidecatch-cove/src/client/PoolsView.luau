@@ -34,8 +34,8 @@ function PoolsView.start(ctx: Context.Context, hud: Hud.Api)
 	fit.Parent = panel
 	local title = Ui.label(panel, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	title.TextXAlignment = Enum.TextXAlignment.Left
-	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 34), Ui.WARN)
-	close.Position = UDim2.new(1, -46, 0, 4)
+	local close = Ui.button(panel, "Close", "X", UDim2.fromOffset(40, 40), Ui.WARN)
+	close.Position = UDim2.new(1, -46, 0, 2)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Name = "List"
 	scroll.Size = UDim2.new(1, -12, 1, -110)

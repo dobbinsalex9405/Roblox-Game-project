@@ -136,9 +136,11 @@ function UiKit.window(gui: ScreenGui, title: string, onClose: () -> ()): (Frame,
 	local heading = UiKit.label(window, title, 40, true)
 	heading.Position = UDim2.fromOffset(14, 4)
 	heading.Size = UDim2.new(1, -70, 0, 40)
-	local close = UiKit.button(window, "X", 36, 32, UiKit.WARN)
+	-- Thumb-sized (40 px), inside the top-right corner, clear of the title
+	-- (which ends 56 px from the right) and of the body (from y = 48).
+	local close = UiKit.button(window, "X", UiKit.TOUCH, UiKit.TOUCH, UiKit.WARN)
 	close.AnchorPoint = Vector2.new(1, 0)
-	close.Position = UDim2.new(1, -8, 0, 8)
+	close.Position = UDim2.new(1, -6, 0, 6)
 	close.Activated:Connect(onClose)
 
 	local body = Instance.new("ScrollingFrame")
