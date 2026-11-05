@@ -476,31 +476,17 @@
   {
    "id": "Ermine",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "colors": {
     "col": "#FCFCFF",
     "snout": "#FFFFFF",
-    "ear_col": "#FCFCFF",
-    "tail_col": "#FCFCFF"
+    "accent": "#1F1F2A"
    },
    "options": {
-    "ears": "round",
-    "tail": "long"
-   },
-   "shape": {
-    "body": [
-     0.85,
-     1.35,
-     0.85
-    ],
-    "head": 0.9
+    "kind": "ermine"
    },
    "accessories": [
-    {
-     "kind": "tailtip",
-     "color": "#1F1F2A"
-    },
     {
      "kind": "flakes",
      "color": "#CFEFFF"
@@ -510,129 +496,69 @@
   {
    "id": "MuskOxCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "colors": {
     "col": "#4A3428",
-    "snout": "#B8A890"
+    "snout": "#B8A890",
+    "accent": "#D8CCB0",
+    "glow": "#FFF4D6"
    },
    "options": {
-    "ears": "round",
-    "tail": "short"
+    "kind": "muskox"
    },
-   "shape": {
-    "body": [
-     0.933,
-     0.887,
-     0.887
-    ],
-    "head": 0.887
-   },
-   "accessories": [
-    {
-     "kind": "longfur",
-     "color": "#3E2A20"
-    },
-    {
-     "kind": "curlhorns",
-     "color": "#D8CCB0",
-     "color2": "#FFF4D6"
-    }
-   ]
+   "accessories": []
   },
   {
    "id": "SeaOtter",
    "rarity": "Rare",
-   "plan": "quadruped",
-   "gait": "trot",
+   "plan": "mammal",
+   "gait": "swim",
    "colors": {
     "col": "#8A5A3A",
     "belly": "#C89A72",
     "snout": "#E8D2B8",
-    "tail_col": "#7A4E32"
+    "tail_col": "#7A4E32",
+    "accent": "#FFC8B0",
+    "glow": "#F4FBFF"
    },
    "options": {
-    "ears": "round",
-    "tail": "long"
+    "kind": "otter"
    },
-   "shape": {
-    "body": [
-     1.0,
-     1.15,
-     0.95
-    ]
-   },
-   "accessories": [
-    {
-     "kind": "shellheld",
-     "color": "#FFC8B0",
-     "color2": "#E89A80"
-    }
-   ]
+   "accessories": []
   },
   {
    "id": "CamelCalf",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "colors": {
     "col": "#D8A86A",
     "belly": "#F2D6A8",
     "snout": "#F2D6A8",
-    "tail_col": "#B8864A"
+    "tail_col": "#B8864A",
+    "accent": "#FFD24A"
    },
    "options": {
-    "ears": "round",
-    "tail": "long"
+    "kind": "camel"
    },
-   "shape": {
-    "body": [
-     0.921,
-     1.067,
-     1.018
-    ],
-    "head": 0.97
-   },
-   "accessories": [
-    {
-     "kind": "hump",
-     "color": "#D8A86A"
-    },
-    {
-     "kind": "tailtip",
-     "color": "#7A5230"
-    }
-   ]
+   "accessories": []
   },
   {
    "id": "SandCat",
    "rarity": "Rare",
-   "plan": "quadruped",
+   "plan": "mammal",
    "gait": "trot",
    "colors": {
     "col": "#E8C890",
     "belly": "#FFF2D8",
-    "snout": "#FFF2D8",
-    "ear_col": "#E8C890"
+    "accent": "#9A7448",
+    "glow": "#FFB24A"
    },
    "options": {
-    "ears": "big",
-    "tail": "striped"
+    "kind": "sandcat"
    },
-   "shape": {
-    "body": [
-     0.921,
-     0.892,
-     0.892
-    ],
-    "head": 1.067
-   },
-   "accessories": [
-    {
-     "kind": "leggings",
-     "color": "#9A7448"
-    }
-   ]
+   "accessories": []
   },
   {
    "id": "GilaMonster",
@@ -665,7 +591,12 @@
      ]
     }
    ],
-   "accessories": []
+   "accessories": [
+    {
+     "kind": "mirrorbody",
+     "color": "#2A2028"
+    }
+   ]
   },
   {
    "id": "Peachick",
@@ -716,6 +647,10 @@
     {
      "kind": "throat",
      "color": "#FF2E6E"
+    },
+    {
+     "kind": "hoverwings",
+     "color": "#7FE0B0"
     }
    ]
   },

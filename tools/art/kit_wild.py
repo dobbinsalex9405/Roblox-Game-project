@@ -1977,7 +1977,109 @@ def flamehair(c, H, col, col2=None):
     part.paint(lambda p, cc, g: (core, True) if abs(p[0] + .5) < 0.35 * k + .5 and p[2] < zt + 1.3 * k else None)
 
 
+def mirrorbody(c, H, col=None, col2=None):
+    """Makes the body (and the legs drawn into it) an exact mirror of its
+    right half, so the legs split from it match left and right."""
+    b = kit._find(c, 'body')
+    if b and b.v:
+        _mirror_exact(b)
+
+
+def _mirror_exact(part):
+    right = {p: v for p, v in part.v.items() if p[0] >= 0}
+    part.v = dict(right)
+    for (x, y, z), v in right.items():
+        part.v[(-x - 1, y, z)] = v
+
+
+def hoverwings(c, H, col, col2=None):
+    """A hummingbird's wings mid-beat: a pale blurred fan on each side,
+    streaked with faint arcs, and the whole bird lifted off the ground so it
+    clearly hovers (its little feet hang)."""
+    k = H / 10.0
+    lift = max(2, round(0.8 * k))
+    for p in c.parts:
+        _shift(p, dz=lift)
+    pale, streak = _mix(col, WHITE, 0.62), _mix(col, WHITE, 0.4)
+    wr, wl = kit._find(c, 'wingR'), kit._find(c, 'wingL')
+    if wr is None or wl is None:
+        return
+    px, py, pz = wr.pivot
+    wr.v, wl.v = {}, {}
+    R = 4.2 * k
+    y = math.floor(py)
+    for x in range(0, math.ceil(R) + 1):
+        for z in range(-math.ceil(0.6 * k), math.ceil(R) + 1):
+            d = math.hypot(x + .5, z + .5)
+            ang = math.degrees(math.atan2(z + .5, x + .5))
+            if d > R or d < 0.6 * k or not (-10 < ang < 80):
+                continue
+            # a blur: faint streaks fanning out, thicker near the tip
+            cc = streak if (int(ang + 10) // 18) % 2 == 0 and d > 1.4 * k else pale
+            q = (math.floor(px) + x, y, math.floor(pz) + z)
+            wr.put(q, cc)
+            if d > 0.7 * R:
+                wr.put((q[0], y + 1, q[2]), pale)
+    for (x, yy, z), v in wr.v.items():
+        wl.v[(-x - 1, yy, z)] = v
+    wl.pivot = (-px, py, pz)
+
+def clockshell(c, H, col, col2=None):
+    """A clockwork beetle's brass shell: each wing case is a big gear seen
+    from above (a toothed rim standing a voxel proud, a darker inner ring
+    with rivets, a hub), with darker brass panel seams down the middle.
+    col is the brass, col2 the darker brass of the panels."""
+    k = H / 10.0
+    shell = kit._find(c, 'shell')
+    if shell is None or not shell.v:
+        return
+    dark = col2 or _dark(col, 0.35)
+    rivet = _light(col, 0.45)
+    top = {}
+    for (x, y, z) in shell.v:
+        if z > top.get((x, y), -99):
+            top[(x, y)] = z
+    xs = [q[0] for q in top]
+    ys = [q[1] for q in top]
+    cy = (min(ys) + max(ys) + 1) / 2
+    half = max(xs) + 1  # the right case spans x 0 .. half
+    cx = half / 2
+    R = min(half / 2, (max(ys) - min(ys) + 1) / 2) * 0.98
+    teeth = 10
+    shell.paint(lambda p, cc, g: (col, False))
+    for (x, y), z in top.items():
+        if x < 0:
+            continue
+        dx, dy = x + .5 - cx, y + .5 - cy
+        r = math.hypot(dx, dy)
+        ang = math.atan2(dy, dx)
+        if x == 0:
+            cc = dark  # the seam down the middle
+        elif r < 0.25 * R + .5:
+            cc = dark
+        elif abs(r - 0.6 * R) < 0.55:
+            cc = rivet if int((ang + math.pi) / (2 * math.pi) * 8 + .5) % 2 == 0 and _h(x, y) % 2 == 0 else dark
+        else:
+            cc = col
+        shell.v[(x, y, z)] = (cc, False)
+        if 0.72 * R < r <= R + 0.5 and int((ang + math.pi) / (2 * math.pi) * teeth * 2) % 2 == 0:
+            shell.v[(x, y, z + 1)] = (_light(col, 0.15), False)  # the teeth stand a voxel proud
+    right = {p: v for p, v in shell.v.items() if p[0] >= 0}
+    shell.v = dict(right)
+    for (x, y, z), v in right.items():
+        shell.v[(-x - 1, y, z)] = v
+
+
+def _h(*a):
+    v = 2166136261
+    for x in a:
+        v = ((v ^ (int(x) & 0xFFFFFFFF)) * 16777619) & 0xFFFFFFFF
+    return v
+
+
 ACCESSORIES = {
+    'clockshell': clockshell,
+    'mirrorbody': mirrorbody, 'hoverwings': hoverwings,
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'giraffepatches': giraffepatches, 'banana': banana, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
     'glowstripe': glowstripe, 'colorglow': colorglow, 'gills': gills, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,

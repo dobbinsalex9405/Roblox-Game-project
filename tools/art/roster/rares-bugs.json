@@ -187,13 +187,18 @@
     "kind": "beetle"
    },
    "colors": {
-    "col": "#B87333",
-    "accent": "#5A3A1E"
+    "col": "#C9A23A",
+    "accent": "#6A4E1A"
    },
    "accessories": [
     {
+     "kind": "clockshell",
+     "color": "#D9B048",
+     "color2": "#8F6A1E"
+    },
+    {
      "kind": "gear",
-     "color": "#E0B040",
+     "color": "#E8C050",
      "color2": "#5CF2FF"
     }
    ]
