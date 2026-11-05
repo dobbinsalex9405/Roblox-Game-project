@@ -264,11 +264,12 @@ def tail_flame(c, H, col, col2=None):
         tongue(c.part('tail'), (0, tip[1] - 0.3 * k, tip[2] - 0.2 * k), 2.4 * k, 1.0 * k, col, col2 or hexc('#FFE14D'))
 
 
-def cracks(c, H, col, col2=None):
+def cracks(c, H, col, col2=None, a=None):
     """Branching cracks over the body and head (lava seams, stone cracks).
-    Add "glow": true for lava."""
+    Add "glow": true for lava; "parts" limits them (e.g. ["body"] keeps the
+    face clear)."""
     k = H / 10.0
-    for name in ('body', 'head', 'shell'):
+    for name in (a or {}).get('parts', ('body', 'head', 'shell')):
         part = _find(c, name)
         if not part or not part.v:
             continue
@@ -386,7 +387,7 @@ def gem_studs(c, H, col, col2=None):
                             body.put((_mx(q[0]), q[1], q[2]), colr, True)
 
 
-def facets(c, H, col, col2=None):
+def facets(c, H, col, col2=None, a=None):
     """Carved crystal: flat facets in two tones over the body and head (a
     rose-quartz fox, a ruby hound), with a few glinting points. Only in the
     fine (mesh) build: at in-game box size the facets would shatter the
@@ -394,9 +395,10 @@ def facets(c, H, col, col2=None):
     if not getattr(c, 'fine', False):
         return
     k = H / 10.0
+    a = a or {}
     col2 = col2 or _dark(col, 0.25)
     s = max(2, round(1.2 * k))
-    for name in ('body', 'head', 'tail', 'ears', 'shell'):
+    for name in a.get('parts', ('body', 'head', 'tail', 'ears', 'shell')):
         part = _find(c, name)
         if not part:
             continue
@@ -408,10 +410,131 @@ def facets(c, H, col, col2=None):
             h = _hash(*cell, 17) % 3
             return ((col, False), (col2, False), (_light(col, 0.3), False))[h]
         part.paint(face)
-        for p in _surface(part):
+        for p in _surface(part) if a.get('glints', True) else ():
             if _hash(*p, 41) % 97 == 0:
                 part.put(p, WHITE, True)
                 part.put((_mx(p[0]), p[1], p[2]), WHITE, True)
+
+
+def mandibles(c, H, col, col2=None):
+    """An ant's mandibles: two small dark pincers under the front of the
+    head, curving in toward each other (col, default near-black)."""
+    k = H / 10.0
+    head = head_of(c)
+    if not head or not head.v:
+        return
+    zs = [p[2] for p in head.v]
+    z0, z1 = min(zs), max(zs)
+    zm = math.floor(z0 + (z1 - z0) * 0.22)
+    front = [p for p in head.v if p[2] in (zm, zm + 1) and p[0] >= 0]
+    if not front:
+        return
+    yf = min(p[1] for p in front)
+    x0 = max(2, round(0.8 * k))
+    L = max(2, round(0.9 * k))
+    dark = _hexa(col, INK) if col else INK
+    for i in range(1, L + 1):
+        _put2(head, x0, yf - i, zm, dark)
+    # the tips hook inward, leaving a gap between them
+    _put2(head, x0 - 1, yf - L, zm, dark)
+
+
+def eye_shine(c, H, col=None, col2=None):
+    """Grows one-voxel eyes to 2x2 (outward and down) with a white shine
+    on the upper-left corner of both, for a light face where the automatic
+    contrast pass leaves tiny dots."""
+    eyes = _find(c, 'eyes')
+    if not eyes or not eyes.v:
+        return
+    ink = [q for q, (rgb, g) in eyes.v.items() if not g and sum(rgb) < 240]
+    right = [q for q in ink if q[0] >= 0]
+    if len(right) != 1 or len([q for q in ink if q[0] < 0]) != 1:
+        return
+    x, y, z = right[0]
+    rgb = eyes.v[right[0]][0]
+    others = [p for p in c.parts if p is not eyes]
+    for sx in (1, -1):
+        ex = x if sx > 0 else _mx(x)
+        cells = [(ex, z), (ex + sx, z), (ex, z - 1), (ex + sx, z - 1)]
+        shine = min(cells, key=lambda q: (-q[1], q[0]))  # upper left
+        for cx, cz in cells:
+            q = (cx, y, cz)
+            for p in others:
+                p.v.pop(q, None)
+            eyes.v[q] = (WHITE if (cx, cz) == shine else rgb, False)
+
+
+def wing_snowflakes(c, H, col, col2=None):
+    """A six-point snowflake (col) on the face of each raised wing,
+    with little side branches on every arm; mirrored on the two wings."""
+    k = H / 10.0
+    w = _find(c, 'wingR')
+    if not w or not w.v:
+        return
+    ys = [p[1] for p in w.v]
+    zs = [p[2] for p in w.v]
+    yc = (min(ys) + max(ys)) / 2 - 0.15 * (max(ys) - min(ys))
+    zc = (min(zs) + max(zs)) / 2 + 0.1 * (max(zs) - min(zs))
+    L = 0.46 * min(max(ys) - min(ys), max(zs) - min(zs))
+
+    def on_flake(dy, dz):
+        for i in range(6):
+            a = math.pi / 6 + i * math.pi / 3
+            ux, uz = math.cos(a), math.sin(a)
+            t = dy * ux + dz * uz
+            d = abs(-dy * uz + dz * ux)
+            if 0 <= t <= L and d < 0.72:
+                return True
+            # a V of side branches two thirds out each arm
+            for sgn in (-1, 1):
+                b = a + sgn * math.pi / 3
+                by, bz = dy - ux * L * 0.6, dz - uz * L * 0.6
+                tb = by * math.cos(b) + bz * math.sin(b)
+                db = abs(-by * math.sin(b) + bz * math.cos(b))
+                if 0 <= tb <= L * 0.4 and db < 0.62:
+                    return True
+        return dy * dy + dz * dz < 1.6
+    flake = [q for q in w.v if on_flake(q[1] + .5 - yc, q[2] + .5 - zc)]
+    wl = _find(c, 'wingL')
+    if col2:  # an even ground for the flake to read on
+        for part in (w, wl):
+            for q, (cc, g) in list((part.v if part else {}).items()):
+                part.v[q] = (col2, g)
+    for q in flake:
+        w.v[q] = (col, False)
+    if wl:
+        for q in flake:
+            m = (_mx(q[0]), q[1], q[2])
+            if m in wl.v:
+                wl.v[m] = (col, False)
+
+
+def amber_gaster(c, H, col, col2=None):
+    """An amber ant's rear: glowing honey-amber resin (col) with a lighter
+    core (col2) and a glossy white highlight on the upper front."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    ys = [p[1] for p in body.v]
+    y0, y1 = min(ys), max(ys)
+    cut = y0 + (y1 - y0) * 0.55
+    rear = [p for p in body.v if p[1] >= cut]
+    if not rear:
+        return
+    cy = sum(p[1] for p in rear) / len(rear)
+    rr = max(p[1] for p in rear) - cy + 0.5
+    core = col2 or _light(col, 0.4)
+    deep = _dark(col, 0.3)
+    zb, zt = min(p[2] for p in rear), max(p[2] for p in rear)
+    # resin lit from inside: deep amber below, glowing honey above
+    for p in rear:
+        t = (p[2] - zb) / max(1, zt - zb)
+        body.put(p, _mix(deep, col, t * 1.6) if t < 0.6 else _mix(col, core, (t - 0.6) / 0.4), t >= 0.45)
+    for p in _surface(body):
+        if p[1] >= cut and p[2] >= zt - 1 and abs(p[1] - (cy - 0.4 * rr)) <= 1 and 0 <= p[0] <= max(1, round(0.3 * k)):
+            body.put(p, WHITE, True)
+            body.put((_mx(p[0]), p[1], p[2]), WHITE, True)
 
 
 def whiskers(c, H, col, col2=None):
@@ -1006,12 +1129,23 @@ def raincoat(c, H, col, col2=None):
 # --------------------------------------------------------- cosmic and spirit
 
 def stars(c, H, col, col2=None):
-    """Tiny glowing stars speckled over the body, head, wings and tail."""
+    """Tiny glowing stars speckled over the body, head, wings and tail.
+
+    A star on the right side gets a twin at the mirrored spot. On a centre
+    part (body, head) the twin goes into the same part; on a sided part
+    (wingR, legFR) it goes into the sibling (wingL, legFL), and only onto a
+    voxel that is already there, so no part ever grows across the middle."""
     k = H / 10.0
     every = max(14, round(26 * 3 / max(1.0, k)))
+    by_name = {p.name: p for p in c.parts}
     for part in c.parts:
-        if part.name in ('eyes',) or part.name.startswith('leg') and False:
+        if part.name in ('eyes',):
             continue
+        twin = part
+        if part.name[-1:] in ('L', 'R'):
+            twin = by_name.get(part.name[:-1] + ('R' if part.name[-1] == 'L' else 'L'))
+            if part.name.endswith('L'):
+                continue    # handled from its right-hand sibling
         for p in _surface(part):
             if p[0] < 0:
                 continue
@@ -1019,7 +1153,9 @@ def stars(c, H, col, col2=None):
             if h % every == 0:
                 colr = col2 if (col2 and (h >> 8) % 3 == 0) else col
                 part.put(p, colr, True)
-                part.put((_mx(p[0]), p[1], p[2]), colr, True)
+                q = (_mx(p[0]), p[1], p[2])
+                if twin is not None and q in twin.v:
+                    twin.put(q, colr, True)
 
 
 def galaxy(c, H, col, col2=None):
@@ -1802,11 +1938,15 @@ def thorn_mane(c, H, col, col2=None):
             ball(part, tuple(p[j] + out[j] * 0.5 * k for j in range(3)), (0.35 * k, 0.35 * k, 0.35 * k), col2)
 
 
-def antlers(c, H, col, col2=None):
-    """Small branching antlers on any head (a jackalope's)."""
-    k = H / 10.0
+def antlers(c, H, col, col2=None, a=None):
+    """Small branching antlers on any head (a jackalope's). "size" scales
+    them (default 1); with col2 the tines end in that colour."""
+    k = H / 10.0 * float((a or {}).get('size', 1.0))
     y, zt = _crown(c)
     part = c.part('antlers', 'static')
+    if (a or {}).get('size'):
+        _antlers_big(part, k, y, zt, col, col2 or col)
+        return
     for sx in (-1, 1):
         a = (sx * 0.7 * k, y, zt - 0.2 * k)
         b = (sx * 1.3 * k, y + 0.2 * k, zt + 1.4 * k)
@@ -1816,6 +1956,22 @@ def antlers(c, H, col, col2=None):
         line(part, b, (sx * 2.0 * k, y, zt + 1.9 * k), col, r=0.15 * k + .2)
         line(part, ((a[0] + b[0]) / 2, y + 0.1 * k, (a[2] + b[2]) / 2), (sx * 0.4 * k, y - 0.4 * k, zt + 1.3 * k), col,
              r=0.14 * k + .2)
+
+
+def _antlers_big(part, k, y, zt, col, tip):
+    """Jackalope antlers that read at a glance: a main beam rising up and
+    out from the front of the crown (in front of long ears), then three
+    tines (front, top, back)."""
+    y -= 0.8 * k
+    for sx in (-1, 1):
+        base = (sx * 0.5 * k, y, zt - 0.3 * k)
+        mid = (sx * 1.2 * k, y - 0.2 * k, zt + 0.9 * k)
+        top = (sx * 1.9 * k, y - 0.1 * k, zt + 1.9 * k)
+        line(part, base, mid, col, r=0.17 * k + .2)
+        line(part, mid, top, col, r=0.14 * k + .2)
+        line(part, mid, (sx * 1.0 * k, y - 0.9 * k, zt + 1.6 * k), tip, r=0.1 * k + .2)
+        line(part, top, (sx * 1.8 * k, y - 0.6 * k, zt + 2.8 * k), tip, r=0.1 * k + .2)
+        line(part, top, (sx * 2.7 * k, y + 0.2 * k, zt + 2.5 * k), tip, r=0.1 * k + .2)
 
 
 def headdress(c, H, col, col2=None):
@@ -2594,6 +2750,121 @@ def monkey_face(c, H, col, col2=None):
                 ears.put((x, y, z), pale)
 
 
+def _tri(part, a, b, cc, col, crease=None, crease_col=None, glow=False):
+    """A flat triangle a-b-cc, one voxel thick, filled by dense sampling. An
+    optional crease runs from `crease` (a point on the triangle) to cc."""
+    n = max(4, int(max(abs(a[i] - cc[i]) + abs(b[i] - cc[i]) for i in range(3)) * 2.5))
+    for i in range(n + 1):
+        for j in range(n + 1 - i):
+            u, w = i / n, j / n
+            p = tuple(a[d] + (b[d] - a[d]) * u + (cc[d] - a[d]) * w for d in range(3))
+            part.put(tuple(math.floor(v) for v in p), col, glow)
+    if crease is not None:
+        line(part, crease, cc, crease_col or col, glow=True)
+
+
+def origami_crane(c, H, col, col2=None, a=None):
+    """A folded paper crane, the classic silhouette: a diamond body, a long
+    thin neck rising forward to a small folded head, a thin pointed tail
+    rising behind, and two flat triangular wings raised in a V, each on its
+    own side. Paper in col (top faces) and col2 (undersides, default a
+    shade darker), with glowing crease lines ("crease", default a pale
+    tint). Replaces the plan's body, head, tail, wings and legs."""
+    k = H / 10.0
+    a = a or {}
+    under = col2 or _dark(col, 0.15)
+    cr = _hexa(a.get('crease'), _light(col, 0.6))
+    for p in c.parts:
+        if p.name in ('body', 'head', 'eyes', 'tail', 'wingL', 'wingR', 'beak', 'crest', 'legL', 'legR'):
+            p.v = {}
+    body = c.part('body')
+    zc, yc = 2.4 * k, 0.6 * k
+    rx, ry, rt, rb = 1.8 * k, 2.9 * k, 2.0 * k, 0.8 * k
+    soft = _light(col, 0.35)  # body creases: a lighter fold, not a glow
+    for x in range(0, math.ceil(rx) + 1):
+        for y in range(math.floor(yc - ry) - 1, math.ceil(yc + ry) + 2):
+            for z in range(math.floor(zc - rb) - 1, math.ceil(zc + rt) + 2):
+                X, Y, Z = x + .5, y + .5 - yc, z + .5 - zc
+                r = rt if Z >= 0 else rb
+                f = X / rx + abs(Y) / ry + abs(Z) / r
+                if f > 1:
+                    continue
+                # creases: the top ridge, the waist line and the two diagonals
+                ridge = x == 0 and Z >= 0
+                waist = abs(Z) < 0.5
+                diag = Z >= 0 and abs(abs(Y) / ry - X / rx) < 0.12 and f > 0.75
+                surf = f > 1 - 1.2 / min(rx, ry, r)
+                if surf and (ridge or (waist and f > 0.6) or diag):
+                    _put2(body, x, y, z, soft)
+                else:
+                    _put2(body, x, y, z, col if Z >= 0 else under)
+    yf, yb = math.floor(yc - ry), math.ceil(yc + ry)
+    # the neck: a thin folded strip from the front point up and forward,
+    # in the head part so it bobs with the head
+    head = c.part('head', 'head', (0, yf + 0.5, zc))
+    head.pivot = (0, yf + 0.5, zc)
+    top = (yf - 1.6 * k, zc + 4.2 * k)
+    n = max(4, round(4.6 * k))
+    for i in range(n + 1):
+        t = i / n
+        y = yf + 0.5 + (top[0] - yf - 0.5) * t
+        z = zc + (top[1] - zc) * t
+        d = max(1, round((0.7 - 0.35 * t) * k))
+        for dy in range(d):
+            _put2(head, 0, math.floor(y) + dy, math.floor(z), col if dy else soft)
+    # the head: a small fold bent forward and down, with a pointed tip
+    hy, hz = math.floor(top[0]), math.floor(top[1])
+    hl = max(3, round(1.3 * k))
+    for i in range(hl):
+        w = 1 if i < hl - 1 else 0
+        for x in range(0, w + 1):
+            _put2(head, x, hy - i, hz - i // 2, col)
+            _put2(head, x, hy - i, hz + 1 - i // 2, col)
+    _put2(head, 0, hy + 1, hz + 1, col)
+    eyes = c.part('eyes', 'blink')
+    eyes.pivot = (0, hy - 0.5, hz + 1.5)
+    _put2(eyes, 2, hy - 1, hz + 1, INK)
+    # the tail: the same thin strip rising behind
+    tl = c.part('tail', 'tail', (0, yb - 0.5, zc))
+    tl.pivot = (0, yb - 0.5, zc)
+    tt = (yb + 1.8 * k, zc + 4.0 * k)
+    n = max(4, round(4.4 * k))
+    for i in range(n + 1):
+        t = i / n
+        y = yb - 0.5 + (tt[0] - yb + 0.5) * t
+        z = zc + (tt[1] - zc) * t
+        d = max(1, round((0.8 - 0.55 * t) * k))
+        for dy in range(d):
+            _put2(tl, 0, math.floor(y) - dy, math.floor(z), col if dy else soft)
+    # the wings: flat triangles from the back ridge, raised in a V, each on
+    # its own side; a glowing crease runs from the root to the tip
+    zr = zc + rt * 0.35
+    for sx, name in ((1, 'wingR'), (-1, 'wingL')):
+        w = c.part(name, name, (sx * 0.5 * k, yc, zr))
+        w.pivot = (sx * 0.5 * k, yc, zr)
+        x0 = 0.45 * k if sx > 0 else -0.45 * k
+        tip = (sx * 4.6 * k, yc + 1.0 * k, zr + 3.0 * k)
+        A = (x0, yc - 1.7 * k, zr)
+        B = (x0, yc + 1.9 * k, zr)
+        _tri(w, A, B, tip, col, crease=(x0, yc + 0.1 * k, zr), crease_col=cr)
+        if sx < 0:  # keep the two wings exact mirrors
+            w.v = {}
+            for (x, y, z), v in c.part('wingR').v.items():
+                w.v[(_mx(x), y, z)] = v
+        w.v = {q: v for q, v in w.v.items() if (q[0] >= 0) == (sx > 0)}
+    # thin legs tucked under the body
+    zl = math.floor(zc - rb * 0.5)
+    for sx, name in ((1, 'legR'), (-1, 'legL')):
+        lg = c.part(name, name, (sx * 1.0, yc, zl))
+        lg.pivot = (sx * 1.0, yc, zl)
+        x = 1 if sx > 0 else -2
+        fc = _dark(col, 0.3)
+        for z in range(0, zl + 1):
+            lg.put((x, math.floor(yc), z), fc)
+        lg.put((x, math.floor(yc) - 1, 0), fc)
+        lg.put((x, math.floor(yc) - 2, 0), fc)
+
+
 def long_neck(c, H, col=None, col2=None, a=None):
     """A long neck (a crane's, a heron's): the head and eyes rise and reach
     forward by "amount" (default 2.2, in tenths of the height) on a slim
@@ -2859,29 +3130,30 @@ def mend(c, H, col=None, col2=None):
 
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
-    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'long_neck': long_neck,
-    'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'hump': hump,
+    'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
+    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
+    'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'aura_hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
-    'embers': embers, 'cracks': cracks, 'claws': claws,
+    'aura_embers': embers, 'cracks': cracks, 'claws': claws,
     'ice': ice, 'ice_crown': ice_crown, 'ice_crest': ice_crest, 'gems': gems, 'gem_studs': gem_studs,
-    'facets': facets, 'whiskers': whiskers,
+    'facets': facets, 'aura_whiskers': whiskers,
     'leaves': leaves, 'ear_leaves': ear_leaves, 'leaf_hat': leaf_hat, 'leaf_collar': leaf_collar, 'vines': vines,
-    'blossoms': blossoms, 'rosebud': rosebud, 'moss': moss, 'mushrooms': mushrooms, 'mushroom_crown': mushroom_crown,
+    'blossoms': blossoms, 'rosebud': rosebud, 'moss': moss, 'aura_mushrooms': mushrooms, 'mushroom_crown': mushroom_crown,
     'toadstool_shell': toadstool_shell,
     'bolt': bolt, 'bolt_crest': bolt_crest, 'bolt_tail': bolt_tail, 'bolt_ears': bolt_ears, 'ear_bolts': ear_bolts,
-    'bolt_mark': bolt_mark, 'sparks': sparks, 'rings': rings, 'cloud_hump': cloud_hump, 'cloud_mane': cloud_mane,
-    'cloud_tail': cloud_tail, 'cloud_feet': cloud_feet, 'raincloud': raincloud, 'raindrops': raindrops,
+    'bolt_mark': bolt_mark, 'aura_sparks': sparks, 'rings': rings, 'cloud_hump': cloud_hump, 'cloud_mane': cloud_mane,
+    'cloud_tail': cloud_tail, 'cloud_feet': cloud_feet, 'aura_raincloud': raincloud, 'raindrops': raindrops,
     'wave': wave, 'raincoat': raincoat,
     'stars': stars, 'galaxy': galaxy, 'crescent': crescent, 'flank_crescent': flank_crescent, 'halo': halo, 'star_trail': star_trail,
     'constellation': constellation, 'glow_eyes': glow_eyes, 'iris_eyes': iris_eyes, 'zigzag_tips': zigzag_tips, 'sheep_ears': sheep_ears, 'glow_color': glow_color, 'ghost': ghost,
     'wisps': wisps, 'cloak': cloak, 'opal': opal, 'rainbow_shell': rainbow_shell,
-    'sprinkles': sprinkles, 'icing': icing, 'swirl': swirl, 'cone_horn': cone_horn, 'spiral_horn': spiral_horn, 'gears': gears,
+    'sprinkles': sprinkles, 'aura_icing': icing, 'swirl': swirl, 'cone_horn': cone_horn, 'spiral_horn': spiral_horn, 'gears': gears,
     'windup_key': windup_key, 'cog_spines': cog_spines, 'rivets': rivets, 'clock_dial': clock_dial,
     'chimney': chimney, 'chest_shell': chest_shell, 'mimic': mimic,
     'twin_tails': twin_tails, 'triple_tails': triple_tails, 'three_heads': three_heads, 'snake_tail': snake_tail,
-    'dragon_tail': dragon_tail, 'tusks': tusks, 'thorn_mane': thorn_mane, 'antlers': antlers,
+    'dragon_tail': dragon_tail, 'aura_tusks': tusks, 'thorn_mane': thorn_mane, 'aura_antlers': antlers,
     'headdress': headdress, 'hardhat': hardhat, 'lantern_pouch': lantern_pouch, 'lantern_belly': lantern_belly,
-    'sun_crest': sun_crest, 'clover': clover, 'ribs': ribs, 'stripe': stripe, 'gloss': gloss,
+    'sun_crest': sun_crest, 'aura_clover': clover, 'ribs': ribs, 'aura_stripe': stripe, 'gloss': gloss,
     'paper_folds': paper_folds, 'stained_glass': stained_glass, 'tipped_wings': tipped_wings,
     'feather_wings': feather_wings, 'raised_wings': raised_wings, 'dragon_wings': dragon_wings, 'bat_wings': bat_wings,
     'small_wings': small_wings, 'nightcap': nightcap,
