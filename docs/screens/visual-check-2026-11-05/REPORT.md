@@ -610,3 +610,12 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - The refusal toast (y 128-156) now sits above the odds card (y 168+), no overlap (`112c-hh-refusal-toast.jpg`).
 - Earlier items still PASS: welcome card shows 4 tips, coin panel is solid.
 - Side note: the Test panel's "Reset my save" kicks the client, by design. Restarting play recovers.
+
+## Hop leg/body look, main @ fca8d30 (includes #83 walking, before #74)
+
+**Nothing for hop to break in the game yet.**
+- No creature on main has `gait = "hop"`: CreatureMeshes carries no gait field. So Bunny, Lop Bunny, Calf and Lamb all walk with the default gait.
+- Their in-game rigs have **no leg joints**. Motors are body, head, eyes, ears and tail (plus flower or scarf). The legs are part of the single body mesh, so legs can't cross the body in game. The 4-legged swing and hop poses in Walk.luau only drive parts named leg*.
+- Watched up close for 4 s: the Bunny moved up to 5.5 studs, with the body bobbing and the head, ears and tail separate. No part passes through another (`hop-main-bunny-walking.jpg`).
+- The checkered black/white look in the shot is the mesh texture mid-rewrite: Output says "being generated" during the upload run, which is expected. It isn't geometry overlap.
+- So the overlap Alex saw is probably in the 3D viewer's separate-leg animation. It will matter in game only once creatures ship with leg parts and a hop gait (e.g. after #74 and the animation work).
