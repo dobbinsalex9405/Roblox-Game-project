@@ -204,7 +204,7 @@ function build(opts) {
     if (!item) {
       item = {
         path: folder,
-        name,
+        name: spaced(name), // "PygmyGoat" -> "Pygmy Goat"
         game: folder[1] ?? "",
         tier: catalog.tiers.find((t) => folder.includes(t)) ?? null,
         copies: 0,
@@ -231,7 +231,7 @@ function build(opts) {
       );
       const stem = f.replace(/\.glb$/i, "");
       added.push({
-        label: glbs.length === 1 || stem.toLowerCase() === name.toLowerCase() ? "Design" : stem,
+        label: glbs.length === 1 || keyOf([stem]) === keyOf([name]) ? "Design" : stem,
         kind: "glb",
         file: `data/models/${hash}.js`,
         hash,
