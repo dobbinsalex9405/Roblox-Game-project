@@ -913,12 +913,19 @@ def quills(c, H, col, col2=None, a=None):
     for (x, y, z) in list(vox):
         if z < zmin or y < ymin:
             continue
-        if (x + 2 * y + 3 * z) % step or _hash(x, y, z, 11) % 3 == 0:
+        rows = a.get('rows', False)
+        if rows:  # an even grid of quills in rows across the back
+            if (y % step) or ((x + (y // step) % 2) % 2):
+                continue
+        elif (x + 2 * y + 3 * z) % step or _hash(x, y, z, 11) % 3 == 0:
             continue
         nb = ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z), (x, y, z + 1))
         if all(n in vox for n in nb):
             continue
         n = (x + .5 - cx, (y + .5 - cy) * 0.8 + 0.4 * k, z + .5 - cz)
+        if rows:  # swept back and up, like a hedgehog's, only longer
+            L0 = math.sqrt(sum(v * v for v in n)) or 1
+            n = (n[0] / L0 * 0.55, n[1] / L0 * 0.4 + 0.75, n[2] / L0 * 0.8 + 0.25)
         L = math.sqrt(sum(v * v for v in n)) or 1
         if n[2] / L < 0.15:
             continue  # never down under the belly
@@ -931,7 +938,7 @@ def quills(c, H, col, col2=None, a=None):
             p = tuple(math.floor(st[j] + (end[j] - st[j]) * s) for j in range(3))
             if p in vox:
                 continue
-            qp.put(p, tip if s > 0.84 else col)
+            qp.put(p, tip if s > a.get('tip_from', 0.84) else col)
     # face-connect each quill (a line can step diagonally)
     for p in list(qp.v):
         x, y, z = p
@@ -1040,6 +1047,383 @@ def goatee(c, H, col, col2=None, a=None):
 ACCESSORIES['llama_neck'] = llama_neck
 ACCESSORIES['goatee'] = goatee
 ACCESSORIES['round_top'] = round_top
+
+
+# ------------------------------------------------------------ hoofed heads
+# The strict review (18:21Z) failed the goats, the horses and the black lamb
+# for one reason: the plan's head is a big round dog or cat head, and a
+# muzzle on the front of it still reads as a dog. hoof_head rebuilds the
+# head itself: a small narrow skull, a long face that runs forward and down
+# in one straight line from the brow to the nose (the hoofed profile), eyes
+# set out on the corners of the skull, and a pale muzzle end.
+
+def hoof_head(c, H, col, col2=None, a=None):
+    """A hoofed animal's head in place of the plan's round one: goat (a
+    narrow wedge, straight profile), horse (long and deep, a squared nose),
+    sheep (short and narrow). col is the head, col2 the muzzle end; options
+    `blaze` (a pale stripe down the face, in that colour), `length` and
+    `width` (scales), `nose` (nostril colour)."""
+    a = a or {}
+    k = _k(H)
+    head = _head(c)
+    if head is None:
+        return
+    style = a.get('style', 'goat')
+    (hx0, hy0, hz0), (hx1, hy1, hz1) = _bounds(head.v)
+    # the skull sits where the old head's upper back half was, so the neck
+    # joint (the head's pivot) still lands inside it
+    L = a.get('length', 1.0)
+    W = a.get('width', 1.0)
+    sk = {'goat': (1.35, 1.45, 1.35), 'horse': (1.3, 1.5, 1.4), 'sheep': (1.3, 1.35, 1.3),
+          'badger': (1.55, 1.4, 1.1)}[style]
+    rx, ry, rz = sk[0] * k * W, sk[1] * k, sk[2] * k
+    cy = (hy0 + hy1) / 2 + 0.35 * k
+    cz = hz1 + 1 - rz - 0.15 * k - a.get('lower', 0) * k
+    # the face: from the brow, forward and down to the nose
+    fl, fdrop, fr0, fr1, fz0, fz1 = {
+        'goat': (2.0, 1.15, 1.0, 0.72, 0.95, 0.72),
+        'horse': (3.0, 1.5, 1.05, 0.95, 1.15, 0.95),
+        'sheep': (1.9, 1.0, 0.95, 0.75, 0.95, 0.75),
+        'badger': (1.9, 0.45, 1.15, 0.5, 0.85, 0.5)}[style]
+    head.v = {}
+    head.ell((0, cy, cz), (rx, ry, rz), col)
+    n = 16
+    y0, z0 = cy - 0.6 * k, cz - 0.15 * k
+    y1, z1 = cy - (0.6 + fl * L) * k, cz - fdrop * L * k
+    for i in range(n + 1):
+        t = i / n
+        yy, zz = y0 + (y1 - y0) * t, z0 + (z1 - z0) * t
+        r = (fr0 + (fr1 - fr0) * t) * k * W
+        rzz = (fz0 + (fz1 - fz0) * t) * k
+        # flat on top (the straight profile): the face's top line is the
+        # line from the brow to the nose, so the ball sits under it
+        head.ell((0, yy, zz), (r, 0.9, rzz), col)
+    # a neck down and back into the body's front top, so the head never floats
+    body = _find(c, 'body')
+    if body and body.v and a.get('neck', True):
+        (bx0, by0, bz0), (bx1, by1, bz1) = _bounds(body.v)
+        nb = (0, by0 + 1.3 * k, bz1 - 0.9 * k)
+        nt = (0, cy + 0.2 * k, cz - 0.3 * k)
+        for i in range(11):
+            s = i / 10
+            head.ell((0, nb[1] + (nt[1] - nb[1]) * s, nb[2] + (nt[2] - nb[2]) * s),
+                     (0.95 * k * W, 0.95 * k, 0.95 * k), col)
+    front = min(p[1] for p in head.v)
+    if style == 'horse':  # a squared-off nose: fill the front corners
+        for (x, y, z) in [p for p in head.v if p[1] <= front + 1]:
+            for dx in (-1, 1):
+                q2 = (x + dx, y, z)
+                if q2 not in head.v and abs(x + dx + 0.5) <= fr1 * k * W:
+                    head.put(q2, col)
+    # the pale muzzle end
+    muz = col2
+    if muz:
+        cut = front + max(2, round(0.75 * k))
+        for p, (cc, g) in list(head.v.items()):
+            if p[1] <= cut and p[2] <= z1 + 0.9 * k:
+                head.v[p] = (muz, False)
+    # a blaze down the middle of the face, brow to nose
+    if a.get('blaze'):
+        bl = hexc(a['blaze'])
+        for x in (-1, 0):
+            for z in range(round(z1), round(cz + rz * 0.5) + 1):
+                f = head.front(x, z)
+                if f and f[1] <= cy - 0.4 * k:
+                    head.put(f, bl)
+                    # and the top face of the slope, so it shows from above
+                    tp = head.top(x, f[1])
+                    if tp and tp[2] <= cz + rz * 0.5:
+                        head.put(tp, bl)
+    # nostrils on the front of the nose, either side of the middle
+    nose = hexc(a['nose']) if a.get('nose') else INK
+    tip = [p for p in head.v if p[1] == front]
+    tz = round(sum(p[2] for p in tip) / len(tip))
+    for x in (1, _mx(1)):
+        f = head.front(x, tz)
+        if f:
+            head.put(f, nose)
+    # a mouth line under the nose
+    for x in (-1, 0):
+        f = head.front(x, tz - 1)
+        if f:
+            head.put((f[0], f[1], f[2] - 1) if (f[0], f[1], f[2] - 1) in head.v else f, _mix(muz or col, INK, 0.45))
+    # a woolly topknot on the crown (a lamb's)
+    if a.get('topknot'):
+        tk = hexc(a['topknot'])
+        for (x, y, z) in [p for p in head.v if p[1] >= cy - 0.6 * k]:
+            if z >= cz + rz * 0.55 and _hash(x, y, z, 5) % 2 == 0:
+                head.put((x, y, z + 1), tk)
+        head.ell((0, cy + 0.1 * k, cz + rz * 0.9), (rx * 0.75, ry * 0.7, 0.7 * k), tk)
+    # a beard tuft under the chin, just behind the nose
+    if a.get('beard'):
+        bc = hexc(a['beard'])
+        bd = c.part('beard', 'static')
+        bd.v = {}
+        yb = front + max(2, round(1.0 * k))
+        zb = min(p[2] for p in head.v if p[1] == yb and p[0] in (-1, 0))
+        for i in range(max(2, round(1.2 * k))):
+            for x in (-1, 0):
+                bd.put((x, yb + (1 if i >= 1 else 0), zb - 1 - i), bc)
+        bd.put((-1, yb + 1, zb - 1), bc)
+        bd.put((0, yb + 1, zb - 1), bc)
+    # eyes out on the corners of the skull, looking forward and out
+    e = _find(c, 'eyes')
+    if e is None:
+        e = c.part('eyes', 'blink', head.pivot)
+    e.v = {}
+    ez = round(cz + 0.15 * k)
+    xe = round(rx * 0.62)
+    for x in (xe, _mx(xe)):
+        f = head.front(x, ez)
+        if f:
+            del head.v[f]
+            e.put(f, INK)
+            if a.get('tall_eyes', True):
+                f2 = head.front(x, ez + 1)
+                if f2 and f2[1] <= f[1] + 1:
+                    del head.v[f2]
+                    e.put(f2, WHITE if a.get('glint') else INK)
+
+
+def horn_buds(c, H, col, col2=None, a=None):
+    """A kid's horn buds: two short stubby horns from the top of the skull,
+    up and tipping back, wide apart, darker at the tips."""
+    a = a or {}
+    k = _k(H)
+    head = _head(c)
+    if head is None:
+        return
+    _clear(c, 'horns')
+    hp = c.part('horns2', 'static')
+    s = a.get('size', 1.0)
+    (hx0, hy0, hz0), (hx1, hy1, hz1) = _bounds(head.v)
+    xb = round(0.55 * k)
+    # the back half of the skull's top
+    ys = sorted({p[1] for p in head.v if p[0] == xb})
+    yb = ys[len(ys) * 2 // 3] if ys else round((hy0 + hy1) / 2)
+    zb = (head.top(xb, yb) or (xb, yb, hz1))[2]
+    tip = col2 or _mix(col, INK, 0.3)
+    n = max(2, round(1.2 * k * s))
+    for i in range(n + 1):
+        cc = tip if i >= n - 0 else col
+        for x in (xb, xb + 1) if i < n else (xb,):
+            _both(hp, x, yb + (i * 2) // 3, zb + i, cc)
+            if i < n - 1:
+                _both(hp, x, yb + (i * 2) // 3 - 1, zb + i, cc)
+
+
+def ears_droop(c, H, col, col2=None, a=None):
+    """Long ears out to the sides and hanging down (a Boer kid's): from the
+    skull's sides behind the eyes, out and then down past the jaw, the inside
+    showing in col2."""
+    a = a or {}
+    k = _k(H)
+    head = _head(c)
+    if head is None:
+        return
+    ears = _find(c, 'ears')
+    if ears is None:
+        ears = c.part('ears', 'static', head.pivot)
+    ears.v = {}
+    inner = col2 or _mix(col, hexc('#FFB3C7'), 0.5)
+    s = a.get('size', 1.0)
+    (hx0, hy0, hz0), (hx1, hy1, hz1) = _bounds(head.v)
+    # the skull's widest point
+    xs = hx1
+    row = [p for p in head.v if p[0] == xs]
+    yb = round(sum(p[1] for p in row) / len(row)) + 1
+    zb = round(sum(p[2] for p in row) / len(row)) + 1
+    n = max(3, round(1.9 * k * s))
+    w = max(2, round(0.75 * k))
+    for i in range(n):
+        t = i / max(1, n - 1)
+        x = xs + 1 + round(min(i, n * 0.45))  # out, then hanging
+        z = zb - round(t * t * 1.6 * k * s)
+        for dy in range(w):
+            _both(ears, x, yb - dy, z, col)
+            if i >= 1 and t < 0.95:
+                _both(ears, x, yb - dy, z - 1, col)
+        # the inside, a pink line on the hanging part's front edge
+        if i >= 2 and t < 0.9:
+            _both(ears, x, yb - w + 1, z - 1, inner)
+    # rooted into the skull
+    for x in range(xs - 1, xs + 2):
+        for dy in range(w):
+            for z in (zb, zb - 1):
+                _both(ears, x, yb - dy, z, col)
+
+
+def tail_up(c, H, col, col2=None, a=None):
+    """A goat's short tail flicked straight up off the rump."""
+    a = a or {}
+    k = _k(H)
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    old = _find(c, 'tail')
+    anim = old.anim if old is not None else 'tail'
+    if old is not None:
+        c.parts.remove(old)
+    mid = [p for p in body.v if p[0] in (-1, 0)]
+    yb = max(p[1] for p in mid)
+    zr = max(p[2] for p in mid if p[1] >= yb - 1)
+    t = c.part('tail', anim if anim != 'static' else 'tail', (0, yb, zr - 1))
+    L = a.get('length', 1.0)
+    n = max(2, round(1.0 * k * L))
+    tip = col2 or col
+    for i in range(n + 1):
+        for x in (-1, 0):
+            t.put((x, yb + (1 if i < n else 0), zr - 1 + i), tip if i >= n - 0 else col)
+            if i < n - 1:
+                t.put((x, yb, zr - 1 + i), col)
+
+
+def hooves(c, H, col, col2=None, a=None):
+    """Dark hooves: the bottom `height` voxels of every leg column."""
+    a = a or {}
+    body = _find(c, 'body')
+    if not body:
+        return
+    h = a.get('height', 1)
+    for p, (cc, g) in list(body.v.items()):
+        if p[2] < h:
+            body.v[p] = (col, False)
+
+
+ACCESSORIES['hooves'] = _fine_only(hooves)
+ACCESSORIES['hoof_head'] = _fine_only(hoof_head)
+ACCESSORIES['horn_buds'] = _fine_only(horn_buds)
+ACCESSORIES['ears_droop'] = _fine_only(ears_droop)
+ACCESSORIES['tail_up'] = _fine_only(tail_up)
+
+
+def mole_parts(c, H, col, col2=None, a=None):
+    """A mole's signature: a star nose (a ring of small pink nubs round the
+    snout's tip), big pale-pink digging paws turned outward on the front
+    feet, and a short pink tail. col is the pink."""
+    a = a or {}
+    k = _k(H)
+    head = _head(c)
+    body = _find(c, 'body')
+    if head is None or not body:
+        return
+    # the star: nubs out from the snout's front face, round its edge
+    front = min(p[1] for p in head.v)
+    tip = [p for p in head.v if p[1] == front]
+    (tx0, _, tz0), (tx1, _, tz1) = _bounds(tip)
+    cx, cz = (tx0 + tx1 + 1) / 2, (tz0 + tz1 + 1) / 2
+    r = max(1.6, (tx1 - tx0 + 1) / 2 + 0.8)
+    for d in range(0, 360, 30):
+        th = math.radians(d)
+        x, z = math.floor(cx + r * math.cos(th)), math.floor(cz + r * math.sin(th))
+        f = head.front(x, z)
+        y = (f[1] if f else front + 1) - 1
+        head.put((x, y, z), col)
+        if not f:  # tie it back to the snout
+            head.put((x, y + 1, z), col)
+    # the nose itself: a small pink pad in the middle of the star
+    for x in (-1, 0):
+        for z in (math.floor(cz) - 1, math.floor(cz)):
+            f = head.front(x, z)
+            if f:
+                head.put(f, col)
+    _clear(c, 'ears')  # moles show no ears
+    # digging paws: the front feet, widened outward into flat pink spades
+    ys = sorted({p[1] for p in body.v if p[2] == 0})
+    yf = ys[0]
+    feet = [p for p in body.v if p[2] == 0 and p[1] <= yf + 2]
+    xr = max(p[0] for p in feet)
+    w = max(2, round(1.2 * k))
+    for x in range(xr - 1, xr + w):
+        for y in range(yf - 1, yf + 2):
+            for z in (0, 1):
+                if z == 1 and (x > xr + w - 2 or y == yf - 1):
+                    continue
+                _both(body, x, y, z, col)
+    # claws: dark tips at the front of each paw
+    for x in range(xr, xr + w, 2):
+        _both(body, x, yf - 2, 0, _mix(col, INK, 0.5))
+    # a short pink tail
+    tl = _find(c, 'tail')
+    if tl is not None:
+        for p in list(tl.v):
+            tl.v[p] = (col, False)
+
+
+ACCESSORIES['mole_parts'] = _fine_only(mole_parts)
+
+
+def badger_face(c, H, col, col2=None, a=None):
+    """A badger's face on a hoof_head wedge: the head white (col2), with two
+    dark bands (col) running from the nose back over each eye to the ears,
+    a white stripe down the middle between them; the nose tip dark."""
+    a = a or {}
+    k = _k(H)
+    head = _head(c)
+    if head is None:
+        return
+    wh = col2 or hexc('#F2F2F2')
+    x0, x1 = a.get('x0', 0.45) * k, a.get('x1', 1.35) * k
+    zlo = min(p[2] for p in head.v)
+    for p, (cc, g) in list(head.v.items()):
+        if cc == INK:
+            continue
+        d = abs(p[0] + 0.5)
+        head.v[p] = ((col if x0 <= d <= x1 and p[2] > zlo + 0.5 * k else wh), False)
+    front = min(p[1] for p in head.v)
+    for p in [p for p in head.v if p[1] == front]:
+        head.v[p] = (INK, False)
+    e = _find(c, 'eyes')
+    if e is not None:  # a glint, so the eye shows inside the dark band
+        for p in list(e.v):
+            top = (p[0], p[1], p[2] + 1)
+            if top in e.v:
+                e.v[top] = (WHITE, False)
+
+
+ACCESSORIES['badger_face'] = _fine_only(badger_face)
+
+
+def quill_coat(c, H, col, col2=None, a=None):
+    """A porcupine's coat: a dense checkerboard of long quills over the back,
+    sides and rump (like the Hedgehog's spikes, only long), each a staircase
+    swept up and back, splaying out on the flanks, banded col at the root
+    and pale (col2) at the tip. The face and belly stay bare."""
+    a = a or {}
+    k = _k(H)
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    qp = c.part('quills', 'static')
+    (bx0, by0, bz0), (bx1, by1, bz1) = _bounds(body.v)
+    zmin = bz0 + (bz1 - bz0) * a.get('from', 0.45)
+    ymin = by0 + (by1 - by0) * a.get('front', 0.2)
+    n = max(4, round(a.get('length', 2.5) * k))
+    tip = col2 or WHITE
+    top = {}
+    for (x, y, z) in body.v:
+        if z > top.get((x, y), -99):
+            top[(x, y)] = z
+    xmid = (bx0 + bx1 + 1) / 2
+    for (x, y), z in top.items():
+        sp = a.get('spacing', 2)
+        if z < zmin or y < ymin or x % 2 or (y + (x // 2) % 2 * (sp // 2)) % sp:
+            continue
+        side = (x + .5 - xmid) / max(1, (bx1 - bx0 + 1) / 2)  # -1 left .. 1 right
+        sx = 1 if side > 0.45 else -1 if side < -0.45 else 0
+        px, py, pz = x, y, z
+        for i in range(n):
+            if i % 2 == 0:
+                pz += 1
+            elif sx and i % 4 == 1:
+                px += sx
+            else:
+                py += 1
+            if (px, py, pz) not in body.v:
+                qp.put((px, py, pz), tip if i >= n * a.get('tip_from', 0.6) else col)
+
+
+ACCESSORIES['quill_coat'] = _fine_only(quill_coat)
 
 # Every kind carries the kit's own prefix, so no other kit's accessory name can clash with it.
 ACCESSORIES = {'lg_' + name: fn for name, fn in ACCESSORIES.items()}
