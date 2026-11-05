@@ -2,6 +2,24 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
+
+- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
+  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
+- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
+  draws a showpiece with smaller voxels in the Blender build (the serpent at
+  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
+  have changed the Goose Alex approved.
+- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
+  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
+  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
+  1 in 50,000 each) to pass that.
+- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
+  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
+  so the serpent stays within the Godly 800-box budget (793).
+- **Worlds never pass through the body.** Each orbiting world sits further
+  out than anything else at its height, plus room for the head to turn.
+
 ## 2026-11-05: Capped Hatchery Book bonus and NEW badges (Hatchery Heist)
 
 - **A full book is +25%, fixed.** +1% per species would be +150% at 150

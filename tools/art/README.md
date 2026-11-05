@@ -6,7 +6,7 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | --- | --- |
 | `voxkit.py` | Parts, voxels and merging voxels into as few boxes as possible |
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
-| `legends.py` | The two Legendaries and two Godlies, built in far more detail |
+| `legends.py` | The two Legendaries and two Godlies, built in far more detail (`FINER` in `creatures.py` gives a showpiece smaller voxels in the Blender build) |
 | `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
 | `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
 | `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |

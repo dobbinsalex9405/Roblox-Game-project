@@ -10,7 +10,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
-from creatures import HEIGHT, build_all  # noqa: E402
+from creatures import FINER, HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
 import rig  # noqa: E402
@@ -96,7 +96,7 @@ def r4(v):
 def creatures(tiers=None, only=None):
     cs = build_all(DETAIL)
     for c in cs:
-        c.voxel = VOXEL_STUDS
+        c.voxel = VOXEL_STUDS / FINER.get(c.species, 1)  # a showpiece's finer voxels
     if tiers:
         cs = [c for c in cs if c.rarity in tiers]
     if only:
