@@ -112,3 +112,14 @@ FAIL on two items.
   VoxelArt.luau, head's parent is wingL and wingL's parent is head (a loop), so only the body is
   drawn. A script check of all 53 entries finds no other parent loops.
 - Output: no errors.
+
+## Re-gate: #65 at fd0a591
+
+PASS. A per-frame monitor (RenderStepped) over 653 frames of opening, closing and scrolling the
+Book at 844x392 and desktop found no frame where an unfound card's model had colour; screenshots
+taken right after opening also show only silhouettes. Butterfly: body, head and two wings
+(20 parts), 2.0 studs. At 844x392 the tab strip now fits with no scrolling (Godly ends at x 704,
+strip ends at 790). Output: no errors.
+
+Small note: unfound cards in the top three rows show only egg and odds, with no "???" name line;
+"???" appears from row 4 down (and on desktop). Not a spoiler, just inconsistent.
