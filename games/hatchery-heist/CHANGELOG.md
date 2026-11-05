@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Studio test panel: "Give a creature" adds any species by id, placed on a
+  free pad like a hatch, so rides and the guard walk can be checked in
+  Studio straight away. Studio only; a live server never runs it.
 - Phones: shop buttons are 40 px tall (thumb-sized), and every shop card
   reads top to bottom (name, description, price, button).
 - Fixed (#49): a server error on every frame while any base had no guard

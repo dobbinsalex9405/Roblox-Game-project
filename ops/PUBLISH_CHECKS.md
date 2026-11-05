@@ -17,6 +17,9 @@ on Staging.
 | Build `tools/build.sh` | Rojo project resolves, environment stamp written | yes (dev) | yes (staging) | yes (production) | |
 | **Boot check** `lune run tools/boot/run --built <game>` | the built place starts its server, a player can join, the client UI starts, a player can leave | yes, every game | yes, the uploaded file | yes, the uploaded file | |
 | **Key flows** `tools/keyflows.sh <game>` | the main loop plays through headless: every system check in `playtests/<game>/checks.luau` passes | yes, every game | yes | yes | |
+| **Player's-eye audit** `lune run tools/audit/run` | nothing buried, the spawn is standable, the HUD fits a phone, every first-screen button and the shop work (`ops/VISUAL_PLAYTEST.md`) | yes, every game, with images | yes, the uploaded file | yes, the uploaded file | |
+| **Real-engine check** `lune run tools/cloud/run <game>` | the same world checks with real collision geometry, Roblox's own text metrics, server start-up errors, inside a real Roblox server | verifier runs it on the PR head | yes, once `CLOUD_CHECK` is on | | |
+| **Visual playtest report** | a person's-eye look: images, real engine, Studio play-solo for world/UI changes | required for game code (`visual-playtest` status) | | | |
 | Version read-back | Roblox accepted the upload and reports the new place version | | yes (run summary) | yes (summary + git tag) | |
 | **Live join** (below) | the version behaves on real Roblox: loads, plays, saves, sells | | | | within 1 hour of a Staging publish; before and right after a Production publish |
 | **Error-queue sweep** (below) | no server or client error from the new build | | | | 1 hour and 24 hours after a publish |
@@ -50,12 +53,20 @@ build and before the upload:
    core loop, selling, upgrades, passes, rejoin, exploit refusals). It exits
    non-zero on any `[BUG]`. Every game must have one; a game without it cannot
    be published.
+5. **Player's-eye audit** on the built file:
+   `lune run tools/audit/run --built --no-images <game>`. Any FAIL (a buried
+   part or spawn, a spawn a player cannot stand on, a button off a phone
+   screen, a click that errors) stops the upload. `ops/VISUAL_PLAYTEST.md`.
+6. **Real-engine check** (Staging, when the repository variable `CLOUD_CHECK`
+   is `on`): `lune run tools/cloud/run <game>` saves the file as an
+   unpublished Staging version and checks it inside a real Roblox server.
 
 Production adds: the ref must already be on `main`, and Alex must click
 Approve on the `production` environment.
 
-What the gate cannot do: judge how anything looks, moves or sounds, or talk to
-real Roblox services. That is what the post-publish checks are for.
+What the gate cannot do: judge how anything moves or sounds, or talk to real
+Roblox services. The audit approximates how it looks; the verifier's visual
+playtest (Studio play-solo) and the post-publish checks cover the rest.
 
 ## Post-publish checks
 

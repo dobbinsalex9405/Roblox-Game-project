@@ -35,6 +35,12 @@ Shim.output = {} :: { string }
 Shim.studio = false
 Shim.unpublished = false -- DataStores throw, as in an unpublished place
 Shim.quiet = false
+-- Destroy() in game scripts detaches instead, so later reads work as in
+-- Roblox (the player's-eye audit turns this on; see Shim.runScript).
+Shim.detachOnDestroy = false
+-- What MarketplaceService:GetProductInfo answers for an id (a harness can
+-- fill it from the game's monetization listings); unknown ids cost 0.
+Shim.productInfo = {} :: { [number]: { [string]: any } }
 
 local function gap(name: string)
 	Shim.gaps[name] = (Shim.gaps[name] or 0) + 1
@@ -1238,6 +1244,10 @@ local function defineServices()
 		return false
 	end
 	mp.GetProductInfo = function(_, id)
+		local known = Shim.productInfo[id]
+		if known then
+			return table.clone(known)
+		end
 		return { Name = `Product {id}`, PriceInRobux = 0, Description = "", IsForSale = true }
 	end
 	mp.GetDeveloperProductsAsync = function()
@@ -2120,6 +2130,26 @@ function Shim.baseEnvironment(game: any)
 end
 
 -- Runs a script-like instance's Source with its own `script` and `require`.
+-- What `x:Destroy()` becomes under Shim.detachOnDestroy: Destroying fires,
+-- then x and its descendants leave the tree.
+local function detach(inst: any)
+	if inst == nil then
+		return
+	end
+	signalOf(inst, "Destroying"):Fire()
+	inst.Parent = nil
+end
+
+-- `x:Destroy()` on a plain name or field becomes `__shimDetach(x)`. A
+-- rewrite that does not compile (an unusual expression) keeps the source.
+function Shim.detachSource(source: string): string
+	local rewritten = string.gsub(source, "([%w_][%w_%.%[%]\"']*):Destroy%(%)", "__shimDetach(%1)")
+	if rewritten ~= source and pcall(luau.compile, rewritten) then
+		return rewritten
+	end
+	return source
+end
+
 function Shim.runScript(game: any, inst: any, isModule: boolean): any
 	local base = Shim.baseEnvironment(game)
 	local env = setmetatable({ script = inst }, { __index = base })
@@ -2151,7 +2181,18 @@ function Shim.runScript(game: any, inst: any, isModule: boolean): any
 		modules[target] = { value = value }
 		return value
 	end
-	local chunk = luau.load(inst.Source, {
+	local source = inst.Source
+	if Shim.detachOnDestroy then
+		-- Lune refuses every read of a destroyed instance; Roblox allows it,
+		-- and UI code often reads a label it just cleared. `x:Destroy()` on a
+		-- plain name or field becomes a detach, which stays readable.
+		local rewritten = Shim.detachSource(source)
+		if rewritten ~= source then
+			source = rewritten
+			env.__shimDetach = detach
+		end
+	end
+	local chunk = luau.load(source, {
 		debugName = inst:GetFullName(),
 		environment = env,
 		injectGlobals = false,
