@@ -185,6 +185,34 @@ describe("Nature plan", function()
 		end
 	end)
 
+	it("grows the wood all the way round, behind the farm too", function()
+		-- every farm piece at 186 out in each gap, 32 studs clear
+		local function clear(x: number, z: number): boolean
+			for index = 1, Layout.PLOTS do
+				local a = (index - 0.5) / Layout.PLOTS * math.pi * 2
+				if math.sqrt((x - math.cos(a) * 186) ^ 2 + (z - math.sin(a) * 186) ^ 2) < 32 then
+					return false
+				end
+			end
+			return true
+		end
+		local angles = {}
+		for _, spot in plan(clear) do
+			local r = math.sqrt(spot.x * spot.x + spot.z * spot.z)
+			if spot.tree and spot.y == 0 and r >= nature.wood.radiusMin - 0.01 then
+				table.insert(angles, math.deg(math.atan2(spot.z, spot.x)) % 360)
+			end
+		end
+		table.sort(angles)
+		local widest = angles[1] + 360 - angles[#angles]
+		for i = 2, #angles do
+			widest = math.max(widest, angles[i] - angles[i - 1])
+		end
+		-- no bare wedge wider than about two trees' share of the ring
+		local most = 360 / nature.wood.count * 2.5
+		expect(widest <= most and "ok" or `a {widest} degree gap in the wood`).toBe("ok")
+	end)
+
 	it("keeps trees apart and keeps off the farm", function()
 		-- a farm piece in the first gap (22.5 degrees, 186 out), 32 studs clear
 		local fx, fz = math.cos(math.rad(22.5)) * 186, math.sin(math.rad(22.5)) * 186
