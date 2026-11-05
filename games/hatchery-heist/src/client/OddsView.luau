@@ -285,9 +285,11 @@ local function buildList(): ScreenGui
 	gui.Enabled = false
 	local window = Instance.new("Frame")
 	window.Name = "Window"
-	window.AnchorPoint = Vector2.new(0.5, 0.5)
-	window.Position = UDim2.fromScale(0.5, 0.5)
-	window.Size = UDim2.new(0, 360, 0.8, 0)
+	-- Below the HUD's coin bar (8 + 64 px from the top), so a phone still
+	-- shows the player's coins while the list is open.
+	window.AnchorPoint = Vector2.new(0.5, 0)
+	window.Position = UDim2.new(0.5, 0, 0, 80)
+	window.Size = UDim2.new(0, 360, 1, -90)
 	window.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 	corner(window, 12)
 	local limit = Instance.new("UISizeConstraint")
@@ -329,10 +331,16 @@ local function buildList(): ScreenGui
 	scroll.CanvasSize = UDim2.new()
 	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	scroll.ScrollBarThickness = 6
+	scroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	local layout = Instance.new("UIListLayout")
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Padding = UDim.new(0, 2)
 	layout.Parent = scroll
+	-- Rows stop short of the scroll bar: on a phone its 6 px cut off the end
+	-- of every right-aligned "1 in N" (Studio gate, Nov 5).
+	local inset = Instance.new("UIPadding")
+	inset.PaddingRight = UDim.new(0, 10)
+	inset.Parent = scroll
 	scroll.Parent = window
 	return gui
 end

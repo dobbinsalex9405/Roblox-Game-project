@@ -10,6 +10,8 @@
 - Rarer creatures are only a little bigger now (2 studs for a Common up to
   3.8 for a Godly), and every creature is drawn exactly its stand-in's size.
 - Daily Rewards text no longer shrinks below 13 px on phones.
+- Fix: on phones the scroll bar cut off the end of each "every creature"
+  row; the list now also opens below the coin bar.
 
 - Each base's floor now sits just above the grass (a 0.3-stud deck instead
   of a 1-stud step), with everything on it lowered to match.
