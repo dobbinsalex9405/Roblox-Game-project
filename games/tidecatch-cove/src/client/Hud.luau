@@ -177,7 +177,10 @@ function Hud.start(ctx: Context.Context): Api
 
 	-- Bucket: everything caught and not yet placed or sold.
 	local bucket =
-		Ui.panel(gui, "Bucket", UDim2.fromOffset(330, 320), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
+		Ui.panel(gui, "Bucket", UDim2.new(0, 330, 0.9, 0), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
+	local bucketFit = Instance.new("UISizeConstraint") -- never taller than the screen
+	bucketFit.MaxSize = Vector2.new(330, 320)
+	bucketFit.Parent = bucket
 	bucket.Visible = false
 	local bucketTitle = Ui.label(bucket, "Title", UDim2.new(1, -60, 0, 30), UDim2.fromOffset(10, 6))
 	bucketTitle.TextXAlignment = Enum.TextXAlignment.Left

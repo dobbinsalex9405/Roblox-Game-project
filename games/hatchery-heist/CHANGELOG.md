@@ -6,6 +6,11 @@
   file. The error queue, feedback and metrics stores no longer stop the
   server when DataStores are unavailable (an unpublished place); they warn
   once and save nothing. Live servers are unchanged.
+- Fix: the map was buried in the ground. The Baseplate was placed with a
+  property Rojo drops when it builds the place, so it sat ten studs too high
+  and covered every floor, pad and label. It is now placed with CFrame, and
+  the boot check fails when anything is built inside the ground.
+
 - Player analytics (shared core): the daily scoreboard now shows time played
   and session lengths, D7 and D30 returns, players who come with or bring
   friends, Robux by item and by where in the game it was bought, purchase
