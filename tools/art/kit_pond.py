@@ -130,7 +130,7 @@ def critter(c, H, kind, col, accent=None, wing=None):
         bent_legs(body, k, (-0.9, -0.3, 0.3), INK, hip=(0.5, 1.4), knee=(1.0, 1.4), foot=1.3, r=0.2)
         for sx in (-1, 1):
             name = 'wingL' if sx < 0 else 'wingR'
-            wz = round(3.0 * k)
+            wz = round(3.6 * k)
             wp = c.part(name, name, (sx * 0.5 * k, -0.3 * k, wz))
             for (cy, ry, rx) in ((-0.7, 0.7, 4.2), (0.7, 0.62, 3.8)):
                 for x in range(1, math.ceil(rx * k) + 1):

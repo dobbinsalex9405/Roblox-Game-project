@@ -17,6 +17,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   crawl filled the batch instead.
 - **The Firefly's tail glows** although glow normally starts at Ultra Rare:
   a firefly without its light does not read. It is one small `lamp` part.
+- **Every creature stands at least 0.9 studs tall** (CreatureMeshes.spec
+  asks 0.8 once a creature is in the config), so flat bugs get a taller
+  `shape` body. The beaver went to the woodland batch (#61); this batch
+  took a Pelican chick instead.
 - **Dark bodies need a light colour** around ink eyes (Salamander became a
   red eft, the Jumping Spider is lavender): ink eyes vanish on near-black.
 
