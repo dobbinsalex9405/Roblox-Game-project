@@ -758,20 +758,103 @@ def mohawk(c, H, col, col2=None):
 
 
 def zebra(c, H, col, col2=None):
-    """Bold stripes all round the body, legs and head (a zebra's)."""
+    """Bold stripes all round the body, legs and neck (a zebra's). On the
+    head the dark muzzle stops below the eyes, the forehead is striped and
+    the eyes sit in a clear white band, each a tall dark eye with a glint.
+    col2 is the white (default: the head's own colour)."""
     k = H / 10.0
     w = max(1, round(0.55 * k))
     for part in [p for p in c.parts if p.name.startswith('leg')]:
         hoof = 0.35 * k
         part.paint(lambda p, cc, g: (col, False) if not g and p[2] >= hoof and (p[2] // w) % 2 == 0 else None)
-    for name in ('body', 'head', 'tail'):
+    for name in ('body', 'tail'):
         part = kit._find(c, name)
-        if part and name == 'head':
-            # forehead and cheeks in bands across, the muzzle left dark
-            (lo, hi) = _bounds(part)
-            part.paint(lambda p, cc, g, lo=lo, hi=hi: (col, False) if not g and (p[2] // w) % 2 == 0 and p[2] > lo[2] + (hi[2] - lo[2]) * 0.45 else None)
-        elif part:
+        if part:
             part.paint(lambda p, cc, g: (col, False) if not g and ((p[1] + p[2] // 2) // w) % 2 == 0 and abs(p[0] + .5) > 0.35 * k else None)
+    head = kit._find(c, 'head')
+    eyes = kit._find(c, 'eyes')
+    if not head:
+        return
+    if not (eyes and eyes.v):
+        (lo, hi) = _bounds(head)
+        head.paint(lambda p, cc, g: (col, False) if not g and (p[2] // w) % 2 == 0 and p[2] > lo[2] + (hi[2] - lo[2]) * 0.45 else None)
+        return
+    ink = [q for q, v in eyes.v.items() if v[0] != WHITE]
+    ez = round(sum(q[2] for q in ink) / len(ink))
+    ey = round(sum(q[1] for q in ink) / len(ink))
+    counts = {}
+    for v in head.v.values():
+        counts[v[0]] = counts.get(v[0], 0) + 1
+    white = col2 or max(counts, key=counts.get)
+
+    def dark(cc):
+        return sum(cc) < 3 * 110
+
+    def paint(p, cc, g):
+        if g:
+            return None
+        x, y, z = p
+        if y < ey - 1 and z <= ez - 2:
+            return None  # the muzzle stays dark
+        if dark(cc):
+            cc = white  # no dark mask over the eyes
+        if ez - 1 <= z <= ez + 1 and y >= ey - 2:
+            return (white, False)  # the clear patch the eyes sit in
+        if z <= ez + 1:
+            return (col, False) if (z - ez) % 2 == 0 else (white, False)  # thin bands down the nose
+        if z > ez + 1:
+            return (col, False) if (z - ez) % 2 == 0 else (white, False)  # forehead bands
+        # the neck: bands that lean like the body's
+        return (col, False) if ((y + z // 2) // w) % 2 == 0 else (cc, False)
+
+    head.paint(paint)
+    # a bigger eye, two by two: dark, with the white glint at its top front,
+    # framed by a soft grey so the glint shows on the white face
+    frame = _mix(white, hexc('#9A9AB0'), 0.45)
+    for (x, y, z), v in list(eyes.v.items()):
+        if v[0] == WHITE:
+            continue
+        for q, cc in (((x, y, z + 1), INK), ((x, y - 1, z), INK), ((x, y - 1, z + 1), WHITE)):
+            head.v.pop(q, None)
+            eyes.put(q, cc)
+        for dy in range(-2, 2):
+            for dz in range(-1, 3):
+                q = (x, y + dy, z + dz)
+                if q in head.v and head.v[q][0] == white:
+                    head.v[q] = (frame, False)
+
+
+def lotus(c, H, col, col2=None):
+    """A water lily on top of the head (a hippo's): six pointed petals
+    curling up from a glowing yellow centre, pale at the base with pink
+    tips."""
+    k = H / 10.0
+    head = _head(c)
+    zt = max(p[2] for p in head.v)
+    top = [p for p in head.v if p[2] >= zt - 1 and p[0] in (-1, 0)]
+    cy = sum(p[1] for p in top) / len(top) + .5
+    tip = _mix(col, hexc('#FF3D8B'), 0.7)
+    fl = c.part('lotus', 'static')
+    R = max(2, round(1.1 * k))
+    c0 = math.floor(cy)
+    pale, mid = _light(col, 0.5), col
+    for a in (30, 90, 150, 210, 270, 330):
+        for da in ((-14, 0, 14) if R > 2 else (0,)):
+            for s in range(R):
+                if da and s >= R - 1:
+                    continue  # the petal narrows to its point
+                ang = math.radians(a + da * (1 - s / R))
+                x = math.floor(math.cos(ang) * (1.2 + s))
+                y = math.floor(cy + math.sin(ang) * (1.2 + s))
+                z = zt + 1 + s
+                fl.v.setdefault((x, y, z), (tip if s == R - 1 else (mid if s else pale), False))
+        # the point, turned up
+        x = math.floor(math.cos(math.radians(a)) * (0.9 + R))
+        y = math.floor(cy + math.sin(math.radians(a)) * (0.9 + R))
+        fl.v.setdefault((x, y, zt + R), (tip, False))
+    for (x, y, z), v in list(fl.v.items()):
+        fl.v.setdefault((-1 - x, y, z), v)
+    fl.box((-1, c0 - 1, zt + 1), (0, c0, zt + 2), col2 or hexc('#FFE27A'), True)
 
 
 def tigerstripes(c, H, col, col2=None):
@@ -2229,7 +2312,7 @@ ACCESSORIES = {
     'ruff': ruff, 'neck': neck, 'ossicones': ossicones, 'giraffepatches': giraffepatches, 'banana': banana, 'nosehorn': nosehorn, 'hump': hump, 'antlers': antlers,
     'witchhat': witchhat, 'windkey': windkey, 'crystals': crystals, 'raincloud': raincloud, 'lavacracks': lavacracks,
     'glowstripe': glowstripe, 'colorglow': colorglow, 'gills': gills, 'glowspots': glowspots, 'sparks': sparks, 'whiskers': whiskers, 'barbels': barbels, 'tailtip': tailtip,
-    'mohawk': mohawk, 'zebra': zebra, 'tigerstripes': tigerstripes, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle, 'eartips': eartips, 'tailglow': tailglow,
+    'lotus': lotus, 'mohawk': mohawk, 'zebra': zebra, 'tigerstripes': tigerstripes, 'leggings': leggings, 'tearlines': tearlines, 'twinkle': twinkle, 'eartips': eartips, 'tailglow': tailglow,
     'screenface': screenface, 'berryeyes': berryeyes, 'antenna': antenna, 'wraps': wraps, 'beetleshell': beetleshell, 'teapot': teapot,
     'donut': donut, 'wrapper': wrapper, 'cherry': cherry, 'frosting': frosting, 'pancakes': pancakes,
     'icing': icing, 'facedisc': facedisc, 'twohead': twohead, 'crocsnout': crocsnout, 'bflywings': bflywings,
