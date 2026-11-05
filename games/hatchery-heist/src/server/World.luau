@@ -16,6 +16,7 @@ local Creatures = require(Shared.Creatures)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Tower = require(Shared.Tower)
 
 local World = {}
 
@@ -56,6 +57,168 @@ local function billboard(parent: Instance, offset: Vector3, size: UDim2, text: s
 	label.Parent = gui
 	gui.Parent = parent
 	return label
+end
+
+-- Remembers how a tower part looks when its floor is built, so syncTower
+-- can hide it, show it as a ghost (the next floor to buy) or show it.
+local function towerPart(parent: Instance, floor: number, props: { [string]: any }): Part
+	local p = part(props)
+	p:SetAttribute("Floor", floor)
+	p:SetAttribute("Shown", p.Transparency)
+	p:SetAttribute("Solid", p.CanCollide)
+	p.Transparency = 1
+	p.CanCollide = false
+	p.Parent = parent
+	return p
+end
+
+-- Floors 2 to 10 over the back half of the base, an elevator stop on every
+-- floor and a ladder up the right side. Everything starts hidden; syncTower
+-- shows the floors the owner has built.
+local function buildTower(model: Model, at: (Vector3) -> CFrame)
+	local tower = Instance.new("Folder")
+	tower.Name = "Tower"
+	tower.Parent = model
+	local lo, hi = Geometry.TOWER_MIN, Geometry.TOWER_MAX
+	local width, depth = hi[1] - lo[1], hi[2] - lo[2]
+	local cx, cz = (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2
+	local gapLo, gapHi = Layout.LADDER.Z - 2.5, Layout.LADDER.Z + 2.5
+	for floor = 1, Tower.FLOORS do
+		local folder = Instance.new("Folder")
+		folder.Name = `Floor{floor}`
+		folder.Parent = tower
+		local top = Layout.floorTop(floor)
+		local look = Layout.FLOOR_LOOKS[floor]
+		if floor > 1 then
+			towerPart(folder, floor, {
+				Name = "Deck",
+				Size = Vector3.new(width, 1, depth),
+				CFrame = at(Vector3.new(cx, top - 0.5, cz)),
+				Color = look.deck,
+				Material = Enum.Material.WoodPlanks,
+			})
+			-- Railings round the edge, open where the ladder arrives.
+			local rail = 2.5
+			local function railing(name: string, from: Vector3, to: Vector3)
+				local mid = (from + to) / 2
+				local size = Vector3.new(
+					math.max(math.abs(to.X - from.X), 0.4),
+					rail,
+					math.max(math.abs(to.Z - from.Z), 0.4)
+				)
+				towerPart(folder, floor, {
+					Name = name,
+					Size = size,
+					CFrame = at(Vector3.new(mid.X, top + rail / 2, mid.Z)),
+					Color = look.trim,
+					Material = Enum.Material.Wood,
+				})
+			end
+			railing("RailFront", Vector3.new(lo[1], 0, lo[2] + 0.2), Vector3.new(hi[1], 0, lo[2] + 0.2))
+			railing("RailBack", Vector3.new(lo[1], 0, hi[2] - 0.2), Vector3.new(hi[1], 0, hi[2] - 0.2))
+			railing("RailLeft", Vector3.new(lo[1] + 0.2, 0, lo[2]), Vector3.new(lo[1] + 0.2, 0, hi[2]))
+			railing("RailRightA", Vector3.new(hi[1] - 0.2, 0, lo[2]), Vector3.new(hi[1] - 0.2, 0, gapLo))
+			railing("RailRightB", Vector3.new(hi[1] - 0.2, 0, gapHi), Vector3.new(hi[1] - 0.2, 0, hi[2]))
+			-- Corner pillars holding this floor up.
+			local below = Layout.floorTop(floor - 1)
+			local height = top - 1 - below
+			for i, corner in
+				{
+					{ lo[1] + 0.6, lo[2] + 0.6 },
+					{ hi[1] - 0.6, lo[2] + 0.6 },
+					{ lo[1] + 0.6, hi[2] - 0.6 },
+					{ hi[1] - 0.6, hi[2] - 0.6 },
+				}
+			do
+				towerPart(folder, floor, {
+					Name = `Pillar{i}`,
+					Size = Vector3.new(1.2, height, 1.2),
+					CFrame = at(Vector3.new(corner[1], below + height / 2, corner[2])),
+					Color = look.trim,
+					Material = Enum.Material.Wood,
+				})
+			end
+			-- The floor's name over the front rail.
+			local plaque = towerPart(folder, floor, {
+				Name = "Plaque",
+				Size = Vector3.new(8, 1.6, 0.3),
+				CFrame = at(Vector3.new(0, top + 3.4, lo[2] + 0.2)),
+				Color = look.trim,
+				Material = Enum.Material.Wood,
+				CanCollide = false,
+			})
+			local plaqueLabel = billboard(plaque, Vector3.new(0, 1.6, 0), UDim2.fromScale(12, 1.8), "")
+			local plaqueGui = plaqueLabel.Parent :: BillboardGui
+			plaqueGui.Enabled = false
+		end
+		-- Upgrades build things on the floor, one group per upgrade, round the
+		-- edges so the middle stays clear: cozy spots, toys, lights, food and
+		-- water. Grey-box shapes until the world art lands.
+		if floor > 1 then
+			local props = {
+				{
+					name = "Cozy",
+					at = Vector3.new(-21, 0, 1),
+					size = Vector3.new(4, 0.8, 3),
+					color = Color3.fromRGB(220, 190, 120),
+				},
+				{
+					name = "Toy",
+					at = Vector3.new(21, 0, 1),
+					size = Vector3.new(1.6, 1.6, 1.6),
+					color = Color3.fromRGB(230, 80, 80),
+					ball = true,
+				},
+				{
+					name = "Light",
+					at = Vector3.new(-21, 0, 10),
+					size = Vector3.new(0.6, 4, 0.6),
+					color = Color3.fromRGB(255, 220, 140),
+					glow = true,
+				},
+				{
+					name = "Food",
+					at = Vector3.new(0, 0, 21.5),
+					size = Vector3.new(5, 0.8, 1.6),
+					color = Color3.fromRGB(120, 180, 230),
+				},
+			}
+			for n, prop in props do
+				local p = towerPart(folder, floor, {
+					Name = `Upgrade{n}{prop.name}`,
+					Shape = if prop.ball then Enum.PartType.Ball else Enum.PartType.Block,
+					Size = prop.size,
+					CFrame = at(Vector3.new(prop.at.X, top + prop.size.Y / 2, prop.at.Z)),
+					Color = prop.color,
+					Material = if prop.glow then Enum.Material.Neon else Enum.Material.SmoothPlastic,
+					CanCollide = false,
+				})
+				p:SetAttribute("Upgrade", n)
+			end
+		end
+		-- The elevator stop: the owner stands on it and picks a floor.
+		local stop = towerPart(folder, floor, {
+			Name = "Elevator",
+			Size = Vector3.new(4, 0.4, 4),
+			CFrame = at(Vector3.new(Layout.ELEVATOR.X, top + 0.2, Layout.ELEVATOR.Z)),
+			Color = Color3.fromRGB(90, 200, 255),
+			Material = Enum.Material.Neon,
+			Transparency = 0.2,
+		})
+		local stopLabel = billboard(stop, Vector3.new(0, 3, 0), UDim2.fromScale(5, 1.2), "Elevator")
+		local stopGui = stopLabel.Parent :: BillboardGui
+		stopGui.Enabled = false
+	end
+	-- One ladder up the right side, as tall as the built tower (syncTower).
+	local ladder = Instance.new("TrussPart")
+	ladder.Name = "Ladder"
+	ladder.Anchored = true
+	ladder.Size = Vector3.new(2, 2, 2)
+	ladder.CFrame = at(Vector3.new(Layout.LADDER.X, Layout.FLOOR_TOP + 1, Layout.LADDER.Z))
+	ladder.Color = Color3.fromRGB(140, 100, 60)
+	ladder.Transparency = 1
+	ladder.CanCollide = false
+	ladder.Parent = tower
 end
 
 local function buildPlot(index: number): Model
@@ -105,10 +268,12 @@ local function buildPlot(index: number): Model
 		p.Parent = incubators
 	end
 
+	-- Pads across the whole tower: 8 per floor (Geometry.pad). Pads on
+	-- floors the owner has not built stay hidden (syncTower).
 	local pads = Instance.new("Folder")
 	pads.Name = "Pads"
 	pads.Parent = model
-	for index_ = 1, 20 do
+	for index_ = 1, Tower.FLOORS * Tower.SPOTS do
 		local p = part({
 			Name = `Pad{index_}`,
 			Size = Vector3.new(6, 0.4, 6),
@@ -116,8 +281,16 @@ local function buildPlot(index: number): Model
 			Color = Color3.fromRGB(150, 140, 120),
 		})
 		p:SetAttribute("Pad", index_)
+		p:SetAttribute("Floor", Tower.floorOf(index_))
+		if index_ > Tower.SPOTS then
+			-- Upper floors' pads stay hidden until the owner builds the floor.
+			p.Transparency = 1
+			p.CanCollide = false
+		end
 		p.Parent = pads
 	end
+
+	buildTower(model, at)
 
 	local collect = part({
 		Name = "CollectPad",
@@ -317,6 +490,39 @@ function World.model(index: number): Model?
 	return plots[index]
 end
 
+-- The elevator: whether the player stands at one of their own tower's
+-- elevator stops, and where floor `floor`'s stop is.
+local function stopOf(index: number, floor: number): BasePart?
+	local model = plots[index]
+	local tower = model and model:FindFirstChild("Tower")
+	local folder = tower and tower:FindFirstChild(`Floor{floor}`)
+	return folder and folder:FindFirstChild("Elevator") :: BasePart?
+end
+
+function World.atElevator(player: Player, floors: number): boolean
+	local index = World.plotOf(player)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if index == nil or root == nil then
+		return false
+	end
+	for floor = 1, floors do
+		local stop = stopOf(index, floor)
+		if stop and (stop.Position - root.Position).Magnitude <= 8 then
+			return true
+		end
+	end
+	return false
+end
+
+function World.elevatorTo(player: Player, floor: number)
+	local index = World.plotOf(player)
+	local stop = index and stopOf(index, floor)
+	if stop then
+		World.teleport(player, stop.CFrame * CFrame.new(0, 3.2, 0))
+	end
+end
+
 function World.ownerOfIndex(index: number): Player?
 	return owners[index]
 end
@@ -423,7 +629,7 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			end
 		end
 	end
-	for index = 1, 20 do
+	for index = 1, Tower.FLOORS * Tower.SPOTS do
 		local pad = folder:FindFirstChild(`Pad{index}`) :: Part
 		local c = onPad[index]
 		local shown = pad:FindFirstChild("Creature") :: Part?
@@ -436,6 +642,7 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			pad:SetAttribute("Riding", nil)
 			pad:SetAttribute("Guard", nil)
 			pad:SetAttribute("Carried", nil)
+			pad:SetAttribute("Span", nil)
 			continue
 		end
 		local species = config.creatures.species[c.speciesId]
@@ -447,6 +654,8 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 		pad:SetAttribute("Riding", riding)
 		pad:SetAttribute("Guard", guarding)
 		pad:SetAttribute("Carried", isCarried)
+		-- How many pads it takes: the client centres its prompts on them.
+		pad:SetAttribute("Span", Tower.size(c, config.creatures, config.economy))
 		if shown == nil or shown:GetAttribute("Uid") ~= c.uid then
 			if shown then
 				shown:Destroy()
@@ -456,8 +665,10 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 				Name = "Creature",
 				Shape = Enum.PartType.Ball,
 				Size = Vector3.new(size, size, size),
-				-- Facing the way the base faces: toward the yard.
-				CFrame = CFrame.new(pad.Position + Vector3.new(0, size / 2 + 0.2, 0)) * pad.CFrame.Rotation,
+				-- Facing the way the base faces: toward the yard. A creature
+				-- taking 2 or 3 pads stands in the middle of them.
+				CFrame = pad.CFrame
+					* CFrame.new((Tower.size(c, config.creatures, config.economy) - 1) * 5, size / 2 + 0.2, 0),
 				Color = Layout.rarityColor(species.rarity),
 				Transparency = 1,
 				CanCollide = false,
@@ -482,6 +693,88 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			"LookFade",
 			if isCarried then 1 elseif riding or guarding then 0.75 else 0
 		)
+	end
+end
+
+local function shortCoins(n: number): string
+	return `{Layout.shortNumber(n)} coins`
+end
+
+-- Shows the floors the owner has built, the next one as a ghost with its
+-- price, each floor's upgrades, and the ladder up to the top floor.
+local function syncTower(model: Model, d: { [string]: any }?, config: any?)
+	local owned = if d then Tower.owned(d) else 1
+	local tower = model:FindFirstChild("Tower") :: Folder
+	local claimed = d ~= nil and config ~= nil
+	for _, p in tower:GetDescendants() do
+		if p:IsA("BasePart") and p:GetAttribute("Floor") then
+			local floor = p:GetAttribute("Floor") :: number
+			local upgrade = p:GetAttribute("Upgrade") :: number?
+			local built = claimed and floor <= owned
+			local ghost = claimed and floor == owned + 1 and p.Name == "Deck"
+			local show = built and (upgrade == nil or Tower.upgrades(d :: any, floor) >= upgrade)
+			local transparency = if show then p:GetAttribute("Shown") :: number elseif ghost then 0.85 else 1
+			local solid = show and p:GetAttribute("Solid") == true
+			-- Synced every tick: write only what changed.
+			if p.Transparency ~= transparency then
+				p.Transparency = transparency
+			end
+			if p.CanCollide ~= solid then
+				p.CanCollide = solid
+			end
+			-- A label shows even on an invisible part: hide it with its part.
+			local label = p:FindFirstChild("Label")
+			if label and label:IsA("BillboardGui") and p.Name ~= "Deck" and label.Enabled ~= show then
+				label.Enabled = show
+			end
+		end
+	end
+	for floor = 2, Tower.FLOORS do
+		local folder = tower:FindFirstChild(`Floor{floor}`) :: Folder
+		local plaque = folder:FindFirstChild("Plaque") :: Part
+		local text = ""
+		if claimed and floor <= owned then
+			local m = Tower.multiplier(d :: any, floor, (config :: any).economy)
+			text = `{floor}. {(config :: any).economy.tower.themes[floor]}  x{string.format("%.2f", m)}`
+		end
+		setLabel(plaque, text)
+		local deck = folder:FindFirstChild("Deck") :: Part
+		local nextPrice = if claimed then Tower.nextFloorPrice(d :: any, (config :: any).economy) else nil
+		local label = deck:FindFirstChild("Label")
+		if floor == owned + 1 and claimed and nextPrice then
+			if label == nil then
+				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(16, 2.4), "")
+			end
+			setLabel(deck, `Floor {floor}: {shortCoins(nextPrice)} (Tower menu)`)
+		elseif label then
+			label:Destroy()
+		end
+	end
+	-- The pads of unbuilt floors go too.
+	for _, pad in (model:FindFirstChild("Pads") :: Folder):GetChildren() do
+		local floor = pad:GetAttribute("Floor") :: number
+		local built = floor <= owned and (claimed or floor == 1)
+		local transparency = if built then 0 else 1
+		if (pad :: Part).Transparency ~= transparency then
+			(pad :: Part).Transparency = transparency;
+			(pad :: Part).CanCollide = built
+		end
+	end
+	local ladder = tower:FindFirstChild("Ladder") :: TrussPart
+	if claimed and owned > 1 then
+		local height = Layout.floorTop(owned) - Layout.FLOOR_TOP + 4
+		local base = (model.PrimaryPart :: BasePart).CFrame * CFrame.new(0, Layout.FLOOR_THICKNESS / 2, 0)
+		if ladder.Size.Y ~= height or ladder.Transparency ~= 0 then
+			ladder.Size = Vector3.new(2, height, 2)
+			ladder.CFrame = base * CFrame.new(Layout.LADDER.X, height / 2, Layout.LADDER.Z)
+			ladder.Transparency = 0
+			ladder.CanCollide = true
+		end
+	else
+		if ladder.Transparency ~= 1 then
+			ladder.Transparency = 1
+			ladder.CanCollide = false
+		end
 	end
 end
 
@@ -566,6 +859,7 @@ function World.sync(
 		return
 	end
 	syncIncubators(model, d, config, slotCount)
+	syncTower(model, d, config)
 	syncPads(model, d, config, carried or {})
 	syncDefenses(model, d, config, now or os.time())
 	local rebirth = model:FindFirstChild("RebirthStand") :: Part

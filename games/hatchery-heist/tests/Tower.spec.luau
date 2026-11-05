@@ -1,0 +1,222 @@
+--!strict
+-- The tower (Alex, Nov 5): 10 floors of 8 slots, only placed creatures earn,
+-- each floor up adds up to +0.25 once fully upgraded, rarer creatures take
+-- more slots, and Place best fills the top floors with the best earners.
+local Geometry = require("../src/shared/Geometry")
+local DataTemplate = require("../src/shared/DataTemplate")
+local Hatchery = require("../src/shared/Hatchery")
+local Tower = require("../src/shared/Tower")
+local Util = require("@core/Util")
+local t = require("@testlib")
+local describe, it, expect = t.describe, t.it, t.expect
+
+local economy = require("../config/economy")
+local creatures = require("../config/creatures")
+local config = { economy = economy, creatures = creatures }
+local NO_PERKS = { doubleCoins = false, extraIncubators = false }
+
+local function ledger(d: { [string]: any })
+	local l = {}
+	function l.spend(_self: any, _currency: string, amount: number, _reason: string): boolean
+		if d.coins < amount then
+			return false
+		end
+		d.coins -= amount
+		return true
+	end
+	return l
+end
+
+local function fresh(): { [string]: any }
+	local d = Util.deepCopy(DataTemplate.template)
+	d.creatures = {}
+	return d
+end
+
+local function add(d: any, uid: string, speciesId: string, slot: number?): any
+	local c = { uid = uid, speciesId = speciesId, mutation = "None", slot = slot }
+	table.insert(d.creatures, c)
+	return c
+end
+
+local function income(c: any): number
+	return Hatchery.creatureIncome(c, creatures)
+end
+
+describe("Tower floors", function()
+	it("gives each floor its bonus: x1 on the ground, +0.05 when bought, +0.25 fully upgraded", function()
+		local d = fresh()
+		expect(Tower.multiplier(d, 1, economy)).toBe(1)
+		expect(Tower.multiplier(d, 2, economy)).toBeCloseTo(1.05, 1e-9)
+		d.floorUpgrades = { 0, 4 }
+		expect(Tower.multiplier(d, 2, economy)).toBeCloseTo(1.25, 1e-9)
+		expect(Tower.fullMultiplier(10, economy)).toBeCloseTo(3.25, 1e-9)
+		-- A new floor starts just above the full floor below it.
+		for floor = 3, 10 do
+			expect(Tower.multiplier(fresh(), floor, economy)).toBeCloseTo(
+				Tower.fullMultiplier(floor - 1, economy) + 0.05,
+				1e-9
+			)
+		end
+	end)
+
+	it("sells floors in order at 3 times the one below, and four upgrades each", function()
+		local d = fresh()
+		d.coins = 10 ^ 12
+		local prices = {}
+		for _ = 2, 10 do
+			table.insert(prices, Tower.nextFloorPrice(d, economy))
+			expect((Tower.buyFloor(d, ledger(d), economy))).toBe(true)
+		end
+		expect(prices[1]).toBe(25000)
+		expect(prices[9]).toBe(165000000)
+		for i = 2, 9 do
+			expect(prices[i] / prices[i - 1]).toBeCloseTo(3, 0.1)
+		end
+		expect(Tower.owned(d)).toBe(10)
+		expect(Tower.nextFloorPrice(d, economy)).toBeNil()
+		expect((Tower.buyFloor(d, ledger(d), economy))).toBe(false)
+		-- Floor 2's upgrades: 20, 35, 50 and 75% of 25,000.
+		local upgrades = {}
+		for _ = 1, 4 do
+			table.insert(upgrades, Tower.nextUpgradePrice(d, 2, economy))
+			expect((Tower.upgradeFloor(d, ledger(d), 2, economy))).toBe(true)
+		end
+		expect(upgrades).toEqual({ 5000, 8750, 12500, 18750 })
+		expect((Tower.upgradeFloor(d, ledger(d), 2, economy))).toBe(false)
+		expect((Tower.upgradeFloor(d, ledger(d), 1, economy))).toBe(false)
+		-- Saved as a list with no gaps.
+		expect(#d.floorUpgrades).toBe(2)
+	end)
+
+	it("refuses a floor the player cannot afford and leaves coins alone", function()
+		local d = fresh()
+		d.coins = 24999
+		local ok, why = Tower.buyFloor(d, ledger(d), economy)
+		expect(ok).toBe(false)
+		expect(why).toBe("Not enough coins.")
+		expect(d.coins).toBe(24999)
+		expect(Tower.owned(d)).toBe(1)
+	end)
+end)
+
+describe("Tower slots", function()
+	it("lets rarer creatures take 2 or 3 slots side by side in one row", function()
+		local d = fresh()
+		-- Floor 1's front row: a Common in slot 2 leaves no 3-wide gap there.
+		add(d, "1", "Chick", 2)
+		local used = Tower.occupancy(d, creatures, economy)
+		expect(Tower.freeSpot(used, 1, 3)).toBe(5)
+		expect(Tower.freeSpot(used, 1, 2)).toBe(3)
+		expect(Tower.freeSpot(used, 1, 1)).toBe(1)
+		local phoenix = add(d, "2", "Phoenix", nil)
+		expect(Tower.size(phoenix, creatures, economy)).toBe(3)
+		expect(Tower.autoPlace(d, phoenix, creatures, economy)).toBe(true)
+		expect(phoenix.slot).toBe(5)
+		-- Slots 5 to 7 are taken; slot 8 is free but a second Phoenix has no room.
+		local other = add(d, "3", "Phoenix", nil)
+		expect(Tower.autoPlace(d, other, creatures, economy)).toBe(false)
+		expect(Tower.full(d, creatures, economy)).toBe(false)
+	end)
+
+	it("earns only from placed creatures, each times its floor's bonus", function()
+		local d = fresh()
+		d.floors = 2
+		add(d, "1", "Chick", 1)
+		add(d, "2", "Chick", 9) -- floor 2
+		add(d, "3", "Phoenix", nil) -- inventory
+		local chick = creatures.species.Chick.coinsPerSecond
+		local expected = (chick + chick * 1.05) * (1 + Hatchery.bookBonus(d, config))
+		expect(Hatchery.incomePerSecond(d, config, NO_PERKS)).toBeCloseTo(expected, 1e-9)
+		expect(Hatchery.earning(d, d.creatures[3], config, NO_PERKS)).toBe(0)
+	end)
+
+	it("moves creatures between floors and the inventory", function()
+		local d = fresh()
+		d.floors = 2
+		add(d, "1", "Chick", 1)
+		expect((Tower.place(d, "1", 2, creatures, economy))).toBe(true)
+		expect(d.creatures[1].slot).toBe(9)
+		expect((Tower.place(d, "1", 3, creatures, economy))).toBe(false) -- not built
+		expect((Tower.takeBack(d, "1"))).toBe(true)
+		expect(d.creatures[1].slot).toBeNil()
+		d.mountUid = "1"
+		expect((Tower.place(d, "1", 1, creatures, economy))).toBe(false)
+		d.mountUid = ""
+		-- A full floor refuses, and the creature stays where it was.
+		for i = 2, 9 do
+			add(d, tostring(i), "Chick", 8 + i - 1)
+		end
+		local ok, why = Tower.place(d, "1", 2, creatures, economy)
+		expect(ok).toBe(false)
+		expect(why).toBe("Floor 2 has no room for it.")
+		expect(d.creatures[1].slot).toBeNil()
+	end)
+
+	it("Place best puts the best earners per slot on the highest floors", function()
+		local d = fresh()
+		d.floors = 2
+		for i = 1, 14 do
+			add(d, tostring(i), "Chick", nil)
+		end
+		add(d, "15", "Penguin", nil)
+		add(d, "16", "Phoenix", 1)
+		add(d, "17", "Owlet", nil)
+		d.mountUid = "17"
+		d.creatures[17].slot = 4
+		local placed = Tower.placeBest(d, creatures, economy, income)
+		-- The ridden Owlet keeps its slot; 16 slots minus its 1 hold the rest.
+		expect(d.creatures[17].slot).toBe(4)
+		expect(Tower.floorOf(d.creatures[16].slot :: number)).toBe(2) -- Phoenix up top
+		expect(Tower.floorOf(d.creatures[15].slot :: number)).toBe(2) -- then the Penguin
+		local used = Tower.occupancy(d, creatures, economy)
+		local filled = 0
+		for _ in used do
+			filled += 1
+		end
+		expect(filled).toBe(16)
+		expect(placed).toBe(14) -- Owlet, Phoenix, Penguin and 11 Chicks
+	end)
+
+	it("tidies saves with creatures off the built floors or on top of each other", function()
+		local d = fresh()
+		add(d, "1", "Chick", 1)
+		add(d, "2", "Chick", 1) -- on top of the first
+		add(d, "3", "Chick", 12) -- floor 2, not built
+		add(d, "4", "Phoenix", 3) -- would run past the end of the row
+		d.guardUid = "3"
+		Tower.tidy(d, creatures, economy)
+		expect(d.creatures[1].slot).toBe(1)
+		expect(d.creatures[2].slot).toBeNil()
+		expect(d.creatures[3].slot).toBeNil()
+		expect(d.creatures[4].slot).toBeNil()
+		expect(d.guardUid).toBe("")
+	end)
+end)
+
+describe("Tower reach", function()
+	it("measures a big creature from the middle of its pads", function()
+		local x1, z1 = Geometry.pad(1)
+		local x, z, height = Geometry.padCentre(1, 1)
+		expect(x).toBe(x1)
+		expect(z).toBe(z1)
+		expect(height).toBe(0)
+		-- A Legendary on pads 9 to 11 (floor 2) stands over pad 10, the middle one.
+		local x10, z10 = Geometry.pad(10)
+		local cx, cz, ch = Geometry.padCentre(9, 3)
+		expect(cx).toBe(x10)
+		expect(cz).toBe(z10)
+		expect(ch).toBe(Geometry.FLOOR_HEIGHT)
+	end)
+
+	it("lets a raider take a creature only from the floor it stands on", function()
+		local standing = 3 -- a standing R15 root above the deck it is on
+		-- Pad 1 is on floor 1, pad 9 on floor 2 (12 studs up).
+		expect(Geometry.onFloorOfPad(1, standing)).toBe(true)
+		expect(Geometry.onFloorOfPad(9, standing)).toBe(false) -- under floor 2
+		expect(Geometry.onFloorOfPad(9, Geometry.FLOOR_HEIGHT + standing)).toBe(true)
+		expect(Geometry.onFloorOfPad(1, Geometry.FLOOR_HEIGHT + standing)).toBe(false) -- floor 2, looking down
+		expect(Geometry.onFloorOfPad(80, 9 * Geometry.FLOOR_HEIGHT + standing)).toBe(true)
+		expect(Geometry.onFloorOfPad(80, 8 * Geometry.FLOOR_HEIGHT + standing)).toBe(false)
+	end)
+end)

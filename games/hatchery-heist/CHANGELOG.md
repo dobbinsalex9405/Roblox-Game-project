@@ -13,6 +13,20 @@
   (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
   long hind feet and rounder faces; the Lop Bunny's ears hang beside its
   cheeks.
+- Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
+  Golden Sky Penthouse). Build floors for coins (25K up to
+  165M); higher floors make the creatures on them earn more (up to x3.25),
+  and each floor has 4 upgrades with props you can see. 8 spots a floor:
+  Epics take 2, Legendaries and Godlies 3. Ride the elevator or climb the
+  ladder.
+- Only creatures on a floor earn. The rest wait in your inventory (now 150,
+  up from 30); "Your Creatures" moves them, and Place best fills the tower
+  with your strongest. Old bases are placed best first on the next join.
+- Raiders must climb to a creature's floor to take it. The Ride, Guard and
+  Steal buttons of a big creature sit in the middle of its spots.
+- Fix: some Hatchery Book cards showed no "???" name for creatures not
+  found yet (on phones, the top rows).
+
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
   Robin, Bumblebee, Butterfly, Toad, Bluebird, Fawn, Otter Pup and Koala

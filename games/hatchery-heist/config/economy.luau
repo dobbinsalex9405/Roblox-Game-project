@@ -30,14 +30,47 @@ return {
 		weights = { BasicEgg = 70, MeadowEgg = 25, MoonlitEgg = 5 },
 	},
 
-	-- Creatures that can earn at once; when every pad is full, a better hatch
-	-- takes the weakest creature's pad and the weaker one goes to storage.
-	creaturePads = 20,
+	-- The tower (shared/Tower.luau). Only creatures placed on a floor earn.
+	-- Floor 1 is free and earns x1. Floor f (2 to 10) costs `floorPrices[f - 1]`
+	-- and earns 1 + floorBonus * (f - 2) + startBonus when bought; each of its
+	-- four upgrades adds `upgradeBonus`, so fully upgraded it earns
+	-- 1 + floorBonus * (f - 1): x1.25 on floor 2 up to x3.25 on floor 10.
+	-- Upgrade n costs upgradeShares[n] of the floor's price.
+	-- Each floor has 8 slots (shared/Geometry: the map is built for them).
+	tower = {
+		floorPrices = { 25000, 75000, 225000, 675000, 2000000, 6000000, 18000000, 55000000, 165000000 },
+		floorBonus = 0.25,
+		startBonus = 0.05,
+		upgradeBonus = 0.05,
+		upgradeShares = { 0.2, 0.35, 0.5, 0.75 },
+		-- Floor slots a creature takes, by tier: rarer ones are bigger.
+		slotsByRarity = {
+			Common = 1,
+			Uncommon = 1,
+			Rare = 1,
+			["Ultra Rare"] = 1,
+			Epic = 2,
+			Legendary = 3,
+			Godly = 3,
+		},
+		themes = {
+			"Cozy Studio",
+			"Book Nook",
+			"Plant Sunroom",
+			"Bakery Kitchen",
+			"Games Lounge",
+			"Winter Cabin",
+			"Art Studio",
+			"Rooftop Garden",
+			"Starlit Observatory",
+			"Golden Sky Penthouse",
+		},
+	},
 
-	-- Hatched creatures that do not fit on a pad wait in storage. When storage
-	-- is full, the weakest stored creature sells for `sellSeconds` of its income.
+	-- Creatures not placed on a floor wait in the inventory. When it is full,
+	-- the weakest one there sells for `sellSeconds` of its income.
 	storage = {
-		slots = 30,
+		slots = 150,
 		sellSeconds = 20,
 	},
 
