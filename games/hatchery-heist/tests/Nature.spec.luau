@@ -81,6 +81,29 @@ describe("Nature art", function()
 		end
 	end)
 
+	it("is uploaded all together or not at all", function()
+		-- a half-finished upload would leave some spots as box trees and drop
+		-- some small props, so it must not reach players
+		local uploaded, missing = 0, {}
+		for id, model in EnvArt.models do
+			if model.assetId > 0 then
+				uploaded += 1
+			else
+				table.insert(missing, id)
+			end
+		end
+		table.sort(missing)
+		local ok = uploaded == 0 or #missing == 0
+		expect(ok and "ok" or `not uploaded: {table.concat(missing, ", ")}`).toBe("ok")
+		local images = 0
+		for _, id in EnvArt.images :: any do
+			if id > 0 then
+				images += 1
+			end
+		end
+		expect(images == 0 or images == 7).toBe(true)
+	end)
+
 	it("only names models that exist in the config", function()
 		for _, id in nature.gapTrees do
 			expect(EnvArt.models[id] ~= nil and id or `gapTrees: no model {id}`).toBe(id)
