@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed (#49): a server error on every frame while any base had no guard
+  (every new player), which also stopped every other base's guard from
+  moving. The boot check now plays 30 frames, so per-frame errors fail CI.
 - Fixed (shared core): the game now starts in Studio from a built place
   file. The error queue, feedback and metrics stores no longer stop the
   server when DataStores are unavailable (an unpublished place); they warn
