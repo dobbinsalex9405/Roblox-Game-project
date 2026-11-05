@@ -110,15 +110,20 @@ def second_head(c, H, col, col2, a=None):
 
 
 def long_neck(c, H, col, col2, a=None):
-    """A neck like a giraffe's: the head (and its eyes and crest) raised and
-    pushed a little forward, joined to the body by a round neck."""
+    """A neck like a giraffe's, taller than the body: the head (and its eyes
+    and crest) raised high and pushed a little forward on a round neck. The
+    neck belongs to the head part, which turns at the neck's base (anim head),
+    so the whole neck sways and nods as the creature waddles."""
     k = H / 10.0
     body = _find(c, 'body')
     head = _find(c, 'head')
     if not body or not head or not head.v:
         return
-    lift, fwd = round(3.4 * k), -round(0.5 * k)
+    bz0 = min(p[2] for p in body.v)
+    bz1 = max(p[2] for p in body.v)
     hz0 = min(p[2] for p in head.v)
+    lift = max(round(6.5 * k), (bz1 - bz0) + 2 - (hz0 - bz1))
+    fwd = -round(0.6 * k)
     hy = sum(p[1] for p in head.v) / len(head.v)
     for p in c.parts:
         if p.name in HEAD_PARTS:
@@ -131,7 +136,9 @@ def long_neck(c, H, col, col2, a=None):
         t = i / steps
         z = base + (top - base) * t
         y = hy + 0.6 * k + (fwd - 0.6 * k) * t  # leans forward as it rises
-        body.ell((0, y, z), (r, r, 0.8), col)
+        head.ell((0, y, z), (r, r, 0.8), col)
+    head.anim = 'head'
+    head.pivot = (0, hy + 0.6 * k, base + 0.5 * k)
 
 
 # ------------------------------------------------------------------- ears
@@ -799,6 +806,30 @@ def diving_beetle(c, H, col, col2, a=None):
             leg.put((X(xk), y, 0), legc)
 
 
+def hoverfly(c, H, col, col2, a=None):
+    """Turns a wasp into the fly that mimics one: no stinger (the abdomen ends
+    flat and rounded) and clear wings, col with a col2 edge, in place of the
+    wasp's amber ones."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    ys = sorted({p[1] for p in body.v}, reverse=True)
+    # the stinger: the wasp plan's max(2, 0.6k) voxels behind the abdomen
+    for y in ys[:max(2, round(0.6 * k))]:
+        sl = [p for p in body.v if p[1] == y]
+        if len(sl) > 2:
+            break
+        for p in sl:
+            del body.v[p]
+    edge = col2 or _mix(col, INK, 0.25)
+    for name in ('wingL', 'wingR'):
+        w = _find(c, name)
+        if not w:
+            continue
+        for (x, y, z), (cc, g) in list(w.v.items()):
+            inner = all(q in w.v for q in ((x + 1, y, z), (x - 1, y, z), (x, y + 1, z), (x, y - 1, z)))
+            w.v[(x, y, z)] = (col if inner else edge, False)
+
+
 def drop_ears(c, H, col, col2, a=None):
     """Long floppy hound ears: from the top corners of the head each ear
     folds over and hangs flat against the side of the head, down past the
@@ -944,6 +975,7 @@ ACCESSORIES = {
     'aphid': aphid,
     'drop_ears': drop_ears,
     'cone_scales': cone_scales,
+    'hoverfly': hoverfly,
     'diving_beetle': diving_beetle,
     'tidy': tidy,
 }
