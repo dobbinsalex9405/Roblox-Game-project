@@ -145,6 +145,7 @@ def describe(c):
     meta = {
         'id': c.species,
         'rarity': c.rarity,
+        'element': getattr(c, 'element', 'plain'),
         'heightStuds': round(size[1], 4),
         'sizeStuds': r4(size),
         'voxelStuds': round(V, 5),

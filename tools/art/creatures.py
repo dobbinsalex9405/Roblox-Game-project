@@ -510,6 +510,12 @@ ROSTER = [
 ]
 
 
+# Each creature's element (Ember, Glacial, Nature, Storm, ...). Elements roll
+# out once there are many creatures per element and tier (Alex, Nov 5); until
+# then every creature is 'plain'. A themed variant names its element here.
+ELEMENT = {}
+
+
 def build_all(detail=None):
     """Every creature in the ROSTER. `detail` (rarity -> multiplier, default
     1) builds a tier with more, smaller voxels at the same size in studs: the
@@ -520,6 +526,7 @@ def build_all(detail=None):
         c = Creature(species, rarity)
         mult = (detail or {}).get(rarity, 1)
         c.detail = mult
+        c.element = ELEMENT.get(species, 'plain')
         c.fine = detail is not None  # the Blender build, at any multiplier
         fn(c, HEIGHT[rarity] * mult)
         c.voxel = VOXEL / mult
