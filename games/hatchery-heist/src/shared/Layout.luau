@@ -4,6 +4,7 @@
 -- faces the yard. The server builds from these numbers and the client renders
 -- the conveyor from them, so both always agree.
 
+local Numbers = require("./Numbers")
 local Geometry = require("./Geometry")
 
 local Layout = {}
@@ -72,7 +73,7 @@ Layout.FLOOR_LOOKS = {
 -- Where each floor's elevator stop is, and the ladder up the right side,
 -- in the base's own space (y = 0: add the floor's top).
 Layout.ELEVATOR = Vector3.new(-20.5, 0, 20.5)
-Layout.LADDER = Vector3.new(25.2, 0, 14.5)
+Layout.LADDER = Vector3.new(Geometry.LADDER[1], 0, Geometry.LADDER[2])
 
 -- The top of floor `floor`'s deck, in the base's own space.
 function Layout.floorTop(floor: number): number
@@ -101,7 +102,9 @@ local RARITY_COLORS: { [string]: Color3 } = {
 -- A creature's height in studs on a pad: the server's stand-in ball is this
 -- size and the client draws the whole art exactly this tall. Rarer creatures
 -- are only a little bigger (Alex, Nov 5): they take more room on a floor
--- instead, so a floor never gets crowded by one giant.
+-- instead, so a floor never gets crowded by one giant. Godlies are the
+-- exception, about 3 times a Common (Alex, Nov 5): they take 3 spots side by
+-- side, 30 by 10 studs, room for the Nebula Serpent's orbiting worlds.
 local RARITY_SIZES: { [string]: number } = {
 	Common = 2,
 	Uncommon = 2.2,
@@ -109,7 +112,7 @@ local RARITY_SIZES: { [string]: number } = {
 	["Ultra Rare"] = 2.7,
 	Epic = 3,
 	Legendary = 3.4,
-	Godly = 3.8,
+	Godly = 6,
 }
 
 -- 1 for Common up to 7 for Godly.
@@ -154,20 +157,9 @@ function Layout.displayName(id: string): string
 	return (string.gsub(id, "(%l)(%u)", "%1 %2"))
 end
 
--- 1234567 -> "1.23M"
+-- 1234567 -> "1.23M", 25000 -> "25K" (shared/Numbers.luau)
 function Layout.shortNumber(n: number): string
-	local units: { { size: number, suffix: string } } = {
-		{ size = 1e12, suffix = "T" },
-		{ size = 1e9, suffix = "B" },
-		{ size = 1e6, suffix = "M" },
-		{ size = 1e3, suffix = "K" },
-	}
-	for _, unit in units do
-		if math.abs(n) >= unit.size then
-			return string.format("%.2f%s", n / unit.size, unit.suffix)
-		end
-	end
-	return tostring(math.floor(n))
+	return Numbers.short(n)
 end
 
 return Layout

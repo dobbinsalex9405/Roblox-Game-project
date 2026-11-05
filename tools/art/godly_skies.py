@@ -616,6 +616,7 @@ def cosmic_whale(c, H):
     the dark inside swirling with a glowing spiral galaxy and stars; a pale
     grooved throat under a long jaw line, bright eyes, long flippers that
     paddle and wide tail flukes; moons circle above its back."""
+    c.gait_hint = 'swim'  # swims through the air: the tail sweeps and the flippers paddle
     k, fine = ctx(c, H * 1.2)  # long and low: drawn a little bigger so its voxels match the rest at 6 studs
     navy, navyL, navyD = C('#1E2A6A'), C('#2E3F9A'), C('#141C4A')
     glass, glassL, belly, groove = C('#8FC8FF'), C('#D4ECFF'), C('#B4C8F0'), C('#8098D8')
@@ -830,6 +831,7 @@ def clockwork_leviathan(c, H):
     eyes, a furnace heart glowing through a grille on each side of its chest,
     gear wheels on its flanks, copper fin plates and a dorsal gear fin down
     its back, flippers and wide flukes; cogs circle above its back."""
+    c.gait_hint = 'swim'  # swims through the air: the tail sweeps and the flippers paddle
     k, fine = ctx(c, H * 1.1)  # long and low: drawn bigger so its voxels match the rest at 6 studs
     brass, brassL, brassD, copper = C('#C9922E'), C('#E8B85A'), C('#8A6020'), C('#B8662E')
     steel, steelD, fire, fireL = C('#6A7080'), C('#3E4250'), C('#FF7A1A'), C('#FFD84A')

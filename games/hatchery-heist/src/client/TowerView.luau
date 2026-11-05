@@ -73,7 +73,7 @@ end
 local function button(parent: Instance, name: string, label: string, color: Color3, width: number): TextButton
 	local b = Instance.new("TextButton")
 	b.Name = name
-	b.Size = UDim2.fromOffset(width, 34)
+	b.Size = UDim2.fromOffset(width, 40) -- 40 px: the phone tap minimum
 	b.BackgroundColor3 = color
 	b.Font = FONT
 	b.TextSize = 15
@@ -250,7 +250,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			buttons.BackgroundTransparency = 1
 			buttons.AnchorPoint = Vector2.new(1, 0.5)
 			buttons.Position = UDim2.new(1, -8, 0.5, 0)
-			buttons.Size = UDim2.fromOffset(232, 34)
+			buttons.Size = UDim2.fromOffset(232, 40)
 			local bl = Instance.new("UIListLayout")
 			bl.FillDirection = Enum.FillDirection.Horizontal
 			bl.HorizontalAlignment = Enum.HorizontalAlignment.Right
@@ -295,7 +295,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 				end)
 			else
 				local lock = text(buttons, "Price", coins(economy.tower.floorPrices[floor - 1]), 15, GREY)
-				lock.Size = UDim2.fromOffset(168, 34)
+				lock.Size = UDim2.fromOffset(168, 40)
 				lock.TextXAlignment = Enum.TextXAlignment.Right
 			end
 		end
@@ -372,12 +372,12 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 				continue
 			end
 			local open = picked == c.uid
-			local r = row(herdList, i, if open then 96 else 52)
+			local r = row(herdList, i, if open then 108 else 58)
 			local color = Layout.rarityColor(species.rarity)
 			local swatch = Instance.new("Frame")
 			swatch.Name = "Swatch"
 			swatch.Position = UDim2.fromOffset(8, 8)
-			swatch.Size = UDim2.fromOffset(10, 36)
+			swatch.Size = UDim2.fromOffset(10, 42)
 			swatch.BackgroundColor3 = color
 			corner(swatch, 4)
 			swatch.Parent = r
@@ -403,7 +403,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 				14,
 				Color3.fromRGB(210, 210, 225)
 			)
-			info.Position = UDim2.fromOffset(26, 26)
+			info.Position = UDim2.fromOffset(26, 30)
 			info.Size = UDim2.new(1, -160, 0, 20)
 			local toggle = button(r, "Move", if open then "Close" else "Move", BLUE, 120)
 			toggle.AnchorPoint = Vector2.new(1, 0)
@@ -420,8 +420,8 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 				strip.Name = "Floors"
 				strip.BackgroundTransparency = 1
 				strip.BorderSizePixel = 0
-				strip.Position = UDim2.fromOffset(26, 52)
-				strip.Size = UDim2.new(1, -34, 0, 40)
+				strip.Position = UDim2.fromOffset(26, 58)
+				strip.Size = UDim2.new(1, -34, 0, 46)
 				strip.CanvasSize = UDim2.fromScale(0, 0)
 				strip.AutomaticCanvasSize = Enum.AutomaticSize.X
 				strip.ScrollingDirection = Enum.ScrollingDirection.X

@@ -8,15 +8,21 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
 | `legends.py` | The two Legendaries and two Godlies, built in far more detail (`FINER` in `creatures.py` gives a showpiece smaller voxels in the Blender build) |
 | `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
+| `roster/master/master-list.json` | The master creature list: every creature planned, all seven tiers (`master_list.py` checks it) |
+| `master_list.py` | Checks the master list and lists what is left to build (`--todo [TIER]`, `--plans`) |
 | `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
 | `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |
 | `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
+| `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
 
 See `ANIMATION.md` for the rig and gait conventions every new creature follows (named leg, wing and fin parts; gaits).
 
 ## Adding a creature (as data)
+
+Pick it from the master list first (`python3 tools/art/master_list.py --todo`)
+and keep its id, tier, plan, gait and element.
 
 1. Add one line to a file in `roster/` (a new file per batch, so batches
    never collide). The fields are in `variants.py`'s docstring:
@@ -31,6 +37,9 @@ See `ANIMATION.md` for the rig and gait conventions every new creature follows (
    lists the id. Until then `export.py` and `blender/luau.py` leave it out
    of the generated files and say so, so CI stays green. After adding the
    config line, re-run both and commit the generated files.
+5. `python3 tools/art/check.py` must end in `RESULT: PASS` before the PR
+   goes to review; send the reviewer its table of new creatures, the head
+   commit and the renders.
 
 ## Changing a creature
 

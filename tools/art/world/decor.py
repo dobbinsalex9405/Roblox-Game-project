@@ -8,7 +8,7 @@ import numpy as np
 
 from vkit import VOX, col, hnoise, snoise
 from styles import pick
-from props import prop, WOOD, WOOD_D, STRAW, RED, CREAM, IRON, two_tone, fruit, LEAF, BLOSSOM
+from props import prop, WOOD, WOOD_D, STRAW, RED, IRON, two_tone, fruit
 
 
 def D(pid, floor, zone, w, d, h, note='', budget=80, extra=0.0):
@@ -49,8 +49,8 @@ def legs(g, x0, y0, x1, y1, z0, z1, t, c):
             g.box((x, y, z0), (x + t, y + t, z1), c)
 
 
-# =========================================================== 1 Farmyard barn
-@D('HayBaleBed', 1, 'cozy', 4, 3, 1.5, 'hay bale bed with a hollow to curl up in')
+# ============================================ Farm centre (floor None, zone farm)
+@D('HayBaleBed', None, 'farm', 4, 3, 1.5, 'hay bale bed with a hollow to curl up in')
 def _(p):
     g = p.part()
     g.rrbox((-2, -1.5, 0), (2, 1.5, 1.5), 0.3, pick(STRAW, 201))
@@ -60,7 +60,7 @@ def _(p):
     g.box((-1.4, -0.9, 1.0), (1.4, 0.9, 1.1), pick(['#F7DA75', '#FFE59A'], 202))
 
 
-@D('NestBox', 1, 'cozy', 3, 3, 1.2, 'wooden nest box with straw')
+@D('NestBox', None, 'farm', 3, 3, 1.2, 'wooden nest box with straw')
 def _(p):
     g = p.part()
     g.box((-1.5, -1.5, 0), (1.5, 1.5, 1.2), pick(WOOD, 203))
@@ -76,7 +76,7 @@ def _(p):
     ball(g, 0, 0, 0.6, 0.6, col('#E8413C'), 0.18, col('#FFFFFF'))
 
 
-@D('TyreSwing', 1, 'toys', 3, 1.2, 5, 'tyre swing on a wooden frame; part "swing" sways from the top bar')
+@D('TyreSwing', None, 'farm', 3, 1.2, 5, 'tyre swing on a wooden frame; part "swing" sways from the top bar')
 def _(p):
     g = p.part()
     w = pick(WOOD_D, 205)
@@ -92,7 +92,7 @@ def _(p):
     s.fill((-0.9, -0.3, 0.6), (0.9, 0.3, 2.2), tyre, col('#2E2E36'))
 
 
-@D('Seesaw', 1, 'toys', 5, 1.5, 1.2, 'small seesaw; part "plank" rocks')
+@D('Seesaw', None, 'farm', 5, 1.5, 1.2, 'small seesaw; part "plank" rocks')
 def _(p):
     g = p.part()
     g.box((-0.4, -0.5, 0), (0.4, 0.5, 0.6), col(RED))
@@ -102,7 +102,7 @@ def _(p):
         k.box((x - 0.1, -0.5, 0.8), (x + 0.1, 0.5, 1.2), col(RED))
 
 
-@D('HangingLantern', 1, 'lighting', 1, 1, 2, 'barn lantern on a chain; part "light" flickers')
+@D('HangingLantern', None, 'farm', 1, 1, 2, 'barn lantern on a chain; part "light" flickers')
 def _(p):
     g = p.part()
     fr = col(IRON)
@@ -117,18 +117,7 @@ def _(p):
     li.box((-0.3, -0.3, 0.12), (0.3, 0.3, 1.0), glow('#FFC870', 4))
 
 
-@D('WindowLight', 1, 'lighting', 4, 0.4, 3, 'barn window with warm light; part "panes" glows')
-def _(p):
-    g = p.part()
-    g.box((-2, 0, 0), (2, 0.4, 3), col(CREAM[0]))
-    g.carve((-1.7, -0.1, 0.3), (1.7, 0.5, 2.7))
-    g.box((-0.08, 0.1, 0.3), (0.08, 0.3, 2.7), col(CREAM[0]))
-    g.box((-1.7, 0.1, 1.42), (1.7, 0.3, 1.58), col(CREAM[0]))
-    q = p.part('panes', anim='pulse', parent='body')
-    q.box((-1.7, 0.15, 0.3), (1.7, 0.25, 2.7), glow('#FFE7A8', 1.6))
-
-
-@D('FeedTrough', 1, 'food', 5, 1.5, 1.2, 'wooden feed trough full of grain')
+@D('FeedTrough', None, 'farm', 5, 1.5, 1.2, 'wooden feed trough full of grain')
 def _(p):
     g = p.part()
     g.box((-2.5, -0.75, 0.3), (2.5, 0.75, 1.2), pick(WOOD, 207))
@@ -138,7 +127,7 @@ def _(p):
         g.box((x, -0.75, 0), (x + 0.4, 0.75, 0.3), col('#8B5A33'))
 
 
-@D('WaterBucket', 1, 'food', 1.2, 1.2, 1.2, 'metal bucket of water')
+@D('WaterBucket', None, 'farm', 1.2, 1.2, 1.2, 'metal bucket of water')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 1.0, 0.5, col('#A9B4C2'), r1=0.6)
@@ -150,7 +139,7 @@ def _(p):
     g.fill((-0.62, -0.1, 1.0), (0.62, 0.1, 1.2), lambda X, Y, Z: np.abs(X * X / 0.36 + (Z - 1.0) ** 2 / 0.04 - 1) < 0.5, col(IRON))
 
 
-@D('GrainSack', 1, 'food', 1.5, 1, 2, 'burlap grain sack, tied at the top')
+@D('GrainSack', None, 'farm', 1.5, 1, 2, 'burlap grain sack, tied at the top')
 def _(p):
     g = p.part()
     g.blob((0, 0, 0.8), (0.75, 0.5, 0.85), pick(['#D9B98A', '#CFAE7E', '#E2C497'], 209), amp=0.06, f=3, seed=2)
@@ -176,7 +165,7 @@ def _(p):
     g.paint((-1.5, -1.5, 0), (1.5, 1.5, 0.6), lambda X, Y, Z: (np.mod(X + 1.5, 0.75) < VOX) | (np.mod(Y + 1.5, 0.75) < VOX), col('#FFFFFF'))
 
 
-@D('WickerBasketBed', 2, 'cozy', 3, 3, 1.5, 'round wicker basket bed with a blanket')
+@D('WickerBasketBed', 1, 'cozy', 3, 3, 1.5, 'round wicker basket bed with a blanket')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 1.2, 1.3, lambda X, Y, Z: np.where(np.mod(np.arctan2(Y, X) * 6 + Z * 8, 2) < 1, col('#C98E52'), col('#B07A42')), r1=1.5)
@@ -186,14 +175,14 @@ def _(p):
     g.paint((-1.2, -1.2, 0.3), (1.2, 1.2, 0.6), lambda X, Y, Z: (np.mod(X, 0.5) < 0.1) | (np.mod(Y, 0.5) < 0.1), col('#FFFFFF'))
 
 
-@D('YarnBall', 2, 'toys', 1, 1, 1, 'ball of yarn; rolls')
+@D('YarnBall', 1, 'toys', 1, 1, 1, 'ball of yarn; rolls')
 def _(p):
     g = p.part('ball', anim='roll', pivot=(0, 0, 0.5))
     g.ell((0, 0, 0.5), (0.5, 0.5, 0.5), lambda X, Y, Z: np.where(np.mod(X * 3 + Z * 4, 1) < 0.35, col('#FF6FA8'), col('#FF9EC7')))
     g.seg((0.4, -0.2, 0.2), (0.9, -0.5, 0.05), 0.05, col('#FF6FA8'))
 
 
-@D('DaisyPinwheel', 2, 'toys', 1, 0.6, 3, 'daisy pinwheel on a stick; part "wheel" spins')
+@D('DaisyPinwheel', 3, 'toys', 1, 0.6, 3, 'daisy pinwheel on a stick; part "wheel" spins')
 def _(p):
     g = p.part()
     g.box((-0.06, -0.06, 0), (0.06, 0.06, 2.3), col('#5DB13E'))
@@ -204,7 +193,7 @@ def _(p):
     w.ell((0, -0.3, 2.4), (0.25, 0.2, 0.25), col('#FFD166'))
 
 
-@D('BlockStack', 2, 'toys', 2, 2, 2, 'stack of wooden letter blocks')
+@D('BlockStack', 1, 'toys', 2, 2, 2, 'stack of wooden letter blocks')
 def _(p):
     g = p.part()
     for (x, y, z, c) in ((-0.45, -0.45, 0, '#FF6F91'), (0.45, -0.4, 0, '#8FD3FF'), (-0.4, 0.45, 0, '#A7E98F'), (0.4, 0.45, 0, '#FFD166'),
@@ -213,7 +202,7 @@ def _(p):
         g.box((x - 0.2, y - 0.47, z + 0.25), (x + 0.2, y - 0.45, z + 0.65), col('#FFFFFF'))
 
 
-@D('FairyLights', 2, 'lighting', 6, 0.4, 1.2, 'flower-pot fairy lights strung along a wall; part "bulbs" twinkles')
+@D('FairyLights', 1, 'lighting', 6, 0.4, 1.2, 'flower-pot fairy lights strung along a wall; part "bulbs" twinkles')
 def _(p):
     g = p.part()
     b = p.part('bulbs', anim='flicker', parent='body')
@@ -237,15 +226,7 @@ def _(p):
     s.carve((-1, -1, 1.7), (1, 1, 2.7), lambda X, Y, Z: X * X + Y * Y < (0.6 - (Z - 1.7) * 0.25) ** 2)
 
 
-@D('PicnicBlanket', 2, 'food', 6, 4, 0.6, 'picnic blanket with bowls of seeds and berries')
-def _(p):
-    g = p.part()
-    g.box((-3, -2, 0), (3, 2, 0.2), lambda X, Y, Z: np.where((np.floor(X / 0.6) + np.floor(Y / 0.6)) % 2 == 0, col('#FF6F91'), col('#FFFFFF')))
-    for x, y, c in ((-1.5, 0.5, '#E8413C'), (0, -0.5, '#F2CE5C'), (1.5, 0.6, '#7E57C2')):
-        bowl(g, x, y, 0.2, 0.55, 0.45, col('#FFFFFF'), col(c))
-
-
-@D('WateringCanFountain', 2, 'food', 2, 1.5, 2, 'watering can pouring into a little basin; part "drops" drips')
+@D('WateringCanFountain', 3, 'food', 2, 1.5, 2, 'watering can pouring into a little basin; part "drops" drips')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 0.35, 0.75, col('#A9B4C2'))
@@ -260,52 +241,6 @@ def _(p):
 
 
 # =========================================================== 3 Orchard loft
-@D('AppleCrateBed', 3, 'cozy', 3, 2.5, 1.5, 'apple crate with a soft blanket')
-def _(p):
-    g = p.part()
-    g.box((-1.5, -1.25, 0), (1.5, 1.25, 1.2), pick(WOOD, 211))
-    g.carve((-1.3, -1.05, 0.25), (1.3, 1.05, 1.3))
-    g.paint((-1.5, -1.25, 0), (1.5, 1.25, 1.2), lambda X, Y, Z: (np.mod(Z, 0.4) < 0.1), col('#8B5A33'))
-    g.box((-0.6, -1.3, 0.5), (0.6, -1.25, 0.9), col(RED))
-    g.rrbox((-1.3, -1.05, 0.25), (1.3, 1.05, 0.8), 0.2, col('#FFE7A8'))
-    g.ell((0.9, 0.6, 1.0), (0.25, 0.25, 0.25), col('#E8413C'))
-
-
-@D('LeafPile', 3, 'cozy', 4, 4, 1, 'pile of autumn leaves')
-def _(p):
-    g = p.part()
-    g.blob((0, 0, 0), (2, 2, 1), pick(['#E8782A', '#F08A2E', '#FFB547', '#C2531F', '#E8413C'], 212), amp=0.12, f=3, seed=3)
-    g.carve((-3, -3, -2), (3, 3, 0))
-
-
-@D('RollingApple', 3, 'toys', 1.2, 1.2, 1.4, 'big apple toy; rolls')
-def _(p):
-    g = p.part('ball', anim='roll', pivot=(0, 0, 0.6))
-    g.ell((0, 0, 0.6), (0.6, 0.6, 0.58), col('#E8413C'))
-    g.paint((-1, -1, 0.9), (1, 1, 1.3), lambda X, Y, Z: X * X + Y * Y < 0.04, col('#B5302B'))
-    g.box((-0.05, -0.05, 1.1), (0.05, 0.05, 1.35), col('#6B4A3A'))
-    g.ell((0.18, 0, 1.25), (0.15, 0.06, 0.07), col('#5DB13E'))
-
-
-@D('RopeLadderClimb', 3, 'toys', 2, 1, 6, 'rope ladder hanging from a beam')
-def _(p):
-    g = p.part()
-    g.box((-1, -0.3, 5.6), (1, 0.3, 6), pick(WOOD_D, 213))
-    for x in (-0.7, 0.7):
-        g.box((x - 0.05, -0.05, 0.2), (x + 0.05, 0.05, 5.6), col('#C9A06A'))
-    for z in np.arange(0.5, 5.4, 0.7):
-        g.box((-0.75, -0.12, z), (0.75, 0.12, z + 0.15), pick(WOOD, 214))
-
-
-@D('BucketStack', 3, 'toys', 2, 2, 2.5, 'stack of buckets to climb')
-def _(p):
-    g = p.part()
-    for i, (x, y, z, c) in enumerate(((-0.45, -0.3, 0, '#5BB0E8'), (0.5, 0.3, 0, '#E8413C'), (0, 0, 1.0, '#FFD166'))):
-        g.cyl(x, y, z, z + 1.0, 0.45, col(c), r1=0.55)
-        g.paint((x - 0.6, y - 0.6, z + 0.8), (x + 0.6, y + 0.6, z + 0.92), None, col('#FFFFFF'))
-    g.carve((-0.5, -0.5, 1.6), (0.5, 0.5, 2.1), lambda X, Y, Z: X * X + Y * Y < 0.4 ** 2)
-
-
 @D('JarLight', 3, 'lighting', 0.8, 0.8, 1.5, 'hanging glass jar of fireflies; part "glow" pulses')
 def _(p):
     g = p.part()
@@ -337,23 +272,6 @@ def _(p):
         g.ell((math.cos(a) * r, math.sin(a) * r, 0.9 + rng.uniform(0, 0.35)), (0.27, 0.27, 0.27), col(c))
 
 
-@D('CiderBarrelTap', 3, 'food', 2.5, 2.5, 3, 'barrel water tap on a stand; part "drops" drips')
-def _(p):
-    g = p.part()
-    g.box((-1.1, -1.0, 0), (1.1, 1.0, 0.9), pick(WOOD_D, 216))
-    g.carve((-0.9, -1.1, 0), (0.9, 1.1, 0.7))
-
-    def barrel(X, Y, Z):
-        r = 1.0 + 0.12 * (1 - ((X) / 1.1) ** 2)
-        return Y * Y + (Z - 1.95) ** 2 <= r * r
-    g.fill((-1.1, -1.25, 0.8), (1.1, 1.25, 3.1), barrel, pick(WOOD, 217))
-    g.paint((-1.1, -1.3, 0.8), (1.1, 1.3, 3.2), lambda X, Y, Z: np.abs(np.abs(X) - 0.75) < 0.08, col(IRON))
-    g.box((-0.12, -1.6, 1.3), (0.12, -1.1, 1.5), col('#F4C542'))
-    d = p.part('drops', anim='drip', parent='body')
-    d.box((-0.05, -1.55, 0.95), (0.05, -1.45, 1.25), glow('#BFE9FF', 1.2))
-    bowl(g, 0, -1.5, 0, 0.45, 0.35, col('#A9B4C2'), col('#5BB0E8'))
-
-
 # ========================================================== 4 Mushroom grove
 CAP = ['#E8413C', '#D9352F']
 STEM = ['#F6EEDC', '#EDE2CB']
@@ -367,77 +285,20 @@ def mushroom(g, x, y, h, r, cap, dots=True, glowc=None):
                 col('#FFFFFF'))
 
 
-@D('MushroomBed', 4, 'cozy', 3.5, 3.5, 1, 'flat mushroom cap bed')
-def _(p):
-    g = p.part()
-    g.cyl(0, 0, 0, 0.4, 0.7, pick(STEM, 223))
-    g.ell((0, 0, 0.35), (1.75, 1.75, 0.65), pick(CAP, 224), cond=lambda X, Y, Z: Z >= 0.35)
-    g.carve((-1.3, -1.3, 0.75), (1.3, 1.3, 1.1), lambda X, Y, Z: X * X + Y * Y < 1.1 ** 2)
-    g.paint((-2, -2, 0.35), (2, 2, 1.1), lambda X, Y, Z: (hnoise(np.floor(X / 0.35), np.floor(Y / 0.35), Z * 0, 10) > 0.8) & (X * X + Y * Y > 1.2 ** 2),
-            col('#FFFFFF'))
-
-
-@D('MossMound', 4, 'cozy', 4, 4, 1.2, 'soft moss mound')
+@D('MossMound', 3, 'cozy', 4, 4, 1.2, 'soft moss mound')
 def _(p):
     g = p.part()
     g.blob((0, 0, 0), (2, 2, 1.2), pick(['#4E9A50', '#468F49', '#58A65A', '#62B064'], 225), amp=0.1, f=2.5, seed=6)
     g.carve((-3, -3, -2), (3, 3, 0))
 
 
-@D('BouncyToadstool', 4, 'toys', 3, 3, 2, 'bouncy toadstool; part "cap" squashes')
+@D('BouncyToadstool', 3, 'toys', 3, 3, 2, 'bouncy toadstool; part "cap" squashes')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 1.3, 0.55, pick(STEM, 226), r1=0.45)
     c = p.part('cap', anim='bob', parent='body', pivot=(0, 0, 1.2))
     c.ell((0, 0, 1.2), (1.5, 1.5, 0.8), lambda X, Y, Z: np.where(hnoise(np.floor(X / 0.35), np.floor(Y / 0.35), np.floor(Z / 0.35), 11) > 0.78,
                                                                  col('#FFFFFF'), col('#B57BFF')), cond=lambda X, Y, Z: Z >= 1.2)
-
-
-@D('PebblePath', 4, 'toys', 10, 10, 0.3, 'loop of flat stepping stones')
-def _(p):
-    g = p.part()
-    for i in range(14):
-        a = i * 2 * math.pi / 14
-        x, y = math.cos(a) * 4.3, math.sin(a) * 4.3
-        g.cyl(x, y, 0, 0.2, 0.55, pick(['#A9B4C2', '#97A1B2', '#B7C0CC'], 227))
-
-
-@D('AcornPile', 4, 'toys', 2, 2, 1, 'little pile of acorns')
-def _(p):
-    g = p.part()
-    for x, y, z in ((-0.45, -0.3, 0), (0.45, -0.35, 0), (0, 0.4, 0), (0, 0, 0.45)):
-        g.ell((x, y, z + 0.28), (0.3, 0.3, 0.3), col('#B5763A'))
-        g.ell((x, y, z + 0.5), (0.32, 0.32, 0.15), col('#6B4A3A'))
-        g.box((x - 0.04, y - 0.04, z + 0.6), (x + 0.04, y + 0.04, z + 0.72), col('#6B4A3A'))
-
-
-@D('SporeStalk', 4, 'lighting', 1, 1, 4, 'tall glowing spore stalk; part "glow" pulses')
-def _(p):
-    g = p.part()
-    g.cyl(0, 0, 0, 3.0, 0.22, pick(STEM, 228), r1=0.15)
-    q = p.part('glow', anim='pulse', parent='body')
-    q.ell((0, 0, 3.3), (0.45, 0.45, 0.6), glow('#7DF9E8', 2.5))
-    for z in (1.2, 2.1):
-        q.ell((0.25, 0, z), (0.14, 0.14, 0.14), glow('#7DF9E8', 2.5))
-
-
-@D('BerryBowl', 4, 'food', 2, 2, 1, 'wooden bowl of berries')
-def _(p):
-    g = p.part()
-    bowl(g, 0, 0, 0, 1.0, 0.6, pick(WOOD, 229), col('#7E57C2'))
-    for x, y in ((-0.3, 0.1), (0.25, -0.2), (0.1, 0.35), (-0.1, -0.35)):
-        g.ell((x, y, 0.65), (0.17, 0.17, 0.17), col('#5E35B1' if x > 0 else '#E8413C'))
-
-
-@D('DewLeafBasin', 4, 'food', 3, 3, 1.5, 'big leaf cupping a pool of dew; part "water" ripples')
-def _(p):
-    g = p.part()
-    g.cyl(0, 0, 0, 0.8, 0.2, col('#3E9A3A'))
-    g.fill((-1.5, -1.5, 0.6), (1.5, 1.5, 1.5), lambda X, Y, Z: (X * X / 2.25 + Y * Y / 1.6 <= 1) & (Z <= 0.7 + 0.35 * (X * X / 2.25 + Y * Y / 1.6)) & (Z >= 0.6 + 0.35 * (X * X / 2.25 + Y * Y / 1.6)),
-           pick(LEAF['mid'], 230))
-    g.paint((-1.5, -0.06, 0.6), (1.5, 0.06, 1.5), None, col('#3E9A3A'))
-    w = p.part('water', anim='pulse', parent='body')
-    w.fill((-1.1, -0.9, 0.75), (1.1, 0.9, 0.95), lambda X, Y, Z: X * X / 1.2 + Y * Y / 0.8 <= 1, col('#7FD3FF'))
 
 
 # =========================================================== 5 Crystal cave
@@ -450,91 +311,6 @@ def crystal(g, x, y, z, r, h, c, tilt=(0, 0)):
     g.seg((x + tx, y + ty, z + h * 0.75), (x + tx * 1.2, y + ty * 1.2, z + h), r * 0.95, c, r1=0.03)
 
 
-@D('CrystalNookBed', 5, 'cozy', 4, 3, 2, 'velvet bed in a nook of crystals')
-def _(p):
-    g = p.part()
-    g.rrbox((-2, -1.5, 0), (2, 1.5, 0.6), 0.2, pick(['#6E778A', '#7F8899'], 231))
-    cushion(g, -1.7, -1.2, 1.7, 1.2, 0.6, 0.45, col('#7E57C2'), '#B39DDB')
-    q = p.part('crystals', anim='pulse', parent='body')
-    crystal(q, -1.6, 1.1, 0.4, 0.3, 1.6, glow(CRYS, 2), (-0.3, 0.1))
-    crystal(q, 1.5, 1.1, 0.4, 0.25, 1.3, glow('#C9A7FF', 2), (0.3, 0.1))
-
-
-@D('GeodeCradle', 5, 'cozy', 3, 3, 1.5, 'cracked-open geode to sleep in')
-def _(p):
-    g = p.part()
-    g.ell((0, 0, 0.4), (1.5, 1.5, 1.1), pick(['#8C95A6', '#7F8899'], 232), cond=lambda X, Y, Z: Z >= 0)
-    g.carve((-1.5, -1.5, 0.6), (1.5, 1.5, 1.6))
-    g.carve((-1.25, -1.25, 0.3), (1.25, 1.25, 1.6), lambda X, Y, Z: X * X + Y * Y < 1.2 ** 2)
-    g.fill((-1.3, -1.3, 0.25), (1.3, 1.3, 0.6), lambda X, Y, Z: (X * X + Y * Y < 1.3 ** 2) & (X * X + Y * Y > 0.9 ** 2), glow('#C9A7FF', 1.5))
-    g.cyl(0, 0, 0.25, 0.45, 1.0, col('#7E57C2'))
-
-
-@D('CrystalChimes', 5, 'toys', 2, 0.6, 4, 'crystal chimes on a stand; part "chimes" sways and glows')
-def _(p):
-    g = p.part()
-    g.box((-0.1, -0.1, 0), (0.1, 0.1, 4), col('#6E778A'))
-    g.box((-1.0, -0.1, 3.8), (1.0, 0.1, 4.0), col('#6E778A'))
-    g.box((-0.4, -0.3, 0), (0.4, 0.3, 0.2), col('#6E778A'))
-    c = p.part('chimes', anim='sway', parent='body', pivot=(0, 0, 3.8))
-    for i, x in enumerate((-0.8, -0.4, 0.4, 0.8)):
-        L = 1.0 + 0.25 * (i % 2)
-        c.box((x - 0.02, -0.02, 3.8 - 0.4), (x + 0.02, 0.02, 3.8), col('#B0BEC5'))
-        crystal(c, x, 0, 3.4 - L, 0.12, L, glow(CRYS if i % 2 else '#C9A7FF', 2))
-
-
-@D('RollingGem', 5, 'toys', 1.2, 1.2, 1.2, 'big cut gem; rolls')
-def _(p):
-    g = p.part('gem', anim='roll', pivot=(0, 0, 0.6))
-    g.fill((-0.6, -0.6, 0), (0.6, 0.6, 1.2), lambda X, Y, Z: np.abs(X) + np.abs(Y) + np.abs(Z - 0.6) <= 0.75, glow('#FF6FA8', 1.5))
-
-
-@D('StalagmiteArch', 5, 'toys', 5, 2, 3, 'stone arch to run through')
-def _(p):
-    g = p.part()
-
-    def arch(X, Y, Z):
-        r = np.sqrt(X * X + Z * Z)
-        return (r >= 1.6) & (r <= 2.5 + 0.12 * snoise(X, Y, Z, 3, 2)) & (np.abs(Y) < 0.9 - 0.2 * (Z / 3))
-    g.fill((-2.5, -1, 0), (2.5, 1, 3), arch, pick(['#8C95A6', '#7F8899', '#9AA3B3'], 233))
-    crystal(g, -2.1, 0, 0, 0.28, 1.0, glow(CRYS, 2), (0.0, -0.2))
-
-
-@D('WallCrystals', 5, 'lighting', 2, 1, 3, 'cluster of glowing crystals on the wall; part "glow" pulses')
-def _(p):
-    g = p.part()
-    g.blob((0, 0.35, 0.6), (0.9, 0.4, 0.6), pick(['#8C95A6', '#7F8899'], 234), amp=0.1)
-    q = p.part('glow', anim='pulse', parent='body')
-    for (x, h, t) in ((-0.5, 1.6, -0.3), (0.0, 2.4, 0.0), (0.5, 1.9, 0.3), (0.25, 1.2, 0.5)):
-        crystal(q, x, 0.2, 0.6, 0.22, h, glow(CRYS, 2.5), (t, -0.2))
-
-
-@D('CeilingStalactite', 5, 'lighting', 2, 2, 3, 'glowing stalactite hanging from the ceiling; part "tip" glows')
-def _(p):
-    g = p.part()
-    g.cyl(0, 0, 1.6, 3.0, 0.25, pick(['#8C95A6', '#7F8899'], 235), r1=0.9)
-    q = p.part('tip', anim='pulse', parent='body')
-    q.cyl(0, 0, 0, 1.6, 0.0, glow('#C9A7FF', 2.5), r1=0.3)
-
-
-@D('MineralSpringPool', 5, 'food', 5, 4, 0.8, 'mineral spring pool; part "water" shimmers')
-def _(p):
-    g = p.part()
-    g.fill((-2.5, -2, 0), (2.5, 2, 0.8), lambda X, Y, Z: X * X / 6.25 + Y * Y / 4 <= 1 + 0.1 * snoise(X, Y, Z, 2, 1), pick(['#8C95A6', '#9AA3B3'], 236))
-    g.carve((-2.5, -2, 0.3), (2.5, 2, 0.9), lambda X, Y, Z: X * X / 4.4 + Y * Y / 2.6 <= 1)
-    w = p.part('water', anim='glint', parent='body')
-    w.fill((-2.5, -2, 0.3), (2.5, 2, 0.55), lambda X, Y, Z: X * X / 4.4 + Y * Y / 2.6 <= 1, glow('#5FE3D2', 0.8))
-
-
-@D('GemBowl', 5, 'food', 1.5, 1.5, 0.8, 'faceted gem food bowl')
-def _(p):
-    g = p.part()
-    g.fill((-0.75, -0.75, 0), (0.75, 0.75, 0.8), lambda X, Y, Z: np.maximum(np.abs(X), np.abs(Y)) + np.minimum(np.abs(X), np.abs(Y)) * 0.42 <= 0.55 + Z * 0.3,
-           col('#B57BFF'))
-    g.carve((-0.6, -0.6, 0.3), (0.6, 0.6, 0.9), lambda X, Y, Z: X * X + Y * Y < 0.42 ** 2)
-    g.cyl(0, 0, 0.3, 0.55, 0.42, col('#F2CE5C'))
-
-
 # =========================================================== 6 Cloud garden
 CLOUD = ['#FFFFFF', '#F2F6FF', '#E6EEFF']
 
@@ -544,7 +320,7 @@ def cloud(g, x, y, z, w, d, h, seed=1):
         g.blob((x + dx, y + dy, z + dz), (w * 0.4 * k, d * 0.5 * k, h * 0.55 * k), pick(CLOUD, 240 + seed), amp=0.08, f=3, seed=seed + i)
 
 
-@D('CloudPuffBed', 6, 'cozy', 4, 3, 1.4, 'cloud puff bed; part "cloud" bobs slowly')
+@D('CloudPuffBed', 8, 'cozy', 4, 3, 1.4, 'cloud puff bed; part "cloud" bobs slowly')
 def _(p):
     p.part()
     c = p.part('cloud', anim='bob', parent='body')
@@ -553,7 +329,7 @@ def _(p):
     c.carve((-3, -3, -1), (3, 3, 0.1))
 
 
-@D('Hammock', 6, 'cozy', 6, 2, 3, 'hammock between two posts; part "net" sways')
+@D('Hammock', 8, 'cozy', 6, 2, 3, 'hammock between two posts; part "net" sways')
 def _(p):
     g = p.part()
     for x in (-2.8, 2.8):
@@ -567,7 +343,7 @@ def _(p):
     n.fill((-2.6, -0.8, 1.0), (2.6, 0.8, 2.8), sag, lambda X, Y, Z: np.where(np.mod(np.floor(X / 0.5), 2) == 0, col('#8FD3FF'), col('#FFFFFF')))
 
 
-@D('KitePost', 6, 'toys', 1.2, 1.2, 6, 'kite tied to a post; part "kite" flutters')
+@D('KitePost', 8, 'toys', 1.2, 1.2, 6, 'kite tied to a post; part "kite" flutters')
 def _(p):
     g = p.part()
     g.box((-0.12, -0.12, 0), (0.12, 0.12, 3.5), pick(WOOD, 242))
@@ -577,7 +353,7 @@ def _(p):
            lambda X, Y, Z: np.where(X * (Z - 5.25) > 0, col('#FF6F91'), col('#FFD166')))
 
 
-@D('BubbleWand', 6, 'toys', 1, 1, 3, 'bubble wand stand; part "bubbles" bob and glow')
+@D('BubbleWand', 8, 'toys', 1, 1, 3, 'bubble wand stand; part "bubbles" bob and glow')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 0.25, 0.45, col('#8FD3FF'))
@@ -588,7 +364,7 @@ def _(p):
         b.ell((x, 0, z), (r, r, r), glow('#DFF4FF', 1.0))
 
 
-@D('RainbowSlide', 6, 'toys', 6, 2, 3, 'rainbow slide with steps')
+@D('RainbowSlide', 8, 'toys', 6, 2, 3, 'rainbow slide with steps')
 def _(p):
     g = p.part()
     bands = [col(c) for c in ('#FF5E5E', '#FF9F1C', '#FFD166', '#7BD88F', '#5BB0E8', '#9A8CFF')]
@@ -603,7 +379,7 @@ def _(p):
     g.carve((-3, -1, 0), (-2.0, 1, 3), lambda X, Y, Z: Z > (X + 3) * 2 + 0.5)
 
 
-@D('SunOrbLamp', 6, 'lighting', 1.5, 1.5, 2.2, 'glowing sun orb on a little cloud; part "orb" pulses')
+@D('SunOrbLamp', 8, 'lighting', 1.5, 1.5, 2.2, 'glowing sun orb on a little cloud; part "orb" pulses')
 def _(p):
     g = p.part()
     cloud(g, 0, 0, 0.3, 1.5, 1.2, 0.6, 3)
@@ -612,7 +388,7 @@ def _(p):
     o.ell((0, 0, 1.35), (0.65, 0.65, 0.65), glow('#FFD166', 3))
 
 
-@D('RainbowArch', 6, 'lighting', 12, 1, 6, 'rainbow arch with glowing edges', budget=80)
+@D('RainbowArch', 8, 'lighting', 12, 1, 6, 'rainbow arch with glowing edges', budget=80)
 def _(p):
     g = p.part()
     bands = ['#FF5E5E', '#FF9F1C', '#FFD166', '#7BD88F', '#5BB0E8', '#9A8CFF']
@@ -628,7 +404,7 @@ def _(p):
     g.carve((-7, -2, -1), (7, 2, 0))
 
 
-@D('RaindropFountain', 6, 'food', 3, 3, 3, 'little rain cloud over a basin; part "rain" drips')
+@D('RaindropFountain', 8, 'food', 3, 3, 3, 'little rain cloud over a basin; part "rain" drips')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 0.6, 1.4, col('#E6EEFF'))
@@ -642,7 +418,7 @@ def _(p):
         r.box((x + 0.1, y, 1.4), (x + 0.2, y + 0.1, 1.7), glow('#BFE9FF', 1.0))
 
 
-@D('SkyBerryBush', 6, 'food', 3, 3, 2, 'fluffy bush of glowing sky berries')
+@D('SkyBerryBush', 8, 'food', 3, 3, 2, 'fluffy bush of glowing sky berries')
 def _(p):
     g = p.part()
     c = two_tone(['#7FC8E8', '#6BB8DC'], ['#A7E0F5', '#9AD8F0'], ['#D6F3FF', '#E2F7FF'], 0, 2, 7)
@@ -656,16 +432,7 @@ BRICK = ['#B5452F', '#A63E2A', '#C24E37']
 COAL = ['#2E2A2A', '#3B3536']
 
 
-@D('HearthBed', 7, 'cozy', 4, 3, 1.5, 'warm brick hearth bed')
-def _(p):
-    g = p.part()
-    g.box((-2, -1.5, 0), (2, 1.5, 0.8), lambda X, Y, Z: np.where((np.mod(Z, 0.4) < 0.1) | (np.mod(X + np.floor(Z / 0.4) * 0.3, 0.6) < 0.1), col('#7A4D3A'),
-                                                                 pick(BRICK, 251)(X, Y, Z)))
-    g.box((-2, 1.0, 0.8), (2, 1.5, 1.5), pick(BRICK, 252))
-    cushion(g, -1.8, -1.3, 1.8, 1.0, 0.8, 0.45, col('#FF8A3D'), '#FFD166')
-
-
-@D('EmberRug', 7, 'cozy', 5, 4, 0.2, 'rug with a slow ember glow; part "glow" pulses')
+@D('FiresideRug', 6, 'cozy', 5, 4, 0.2, 'fireside rug with a slow ember glow; part "glow" pulses')
 def _(p):
     g = p.part()
     g.box((-2.5, -2, 0), (2.5, 2, 0.12), col('#7A2E22'))
@@ -674,127 +441,19 @@ def _(p):
            glow('#FF8A3D', 1.5))
 
 
-@D('AnvilBall', 7, 'toys', 2, 1.5, 1.5, 'anvil with a toy ball on it')
-def _(p):
-    g = p.part()
-    g.box((-0.45, -0.35, 0), (0.45, 0.35, 0.4), col(IRON))
-    g.box((-0.25, -0.25, 0.4), (0.25, 0.25, 0.75), col(IRON))
-    g.box((-0.9, -0.4, 0.75), (0.7, 0.4, 1.05), col('#4A4A55'))
-    g.fill((0.7, -0.3, 0.8), (1.0, 0.3, 1.05), lambda X, Y, Z: Z > 0.8 + (X - 0.7) * 0.6, col('#4A4A55'))
-    ball(g, -0.3, 0, 1.3, 0.25, col('#FFD166'))
-
-
-@D('Bellows', 7, 'toys', 1.5, 2.5, 1, 'forge bellows; part "top" pumps')
-def _(p):
-    g = p.part()
-    g.box((-0.6, -1.0, 0), (0.6, 0.8, 0.15), pick(WOOD, 253))
-    g.box((-0.1, 0.8, 0.0), (0.1, 1.2, 0.2), col(IRON))
-    g.fill((-0.6, -1, 0.15), (0.6, 0.8, 0.6), lambda X, Y, Z: Z < 0.15 + (0.8 - Y) * 0.25, col('#8B5A33'))
-    t = p.part('top', anim='rock', parent='body', pivot=(0, 0.8, 0.3))
-    t.fill((-0.6, -1.1, 0.25), (0.6, 0.8, 0.9), lambda X, Y, Z: np.abs(Z - (0.3 + (0.8 - Y) * 0.3)) < 0.08, pick(WOOD, 254))
-    t.box((-0.12, -1.25, 0.8), (0.12, -0.9, 0.95), pick(WOOD, 254))
-
-
-@D('CoalCart', 7, 'toys', 3, 2, 2, 'mine cart of coal on a short rail; part "cart" rolls back and forth')
-def _(p):
-    g = p.part()
-    for y in (-0.6, 0.6):
-        g.box((-1.5, y - 0.08, 0), (1.5, y + 0.08, 0.12), col('#6E778A'))
-    for x in np.arange(-1.4, 1.5, 0.5):
-        g.box((x, -0.8, 0), (x + 0.2, 0.8, 0.06), pick(WOOD_D, 255))
-    c = p.part('cart', anim='slide', parent='body')
-    c.box((-0.8, -0.65, 0.4), (0.8, 0.65, 1.4), col('#5A5A66'))
-    c.carve((-0.65, -0.5, 0.6), (0.65, 0.5, 1.5))
-    c.blob((0, 0, 1.25), (0.7, 0.5, 0.35), pick(COAL, 256), amp=0.1)
-    c.paint((-0.7, -0.5, 1.2), (0.7, 0.5, 1.7), lambda X, Y, Z: hnoise(X, Y, Z, 12) > 0.85, glow('#FF8A3D', 2))
-    for x in (-0.5, 0.5):
-        c.seg((x, -0.75, 0.3), (x, 0.75, 0.3), 0.26, col(IRON))
-
-
-@D('ForgeFire', 7, 'lighting', 4, 3, 3, 'stone forge with a roaring fire; part "flames" flickers')
-def _(p):
-    g = p.part()
-    g.box((-2, -1.5, 0), (2, 1.5, 1.4), pick(['#6E778A', '#7F8899'], 257))
-    g.carve((-1.5, -1.6, 0.4), (1.5, 1.0, 1.5))
-    g.box((-2, 0.8, 1.4), (2, 1.5, 3), pick(BRICK, 258))
-    g.box((-1.5, -1.2, 0.4), (1.5, 1.0, 0.6), pick(COAL, 259))
-    f = p.part('flames', anim='flicker', parent='body')
-    for x, h in ((-0.9, 1.0), (-0.3, 1.5), (0.3, 1.3), (0.9, 0.9)):
-        f.cyl(x, 0, 0.6, 0.6 + h, 0.32, glow('#FF8A3D', 3.5), r1=0.05)
-        f.cyl(x, -0.05, 0.6, 0.6 + h * 0.6, 0.18, glow('#FFD166', 4), r1=0.03)
-
-
-@D('WallBrazier', 7, 'lighting', 1.5, 1.5, 3, 'wall brazier; part "flame" flickers')
-def _(p):
-    g = p.part()
-    g.box((-0.1, 0.5, 0), (0.1, 0.75, 2.2), col(IRON))
-    g.cyl(0, 0, 1.8, 2.3, 0.5, col(IRON), r1=0.7)
-    g.carve((-0.7, -0.7, 2.0), (0.7, 0.7, 2.4), lambda X, Y, Z: X * X + Y * Y < 0.55 ** 2)
-    f = p.part('flame', anim='flicker', parent='body')
-    f.cyl(0, 0, 2.0, 3.0, 0.45, glow('#FF8A3D', 3.5), r1=0.05)
-
-
-@D('CoolingTrough', 7, 'food', 5, 1.5, 1, 'stone cooling trough of water; part "steam" drifts')
-def _(p):
-    g = p.part()
-    g.box((-2.5, -0.75, 0), (2.5, 0.75, 1.0), pick(['#6E778A', '#7F8899'], 260))
-    g.carve((-2.3, -0.55, 0.3), (2.3, 0.55, 1.1))
-    water(g, -2.3, -0.55, 0.3, 2.3, 0.55, 0.8)
-    s = p.part('steam', anim='bob', parent='body')
-    for x in (-1.5, 0, 1.4):
-        s.ell((x, 0, 1.3), (0.3, 0.3, 0.2), col('#E6EEFF'))
-
-
-@D('GrainBin', 7, 'food', 2, 2, 2, 'iron-banded bin of toasted grain')
-def _(p):
-    g = p.part()
-    g.box((-1, -1, 0), (1, 1, 1.8), pick(WOOD_D, 261))
-    g.paint((-1, -1, 0), (1, 1, 1.8), lambda X, Y, Z: (np.abs(Z - 0.3) < 0.08) | (np.abs(Z - 1.5) < 0.08), col(IRON))
-    g.carve((-0.8, -0.8, 1.4), (0.8, 0.8, 1.9))
-    g.blob((0, 0, 1.4), (0.8, 0.8, 0.45), pick(['#D9A766', '#C98E52', '#E2B273'], 262), amp=0.1)
-
-
 # ============================================================== 8 Frost hall
 ICE = ['#BEE9FF', '#A9E0FF', '#D3F1FF']
 SNOW = ['#FFFFFF', '#F2F8FF']
 
 
-@D('IceBed', 8, 'cozy', 4, 3, 1.5, 'ice bed lined with fur')
-def _(p):
-    g = p.part()
-    g.rrbox((-2, -1.5, 0), (2, 1.5, 0.8), 0.25, pick(ICE, 271))
-    g.box((-2, 1.0, 0.8), (2, 1.5, 1.5), pick(ICE, 272))
-    cushion(g, -1.75, -1.25, 1.75, 1.0, 0.8, 0.45, pick(['#F5EBDD', '#EDE0CF'], 273), '#D9C9B3')
-
-
-@D('SnowDriftNest', 8, 'cozy', 4, 4, 1.2, 'snow drift scooped into a nest')
-def _(p):
-    g = p.part()
-    g.blob((0, 0, 0), (2, 2, 1.2), pick(SNOW, 274), amp=0.08, f=2.5, seed=8)
-    g.carve((-3, -3, -2), (3, 3, 0))
-    g.carve((-1.2, -1.2, 0.6), (1.2, 1.2, 1.4), lambda X, Y, Z: X * X + Y * Y + (Z - 1.3) ** 2 < 1.2 ** 2)
-
-
-@D('IceSlide', 8, 'toys', 6, 2, 3, 'curvy ice slide')
-def _(p):
-    g = p.part()
-
-    def slide(X, Y, Z):
-        zt = 3.0 * (1 - (X + 3) / 6) ** 1.6
-        return (Z <= zt + 0.3) & (Z >= zt) & (np.abs(Y) < 0.8)
-    g.fill((-3, -1, 0), (3, 1, 3.4), slide, pick(ICE, 275))
-    g.fill((-3, -1, 0), (3, 1, 3.6), lambda X, Y, Z: slide(X, Y, Z - 0.25) & (np.abs(Y) > 0.6), pick(SNOW, 276))
-    g.box((-3, -0.8, 0), (-2.4, 0.8, 3.0), pick(ICE, 277))
-
-
-@D('SnowballPile', 8, 'toys', 2, 2, 1, 'pile of snowballs')
+@D('SnowballPile', 6, 'toys', 2, 2, 1, 'pile of snowballs')
 def _(p):
     g = p.part()
     for x, y, z in ((-0.45, -0.35, 0), (0.45, -0.3, 0), (0, 0.45, 0), (0, 0, 0.4)):
         g.ell((x, y, z + 0.35), (0.35, 0.35, 0.35), pick(SNOW, 278))
 
 
-@D('IceTop', 8, 'toys', 1.5, 1.5, 1.5, 'spinning ice top; part "top" spins')
+@D('IceTop', 6, 'toys', 1.5, 1.5, 1.5, 'spinning ice top; part "top" spins')
 def _(p):
     p.part()
     t = p.part('top', anim='spin', parent='body', pivot=(0, 0, 0))
@@ -803,29 +462,7 @@ def _(p):
     t.cyl(0, 0, 1.1, 1.5, 0.12, col('#5BB0E8'))
 
 
-@D('FrostChandelier', 8, 'lighting', 4, 4, 3, 'frost chandelier; part "icicles" glint')
-def _(p):
-    g = p.part()
-    g.box((-0.06, -0.06, 2.0), (0.06, 0.06, 3), col('#B0BEC5'))
-    g.fill((-2, -2, 1.6), (2, 2, 2.0), lambda X, Y, Z: np.abs(np.sqrt(X * X + Y * Y) - 1.6) < 0.15, col('#B0BEC5'))
-    g.cyl(0, 0, 1.7, 2.1, 0.5, col('#B0BEC5'))
-    q = p.part('icicles', anim='glint', parent='body')
-    for i in range(10):
-        a = i * 2 * math.pi / 10
-        L = 0.8 + 0.4 * (i % 2)
-        q.cyl(math.cos(a) * 1.6, math.sin(a) * 1.6, 1.6 - L, 1.6, 0.0, glow('#DFF4FF', 1.8), r1=0.16)
-    q.cyl(0, 0, 0.6, 1.7, 0.0, glow('#DFF4FF', 1.8), r1=0.3)
-
-
-@D('AuroraBand', 8, 'lighting', 8, 0.3, 1.2, 'aurora band along the ceiling; part "wave" pulses')
-def _(p):
-    p.part()
-    w = p.part('wave', anim='pulse', parent='body')
-    w.fill((-4, -0.15, 0), (4, 0.15, 1.2), lambda X, Y, Z: np.abs(Z - (0.6 + 0.35 * np.sin(X * 1.3))) < 0.25,
-           lambda X, Y, Z: np.where(np.sin(X * 0.7) > 0, glow('#7BFFC4', 2), glow('#9A8CFF', 2)))
-
-
-@D('IceLantern', 8, 'lighting', 1, 1, 1.5, 'carved ice lantern with a candle; part "light" flickers')
+@D('IceLantern', 6, 'lighting', 1, 1, 1.5, 'carved ice lantern with a candle; part "light" flickers')
 def _(p):
     g = p.part()
     g.box((-0.5, -0.5, 0), (0.5, 0.5, 1.3), pick(ICE, 280))
@@ -835,7 +472,7 @@ def _(p):
     li.box((-0.12, -0.12, 0.2), (0.12, 0.12, 0.7), glow('#FFC870', 3))
 
 
-@D('FishBarrel', 8, 'food', 2, 2, 2, 'barrel of frozen fish')
+@D('FishBarrel', 6, 'food', 2, 2, 2, 'barrel of frozen fish')
 def _(p):
     g = p.part()
     g.cyl(0, 0, 0, 1.6, 0.85, pick(WOOD, 282), r1=0.95)
@@ -843,18 +480,6 @@ def _(p):
     g.cyl(0, 0, 1.4, 1.6, 0.8, pick(SNOW, 283))
     for a in (0.3, 1.9, 3.6):
         g.seg((math.cos(a) * 0.3, math.sin(a) * 0.3, 1.5), (math.cos(a) * 0.5, math.sin(a) * 0.5, 2.0), 0.14, col('#7FA7C9'))
-
-
-@D('HotSpringBasin', 8, 'food', 4, 4, 1, 'warm hot-spring basin; part "steam" drifts')
-def _(p):
-    g = p.part()
-    g.cyl(0, 0, 0, 0.9, 2.0, pick(['#8C95A6', '#9AA3B3'], 284))
-    g.carve((-2, -2, 0.35), (2, 2, 1.0), lambda X, Y, Z: X * X + Y * Y < 1.65 ** 2)
-    g.fill((-2, -2, 0.35), (2, 2, 0.7), lambda X, Y, Z: X * X + Y * Y < 1.65 ** 2, glow('#5FE3D2', 0.6))
-    g.paint((-2, -2, 0.7), (2, 2, 0.9), lambda X, Y, Z: hnoise(X, Y, Z, 13) > 0.6, pick(SNOW, 285))
-    s = p.part('steam', anim='bob', parent='body')
-    for x, y in ((-0.6, 0), (0.5, 0.4), (0.2, -0.6)):
-        s.ell((x, y, 1.2), (0.35, 0.35, 0.22), col('#E6EEFF'))
 
 
 # ===================================================== 9 Moonlit observatory
