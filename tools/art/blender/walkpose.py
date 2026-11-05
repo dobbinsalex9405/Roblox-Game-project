@@ -108,7 +108,8 @@ def pose(gait, anim, ph, moving, h, legged):
             jitter = (1 - math.cos(4 * a)) / 2
             return (0.0, 0.06 * moving * s, 0.0, 0.0, h * 0.015 * moving * jitter)
         if gait == 'slither':
-            return (0.0, 0.28 * moving * s, 0.0, h * 0.08 * moving * s, 0.0)
+            surge = (1 - math.cos(2 * a)) / 2
+            return (0.0, 0.1 * moving * s, 0.0, h * 0.04 * moving * s, h * 0.02 * moving * surge)
         if gait == 'hover':
             return (-0.14 * moving, 0.0, 0.05 * moving * s, 0.0, h * 0.06 * moving)
         if gait == 'swim':
@@ -117,7 +118,7 @@ def pose(gait, anim, ph, moving, h, legged):
         if gait == 'waddle':
             return (0.12 * moving * max(0.0, math.sin(2 * a)), 0.0, 0.0, 0.0, 0.0)
         if gait == 'slither':
-            return (0.0, -0.22 * moving * s, 0.0, 0.0, 0.0)
+            return (0.0, -0.12 * moving * s, 0.0, 0.0, 0.0)
     elif anim == 'tail':
         if gait == 'slither':
             return (0.0, 0.5 * moving * math.sin(a - 1.2), 0.0, 0.0, 0.0)

@@ -136,8 +136,8 @@ describe("Walk gaits", function()
 		local hop = Walk.pose("hop", "body", 0.3, 1, 2, false) -- the top of the hop
 		expect(hop.dy > 0.5).toBe(true)
 		local slither = Walk.pose("slither", "body", 0.25, 1, 2, false)
-		expect(math.abs(slither.ry) > 0.2).toBe(true)
-		expect(math.abs(slither.dx) > 0.1).toBe(true)
+		expect(math.abs(slither.ry) > 0.05 and math.abs(slither.ry) < 0.15).toBe(true)
+		expect(math.abs(slither.dx) > 0.05).toBe(true)
 	end)
 
 	it("holds still when standing, and legless stand-ins still step", function()

@@ -338,7 +338,16 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			local jitter = (1 - math.cos(4 * a)) / 2
 			return { rx = 0, ry = 0.06 * moving * s, rz = 0, dx = 0, dy = h * 0.015 * moving * jitter }
 		elseif gait == "slither" then
-			return { rx = 0, ry = 0.28 * moving * s, rz = 0, dx = h * 0.08 * moving * s, dy = 0 }
+			-- Worms, slugs, snails and caterpillars creep: a gentle sway and a
+			-- small surge each stride (a bigger swing spins a short body round).
+			local surge = (1 - math.cos(2 * a)) / 2
+			return {
+				rx = 0,
+				ry = 0.1 * moving * s,
+				rz = 0,
+				dx = h * 0.04 * moving * s,
+				dy = h * 0.02 * moving * surge,
+			}
 		elseif gait == "hover" then
 			return { rx = -0.14 * moving, ry = 0, rz = 0.05 * moving * s, dx = 0, dy = h * 0.06 * moving }
 		elseif gait == "swim" then
@@ -350,7 +359,7 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			-- A bird's head pecks forward each step.
 			return { rx = 0.12 * moving * math.max(0, math.sin(2 * a)), ry = 0, rz = 0, dx = 0, dy = 0 }
 		elseif gait == "slither" then
-			return { rx = 0, ry = -0.22 * moving * s, rz = 0, dx = 0, dy = 0 }
+			return { rx = 0, ry = -0.12 * moving * s, rz = 0, dx = 0, dy = 0 }
 		end
 	elseif anim == "tail" then
 		if gait == "slither" then
