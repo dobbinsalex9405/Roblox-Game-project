@@ -326,6 +326,12 @@ def _cone(c, H, k, body, head, cols, opts):
     return {'feet_w': 0.45, 'feet_h': 1.2}
 
 
+def _pip(c, H, k, body, head, cols, opts):
+    """A round fluffball bird: a ball with a short beak and bird feet, no
+    wings to be seen."""
+    return {'beak': cols.get('accent') or hexc('#FF9418'), 'big_eyes': True, 'no_mouth': True}
+
+
 def _ball(c, H, k, body, head, cols, opts):
     """A plain ball (the default)."""
     return None
@@ -334,7 +340,7 @@ def _ball(c, H, k, body, head, cols, opts):
 for _name, _fn, _gait in (
         ('ball', _ball, 'hop'), ('pebble', _pebble, 'hop'), ('seed', _seed, 'hop'), ('puddle', _puddle, 'hop'),
         ('tadpole', _tadpole, 'slither'), ('fuzz', _fuzz, 'hop'), ('gum', _gum, 'hop'),
-        ('mushroom', _mushroom, 'hop'), ('acorn', _acorn, 'hop'), ('cone', _cone, 'hop')):
+        ('mushroom', _mushroom, 'hop'), ('acorn', _acorn, 'hop'), ('cone', _cone, 'hop'), ('pip', _pip, 'waddle')):
     add_kind(_name, _fn, _gait)
 
 # Ball proportions per kind (in k): radius (x, y, z) and how high the
@@ -350,6 +356,7 @@ SHAPES = {
     'mushroom': (2.1, 2.0, 2.7),
     'acorn': (2.6, 2.5, 2.9),
     'cone': (2.4, 2.4, 3.3),
+    'pip': (3.0, 3.0, 3.0),
 }
 
 
@@ -372,7 +379,17 @@ def puff(c, H, kind, cols, opts):
         shine(head, centre, r, k)
     big = opts.get('big_eyes', False) or extra.get('big_eyes', False)
     fz = cz / k + extra.get('face_z', 0.15) * rz
-    face(c, head, k, fz, x_off=0.9 if not big else 1.0, size=0.6 if not big else 0.85)
+    face(c, head, k, fz, x_off=0.9 if not big else 1.0, size=0.6 if not big else 0.85, smile=not extra.get('no_mouth'))
+    if extra.get('beak'):
+        # a short beak, two voxels wide, just proud of the face below the eyes
+        zb = round((fz - 1.0) * k)
+        for x in (-1, 0):
+            for z in (zb - 1, zb):
+                f = head.front(x, z)
+                if f:
+                    head.put((f[0], f[1] - 1, f[2]), extra['beak'])
+                    if z == zb:
+                        head.put((f[0], f[1] - 2, f[2]), extra['beak'])
     if legged:
         feet(c, k, cols.get('feet') or dark(col, 0.25), fh + round(0.35 * k),
              x=min(1.4, rx * 0.45), w=extra.get('feet_w', 0.8), toe=0.5)
