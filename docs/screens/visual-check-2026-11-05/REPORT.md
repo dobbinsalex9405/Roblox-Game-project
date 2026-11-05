@@ -478,3 +478,13 @@ Ranked by how much each would bother a first-time player:
 12. **Welcome card on phone:** only 2 of its 4 tips show without scrolling (`fp-01`). "Earn coins" and "Raid and defend" are below the fold, with only a thin scrollbar hinting at them.
 
 Worked without trouble: welcome "Let's go", goal banner steps, buying a Basic Egg, 5 s incubation with "Ready!", Hatch prompt, auto-placement on a pad, income ticking, Book (Found 1/53, NEW tag), Daily claim, floor 2 build and the wall sign "2. Book Nook".
+
+## #97 per-stop signs @ f37d1b0
+
+- **Sign legibility, phone 844x392: FAIL.** Each sign is 8.6x4.2 studs at 40 px/stud. It has 13 labels (egg name plus 6 tiers as "1 in N"), each about 0.46 studs tall.
+  - 10 studs from Sign1 (beside Stop1), follow camera: a line is about 5 px. The character stands in front of the sign and covers its middle (`97f-hh-stop1-10studs-phone.jpg`).
+  - 5 studs out, straight in front of the sign: a line is about 7 px (`97f-hh-sign-5studs-phone.jpg`, real-pixel zoom `97f-hh-sign-5studs-zoom.jpg`). The tier names can just be made out at 1:1 on the laptop. On a phone, 7 logical px is below anything readable. The egg name row sits under the GOAL banner, and the character covers the centre of the sign.
+  - The rotation every 4 s works (cheapest first).
+- **Nest from the path: PASS.** With the centre boards gone, the Golden Egg and the coloured eggs show clearly above the ring. The 8 signs are small, low and outside the belt, and don't hide the nest (`97f-hh-nest-from-path.jpg`).
+- **Moved hub stands: not checkable in the world.** BookStand, ThemeStand, Mailbox and NoticeBoard exist only in the layout data and WorldArt; no instance with those names is built in this place. Only `HubLayout.spec` covers their spacing.
+- **Suggestions for the signs:** use fewer, bigger lines at about 1 stud or more of text, for example egg name and price on line 1, then "Rare 1 in 125 · Epic 1 in 5.6K · Legendary 1 in 50K" on two lines. Put the sign where the follow camera sees it past the character: on the left post, or raised so its face sits at about 5-7 studs, above the character's head and below the banner band. Alternatively keep the tiers in the tap-to-open odds card and have the sign show just the egg name, price and the rarest odds.
