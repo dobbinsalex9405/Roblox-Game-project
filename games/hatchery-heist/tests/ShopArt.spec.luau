@@ -12,6 +12,7 @@ local describe, it, expect = t.describe, t.it, t.expect
 
 local monetization = require("../config/monetization")
 local raids = require("../config/raids")
+local shophouse = require("../config/shophouse")
 
 -- Most boxes (Parts) the whole shop may build: one building's worth.
 local TOTAL_BUDGET = 3500
@@ -129,5 +130,26 @@ describe("Golden Egg Shop displays", function()
 		expect(ShopPlan.priceText(false, false, 99)).toBe("Coming soon")
 		expect(ShopPlan.priceText(true, false, 25)).toBe("R$ 25")
 		expect(ShopPlan.priceText(true, false, nil)).toBe("R$ ...")
+	end)
+end)
+
+-- The Studio check found the room washed out white: ten warm PointLights
+-- (brightness up to 1.6) plus 78 Neon accents under the game's bloom. Roblox
+-- adds overlapping lights, so the room's total lamp brightness is capped,
+-- and Neon stays off indoors.
+describe("Golden Egg Shop lighting", function()
+	it("the room's lamps add up to a soft light, not a glare", function()
+		local total = 0
+		for _, entry in ShopArt.layout do
+			if entry.type == "light" then
+				total += (entry.brightness :: number) * shophouse.lightScale
+			end
+		end
+		expect(total > 0).toBe(true)
+		expect(total <= 3.5).toBe(true)
+	end)
+
+	it("glowing accents are plain colour, not Neon", function()
+		expect(shophouse.neon).toBe(false)
 	end)
 end)

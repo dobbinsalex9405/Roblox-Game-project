@@ -4,7 +4,8 @@
 
 - The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
-  prompt at each, a counter and a shopkeeper.
+  prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
+  and dark unlit price tags that stay readable in the lit room.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,

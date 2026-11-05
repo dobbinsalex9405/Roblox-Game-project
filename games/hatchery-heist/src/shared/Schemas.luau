@@ -430,6 +430,9 @@ return function(Schema: any, Odds: any)
 		coinsHeader = Schema.string({ maxLength = 24 }),
 		passesHeader = Schema.string({ maxLength = 24 }),
 		lightScale = Schema.number({ min = 0, max = 3 }),
+		lightRangeScale = Schema.number({ min = 0.1, max = 2 }),
+		lightColor = Schema.array(Schema.number({ min = 0, max = 255 }), { minLength = 3, maxLength = 3 }),
+		neon = Schema.boolean(),
 		animateRange = Schema.number({ min = 0, max = 400 }),
 	})
 

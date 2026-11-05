@@ -24,8 +24,9 @@ local ShopPlan = require(Shared.ShopPlan)
 
 local ShopHouseView = {}
 
-local CREAM = Color3.fromRGB(250, 242, 222)
-local BROWN = Color3.fromRGB(90, 52, 30)
+local CREAM = Color3.fromRGB(255, 240, 210)
+local BROWN = Color3.fromRGB(70, 40, 22)
+local CARD = Color3.fromRGB(46, 28, 18) -- the tag's dark face
 local GOLD = Color3.fromRGB(244, 197, 66)
 local GREEN = Color3.fromRGB(95, 190, 105)
 local GREY = Color3.fromRGB(160, 160, 170)
@@ -59,13 +60,24 @@ local function tagFor(card: BasePart, playerGui: Instance): Tag
 	gui.Face = Enum.NormalId.Front
 	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 	gui.PixelsPerStud = 80
-	gui.LightInfluence = 0.15
+	-- Unlit, so the room's lamps never wash the words out.
+	gui.LightInfluence = 0
+	gui.Brightness = 1
 	gui.ResetOnSpawn = false
 
 	local frame = Instance.new("Frame")
-	frame.Size = UDim2.fromScale(1, 1)
-	frame.BackgroundColor3 = CREAM
+	frame.Position = UDim2.fromOffset(4, 4) -- room for the gold edge
+	frame.Size = UDim2.new(1, -8, 1, -8)
+	frame.BackgroundColor3 = CARD
 	frame.BorderSizePixel = 0
+	local frameCorner = Instance.new("UICorner")
+	frameCorner.CornerRadius = UDim.new(0.08, 0)
+	frameCorner.Parent = frame
+	local edge = Instance.new("UIStroke")
+	edge.Color = GOLD
+	edge.Thickness = 4
+	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	edge.Parent = frame
 	frame.Parent = gui
 
 	local name = Instance.new("TextLabel")
@@ -74,7 +86,7 @@ local function tagFor(card: BasePart, playerGui: Instance): Tag
 	name.Size = UDim2.fromScale(0.9, 0.3)
 	name.Font = Enum.Font.FredokaOne
 	name.TextScaled = true
-	name.TextColor3 = BROWN
+	name.TextColor3 = GOLD
 	name.Parent = frame
 
 	local about = Instance.new("TextLabel")
@@ -84,9 +96,9 @@ local function tagFor(card: BasePart, playerGui: Instance): Tag
 	about.Font = Enum.Font.GothamMedium
 	about.TextScaled = true
 	about.TextWrapped = true
-	about.TextColor3 = BROWN
+	about.TextColor3 = CREAM
 	local aboutSize = Instance.new("UITextSizeConstraint")
-	aboutSize.MaxTextSize = 15
+	aboutSize.MaxTextSize = 18
 	aboutSize.Parent = about
 	about.Parent = frame
 

@@ -15,8 +15,14 @@ return {
 	title = "Golden Egg Shop",
 	coinsHeader = "Coins",
 	passesHeader = "Passes & Shield",
-	-- Every lamp's brightness is multiplied by this.
-	lightScale = 1,
+	-- The room's lamps. Indoors, Roblox adds every overlapping light, so the
+	-- art's brightnesses are scaled well down; at 1 the room washed out white.
+	lightScale = 0.3, -- every lamp's brightness is multiplied by this
+	lightRangeScale = 0.75, -- and every lamp's range by this
+	lightColor = { 255, 228, 196 }, -- RGB, a soft warm white
+	-- Glowing accents (lamp panes, gems, incubator lights) as Neon. Off:
+	-- with the game's bloom, Neon indoors glares; they stay their colour.
+	neon = false,
 	-- Displays move (bob, spin, glow) only for players this close.
 	animateRange = 120,
 }

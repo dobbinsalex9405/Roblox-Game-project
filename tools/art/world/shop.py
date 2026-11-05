@@ -525,7 +525,7 @@ def _stool(p):
 # ------------------------------------------------------------------ plinths
 PLINTH = 1.5  # half width
 PLINTH_H = 2.4
-CARD = dict(face_y=-PLINTH - 0.06, x=0.0, z=1.25, w=2.5, h=1.3)  # price card on the plinth front
+CARD = dict(face_y=-PLINTH - 0.14, x=0.0, z=1.2, w=3.0, h=1.5)  # price card on the plinth front
 
 
 @prop('ShopPlinth', 'shop', (-1.8, -1.8, 0), (1.8, 1.8, 2.5), budget=70, factors=(2, 4),
@@ -542,8 +542,7 @@ def _plinth(p):
     g.box((-1.7, -1.7, 2.1), (1.7, 1.7, 2.4), pick(CREAM, 513))
     g.box((-1.72, -1.72, 2.05), (1.72, 1.72, 2.2), col(GOLD_D))
     # the card frame on the front
-    g.box((-1.35, -PLINTH - 0.1, 0.5), (1.35, -PLINTH, 2.0), col(RED_D))
-    g.box((-1.2, -PLINTH - 0.15, 0.62), (1.2, -PLINTH - 0.05, 1.88), pick(CREAM, 514))
+    g.box((-1.45, -PLINTH - 0.08, 0.4), (1.45, -PLINTH, 2.0), col(RED_D))
     p.anchor = (0, 0, 0)
 
 
@@ -562,8 +561,7 @@ def _plinth_velvet(p):
     for sx in (-1, 1):
         for sy in (-1, 1):
             g.box((sx * 1.55 - 0.12, sy * 1.55 - 0.12, 1.8), (sx * 1.55 + 0.12, sy * 1.55 + 0.12, 2.35), col(GOLD))
-    g.box((-1.35, -PLINTH - 0.1, 0.5), (1.35, -PLINTH, 1.9), col(GOLD_D))
-    g.box((-1.2, -PLINTH - 0.15, 0.62), (1.2, -PLINTH - 0.05, 1.78), pick(CREAM, 523))
+    g.box((-1.45, -PLINTH - 0.08, 0.4), (1.45, -PLINTH, 1.95), col(GOLD_D))
     p.anchor = (0, 0, 0)
 
 

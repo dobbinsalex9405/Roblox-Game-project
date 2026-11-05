@@ -24,7 +24,6 @@ local VoxelProp = require(Shared.VoxelProp)
 local ShopHouse = {}
 
 local GLASS_HEX = "bee6ff" -- ShopArt's window glass colour
-local LIGHT_COLOR = Color3.fromRGB(255, 205, 150)
 local TEXT_COLOR = Color3.fromRGB(150, 44, 38)
 
 local function vec(t: { number }): Vector3
@@ -45,8 +44,9 @@ local function target(building: CFrame, entry: ShopArt.Entry): CFrame
 end
 
 -- A prop with its anchor at `at`: a Model of Parts, its origin remembered
--- for the client's animation.
-local function place(name: string, at: CFrame, collide: boolean, parent: Instance): Model
+-- for the client's animation. Without `neon`, glowing boxes stay their
+-- colour in SmoothPlastic (Neon under the game's bloom glares indoors).
+local function place(name: string, at: CFrame, collide: boolean, neon: boolean, parent: Instance): Model
 	local origin = at * CFrame.new(-VoxelProp.anchor(name))
 	local model = VoxelProp.build(name, origin)
 	assert(model, `ShopArt has no prop {name}`)
@@ -54,6 +54,9 @@ local function place(name: string, at: CFrame, collide: boolean, parent: Instanc
 		local p = child :: Part
 		if collide then
 			p.CanCollide = true
+		end
+		if not neon and p.Material == Enum.Material.Neon then
+			p.Material = Enum.Material.SmoothPlastic
 		end
 		if p.Color:ToHex() == GLASS_HEX then
 			p.Material = Enum.Material.Glass
@@ -96,7 +99,7 @@ local function sign(at: CFrame, board: { at: { number }, size: { number } }, tex
 	gui.Face = Enum.NormalId.Front
 	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 	gui.PixelsPerStud = 40
-	gui.LightInfluence = 0.2
+	gui.LightInfluence = 0 -- readable whatever the room's lamps do
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
@@ -114,12 +117,12 @@ local function sign(at: CFrame, board: { at: { number }, size: { number } }, tex
 	gui.Parent = slab
 end
 
-local function light(at: CFrame, range: number, brightness: number, parent: Instance)
+local function light(at: CFrame, range: number, brightness: number, color: Color3, parent: Instance)
 	local holder = invisible("Lamp", at, Vector3.new(0.2, 0.2, 0.2), parent)
 	local l = Instance.new("PointLight")
 	l.Range = range
 	l.Brightness = brightness
-	l.Color = LIGHT_COLOR
+	l.Color = color
 	l.Shadows = false
 	l.Parent = holder
 end
@@ -144,6 +147,9 @@ function ShopHouse.build(config: any, monetization: any, raids: any): Model
 	local folder = Instance.new("Folder")
 	folder.Name = "Displays"
 	folder.Parent = shop
+	local neon = config.neon == true
+	local c = config.lightColor
+	local lightColor = Color3.fromRGB(c[1], c[2], c[3])
 	local texts = {
 		title = config.title,
 		coins = config.coinsHeader,
@@ -153,11 +159,17 @@ function ShopHouse.build(config: any, monetization: any, raids: any): Model
 	for index, entry in ShopArt.layout do
 		local at = target(building, entry)
 		if entry.type == "piece" then
-			place(entry.prop :: string, at, entry.collide == true, pieces)
+			place(entry.prop :: string, at, entry.collide == true, neon, pieces)
 		elseif entry.type == "text" then
 			sign(at, entry.board :: any, texts[entry.slot :: string] or "", shop)
 		elseif entry.type == "light" then
-			light(at, entry.range :: number, (entry.brightness :: number) * config.lightScale, shop)
+			light(
+				at,
+				(entry.range :: number) * config.lightRangeScale,
+				(entry.brightness :: number) * config.lightScale,
+				lightColor,
+				shop
+			)
 		elseif entry.type == "keeper" then
 			-- The shopkeeper: an invisible stand-in the client draws as a
 			-- creature (CreatureView), like the farm animals.
@@ -172,9 +184,9 @@ function ShopHouse.build(config: any, monetization: any, raids: any): Model
 			model.Name = d.key
 			model:SetAttribute("ShopKey", d.key)
 			model:SetAttribute("ShopKind", d.kind)
-			place(entry.plinth :: string, at, true, model)
+			place(entry.plinth :: string, at, true, neon, model)
 			local top = at * CFrame.new(0, ShopArt.plinthTop[entry.plinth :: string], 0)
-			local item = place(entry.item :: string, top, false, model)
+			local item = place(entry.item :: string, top, false, neon, model)
 			item.Name = "Item"
 			local card = ShopArt.card
 			invisible(
