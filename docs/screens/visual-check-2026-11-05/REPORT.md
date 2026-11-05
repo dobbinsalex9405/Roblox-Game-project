@@ -223,3 +223,12 @@ mesh. No "Asset type does not match" or TexturePack errors. Book: 17 unfound car
 dark with no TextureID and labelled "???"; Chick shows in colour with NEW
 (`66c-hh-book-silhouettes`). Output still has 7 one-time "Asset content representation is being
 generated" warnings while Roblox finishes processing the new images.
+
+## Re-look: #75 at 2de293d (sky and grass ids)
+
+PASS. The grass Texture (106077023630198) renders on the Baseplate (pixel-grass pattern,
+`75b-hh-grass`) and all 66 hills keep their textures. The sky shows clouds, floating islands and
+the blue Up face at the corners (`75b-hh-sky-corner`). No asset-type errors. Two notes: Output
+still prints one "Asset content representation is being generated" warning for the grass id even
+though it renders, and ContentProvider:PreloadAsync reports "Failure" for all 6 skybox ids even
+though the sky draws.
