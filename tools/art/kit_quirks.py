@@ -799,26 +799,32 @@ def diving_beetle(c, H, col, col2, a=None):
             leg.put((X(xk), y, 0), legc)
 
 
-def puff_legs(c, H, col, col2, a=None):
-    """Even feet for a two-legged puff: the body is raised one voxel, each
-    leg grows by that voxel at the hip (so it is three tall and seen
-    stepping), and the right leg becomes the exact mirror of the left, its
-    pivot too (the puff plan places the two a voxel apart)."""
+def leg_clearance(c, H, col, col2, a=None):
+    """Makes every leg show at least three voxels of its own: where a leg's
+    top voxels sit inside the body (the body keeps shared voxels, so the leg
+    part loses them), the rest of the creature is raised just enough to
+    uncover them. Adds no leg voxels and does nothing when the legs already
+    show three."""
     import rig
-    left, right = _find(c, 'legL'), _find(c, 'legR')
-    if not left or not right or not left.v:
+    legs = [p for p in c.parts if p.name in rig.LEG_NAMES and p.v]
+    if not legs:
         return
+    rest = set()
     for p in c.parts:
         if p.name not in rig.LEG_NAMES:
-            _shift(p, 0, 0, 1)
-    top = max(z for (x, y, z) in left.v)
-    for (x, y, z), cv in list(left.v.items()):
-        if z == top:
-            left.v[(x, y, z + 1)] = left.v[(x, y, z)]
-            left.v[(x, y, z)] = left.v[(x, y, z - 1)] if (x, y, z - 1) in left.v else cv
-    left.pivot = (left.pivot[0], left.pivot[1], left.pivot[2] + 1)
-    right.v = {(-x - 1, y, z): cv for (x, y, z), cv in left.v.items()}
-    right.pivot = (-left.pivot[0], left.pivot[1], left.pivot[2])
+            rest |= set(p.v)
+    need = 0
+    for leg in legs:
+        top = max(z for (x, y, z) in leg.v)
+        for lift in range(0, 4):
+            own = {z for (x, y, z) in leg.v if (x, y, z - lift) not in rest}
+            if len(own) >= 3 or lift == 3 or top + 1 < 3:
+                break
+        need = max(need, lift)
+    if need:
+        for p in c.parts:
+            if p.name not in rig.LEG_NAMES:
+                _shift(p, 0, 0, need)
 
 
 def drop_ears(c, H, col, col2, a=None):
@@ -966,7 +972,7 @@ ACCESSORIES = {
     'aphid': aphid,
     'drop_ears': drop_ears,
     'cone_scales': cone_scales,
-    'puff_legs': puff_legs,
+    'leg_clearance': leg_clearance,
     'diving_beetle': diving_beetle,
     'tidy': tidy,
 }
