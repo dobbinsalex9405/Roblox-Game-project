@@ -15,6 +15,11 @@
   Steal buttons of a big creature sit in the middle of its spots.
 - Fix: some Hatchery Book cards showed no "???" name for creatures not
   found yet (on phones, the top rows).
+- A new outdoors: a wood of voxel trees in five kinds (Puff Oak, Blossom
+  Tree, Star Pine with a glowing star, Moonberry Willow, Toadstool Tree)
+  and three sizes, with bushes, mossy rocks, flowers, grass and glowing
+  mushroom rings, pines on the hills, a painted storybook sky with voxel
+  clouds and floating islands, and a grass texture on the ground.
 - Creatures walk on real legs: every leg is its own part that swings from
   the hip, and each creature has a gait (trot, waddle, hop, scuttle,
   slither or hover).
