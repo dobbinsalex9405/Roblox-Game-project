@@ -9,6 +9,9 @@
 - Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
   set with F (snare) or R (slime), with a short hold, from closer by.
 
+- Sound effects: the egg shakes and cracks, each reveal has its own sting,
+  new Book entries, rewards and menu buttons all make a sound now.
+
 - Creatures on your tower walk around their spot: they turn, walk, stop,
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
