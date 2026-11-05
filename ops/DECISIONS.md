@@ -106,6 +106,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   behind them. Now each piece keeps `farm.clearRadius` studs round itself
   clear, a small tree stands on each side of every gap's farm piece (a bush
   at the foot of one), and the wood fills in behind.
+- **The wood is spread by slices, not at random** (gate follow-up): each
+  tree first tries its own 1/count slice of the ring, so no wedge is left
+  bare behind a farm piece (random angles left 24 degree gaps behind the
+  Barn and two fields). A slice with no room gives its tree to anywhere.
 - **Star Pines only on the hills** (gate follow-up): on flat grass in the
   wood they read as random, on the hilltops as landmarks. Every other hill
   gets one, the medium model scaled up (the large one's detail is never

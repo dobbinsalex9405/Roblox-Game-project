@@ -28,6 +28,8 @@
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.
+- The wood now goes all the way round the ring, so no bare grass shows
+  behind the barn or the fields.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,
