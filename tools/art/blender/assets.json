@@ -91,10 +91,10 @@
    "version": "4"
   },
   "Bluebird": {
-   "assetId": 80164917359004,
-   "textureId": 80034837942287,
+   "assetId": 104673549008614,
+   "textureId": 104396740017969,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Boarlet": {
    "assetId": 109581812944227,
@@ -193,10 +193,10 @@
    "version": "3"
   },
   "Chick": {
-   "assetId": 74180591280310,
-   "textureId": 81102142671967,
+   "assetId": 80751929611771,
+   "textureId": 127649589839229,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Chickadee": {
    "assetId": 100182228365404,
@@ -366,6 +366,12 @@
    "textureType": "Image",
    "version": "4"
   },
+  "DustBunny": {
+   "assetId": 105915027568147,
+   "textureId": 74666172236215,
+   "textureType": "Image",
+   "version": "1"
+  },
   "DutchBunny": {
    "assetId": 126563695035804,
    "textureId": 134746236804242,
@@ -397,10 +403,10 @@
    "version": "3"
   },
   "Fawn": {
-   "assetId": 101243518036208,
-   "textureId": 72313438596348,
+   "assetId": 113596293473499,
+   "textureId": 118460581402838,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Fennec": {
    "assetId": 106352067459997,
@@ -427,10 +433,10 @@
    "version": "1"
   },
   "Foal": {
-   "assetId": 99098614718205,
-   "textureId": 122351478606555,
+   "assetId": 90254285506015,
+   "textureId": 82744581532277,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "FoxKit": {
    "assetId": 105624438454758,
@@ -493,10 +499,10 @@
    "version": "1"
   },
   "GoatKid": {
-   "assetId": 124544802455507,
-   "textureId": 88938652614401,
+   "assetId": 87352906557513,
+   "textureId": 124842260002469,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "GoldenGoose": {
    "assetId": 78366279913804,
@@ -571,10 +577,10 @@
    "version": "5"
   },
   "Hen": {
-   "assetId": 112598712381113,
-   "textureId": 93930017896883,
+   "assetId": 71916816543511,
+   "textureId": 123683835098672,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "HermitCrab": {
    "assetId": 129013331559648,
@@ -615,6 +621,12 @@
   "IbexKid": {
    "assetId": 135012519293515,
    "textureId": 88422905191935,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "IcicleBat": {
+   "assetId": 74667045695520,
+   "textureId": 119887292147872,
    "textureType": "Image",
    "version": "1"
   },
@@ -691,16 +703,22 @@
    "version": "6"
   },
   "Lamb": {
-   "assetId": 138591886331754,
-   "textureId": 115451954099465,
+   "assetId": 110103287794980,
+   "textureId": 97484786655317,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "LeafAnt": {
    "assetId": 104811792725794,
    "textureId": 95531773224890,
    "textureType": "Image",
    "version": "3"
+  },
+  "LeafBat": {
+   "assetId": 86294075717895,
+   "textureId": 99844926485791,
+   "textureType": "Image",
+   "version": "1"
   },
   "Lemming": {
    "assetId": 129776749483577,
@@ -793,10 +811,10 @@
    "version": "3"
   },
   "Mole": {
-   "assetId": 110615694736963,
-   "textureId": 132885497173347,
+   "assetId": 100205482965131,
+   "textureId": 78538416741642,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Monarch": {
    "assetId": 102542582315730,
@@ -834,6 +852,12 @@
    "textureType": "Image",
    "version": "5"
   },
+  "NeonOctopus": {
+   "assetId": 103256171711386,
+   "textureId": 93824815863729,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Newt": {
    "assetId": 137451594093883,
    "textureId": 87041340350332,
@@ -847,10 +871,10 @@
    "version": "3"
   },
   "OtterPup": {
-   "assetId": 74882698190928,
-   "textureId": 118537089753626,
+   "assetId": 120153468771217,
+   "textureId": 101975156380498,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Owlet": {
    "assetId": 127514852994147,
@@ -877,10 +901,10 @@
    "version": "1"
   },
   "Parakeet": {
-   "assetId": 106393238211519,
-   "textureId": 130957397837943,
+   "assetId": 115784346324572,
+   "textureId": 121646818494631,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Peapod": {
    "assetId": 126082620867128,
@@ -1057,10 +1081,10 @@
    "version": "3"
   },
   "Robin": {
-   "assetId": 74016969660691,
-   "textureId": 119744780991515,
+   "assetId": 139576980683777,
+   "textureId": 129451101234863,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "Rooster": {
    "assetId": 97230110358160,
@@ -1373,30 +1397,6 @@
    "textureId": 95806592137832,
    "textureType": "Image",
    "version": "1"
-  },
-  "DustBunny": {
-   "assetId": 105915027568147,
-   "textureId": 74666172236215,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "IcicleBat": {
-   "assetId": 74667045695520,
-   "textureId": 119887292147872,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "LeafBat": {
-   "assetId": 86294075717895,
-   "textureId": 99844926485791,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "NeonOctopus": {
-   "assetId": 103256171711386,
-   "textureId": 93824815863729,
-   "textureType": "Image",
-   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -1446,8 +1446,8 @@
    "source": "a4a4feb26e6ad972"
   },
   "Bluebird": {
-   "imageId": 131387195743289,
-   "source": "6840bd6820449267"
+   "imageId": 82164135295038,
+   "source": "2d4393256f9bc5b4"
   },
   "Boarlet": {
    "imageId": 104377293043655,
@@ -1494,8 +1494,8 @@
    "source": "92cf90a6733c5513"
   },
   "Chick": {
-   "imageId": 101744009904705,
-   "source": "7573f9b9b2f89554"
+   "imageId": 73042879509527,
+   "source": "a752e7cbfec8c3dc"
   },
   "Chinchilla": {
    "imageId": 130362683393197,
@@ -1589,6 +1589,10 @@
    "imageId": 73135854241499,
    "source": "a540e9de8b1a0db8"
   },
+  "DustBunny": {
+   "imageId": 84774251865377,
+   "source": "7299b4443aab8e44"
+  },
   "DutchBunny": {
    "imageId": 107411329825261,
    "source": "bfeaab8b090f6fd4"
@@ -1610,8 +1614,8 @@
    "source": "5ea14774b454376f"
   },
   "Fawn": {
-   "imageId": 139897329623215,
-   "source": "0b1a8468da5a4ff7"
+   "imageId": 103139794336113,
+   "source": "5c7fa4661841ef8f"
   },
   "Fennec": {
    "imageId": 94859690980635,
@@ -1622,8 +1626,8 @@
    "source": "e61057c7f29f33e4"
   },
   "Foal": {
-   "imageId": 94641236170150,
-   "source": "960d4c7c0a9580a6"
+   "imageId": 116439608763282,
+   "source": "b688c736f51305cf"
   },
   "FoxKit": {
    "imageId": 96672571584319,
@@ -1662,8 +1666,8 @@
    "source": "54e3f655db9d0d27"
   },
   "GoatKid": {
-   "imageId": 124117948159489,
-   "source": "4b89ef1355201b87"
+   "imageId": 85033420868320,
+   "source": "555022f8c4a079be"
   },
   "GoldenGoose": {
    "imageId": 86104962985273,
@@ -1706,8 +1710,8 @@
    "source": "76f297aaae02c18c"
   },
   "Hen": {
-   "imageId": 98400833368490,
-   "source": "be62e22144184481"
+   "imageId": 71863947876480,
+   "source": "0139fbc8094997fc"
   },
   "Hippocampus": {
    "imageId": 132793447028320,
@@ -1724,6 +1728,10 @@
   "IbexKid": {
    "imageId": 110089507189627,
    "source": "e15e71439bd76f1f"
+  },
+  "IcicleBat": {
+   "imageId": 119886473159238,
+   "source": "70e0737ac86bb869"
   },
   "Iguana": {
    "imageId": 113871521676461,
@@ -1770,8 +1778,12 @@
    "source": "8d575abe55b4a46f"
   },
   "Lamb": {
-   "imageId": 135294007633644,
-   "source": "42d39ad4d9a0e05f"
+   "imageId": 109342186414915,
+   "source": "e8250fd57e9be436"
+  },
+  "LeafBat": {
+   "imageId": 128850714533411,
+   "source": "503169a338d3d03e"
   },
   "Lemming": {
    "imageId": 112910433452364,
@@ -1802,8 +1814,8 @@
    "source": "146db53bf16571f7"
   },
   "Mole": {
-   "imageId": 115580684106028,
-   "source": "0eaca70f17771ff0"
+   "imageId": 86283043865254,
+   "source": "0947537c364d9e59"
   },
   "Monarch": {
    "imageId": 102685641164198,
@@ -1829,13 +1841,17 @@
    "imageId": 74418140589025,
    "source": "b4dc8ba321616843"
   },
+  "NeonOctopus": {
+   "imageId": 118005057520009,
+   "source": "e28aa7134bddc102"
+  },
   "Opossum": {
    "imageId": 71945275664392,
    "source": "e69eef30ff252002"
   },
   "OtterPup": {
-   "imageId": 111396962717895,
-   "source": "d195baebfbafb602"
+   "imageId": 101765903320109,
+   "source": "0eb943557563c1ce"
   },
   "Owlet": {
    "imageId": 128943588124379,
@@ -1854,8 +1870,8 @@
    "source": "474d3d59d25b88db"
   },
   "Parakeet": {
-   "imageId": 135203344142378,
-   "source": "58c65e899cae6c2e"
+   "imageId": 136915280552370,
+   "source": "262251fbe2a9bee9"
   },
   "Peapod": {
    "imageId": 78864892899353,
@@ -1922,8 +1938,8 @@
    "source": "d982e968ca233828"
   },
   "Robin": {
-   "imageId": 121218722436293,
-   "source": "f496852ed8c810d6"
+   "imageId": 82442605170418,
+   "source": "bbed115266fadc78"
   },
   "SandSerpent": {
    "imageId": 96018419911483,
@@ -2072,22 +2088,6 @@
   "ZebraPiglet": {
    "imageId": 122821289359673,
    "source": "bd54e7d5ad399b01"
-  },
-  "DustBunny": {
-   "imageId": 84774251865377,
-   "source": "7299b4443aab8e44"
-  },
-  "IcicleBat": {
-   "imageId": 119886473159238,
-   "source": "70e0737ac86bb869"
-  },
-  "LeafBat": {
-   "imageId": 128850714533411,
-   "source": "503169a338d3d03e"
-  },
-  "NeonOctopus": {
-   "imageId": 118005057520009,
-   "source": "e28aa7134bddc102"
   }
  }
 }
