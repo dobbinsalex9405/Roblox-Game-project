@@ -3302,6 +3302,70 @@
   "ZapSquirrel": {
    "imageId": 105312081476701,
    "source": "77a82aabb9936ba3"
+  },
+  "Acornling": {
+   "imageId": 71052356526210,
+   "source": "cf8de24c5d303c8c"
+  },
+  "AlleyCat": {
+   "imageId": 135008956948334,
+   "source": "84c45a33d878467c"
+  },
+  "Badger": {
+   "imageId": 95909659129660,
+   "source": "fa84e70f9a59fd2b"
+  },
+  "Bantam": {
+   "imageId": 80773091818275,
+   "source": "15b1a8ab5b079a6c"
+  },
+  "BarnCat": {
+   "imageId": 77616867003911,
+   "source": "75450bb88e7bf0a2"
+  },
+  "BarnSwallow": {
+   "imageId": 116141420118901,
+   "source": "e72d1a3736fef0cf"
+  },
+  "BeaglePup": {
+   "imageId": 114316876527504,
+   "source": "53094b094ef74371"
+  },
+  "BlackLamb": {
+   "imageId": 75115295119132,
+   "source": "83732884d4bdd1b0"
+  },
+  "Bookworm": {
+   "imageId": 96370812321790,
+   "source": "349f2185a71f369a"
+  },
+  "Bushbaby": {
+   "imageId": 71919721178066,
+   "source": "8b9b0b88a0b34c4b"
+  },
+  "Canary": {
+   "imageId": 137434643590598,
+   "source": "a46add1928dc5e94"
+  },
+  "Capybara": {
+   "imageId": 135390220970405,
+   "source": "ed2bfc97a1c0f633"
+  },
+  "Cardinal": {
+   "imageId": 118890587287367,
+   "source": "7a236e27bc2c6d2e"
+  },
+  "Chameleon": {
+   "imageId": 75247042683290,
+   "source": "e93b4c6cbab359b1"
+  },
+  "Chickadee": {
+   "imageId": 99556578695983,
+   "source": "31abe374f852e2fb"
+  },
+  "ClickBeetle": {
+   "imageId": 76298656660542,
+   "source": "45338ca7d118cf2a"
   }
  }
 }
