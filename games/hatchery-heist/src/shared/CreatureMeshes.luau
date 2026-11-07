@@ -13360,8 +13360,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "waddle",
 		height = 2.7,
 		size = { 3.2, 2.7, 2.5 },
-		tris = 19534,
-		trisLod1 = 2224,
+		tris = 19174,
+		trisLod1 = 2118,
 		parts = {
 			{
 				name = "body",
@@ -13394,11 +13394,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "StormHawk_eyes",
-						center = { 0, 2.0017, -0.7 },
-						size = { 0.807, 0.2035, 0.307 },
+						center = { 0, 2.0518, -0.8 },
+						size = { 0.607, 0.1035, 0.107 },
 					},
 				},
-				lod1 = { name = "StormHawk_eyes_lod1", center = { 0, 2, -0.7 }, size = { 0.8, 0.2, 0.3 } },
+				lod1 = { name = "StormHawk_eyes_lod1", center = { 0, 2.05, -0.8 }, size = { 0.6, 0.1, 0.1 } },
 			},
 			{
 				name = "wingL",
