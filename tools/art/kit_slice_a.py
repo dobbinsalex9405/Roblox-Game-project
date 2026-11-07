@@ -902,8 +902,8 @@ def long_stripes(c, H, col, col2=None, a=None):
         # Stripes follow the surface. Each outside voxel's facing is the
         # sum of the empty cells around it (two voxels out, so it is
         # smooth); where the body faces sideways the stripes are rows of z
-        # (long lines front to back in the side view), where it faces up
-        # or forward they are columns of |x| (lines down the back from
+        # (long lines front to back in the side view), where it faces up,
+        # forward or back they are columns of |x| (lines down the back from
         # above, vertical stripes down the sides of the chest from the front;
         # the middle of the chest and the spine stay cream). Both run head to
         # tail and meet at the shoulder.
@@ -924,7 +924,7 @@ def long_stripes(c, H, col, col2=None, a=None):
                 if (x + dx, y + dy, z + dz) not in vox:
                     nx += dx; ny += dy; nz += dz
             ax = int(abs(x + .5))
-            if abs(nx) > max(abs(nz), -ny) * a.get('side_bias', 1.0):
+            if abs(nx) > max(abs(nz), abs(ny)) * a.get('side_bias', 1.0):
                 dark = ((z - zmid) // w) % 2 == 0
             else:
                 dark = ax >= w and ((ax - w) // w) % 2 == 0 and ax < n * w * 2
