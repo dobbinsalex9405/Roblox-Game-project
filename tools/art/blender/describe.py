@@ -13,6 +13,8 @@ sys.path.insert(0, os.path.dirname(HERE))
 from creatures import HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
+import rig  # noqa: E402
+import walkpose  # noqa: E402
 
 RANK = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
 
@@ -50,7 +52,7 @@ def parent_of(part, parts):
         return None
     if part.name in ('eyes', 'ears'):
         return 'head'
-    if part.name in ('head', 'wingL', 'wingR', 'tail'):
+    if part.name in ('head', 'wingL', 'wingR', 'tail') or part.name.startswith('leg'):
         return 'body'  # a moving part rides the body, never another mover (no parent loops)
     scored = []
     for other in parts:
@@ -103,6 +105,14 @@ def creatures(tiers=None, only=None):
     return cs
 
 
+# Parts that never move against the body (it, or what rides it rigidly).
+STILL_ROLES = ('body', 'static', 'blink', 'glow')
+# How far a moving part's skin sits inside its voxels, in voxels: more than
+# the pillow lift (voxmesh.LIFT), so even a leg's raised face squares stay
+# behind a body face in the same plane.
+INSET = 0.08
+
+
 def describe(c):
     """Returns (meta, palette, parts) where parts is [(part, joint_pivot,
     [(kind, rgb, MeshData, mesh_name)])]. All positions are in the game
@@ -116,9 +126,27 @@ def describe(c):
     for part in c.parts:
         pivot = voxmesh.to_game(part.pivot, centre, V)
         meshes, mlist = [], []
-        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of):
+        # where a leg meets the body, both sides are flat (hidden at rest)
+        if part.name == 'body':
+            flat = {v for o in c.parts if o.name.startswith('leg') for v in o.v}
+        elif part.name.startswith('leg'):
+            flat = set(next((o.v for o in c.parts if o.name == 'body'), ()))
+        else:
+            flat = ()
+        # A part that moves against the body is inset a hair (voxmesh
+        # MeshData.inset) so no face of it is ever the same plane as the
+        # body's: legs, wings, fins, tails, heads and ears.
+        moves = walkpose.role(part.name, part.anim) not in STILL_ROLES
+        # Its faces against what it rests on (the body and the parts riding
+        # it rigidly) stay put: inset, a leg's top would open a slit through
+        # the hip that shows the sky.
+        contact = {v for o in c.parts if o is not part and walkpose.role(o.name, o.anim) in STILL_ROLES
+                   for v in o.v} if moves else ()
+        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of, flat=flat, contact=contact):
             if not md.tris:
                 continue
+            if moves:
+                md.inset(INSET * V)
             name = f'{c.species}_{md.name}'
             lo_m, hi_m = md.bounds()
             entry = {
@@ -161,6 +189,7 @@ def describe(c):
         'id': c.species,
         'rarity': c.rarity,
         'element': getattr(c, 'element', 'plain'),
+        'gait': rig.gait(c),
         'heightStuds': round(size[1], 4),
         'sizeStuds': r4(size),
         'voxelStuds': round(V, 5),
@@ -170,7 +199,7 @@ def describe(c):
         'tris': total,
         'trisLod1': total_lod,
         'parts': parts_meta,
-        'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 1.0, 'loop': True}},
+        'clips': {'idle': {'seconds': 4.0, 'loop': True}, 'walk': {'seconds': 2.0, 'loop': True}},
         'files': {'glb': f'{c.species}.glb', 'fbx': f'{c.species}.fbx', 'texture': f'{c.species}_palette.png'},
     }
     return meta, p, parts

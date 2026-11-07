@@ -10,12 +10,42 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
-local ANIMS = { "static", "head", "ears", "tail", "wingL", "wingR", "blink", "glow" }
+local ANIMS = {
+	"static",
+	"head",
+	"ears",
+	"tail",
+	"wingL",
+	"wingR",
+	"blink",
+	"glow",
+	"orbit", -- turns about its pivot on the vertical axis (Godly planets)
+	"legFL",
+	"legFR",
+	"legBL",
+	"legBR",
+	"legL",
+	"legR",
+	"leg1L",
+	"leg1R",
+	"leg2L",
+	"leg2R",
+	"leg3L",
+	"leg3R",
+	"leg4L",
+	"leg4R",
+	"leg5L",
+	"leg5R",
+	"leg6L",
+	"leg6R",
+	"finL", -- fins paddle when a fish swims (Walk "swim")
+	"finR",
+}
 
 -- Parts a client builds per creature, at most, by tier. Commons are cheap so
 -- a base full of them stays light; Godlies may be lavish because they are
 -- one in tens of thousands.
-local BUDGET = { 30, 40, 60, 80, 120, 450, 800 }
+local BUDGET = { 36, 44, 60, 80, 120, 450, 800 }
 
 local function rank(rarity: string): number
 	return table.find(RARITIES, rarity) or 0
@@ -210,6 +240,27 @@ describe("Creature looks by tier", function()
 					"fits"
 				)
 			end
+		end
+	end)
+
+	-- Godly thread, Nov 5: at 6 studs tall the Clockwork Leviathan is about 15
+	-- studs long. It lies along its three spots' 30-stud row (Walk.lie) and
+	-- keeps its height; only a creature longer than the row (less 2 studs)
+	-- is scaled down, evenly, keeping its proportions.
+	it("keeps a long Godly's height and only shrinks one longer than its row", function()
+		-- The Leviathan: 6 tall, 15 long fits a 28-stud row as it is.
+		expect(ArtScale.drawScale(6, 6, 15, 28)).toBe(1)
+		-- A 40-stud serpent is scaled to the row, still 2.5 times as long as tall.
+		local k = ArtScale.drawScale(6, 6, 40, 28)
+		expect(math.abs(40 * k - 28) < 1e-9).toBe(true)
+		expect(math.abs((40 * k) / (6 * k) - 40 / 6) < 1e-9).toBe(true)
+		-- Every creature drawn today at Godly size (6 studs) fits a one-spot
+		-- row (8 studs), so none is shrunk.
+		for speciesId, art in VoxelArt.species do
+			local artHeight = art.size[2] * VoxelArt.voxel
+			local artLength = math.max(art.size[1], art.size[3]) * VoxelArt.voxel
+			local k6 = ArtScale.drawScale(6, artHeight, artLength, 28)
+			expect(math.abs(artHeight * k6 - 6) < 1e-6 and "fits" or `{speciesId} shrank`).toBe("fits")
 		end
 	end)
 

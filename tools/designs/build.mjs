@@ -28,6 +28,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -147,6 +148,14 @@ function walkDrops(root) {
   return found;
 }
 
+function mtimeOf(file) {
+  try {
+    return new Date(fs.statSync(file).mtimeMs).toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+}
+
 function readJson(file) {
   try {
     return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -173,13 +182,54 @@ function detailsOf(meta) {
   return out;
 }
 
+// Draco-compresses a dropped .glb (about 10x smaller: Blender voxel meshes
+// are mostly repeated vertices), so the viewer folder stays small enough to
+// copy and quick to open. Results are cached by the source's hash. Needs
+// `npm ci` in tools/designs/viewer; without it the .glb ships as it is.
+const DRACO_CACHE = path.join(REPO, "build/designs/draco");
+let gltf; // { io, transforms } once loaded, false when unavailable
+async function compressGlb(bytes) {
+  if (gltf === undefined) {
+    try {
+      const req = createRequire(path.join(HERE, "viewer/package.json"));
+      const { NodeIO } = req("@gltf-transform/core");
+      const { ALL_EXTENSIONS } = req("@gltf-transform/extensions");
+      const { draco, dedup } = req("@gltf-transform/functions");
+      const draco3d = req("draco3dgltf");
+      const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
+        "draco3d.decoder": await draco3d.createDecoderModule(),
+        "draco3d.encoder": await draco3d.createEncoderModule(),
+      });
+      gltf = { io, transforms: [dedup(), draco()] };
+    } catch (err) {
+      console.warn(`design viewer: models ship uncompressed (${err.message.split("\n")[0]})`);
+      gltf = false;
+    }
+  }
+  if (!gltf) return bytes;
+  const cached = path.join(DRACO_CACHE, `${hashOf(bytes)}.glb`);
+  if (fs.existsSync(cached)) return fs.readFileSync(cached);
+  let out = bytes;
+  try {
+    const doc = await gltf.io.readBinary(new Uint8Array(bytes));
+    await doc.transform(...gltf.transforms);
+    const packed = Buffer.from(await gltf.io.writeBinary(doc));
+    if (packed.length < bytes.length) out = packed;
+  } catch (err) {
+    console.warn(`design viewer: could not compress a model, shipping it as is (${err.message})`);
+  }
+  fs.mkdirSync(DRACO_CACHE, { recursive: true });
+  fs.writeFileSync(cached, out);
+  return out;
+}
+
 function writeOnce(file, data) {
   if (fs.existsSync(file)) return;
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, data);
 }
 
-function build(opts) {
+async function build(opts) {
   const catalog = readJson(path.join(HERE, "catalog.json"));
   const models = readJson(opts.models);
   if (!models) {
@@ -204,7 +254,7 @@ function build(opts) {
     if (!item) {
       item = {
         path: folder,
-        name,
+        name: spaced(name), // "PygmyGoat" -> "Pygmy Goat"
         game: folder[1] ?? "",
         tier: catalog.tiers.find((t) => folder.includes(t)) ?? null,
         copies: 0,
@@ -216,14 +266,23 @@ function build(opts) {
       byKey.set(key, item);
       items.push(item);
     }
+    // Other threads write drops while a build runs: a file that vanished or
+    // is half written is skipped this time and picked up by the next build.
     const glbs = drop.files
       .filter((f) => f.toLowerCase().endsWith(".glb"))
-      .map((f) => ({ f, mtime: fs.statSync(path.join(drop.dir, f)).mtimeMs }))
+      .map((f) => {
+        try {
+          return { f, mtime: fs.statSync(path.join(drop.dir, f)).mtimeMs, raw: fs.readFileSync(path.join(drop.dir, f)) };
+        } catch {
+          return null;
+        }
+      })
+      .filter((g) => g && g.raw.length > 0)
       .sort((a, b) => b.mtime - a.mtime);
     const meta = readJson(path.join(drop.dir, "meta.json"));
     const added = [];
-    for (const { f, mtime } of glbs) {
-      const bytes = fs.readFileSync(path.join(drop.dir, f));
+    for (const { f, mtime, raw } of glbs) {
+      const bytes = await compressGlb(raw);
       const hash = hashOf(bytes);
       writeOnce(
         path.join(dataDir, "models", `${hash}.js`),
@@ -231,7 +290,7 @@ function build(opts) {
       );
       const stem = f.replace(/\.glb$/i, "");
       added.push({
-        label: glbs.length === 1 || stem.toLowerCase() === name.toLowerCase() ? "Design" : stem,
+        label: glbs.length === 1 || keyOf([stem]) === keyOf([name]) ? "Design" : stem,
         kind: "glb",
         file: `data/models/${hash}.js`,
         hash,
@@ -249,7 +308,12 @@ function build(opts) {
       .slice(0, MAX_IMAGES);
     for (const f of images) {
       const full = path.join(drop.dir, f);
-      const bytes = fs.readFileSync(full);
+      let bytes;
+      try {
+        bytes = fs.readFileSync(full);
+      } catch {
+        continue;
+      }
       const file = `data/images/${hashOf(bytes)}${path.extname(f).toLowerCase()}`;
       writeOnce(path.join(opts.out, file), bytes);
       if (drop.pictures) {
@@ -259,7 +323,7 @@ function build(opts) {
           kind: "image",
           file,
           bytes: bytes.length,
-          updated: new Date(fs.statSync(full).mtimeMs).toISOString(),
+          updated: mtimeOf(full),
           source: path.join(...drop.rel, f),
         });
       } else {
@@ -317,4 +381,4 @@ function build(opts) {
   );
 }
 
-build(parseArgs(process.argv.slice(2)));
+await build(parseArgs(process.argv.slice(2)));
