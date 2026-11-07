@@ -28904,7 +28904,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	WorldTurtle = {
 		assetId = 118590995416486,
-		textureId = 97940932986257,
+		textureId = 101611328059438,
 		rarity = "Godly",
 		gait = "hover",
 		height = 2.875,
