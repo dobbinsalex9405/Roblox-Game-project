@@ -897,15 +897,55 @@ def long_stripes(c, H, col, col2=None, a=None):
     zc = bz0 + (bz1 - bz0) * 0.45
     belly = bz0 + (bz1 - bz0) * 0.25
     step = math.pi / (2 * n - 1)
-    for p in [body] + [q for q in c.parts if q.name in ('wingL', 'wingR')]:
-        for q, v in list(p.v.items()):
-            x, y, z = q
+    w = a.get('width', 2)  # voxels per stripe
+    if a.get('by_face'):
+        # Stripes follow the surface. Each outside voxel's facing is the
+        # sum of the empty cells around it (two voxels out, so it is
+        # smooth); where the body faces sideways the stripes are rows of z
+        # (long lines front to back in the side view), where it faces up
+        # or forward they are columns of |x| (lines down the back from
+        # above, vertical stripes down the sides of the chest from the front;
+        # the middle of the chest and the spine stay cream). Both run head to
+        # tail and meet at the shoulder.
+        vox = body.v
+        r = 2
+        offs = [(dx, dy, dz) for dx in range(-r, r + 1) for dy in range(-r, r + 1)
+                for dz in range(-r, r + 1) if (dx, dy, dz) != (0, 0, 0)]
+        zmid = round(belly) + 1
+        for q, v in list(vox.items()):
             if v[1]:
                 continue
-            th = math.atan2(abs(x + .5), z + .5 - zc)  # 0 on top, pi/2 at the side
-            band = int((th + step / 2) // step)  # band 0 is centred on the spine
-            dark = z >= belly and band % 2 == 0 and band < n
-            p.v[q] = (col if dark else ground, False)
+            x, y, z = q
+            if z < belly:
+                vox[q] = (ground, False)
+                continue
+            nx = ny = nz = 0
+            for dx, dy, dz in offs:
+                if (x + dx, y + dy, z + dz) not in vox:
+                    nx += dx; ny += dy; nz += dz
+            ax = int(abs(x + .5))
+            if abs(nx) > max(abs(nz), -ny) * a.get('side_bias', 1.0):
+                dark = ((z - zmid) // w) % 2 == 0
+            else:
+                dark = ax >= w and ((ax - w) // w) % 2 == 0 and ax < n * w * 2
+            vox[q] = (col if dark else ground, False)
+        for p in [q for q in c.parts if q.name in ('wingL', 'wingR')]:
+            for q, v in list(p.v.items()):
+                if v[1]:
+                    continue
+                x, y, z = q
+                under = [b for b in vox if b[1] == y and b[2] == z]
+                p.v[q] = (vox[min(under, key=lambda b: abs(b[0] - x))][0] if under else ground, False)
+    else:
+        for p in [body] + [q for q in c.parts if q.name in ('wingL', 'wingR')]:
+            for q, v in list(p.v.items()):
+                x, y, z = q
+                if v[1]:
+                    continue
+                th = math.atan2(abs(x + .5), z + .5 - zc)  # 0 on top, pi/2 at the side
+                band = int((th + step / 2) // step)  # band 0 is centred on the spine
+                dark = z >= belly and band % 2 == 0 and band < n
+                p.v[q] = (col if dark else ground, False)
     head = _find(c, 'head')
     if head is not None and head.v:
         ztop = max(q[2] for q in head.v)
