@@ -82,13 +82,4 @@ function BookGrid.warmBudget(elapsed: number, delay: number, perFrame: number): 
 	return if elapsed < delay then 0 else perFrame
 end
 
--- Where a warming card waits while its picture draws for the first time:
--- behind one of the cards on screen (`first`..`last`, no overscan), spread
--- across them by index. A ViewportFrame scrolled out of sight never draws,
--- so a card built off screen would still be blank when a flick reaches it.
-function BookGrid.host(index: number, first: number, last: number): number
-	local count = math.max(1, last - first + 1)
-	return first + (index - 1) % count
-end
-
 return BookGrid
