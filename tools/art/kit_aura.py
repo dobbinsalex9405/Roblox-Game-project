@@ -324,12 +324,22 @@ def ice(c, H, col, col2=None):
             shard(part, (-x, y + 0.7 * k, z - 0.6 * k), (-0.55 * sx, 0.3, 1), L * 0.7, 0.65 * k, col, col2)
 
 
-def ice_crown(c, H, col, col2=None):
-    """A ring of ice spikes on the crown."""
+def ice_crown(c, H, col, col2=None, a=None):
+    """A ring of ice spikes on the crown. With "icicles": n, a row of n
+    short, even icicles across the crown instead (no tall middle spike that
+    reads as a unicorn horn)."""
     k = H / 10.0
     col2 = col2 or _light(col, 0.6)
     y, zt = _crown(c)
     part = c.part('crown', 'glow')
+    n = int((a or {}).get('icicles', 0))
+    if n:
+        for i in range(n):
+            t = i / (n - 1) - 0.5 if n > 1 else 0.0
+            x = t * 2.2 * k
+            L = (2.0 - 0.5 * abs(t) * 2) * k
+            shard(part, (x, y + 0.2 * k, zt - 0.5 * k), (t * 0.7, 0.15, 1), L, 0.65 * k, col, col2)
+        return
     for i in range(5):
         a = math.pi * (0.15 + 0.7 * i / 4)
         x = math.cos(a) * 1.0 * k
@@ -963,19 +973,25 @@ def bolt_ears(c, H, col, col2=None):
     ears.anim = 'ears'
 
 
-def ear_bolts(c, H, col, col2=None):
-    """A small lightning zigzag on each ear tip (lightning tufts)."""
+def ear_bolts(c, H, col, col2=None, a=None):
+    """A small lightning zigzag on each ear tip (lightning tufts). With
+    "tuft": true it is a lynx's ear tuft instead: half as tall and thin, in
+    col (dark), only its tip glowing col2."""
     k = H / 10.0
     t = _ear_tips(c)
     if not t:
         return
     ears = c.part('ears')
+    tuft = (a or {}).get('tuft')
+    s = 0.5 if tuft else 1.0
     for sx in (-1, 1):
         x = t[0] if sx > 0 else -t[0]
-        pts = [(x, t[1], t[2] - 0.3 * k), (x + sx * 0.7 * k, t[1], t[2] + 1.0 * k), (x, t[1], t[2] + 1.2 * k),
-               (x + sx * 0.6 * k, t[1], t[2] + 2.5 * k)]
-        for a, b in zip(pts, pts[1:]):
-            line(ears, a, b, col, r=0.42 * k, glow=True)
+        pts = [(x, t[1], t[2] - 0.3 * k * s), (x + sx * 0.6 * k * s, t[1], t[2] + 1.0 * k * s),
+               (x, t[1], t[2] + 1.2 * k * s), (x + sx * 0.5 * k * s, t[1], t[2] + 2.5 * k * s)]
+        for p0, p1 in zip(pts, pts[1:]):
+            line(ears, p0, p1, col, r=0.0 if tuft else 0.42 * k, glow=not tuft)
+        if tuft and col2:
+            ears.put(tuple(math.floor(v) for v in pts[-1]), col2, True)
 
 
 def bolt_mark(c, H, col, col2=None):
@@ -2290,8 +2306,10 @@ def _antlers_big(part, k, y, zt, col, tip):
         line(part, top, (sx * 2.7 * k, y + 0.2 * k, zt + 2.5 * k), tip, r=0.1 * k + .2)
 
 
-def headdress(c, H, col, col2=None):
-    """A striped pharaoh headdress: over the head and down to the shoulders."""
+def headdress(c, H, col, col2=None, a=None):
+    """A striped pharaoh headdress: over the head and down to the shoulders.
+    "from" (default 0.45) is the share of the head's height where the cloth
+    starts on the sides; raise it to keep the eyes in clear fur."""
     k = H / 10.0
     head = head_of(c)
     stripe = col2 or hexc('#2F5BD6')
@@ -2299,9 +2317,10 @@ def headdress(c, H, col, col2=None):
     zs = [p[2] for p in head.v]
     yf = min(ys)
     zm = min(zs) + (max(zs) - min(zs)) * 0.45
+    zc = min(zs) + (max(zs) - min(zs)) * (a or {}).get('from', 0.45)
     w = max(1, round(0.4 * k))
     for (x, y, z) in _surface(head):
-        if y > yf + 0.9 * k and z >= zm:
+        if y > yf + 0.9 * k and z >= zc:
             head.put((x, y, z), stripe if (z // w) % 2 else col)
     hood = c.part('headdress', 'static', head.pivot)
     # lappets falling in front of the shoulders
@@ -2383,8 +2402,8 @@ def sun_crest(c, H, col, col2=None):
             part.put((a, math.floor(yy) + 1, math.floor(cz + b)), colr, g)
 
 
-def clover(c, H, col, col2=None):
-    """A four-leaf clover marking on each flank."""
+def clover(c, H, col, col2=None, a=None):
+    """A four-leaf clover marking on each flank ("size" scales it)."""
     k = H / 10.0
     body = _find(c, 'body')
     if not body:
@@ -2392,13 +2411,21 @@ def clover(c, H, col, col2=None):
     y0, y1 = _yrange(body)
     zs = [p[2] for p in body.v]
     yc, zc = y0 + (y1 - y0) * 0.65, min(zs) + (max(zs) - min(zs)) * 0.62
-    r = 0.6 * k
+    sz = (a or {}).get('size')
+    r = 0.6 * k * float(sz or 1.0)
+    # with a size, four separate round leaves round a dark centre and a stem
+    off, rad = (1.15 * r, 0.85 * r) if sz else (r, 1.05 * r)
     for (x, y, z) in _surface(body):
         if abs(x + .5) < 1.2 * k:
             continue
-        for dy, dz in ((r, r), (-r, r), (r, -r), (-r, -r)):
-            if math.hypot(y + .5 - (yc + dy), z + .5 - (zc + dz)) <= r * 1.05:
+        for dy, dz in ((off, off), (-off, off), (off, -off), (-off, -off)):
+            if math.hypot(y + .5 - (yc + dy), z + .5 - (zc + dz)) <= rad:
                 body.put((x, y, z), col)
+        if sz:
+            # the stem, curving down and back from the middle
+            t = (y + .5 - yc) / (2.2 * r)
+            if 0 < t <= 1 and abs(z + .5 - (zc - 2.2 * r * t ** 1.5)) < 0.7:
+                body.put((x, y, z), _dark(col, 0.25))
 
 
 def ribs(c, H, col, col2=None):
@@ -2610,8 +2637,8 @@ def dragon_wings(c, H, col, col2=None):
     feather_wings(c, H, col, col2, span=3.0, membrane=True)
 
 
-def bat_wings(c, H, col, col2=None):
-    feather_wings(c, H, col, col2, span=2.6, membrane=True)
+def bat_wings(c, H, col, col2=None, a=None):
+    feather_wings(c, H, col, col2, span=float((a or {}).get('span', 2.6)), membrane=True)
 
 
 def small_wings(c, H, col, col2=None):
@@ -3375,8 +3402,9 @@ def _components(vox):
     return sorted(out, key=len, reverse=True)
 
 
-def cheek_ruff(c, H, col, col2=None):
-    """Tufts of fur flaring from the lower cheeks (a lynx's ruff)."""
+def cheek_ruff(c, H, col, col2=None, a=None):
+    """Tufts of fur flaring from the lower cheeks (a lynx's ruff); "big":
+    true flares three longer, thicker tufts each side."""
     k = H / 10.0
     head, yf, ez, z0, z1 = _head_front(c)
     zc = z0 + (z1 - z0) * 0.3
@@ -3388,9 +3416,11 @@ def cheek_ruff(c, H, col, col2=None):
     yc = sum(ys) / len(ys)
     for sx in (-1, 1):
         x = xr if sx > 0 else -xr - 1
-        for dz, L in ((0.2, 0.7), (-0.5, 0.9)):
-            shard(head, (x + .5, yc + .5, zc + dz * k), (sx * 0.6, 0.35, -0.7), L * k, 0.3 * k + .2,
-                  col, col2 or col, tip_glow=False)
+        big = (a or {}).get('big')
+        tufts = ((0.5, 1.2, 0.3), (-0.2, 1.5, -0.3), (-0.9, 1.3, -0.8)) if big else ((0.2, 0.7, -0.7), (-0.5, 0.9, -0.7))
+        for dz, L, dzdir in tufts:
+            shard(head, (x + .5, yc + .5, zc + dz * k), (sx * 0.8, 0.3, dzdir), L * k,
+                  (0.45 if big else 0.3) * k + .2, col, col2 or col, tip_glow=False)
 
 
 def owl_tufts(c, H, col, col2=None):
@@ -3780,7 +3810,877 @@ def sleepy_eyes(c, H, col=None, col2=None):
                 head.v[q] = (nb[0], False)
 
 
+
+# ------------------------------------------------------------- review fixes
+
+def _face_colour(c, cells):
+    """The commonest head colour next to these cells (the fur around an eye)."""
+    head = head_of(c)
+    seen = {}
+    for (x, y, z) in cells:
+        for n in ((x + 1, y, z), (x - 1, y, z), (x, y, z + 1), (x, y, z - 1), (x, y + 1, z)):
+            v = head.v.get(n) if head else None
+            if v and not v[1] and sum(v[0]) >= 240:
+                seen[v[0]] = seen.get(v[0], 0) + 1
+    return max(seen, key=seen.get) if seen else None
+
+
+def round_eyes(c, H, col=None, col2=None, a=None):
+    """Replaces the plan's eyes with round dark eyes (size 2: 2x2, size 3:
+    3x3) set in the face colour (col2, or the fur round the old eyes), each
+    with a white shine on its upper-left corner. No slant and no dark patch
+    round them, so a pale face never reads as a panda or a mask. `lift`
+    raises them and `apart` moves them out (in voxels)."""
+    a = a or {}
+    eyes = _find(c, 'eyes')
+    head = head_of(c)
+    if not eyes or not eyes.v or not head:
+        return
+    ink = [q for q, (rgb, g) in eyes.v.items() if not g and sum(rgb) < 240]
+    right = [q for q in ink if q[0] >= 0]
+    if not right:
+        return
+    n = int(a.get('size', 2))
+    cx = sum(q[0] for q in right) / len(right) + 0.5 + a.get('apart', 0)
+    cz = sum(q[2] for q in right) / len(right) + 0.5 + a.get('lift', 0)
+    face = col2 or _face_colour(c, list(eyes.v)) or WHITE_FUR
+    for q in list(eyes.v):
+        del eyes.v[q]
+        head.put(q, face, False)
+    dark = col or INK
+    x0 = math.floor(cx - n / 2.0 + 0.5)
+    z1 = math.floor(cz + n / 2.0 - 0.5)
+    for cells in ([(x0 + i, z1 - j) for j in range(n) for i in range(n)],
+                  [(_mx(x0 + i), z1 - j) for j in range(n) for i in range(n)]):
+        shine = min(cells, key=lambda q: (-q[1], q[0]))
+        fronts = {}
+        for (x, z) in cells:
+            ys = [q[1] for q in head.v if q[0] == x and q[2] == z]
+            if ys:
+                fronts[(x, z)] = min(ys)
+        if not fronts:
+            continue
+        # one flat eye at the face's mean depth there (cells in front of it are
+        # cut back, cells behind filled): on a round face an eye that follows
+        # the curve reads as a slanted slab, a sunk one as a dark socket and a
+        # proud one as goggles
+        y = round(sum(fronts.values()) / len(fronts))
+        for (x, z), yf in fronts.items():
+            for yy in range(min(y, yf), max(y, yf) + 1):
+                head.v.pop((x, yy, z), None)
+            eyes.put((x, y, z), WHITE if (x, z) == shine else dark, False)
+        if a.get('disc'):
+            # a lighter facial disc round the eye (an owl's), on the face
+            # surface; the two discs meet in the middle above the beak
+            from voxkit import hexc as _hx
+            dc = _hx(a['disc'])
+            mx = sum(q[0] for q in cells) / len(cells) + 0.5
+            mz = sum(q[1] for q in cells) / len(cells) + 0.5
+            R = n / 2.0 + float(a.get('disc_r', 1.6))
+            for x in range(math.floor(mx - R) - 1, math.ceil(mx + R) + 1):
+                for z in range(math.floor(mz - R) - 1, math.ceil(mz + R) + 1):
+                    if (x, z) in cells or math.hypot(x + 0.5 - mx, z + 0.5 - mz) > R:
+                        continue
+                    ys = [q[1] for q in head.v if q[0] == x and q[2] == z]
+                    if ys and (x, min(ys), z) not in eyes.v:
+                        q = (x, min(ys), z)
+                        if not head.v[q][1] and sum(head.v[q][0]) > 0:
+                            head.v[q] = (dc, False)
+        if a.get('flick'):
+            # a thin kohl flick from the outer corner, out and a little up
+            # (a sphinx's or a cat's eye line), never across the face
+            xo = max(q[0] for q in cells) if cells[0][0] >= 0 else min(q[0] for q in cells)
+            sx = 1 if cells[0][0] >= 0 else -1
+            zb = min(q[1] for q in cells) + (n - 1) // 2
+            for (dx, dz) in ((1, 0), (2, 1)):
+                x, z = xo + sx * dx, zb + dz
+                ys = [q[1] for q in head.v if q[0] == x and q[2] == z]
+                if ys:
+                    head.v.pop((x, min(ys), z), None)
+                    eyes.put((x, min(ys), z), dark, False)
+
+
+def gargoyle_wings(c, H, col, col2=None, a=None):
+    """Folded bat wings standing up from the shoulders, clearly above the
+    back from the front (a gargoyle's): a bone ridge (col2) up the leading
+    edge to a hooked claw, and a membrane (col) hanging back from it with a
+    scalloped edge. They flap a little (wingL, wingR)."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    hgt = (a or {}).get('height', 3.2)
+    y0, y1 = _yrange(body)
+    zt = max(p[2] for p in body.v)
+    ry = y0 + (y1 - y0) * (a or {}).get('at', 0.45)
+    xs = [p[0] for p in body.v if abs(p[1] - ry) < 1.5 and p[2] >= zt - 1.5 * k]
+    xw = max(xs) + 1 if xs else 1.2 * k
+    bone = col2 or _dark(col, 0.25)
+    for sx, name in ((-1, 'wingL'), (1, 'wingR')):
+        w = c.part(name, name, (sx * xw * 0.7, ry, zt - 0.4 * k))
+        w.v = {}
+        base = (sx * xw * 0.7, ry, zt - 0.4 * k)
+        spread = (a or {}).get('spread', 1.8)
+        top = (sx * (xw * 0.7 + spread * k), ry + 0.6 * k, zt + hgt * k)
+        claw = (sx * (xw * 0.7 + (spread + 0.2) * k), ry - 0.3 * k, zt + (hgt + 0.3) * k)
+        line(w, base, top, bone, r=0.3 * k + .2)
+        line(w, top, claw, bone, r=0.15 * k + .1)
+        # the membrane: a sail from the bone back and down to the back,
+        # its trailing edge scalloped between two finger bones
+        n = round(2.4 * k)
+        for i in range(n + 1):
+            t = i / n
+            p0 = tuple(base[j] + (top[j] - base[j]) * t for j in range(3))
+            depth = (1.6 + 0.6 * math.sin(t * math.pi)) * k
+            dip = 0.5 * k * abs(math.sin(t * math.pi * 2))
+            p1 = (p0[0] - sx * 0.2 * k, p0[1] + depth - dip, p0[2] - 0.9 * k * t)
+            line(w, p0, p1, col)
+        for t in (0.45, 0.85):
+            p0 = tuple(base[j] + (top[j] - base[j]) * t for j in range(3))
+            line(w, p0, (p0[0] - sx * 0.2 * k, p0[1] + 2.0 * k, p0[2] - 0.9 * k * t), bone)
+
+
+def curved_horns(c, H, col, col2=None, a=None):
+    """Two small horns that rise from the brow and curve back (a gargoyle's,
+    a goat kid's); col2 tips."""
+    k = H / 10.0
+    y, zt = _crown(c)
+    head = head_of(c)
+    hp = c.part('horns', 'static')
+    sz = (a or {}).get('size', 1.0)
+    xs = [q[0] for q in head.v if q[2] >= zt - 1] if head else [0]
+    x0 = max(xs) * 0.55 if xs else 0.8 * k
+    tip = col2 or _dark(col, 0.2)
+    for sx in (1, -1):
+        pts = []
+        for i in range(7):
+            t = i / 6
+            ang = t * 1.6
+            pts.append((sx * (x0 + 0.35 * k * t), y - 0.2 * k + 1.5 * k * sz * (1 - math.cos(ang)) * 0.9,
+                        zt - 0.3 * k + 1.6 * k * sz * math.sin(ang)))
+        for i in range(6):
+            r = (0.55 - 0.4 * i / 5) * k
+            line(hp, pts[i], pts[i + 1], col if i < 4 else tip, r=r + .1)
+
+
+def tail_spade(c, H, col, col2=None):
+    """A pointed spade (an arrowhead) on the tail tip, flat and level."""
+    k = H / 10.0
+    tip = _tail_tip(c)
+    tl = _find(c, 'tail')
+    if not tip or not tl:
+        return
+    _, y, z = tip
+    L = max(4, round(1.8 * k))
+    for i in range(L):
+        # widest a third of the way along, then to a point
+        t = i / (L - 1)
+        w = (0.4 + 2.2 * t if t < 0.35 else 1.17 * (1 - t) / 0.65) * 1.0 * k
+        for dx in range(-math.ceil(w) - 1, math.ceil(w) + 1):
+            if abs(dx + 0.5) <= w + 0.25:
+                tl.put((dx, math.floor(y) + 1 + i, math.floor(z)), col)
+
+
+def boar_snout(c, H, col, col2=None, a=None):
+    """A boar's long snout: a straight tube out from the lower face ending in
+    a flat disc (col, pink-grey) with two dark nostrils (col2). "length" in
+    tenths of the height (default 1.5)."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    L = float((a or {}).get('length', 1.5)) * k
+    zc = z0 + (z1 - z0) * 0.3
+    r = 0.75 * k
+    fur = None
+    for q, (rgb, g) in head.v.items():
+        if q[1] == yf and not g:
+            fur = rgb
+            break
+    fur = fur or col
+    y_end = yf - L
+    yy = yf + 1
+    while yy >= y_end:
+        for x in range(-math.ceil(r), math.ceil(r)):
+            for z in range(math.floor(zc - r), math.ceil(zc + r)):
+                dx, dz = x + 0.5, z + 0.5 - zc
+                if (abs(dx) / r) ** 2.5 + (abs(dz) / (r * 0.85)) ** 2.5 <= 1:
+                    head.put((x, math.floor(yy), z), col if yy < y_end + 1 else fur)
+        yy -= 1
+    nose = col2 or _dark(col, 0.6)
+    yt = math.floor(y_end)
+    for sx in (1, -1):
+        x = max(0, round(0.3 * k)) if sx > 0 else _mx(max(0, round(0.3 * k)))
+        for z in (math.floor(zc), math.floor(zc) - 1 if k > 2.5 else math.floor(zc)):
+            if (x, yt, z) in head.v:
+                head.put((x, yt, z), nose)
+
+
+def bristle_ridge(c, H, col, col2=None):
+    """A bristly ridge of stiff dark hair down the middle of the head and
+    back (a boar's), tufts of uneven height."""
+    k = H / 10.0
+    parts = [p for p in (head_of(c), _find(c, 'body')) if p and p.v]
+    if not parts:
+        return
+    head = parts[0]
+    hz = max(q[2] for q in head.v)
+    ys = sorted({q[1] for p in parts for q in p.v})
+    yfront = min(q[1] for q in head.v if q[2] >= hz - 1)
+    part = c.part('mane', 'static')
+    tail_y = max(ys) - 0.4 * k
+    for y in ys:
+        if y < yfront or y > tail_y:
+            continue
+        z0 = max(filter(None, (_top_at(parts, 0, y), _top_at(parts, -1, y))), default=None)
+        if z0 is None:
+            continue
+        h = max(1, round((0.7 + 0.5 * (_hash(0, y, 7) % 3) / 2) * k))
+        for j in range(h):
+            cc = col if j < h - 1 or not col2 else col2
+            part.put((0, y, z0 + 1 + j), cc)
+            part.put((-1, y, z0 + 1 + j), cc)
+
+
+def bramble_back(c, H, col, col2=None):
+    """A bramble draped over the back: a thorny vine (col) winding across
+    the top from shoulder to rump, with three blackberries (col2, round
+    clusters with a light glint) hanging on it and thorns along it."""
+    k = H / 10.0
+    parts = _back_parts(c)
+    if not parts:
+        return
+    body = parts[0]
+    y0, y1 = _yrange(body)
+    part = c.part('bramble', 'static')
+    berry = col2 or hexc('#5A1E7A')
+    n = max(8, round((y1 - y0) * 1.5))
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        y = y0 + (y1 - y0) * (0.15 + 0.7 * t)
+        x = math.sin(t * math.pi * 2.0) * 1.5 * k
+        xi = math.floor(x)
+        top = max(filter(None, (_top_at(parts, xi, round(y)), _top_at(parts, xi + 1, round(y)))), default=None)
+        if top is not None:
+            pts.append((x, y, top + 0.8))
+    for p0, p1 in zip(pts, pts[1:]):
+        line(part, p0, p1, col, r=0.3 * k + .3)
+    for i, (x, y, z) in enumerate(pts):
+        if i % 3 == 1:
+            part.put((math.floor(x), round(y), math.floor(z + 0.3 * k + 1)), _dark(col, 0.45))
+    # three berries where the vine crosses the flanks
+    flank = sorted(pts, key=lambda p: -abs(p[0]))[:12]
+    picked = []
+    for p in flank:
+        if all(abs(p[1] - q[1]) > 0.25 * (y1 - y0) for q in picked):
+            picked.append(p)
+        if len(picked) == 3:
+            break
+    for (x, y, z) in picked:
+        sx = 1 if x >= 0 else -1
+        bc = (x + sx * 0.6 * k, y, z - 0.2 * k)
+        r = 0.42 * k + .2
+        ball(part, bc, (r, r, r), berry)
+        part.put((math.floor(bc[0]), math.floor(bc[1] - r + 0.5), math.floor(bc[2] + r * 0.5)), _light(berry, 0.5))
+
+
+def back_key(c, H, col, col2=None):
+    """A wind-up key in the middle of the back, between the shoulders: a
+    short level shaft straight out behind and one flat, rounded bow (a
+    plate standing upright along the shaft, two voxels thick) with a dark
+    hole (col2) in its middle."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    zs = [q[2] for q in body.v]
+    zk = min(zs) + (max(zs) - min(zs)) * 0.62
+    ys = [q[1] for q in body.v if abs(q[0] + 0.5) <= 1 and abs(q[2] - zk) <= 1]
+    if not ys:
+        return
+    yb = max(ys)
+    part = c.part('key', 'static')
+    L = max(2, round(0.9 * k))
+    for x in (-1, 0):
+        for y in range(yb, yb + L + 1):
+            for dz in (0, 1) if k > 2 else (0,):
+                part.put((x, y, math.floor(zk) + dz), col)
+    R = 1.0 * k
+    cy, cz = yb + L + R, math.floor(zk) + 0.5 + (0.5 if k > 2 else 0)
+    hole = col2 or _dark(col, 0.6)
+    for y in range(math.floor(cy - R) - 1, math.ceil(cy + R) + 1):
+        for z in range(math.floor(cz - R) - 1, math.ceil(cz + R) + 1):
+            d = math.hypot(y + 0.5 - cy, z + 0.5 - cz)
+            if d <= R:
+                for x in (-1, 0):
+                    part.put((x, y, z), hole if d <= 0.3 * R + 0.3 else col)
+
+
+def leg_pivots(c, H, col=None, col2=None):
+    """Moves each leg's hinge out to where the leg shows: x to the middle of
+    the leg's voxels (a bug's bent legs leave their hips tucked under the
+    body, so they would swing from a point inside it)."""
+    for p in c.parts:
+        if p.name.startswith('leg') and p.v:
+            px, py, pz = p.pivot
+            p.pivot = (sum(q[0] for q in p.v) / len(p.v) + 0.5, py, pz)
+
+
+def blade_wings(c, H, col, col2=None, a=None):
+    """Redraws the plan's wings as long thin blades (about four times longer
+    than wide) of pale glass (col) inside ONE rim (col2), with two veins
+    running along each blade; the wings keep their parts and hinges."""
+    k = H / 10.0
+    rim = col2 or _dark(col, 0.4)
+    for name in ('wingR', 'wingL'):
+        w = _find(c, name)
+        if not w or not w.v:
+            continue
+        sx = 1 if name == 'wingR' else -1
+        # the existing wing's extent: root x, tip x, the two blades' y centres
+        xs = [abs(q[0] + 0.5) for q in w.v]
+        x0, x1 = min(xs), max(xs)
+        z = min(q[2] for q in w.v)
+        ys = sorted({q[1] for q in w.v})
+        ym = (ys[0] + ys[-1]) / 2.0
+        w.v = {}
+        L = x1 - x0
+        half = max(2.2, L / 7.5)  # about four times longer than wide
+        for cy in (ym - half - 0.5, ym + half + 0.5):
+            for xi in range(math.floor(x0), math.ceil(x1) + 1):
+                t = (xi - x0) / max(1.0, L)
+                hw = half * (0.6 + 0.4 * math.sin(min(1.0, t * 1.1) * math.pi * 0.85))
+                if t > 0.93:
+                    hw *= 0.6
+                for y in range(math.floor(cy - hw), math.ceil(cy + hw)):
+                    dy = y + 0.5 - cy
+                    edge = abs(dy) > hw - 0.9 or t > 0.97
+                    vein = not edge and abs(dy) < 0.5 and 0.1 < t < 0.85
+                    x = xi if sx > 0 else _mx(xi)
+                    w.put((x, y, z), rim if (edge or vein) else col)
+
+
+def horse_tail(c, H, col, col2=None, a=None):
+    """A long hanging tail (a pony's): from the top of the rump it arcs
+    back and falls to below the hocks, thickening into a full brush, in col
+    with col2 strands. Replaces the plan's tail."""
+    k = H / 10.0
+    tl = _find(c, 'tail')
+    body = _find(c, 'body')
+    if not tl or not body or not body.v:
+        return
+    y1 = max(q[1] for q in body.v)
+    zt = max(q[2] for q in body.v if q[1] >= y1 - 1)
+    zlow = min(q[2] for q in body.v) + (zt - min(q[2] for q in body.v)) * float((a or {}).get('down', 0.25))
+    tl.v = {}
+    root = (0, y1 + 0.2, zt - 0.4 * k)
+    n = 14
+    for i in range(n + 1):
+        t = i / n
+        y = root[1] + 1.3 * k * math.sin(t * math.pi * 0.55)
+        z = root[2] + (zlow - root[2]) * t ** 1.3 + 0.6 * k * math.sin(t * math.pi) * 0.5
+        r = 0.4 * k + 0.45 * k * t
+        for x in range(-math.ceil(r), math.ceil(r)):
+            for dy in range(-math.ceil(r * 0.7), math.ceil(r * 0.7) + 1):
+                if ((x + 0.5) / r) ** 2 + (dy / (r * 0.7 + 0.01)) ** 2 <= 1:
+                    strand = col2 and (x % 3 == 0)
+                    tl.put((x, math.floor(y) + dy, math.floor(z)), col2 if strand else col)
+
+
+def leaf_mane(c, H, col, col2=None, a=None):
+    """A mane of little three-lobed leaves (clover leaves) running from the
+    top of the head down the back of the neck to the withers, col with a
+    darker middle vein (col2)."""
+    k = H / 10.0
+    head, body = head_of(c), _find(c, 'body')
+    if not head or not body or not head.v:
+        return
+    hz = max(q[2] for q in head.v)
+    # start at the back of the crown (the poll), behind the ears
+    hy = max(q[1] for q in head.v if q[2] >= hz - 1.5 * k) - 1.3 * k
+    y0, y1 = _yrange(body)
+    wy = y0 + (y1 - y0) * 0.3
+    wz = max(q[2] for q in body.v if abs(q[1] - wy) < 1.5)
+    part = c.part('mane', 'static')
+    vein = col2 or _dark(col, 0.3)
+    n = max(4, round(math.hypot(wy - hy, wz - hz) / (0.9 * k)))
+    for i in range(n + 1):
+        t = i / n
+        y = hy + 1.3 * k + (wy - hy - 1.3 * k) * t
+        z = hz - 0.2 * k + (wz - hz + 0.2 * k) * t + 0.4 * k
+        r = 0.36 * k + .2
+        for (dx, dy, dz) in ((0, 0, 0.5), (-0.45, 0.2, 0.1), (0.45, 0.2, 0.1)):
+            ball(part, (dx * k, y + dy * k, z + dz * k), (r, r * 0.8, r), col)
+        part.put((-1, math.floor(y), math.floor(z)), vein)
+        part.put((0, math.floor(y), math.floor(z)), vein)
+
+
+def serpent_tail(c, H, col, col2=None, a=None):
+    """A long scaly snake's tail (a cockatrice's), about 1.5x the body's
+    length: it leaves the rump low, swings out to one side and rises in an
+    S behind the creature, so it shows from the front three-quarter view;
+    scale bands (col2) along it and an arrowhead tip ("tip" colour).
+    Replaces the plan's tail."""
+    k = H / 10.0
+    a = a or {}
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    tl = c.part('tail', 'tail')
+    tl.v = {}
+    y0, y1 = _yrange(body)
+    zs = [q[2] for q in body.v]
+    z0, zt = min(zs), max(zs)
+    L = 1.5 * (y1 - y0) * float(a.get('length', 1.0))
+    band = col2 or _dark(col, 0.25)
+    tipc = hexc(a['tip']) if a.get('tip') else _dark(col, 0.4)
+    n = max(16, round(L * 1.5))
+    pts = []
+    for i in range(n + 1):
+        t = i / n
+        y = y1 - 0.6 * k + L * 0.7 * t
+        x = 0.9 * k * math.sin(t * math.pi * 1.5)
+        z = z0 + (zt - z0) * 0.4 + 2.2 * k * t + 0.8 * k * math.sin(t * math.pi * 2.0)
+        pts.append((x, y, z))
+    for i in range(n):
+        t = i / n
+        r = (0.7 - 0.35 * t) * k + .3
+        cc = band if (i // 2) % 2 else col
+        line(tl, pts[i], pts[i + 1], cc, r=r)
+    # an arrowhead at the end, flat and pointing on along the tail, two
+    # voxels thick so it reads from every side and stays joined to the tail
+    x, y, z = pts[-2]
+    d = _norm(tuple(pts[-1][j] - pts[-3][j] for j in range(3)))
+    Lh = max(3, round(1.5 * k))
+    for i in range(Lh):
+        t = i / (Lh - 1)
+        w = (1.0 * (1 - t) + 0.1) * k
+        cx, cy, cz = x + d[0] * i, y + d[1] * i, z + d[2] * i
+        for dx in range(-math.ceil(w), math.ceil(w) + 1):
+            if abs(dx) <= w:
+                for dz in (0, 1):
+                    tl.put((math.floor(cx + dx), math.floor(cy), math.floor(cz) + dz), tipc)
+
+
+def wattles(c, H, col, col2=None):
+    """Two red wattles hanging under the beak (a rooster's)."""
+    k = H / 10.0
+    head = head_of(c)
+    if not head or not head.v:
+        return
+    yf = min(q[1] for q in head.v)
+    zs = [q[2] for q in head.v if q[1] <= yf + 1]
+    zb = min(zs)
+    part = c.part('wattles', 'static')
+    for sx in (1, -1):
+        x = sx * 0.35 * k
+        ball(part, (x, yf + 1.1 * k, zb - 0.1 * k), (0.2 * k + .2, 0.2 * k + .2, 0.4 * k + .2), col)
+
+
+def rooster_comb(c, H, col, col2=None):
+    """A rooster's red comb: four rounded lobes in a row along the top of
+    the head, tallest in the middle, one voxel thick either side of the
+    middle line."""
+    k = H / 10.0
+    y, zt = _crown(c)
+    part = c.part('comb', 'static')
+    for dy, h in ((-0.9, 0.8), (-0.2, 1.15), (0.5, 1.05), (1.1, 0.7)):
+        ball(part, (0, y + dy * k, zt + h * 0.5 * k), (0.3 * k + .3, 0.38 * k + .2, h * 0.6 * k + .2), col)
+
+
+def paws(c, H, col, col2=None, a=None):
+    """The bottom of every leg in col (pale paws or socks); `height` is the
+    share of the leg (default 0.3). The legs are still part of the body when
+    accessories run (the rig cuts them out later), so this paints the body's
+    voxels below the belly."""
+    t = (a or {}).get('height', 0.3)
+    parts = [p for p in c.parts if p.name.startswith('leg') and p.v]
+    body = _find(c, 'body')
+    if parts:
+        for p in parts:
+            zs = [q[2] for q in p.v]
+            cut = min(zs) + max(1, round((max(zs) - min(zs) + 1) * t)) - 1
+            for q, (rgb, g) in list(p.v.items()):
+                if q[2] <= cut:
+                    p.v[q] = (col, g)
+        return
+    if not body or not body.v:
+        return
+    z0 = min(q[2] for q in body.v)
+    mid = [q[2] for q in body.v if abs(q[0] + 0.5) <= 1.5]
+    belly = min((z for z in mid if z > z0 + 1), default=z0 + 4)
+    # the belly's underside: the lowest body voxel on the middle line that
+    # is not a leg (legs never sit on x = 0)
+    under = [q for q in body.v if abs(q[0] + 0.5) <= 1.5]
+    belly = min(q[2] for q in under) if under else belly
+    cut = z0 + max(1, round((belly - z0) * t)) - 1
+    for q, (rgb, g) in list(body.v.items()):
+        if q[2] <= cut:
+            body.v[q] = (col, g)
+
+
+def ear_inner(c, H, col, col2=None):
+    """The front face of each ear in col, inside a one-voxel rim of the ear
+    colour (a bear's or a cat's inner ear)."""
+    ears = _find(c, 'ears')
+    if not ears or not ears.v:
+        return
+    front = {}
+    for (x, y, z) in ears.v:
+        if y < front.get((x, z), 1e9):
+            front[(x, z)] = y
+    for (x, z), y in front.items():
+        if all((x + dx, z + dz) in front for dx, dz in ((1, 0), (-1, 0), (0, 1))):
+            ears.v[(x, y, z)] = (col, False)
+
+
+
+# ------------------------------------------------- tapir, bison and moose
+
+def _belly_z(body):
+    """The z of the underside of the body between the legs."""
+    y0, y1 = _yrange(body)
+    ym = round((y0 + y1) / 2)
+    zs = [q[2] for q in body.v if abs(q[1] - ym) <= 1 and abs(q[0] + 0.5) <= 1.5]
+    return min(zs) if zs else 0
+
+
+def tapir_trunk(c, H, col, col2=None, a=None):
+    """A tapir's short drooping trunk: it leaves the lower face below the
+    eyes, reaches forward and curves down past the mouth, with crease rings
+    (a darker shade) and a pink tip (col2). A dark mouth line sits under its
+    root. Replaces the plan's snout."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    zc = (ez - 0.9 * k) if ez is not None else (z0 + z1) / 2
+    ring = _dark(col, 0.18)
+    pts = [(0, yf + 0.4 * k, zc + 0.15 * k), (0, yf - 0.5 * k, zc + 0.1 * k), (0, yf - 0.95 * k, zc - 0.25 * k),
+           (0, yf - 1.15 * k, zc - 0.75 * k), (0, yf - 1.1 * k, zc - 1.1 * k)]
+    rs = (0.8, 0.62, 0.5, 0.42)
+    for i, (p, q) in enumerate(zip(pts, pts[1:])):
+        line(head, p, q, col, r=rs[i] * k)
+    # crease rings across the top of the trunk
+    for (p, q, r) in ((pts[1], pts[2], rs[1]), (pts[2], pts[3], rs[2])):
+        m = tuple((p[j] + q[j]) / 2 for j in range(3))
+        for x in range(-math.ceil(r * k), math.ceil(r * k) + 1):
+            for z in range(math.floor(m[2]), math.ceil(m[2] + r * k) + 1):
+                f = (x, math.floor(m[1]), z)
+                if f in head.v and (x, f[1] - 1, z) not in head.v:
+                    head.put(f, ring)
+    tip = pts[-1]
+    head.ell((tip[0], tip[1], tip[2] - 0.15 * k), (0.42 * k, 0.42 * k, 0.3 * k), col2 or hexc('#E8A0B4'))
+    # the mouth: a dark line under the trunk's root
+    zm = round(zc - 0.75 * k)
+    for x in range(-max(1, round(0.45 * k)), max(1, round(0.45 * k))):
+        for y in range(round(yf - 0.2 * k), round(yf + 2 * k)):
+            if (x, y, zm) in head.v:
+                head.put((x, y, zm), _dark(col, 0.5))
+                break
+
+
+def heavy_rump(c, H, col=None, col2=None):
+    """A heavy, rounded rump (a tapir's or a hippo's): the back of the body
+    swells out and up, in the coat colour there."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    y0, y1 = _yrange(body)
+    zb = _belly_z(body)
+    zt = max(q[2] for q in body.v)
+    xw = max(q[0] for q in body.v if q[2] > zb) + 0.5
+    yc = y1 - (y1 - y0) * 0.27
+    top = [q for q in body.v if abs(q[1] - round(yc)) <= 1]
+    cc = hexc(col) if isinstance(col, str) else (col or body.v[max(top, key=lambda q: q[2])][0])
+    body.ell((0, yc, (zb + zt) / 2 + 0.2 * k), (xw + 0.4 * k, (y1 - y0) * 0.3, (zt - zb) / 2 + 0.35 * k), cc,
+             cond=lambda X, Y, Z: Z >= zb)
+
+
+def dream_stripes(c, H, col, col2=None):
+    """A baby tapir's coat: rows of pale broken stripes along the flanks
+    and rump with spots between them (col), the belly and legs left plain."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    zb = _belly_z(body)
+    zt = max(q[2] for q in body.v)
+    xw = max(q[0] for q in body.v if q[2] > zb) + 0.5
+    pitch = max(3, round(0.9 * k))
+    occ = set(body.v)
+    for q in _surface(body):
+        x, y, z = q
+        if z <= zb + 1 or z >= zt - 1 or abs(x + 0.5) < xw * 0.45:
+            continue
+        sx = 1 if x >= 0 else -1
+        if (x + sx, y, z) in occ:
+            continue
+        row = (z - zb) // pitch
+        on_row = (z - zb) % pitch == 0
+        dash = ((y + row * 3) // max(2, round(0.8 * k))) % 3 != 0
+        if (on_row and dash) or (not on_row and (z - zb) % pitch == pitch // 2 and _hash(x // 2, y // 2, z, 31) % 4 == 0):
+            body.put(q, col)
+
+
+def forehead_moon(c, H, col, col2=None):
+    """A small glowing crescent moon on the forehead, between and above the
+    eyes."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    eyes = _find(c, 'eyes')
+    zt = (max(q[2] for q in eyes.v) if eyes and eyes.v else (z0 + z1) / 2) + 1.3 * k
+    R = 0.65 * k + 0.3
+    for x in range(-math.ceil(R) - 1, math.ceil(R) + 1):
+        for z in range(math.floor(zt - R) - 1, math.ceil(zt + R) + 1):
+            dx, dz = x + 0.5, z + 0.5 - zt
+            if dx * dx + dz * dz <= R * R and (dx - 0.45 * R) ** 2 + (dz - 0.2 * R) ** 2 > (0.72 * R) ** 2:
+                f = head.front(x, z)
+                if f:
+                    head.put(f, col, True)
+
+
+def _shift_head(c, dy, dz):
+    """Moves the head and everything on it (eyes, ears, horns, mane, hat)."""
+    dy, dz = round(dy), round(dz)
+    for p in c.parts:
+        if p.name in ('head', 'eyes', 'ears', 'horns', 'hat', 'mane', 'crest'):
+            p.v = {(x, y + dy, z + dz): v for (x, y, z), v in p.v.items()}
+            px, py, pz = p.pivot
+            p.pivot = (px, py + dy, pz + dz)
+
+
+def _shag(part, q, col, k, seed):
+    """Ragged fur: a voxel out from q's open face, now and then."""
+    x, y, z = q
+    for d in ((1 if x >= 0 else -1, 0, 0), (0, -1, 0), (0, 0, -1)):
+        n = (x + d[0], y + d[1], z + d[2])
+        if n not in part.v and _hash(x // 2, y // 2, z // 2, seed) % 6 == 0:
+            part.put(n, col)
+
+
+def bison_build(c, H, col, col2=None, a=None):
+    """A bison's build, all front: a big shoulder hump of dark shaggy fur
+    (col) over the forequarters, the head hung low below the hump line, a
+    shaggy beard and front-leg chaps, and the back sloping down to small
+    hindquarters. col2: the lighter coat behind the shag. Put it right
+    after long_legs, before the face and horns."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    head = head_of(c)
+    if not body or not head:
+        return
+    shag = col
+    y0, y1 = _yrange(body)
+    span = y1 - y0
+    zb = _belly_z(body)
+    zt = max(q[2] for q in body.v)
+    xw = max(q[0] for q in body.v if q[2] > zb) + 0.5
+    # the back slopes down from the withers to small hindquarters
+    yh = y0 + span * 0.3
+    for q in list(body.v):
+        if q[1] > yh and q[2] > zb:
+            t = (q[1] - yh) / (y1 - yh)
+            if q[2] > zt - t * 0.22 * (zt - zb) - (0.12 * (zt - zb) if t > 0.7 else 0):
+                del body.v[q]
+    # the hump, high over the shoulders
+    hz = zt + 0.35 * k
+    body.ell((0, y0 + span * 0.28, hz), (xw + 0.2 * k, span * 0.3, 1.9 * k), shag, cond=lambda X, Y, Z: Z >= zb)
+    # the front half in the shag colour, with a ragged edge to the coat behind
+    cut = y0 + span * 0.5
+    for q in list(body.v):
+        edge = cut + (_hash(q[0] // 2, 0, q[2] // 2, 5) % 3 - 1) * 0.5 * k
+        if q[1] <= edge and q[2] > zb - 0.2 * k:
+            body.v[q] = (shag, body.v[q][1])
+    # chaps: the upper front legs shaggy and thicker
+    legtop = zb
+    for q in list(body.v):
+        if q[1] < y0 + span * 0.45 and legtop * 0.45 < q[2] <= legtop:
+            body.v[q] = (shag, False)
+            sx = 1 if q[0] >= 0 else -1
+            for d in ((sx, 0, 0), (0, -1, 0), (0, 1, 0)):
+                n = (q[0] + d[0], q[1] + d[1], q[2] + d[2])
+                if n not in body.v and d[0]:
+                    body.put(n, shag)
+    # the head hung low, below the hump line, and pushed a little forward
+    _shift_head(c, -0.3 * k, -1.6 * k)
+    hy = min(q[1] for q in head.v)
+    hz0 = min(q[2] for q in head.v)
+    # a shaggy forelock over the brow and a beard under the chin
+    for q in list(head.v):
+        if q[2] > max(p[2] for p in head.v) - 0.9 * k:
+            head.v[q] = (shag, head.v[q][1])
+    beard = [(0, hy + 1.0 * k, hz0 - 0.3 * k), (0, hy + 1.3 * k, hz0 - 1.4 * k)]
+    line(head, beard[0], beard[1], shag, r=0.65 * k)
+
+
+def bison_face(c, H, col, col2=None):
+    """A bison's broad short face: a wide flat muzzle (col) with a dark
+    nose pad (col2) and nostrils, no long horse nose."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    zc = (ez - 0.9 * k) if ez is not None else (z0 + z1) / 2
+    hw = max(q[0] for q in head.v) + 0.5
+    head.ell((0, yf + 0.3 * k, zc), (hw * 0.75, 0.7 * k, 0.75 * k), col)
+    yn = min(q[1] for q in head.v)
+    nose = col2 or _dark(col, 0.5)
+    for q in [q for q in head.v if q[1] <= yn + 1 and abs(q[2] - zc) <= 0.5 * k and abs(q[0] + 0.5) <= 0.6 * k]:
+        head.put(q, nose)
+
+
+def bison_horns(c, H, col, col2=None):
+    """Short horns that leave the sides of the head, run out and curve up
+    and a little in, pale (col) to a dark tip (col2)."""
+    k = H / 10.0
+    head = head_of(c)
+    hp = c.part('horns', 'static')
+    hp.v = {}
+    zt = max(q[2] for q in head.v if head.v[q][0] is not None)
+    ys = [q[1] for q in head.v if q[2] >= zt - 1]
+    y = (min(ys) + max(ys)) / 2
+    xw = max(q[0] for q in head.v if q[2] >= zt - 1.2 * k) + 0.5
+    tip = col2 or _dark(col, 0.6)
+    for sx in (-1, 1):
+        base = (sx * (xw - 0.3 * k), y, zt - 0.6 * k)
+        mid = (sx * (xw + 0.7 * k), y, zt - 0.3 * k)
+        end = (sx * (xw + 0.9 * k), y - 0.1 * k, zt + 0.7 * k)
+        line(hp, base, mid, col, r=0.4 * k)
+        line(hp, mid, end, col, r=0.28 * k)
+        line(hp, (end[0], end[1], end[2] - 0.35 * k), end, tip, r=0.2 * k)
+
+
+def moose_nose(c, H, col, col2=None, a=None):
+    """A moose's long head: a long muzzle from below the eyes ending in a
+    big bulbous nose whose top lip overhangs the chin, with dark nostrils
+    (col2) on the bulb. col: the muzzle. The head is lifted a little
+    (`lift` in tenths of the height, default 0.8) so it is carried high."""
+    k = H / 10.0
+    _shift_head(c, 0, float((a or {}).get('lift', 0.8)) * k)
+    head, yf, ez, z0, z1 = _head_front(c)
+    face = head.v[next(iter(head.v))][0]
+    zc = ((ez - 0.4 * k) if ez is not None else (z0 + z1) / 2) - 0.9 * k
+    hw = max(p[0] for p in head.v if abs(p[2] - zc) <= 1) + 0.5
+    steps = 6
+    for i in range(steps):
+        t = i / (steps - 1)
+        y = yf + 0.6 * k - t * 2.2 * k
+        z = zc + 0.2 * k - t * 0.2 * k
+        rx = hw * 0.8 * (1 - t) + 0.75 * k * t
+        rz = 1.05 * k * (1 - t) + 0.7 * k * t
+        head.ell((0, y, z), (rx, 0.55 * k, rz), face if t < 0.4 else col)
+    # the bulb: a big round nose that overhangs, the top lip drooping past the chin
+    yb, zb = yf - 2.0 * k, zc - 0.35 * k
+    head.ell((0, yb, zb), (1.0 * k, 0.85 * k, 0.95 * k), col)
+    head.ell((0, yb - 0.5 * k, zb - 0.8 * k), (0.8 * k, 0.5 * k, 0.45 * k), col)
+    yn = min(p[1] for p in head.v)
+    nose = col2 or _dark(col, 0.5)
+    zn = round(zb)
+    for sx in (-1, 1):
+        x = round(sx * 0.45 * k) - (1 if sx < 0 else 0)
+        for z in (zn, zn - 1):
+            for y in range(yn, yn + 4):
+                if (x, y, z) in head.v:
+                    head.put((x, y, z), nose)
+                    break
+    # the chin tucked back under the overhang, with a dark mouth line
+    zm = round(zb - 1.25 * k)
+    for x in range(-max(1, round(0.4 * k)), max(1, round(0.4 * k))):
+        for y in range(yn, yn + 6):
+            if (x, y, zm) in head.v:
+                head.put((x, y, zm), _dark(col, 0.4))
+                break
+
+
+def dewlap(c, H, col, col2=None):
+    """A moose's bell: a flap of skin hanging from the throat with a
+    tassel of hair at the bottom."""
+    k = H / 10.0
+    head = head_of(c)
+    hz0 = min(q[2] for q in head.v)
+    ys = [q[1] for q in head.v if q[2] <= hz0 + 1]
+    y = max(ys) - 0.6 * k
+    for z in range(round(hz0 - 1.4 * k), round(hz0) + 1):
+        t = (hz0 - z) / (1.4 * k)
+        head.box((-1, round(y - 0.4 * k * (1 - t)), z), (0, round(y + 0.3 * k), z), col)
+    head.ell((0, y, hz0 - 1.6 * k), (0.45 * k, 0.45 * k, 0.5 * k), col2 or _dark(col, 0.3))
+
+
+def mushroom_antlers(c, H, col, col2=None, a=None):
+    """A moose's broad palmate antlers as flat mushroom-cap paddles: a
+    short pale beam out from each side of the crown, then a wide cupped
+    paddle (col, with glowing col2 spots and a pale gill rim underneath)
+    with blunt points along its edge, and little mushrooms growing on top
+    of each paddle."""
+    k = H / 10.0
+    y, zt = _crown(c)
+    part = c.part('antlers', 'glow')
+    part.v = {}
+    spots = col2 or WHITE
+    bone = hexc('#EDE3CF')
+    gill = hexc('#F2DCC8')
+    head = head_of(c)
+    xw = max(q[0] for q in head.v if q[2] >= zt - 1.0 * k) + 0.5
+    size = float((a or {}).get('size', 1.0))
+    for sx in (-1, 1):
+        base = (sx * (xw - 0.4 * k), y + 0.2 * k, zt - 0.3 * k)
+        root = (sx * (xw + 0.6 * k), y + 0.3 * k, zt + 0.4 * k)
+        line(part, base, root, bone, r=0.35 * k)
+        # the paddle: a broad flat cap tilting up toward its outer edge
+        cx, cz = sx * (xw + 1.9 * k * size), zt + 1.0 * k
+        Rx, Ry = 1.55 * k * size, 1.25 * k * size
+        for x in range(math.floor(cx - Rx) - 1, math.ceil(cx + Rx) + 2):
+            for yy in range(math.floor(y - Ry) - 1, math.ceil(y + Ry) + 2):
+                dx, dy = (x + 0.5 - cx) / Rx, (yy + 0.5 - y - 0.2 * k) / Ry
+                d = dx * dx + dy * dy
+                if d > 1:
+                    continue
+                out = (x + 0.5 - cx) * sx / Rx  # -1 inner .. 1 outer
+                zc = cz + 0.55 * k * out + 0.35 * k * d  # cupped and tilted
+                part.put((x, yy, math.floor(zc)), col)
+                part.put((x, yy, math.floor(zc) + 1), col)
+        # blunt points along the outer and back edge
+        for i in range(3):
+            ang = -0.5 + i * 0.9
+            ex = cx + sx * Rx * math.cos(ang)
+            ey = y + 0.2 * k + Ry * math.sin(ang)
+            ez = cz + 0.55 * k * math.cos(ang) + 0.4 * k
+            line(part, (ex, ey, ez), (ex + sx * 0.3 * k, ey + 0.15 * k * math.sin(ang), ez + 0.7 * k), col, r=0.28 * k)
+        # glowing spots on the cap
+        for q in list(part.v):
+            if part.v[q][0] == col and (q[0] - 0) * sx > 0 and _hash(q[0] // 2, q[1] // 2, q[2], 41) % 7 == 0:
+                if (q[0], q[1], q[2] + 1) not in part.v:
+                    part.put(q, spots, True)
+        # little mushrooms growing on the paddle
+        for (fx, fy, s) in ((0.0, -0.35, 1.0), (0.45, 0.45, 0.8), (-0.4, 0.5, 0.65)):
+            mx, my = cx + sx * fx * Rx, y + 0.2 * k + fy * Ry
+            top = max([q[2] for q in part.v if q[0] == math.floor(mx) and q[1] == math.floor(my)] or [cz])
+            st = (mx, my, top + 0.6 * k * s)
+            line(part, (mx, my, top), st, gill, r=0.18 * k * s + 0.2)
+            part.ell((st[0], st[1], st[2] + 0.1 * k), (0.55 * k * s + .3, 0.55 * k * s + .3, 0.35 * k * s + .3),
+                     col, cond=lambda X, Y, Z, tz=st[2]: Z >= tz)
+            part.put((math.floor(st[0]), math.floor(st[1]), math.floor(st[2] + 0.45 * k * s) + 1), spots, True)
+
+
 ACCESSORIES = {
+    'serpent_tail': serpent_tail,
+    'wattles': wattles,
+    'rooster_comb': rooster_comb,
+    'tapir_trunk': tapir_trunk, 'heavy_rump': heavy_rump, 'dream_stripes': dream_stripes,
+    'forehead_moon': forehead_moon, 'bison_build': bison_build, 'bison_face': bison_face,
+    'bison_horns': bison_horns, 'moose_nose': moose_nose, 'dewlap': dewlap,
+    'mushroom_antlers': mushroom_antlers,
+    'horse_tail': horse_tail,
+    'leaf_mane': leaf_mane,
+    'leg_pivots': leg_pivots,
+    'blade_wings': blade_wings,
+    'back_key': back_key,
+    'bramble_back': bramble_back,
+    'boar_snout': boar_snout,
+    'bristle_ridge': bristle_ridge,
+    'gargoyle_wings': gargoyle_wings,
+    'curved_horns': curved_horns,
+    'tail_spade': tail_spade,
+    'round_eyes': round_eyes,
+    'paws': paws,
+    'ear_inner': ear_inner,
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
     'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'ghost_tail': ghost_tail, 'craters': craters, 'wing_icicles': wing_icicles, 'leaf_veins': leaf_veins, 'ear_tufts': ear_tufts, 'dust_motes': dust_motes, 'coin_inside': coin_inside, 'moss_top': moss_top, 'river_stones': river_stones, 'neon_rings': neon_rings, 'sleepy_eyes': sleepy_eyes, 'wisp_flame': wisp_flame, 'fox_face': fox_face, 'quartz_shards': quartz_shards, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,

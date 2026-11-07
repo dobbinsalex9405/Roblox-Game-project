@@ -1711,9 +1711,20 @@
      "color2": "#3A6A4A"
     },
     {
+     "kind": "leaf_mane",
+     "color": "#2F9A52",
+     "color2": "#1F6A38"
+    },
+    {
+     "kind": "horse_tail",
+     "color": "#3FA86A",
+     "color2": "#2A7A48"
+    },
+    {
      "kind": "aura_clover",
      "color": "#2F8F4A",
-     "glow": true
+     "glow": true,
+     "size": 1.15
     },
     {
      "kind": "mend",
