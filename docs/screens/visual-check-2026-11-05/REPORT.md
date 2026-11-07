@@ -1003,3 +1003,22 @@ Everything checked before the FAIL (desktop 1350x672 unless noted):
    - Every MeshPart is textured, and the largest gap is 0.000.
    - While walking, the median bottom of the part boxes is 0.72-0.76 on a 0.70 floor. Box corners dip to 0.49-0.66 during leg swing; Pangolin's tail box is the lowest.
    - In 4 s they walked 3.5 / 0.6 (Carrotling hops, peak 1.46) / 3.4 / 3.6 studs.
+
+## #126 @ effcae6 (11 px text floor), merged onto main locally as 3c45913
+
+**FAIL by 0.6 px on the unrestricted phone card. Restricted passes.**
+
+*Merge note:* effcae6 conflicts with current main in `ops/DECISIONS.md` (docs only). To build, I took the PR's side of that file locally. The PR needs a main merge before it can land.
+
+Text is measured as TextBounds.Y, the same measure as 5341bf8's 5.6 px and main's 14.4 px.
+- **Phone 844x392, restricted:**
+  - The card is 224x157 at UIScale 0.80, screen y 225-383, so it's within ≤384.
+  - The smallest text is 12.0 px (TextSize 15 × 0.8). 0 labels fail TextFits.
+  - The rows scroll (canvas 267 in a 157 frame). Scrolled to the end, "See the whole order" sits at y 353-377 inside the rows (`126d-phone-restricted-card.jpg`).
+  - Whole order: the window covers y 138-382, titled "Basic Egg: fixed order" with the header "How many of every 100000 eggs:". Rows: Gosling (3500) | NEXT, Turtle (3500) | in 2 eggs, Bunny (2359) | in 3 eggs … The right column is complete, 0 labels fail TextFits, the smallest text is 14.4 px and it scrolls (canvas 1194) (`126d-phone-restricted-whole-order.jpg`).
+- **Desktop 1350x672, restricted:** 280x334 at y 198-532, against 280x310 at 5341bf8; it's taller only because the text is bigger. Smallest text 14.4 px, 0 TextFits failures, same contents (`126d-desktop-restricted-card.jpg`).
+- **Phone 844x392, unrestricted: FAIL.**
+  - The card is 224x157 at UIScale 0.80, screen y 225-383 (bottom passes). The rows scroll (canvas 171 in a 157 frame, so the last rows and "See every creature" scroll into view).
+  - Every row label is **TextSize 14 → 10.4 px tall on screen**, below the 11 px floor (`126d-phone-unrestricted-card-FAIL.jpg`). "See every creature" is TextSize 15 → 12.0 px.
+  - 14 × 0.8 = 11.2 nominal, but the rendered glyph box comes out at 10.4. Fix: TextSize 15 for the rows, as the restricted card already uses, or keep the scale at 0.85 or more.
+- Stopped at this FAIL, so the unrestricted desktop card was not rechecked.
