@@ -1793,6 +1793,10 @@
    "imageId": 120912949448970,
    "source": "44d765b550ef3be1"
   },
+  "BlossomDeer": {
+   "imageId": 81112678255133,
+   "source": "3b72c07e944a4a34"
+  },
   "BlueJay": {
    "imageId": 94401009739360,
    "source": "a4a4feb26e6ad972"
@@ -1877,6 +1881,10 @@
    "imageId": 128045663333976,
    "source": "0a1d30713b7e3f13"
   },
+  "CinderPup": {
+   "imageId": 93030528038832,
+   "source": "cf3a110171abd0f2"
+  },
   "ClockworkLeviathan": {
    "imageId": 127316083579519,
    "source": "f62c10e8bfac79e6"
@@ -1889,9 +1897,17 @@
    "imageId": 136269116443651,
    "source": "796815eb0337f3c7"
   },
+  "CloudSheep": {
+   "imageId": 107898640203381,
+   "source": "07dab01175210cc1"
+  },
   "Cloudlet": {
    "imageId": 73391164236467,
    "source": "7f3f9ea644d3e66b"
+  },
+  "CoalPiglet": {
+   "imageId": 123782076480055,
+   "source": "54c76b61d0bf905f"
   },
   "Cockatoo": {
    "imageId": 71022261836153,
@@ -1928,6 +1944,10 @@
   "Crow": {
    "imageId": 79172681125114,
    "source": "00eb74d5b57d0c67"
+  },
+  "CrystalCrab": {
+   "imageId": 121279878208666,
+   "source": "2d2782c23e20b9e7"
   },
   "CrystalGolem": {
    "imageId": 85796191553076,
@@ -2021,6 +2041,10 @@
    "imageId": 134880216608812,
    "source": "1c6a30cf9aa7b10a"
   },
+  "FlameMoth": {
+   "imageId": 140643937030940,
+   "source": "02ed51f5f3993480"
+  },
   "Fluffernut": {
    "imageId": 120212191644068,
    "source": "e61057c7f29f33e4"
@@ -2036,6 +2060,10 @@
   "Frog": {
    "imageId": 104210492818160,
    "source": "15ee87fcfb540007"
+  },
+  "FrostOwl": {
+   "imageId": 134882658277355,
+   "source": "5b77460d9dce1982"
   },
   "FrostSprite": {
    "imageId": 71124287642967,
@@ -2064,6 +2092,10 @@
   "GingerbreadGolem": {
    "imageId": 140478709753921,
    "source": "54e3f655db9d0d27"
+  },
+  "GlacierPenguin": {
+   "imageId": 100301103854474,
+   "source": "bc582ada06630196"
   },
   "GoatKid": {
    "imageId": 85033420868320,
@@ -2137,6 +2169,10 @@
    "imageId": 110089507189627,
    "source": "e15e71439bd76f1f"
   },
+  "IceTurtle": {
+   "imageId": 83303115612805,
+   "source": "fde56af9f035cef6"
+  },
   "IcicleBat": {
    "imageId": 119886473159238,
    "source": "70e0737ac86bb869"
@@ -2201,9 +2237,17 @@
    "imageId": 106309750079466,
    "source": "ab4b3fe6ed4dd126"
   },
+  "LavaGecko": {
+   "imageId": 85487192744975,
+   "source": "8cecb9960cf4e0f7"
+  },
   "LeafBat": {
    "imageId": 128850714533411,
    "source": "503169a338d3d03e"
+  },
+  "LeafLynx": {
+   "imageId": 101129174450987,
+   "source": "0ce5e34f78bd3663"
   },
   "Lemming": {
    "imageId": 112910433452364,
@@ -2229,6 +2273,10 @@
    "imageId": 135632792173313,
    "source": "3735359b59a8a554"
   },
+  "MagmaToad": {
+   "imageId": 101513175496557,
+   "source": "3bfa24be3cad05a8"
+  },
   "Mantis": {
    "imageId": 70895032859960,
    "source": "55603a522fbe308b"
@@ -2252,6 +2300,10 @@
   "MoonUnicorn": {
    "imageId": 93137043299342,
    "source": "8eaf630df90636da"
+  },
+  "MossBear": {
+   "imageId": 122111998729949,
+   "source": "cb75bb0083c555b4"
   },
   "MossbackTortoise": {
    "imageId": 133092495125237,
@@ -2425,6 +2477,10 @@
    "imageId": 109968712237514,
    "source": "ac1eea4b74d784a0"
   },
+  "ShroomSnail": {
+   "imageId": 120007060583805,
+   "source": "a5cfd98d8e19e246"
+  },
   "ShroombackToad": {
    "imageId": 116773309825543,
    "source": "cb550ed74e5ae308"
@@ -2449,9 +2505,17 @@
    "imageId": 106743310830875,
    "source": "f77603557c80181a"
   },
+  "SnowHare": {
+   "imageId": 92161221255509,
+   "source": "c5aa9619af9210a9"
+  },
   "SolarLion": {
    "imageId": 126886467932403,
    "source": "f2e15631b1dba546"
+  },
+  "SparkBeetle": {
+   "imageId": 85042335921690,
+   "source": "2e691dde02f8881e"
   },
   "SpiritFox": {
    "imageId": 101600808196368,
@@ -2480,6 +2544,10 @@
   "Starfish": {
    "imageId": 94835980755282,
    "source": "382ddbb9631ad554"
+  },
+  "StaticCat": {
+   "imageId": 96936214422284,
+   "source": "8b11b92424405ad5"
   },
   "Stoat": {
    "imageId": 112121129640037,
@@ -2517,9 +2585,17 @@
    "imageId": 127578171829330,
    "source": "fdc435993311907a"
   },
+  "ThornHedgehog": {
+   "imageId": 128986959996395,
+   "source": "91f5ee4aa43c5c94"
+  },
   "ThornWolf": {
    "imageId": 88598272260048,
    "source": "8c5c52b6fc47c661"
+  },
+  "ThunderBunny": {
+   "imageId": 102125310976554,
+   "source": "440ec99a6d04f4f1"
   },
   "ThunderGriffin": {
    "imageId": 72159062690921,
@@ -2556,6 +2632,10 @@
   "TuxedoKitten": {
    "imageId": 131445003908171,
    "source": "1c728c36309c2255"
+  },
+  "VineChameleon": {
+   "imageId": 101997141217880,
+   "source": "dcd6719f8a910afd"
   },
   "VoidKitsune": {
    "imageId": 133265371268099,
