@@ -225,7 +225,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		height = 1.9,
 		size = { 1.4, 1.9, 1.8 },
 		tris = 12832,
-		trisLod1 = 1048,
+		trisLod1 = 1064,
 		parts = {
 			{
 				name = "body",
@@ -357,8 +357,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.5,
 		size = { 1.6, 1.5, 2 },
-		tris = 10464,
-		trisLod1 = 1024,
+		tris = 10736,
+		trisLod1 = 1094,
 		parts = {
 			{
 				name = "body",
@@ -463,15 +463,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "BeaverKit_eyes",
-						center = { 0, 1.0517, -0.95 },
-						size = { 0.407, 0.1035, 0.107 },
+						center = { 0, 1.1018, -0.9 },
+						size = { 0.607, 0.2035, 0.207 },
 					},
 				},
-				lod1 = {
-					name = "BeaverKit_eyes_lod1",
-					center = { 0, 1.05, -0.95 },
-					size = { 0.4, 0.1, 0.1 },
-				},
+				lod1 = { name = "BeaverKit_eyes_lod1", center = { 0, 1.1, -0.9 }, size = { 0.6, 0.2, 0.2 } },
 			},
 			{
 				name = "ears",
@@ -7812,8 +7808,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
-		tris = 7492,
-		trisLod1 = 738,
+		tris = 7716,
+		trisLod1 = 778,
 		parts = {
 			{
 				name = "body",
@@ -7830,7 +7826,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.68, -0.35 },
 				meshes = {
-					{ name = "Monarch_head", center = { 0, 0.7017, -0.396 }, size = { 0.6, 0.7875, 0.499 } },
+					{
+						name = "Monarch_head",
+						center = { 0, 0.7017, -0.396 },
+						size = { 0.591, 0.7875, 0.499 },
+					},
 				},
 				lod1 = { name = "Monarch_head_lod1", center = { 0, 0.7, -0.4 }, size = { 0.6, 0.8, 0.5 } },
 			},
@@ -7840,9 +7840,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.68, -0.35 },
 				meshes = {
-					{ name = "Monarch_eyes", center = { 0, 0.6518, -0.5 }, size = { 0.407, 0.1035, 0.107 } },
+					{ name = "Monarch_eyes", center = { 0, 0.6018, -0.5 }, size = { 0.607, 0.2035, 0.307 } },
 				},
-				lod1 = { name = "Monarch_eyes_lod1", center = { 0, 0.65, -0.5 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Monarch_eyes_lod1", center = { 0, 0.6, -0.5 }, size = { 0.6, 0.2, 0.3 } },
 			},
 			{
 				name = "wingL",
@@ -8949,8 +8949,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.5,
 		size = { 1.4, 1.5, 2.6 },
-		tris = 10688,
-		trisLod1 = 906,
+		tris = 10960,
+		trisLod1 = 976,
 		parts = {
 			{
 				name = "body",
@@ -9045,13 +9045,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.62, -0.6 },
 				meshes = {
-					{
-						name = "Platypus_eyes",
-						center = { 0, 1.1518, -1.05 },
-						size = { 0.407, 0.1035, 0.107 },
-					},
+					{ name = "Platypus_eyes", center = { 0, 1.2018, -1 }, size = { 0.607, 0.2035, 0.207 } },
 				},
-				lod1 = { name = "Platypus_eyes_lod1", center = { 0, 1.15, -1.05 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Platypus_eyes_lod1", center = { 0, 1.2, -1 }, size = { 0.6, 0.2, 0.2 } },
 			},
 			{
 				name = "tail",
@@ -9979,8 +9975,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.6,
 		size = { 1.2, 1.6, 2 },
-		tris = 11092,
-		trisLod1 = 1118,
+		tris = 11380,
+		trisLod1 = 1178,
 		parts = {
 			{
 				name = "body",
@@ -10063,9 +10059,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.82, -0.42 },
 				meshes = {
-					{ name = "Skunk_eyes", center = { 0, 1.1518, -0.95 }, size = { 0.407, 0.1035, 0.107 } },
+					{ name = "Skunk_eyes", center = { 0, 1.1018, -0.9 }, size = { 0.607, 0.2035, 0.207 } },
 				},
-				lod1 = { name = "Skunk_eyes_lod1", center = { 0, 1.15, -0.95 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Skunk_eyes_lod1", center = { 0, 1.1, -0.9 }, size = { 0.6, 0.2, 0.2 } },
 			},
 			{
 				name = "ears",
