@@ -205,7 +205,13 @@ describe("Hatchery", function()
 		end
 		local summary = Hatchery.fixedOrderSummary(basic, 0, rarityOf, 3, Eggs.RARITIES)
 		expect(#basic.outcomes > 40).toBe(true)
-		expect(summary.upcoming).toEqual({ "Gosling", "Turtle", "Bunny" })
+		-- The next three are the order's next three (the names change as
+		-- creatures join the egg, so they are not written here).
+		local order = {}
+		for n = 0, 3 do
+			order[n + 1] = Hatchery.fixedOrderOutcome(basic, n)
+		end
+		expect(summary.upcoming).toEqual({ order[1], order[2], order[3] })
 		expect(#summary.tiers <= #Eggs.RARITIES).toBe(true)
 		local total, seen = 0, {}
 		for _, tier in summary.tiers do
@@ -227,7 +233,7 @@ describe("Hatchery", function()
 		expect(summary.tiers[1].rarity).toBe("Common")
 		-- After one egg the window moves on by one.
 		local after = Hatchery.fixedOrderSummary(basic, 1, rarityOf, 3, Eggs.RARITIES)
-		expect(after.upcoming).toEqual({ "Turtle", "Bunny", "Chick" })
+		expect(after.upcoming).toEqual({ order[2], order[3], order[4] })
 	end)
 
 	it("the fixed order works out any place without building the cycle", function()
