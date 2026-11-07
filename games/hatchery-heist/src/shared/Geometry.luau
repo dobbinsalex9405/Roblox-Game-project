@@ -61,6 +61,11 @@ function Geometry.distance(ax: number, az: number, bx: number, bz: number): numb
 	return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
 end
 
+-- Base-local heights: the floor's top surface, and the top of the 8-stud
+-- post that carries the base's sign (Layout.SIGN).
+Geometry.FLOOR_TOP = 1
+Geometry.SIGN_TOP = 9
+
 -- The tower: floor 1 is the base's ground, and each floor above stands
 -- FLOOR_HEIGHT studs higher, over the back half of the base.
 Geometry.FLOORS = 10
@@ -77,6 +82,18 @@ Geometry.TOWER_MAX = { 24, 23 }
 Geometry.LADDER = { 25.2, 14.5 }
 Geometry.LADDER_HOLE_MIN = { 21, 12.5 }
 Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
+
+-- The label floating over the next floor to buy ("Floor 10: 165M coins"),
+-- in studs: wide enough for the longest one at full text height, with room
+-- to spare (Studio gate, #84: the text was filling its box edge to edge).
+-- `above`: its centre over the deck's centre.
+Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
+
+-- The "YOUR HATCHERY" banner over your own base sign (client/GuideView), in
+-- studs; `above` is its centre over the sign post's centre. It floats clear
+-- above the next-floor label behind it, so from spawn the two never read as
+-- one crowded line (Studio gate, Nov 5).
+Geometry.YOUR_BASE_LABEL = { width = 20, height = 4, above = 14.5 }
 
 -- Base-local positions of things raids care about. Layout uses the same
 -- numbers for the parts. Pad `index` counts across the whole tower: pads 1
@@ -111,5 +128,39 @@ end
 Geometry.TRAP_SPOTS = { { -10, -22 }, { 10, -22 }, { -27, 10 }, { 17, 27 } }
 Geometry.DECOY_SPOTS = { { -27, -4 }, { -27, 4 }, { -27, 22 } }
 Geometry.SHIELD_PYLON = { 27, 20 }
+
+-- The odds sign at each Egg Market stop (Studio gates, Nov 5): just outside
+-- the belt, its inner end beside the left post of the stop's arch (left for
+-- a player walking in), turned `turn` degrees from facing straight out so it
+-- faces the path a player walks in on. Its face is raised (about 4 to 7 studs)
+-- so the follow camera sees it over the character, in three big lines.
+-- Layout.marketSign places it; the farm hub keeps its pieces clear of it
+-- (tests/HubLayout.spec).
+Geometry.MARKET_SIGN = table.freeze({
+	width = 10, -- the face, studs
+	height = 3.3,
+	bottom = 3.6, -- the face's lower edge above the ground (clear of the phone's GOAL line)
+	frame = 0.3, -- the wooden frame round the face
+	depth = 1, -- face, frame and legs, front to back
+	innerOut = 30, -- the frame's inner end: studs from the centre...
+	innerLeft = 7.3, -- ...and studs left of the stop's path, walking in
+	turn = 20,
+})
+
+-- Sign `index`'s centre (x, z), the way its face looks (x, z, unit) and the
+-- way across it, from the inner end to the outer (x, z, unit).
+function Geometry.marketSign(index: number): (number, number, number, number, number, number)
+	local sign = Geometry.MARKET_SIGN
+	local a = angle(index)
+	local ox, oz = math.cos(a), math.sin(a) -- out from the centre
+	local lx, lz = -math.sin(a), math.cos(a) -- left, for a player walking in
+	local t = math.rad(sign.turn)
+	local ax, az = ox * math.sin(t) + lx * math.cos(t), oz * math.sin(t) + lz * math.cos(t)
+	local fx, fz = ox * math.cos(t) - lx * math.sin(t), oz * math.cos(t) - lz * math.sin(t)
+	local half = sign.width / 2 + sign.frame
+	local cx = ox * sign.innerOut + lx * sign.innerLeft + ax * half
+	local cz = oz * sign.innerOut + lz * sign.innerLeft + az * half
+	return cx, cz, fx, fz, ax, az
+end
 
 return Geometry

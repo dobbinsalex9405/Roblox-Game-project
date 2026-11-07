@@ -58,10 +58,16 @@ describe("Hatchery Book", function()
 		expect(math.abs(Book.bonus(full, creatures.species, book) - book.maxBonus) < 1e-9).toBe(true)
 		expect(Book.bonus({}, creatures.species, book)).toBe(0)
 		expect(Book.bonus(nil, creatures.species, book)).toBe(0)
-		-- 150 more Commons: a full book is still the maximum, and one Common is
-		-- worth less, never more.
+		-- Twice the Commons: a full book is still the maximum, and one Common is
+		-- worth at most half as much.
 		local more = table.clone(creatures.species)
-		for i = 1, 150 do
+		local commons = 0
+		for _, s in creatures.species do
+			if s.rarity == "Common" then
+				commons += 1
+			end
+		end
+		for i = 1, commons do
 			more[`TestCommon{i}`] = { rarity = "Common", coinsPerSecond = 1 }
 			full[`TestCommon{i}`] = 1
 		end
@@ -80,5 +86,22 @@ describe("Hatchery Book", function()
 		expect(Book.newCount(found, creatures.species, 150)).toBe(2)
 		expect(Book.newCount(found, creatures.species, 300)).toBe(0)
 		expect(Book.newCount(nil, creatures.species, 0)).toBe(0)
+	end)
+
+	it("shows a creature's picture once it has one, and lists them all to preload", function()
+		-- Studio gate (#119): live 3D cards drew blank on a flick, a reopen
+		-- and a tab switch. A card with a picture shows the image instead.
+		local thumbs = { Chick = 123, Kitten = 0 }
+		expect(Book.picture("Chick", thumbs)).toBe("rbxassetid://123")
+		expect(Book.picture("Kitten", thumbs)).toBe(nil) -- 0: not uploaded
+		expect(Book.picture("Frog", thumbs)).toBe(nil) -- none: drawn live
+		local list = Book.pictures({ Chick = {}, Kitten = {}, Frog = {} }, thumbs)
+		expect(#list).toBe(1)
+		expect(list[1]).toBe("rbxassetid://123")
+		-- The generated map only names creatures the game has.
+		for speciesId, id in require("../src/shared/CreatureThumbs") do
+			expect(creatures.species[speciesId] ~= nil or `{speciesId} is not a creature`).toBe(true)
+			expect(id > 0).toBe(true)
+		end
 	end)
 end)
