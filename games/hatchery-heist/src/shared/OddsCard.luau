@@ -3,17 +3,22 @@
 
 local OddsCard = {}
 
--- The odds card's scale on a screen `screenY` px tall: smaller on a phone
--- held sideways (75% at 392 px, Studio gate Nov 5), and never taller than
--- the screen below `top` px with an 8 px margin, so a long card (a restricted
--- player's fixed order, Studio gate #126) never runs off it. `naturalY` is the
--- card's height at 100%. Never below 50%.
-function OddsCard.scale(screenY: number, naturalY: number, top: number): number
-	local scale = math.clamp(screenY / 520, 0.75, 1)
-	if naturalY > 0 then
-		scale = math.min(scale, (screenY - top - 8) / naturalY)
-	end
-	return math.max(scale, 0.5)
+OddsCard.WIDTH = 280
+
+-- The card's scale on a screen `screenY` px tall: smaller on a phone held
+-- sideways, so the egg and its Buy prompt stay in view (Studio gate, Nov 5:
+-- 75% at 392 px).
+function OddsCard.scale(screenY: number): number
+	return math.clamp(screenY / 520, 0.75, 1)
+end
+
+-- The card's height in its own (unscaled) pixels: as tall as its rows, but
+-- never past the bottom of the screen when it starts `top` px down, with an
+-- 8 px margin, even if it is drawn at full size; the rows scroll beyond
+-- that (Studio gate, #126: a restricted player's fixed-order card ran 86 px
+-- off a 392 px phone screen).
+function OddsCard.height(rows: number, screenY: number, top: number): number
+	return math.max(0, math.min(rows, screenY - top - 8))
 end
 
 return OddsCard

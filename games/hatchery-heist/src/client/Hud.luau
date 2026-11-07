@@ -184,17 +184,34 @@ function Hud.start(ctx: Context.Context)
 	end)
 
 	-- Odds card, shown while an egg's Buy prompt is up.
-	local card =
-		panel(gui, "OddsCard", UDim2.fromOffset(280, 0), UDim2.new(0, 16, 0.5, 0), Vector2.new(0, 0.5))
-	card.AutomaticSize = Enum.AutomaticSize.Y
+	local card = panel(
+		gui,
+		"OddsCard",
+		UDim2.fromOffset(OddsCard.WIDTH, 0),
+		UDim2.new(0, 16, 0.5, 0),
+		Vector2.new(0, 0.5)
+	)
 	card.Visible = false
-	listLayout(card, 8)
+	-- The rows scroll inside the card, which is never taller than the screen
+	-- (Studio gate, #126: a long card ran off a phone, 86 px below it).
+	local cardRows = Instance.new("ScrollingFrame")
+	cardRows.Name = "Rows"
+	cardRows.BackgroundTransparency = 1
+	cardRows.BorderSizePixel = 0
+	cardRows.Size = UDim2.fromScale(1, 1)
+	cardRows.CanvasSize = UDim2.new()
+	cardRows.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	cardRows.ScrollingDirection = Enum.ScrollingDirection.Y
+	cardRows.ScrollBarThickness = 4
+	cardRows.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+	cardRows.Parent = card
+	listLayout(cardRows, 8)
 	local cardEgg: string? = nil
 	-- Smaller on a phone held sideways, so the card leaves the egg and its
 	-- Buy prompt in view (Studio gate, Nov 5): 75% at 392 px tall.
 	local cardScale = Instance.new("UIScale")
 	cardScale.Parent = card
-	local cardLayout = card:FindFirstChildOfClass("UIListLayout") :: UIListLayout
+	local cardLayout = cardRows:FindFirstChildOfClass("UIListLayout") :: UIListLayout
 	local function fitCard()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
@@ -208,12 +225,13 @@ function Hud.start(ctx: Context.Context)
 			card.AnchorPoint = Vector2.new(0, 0.5)
 			card.Position = UDim2.new(0, 16, 0.5, 0)
 		end
-		-- The card's height at 100%: its rows (drawn at the current scale)
-		-- plus its 8 px padding top and bottom.
-		local natural = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 16
-		local scale = OddsCard.scale(screen.Y, natural, if short then 168 else 8)
-		if math.abs(scale - cardScale.Scale) > 0.001 then
-			cardScale.Scale = scale
+		cardScale.Scale = OddsCard.scale(screen.Y)
+		-- As tall as its rows (measured at the current scale) and its 8 px
+		-- padding, but never past the screen; the rows scroll beyond that.
+		local rows = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 16
+		local height = OddsCard.height(rows, screen.Y, if short then 168 else 8)
+		if math.abs(card.Size.Y.Offset - height) >= 1 then
+			card.Size = UDim2.fromOffset(OddsCard.WIDTH, height)
 		end
 	end
 	-- Refit whenever the rows change (another egg, a fixed order moving on).
@@ -298,7 +316,7 @@ function Hud.start(ctx: Context.Context)
 
 	local function renderCard()
 		if cardEgg then
-			OddsView.render(card, cardEgg)
+			OddsView.render(cardRows, cardEgg)
 		end
 	end
 

@@ -77,8 +77,10 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels on the odds card.
+-- Row height in pixels on the odds card, and the share of a row the left
+-- text gets.
 local rowHeight = 22
+local rowSplit = 0.5
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
 	local frame = Instance.new("Frame")
@@ -88,7 +90,7 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	frame.Size = UDim2.new(1, 0, 0, rowHeight)
 	local name = Instance.new("TextLabel")
 	name.BackgroundTransparency = 1
-	name.Size = UDim2.fromScale(0.5, 1)
+	name.Size = UDim2.fromScale(rowSplit, 1)
 	name.TextXAlignment = Enum.TextXAlignment.Left
 	name.Font = if bold then Enum.Font.GothamBold else Enum.Font.Gotham
 	name.TextScaled = true
@@ -97,8 +99,8 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	name.Parent = frame
 	local value = Instance.new("TextLabel")
 	value.BackgroundTransparency = 1
-	value.Position = UDim2.fromScale(0.5, 0)
-	value.Size = UDim2.fromScale(0.5, 1)
+	value.Position = UDim2.fromScale(rowSplit, 0)
+	value.Size = UDim2.fromScale(1 - rowSplit, 1)
 	value.TextXAlignment = Enum.TextXAlignment.Right
 	value.Font = Enum.Font.GothamBold
 	value.TextScaled = true
@@ -486,7 +488,8 @@ function OddsView.openList(eggId: string)
 		local egg = Hatchery.eggById(ctx.config.eggs, eggId)
 		if ctx.restricted() and egg then
 			-- Every creature in the order it next comes, soonest first, with
-			-- how many of every cycle it is.
+			-- how many of every cycle it is. The wait gets its own column, wide
+			-- enough for "in 25011 eggs" (Studio gate, #126: "· in 2…").
 			title.Text = `{Layout.displayName(eggId)}: fixed order`
 			local bought = boughtOf(eggId)
 			local cycle = Hatchery.fixedOrderLength(egg)
@@ -504,17 +507,21 @@ function OddsView.openList(eggId: string)
 			table.sort(lines, function(a, b)
 				return a.wait < b.wait
 			end)
+			rowSplit = 1 -- one line across the whole row
+			row(scroll, 0, `How many of every {cycle} eggs:`, "", Color3.fromRGB(200, 200, 200), false)
+			rowSplit = 0.62
 			for i, line in lines do
 				local rarity = species[line.id].rarity
 				row(
 					scroll,
 					i,
-					`{Layout.displayName(line.id)} ({rarity})`,
-					`{line.count} in {cycle} · {waitText(line.wait)}`,
+					`{Layout.displayName(line.id)} ({line.count})`,
+					waitText(line.wait),
 					Layout.rarityColor(rarity),
 					line.wait == 0
 				)
 			end
+			rowSplit = 0.5
 		else
 			title.Text = `{Layout.displayName(eggId)}: every creature`
 			local display = displays[eggId]
