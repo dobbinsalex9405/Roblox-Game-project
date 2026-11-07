@@ -13,6 +13,10 @@
   the bottom of the screen (a long one scrolls), and its text is never
   smaller than 11 px, even on a phone. Each row's odds get the room they
   need, so even "1 in 50,000" is never cut short.
+- Ten new Epic creatures can hatch: Mushroom Gnome, Troll Cub, Sapling Ent,
+  Gingerbread Golem, Petal Sprite, Frost Sprite, Ember Imp, Yeti Cub, Rime
+  Drakeling and Bonsai Dragon. They join the Epic tier's share of the eggs,
+  so no other tier's odds change.
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
   the list is off.
@@ -25,7 +29,9 @@
 - Fix: Hatchery Book cards no longer show empty on a fast flick, a reopen or
   a tab switch. Each creature is a ready-made picture, loaded when you join;
   creatures you have not found yet are black silhouettes.
-
+- 32 new Uncommon creatures can hatch, among them the Arctic Fox Kit,
+  Teacup Piglet, Pangolin, Tardigrade, Shroomback Toad and the garden
+  veggie puffs (Turnipling, Carrotling, Peapod, Cornling, Radishling).
 - The Nebula Serpent is reworked: a finer, more detailed nebula coil with
   crystal antlers, a flowing mane, whiskers and a comet tail, and four
   little worlds (a ringed planet, an ocean world, a lava world and a moon)

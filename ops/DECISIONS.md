@@ -15,6 +15,22 @@ Non-obvious choices, newest first, so a later session can trust them.
   restricted player sees can differ from the old one after this ships;
   nothing is owed, since the counts per cycle are unchanged.
 
+## 2026-11-07: Open Cloud saves wait out Roblox's "Server is busy" (409)
+
+- Roblox answers `409 Conflict: Save failed. Server is busy` to a place save
+  for a minute or two after any other save to the same place, whichever
+  workflow made it (a Staging publish, a real-engine check, or two checks
+  dispatched close together). On 2026-11-07 it failed one Staging publish
+  twice and one real-engine check, each fixed only by a hand re-run.
+- Both tools that save a place (`tools/publish/run.luau` and
+  `tools/cloud/run.luau`) now share `publish/lib.retryDelay`: a 409 waits
+  45 s, then 90 s, then 135 s before giving up (about 4.5 minutes, enough
+  for the earlier save to settle); 429 and 5xx keep their short doubling
+  waits; every other status is a real failure and still fails at once, so a
+  wrong key or a bad place never retries.
+- The verifier still dispatches one save at a time; the retry is the net
+  under that rule, not a licence to run checks in parallel.
+
 ## 2026-11-07: The Hatchery Book shows rendered pictures, not live 3D
 
 - **What:** every creature gets a Blender-rendered Book picture

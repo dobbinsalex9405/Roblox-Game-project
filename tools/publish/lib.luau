@@ -61,4 +61,23 @@ function lib.versionFrom(body: { [string]: any }): number
 	return version
 end
 
+-- How long to wait before trying an Open Cloud place save again, or nil to
+-- give up. Roblox answers 429 while a place has too many tasks and 5xx when it
+-- is down; it also answers 409 "Save failed. Server is busy" for a minute or
+-- two after any save to the same place, even one by another workflow, so a
+-- 409 earns a long wait instead of a failed publish.
+lib.MAX_ATTEMPTS = 4
+function lib.retryDelay(statusCode: number, attempt: number): number?
+	if attempt >= lib.MAX_ATTEMPTS then
+		return nil
+	end
+	if statusCode == 409 then
+		return 45 * attempt
+	end
+	if statusCode == 429 or statusCode >= 500 then
+		return 2 ^ attempt * 2
+	end
+	return nil
+end
+
 return lib

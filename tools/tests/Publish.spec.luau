@@ -69,4 +69,22 @@ describe("publish tool", function()
 			lib.target(committed, dir, "staging") -- must not throw
 		end
 	end)
+
+	it("waits out Roblox's busy saves and rate limits, then gives up", function()
+		-- 409 "Server is busy" settles in a minute or two: long waits, 45 s apart.
+		expect(lib.retryDelay(409, 1)).toBe(45)
+		expect(lib.retryDelay(409, 2)).toBe(90)
+		expect(lib.retryDelay(409, 3)).toBe(135)
+		expect(lib.retryDelay(409, lib.MAX_ATTEMPTS)).toBeNil()
+		-- 429 and 5xx keep the short doubling waits.
+		expect(lib.retryDelay(429, 1)).toBe(4)
+		expect(lib.retryDelay(503, 2)).toBe(8)
+		expect(lib.retryDelay(500, 3)).toBe(16)
+		expect(lib.retryDelay(502, lib.MAX_ATTEMPTS)).toBeNil()
+		-- Anything else is a real failure: wrong key, bad place, no retry.
+		expect(lib.retryDelay(401, 1)).toBeNil()
+		expect(lib.retryDelay(403, 1)).toBeNil()
+		expect(lib.retryDelay(400, 1)).toBeNil()
+		expect(lib.retryDelay(404, 2)).toBeNil()
+	end)
 end)
