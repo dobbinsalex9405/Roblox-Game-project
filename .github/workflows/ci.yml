@@ -53,7 +53,8 @@ jobs:
           python3 tools/art/blender/luau.py
           python3 tools/art/env/luau.py
           python3 tools/art/to_config.py --check
-          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau games/hatchery-heist/src/shared/CreatureMeshes.luau games/hatchery-heist/src/shared/EnvArt.luau
+          python3 -m unittest discover -s tools/art/tests
+          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau games/hatchery-heist/src/shared/CreatureMeshes.luau games/hatchery-heist/src/shared/EnvArt.luau games/hatchery-heist/tests/WalkMirror.luau
 
       - name: Build every game (Rojo)
         run: tools/build.sh all

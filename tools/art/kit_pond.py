@@ -73,39 +73,50 @@ def antennae(head, k, x, y, z, length, col, back=0.0, spread=0.35):
             head.put((xx if sx > 0 else _mx(xx), round(y * k + i * back), round(z * k) + i), col)
 
 
-def legs(body, k, spots, col, out=0.9, height=1.0, w=None):
+def legs(body, k, spots, col, out=0.9, height=1.0, w=None, c=None, n=None, first=0):
     """Six (or more) thin legs: for each (x, y) on the body's side a rod down
-    and out to the ground."""
+    and out to the ground. With `c`, each leg is its own part hinged at the
+    hip (front to back; `n` legs a side in all, these from number `first`)."""
     w = w if w is not None else max(0, round(0.18 * k))
-    for (x, y) in spots:
+    n = n or len(spots)
+    for i, (x, y) in enumerate(sorted(spots, key=lambda s: s[1])):
         for sx in (-1, 1):
             top = (sx * x * k, y * k, height * k)
             foot = (sx * (x + out) * k, y * k, 0)
-            n = max(2, round(max(out, height) * k * 1.5))
-            for i in range(n + 1):
-                t = i / n
+            part = body if c is None else _leg(c, sx, first + i, n, top)
+            steps = max(2, round(max(out, height) * k * 1.5))
+            for j in range(steps + 1):
+                t = j / steps
                 px = top[0] + (foot[0] - top[0]) * t
                 pz = top[2] + (foot[2] - top[2]) * t
                 bx = math.floor(px)
                 for dx in range(w + 1):
                     for dy in range(w + 1):
-                        body.put((bx + (dx if sx > 0 else -dx), math.floor(top[1]) + dy, max(0, math.floor(pz))), col)
+                        part.put((bx + (dx if sx > 0 else -dx), math.floor(top[1]) + dy, max(0, math.floor(pz))), col)
 
 
-def bent_legs(body, k, ys, col, hip=(0.8, 2.0), knee=(1.8, 3.4), foot=2.6, r=0.3, splay=0.5):
+def _leg(c, sx, i, n, hip):
+    import rig
+    return rig.leg_part(c, 'L' if sx < 0 else 'R', i, n, hip)
+
+
+def bent_legs(body, k, ys, col, hip=(0.8, 2.0), knee=(1.8, 3.4), foot=2.6, r=0.3, splay=0.5, c=None):
     """Pairs of legs that arch up to a knee and down to the ground, like a
     spider's or an ant's: for each y on the body a hip at (x, z), a knee
     further out and higher, a foot further out still. Legs splay forward at
-    the front and back at the rear by `splay`."""
+    the front and back at the rear by `splay`. With `c`, each leg is its own
+    part hinged at the hip."""
+    ys = sorted(ys)
     mid = (ys[0] + ys[-1]) / 2
-    for y in ys:
+    for i, y in enumerate(ys):
         dy = (y - mid) * splay
         for sx in (-1, 1):
             a = (sx * hip[0] * k, y * k, hip[1] * k)
             b = (sx * knee[0] * k, (y + dy * 0.5) * k, knee[1] * k)
-            c = (sx * foot * k, (y + dy) * k, 0)
-            line(body, a, b, col, r=r * k)
-            line(body, b, c, col, r=r * k * 0.85)
+            f = (sx * foot * k, (y + dy) * k, 0)
+            part = body if c is None else _leg(c, sx, i, len(ys), a)
+            line(part, a, b, col, r=r * k)
+            line(part, b, f, col, r=r * k * 0.85)
 
 
 # --------------------------------------------------------------- critters
@@ -127,7 +138,7 @@ def critter(c, H, kind, col, accent=None, wing=None):
         for sx in (-1, 1):
             head.ell((sx * 0.9 * k, -2.0 * k, 2.9 * k), (0.8 * k, 0.8 * k, 0.8 * k), accent)
         face(c, head, k, 2.1, x_off=0.35, size=0.45, cheek_z=1.6)
-        bent_legs(body, k, (-0.9, -0.3, 0.3), INK, hip=(0.5, 1.4), knee=(1.0, 1.4), foot=1.3, r=0.2)
+        bent_legs(body, k, (-0.9, -0.3, 0.3), INK, hip=(0.5, 1.4), knee=(1.0, 1.4), foot=1.3, r=0.2, c=c)
         for sx in (-1, 1):
             name = 'wingL' if sx < 0 else 'wingR'
             wz = round(3.6 * k)
@@ -161,7 +172,7 @@ def critter(c, H, kind, col, accent=None, wing=None):
             for i in range(max(2, round(1.0 * k))):
                 xx = x + i // 2
                 head.put((xx if sx > 0 else _mx(xx), round(-2.9 * k) - 1 - i, round(4.6 * k) + up - 1), INK)
-        bent_legs(body, k, (-1.3, -0.7, -0.1), _dark(col, 0.45), hip=(0.6, 2.6), knee=(1.7, 3.2), foot=2.3, r=0.25, splay=1.2)
+        bent_legs(body, k, (-1.3, -0.7, -0.1), _dark(col, 0.45), hip=(0.6, 2.6), knee=(1.7, 3.2), foot=2.3, r=0.25, splay=1.2, c=c)
     elif kind == 'grasshopper':
         # a long body, a tall head, folded wings and big jumping legs
         body.ell((0, 0.8 * k, 2.6 * k), (1.2 * k, 3.0 * k, 1.2 * k), col)
@@ -172,21 +183,22 @@ def critter(c, H, kind, col, accent=None, wing=None):
         head.ell((0, -2.2 * k, 3.6 * k), (1.3 * k, 1.2 * k, 1.6 * k), col)
         face(c, head, k, 3.8, x_off=0.5, size=0.5)
         antennae(head, k, 0.4, -2.6, 5.0, 2.2, accent, back=0.6, spread=0.2)
-        legs(body, k, [(0.7, -1.0), (0.7, 0.2)], accent, out=0.6, height=1.8)
+        legs(body, k, [(0.7, -1.0), (0.7, 0.2)], accent, out=0.6, height=1.8, c=c, n=3)
         for sx in (-1, 1):
             # thigh up and back, shin down to the ground behind
             knee = (sx * 1.5 * k, 2.6 * k, 4.6 * k)
             hip = (sx * 1.0 * k, 0.6 * k, 2.8 * k)
             foot = (sx * 1.6 * k, 4.2 * k, 0)
-            line(body, hip, knee, col, r=0.45 * k)
-            line(body, knee, foot, accent, r=0.33 * k)
+            jump = _leg(c, sx, 2, 3, hip)  # the big jumping legs, last of three
+            line(jump, hip, knee, col, r=0.45 * k)
+            line(jump, knee, foot, accent, r=0.33 * k)
     elif kind == 'spider':
         # a round rear with a mark on it, a round front, eight bent legs
         body.ell((0, 1.6 * k, 3.0 * k), (2.0 * k, 2.1 * k, 1.9 * k), col)
         body.paint(lambda p, cc, g: (accent, False) if p[2] > 3.4 * k and (abs(p[0] + .5) < 0.45 * k or abs(p[1] - 1.6 * k) < 0.45 * k) else None)
         head.ell((0, -1.0 * k, 2.4 * k), (1.6 * k, 1.5 * k, 1.4 * k), col)
         face(c, head, k, 2.5, x_off=0.45, size=0.75)
-        bent_legs(body, k, (-1.5, -0.9, -0.3, 0.3), _dark(col, 0.15), hip=(1.0, 2.2), knee=(2.3, 3.9), foot=3.4, r=0.28, splay=1.0)
+        bent_legs(body, k, (-1.5, -0.9, -0.3, 0.3), _dark(col, 0.15), hip=(1.0, 2.2), knee=(2.3, 3.9), foot=3.4, r=0.28, splay=1.0, c=c)
     elif kind == 'firefly':
         # a soft beetle with a coloured cap and a glowing tail
         body.ell((0, 0.6 * k, 2.2 * k), (1.6 * k, 2.6 * k, 1.4 * k), col)
@@ -198,15 +210,17 @@ def critter(c, H, kind, col, accent=None, wing=None):
         head.ell((0, -2.0 * k, 2.4 * k), (1.4 * k, 1.2 * k, 1.3 * k), accent)
         face(c, head, k, 2.4, x_off=0.45, size=0.5)
         antennae(head, k, 0.4, -2.6, 3.4, 1.6, INK, back=-0.2, spread=0.4)
-        legs(body, k, [(0.8, -0.8), (0.9, 0.4), (0.8, 1.6)], INK, out=0.6, height=1.0)
+        legs(body, k, [(0.8, -0.8), (0.9, 0.4), (0.8, 1.6)], INK, out=0.6, height=1.0, c=c)
     elif kind == 'pillbug':
         # a domed back of overlapping plates
-        body.ell((0, 0.6 * k, 1.6 * k), (2.2 * k, 3.0 * k, 1.9 * k), col, cond=lambda x, y, z: z >= 0)
+        # (raised a little on short legs, so it can be seen to walk)
+        body.ell((0, 0.6 * k, 1.6 * k), (2.2 * k, 3.0 * k, 1.9 * k), col, cond=lambda x, y, z: z >= round(0.5 * k))
         band = max(1, round(0.75 * k))
         body.paint(lambda p, cc, g: (accent, False) if ((p[1] - round(-2.4 * k)) // band) % 2 == 1 and p[2] >= 1 else None)
         head.ell((0, -2.4 * k, 1.5 * k), (1.5 * k, 1.0 * k, 1.2 * k), _dark(col, 0.15))
         face(c, head, k, 1.6, x_off=0.4, size=0.5, cheek_z=1.0)
         antennae(head, k, 0.6, -3.0, 2.0, 1.4, _dark(col, 0.4), back=-0.3, spread=0.5)
+        legs(body, k, [(1.1, -1.2), (1.3, 0.4), (1.1, 2.0)], _dark(col, 0.4), out=0.5, height=0.8, c=c)
     elif kind in ('worm', 'slug'):
         if kind == 'worm':
             # segments along the ground, the front one rearing up as a head
@@ -248,7 +262,7 @@ def critter(c, H, kind, col, accent=None, wing=None):
             hand = (sx * 0.8 * k, -2.8 * k, 4.6 * k)
             line(body, sh, el, col, r=0.4 * k)
             line(body, el, hand, accent, r=0.35 * k)
-        legs(body, k, [(0.6, 0.6), (0.6, 1.8)], accent, out=1.2, height=2.0)
+        legs(body, k, [(0.6, 0.6), (0.6, 1.8)], accent, out=1.2, height=2.0, c=c)
     else:
         raise ValueError(f'critter: unknown kind {kind}')
     return c
@@ -304,7 +318,10 @@ def shore(c, H, kind, col, accent=None, belly=None):
         for sx in (-1, 1):
             for y in (-0.8, 0.8):
                 x = round(sx * 1.0 * k)
-                body.box((x if sx > 0 else _mx(x), round(y * k), 0), (x if sx > 0 else _mx(x), round(y * k), round(0.6 * k)), belly or col)
+                x = x if sx > 0 else _mx(x)
+                # (tube feet too small to step: they stay in the body, which
+                # would be empty without them)
+                body.box((x, round(y * k), 0), (x, round(y * k), round(0.6 * k)), belly or col)
         sp = c.part('spines', 'static')
         n = 46
         for i in range(n):
@@ -363,7 +380,7 @@ def shore(c, H, kind, col, accent=None, belly=None):
             line(body, arm0, arm1, col, r=0.4 * k)
             body.ell((cx, -3.4 * k, 3.0 * k), (0.9 * big * k, 1.1 * big * k, 0.8 * big * k), col)
             body.ell((cx + sx * 0.25 * k, -4.4 * k * (0.85 + 0.15 * big), 3.4 * k), (0.4 * big * k + .3, 0.6 * big * k, 0.3 * big * k + .3), accent)
-        legs(body, k, [(1.0, -0.6), (1.1, 0.2), (1.0, 1.0)], col, out=0.9, height=1.4)
+        legs(body, k, [(1.0, -0.6), (1.1, 0.2), (1.0, 1.0)], col, out=0.9, height=1.4, c=c)
     elif kind in ('seal', 'walrus'):
         # a plump seal sitting up: big round chest, head raised, flippers
         tusks = kind == 'walrus'
@@ -374,7 +391,9 @@ def shore(c, H, kind, col, accent=None, belly=None):
         tail = c.part('tail', 'static', (0, 4.0 * k, 0.6 * k))
         for sx in (-1, 1):
             tail.ell((sx * 0.9 * k, 4.6 * k, 0.5 * k), (0.9 * k, 1.0 * k, 0.4 * k + .3), accent)
-            body.ell((sx * 2.2 * k, -0.6 * k, 0.7 * k), (0.8 * k, 1.1 * k, 0.4 * k + .3), accent)
+            # front flippers: the legs it waddles on, hinged at the shoulder
+            hip = (sx * 2.2 * k, -0.6 * k, 0.7 * k + 0.4 * k + .3)
+            _leg(c, sx, 0, 1, hip).ell((sx * 2.2 * k, -0.6 * k, 0.7 * k), (0.8 * k, 1.1 * k, 0.4 * k + .3), accent)
         head.ell((0, -1.4 * k, 4.8 * k), (2.0 * k, 1.8 * k, 1.8 * k), col)
         muzzle = belly or _mix(col, WHITE, 0.4)
         if tusks:

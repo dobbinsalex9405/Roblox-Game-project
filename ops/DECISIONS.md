@@ -13,6 +13,65 @@ Non-obvious choices, newest first, so a later session can trust them.
   menu. If leaderboard stats are ever added, turn it back on and start the
   side menu below it.
 
+## 2026-11-05: Creature uploads retry a flaky network (tools)
+
+- **What:** `tools/art/blender/upload.py`'s `call()` retries connection
+  failures (refused, reset, timed out) the same way it already retried
+  429/5xx answers (now with 504 added): 5 tries, waiting 2, 4, 8 and 16 s
+  between them. Anything else still stops the run at once.
+  Covered by `tools/art/tests/test_upload_retry.py`.
+- **Why:** full upload run 42096155779 for #74 stopped on a single
+  "Connection refused" from Roblox after 11 creatures (Ant through BlueJay)
+  had already been rewritten in place. Staging then held a mix of old and
+  new meshes until a full run went through.
+- **Trade-off:** if a create times out after Roblox has already taken it,
+  the retry can leave one unused palette image. That is harmless.
+- **Rule:** a failed full run is re-run in full (no `only=`) so every live
+  creature ends up on the same mesh layout.
+
+## 2026-11-05: Moving creature parts are inset a hair (Hatchery Heist)
+
+- **What:** every creature part that moves against the body (legs, wings,
+  fins, tails, heads, ears, orbits) has its mesh skin moved 0.08 of a voxel
+  inward (`voxmesh.MeshData.inset`, `describe.INSET`). Faces resting on the
+  body (a leg's top) stay put, so no slit opens at the hip.
+- **Why:** a part turning about its hinge keeps the faces whose normal lies
+  along the hinge axis in one plane. Where such a face is flush with a body
+  face (a bunny's hind foot beside its flank), the two overlapped in one
+  plane mid-swing and flickered (Alex, Nov 5, Dutch Bunny hop). Clamping the
+  swing could not fix it: any swing of a flush leg overlaps. Inset, the
+  body's face always wins; 0.08 voxel (0.008 studs) is more than the pillow
+  lift (0.035), so even the raised face squares stay behind.
+- **Guard:** `tools/art/tests/test_overlap.py` (CI) fails if any moving part
+  of any creature shares a face plane with its body (1,055 parts did before).
+- **Box budget:** walking legs are their own parts in the in-game stand-in
+  boxes too (up to six one-voxel legs), so the Common budget is 36 boxes
+  (was 30) and Uncommon 44 (was 40), in `to_config.BOX_BUDGET` and
+  `VoxelArt.spec`. Dalmatian Pup went 28 -> 31 with its four legs split out.
+
+## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
+
+- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
+  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
+  finds the rest (quadrupeds, lizards) after the build and skips any creature
+  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
+  front to back, each its own anim, hinged at the hip.
+- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
+  never opens a hole in it; small birds' folded wings are only what shows
+  outside the body.
+- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
+  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
+- **Legendary and Godly always hover** (they float in CreatureLooks), so a
+  Phoenix does not waddle in mid-air.
+- **Sideways bug legs swing about the vertical axis**, lifting as they reach
+  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
+- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
+  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
+  Python and `Walk.spec` checks the game gives the same numbers; CI checks
+  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
+- **swim and finL/finR exist before any fish** so the pond batch can add fish
+  with data only.
+
 ## 2026-11-05: Long Godlies lie along their row (Hatchery Heist)
 
 - A Godly takes three spots: an area 30 studs along the row and 10 deep.

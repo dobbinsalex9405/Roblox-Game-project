@@ -70,9 +70,10 @@ def bug(c, H, kind, col, accent, wing=None):
             for i in range(max(2, round(1.2 * k))):
                 head.put((round(sx * 0.7 * k) - (1 if sx < 0 else 0) + (sx * (i // 2)), round(-2.4 * k), round(4.4 * k) + i), accent)
         for sx in (-1, 1):
-            for ly in (-0.4 * k, 1.6 * k):
+            for i, ly in enumerate((-0.4 * k, 1.6 * k)):
                 x = round(sx * 1.0 * k) - (1 if sx < 0 else 0)
-                body.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), accent)
+                leg = _leg(c, sx, i, 2, (x + .5, round(ly) + .5, round(0.9 * k) + 1))
+                leg.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), accent)
     elif kind == 'butterfly':
         body.ell((0, 0.6 * k, 2.4 * k), (0.8 * k, 2.4 * k, 0.8 * k), accent)
         head.ell((0, -2.2 * k, 2.8 * k), (1.4 * k, 1.3 * k, 1.3 * k), accent)
@@ -103,7 +104,9 @@ def bug(c, H, kind, col, accent, wing=None):
                 head.put((round(sx * 0.5 * k) - (1 if sx < 0 else 0) + sx * (i // 2), round(-2.8 * k), round(3.9 * k) + i), INK)
         for sx in (-1, 1):
             x = round(sx * 0.5 * k) - (1 if sx < 0 else 0)
-            body.box((x, 0, 0), (x, 0, round(1.8 * k)), INK)
+            # (the coarse stand-in's body is all head and wings but these)
+            leg = _leg(c, sx, 0, 1, (x + .5, .5, round(1.8 * k) + 1)) if getattr(c, 'fine', False) else body
+            leg.box((x, 0, 0), (x, 0, round(1.8 * k)), INK)
     elif kind == 'beetle':
         shell = c.part('shell', 'static')
         shell.ell((0, 0.8 * k, 2.0 * k), (2.6 * k, 3.0 * k, 1.9 * k), col, cond=lambda x, y, z: z >= round(1.0 * k))
@@ -117,9 +120,16 @@ def bug(c, H, kind, col, accent, wing=None):
             head.put((0, round(-3.4 * k) - i // 2, round(2.2 * k) + i), accent)
             head.put((-1, round(-3.4 * k) - i // 2, round(2.2 * k) + i), accent)
         for sx in (-1, 1):
-            for ly in (-1.0 * k, 0.8 * k, 2.6 * k):
-                x = round(sx * 2.2 * k) - (1 if sx < 0 else 0)
-                body.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), INK)
+            for i, ly in enumerate((-1.0 * k, 0.8 * k, 2.6 * k)):
+                # a leg out from under the shell: a thigh from just inside
+                # the body's edge at this row (the middle pair sits where it
+                # bulges most), then down, so every leg shows the same length
+                hw = 2.2 * k * math.sqrt(max(0.0, 1 - ((ly - 0.8 * k) / (2.6 * k)) ** 2))
+                x = round(sx * (hw + 0.6 * k)) - (1 if sx < 0 else 0)
+                inner = round(sx * hw) - (1 if sx < 0 else 0) - sx
+                leg = _leg(c, sx, i, 3, (inner + .5, round(ly) + .5, round(0.9 * k) + 1))
+                leg.box((min(x, inner), round(ly), round(0.9 * k)), (max(x, inner), round(ly), round(0.9 * k)), INK)
+                leg.box((x, round(ly), 0), (x, round(ly), round(0.9 * k)), INK)
     elif kind == 'caterpillar':
         n = 5
         for i in range(n):
@@ -134,6 +144,11 @@ def bug(c, H, kind, col, accent, wing=None):
     else:
         raise ValueError(f'bug: unknown kind {kind}')
     return c
+
+
+def _leg(c, sx, i, n, hip):
+    import rig
+    return rig.leg_part(c, 'L' if sx < 0 else 'R', i, n, hip)
 
 
 def crab(c, H, col, accent):
@@ -154,9 +169,15 @@ def crab(c, H, col, accent):
         cx = sx * 3.0 * k
         body.ell((cx, -1.8 * k, 2.8 * k), (0.9 * k, 0.9 * k, 1.0 * k), col)
         body.ell((cx + sx * 0.3 * k, -2.6 * k, 3.6 * k), (0.4 * k + .3, 0.5 * k, 0.7 * k), col)
-        for ly in (-0.2 * k, 1.0 * k, 2.0 * k):
+        for i, ly in enumerate((-0.2 * k, 1.0 * k, 2.0 * k)):
             xx = round(sx * 3.0 * k) - (1 if sx < 0 else 0)
-            body.box((xx, round(ly), 0), (xx + (sx if k > 1 else 0), round(ly), round(1.2 * k)), col)
+            inner = round(sx * 2.2 * k) - (1 if sx < 0 else 0)
+            top = round(1.2 * k)
+            leg = _leg(c, sx, i, 3, (inner + .5, round(ly) + .5, top + 1))
+            # out from under the shell, then down to the sand
+            leg.box((min(xx, inner), round(ly), top), (max(xx, inner), round(ly), top), col)
+            x2 = xx + (sx if k > 1 else 0)  # two voxels wide, outward on either side
+            leg.box((min(xx, x2), round(ly), 0), (max(xx, x2), round(ly), top), col)
     blush(head, round(1.4 * k), round(2.0 * k))
     return c
 
@@ -176,12 +197,15 @@ def lizard(c, H, kind, col, accent, belly=None):
         body.paint(lambda p, cc, g: (belly, False) if p[2] < 1.6 * k else None)
     # four short legs splayed out to the sides, toes forward
     lw = max(1, round(0.7 * k))
-    for sx in (-1, 1):
-        for ly in (-0.9 * k, 2.4 * k):
-            x0 = round(sx * 1.6 * k) - (lw - 1 if sx < 0 else 0) - (1 if sx < 0 else 0)
-            body.box((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, round(1.6 * k)), col)
-            xt = x0 + sx * lw
-            body.box((xt, round(ly) - 1, 0), (xt + (sx if k >= 1.5 else 0), round(ly) + lw - 1, 0), col)
+    # Drawn on the right, then mirrored (x -> -x - 1) so both sides match.
+    for ly in (-0.9 * k, 2.4 * k):
+        x0 = round(1.6 * k)
+        xt = x0 + lw
+        boxes = (((x0, round(ly), 0), (x0 + lw - 1, round(ly) + lw - 1, round(1.6 * k))),
+                 ((xt, round(ly) - 1, 0), (xt + (1 if k >= 1.5 else 0), round(ly) + lw - 1, 0)))
+        for a, b in boxes:
+            body.box(a, b, col)
+            body.box((-b[0] - 1, a[1], a[2]), (-a[0] - 1, b[1], b[2]), col)
     # a big round head, a little wider than tall, with a short flat muzzle
     head.ell((0, -2.4 * k, 3.9 * k), (max(2.0 * k, 2.1), 1.75 * k, max(1.9 * k, 1.6)), col)  # wide enough for eyes in the small build
     head.ell((0, -3.4 * k, 3.0 * k), (1.2 * k, 1.3 * k, 1.0 * k), col)
@@ -398,7 +422,11 @@ def _rescale(parts, centre, s):
         for x in range(lo[0], hi[0]):
             for y in range(lo[1], hi[1]):
                 for z in range(max(0, lo[2]), hi[2]):
-                    p = tuple(math.floor(centre[i] + (q + .5 - centre[i]) / s[i]) for i, q in enumerate((x, y, z)))
+                    # x shrinks a hair toward the centre line so a voxel
+                    # that lands exactly on a boundary picks the same side
+                    # left and right (the creature stays mirrored).
+                    p = tuple(math.floor(centre[i] + (q + .5 - centre[i]) / s[i] * (1 - 1e-9 if i == 0 else 1))
+                              for i, q in enumerate((x, y, z)))
                     if p in src:
                         out[(x, y, z)] = src[p]
         part.v = out
@@ -415,13 +443,25 @@ def shape(c, body=(1.0, 1.0, 1.0), head=1.0):
         cy = (min(ys) + max(ys) + 1) / 2
         front0 = min(ys)
         top0 = max(p[2] for p in b.v)
+        import rig
+        # legs a body plan drew as their own parts stretch with the body,
+        # hips and all, so they stay on the ground and under it
+        # Legs a body plan drew as their own parts move with the body (each
+        # by its hip's scaled offset) but keep their shape and height:
+        # resampling a one-voxel leg would thin it away.
+        legs = [p for p in c.parts if p.name in rig.LEG_NAMES]
         _rescale([b] + [p for p in c.parts if p.name in ('shell', 'spines')], (0, cy, 0), body)
+        for p in legs:
+            dx = round(p.pivot[0] * body[0] - p.pivot[0])
+            dy = round(cy + (p.pivot[1] - cy) * body[1] - p.pivot[1])
+            p.v = {(x + dx, y + dy, z): v for (x, y, z), v in p.v.items()}
+            p.pivot = (p.pivot[0] + dx, p.pivot[1] + dy, p.pivot[2])
         # the head and tail move with the body's front, back and top
         dy_front = min(p[1] for p in b.v) - front0
         dy_back = max(p[1] for p in b.v) - max(ys)
         dz_top = max(p[2] for p in b.v) - top0
         for p in c.parts:
-            if p is b or p.name in ('shell', 'spines'):
+            if p is b or p.name in ('shell', 'spines') or p in legs:
                 continue
             dy = dy_front if p.name in HEAD_PARTS else (dy_back if p.name == 'tail' else 0)
             dz = round(dz_top * (0.5 if p.name == 'tail' else 1))
