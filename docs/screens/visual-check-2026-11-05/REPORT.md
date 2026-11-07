@@ -777,3 +777,14 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Read:** the cards are built, and the data side counts 91/91 with models. But a ViewportFrame that has been off screen, or whose tab was hidden, still has to render again when it comes back. Reopening and switching tabs don't land on drawn cards, so the acceptance bar isn't met. Persisting the built cards doesn't help, because Roblox drops a ViewportFrame's render once the frame is hidden or its parent isn't visible.
 - **Suggestion:** consider a static image instead. Render each silhouette once into an EditableImage/capture or a pre-baked thumbnail per species, so the Book shows ImageLabels. That removes ViewportFrame first-render latency entirely.
 - **Not run:** the NEW badge check, since the flick checks fail.
+
+## #79 @ 55b612f (Crayfish, Ladybug re-uploads)
+
+**PASS, plus one cross-PR warning.** Local build, desktop.
+- **Crayfish:** 10 MeshParts, 0 boxes. Every part touches its neighbour (gap 0.00), including leg2L/R and leg3L/R onto the body.
+- **Ladybug:** 9 MeshParts, 0 boxes, all gaps 0.00 (head↔body, legs→body).
+  - In-game mesh height is 1.98 studs; both creatures are scaled to the 2-stud creature ball, as every Common is. The "1.1-stud height" in the brief must be the art-space height before scaling. I can't see a separate 1.1 in game.
+- **Book:** both cards draw. The found Ladybug card shows the red-and-black textured model with its NEW badge (`79-hh-book-ladybug.jpg`).
+- **Warning (not #79's fault):** on this branch Output logs `creature meshes did not load; drawing voxel boxes reason=mesh NebulaSerpent_head missing from asset 133734762072662`.
+  - #71 re-uploaded the Serpent asset **in place** with new part names (head_1/head_2).
+  - So any build without #71's CreatureMeshes now draws the Serpent as voxel boxes. That likely includes **main and Staging until #71 merges**.
