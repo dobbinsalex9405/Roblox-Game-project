@@ -96,6 +96,7 @@ local CreatureThumbs: { [string]: number } = {
 	Hedgehog = 71383075040747,
 	Hen = 71863947876480,
 	Hippocampus = 132793447028320,
+	HurricaneRoc = 139693014930236,
 	HuskyPup = 105131027989050,
 	HydraHatchling = 92025963832395,
 	IbexKid = 110089507189627,
