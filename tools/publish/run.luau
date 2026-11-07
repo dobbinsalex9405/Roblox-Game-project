@@ -13,6 +13,7 @@ local fs = require("@lune/fs")
 local net = require("@lune/net")
 local process = require("@lune/process")
 local serde = require("@lune/serde")
+local task = require("@lune/task")
 local lib = require("./lib")
 
 local game, environment, flag = process.args[1], process.args[2], process.args[3]
@@ -60,15 +61,31 @@ if not fs.isFile(placeFile) then
 	process.exit(1)
 end
 
-local response = net.request({
-	url = lib.url(target, process.env.OPEN_CLOUD_BASE_URL),
-	method = "POST",
-	headers = {
-		["x-api-key"] = key :: string,
-		["content-type"] = "application/octet-stream",
-	},
-	body = fs.readFile(placeFile),
-})
+local body = fs.readFile(placeFile)
+local response
+for attempt = 1, lib.MAX_ATTEMPTS do
+	response = net.request({
+		url = lib.url(target, process.env.OPEN_CLOUD_BASE_URL),
+		method = "POST",
+		headers = {
+			["x-api-key"] = key :: string,
+			["content-type"] = "application/octet-stream",
+		},
+		body = body,
+	})
+	if response.ok then
+		break
+	end
+	-- Roblox answers 409 "Server is busy" while an earlier save to the same
+	-- place settles (a real-engine check, or the previous publish); 429 and
+	-- 5xx are its rate limit and outages. Wait and try again.
+	local delay = lib.retryDelay(response.statusCode, attempt)
+	if not delay then
+		break
+	end
+	print(`HTTP {response.statusCode} from Roblox; trying again in {delay} s ({attempt}/{lib.MAX_ATTEMPTS})`)
+	task.wait(delay)
+end
 
 if not response.ok then
 	-- The body is Roblox's error message; it never contains the key.
