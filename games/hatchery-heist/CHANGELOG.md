@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- 32 new Uncommon creatures can hatch, among them the Arctic Fox Kit,
+  Teacup Piglet, Pangolin, Tardigrade, Shroomback Toad and the garden
+  veggie puffs (Turnipling, Carrotling, Peapod, Cornling, Radishling).
 - The Nebula Serpent is reworked: a finer, more detailed nebula coil with
   crystal antlers, a flowing mane, whiskers and a comet tail, and four
   little worlds (a ringed planet, an ocean world, a lava world and a moon)
