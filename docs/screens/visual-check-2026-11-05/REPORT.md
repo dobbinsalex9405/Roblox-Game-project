@@ -721,3 +721,16 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Every later flick (down again after 0.8 s; up after 0.5 s): PASS.** Every row is drawn the moment it lands (`119b-hh-second-flick-down.jpg`, `119b-hh-flick-up.jpg`).
 - **Read:** building is fine. The blank comes from a ViewportFrame's first render, which only happens once it has been on screen. A first fast flick within about a second of opening still shows it.
 - **Possible fix:** on open, briefly cycle the canvas through the warm range off-screen, or keep ViewportFrames Visible with the cards at ImageTransparency 1 for one frame, so each one renders once before the player scrolls.
+
+## #119 Book @ b044b4c (warm cards hidden behind on-screen cards)
+
+**FAIL.** Desktop, Common tab.
+- **Warm cards show through.** During the first second after opening, the hidden warm-up cards stacked behind the on-screen cards are visible:
+  - their labels bleed through the cards in front, e.g. "MBasic Egg g" and doubled "Meadow Egg" (`119c-hh-open-text-bleed.jpg`, `119c-hh-immediate-flick.jpg`);
+  - many on-screen cards are still blank.
+  The front cards' background doesn't fully cover the cards behind. Text renders on top of, or through, the semi-transparent card.
+- **Flick right after opening (≈50 ms):** lands at 1400 with most cards blank, plus the same text bleed (`119c-hh-immediate-flick.jpg`).
+- **At ≈0.3 s, even unscrolled:** the top two rows still have blank cards (`119c-hh-03s-top.jpg`).
+- **At ≈1 s:** the flick lands fully drawn, and every card sits in the right slot (`119c-hh-1s-flick.jpg`).
+- **Read:** this is worse than 2c2042d in the first second, because of the visible bleed. It's the same after 1 s.
+- **Suggestions:** park warm cards off-screen inside a ClipsDescendants frame that still counts as on screen; or set the front cards' BackgroundTransparency to 0 and put warm cards at a lower ZIndex/LayoutOrder; or warm with a GroupTransparency of 1 inside a CanvasGroup.
