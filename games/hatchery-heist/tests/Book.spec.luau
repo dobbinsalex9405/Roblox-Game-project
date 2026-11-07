@@ -10,6 +10,23 @@ local describe, it, expect = t.describe, t.it, t.expect
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
 
 describe("Hatchery Book", function()
+	it("fits its window inside the screen below Roblox's top bar", function()
+		-- Studio gate (#131): on an 844x392 phone the Book was 352 px tall in
+		-- the 334 px below the 58 px top bar, its bottom 9 px off screen.
+		for _, case in { { 844, 392 }, { 1350, 672 }, { 390, 844 }, { 1920, 1080 } } do
+			local x, y = case[1], case[2]
+			local guiHeight = y - 58
+			local w, h = Book.windowSize(x, y, 58)
+			expect(w <= x - 24).toBe(true)
+			expect(w <= 760 and h <= 560).toBe(true)
+			-- Centred in the GUI area, at least 8 px clear of each edge.
+			expect((guiHeight - h) / 2 >= 8).toBe(true)
+		end
+		local w, h = Book.windowSize(1920, 1080, 58)
+		expect(w).toBe(760)
+		expect(h).toBe(560)
+	end)
+
 	it("lists every species once, by rarity then income", function()
 		local entries = Book.entries(creatures, eggs, RARITIES)
 		local seen: { [string]: boolean } = {}
@@ -95,7 +112,13 @@ describe("Hatchery Book", function()
 		expect(Book.picture("Chick", thumbs)).toBe("rbxassetid://123")
 		expect(Book.picture("Kitten", thumbs)).toBe(nil) -- 0: not uploaded
 		expect(Book.picture("Frog", thumbs)).toBe(nil) -- none: drawn live
-		local list = Book.pictures({ Chick = {}, Kitten = {}, Frog = {} }, thumbs)
+		local function entry(id: string, rarity: string): Book.Entry
+			return { speciesId = id, rarity = rarity, rank = 1, coinsPerSecond = 1, weight = 1, total = 1 }
+		end
+		local list = Book.pictures(
+			{ entry("Chick", "Common"), entry("Kitten", "Common"), entry("Frog", "Common") },
+			thumbs
+		)
 		expect(#list).toBe(1)
 		expect(list[1]).toBe("rbxassetid://123")
 		-- The generated map only names creatures the game has.
@@ -103,5 +126,26 @@ describe("Hatchery Book", function()
 			expect(creatures.species[speciesId] ~= nil or `{speciesId} is not a creature`).toBe(true)
 			expect(id > 0).toBe(true)
 		end
+	end)
+
+	it("preloads the pictures in page order, several at a time", function()
+		-- Studio gate (#125): one call for all 114 pictures left the first
+		-- open blank for 1-3 s. The Common tab, where the Book opens, loads
+		-- first, over several requests at once.
+		local entries = Book.entries(creatures, eggs, RARITIES)
+		local thumbs = {}
+		for i, e in entries do
+			thumbs[e.speciesId] = i
+		end
+		local list = Book.pictures(entries, thumbs)
+		expect(#list).toBe(#entries)
+		expect(list[1]).toBe(`rbxassetid://1`)
+		expect(entries[1].rarity).toBe("Common")
+		for i = 2, #list do
+			expect(list[i] == `rbxassetid://{i}`).toBe(true)
+		end
+		local look = require("../config/atmosphere").book
+		expect(look.preloadStreams >= 2).toBe(true)
+		expect(look.preloadBatch >= 1).toBe(true)
 	end)
 end)

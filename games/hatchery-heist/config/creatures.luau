@@ -238,6 +238,23 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
+		-- Ultra Rare: 4 from the roster
+		DustBunny = { rarity = "Ultra Rare", coinsPerSecond = 64, mountSpeed = 25, pools = { "Meadow" } },
+		IcicleBat = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 85,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Glacial",
+		},
+		LeafBat = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 66,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Nature",
+		},
+		NeonOctopus = { rarity = "Ultra Rare", coinsPerSecond = 64, mountSpeed = 25, pools = { "Moonlit" } },
 		-- Epic: 22 from the roster
 		AbyssJelly = {
 			rarity = "Epic",

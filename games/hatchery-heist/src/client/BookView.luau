@@ -21,6 +21,7 @@
 
 local Players = game:GetService("Players")
 local ContentProvider = game:GetService("ContentProvider")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -30,6 +31,8 @@ local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
 local BookGrid = require(Shared.BookGrid)
 local Layout = require(Shared.Layout)
+local PreloadQueue = require(Shared.PreloadQueue)
+local Viewport = require(Shared.Viewport)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
@@ -174,11 +177,6 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
 	local species = ctx.config.creatures.species
 	local bookConfig = ctx.config.economy.book
-	-- Every Book picture loads now, while the player looks round, so a card
-	-- shows its creature the moment it first scrolls into view.
-	task.spawn(function()
-		pcall(ContentProvider.PreloadAsync, ContentProvider, Book.pictures(species))
-	end)
 	-- How far past the view cards are drawn and kept built (config/atmosphere book).
 	local bookLook = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book
 	local overscan = bookLook.overscanRows :: number
@@ -283,10 +281,37 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function fit()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		window.Size = UDim2.fromOffset(math.min(760, screen.X - 24), math.min(560, screen.Y - 40))
+		window.Size = UDim2.fromOffset(Book.windowSize(screen.X, screen.Y, GuiService:GetGuiInset().Y))
 	end
+	-- Refit when the screen changes size (a window resized, a phone turned):
+	-- Studio gate (#125) kept a desktop-sized Book on a phone, title cut off.
+	Viewport.watch(Workspace, fit)
 
 	local entries = Book.entries(ctx.config.creatures, ctx.config.eggs, Layout.RARITIES)
+
+	-- Every Book picture loads now, while the player looks round, so a card
+	-- shows its creature the moment it first scrolls into view: in page
+	-- order (the Common tab first, as the Book opens there), several at a
+	-- time, each through an ImageLabel so it is fetched as an image. Studio
+	-- gate (#125): one call for all 114 left the first open blank for 1-3 s.
+	-- A tab the player opens jumps the queue (selectTab below).
+	local preload = PreloadQueue.new(Book.pictures(entries))
+	for _ = 1, bookLook.preloadStreams :: number do
+		task.spawn(function()
+			while true do
+				local batch: { Instance } = {}
+				for _, picture in PreloadQueue.take(preload, bookLook.preloadBatch :: number) do
+					local holder = Instance.new("ImageLabel")
+					holder.Image = picture
+					table.insert(batch, holder)
+				end
+				if #batch == 0 then
+					break
+				end
+				pcall(ContentProvider.PreloadAsync, ContentProvider, batch)
+			end
+		end)
+	end
 	local tabs: { Tab } = {}
 	local tabOf: { [string]: Tab } = {}
 	for _, entry in entries do
@@ -604,6 +629,9 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function selectTab(tab: Tab)
 		if current ~= tab then
 			releaseAll()
+			-- This tab's pictures load next (Studio gate, #134: a cold
+			-- Uncommon tab waited 3 s+ behind the Common tab's).
+			PreloadQueue.prioritize(preload, Book.pictures(tab.entries))
 		end
 		current = tab
 		shownAt = os.clock()

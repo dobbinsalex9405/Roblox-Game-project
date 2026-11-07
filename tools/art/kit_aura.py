@@ -3542,6 +3542,37 @@ def mend(c, H, col=None, col2=None):
             o |= comp
             comps.remove(comp)
 
+
+BOX_BUDGET = {'Ultra Rare': 80, 'Epic': 120}
+
+
+def fit_boxes(c, H, col=None, col2=None, a=None):
+    """The in-game boxes only (the Blender meshes are untouched): while the
+    creature is over its tier's box budget (BOX_BUDGET, or "budget"), its
+    heaviest parts are redrawn on a 2-voxel grid, then a 3-voxel grid; never
+    the head, eyes, ears or legs (kit_epicmyth._fit_budget). Put it last."""
+    if getattr(c, 'fine', False):
+        return
+    import kit_epicmyth
+    budget = (a or {}).get('budget') or BOX_BUDGET.get(c.rarity)
+    if not budget:
+        return
+    kit_epicmyth._fit_budget(c, budget)
+    head = _find(c, 'head')
+    if (a or {}).get('head') and head and head.v:
+        # a big round head (an octopus's mantle) is most of the boxes: put
+        # it on the 2-voxel grid too, and the eyes back on its front
+        from voxkit import greedy_boxes
+        if sum(len(greedy_boxes(p.v)) for p in c.parts if p.v) > budget:
+            kit_epicmyth._coarsen_part(head)
+            eyes = _find(c, 'eyes')
+            for (x, y, z) in list(eyes.v if eyes else {}):
+                ys = [q[1] for q in head.v if q[0] == x and q[2] == z]
+                if ys:
+                    v = eyes.v.pop((x, y, z))
+                    head.v.pop((x, min(ys), z), None)
+                    eyes.v[(x, min(ys), z)] = v
+
 def wing_icicles(c, H, col, col2=None):
     """Icicles hanging from the lower edge of each wing (an icicle bat's):
     tapered, two voxels thick at the root, longest in the middle of the
@@ -3737,9 +3768,19 @@ def river_stones(c, H, col, col2=None):
 
 def neon_rings(c, H, col, col2=None):
     """Glowing neon rings round each tentacle (col), evenly spaced from the
-    root to the tip."""
+    root to the tip. The in-game boxes, too coarse for rings, get one
+    glowing band on the outer part of each tentacle instead."""
     k = H / 10.0
     step = max(3, round(1.3 * k))
+    if not getattr(c, 'fine', False):
+        for part in c.parts:
+            if part.name.startswith('leg') and part.v:
+                piv = part.pivot
+                L = max(math.dist(q, piv) for q in part.v) or 1
+                for q in list(part.v):
+                    if math.dist(q, piv) > 0.6 * L:
+                        part.v[q] = (col, True)
+        return
     for part in c.parts:
         if not part.name.startswith('leg') or not part.v:
             continue
@@ -4681,6 +4722,7 @@ ACCESSORIES = {
     'round_eyes': round_eyes,
     'paws': paws,
     'ear_inner': ear_inner,
+    'fit_boxes': fit_boxes,
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
     'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'ghost_tail': ghost_tail, 'craters': craters, 'wing_icicles': wing_icicles, 'leaf_veins': leaf_veins, 'ear_tufts': ear_tufts, 'dust_motes': dust_motes, 'coin_inside': coin_inside, 'moss_top': moss_top, 'river_stones': river_stones, 'neon_rings': neon_rings, 'sleepy_eyes': sleepy_eyes, 'wisp_flame': wisp_flame, 'fox_face': fox_face, 'quartz_shards': quartz_shards, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,

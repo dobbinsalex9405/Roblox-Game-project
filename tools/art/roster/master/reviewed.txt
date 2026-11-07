@@ -69,6 +69,7 @@ Dragonfly
 Dragonling
 Duckling
 Ducktopus
+DustBunny
 DutchBunny
 Earthworm
 ElephantCalf
@@ -114,6 +115,7 @@ HurricaneRoc
 HuskyPup
 HydraHatchling
 IbexKid
+IcicleBat
 Iguana
 Inchworm
 JellybeanBeetle
@@ -127,6 +129,7 @@ Kiwi
 Koala
 Koi
 LavaDrake
+LeafBat
 Lemming
 LionCub
 Lobster
@@ -151,6 +154,7 @@ MushroomGnome
 MuskOxCalf
 Narwhal
 NebulaSerpent
+NeonOctopus
 Nuthatch
 OmegaChimera
 Opossum

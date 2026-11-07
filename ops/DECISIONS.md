@@ -2,6 +2,59 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: New creatures fit the in-game box budget with `fit_boxes` (Hatchery Heist)
+
+- **What:** a roster creature over its tier's stand-in box budget (UR 80,
+  Epic 120) adds the `fit_boxes` accessory last (`tools/art/kit_aura.py`).
+  In the in-game boxes only, it redraws the heaviest parts on a 2-voxel
+  grid, then a 3-voxel grid (`kit_epicmyth._fit_budget`), never the face
+  or legs; `"head": true` also coarsens a big round head (NeonOctopus).
+  The Blender meshes players see once loaded are untouched, so uploaded
+  models stay valid.
+- **Why:** `to_config.py` holds back any creature over budget, and three
+  of the four URs in #128 were (87 to 117 boxes).
+
+## 2026-11-07: Live creatures keep their eyes until re-uploaded (Hatchery Heist)
+
+- **What:** the eye pass (`variants.eye_contrast`: a white shine, deeper
+  ink and, if needed, a faint ring on dark faces) skips the species in
+  `variants.EYE_CONTRAST_KEEP`. Those are 11 live creatures that landed
+  after the eye pass was built (BabyKraken, BearCub, CocoaBunny, Cricket,
+  Crow, GemDrake, Lemming, Skunk, StarWhaleCalf, StormHawk, TapirCalf) and
+  Binturong, whose shine would put it 84 tris over the Uncommon budget.
+- **Why:** turning the pass on for them would change their box art and
+  pictures at once, and their meshes would no longer match the uploaded
+  models. No live creature may change without a review and an upload.
+- **How a creature leaves the list:** re-review its art with the eye pass,
+  upload its mesh (and its picture), and remove its id in the same PR.
+
+## 2026-11-07: Uploads for live creatures go up only when the PR lands next (Hatchery Heist)
+- **What:** an upload run that republishes a live creature under its
+  existing asset id (a new model version, `tools/art/blender/upload.py`) is
+  dispatched only when its PR can merge right after. Otherwise the model
+  goes up as a new asset id.
+- **Why:** a new version of an asset id reaches Staging (and Production)
+  at once, but its new palette id only arrives with the PR's
+  `CreatureMeshes.luau`. In between, players get the new mesh with the old
+  palette, which can paint the wrong colours. This happened with #96's
+  eye-pass upload of Calf, Butterfly, Monarch, Platypus and BeaverKit, made
+  while #96 waited behind other merges.
+- **How:** the verifier schedules such uploads in the upload queue next to
+  the PR's merge slot. If the PR is held, upload later (or under a new id).
+
+## 2026-11-07: Fixed hatch order is worked out per place (Hatchery Heist)
+
+- Restricted players (PolicyService: no paid random items) get a fixed
+  order. It was a smooth weighted round robin built as a whole table, one
+  entry per egg of the cycle, which a 10,000,000 egg total would make a
+  10-million entry table per egg. Now outcome i (reduced weight w) takes
+  its k-th turn at (2k + 1) / (2w) of the way round, ties to the earlier
+  outcome, and any place or wait is computed from those turns in whole
+  numbers (`Hatchery.fixedOrderOutcome` / `fixedOrderWait`). Same promise:
+  exactly w per cycle, evenly spaced, shown before purchase. The order a
+  restricted player sees can differ from the old one after this ships;
+  nothing is owed, since the counts per cycle are unchanged.
+
 ## 2026-11-07: Open Cloud saves wait out Roblox's "Server is busy" (409)
 
 - Roblox answers `409 Conflict: Save failed. Server is busy` to a place save
