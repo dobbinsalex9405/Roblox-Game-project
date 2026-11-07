@@ -2650,7 +2650,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Crayfish = {
 		assetId = 88603996749113,
-		textureId = 104225477198129,
+		textureId = 73496619405386,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 1.3,
@@ -6670,7 +6670,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Ladybug = {
 		assetId = 102641076306308,
-		textureId = 70698355651419,
+		textureId = 105653104153736,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 1.1,
