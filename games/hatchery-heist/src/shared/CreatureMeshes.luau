@@ -11718,8 +11718,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.7,
 		size = { 1.2, 1.7, 2.9 },
-		tris = 12808,
-		trisLod1 = 1348,
+		tris = 12680,
+		trisLod1 = 1304,
 		parts = {
 			{
 				name = "body",
@@ -11819,16 +11819,6 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 				},
 				lod1 = { name = "Armadillo_head_lod1", center = { 0, 1.2, -0.8 }, size = { 0.8, 0.8, 0.7 } },
-			},
-			{
-				name = "eyes",
-				anim = "blink",
-				parent = "head",
-				pivot = { 0, 0.912, -0.602 },
-				meshes = {
-					{ name = "Armadillo_eyes", center = { 0, 1.2517, -1 }, size = { 0.607, 0.1035, 0.107 } },
-				},
-				lod1 = { name = "Armadillo_eyes_lod1", center = { 0, 1.25, -1 }, size = { 0.6, 0.1, 0.1 } },
 			},
 			{
 				name = "ears",
@@ -14153,8 +14143,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.6,
 		size = { 1.2, 1.6, 3.3 },
-		tris = 14412,
-		trisLod1 = 1904,
+		tris = 14264,
+		trisLod1 = 1866,
 		parts = {
 			{
 				name = "body",
@@ -14242,20 +14232,6 @@ local CreatureMeshes: { [string]: Creature } = {
 					},
 				},
 				lod1 = { name = "Pangolin_head_lod1", center = { 0, 1.2, -0.75 }, size = { 1, 0.8, 0.8 } },
-			},
-			{
-				name = "eyes",
-				anim = "blink",
-				parent = "head",
-				pivot = { 0, 0.912, -0.602 },
-				meshes = {
-					{
-						name = "Pangolin_eyes",
-						center = { 0.05, 1.2517, -1 },
-						size = { 0.507, 0.1035, 0.107 },
-					},
-				},
-				lod1 = { name = "Pangolin_eyes_lod1", center = { 0.05, 1.25, -1 }, size = { 0.5, 0.1, 0.1 } },
 			},
 			{
 				name = "tail",

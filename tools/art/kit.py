@@ -432,7 +432,7 @@ def _rescale(parts, centre, s):
         part.v = out
 
 
-def shape(c, body=(1.0, 1.0, 1.0), head=1.0):
+def shape(c, body=(1.0, 1.0, 1.0), head=1.0, keep_eyes=False):
     """Changes a creature's proportions after its plan built it: the body
     scaled by (width, length, height) about its centre and the ground, the
     head (with its eyes, ears and crest) scaled about its centre and kept
@@ -478,8 +478,9 @@ def shape(c, body=(1.0, 1.0, 1.0), head=1.0):
         # One-voxel eyes can fall between the samples and vanish (Hen, Quail
         # at head 0.9). In the full-detail build an eye side that was lost is
         # put back: each voxel moved to its scaled spot and cut into the
-        # head's front there, as creatures.eyes() does.
-        if getattr(c, 'fine', False) and eyes0:
+        # head's front there, as creatures.eyes() does. Opt-in (roster
+        # shape "keep_eyes"), so passed creatures elsewhere don't change.
+        if keep_eyes and getattr(c, 'fine', False) and eyes0:
             for side in (lambda x: x < 0, lambda x: x >= 0):
                 if any(side(v[0]) for v in eyes.v) or not any(side(v[0]) for v in eyes0):
                     continue
