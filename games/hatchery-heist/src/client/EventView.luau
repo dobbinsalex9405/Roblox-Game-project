@@ -25,6 +25,7 @@ local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 local Shared = ReplicatedStorage.Shared
 local Events = require(Shared.Events)
 local GiantEggRules = require(Shared.GiantEgg)
+local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local ShopPlan = require(Shared.ShopPlan)
 
@@ -338,12 +339,23 @@ function EventView.start(ctx: Context.Context)
 				then `Today: {Layout.displayName(today)}  +{Layout.shortNumber(info.coinsPerSecond)}/s`
 				else "Empty today"
 		end
-		local available = catalogEntry ~= nil and catalogEntry.available == true
-		local priceText = ShopPlan.priceText(available, false, robloxPrice or listed)
+		-- An event special (Alex, Nov 7): coins while the day's event runs,
+		-- Robux the rest of the day.
+		local d = ctx.data()
+		local duringEvent = EventClock.banner().active
+		local coinPrice = if d
+			then GiantEggRules.coinPrice(config, Hatchery.incomePerSecond(d, ctx.config, ctx.perks()))
+			else nil
+		local robuxReady = catalogEntry ~= nil and catalogEntry.available == true
+		local available = if duringEvent then coinPrice ~= nil else robuxReady
+		local priceText = if duringEvent
+			then `{Layout.shortNumber(coinPrice or 0)} coins`
+			else ShopPlan.priceText(robuxReady, false, robloxPrice or listed)
 		local left = if type(endsAt) == "number" then endsAt - now else status.endsAt - now
 		if signPrice then
 			signPrice.Text = if status.bought
 				then `Yours today! New Legendary in {Events.countdown(left)}`
+				elseif duringEvent then `EVENT SPECIAL: {priceText}  ·  one a day`
 				else `{priceText}  ·  one a day  ·  new in {Events.countdown(left)}`
 		end
 		if signTitle then
@@ -359,11 +371,14 @@ function EventView.start(ctx: Context.Context)
 			-- Studio keeps an unfinished product pressable, so the server's
 			-- "Use the Test panel" notice can be checked there.
 			prompt.Enabled = not status.bought and (available or RunService:IsStudio())
+			prompt.ObjectText = if duringEvent
+				then "Event special: costs coins now"
+				else "Giant Legendary Egg"
 		end
 		cardEgg.Text = if today
 			then `Today's Giant Egg, in the middle of the map: a {Layout.displayName(today)} (Legendary). {if status.bought
 				then "You have it!"
-				else "One per player each day."}`
+				else "One per player each day. During the event it costs coins instead of Robux!"}`
 			else ""
 	end
 

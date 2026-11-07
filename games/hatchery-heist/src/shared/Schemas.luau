@@ -619,6 +619,8 @@ return function(Schema: any, Odds: any)
 				position = Schema.array(Schema.number(), { minLength = 3, maxLength = 3 }),
 				height = Schema.number({ min = 4, max = 20 }),
 				promptDistance = Schema.number({ min = 6, max = 30 }),
+				coinPriceMin = Schema.integer({ min = 1, max = 2 ^ 53 }),
+				coinPriceIncomeHours = Schema.number({ min = 0, max = 48 }),
 			}),
 		}),
 		function(v: any): (boolean, string?)

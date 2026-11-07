@@ -28,6 +28,7 @@ export type Deps = {
 }
 
 export type EventService = {
+	active: () -> boolean,
 	effects: () -> Events.Effects,
 	incomeSeconds: (from: number, to: number) -> number,
 	override: () -> Events.Override?,
@@ -53,6 +54,12 @@ function EventService.new(config: any): EventService
 			override = nil
 		end
 		return override
+	end
+
+	-- Whether one of the day's events is running now (the Giant Egg then
+	-- costs coins instead of Robux).
+	function service.active(): boolean
+		return Events.state(now(), config, service.override()).active ~= nil
 	end
 
 	function service.effects(): Events.Effects

@@ -3,11 +3,13 @@
 -- (shared/GiantEggArt, made by tools/art/world/giantegg.py), shows today's
 -- Legendary standing on top of it, and sells it.
 --
--- Buying: the egg's ProximityPrompt (and the Shop window's entry) go through
--- the core shop's normal checks plus this module's guard (once a cycle per
--- player, shared/GiantEgg), then Roblox's purchase prompt. The receipt
--- grants the Legendary that was on the egg when the prompt opened, placed
--- like a hatch, and plays the hatch reveal. Each client draws the sign over
+-- Buying (an event special, Alex Nov 7): while the day's event runs, the
+-- egg's ProximityPrompt buys it for coins (shared/GiantEgg.coinPrice) in one
+-- data update. The rest of the day it goes through the core shop's normal
+-- checks plus this module's guard (once a cycle per player, never during
+-- the event), then Roblox's purchase prompt; the receipt grants the
+-- Legendary that was on the egg when the prompt opened. Either way the
+-- Legendary is placed like a hatch and plays the hatch reveal. Each client draws the sign over
 -- the egg itself (client/EventView), because "bought today" is per player.
 --
 -- Model attributes for the clients: Species (today's Legendary) and
@@ -30,6 +32,9 @@ export type Deps = {
 	actions: any, -- Actions.Actions (giftInside)
 	events: any, -- config/events.luau
 	species: { [string]: any },
+	eventActive: () -> boolean, -- one of the day's events is running
+	incomeOf: (player: Player) -> number?, -- coins a second, nil before the save loads
+	notify: (player: Player, text: string) -> (),
 	hatched: (player: Player, speciesId: string, eggId: string, isNew: boolean) -> (),
 }
 
@@ -218,6 +223,9 @@ function GiantEgg.start(deps: Deps)
 	)
 
 	services.shop:guard(GiantEggRules.EGG_ID, function(player: Player): string?
+		if deps.eventActive() then
+			return "During the event the Giant Egg costs coins: walk up to it in the middle of the map."
+		end
 		local d = services.data:get(player)
 		local refusal = GiantEggRules.refusal(d, os.time(), events, deps.species)
 		if refusal == nil then
@@ -228,8 +236,40 @@ function GiantEgg.start(deps: Deps)
 		return refusal
 	end)
 
+	-- During the event: coins, in one data update, at the price the
+	-- player's sign shows (their income right now).
+	local function buyWithCoins(player: Player)
+		local income = deps.incomeOf(player)
+		if income == nil then
+			deps.notify(player, "Your hatchery is still loading.")
+			return
+		end
+		local price = GiantEggRules.coinPrice(events, income)
+		local granted: string? = nil
+		local isNew = false
+		local ok = deps.actions:change(player, function(d, ledger): string?
+			local speciesId, refusal =
+				GiantEggRules.buyWithCoins(d, ledger, os.time(), events, deps.species, price)
+			if speciesId == nil then
+				return refusal
+			end
+			local _, fresh = deps.actions:giftInside(player, d, ledger, speciesId, GiantEggRules.EGG_ID)
+			granted, isNew = speciesId, fresh
+			return nil
+		end)
+		if ok and granted then
+			local speciesId = granted :: string
+			services.analytics:custom(player, "GiantEgg:BoughtCoins", 1, { speciesId })
+			deps.hatched(player, speciesId, GiantEggRules.EGG_ID, isNew)
+		end
+	end
+
 	prompt.Triggered:Connect(function(player: Player)
-		services.shop:prompt(player, "product", GiantEggRules.EGG_ID, GiantEgg.SOURCE)
+		if deps.eventActive() then
+			buyWithCoins(player)
+		else
+			services.shop:prompt(player, "product", GiantEggRules.EGG_ID, GiantEgg.SOURCE)
+		end
 	end)
 
 	-- Studio test panel: buy today's egg again.

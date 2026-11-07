@@ -415,6 +415,11 @@ net:on(Remotes["HH:Dismount"], function(player: Player)
 	ready:dismount(player)
 end)
 
+local function incomeOf(player: Player): number?
+	local d = services.data:get(player)
+	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
+end
+
 -- Timed events and the Giant Legendary Egg. The egg's product must be
 -- registered before the shop lists it (Shop.register).
 events.start({
@@ -431,16 +436,15 @@ GiantEgg.start({
 	actions = ready,
 	events = Config.get("events"),
 	species = config.creatures.species,
+	eventActive = events.active,
+	incomeOf = incomeOf,
+	notify = notify,
 	hatched = function(player: Player, speciesId: string, eggId: string, isNew: boolean)
 		fire(Remotes["HH:Hatched"], player, speciesId, eggId, isNew)
 	end,
 })
 
 local Shop = require(script.Shop)
-local function incomeOf(player: Player): number?
-	local d = services.data:get(player)
-	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
-end
 Shop.register(services, Config, ids, incomeOf)
 -- The shop's coin packs scale with income: resend a player's catalog when
 -- one of their pack amounts changes.

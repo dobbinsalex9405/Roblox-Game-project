@@ -33,9 +33,16 @@ hatching rarity". Read as two features:
   same two days running. The purchase grants inside the receipt's data
   update (exactly once), the server refuses a second one per cycle before
   prompting, and the creature is placed like a hatch.
-- **Price: 199 Robux, not final.** The economy thread's pricing proposal is
-  with Alex; the product id stays 0 (never sold) until it is created on
-  Roblox, and the laptop should not create it until that price is approved.
+- **An event special (Alex, 09:05Z Nov 7): coins during the event, 299
+  Robux outside it.** While the day's event runs, the egg's prompt buys it
+  for coins: the larger of 250M and 6 hours of the buyer's income right now
+  (economy thread's proposal; `coinPriceMin` and `coinPriceIncomeHours` in
+  config/events.luau), in one data update. The rest of the day it is the
+  299 Robux product, and the server refuses the Robux prompt during the
+  event. Still one per player per cycle either way. 299 is a new ladder
+  rung ("Premium", tools/pricing/lib.luau). The product id stays 0 (never
+  sold) until it is created on Roblox, which waits for Alex's approval of
+  the Robux list.
 - **Prompt key G** (gamepad DPadUp): E, F and the other keys were taken.
 - Lucky Hatch uses `Odds.setBoosts`, which replaces a player's whole boost
   list per egg; a paid Luck Boost added later must join the same list.
@@ -43,7 +50,7 @@ hatching rarity". Read as two features:
   Feedback, so it never covers the HUD, the side menu or a window's X
   (the player's-eye audit caught the first top-right spot doing both).
 - Telemetry: `Event:Seen` (once per player per event, with its kind),
-  `Event:EggBought` (kind, egg), `GiantEgg:Prompted`, `GiantEgg:Bought`.
+  `Event:EggBought` (kind, egg), `GiantEgg:Prompted`, `GiantEgg:Bought` (Robux), `GiantEgg:BoughtCoins`.
 
 ## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
 

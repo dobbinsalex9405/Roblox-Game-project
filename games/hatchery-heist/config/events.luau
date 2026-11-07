@@ -74,5 +74,12 @@ return {
 		-- Studs tall, about four times a market egg.
 		height = 11,
 		promptDistance = 16,
+		-- Alex, Nov 7: an event special. While the day's event runs it
+		-- costs coins instead of Robux (outside it, the Robux price in
+		-- monetization.luau): the larger of coinPriceMin and
+		-- coinPriceIncomeHours of the buyer's income right now, so it is
+		-- a large sum at every stage (economy thread's proposal, section 5).
+		coinPriceMin = 250_000_000,
+		coinPriceIncomeHours = 6,
 	},
 }

@@ -252,8 +252,11 @@ Rules in `src/shared/Events.luau` and `src/shared/GiantEgg.luau`, numbers in
 - **Giant Legendary Egg** (`src/server/GiantEgg.luau`, art from
   `tools/art/world/giantegg.py`): a big gold egg on a plinth in the middle
   of the map with today's Legendary standing on top. A sign shows the
-  Legendary, its income, the price and the time to the next one. Its Buy
-  prompt (G / DPadUp) sells product `GiantEgg` once per player per day;
+  Legendary, its income, the price and the time to the next one. It is an
+  event special: while the day's event runs its Buy prompt (G / DPadUp)
+  sells it for coins (the larger of `coinPriceMin` and
+  `coinPriceIncomeHours` of the buyer's income), the rest of the day for
+  product `GiantEgg` (299 Robux). Once per player per day either way;
   the buyer gets that Legendary, placed like a hatch, with the hatch
   reveal. After buying, the sign says "Yours today" and the prompt turns
   off until the next day. Saves keep `giantEgg = { lastCycle, bought }`.

@@ -2,8 +2,10 @@
 -- The Giant Legendary Egg's rules, as pure functions over saved data
 -- (Alex, Nov 7 2026). It stands on the Golden Nest all day; each event cycle
 -- (config/events.luau) it holds one named Legendary (Events.giantSpecies),
--- and each player can buy it once a cycle for Robux. What it hatches is shown
--- before purchase, so nothing about it is random.
+-- and each player can buy it once a cycle. It is an event special (Alex,
+-- Nov 7): while the day's event runs it costs coins (`coinPrice`), the rest
+-- of the day Robux. What it hatches is shown before purchase, so nothing
+-- about it is random.
 --
 -- The server checks `refusal` before opening Roblox's prompt
 -- (src/server/GiantEgg.luau) and `record`s the purchase in the receipt's own
@@ -11,6 +13,7 @@
 -- prompts raced): money taken is never refused.
 
 local Events = require("./Events")
+local Numbers = require("./Numbers")
 
 export type Data = { [string]: any }
 
@@ -49,6 +52,38 @@ function GiantEgg.refusal(d: Data?, now: number, events: any, species: { [string
 		return `You have today's Giant Egg. A new Legendary arrives in {Events.countdown(status.endsAt - now)}.`
 	end
 	return nil
+end
+
+-- Its coin price during the event for a player earning `perSecond` coins
+-- a second: the larger of the floor and that many hours of their income.
+function GiantEgg.coinPrice(events: any, perSecond: number): number
+	local egg = events.giantEgg
+	local fromIncome = math.ceil(math.max(perSecond, 0) * egg.coinPriceIncomeHours * 3600)
+	return math.max(egg.coinPriceMin, fromIncome)
+end
+
+-- Buys today's egg with coins, inside a data update: checks it can be
+-- bought and afforded, takes `price` coins and records it. Returns today's
+-- Legendary, or nil and why not.
+function GiantEgg.buyWithCoins(
+	d: Data,
+	ledger: any,
+	now: number,
+	events: any,
+	species: { [string]: any },
+	price: number
+): (string?, string?)
+	local refusal = GiantEgg.refusal(d, now, events, species)
+	if refusal then
+		return nil, refusal
+	end
+	if ledger:balance("coins") < price then
+		return nil, `The Giant Egg costs {Numbers.short(price)} coins during the event.`
+	end
+	local status = GiantEgg.status(d, now, events, species)
+	ledger:spend("coins", price, `Shop:{GiantEgg.EGG_ID}`)
+	GiantEgg.record(d, status.cycle)
+	return status.species, nil
 end
 
 -- Notes a purchase for cycle `cycle` (inside the receipt's data update).

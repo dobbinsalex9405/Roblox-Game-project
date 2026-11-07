@@ -142,6 +142,58 @@ describe("Giant Egg", function()
 		expect(next.species ~= status.species).toBe(true)
 	end)
 
+	it("prices it in coins for the event: the floor, or hours of income when that is more", function()
+		local egg = eventsConfig.giantEgg
+		expect(GiantEgg.coinPrice(eventsConfig, 0)).toBe(egg.coinPriceMin)
+		local rich = egg.coinPriceMin -- coins a second, far above the floor's rate
+		expect(GiantEgg.coinPrice(eventsConfig, rich)).toBe(rich * egg.coinPriceIncomeHours * 3600)
+	end)
+
+	it("sells today's Legendary for coins during the event, once a cycle", function()
+		local h = Harness.new()
+		local player = Fakes.player(47)
+		h.join(player)
+		local now = h.clock.now()
+		local price = GiantEgg.coinPrice(eventsConfig, 0)
+		local function buy(): (string?, string?)
+			local got: string?, why: string? = nil, nil
+			h.data:update(player, function(data)
+				local ledger = h.economy:ledger(player, data)
+				got, why =
+					GiantEgg.buyWithCoins(data, ledger, now, eventsConfig, config.creatures.species, price)
+				h.economy:commit(ledger)
+			end)
+			return got, why
+		end
+		-- Short of coins: refused, nothing taken, nothing recorded.
+		local poor = h.get(player).coins
+		local got, why = buy()
+		expect(got).toBeNil()
+		expect(why :: string).toContain("coins during the event")
+		expect(h.get(player).coins).toBe(poor)
+		expect(h.get(player).giantEgg.bought).toBe(0)
+		-- With enough: today's Legendary, the price taken, the cycle recorded.
+		h.data:update(player, function(data)
+			data.coins += price
+		end)
+		local before = h.get(player).coins
+		got, why = buy()
+		local status = GiantEgg.status(h.get(player), now, eventsConfig, config.creatures.species)
+		expect(why).toBeNil()
+		expect(got).toBe(status.species)
+		expect(before - h.get(player).coins).toBe(price)
+		expect(status.bought).toBe(true)
+		-- A second one the same cycle is refused and costs nothing.
+		h.data:update(player, function(data)
+			data.coins += price
+		end)
+		before = h.get(player).coins
+		got, why = buy()
+		expect(got).toBeNil()
+		expect(why :: string).toContain("You have today's Giant Egg")
+		expect(h.get(player).coins).toBe(before)
+	end)
+
 	it("refuses while the save is loading and keeps old saves working", function()
 		local now = 1_800_000_000
 		expect(GiantEgg.refusal(nil, now, eventsConfig, config.creatures.species)).toContain("loading")

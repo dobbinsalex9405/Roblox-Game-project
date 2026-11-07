@@ -109,12 +109,12 @@ return {
 				robux = 49,
 				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
 			},
-			-- Price not final: the economy thread folds it into the pricing
-			-- proposal Alex approves (ops/DECISIONS.md, Nov 7).
+			-- Alex, Nov 7: 299 Robux outside the daily event; during the event
+			-- it costs coins instead (config/events.luau giantEgg.coinPrice).
 			GiantEgg = {
 				name = "Giant Legendary Egg",
-				robux = 199,
-				description = "Hatches the Legendary shown on today's Giant Egg in the middle of the map. One per player each day, and a new Legendary every day.",
+				robux = 299,
+				description = "Hatches the Legendary shown on today's Giant Egg in the middle of the map. One per player each day, and a new Legendary every day. During the daily event it costs coins instead.",
 			},
 		},
 	},
