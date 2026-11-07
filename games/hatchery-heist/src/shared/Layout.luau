@@ -1,8 +1,9 @@
 --!strict
 -- Where everything sits in the grey-box map: 8 bases in a ring around a
--- shared yard. Positions inside a base are in the base's own space, where -Z
--- faces the yard. The server builds from these numbers and the client renders
--- the conveyor from them, so both always agree.
+-- shared yard with the Egg Market in the middle. Positions inside a base are
+-- in the base's own space, where -Z faces the yard. The server builds from
+-- these numbers and the client renders the market's eggs from them, so both
+-- always agree.
 
 local Numbers = require("./Numbers")
 local Geometry = require("./Geometry")
@@ -23,13 +24,8 @@ Layout.FLOOR_WORLD_TOP = Layout.FLOOR_TOP + Layout.PLOT_Y -- the floor's top in 
 Layout.INCUBATOR_COLUMNS = 7
 Layout.INCUBATOR_POSITIONS = 14 -- economy.incubators.maxSlots + passBonusSlots
 
--- The belt runs along the front, from the left (-X) to the right (+X).
-Layout.BELT_START = Vector3.new(-26, 2.5, -26)
-Layout.BELT_END = Vector3.new(26, 2.5, -26)
-
 Layout.COLLECT_PAD = Vector3.new(27, 1.2, -8)
 Layout.REBIRTH_STAND = Vector3.new(27, 4, 8)
-Layout.ODDS_BOARD = Vector3.new(0, 13, -19) -- centre of a 30 x 12 board
 Layout.SIGN = Vector3.new(0, 9, 30)
 Layout.SPAWN = Vector3.new(0, 4, 24)
 
@@ -80,9 +76,54 @@ function Layout.floorTop(floor: number): number
 	return Layout.FLOOR_TOP + (floor - 1) * Geometry.FLOOR_HEIGHT
 end
 
--- A point along the belt, `progress` from 0 (start) to 1 (end).
-function Layout.beltPoint(progress: number): Vector3
-	return Layout.BELT_START:Lerp(Layout.BELT_END, math.clamp(progress, 0, 1))
+-- The Egg Market in the middle of the map (world space, around the Golden
+-- Nest at the origin): a round belt of two lanes, lane 1 inside and lane 2
+-- outside, turning opposite ways so every base sees eggs coming both ways.
+-- Eggs appear at MARKET_START, between bases 1 and 2, and ride once round.
+Layout.MARKET_LANES = { 22, 27.5 } -- each lane's centreline radius
+Layout.MARKET_SLAT_Y = 0.9 -- the slats' underside (the rails' anchor height)
+Layout.MARKET_SLAT_TOP = 1.3 -- where pedestals stand
+Layout.MARKET_START = math.pi / 8
+Layout.MARKET_WIDTH = 3.2 -- a lane's slats, across
+
+-- The angle round the market of a lane at `progress` (0 to 1).
+function Layout.marketAngle(lane: number, progress: number): number
+	local turn = math.clamp(progress, 0, 1) * 2 * math.pi
+	return Layout.MARKET_START + (if lane == 1 then -turn else turn)
+end
+
+-- Where on the market an egg at `progress` along `lane` stands (the slats'
+-- top), facing the way it travels.
+function Layout.marketFrame(lane: number, progress: number): CFrame
+	local radius = Layout.MARKET_LANES[lane] or Layout.MARKET_LANES[1]
+	local a = Layout.marketAngle(lane, progress)
+	local outward = Vector3.new(math.cos(a), 0, math.sin(a))
+	local position = outward * radius + Vector3.new(0, Layout.MARKET_SLAT_TOP, 0)
+	-- Travel direction: lane 1's angle falls, lane 2's rises.
+	local along = if lane == 1
+		then Vector3.new(math.sin(a), 0, -math.cos(a))
+		else Vector3.new(-math.sin(a), 0, math.cos(a))
+	return CFrame.lookAt(position, position + along)
+end
+
+-- The point of the market's outer edge that faces base `index`: where the
+-- guide's arrow leads a new player.
+local function stopRadius(): number
+	return Layout.MARKET_LANES[#Layout.MARKET_LANES] + Layout.MARKET_WIDTH / 2 + 1.5
+end
+
+function Layout.marketStop(index: number): Vector3
+	local angle = (index - 1) / Layout.PLOTS * 2 * math.pi
+	return Vector3.new(math.cos(angle), 0, math.sin(angle)) * stopRadius() + Vector3.new(0, 1.5, 0)
+end
+
+-- The odds sign at each market stop (Geometry.MARKET_SIGN): its face, whose
+-- front (-Z) is the side with the odds.
+function Layout.marketSign(index: number): CFrame
+	local sign = Geometry.MARKET_SIGN
+	local cx, cz, fx, fz = Geometry.marketSign(index)
+	local centre = Vector3.new(cx, sign.bottom + sign.height / 2, cz)
+	return CFrame.lookAt(centre, centre + Vector3.new(fx, 0, fz))
 end
 
 -- The seven tiers, lowest first, and the studio's rarity colours (the voxel
@@ -127,6 +168,13 @@ end
 function Layout.raritySize(rarity: string): number
 	return RARITY_SIZES[rarity] or RARITY_SIZES.Common
 end
+
+-- A creature too long for a spot's 10-stud depth lies along its floor's
+-- row (Walk.lie): a Godly takes three spots, 30 studs. Only one longer than
+-- its spots' row less ROW_MARGIN studs is scaled down evenly to fit
+-- (ArtScale.drawScale), so the Clockwork Leviathan keeps its Godly height.
+-- Ridden or carried, the cap scales with the creature's size.
+Layout.ROW_MARGIN = 2
 
 -- A ridden creature is one stud taller than on its pad, up to 6 studs, so a
 -- Legendary still fits through the yard and its rider stays on screen.

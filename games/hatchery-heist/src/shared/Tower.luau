@@ -10,6 +10,7 @@
 -- tests check every rule.
 
 local Geometry = require("./Geometry")
+local Numbers = require("./Numbers")
 
 export type Data = { [string]: any }
 
@@ -304,6 +305,23 @@ function Tower.nextUpgradePrice(d: Data, floor: number, economy: any): number?
 	return math.floor(t.floorPrices[floor - 1] * share + 0.5)
 end
 
+-- What the Tower menu shows, as one string: floors built, each floor's
+-- upgrades, and which Build / Upgrade buttons the player can afford. The
+-- menu redraws only when this changes, so a rising coin count does not
+-- rebuild a button while it is being pressed.
+function Tower.menuKey(d: Data, economy: any): string
+	local owned = Tower.owned(d)
+	local coins = d.coins or 0
+	local parts = { tostring(owned) }
+	for floor = 2, owned do
+		local price = Tower.nextUpgradePrice(d, floor, economy)
+		table.insert(parts, `{Tower.upgrades(d, floor)}{if price and coins >= price then "+" else ""}`)
+	end
+	local build = Tower.nextFloorPrice(d, economy)
+	table.insert(parts, if build and coins >= build then "B+" else "B")
+	return table.concat(parts, ",")
+end
+
 function Tower.upgradeFloor(d: Data, ledger: Ledger, floor: number, economy: any): (boolean, string?)
 	if floor < 2 or floor > Tower.owned(d) then
 		return false, "You can upgrade a floor you own above the ground floor."
@@ -324,6 +342,11 @@ function Tower.upgradeFloor(d: Data, ledger: Ledger, floor: number, economy: any
 	end
 	d.floorUpgrades[floor] = Tower.upgrades(d, floor) + 1
 	return true, nil
+end
+
+-- The label over the next floor to buy.
+function Tower.floorLabel(floor: number, price: number): string
+	return `Floor {floor}: {Numbers.short(price)} coins`
 end
 
 return Tower
