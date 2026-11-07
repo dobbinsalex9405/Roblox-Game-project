@@ -26074,8 +26074,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	HurricaneRoc = {
-		assetId = 95434468290256,
-		textureId = 88709286061047,
+		assetId = 0,
+		textureId = 0,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.4375,
