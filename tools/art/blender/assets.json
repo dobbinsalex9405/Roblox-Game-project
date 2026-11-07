@@ -90,6 +90,12 @@
    "textureType": "Image",
    "version": "4"
   },
+  "Bluebird": {
+   "assetId": 104673549008614,
+   "textureId": 104396740017969,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Boarlet": {
    "assetId": 109581812944227,
    "textureId": 86521684991310,
@@ -185,6 +191,12 @@
    "textureId": 105443136560562,
    "textureType": "Image",
    "version": "3"
+  },
+  "Chick": {
+   "assetId": 80751929611771,
+   "textureId": 127649589839229,
+   "textureType": "Image",
+   "version": "1"
   },
   "Chickadee": {
    "assetId": 100182228365404,
@@ -390,6 +402,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "Fawn": {
+   "assetId": 113596293473499,
+   "textureId": 118460581402838,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Fennec": {
    "assetId": 106352067459997,
    "textureId": 107158601424553,
@@ -411,6 +429,12 @@
   "Fluffernut": {
    "assetId": 71247469890282,
    "textureId": 89511129768460,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Foal": {
+   "assetId": 90254285506015,
+   "textureId": 82744581532277,
    "textureType": "Image",
    "version": "1"
   },
@@ -471,6 +495,12 @@
   "GingerbreadGolem": {
    "assetId": 100426625450119,
    "textureId": 130316663817144,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GoatKid": {
+   "assetId": 87352906557513,
+   "textureId": 124842260002469,
    "textureType": "Image",
    "version": "1"
   },
@@ -545,6 +575,12 @@
    "textureId": 101140083203407,
    "textureType": "Image",
    "version": "5"
+  },
+  "Hen": {
+   "assetId": 71916816543511,
+   "textureId": 123683835098672,
+   "textureType": "Image",
+   "version": "1"
   },
   "HermitCrab": {
    "assetId": 129013331559648,
@@ -666,6 +702,12 @@
    "textureType": "Image",
    "version": "6"
   },
+  "Lamb": {
+   "assetId": 110103287794980,
+   "textureId": 97484786655317,
+   "textureType": "Image",
+   "version": "1"
+  },
   "LeafAnt": {
    "assetId": 104811792725794,
    "textureId": 95531773224890,
@@ -768,6 +810,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "Mole": {
+   "assetId": 100205482965131,
+   "textureId": 78538416741642,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Monarch": {
    "assetId": 102542582315730,
    "textureId": 79780491290101,
@@ -822,6 +870,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "OtterPup": {
+   "assetId": 120153468771217,
+   "textureId": 101975156380498,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Owlet": {
    "assetId": 127514852994147,
    "textureId": 139903809045735,
@@ -843,6 +897,12 @@
   "Pangolin": {
    "assetId": 124082975743891,
    "textureId": 132047878784485,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Parakeet": {
+   "assetId": 115784346324572,
+   "textureId": 121646818494631,
    "textureType": "Image",
    "version": "1"
   },
@@ -1019,6 +1079,12 @@
    "textureId": 120019182370251,
    "textureType": "Image",
    "version": "3"
+  },
+  "Robin": {
+   "assetId": 139576980683777,
+   "textureId": 129451101234863,
+   "textureType": "Image",
+   "version": "1"
   },
   "Rooster": {
    "assetId": 97230110358160,
