@@ -3512,10 +3512,278 @@ def mend(c, H, col=None, col2=None):
             o |= comp
             comps.remove(comp)
 
+def wing_icicles(c, H, col, col2=None):
+    """Icicles hanging from the lower edge of each wing (an icicle bat's):
+    tapered, two voxels thick at the root, longest in the middle of the
+    edge, with glowing pale tips (col2)."""
+    k = H / 10.0
+    col2 = col2 or _light(col, 0.6)
+    for name in ('wingR', 'wingL'):
+        w = _find(c, name)
+        if not w or not w.v:
+            continue
+        side = 1 if name.endswith('R') else -1
+        low = {}
+        for (x, y, z) in w.v:
+            if (x, y) not in low or z < low[(x, y)][2]:
+                low[(x, y)] = (x, y, z)
+        xs = sorted({x for x, _ in low}, key=lambda x: x * side)
+        if len(xs) < 3:
+            continue
+        span = len(xs)
+        step = max(2, round(0.9 * k))
+        for i in range(1, span - 1, step):
+            x = xs[i]
+            cols = [low[(xx, yy)] for (xx, yy) in low if xx == x]
+            root = min(cols, key=lambda q: q[2])
+            t = i / max(1, span - 1)
+            L = max(2, round((0.6 + 1.2 * math.sin(math.pi * t)) * k * (0.75 if _hash(i, 5) % 2 else 1.0)))
+            for d in range(1, L + 1):
+                g = d > L * 0.6
+                cc = col2 if g else col
+                w.put((x, root[1], root[2] - d), cc, g)
+                if d <= L * 0.4:
+                    w.put((x - side, root[1], root[2] - d), cc, g)
+
+
+def leaf_veins(c, H, col, col2=None):
+    """Leaf wings: a darker midrib (col) runs from the wing's root out to its
+    tip, with side veins angling back from it, and the trailing edge is cut
+    into a soft serrated leaf margin (col2, a lighter edge)."""
+    k = H / 10.0
+    col2 = col2 or None
+    for name in ('wingR', 'wingL'):
+        w = _find(c, name)
+        if not w or not w.v:
+            continue
+        side = 1 if name.endswith('R') else -1
+        front = min(q[1] for q in w.v)
+        face = [q for q in w.v if q[1] == front]
+        if not face:
+            continue
+        root = min(face, key=lambda q: q[0] * side)
+        tip = max(face, key=lambda q: (q[0] * side, q[2]))
+        zs = sorted(q[2] for q in face)
+        zmid = zs[len(zs) // 2]
+        a = (root[0], zmid)
+        b = (tip[0], tip[2])
+        n = max(2, abs(b[0] - a[0]))
+        rib = set()
+        for i in range(n + 1):
+            t = i / n
+            x = round(a[0] + (b[0] - a[0]) * t)
+            z = round(a[1] + (b[1] - a[1]) * t)
+            rib.add((x, z))
+        sp = max(3, round(1.4 * k))
+        for i, (x, z) in enumerate(sorted(rib, key=lambda q: q[0] * side)):
+            if i and i % sp == 0:
+                for d in range(1, max(2, round(1.3 * k))):
+                    for sz in (1, -1):
+                        rib.add((x - side * d, z + sz * d))
+        for (x, z) in rib:
+            for y in range(front, front + 3):
+                if (x, y, z) in w.v and not w.v[(x, y, z)][1]:
+                    w.v[(x, y, z)] = (col, False)
+                    break
+        if col2:
+            for q in list(w.v):
+                below = (q[0], q[1], q[2] - 1)
+                if below not in w.v and _hash(q[0], 13) % 3 == 0:
+                    w.v[q] = (col2, False)
+
+
+def ear_tufts(c, H, col, col2=None):
+    """Two fluffy tufts standing up from the top of the head like little
+    ears (a dust bunny's), each a soft ball with a pointed top."""
+    k = H / 10.0
+    head = head_of(c)
+    if not head or not head.v:
+        return
+    zt = max(q[2] for q in head.v)
+    top = [q for q in head.v if q[2] >= zt - 1]
+    yc = sum(q[1] for q in top) / len(top)
+    xw = max(abs(q[0] + .5) for q in head.v)
+    col2 = col2 or col
+    for sx in (1, -1):
+        x = sx * 0.45 * xw - (0.5 if sx < 0 else 0)
+        head.ell((x + 0.5, yc + 0.5, zt + 0.4 * k), (0.75 * k, 0.75 * k, 0.75 * k), col)
+        for d in range(max(2, round(0.9 * k))):
+            r = max(0.0, 0.5 * k * (1 - d / (0.9 * k + 1)))
+            head.ell((x + 0.5, yc + 0.5, zt + 0.9 * k + d), (r + .3, r + .3, .5), col2)
+
+
+def dust_motes(c, H, col, col2=None):
+    """A few soft glowing dust motes drifting round the body (orbit: they
+    turn slowly in place, clear of the creature)."""
+    k = H / 10.0
+    solid = set()
+    for p in c.parts:
+        solid |= set(p.v)
+    xs = [q[0] for q in solid]; zs = [q[2] for q in solid]; ys = [q[1] for q in solid]
+    R = (max(xs) - min(xs)) / 2 + 1.2 * k
+    zc = (min(zs) + max(zs)) / 2
+    yc = (min(ys) + max(ys)) / 2
+    part = c.part('motes', 'orbit', (0, yc, zc))
+    col2 = col2 or _light(col, 0.5)
+    for i in range(6):
+        a = i * math.pi / 3 + 0.4
+        z = zc + (0.35 if i % 2 else -0.15) * (max(zs) - min(zs))
+        p = (R * math.cos(a), yc + R * math.sin(a), z)
+        r = (0.45 if i % 3 else 0.6) * k
+        part.ell(p, (r, r, r), col2 if i % 2 else col, True)
+
+
+def coin_inside(c, H, col, col2=None):
+    """A gold coin floating inside a jelly body, seen through the front: a
+    glowing disc (col) with a darker rim and a stamped mark (col2) set into
+    the front of the body, below the face."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    col2 = col2 or _dark(col, 0.3)
+    zs = sorted(q[2] for q in body.v)
+    zc = zs[len(zs) * 9 // 20]
+    r = max(1.6, 1.0 * k)
+    # the front-most part at that height carries it (a puff's head sits in front of its body)
+    head = head_of(c)
+    if head and head.v and any(abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1 for q in head.v):
+        hy = min(q[1] for q in head.v if abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1)
+        by = min((q[1] for q in body.v if abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1), default=hy + 1)
+        if hy < by:
+            body = head
+    yf = min(q[1] for q in body.v if abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1)
+    for x in range(-math.ceil(r) - 1, math.ceil(r) + 1):
+        for z in range(math.floor(zc - r) - 1, math.ceil(zc + r) + 1):
+            d = math.hypot(x + .5, z + .5 - zc)
+            if d > r:
+                continue
+            q = next(((x, y, z) for y in range(yf - 2, yf + 6) if (x, y, z) in body.v), None)
+            if not q:
+                continue
+            rim = d > r - 1.0
+            mark = abs(x + .5) < 0.6 and abs(z + .5 - zc) < r * 0.55
+            body.v[q] = (col2, True) if (rim or mark) else (col, True)
+
+
+def moss_top(c, H, col, col2=None):
+    """Moss on every upward face: the tops of the shoulders, head and arms
+    turn mossy green (col), with a few lighter sprigs (col2) poking up."""
+    k = H / 10.0
+    col2 = col2 or _light(col, 0.3)
+    for part in c.parts:
+        if part.name in ('eyes',) or not part.v:
+            continue
+        for q in list(part.v):
+            if part.v[q][1]:
+                continue
+            if (q[0], q[1], q[2] + 1) not in part.v and _hash(q[0] // 2, q[1] // 2, 29) % 5 < 3:
+                part.v[q] = (col, False)
+                if _hash(*q, 31) % 23 == 0:
+                    part.put((q[0], q[1], q[2] + 1), col2)
+
+
+def river_stones(c, H, col, col2=None):
+    """Smooth river stones: the body, head and legs are patched into rounded
+    pebbles in three greys (col, col2 and a pale one), so the creature reads
+    as a stack of stones rather than one block."""
+    if not getattr(c, 'fine', False):
+        return
+    k = H / 10.0
+    col2 = col2 or _dark(col, 0.18)
+    pale = _light(col, 0.25)
+    s = max(3, round(1.6 * k))
+    for part in c.parts:
+        if part.name in ('eyes',) or not part.v:
+            continue
+
+        def stone(p, cc, g):
+            if g or cc in (INK, WHITE):
+                return None
+            cell = ((p[0] + 999) // s, (p[1] + 999) // s, (p[2] + 999 + ((p[0] // s) % 2) * (s // 2)) // s)
+            return ((col, False), (col2, False), (pale, False))[_hash(*cell, 47) % 3]
+        part.paint(stone)
+
+
+def neon_rings(c, H, col, col2=None):
+    """Glowing neon rings round each tentacle (col), evenly spaced from the
+    root to the tip."""
+    k = H / 10.0
+    step = max(3, round(1.3 * k))
+    for part in c.parts:
+        if not part.name.startswith('leg') or not part.v:
+            continue
+        piv = part.pivot
+        far = max(part.v, key=lambda q: math.dist(q, piv))
+        L = math.dist(far, piv) or 1
+        for q in list(part.v):
+            d = math.dist(q, piv)
+            if int(d) % step == 0 and d > 1.5:
+                part.v[q] = (col, True)
+
+
+def wisp_flame(c, H, col, col2=None):
+    """A will-o'-wisp's flame: the top of the orb draws up into three
+    flame tongues leaning back (col at the root to col2 at the tips, the
+    upper half glowing), and the orb shades from a deep base to col on top."""
+    k = H / 10.0
+    col2 = col2 or _light(col, 0.6)
+    body = _find(c, 'body')
+    head = head_of(c)
+    for part in (body, head):
+        if not part or not part.v:
+            continue
+        zs = [p[2] for p in part.v]
+        z0, z1 = min(zs), max(zs)
+        for q, (cc, g) in list(part.v.items()):
+            if sum(cc) < 200 or cc in (WHITE,):
+                continue
+            t = (q[2] - z0) / max(1, z1 - z0)
+            part.v[q] = (_mix(_dark(col, 0.3), col, min(1, t * 1.4)), False)
+    y, zt = _crown(c)
+    part = c.part('flame', 'glow')
+    tongue(part, (0, y + 0.2 * k, zt - 1.2 * k), 3.6 * k, 1.5 * k, col, col2, lean=0.3, glow=False)
+    for sx in (1, -1):
+        tongue(part, (sx * 1.1 * k, y + 0.6 * k, zt - 1.4 * k), 2.3 * k, 0.9 * k, col, col2, lean=0.35, side=sx * 0.12, glow=False)
+    # only the flame's upper half glows, so it reads blue, not white
+    zf = [q[2] for q in part.v]
+    zmid = (min(zf) + max(zf)) / 2
+    for q, (cc, g) in list(part.v.items()):
+        part.v[q] = (cc, q[2] > zmid)
+
+
+def sleepy_eyes(c, H, col=None, col2=None):
+    """Sleepy eyes: each eye becomes a dark lid line curving down at the
+    ends (a contented, half-asleep look)."""
+    e = _find(c, 'eyes')
+    if not e or not e.v:
+        return
+    ink = _hexa(col, INK)
+    old = dict(e.v)
+    e.v = {}
+    pts = [q for q in old if q[0] >= 0] or [(_mx(q[0]), q[1], q[2]) for q in old]
+    x0, x1 = min(q[0] for q in pts), max(q[0] for q in pts)
+    y = min(q[1] for q in pts)
+    zc = round(sum(q[2] for q in pts) / len(pts))
+    head = head_of(c)
+    xs = list(range(x0 - 1, x1 + 2)) if x1 - x0 < 2 else list(range(x0, x1 + 1))
+    # only where the face is behind the lid, so it never sticks out past the head
+    xs = [x for x in xs if head is None or any((x, yy, zc) in head.v for yy in range(y, y + 3))] or [x0, x1]
+    for i, x in enumerate(xs):
+        z = zc - (1 if i in (0, len(xs) - 1) else 0)  # a lid curving down at the ends
+        for xx in (x, _mx(x)):
+            e.v[(xx, y, z)] = (ink, False)
+    for q, v in old.items():
+        if q not in e.v and head is not None:
+            nb = [head.v[r][0] for r in ((q[0], q[1] + 1, q[2]), (q[0] + 1, q[1], q[2]), (q[0] - 1, q[1], q[2])) if r in head.v]
+            if nb:
+                head.v[q] = (nb[0], False)
+
+
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
-    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'ghost_tail': ghost_tail, 'craters': craters, 'fox_face': fox_face, 'quartz_shards': quartz_shards, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
+    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'ghost_tail': ghost_tail, 'craters': craters, 'wing_icicles': wing_icicles, 'leaf_veins': leaf_veins, 'ear_tufts': ear_tufts, 'dust_motes': dust_motes, 'coin_inside': coin_inside, 'moss_top': moss_top, 'river_stones': river_stones, 'neon_rings': neon_rings, 'sleepy_eyes': sleepy_eyes, 'wisp_flame': wisp_flame, 'fox_face': fox_face, 'quartz_shards': quartz_shards, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
     'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'aura_hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'aura_embers': embers, 'cracks': cracks, 'claws': claws,
