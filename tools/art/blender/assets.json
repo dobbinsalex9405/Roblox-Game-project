@@ -810,6 +810,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "GummyBear": {
+   "assetId": 133377156043379,
+   "textureId": 130433125023631,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Hamster": {
    "assetId": 139623795240964,
    "textureId": 80185459184181,
@@ -933,6 +939,12 @@
   "Jackalope": {
    "assetId": 117256107606542,
    "textureId": 114015902002567,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "JellySlime": {
+   "assetId": 111996189674111,
+   "textureId": 137461933932625,
    "textureType": "Image",
    "version": "1"
   },
