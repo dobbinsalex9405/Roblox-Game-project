@@ -1419,3 +1419,19 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
    - The Basic card and whole-order list read **Beagle Pup NEXT, Bunny in 2, Canary in 3, Chick in 4** (`145-restricted-order.jpg`).
    - The first Basic hatch was a **Beagle Pup** (`145-restricted-first-hatch.jpg`).
    - *Note:* that reveal drew the Beagle Pup as its voxel stand-in, the same first-load fallback as Squid on #137. Its fresh mesh/texture hadn't finished loading on that client. In the unrestricted session the Beagle Pup drew with meshes.
+
+## #146 @ 70f653a (wisp/glow follow-up), built directly (head contains main c49c4e9)
+
+**PASS on everything this PR changes, with one look question and one pre-existing asset issue.**
+- **(a) Reworked UR glow** (`146-jelly-gummy-wisp.jpg`):
+  - **JellySlime:** 58 MeshParts, texture 137461933932625, 53 small Neon parts (glow box share **4%**, was 53%), 0.000 gap. It animates (4.1 studs in 6 s). It reads as a green jelly with glowing specks and a lit inner face.
+  - **GummyBear:** 9 MeshParts, texture 130433125023631, **0 Neon (0%)**; the entry has no glow meshes at all. 0.000 gap, animates (2.7 in 6 s). It reads as a solid red gummy bear. **It no longer glows from inside**: verifier/art call whether that's the intended look.
+  - Book thumbs load: JellySlime `71245448240637`, GummyBear `87903919872388`.
+- **(b) "Will-o'-Wisp":**
+  - The world label reads "Will-o'-Wisp 64/s".
+  - Book card on phone: the name box is 96 px wide, the text 68.8 × 13.6 px, and it fits (`146-phone-book-wisp.jpg`).
+  - Moonlit odds row: "Will-o'-Wisp (Ultra Rare) · 1 in 1,568", 14.4 px, fits (`146-phone-moonlit-wisp.jpg`).
+  - Hatch reveal: a re-give of an owned species shows no reveal, so I didn't catch it on screen. HatchReveal.luau (lines 516 and 582) uses Layout.displayName, the same path as the Book and the list.
+- **(c) Unchanged names:** "Clover Pony" (world label and odds row), "Basic Egg", "Meadow Egg", "Gummy Bear", "Jelly Slime", "Jellybean Beetle", "Star Jelly".
+- **(d) Odds:** the Basic, Meadow and Moonlit lists each sum to 100.0000%, with 0 truncated on phone 844x392. Odds unchanged (UR 1 in 1,568 Moonlit, 1 in 4,673 Meadow).
+- **Pre-existing, not this PR:** the placed **WillOWisp draws as voxel boxes** (79 Parts, 0 meshes), even after restarting play. Its mesh entry and texture (`87366348989616`, from main/#141, unchanged here) never load. Roblox answered "Asset content representation is being generated" for that texture, and fetch status stays None. The wisp mesh may need a re-upload, or more time.
