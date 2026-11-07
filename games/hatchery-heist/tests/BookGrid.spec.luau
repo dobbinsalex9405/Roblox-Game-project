@@ -91,6 +91,23 @@ describe("Book grid", function()
 		expect(b).toBe(cap)
 	end)
 
+	it("warms a new card's picture behind a card on screen", function()
+		-- Studio gate (#119, Nov 7): a ViewportFrame scrolled out of sight
+		-- never draws, so a flick in the first second after opening landed
+		-- on pictures that were built but had never drawn. A warming card
+		-- first sits exactly behind a card in view (hidden by it, but on
+		-- screen, so it draws), then moves to its place.
+		for _, range in { { 1, 18 }, { 37, 54 }, { 7, 7 }, { 199, 200 } } do
+			local first, last = range[1], range[2]
+			for index = 1, 200 do
+				local host = BookGrid.host(index, first, last)
+				expect(host >= first and host <= last).toBe(true)
+			end
+		end
+		-- Warming cards spread across the cards in view, not all on one.
+		expect(BookGrid.host(19, 1, 18) ~= BookGrid.host(20, 1, 18)).toBe(true)
+	end)
+
 	it("draws two rows ahead, so a row has its picture before it scrolls in", function()
 		-- Studio gate (Nov 5): after a fast flick a new row showed empty
 		-- cards for a moment, while each new ViewportFrame drew its first

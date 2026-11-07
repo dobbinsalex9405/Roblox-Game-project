@@ -190,11 +190,14 @@ return {
 	-- a frame, until warmCards are built, because a new card's picture takes
 	-- up to a second to draw its first frame (Studio gate, Nov 5 and 7: a
 	-- fast flick showed empty cards). 144 keeps the whole Common tab warm and
-	-- covers a 1,400 px flick on a 200-card tab.
+	-- covers a 1,400 px flick on a 200-card tab. A ViewportFrame out of sight
+	-- never draws, so each new warm card first waits primeSeconds hidden
+	-- behind a card on screen, then moves to its place.
 	book = {
 		overscanRows = 2,
 		warmCards = 144,
-		warmPerFrame = 4,
+		warmPerFrame = 8,
+		primeSeconds = 1,
 	},
 	guide = {
 		arrivedStuds = 8,

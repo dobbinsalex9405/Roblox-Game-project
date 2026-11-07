@@ -91,6 +91,7 @@ type Card = {
 	odds: TextLabel,
 	new: TextLabel,
 	found: boolean?,
+	primeUntil: number?, -- warming behind a card on screen until this clock time
 }
 
 type Tab = {
@@ -164,6 +165,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local overscan = bookLook.overscanRows :: number
 	local warmCards = bookLook.warmCards :: number
 	local warmPerFrame = bookLook.warmPerFrame :: number
+	local primeSeconds = bookLook.primeSeconds :: number
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatcheryBook"
 	gui.ResetOnSpawn = false
@@ -385,6 +387,8 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		dropModel(card)
 		card.entry = nil
 		card.found = nil
+		card.primeUntil = nil
+		card.frame.ZIndex = 1
 		card.frame.Visible = false
 		table.insert(pool, card)
 	end
@@ -439,12 +443,40 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		page.Size = UDim2.new(1, -2 * PAD_SIDE, 0, height)
 		body.CanvasSize = UDim2.fromOffset(0, height + PAD_TOP + PAD_BOTTOM)
 		for index, card in bound do
-			local x, y = BookGrid.position(index, columns, GRID)
-			card.frame.Position = UDim2.fromOffset(x, y)
+			if card.primeUntil == nil then -- a warming card is placed by cull
+				local x, y = BookGrid.position(index, columns, GRID)
+				card.frame.Position = UDim2.fromOffset(x, y)
+			end
 		end
 	end
 
-	-- A pooled card for the current tab's card `index`, model and all.
+	-- The cards on screen (no overscan), the drawn range (those and
+	-- `overscan` rows either side) and the wider warm range kept built
+	-- around it (BookGrid.warm).
+	local viewFirst, viewLast = 1, 0
+	local drawnFirst, drawnLast, warmFirst, warmLast = 1, 0, 1, 0
+
+	-- Puts card `index` where it belongs, or, while it is still warming and
+	-- off screen, exactly behind a card on screen: a ViewportFrame out of
+	-- sight never draws, so it would still be blank when a flick reaches it.
+	local function place(index: number, card: Card)
+		local at = index
+		if card.primeUntil and os.clock() < card.primeUntil and viewLast >= viewFirst then
+			if index >= viewFirst and index <= viewLast then
+				card.primeUntil = nil -- already in view: it draws where it is
+			else
+				at = BookGrid.host(index, viewFirst, viewLast)
+			end
+		else
+			card.primeUntil = nil
+		end
+		card.frame.ZIndex = if at == index then 1 else 0 -- behind its host
+		local x, y = BookGrid.position(at, columns, GRID)
+		card.frame.Position = UDim2.fromOffset(x, y)
+	end
+
+	-- A pooled card for the current tab's card `index`, model and all. One
+	-- built off screen warms behind a card on screen first (place).
 	local function bind(tab: Tab, index: number, found: { [string]: any }, restricted: boolean)
 		local entry = tab.entries[index]
 		local card = table.remove(pool) or makeCard()
@@ -452,18 +484,14 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		local color = Layout.rarityColor(entry.rarity)
 		card.frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
 		card.border.Color = color
-		local x, y = BookGrid.position(index, columns, GRID)
-		card.frame.Position = UDim2.fromOffset(x, y)
 		card.frame.Name = entry.speciesId
+		card.primeUntil = os.clock() + primeSeconds
+		place(index, card)
 		showModel(card, entry, found[entry.speciesId] ~= nil)
 		paintCard(card, found, restricted)
 		card.frame.Visible = true
 		bound[index] = card
 	end
-
-	-- The drawn range (the view and `overscan` rows either side) and the
-	-- wider warm range kept built around it (BookGrid.warm).
-	local drawnFirst, drawnLast, warmFirst, warmLast = 1, 0, 1, 0
 
 	-- Binds pooled cards to the cards in view (and `overscan` rows either
 	-- side) at once, and returns cards outside the warm range to the pool.
@@ -473,18 +501,15 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		if tab == nil or not gui.Enabled then
 			return
 		end
-		drawnFirst, drawnLast = BookGrid.visible(
-			#tab.entries,
-			columns,
-			GRID,
-			body.CanvasPosition.Y - PAD_TOP,
-			body.AbsoluteWindowSize.Y,
-			overscan
-		)
-		warmFirst, warmLast = BookGrid.warm(#tab.entries, drawnFirst, drawnLast, warmCards)
-		for index in bound do
+		local count, scroll, height = #tab.entries, body.CanvasPosition.Y - PAD_TOP, body.AbsoluteWindowSize.Y
+		viewFirst, viewLast = BookGrid.visible(count, columns, GRID, scroll, height, 0)
+		drawnFirst, drawnLast = BookGrid.visible(count, columns, GRID, scroll, height, overscan)
+		warmFirst, warmLast = BookGrid.warm(count, drawnFirst, drawnLast, warmCards)
+		for index, card in bound do
 			if index < warmFirst or index > warmLast then
 				release(index)
+			elseif card.primeUntil then
+				place(index, card) -- the cards on screen moved: a new host
 			end
 		end
 		local d = ctx.data()
@@ -497,12 +522,19 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 	end
 
-	-- Builds up to `warmPerFrame` more cards of the warm range, nearest the
-	-- view first, so their pictures have drawn before they scroll in.
+	-- Each frame while the book is open: moves cards that have warmed long
+	-- enough to their places, then builds up to `warmPerFrame` more cards of
+	-- the warm range, nearest the view first.
 	local function warmUp()
 		local tab = current
 		if tab == nil or not gui.Enabled or drawnLast < drawnFirst then
 			return
+		end
+		local now = os.clock()
+		for index, card in bound do
+			if card.primeUntil and now >= card.primeUntil then
+				place(index, card)
+			end
 		end
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
