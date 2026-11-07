@@ -472,7 +472,9 @@ function OddsView.openList(eggId: string)
 			tab.LayoutOrder = i
 			tab.Size = UDim2.new(1 / #ids, -TAB_GAP * (#ids - 1) / #ids, 1, 0)
 			tab.AutoButtonColor = id ~= eggId
-			tab.BackgroundColor3 = if id == eggId then Color3.fromRGB(255, 200, 70) else Color3.fromRGB(55, 55, 75)
+			tab.BackgroundColor3 = if id == eggId
+				then Color3.fromRGB(255, 200, 70)
+				else Color3.fromRGB(55, 55, 75)
 			tab.Font = FONT
 			tab.TextSize = 15
 			tab.TextColor3 = if id == eggId then Color3.fromRGB(30, 25, 10) else Color3.new(1, 1, 1)
