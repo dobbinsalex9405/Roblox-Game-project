@@ -276,10 +276,11 @@ def glow_tail(c, H, col, col2, a=None):
     y0, y1 = min(ys), max(ys)
     cut = y0 + (y1 - y0) * 0.62
     tip = col2 or col
+    lit = bool((a or {}).get('lit', True))  # false: bright colour, no glow (a Common)
     for p, (cc, g) in list(body.v.items()):
         if p[1] >= cut:
             t = (p[1] - cut) / max(1, y1 - cut)
-            body.v[p] = (_mix(col, tip, t), True)
+            body.v[p] = (_mix(col, tip, t), lit)
 
 
 # ------------------------------------------------------------ face and coat
@@ -482,6 +483,7 @@ def sugar(c, H, col, col2, a=None):
     on top of the body and head, some of them glinting."""
     k = H / 10.0
     sp = c.part('sugar', 'static')
+    lit = bool((a or {}).get('lit', True))  # false: the glints are white, not glowing
     for name in ('body', 'head'):
         part = _find(c, name)
         if not part or not part.v:
@@ -490,7 +492,7 @@ def sugar(c, H, col, col2, a=None):
             h = _hash(x, y, 31)
             if h % 9 == 0:
                 glint = (h >> 8) % 3 == 0
-                sp.put((x, y, z + 1), col2 if (glint and col2) else col, glint)
+                sp.put((x, y, z + 1), col2 if (glint and col2) else col, glint and lit)
 
 
 def air_bubble(c, H, col, col2, a=None):
@@ -502,12 +504,13 @@ def air_bubble(c, H, col, col2, a=None):
     y = max(ys) - 0.2 * k
     top = max(p[2] for p in shell.v if p[1] >= y - 1)
     b = c.part('bubble', 'static')
+    lit = bool((a or {}).get('lit', True))  # false: a white glint, not glowing
     r = 1.35 * k
     b.ell((0, y - 0.3 * k, top + 0.5 * k), (r, r, r), col)
     # a bright glint on the upper front of the bubble
     for dx in range(max(1, round(0.4 * k))):
         for dz in range(max(1, round(0.4 * k))):
-            b.put((round(0.3 * k) + dx, math.floor(y - 1.5 * k), math.floor(top + 1.0 * k) + dz), col2 or WHITE, True)
+            b.put((round(0.3 * k) + dx, math.floor(y - 1.5 * k), math.floor(top + 1.0 * k) + dz), col2 or WHITE, lit)
 
 
 def book(c, H, col, col2, a=None):
@@ -802,6 +805,8 @@ def diving_beetle(c, H, col, col2, a=None):
     # legs
     legc = col
     fringe = col2 or hexc('#EDE6C4')
+    # simple (a Common's box budget): straight oars and no foot tips
+    simple = bool((a or {}).get('simple'))
     legs = sorted([p for p in c.parts if p.name in rig.LEG_NAMES], key=lambda p: (p.pivot[1], p.pivot[0]))
     for leg in legs:
         hx, hy, hz = leg.pivot
@@ -820,7 +825,8 @@ def diving_beetle(c, H, col, col2, a=None):
                 leg.put((X(x), y, zt), legc)
             for z in range(0, zt + 1):
                 leg.put((X(xk), y, z), legc)
-            leg.put((X(xk + 1), y, 0), legc)
+            if not simple:
+                leg.put((X(xk + 1), y, 0), legc)
         else:
             # an oar: a short stalk, then a flat blade out to the side and
             # back, three voxels wide, the trailing edge a pale fringe
@@ -832,9 +838,10 @@ def diving_beetle(c, H, col, col2, a=None):
             L = max(4, round(2.4 * k))
             for i in range(L):
                 for w in range(3):
-                    yy = y + i // 2 + w - 1
+                    yy = y + (0 if simple else i // 2) + w - 1
                     leg.put((X(xk + i), yy, 1), legc if w < 2 else fringe)
-                leg.put((X(xk + i), y + i // 2 + 2, 1), fringe)
+                if not simple:
+                    leg.put((X(xk + i), y + i // 2 + 2, 1), fringe)
             leg.put((X(xk), y, 0), legc)
 
 
