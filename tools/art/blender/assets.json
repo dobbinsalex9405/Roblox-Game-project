@@ -810,12 +810,6 @@
    "textureType": "Image",
    "version": "3"
   },
-  "GummyBear": {
-   "assetId": 115680198034806,
-   "textureId": 75543485078026,
-   "textureType": "Image",
-   "version": "1"
-  },
   "Hamster": {
    "assetId": 139623795240964,
    "textureId": 80185459184181,
@@ -939,12 +933,6 @@
   "Jackalope": {
    "assetId": 117256107606542,
    "textureId": 114015902002567,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "JellySlime": {
-   "assetId": 105673757111833,
-   "textureId": 109554543616969,
    "textureType": "Image",
    "version": "1"
   },
@@ -2573,10 +2561,6 @@
    "imageId": 134305530593855,
    "source": "400d1e66c658463a"
   },
-  "GummyBear": {
-   "imageId": 101081943222981,
-   "source": "6c9786f57383328d"
-  },
   "Hamster": {
    "imageId": 90102955679060,
    "source": "642b8633bdf93e23"
@@ -2648,10 +2632,6 @@
   "Jackalope": {
    "imageId": 99272993614638,
    "source": "29fd4b92c3261ad1"
-  },
-  "JellySlime": {
-   "imageId": 115569225636736,
-   "source": "71892817d88712ce"
   },
   "JellybeanBeetle": {
    "imageId": 98829446769033,
