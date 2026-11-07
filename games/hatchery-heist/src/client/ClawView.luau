@@ -370,7 +370,7 @@ function ClawView.start(ctx: Context.Context)
 				order += 1
 				note(left, order, "Loading...", 15)
 			else
-				local rows = table.clone(shown.rows)
+				local rows: { { id: string, weight: number } } = table.clone(shown.rows)
 				-- Rarest last, then by kind, like the tiers above.
 				table.sort(rows, function(a, b)
 					local da, db = Charms.def(config, a.id), Charms.def(config, b.id)

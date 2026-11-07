@@ -210,7 +210,7 @@ function CharmActions.new(options: Options): CharmActions
 		return wearing(player, function(d)
 			local _, refusal = Charms.setShown(d, charms, which, shown)
 			return refusal
-		end, "Charm:Shown", { which, if shown then "On" else "Off" })
+		end, "Charm:Shown", { which :: string, if shown then "On" else "Off" } :: { string })
 	end
 
 	function api.fuse(_self: CharmActions, player: any, charmId: string, times: number): (boolean, string?)
