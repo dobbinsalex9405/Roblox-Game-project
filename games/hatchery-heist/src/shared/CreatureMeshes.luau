@@ -23607,7 +23607,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	ButterflyEmpress = {
 		assetId = 111905824763630,
-		textureId = 128690448894309,
+		textureId = 138838535306759,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.3125,
@@ -24150,7 +24150,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	ChronoOwl = {
 		assetId = 88391244916308,
-		textureId = 111592391449299,
+		textureId = 118427542874802,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.3125,
@@ -24946,7 +24946,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	CrystalHydra = {
 		assetId = 74128080028947,
-		textureId = 82819532497416,
+		textureId = 85676928137313,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.625,
@@ -25185,7 +25185,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	CrystalSwan = {
 		assetId = 106655496743327,
-		textureId = 103849996524502,
+		textureId = 71284162347386,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.9375,
@@ -26237,7 +26237,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	MagmaBehemoth = {
 		assetId = 71843526378178,
-		textureId = 81102522053814,
+		textureId = 73069979502788,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.25,
@@ -27623,7 +27623,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	PrismAlicorn = {
 		assetId = 77449082286511,
-		textureId = 96009444698138,
+		textureId = 91949691460544,
 		rarity = "Godly",
 		gait = "hover",
 		height = 4.3125,
@@ -28033,7 +28033,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	SolarLion = {
 		assetId = 91121798372653,
-		textureId = 108953001829040,
+		textureId = 75039170903688,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.75,
@@ -28593,7 +28593,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	VoidKitsune = {
 		assetId = 134240204764051,
-		textureId = 82795144585959,
+		textureId = 83967155132372,
 		rarity = "Godly",
 		gait = "hover",
 		height = 3.375,
