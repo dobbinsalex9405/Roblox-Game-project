@@ -6,9 +6,12 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Guide = require(Shared.Guide)
+local Geometry = require(Shared.Geometry)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
@@ -46,7 +49,7 @@ local STEPS = {
 	{
 		icon = "🥚",
 		title = "Buy eggs",
-		body = "Eggs ride the conveyor belt at the front of your base. Walk up to one and buy it with coins.",
+		body = "Eggs ride the Egg Market in the middle of the map. Walk up to one and buy it with coins, before someone else does!",
 	},
 	{
 		icon = "🐣",
@@ -129,6 +132,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	sub.LayoutOrder = 2
 	sub.ZIndex = 12
 
+	local rows: { { name: TextLabel, about: TextLabel, pad: UIPadding, title: string, body: string } } = {}
 	for index, step in STEPS do
 		local row = Instance.new("Frame")
 		row.Name = `Step{index}`
@@ -159,6 +163,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 		rowPad.PaddingBottom = UDim.new(0, 8)
 		rowPad.Parent = row
 		row.Parent = body
+		table.insert(rows, { name = name, about = about, pad = rowPad, title = step.title, body = step.body })
 	end
 
 	local go = Instance.new("TextButton")
@@ -176,14 +181,39 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	go.Parent = card
 
 	-- Fit the card to its content, the screen and a 460 px maximum width.
+	-- On a short screen (a phone held sideways) the card goes wide, drops
+	-- the subtitle and puts each step's name at the start of its text, so
+	-- all four steps show without scrolling (Studio gate, Nov 5).
+	local compact: boolean? = nil
 	local function fit()
 		local screen = shade.AbsoluteSize
 		if screen.X <= 0 or screen.Y <= 0 then
 			return
 		end
-		local width = math.min(460, math.floor(screen.X * 0.92))
-		local wanted = list.AbsoluteContentSize.Y + 20 + GO_AREA
-		local height = math.min(wanted, math.floor(screen.Y * 0.9))
+		local short = screen.Y < 500
+		if short ~= compact then
+			compact = short
+			sub.Visible = not short
+			title.TextSize = if short then 22 else 26
+			title.Size = UDim2.new(1, 0, 0, if short then 26 else 32)
+			list.Padding = UDim.new(0, if short then 6 else 8)
+			pad.PaddingTop = UDim.new(0, if short then 8 else 14)
+			-- A slimmer "Let's go!" strip.
+			body.Size = UDim2.new(1, 0, 1, -(if short then GO_AREA - 12 else GO_AREA))
+			go.Size = UDim2.fromOffset(200, if short then 38 else 46)
+			go.Position = UDim2.new(0.5, 0, 1, if short then -8 else -10)
+			for _, r in rows do
+				r.name.Visible = not short
+				r.about.RichText = short
+				r.about.Text = if short then `<b>{r.title}</b>   {r.body}` else r.body
+				r.about.Position = UDim2.fromOffset(56, if short then 8 else 28)
+				r.pad.PaddingBottom = UDim.new(0, if short then 6 else 8)
+				r.about.TextSize = if short then 13 else 14
+			end
+		end
+		local width = math.min(if short then 720 else 460, math.floor(screen.X * 0.92))
+		local wanted = list.AbsoluteContentSize.Y + 20 + (if short then GO_AREA - 12 else GO_AREA)
+		local height = math.min(wanted, math.floor(screen.Y * (if short then 0.94 else 0.9)))
 		card.Size = UDim2.fromOffset(width, height)
 	end
 	shade:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
@@ -270,8 +300,9 @@ local function markOwnBase(plot: Model)
 	if sign and sign:IsA("BasePart") then
 		local gui = Instance.new("BillboardGui")
 		gui.Name = "YourBaseLabel"
-		gui.Size = UDim2.fromScale(20, 4)
-		gui.StudsOffset = Vector3.new(0, 10, 0)
+		local banner = Geometry.YOUR_BASE_LABEL
+		gui.Size = UDim2.fromScale(banner.width, banner.height)
+		gui.StudsOffset = Vector3.new(0, banner.above, 0)
 		gui.MaxDistance = 400
 		gui.LightInfluence = 0
 		gui.Adornee = sign
@@ -288,7 +319,11 @@ end
 local function findTarget(plot: Model, target: Guide.Target): BasePart?
 	local found: Instance? = nil
 	if target.kind == "Belt" then
-		found = plot:FindFirstChild("Belt")
+		-- The Egg Market's edge facing this base.
+		local market = Workspace:FindFirstChild("EggMarket")
+		local stops = market and market:FindFirstChild("Stops")
+		local index = plot:GetAttribute("PlotIndex")
+		found = stops and type(index) == "number" and stops:FindFirstChild(`Stop{index}`) or nil
 	elseif target.kind == "CollectPad" then
 		found = plot:FindFirstChild("CollectPad")
 	elseif target.kind == "Incubator" then
@@ -305,6 +340,11 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 5
 	gui.Parent = player:WaitForChild("PlayerGui")
+
+	-- Roblox's desktop player list covers the side menu's top button
+	-- (config/atmosphere guide.playerList).
+	local guideConfig = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).guide
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, guideConfig.playerList == true)
 
 	-- The goal line, under the coin bar (Hud).
 	local goal = Instance.new("Frame")
@@ -348,6 +388,30 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	end)
 
 	local menu = sideMenu(gui)
+	-- An open window (Book, Daily, Tower, Pets, odds list, Core Shop: its
+	-- Window frame showing, DisplayOrder 20 to 49) hides the side menu, so its
+	-- buttons never poke out past the window's edge on a phone (Studio gate,
+	-- Nov 5). Each window has an X. Guide.windowOpen decides.
+	local column = gui:FindFirstChild("SideMenu") :: Frame
+	local playerGui = player:WaitForChild("PlayerGui")
+	task.spawn(function()
+		while true do
+			local screens: { Guide.Screen } = {}
+			for _, g in playerGui:GetChildren() do
+				if g:IsA("ScreenGui") then
+					local frame = g:FindFirstChild("Window") or g:FindFirstChild("Form")
+					table.insert(screens, {
+						name = g.Name,
+						enabled = g.Enabled,
+						displayOrder = g.DisplayOrder,
+						windowVisible = if frame and frame:IsA("GuiObject") then frame.Visible else nil,
+					})
+				end
+			end
+			column.Visible = not Guide.windowOpen(screens)
+			task.wait(0.1)
+		end
+	end)
 	menu.add("Guide", "📖 Guide", function()
 		welcome.Visible = not welcome.Visible
 	end)
@@ -361,6 +425,8 @@ function GuideView.start(ctx: Context.Context): SideMenu
 			end
 		end
 	end)
+
+	local arrivedStuds = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).guide.arrivedStuds
 
 	-- The beam from the player to the goal, and an arrow over it.
 	local fromAttachment: Attachment? = nil
@@ -450,13 +516,16 @@ function GuideView.start(ctx: Context.Context): SideMenu
 				goal.Visible = true
 				goalText.Text = step.text
 				local target = step.target and findTarget(plot, step.target)
-				if target and attachToCharacter() then
+				local from = attachToCharacter()
+				local arrived = false
+				local root = from and from.Parent
+				if target and root and root:IsA("BasePart") then
+					local flat = (target.Position - root.Position) * Vector3.new(1, 0, 1)
+					arrived = flat.Magnitude <= arrivedStuds
+				end
+				if target and from and not arrived then
 					-- Half the part's height in the world (incubators lie on their side).
 					local top = math.abs(target.CFrame:VectorToWorldSpace(target.Size).Y) / 2
-					if target.Name == "Belt" then
-						-- The middle of the belt, where the eggs are.
-						top += 1
-					end
 					toAttachment.Parent = target
 					toAttachment.WorldPosition = target.Position + Vector3.new(0, top + 0.5, 0)
 					arrow.Adornee = target

@@ -58,10 +58,16 @@ describe("Hatchery Book", function()
 		expect(math.abs(Book.bonus(full, creatures.species, book) - book.maxBonus) < 1e-9).toBe(true)
 		expect(Book.bonus({}, creatures.species, book)).toBe(0)
 		expect(Book.bonus(nil, creatures.species, book)).toBe(0)
-		-- 150 more Commons: a full book is still the maximum, and one Common is
-		-- worth less, never more.
+		-- Twice the Commons: a full book is still the maximum, and one Common is
+		-- worth at most half as much.
 		local more = table.clone(creatures.species)
-		for i = 1, 150 do
+		local commons = 0
+		for _, s in creatures.species do
+			if s.rarity == "Common" then
+				commons += 1
+			end
+		end
+		for i = 1, commons do
 			more[`TestCommon{i}`] = { rarity = "Common", coinsPerSecond = 1 }
 			full[`TestCommon{i}`] = 1
 		end

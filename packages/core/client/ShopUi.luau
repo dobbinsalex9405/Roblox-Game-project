@@ -210,12 +210,14 @@ function ShopUi.start(hooks: Hooks)
 			local card = UiKit.card(body)
 			card.LayoutOrder = index
 			UiKit.label(card, entry.name, 22, true)
-			UiKit.label(card, entry.description, 34)
+			-- As tall as its text: one line in a wide window, two in a narrow one.
+			local about = UiKit.label(card, entry.description, 0)
+			about.AutomaticSize = Enum.AutomaticSize.Y
+			-- (An owned item's button already says "Owned".)
 			local status = if entry.owned
-				then "Owned"
+				then ""
 				elseif entry.blocked then "Not available in your region"
 				else priceText(entry)
-			UiKit.label(card, status, 18).TextColor3 = Color3.fromRGB(255, 220, 90)
 
 			local display = entry.oddsTable and oddsShown[entry.oddsTable]
 			if display then
@@ -226,7 +228,14 @@ function ShopUi.start(hooks: Hooks)
 				end
 			end
 
+			-- The price beside the buttons, on one row, so each item takes
+			-- less height and a phone shows more of them.
 			local buttons = UiKit.row(card, UiKit.TOUCH_ROW)
+			local price = UiKit.label(buttons, status, UiKit.TOUCH)
+			price.Size = UDim2.fromOffset(if entry.blocked then 200 else 110, UiKit.TOUCH)
+			price.TextColor3 = Color3.fromRGB(255, 220, 90)
+			price.TextSize = 17
+			price.Font = Enum.Font.GothamBold
 			local oddsTable = entry.oddsTable
 			if oddsTable and not entry.blocked then
 				local oddsButton = UiKit.button(buttons, "Show odds", 110, UiKit.TOUCH, UiKit.MUTED)
