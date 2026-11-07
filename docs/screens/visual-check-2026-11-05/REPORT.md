@@ -1058,3 +1058,23 @@ The new ScreenInsets layout is in the build: the ClawReveal gui is CoreUISafeIns
 - Fix: wait a frame after enabling before measuring, re-layout on `AbsoluteSize` change, or compute from `ViewportSize − GuiService.TopbarInset`.
 
 Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x100 border were not rechecked on this head.
+
+## #130 @ 91fc317 (10 new Epics), merged onto main c8b281b as 14903d2
+
+**PASS.** Local builds, desktop 1350x672. This main doesn't have #129 yet, so the Epic tab counts 3 + 10.
+1. **Book:** Epic 0/13. All 10 new Epics (MushroomGnome, TrollCub, SaplingEnt, GingerbreadGolem, PetalSprite, FrostSprite, EmberImp, YetiCub, RimeDrakeling, BonsaiDragon) are live draws with 8-16 parts. None are black (`130-hh-book-epic.jpg`).
+   - Odds lines: Moonlit 1 in 3,448; Yeti Cub Meadow 1 in 16,667; Gingerbread Golem Meadow 1 in 20,000.
+2. **Odds cards:**
+   - Basic, Meadow and Moonlit each sum to 100.000%.
+   - Moonlit list: 10 Epic rows (8 new + Dragonling + Moon Unicorn) at 0.029% each. The list sums to 100.000%.
+   - Meadow list: Crystal Stag 0.006%, Yeti Cub 0.006%, Gingerbread Golem 0.005%, which adds up to the 0.017% tier.
+3. **Restricted:**
+   - Meadow: Yeti Cub "6 in every 100000 → in 1402 eggs", Gingerbread Golem "5 … in 1869 eggs".
+   - Moonlit: all 8 listed, from Troll Cub "29 … in 490 eggs" to Sapling Ent "in 1867 eggs".
+   - The waits only go up.
+4. **World**, PetalSprite (hover), YetiCub (waddle) and RimeDrakeling (trot):
+   - Textured. The only untextured parts are the Neon `_glow` overlays: PetalSprite's flower and wings, YetiCub's snowball, RimeDrakeling's wings and spines.
+   - The largest gap is 0.000.
+   - PetalSprite's stem rests on its ring, bottom 0.71-0.81 (`130-hh-petalsprite.jpg`). YetiCub sits at 0.71-0.81.
+   - RimeDrakeling's leg boxes dip to 0.45 mid-trot, but its feet are planted on the ring at floor level (`130-hh-rime-feet.jpg`).
+   - They moved 5.6 / 0.1 / 7.7 studs in 4 s. YetiCub was idling in that window.
