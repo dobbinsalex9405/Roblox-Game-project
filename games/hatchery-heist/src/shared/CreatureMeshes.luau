@@ -1421,8 +1421,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
-		tris = 7716,
-		trisLod1 = 778,
+		tris = 7492,
+		trisLod1 = 738,
 		parts = {
 			{
 				name = "body",
@@ -1446,7 +1446,7 @@ local CreatureMeshes: { [string]: Creature } = {
 					{
 						name = "Butterfly_head",
 						center = { 0, 0.7017, -0.396 },
-						size = { 0.591, 0.7875, 0.499 },
+						size = { 0.6, 0.7875, 0.499 },
 					},
 				},
 				lod1 = { name = "Butterfly_head_lod1", center = { 0, 0.7, -0.4 }, size = { 0.6, 0.8, 0.5 } },
@@ -1459,11 +1459,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Butterfly_eyes",
-						center = { 0, 0.6018, -0.5 },
-						size = { 0.607, 0.2035, 0.307 },
+						center = { 0, 0.6518, -0.5 },
+						size = { 0.407, 0.1035, 0.107 },
 					},
 				},
-				lod1 = { name = "Butterfly_eyes_lod1", center = { 0, 0.6, -0.5 }, size = { 0.6, 0.2, 0.3 } },
+				lod1 = { name = "Butterfly_eyes_lod1", center = { 0, 0.65, -0.5 }, size = { 0.4, 0.1, 0.1 } },
 			},
 			{
 				name = "wingL",
@@ -1538,8 +1538,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "trot",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.8 },
-		tris = 10176,
-		trisLod1 = 830,
+		tris = 9968,
+		trisLod1 = 812,
 		parts = {
 			{
 				name = "body",
@@ -1606,9 +1606,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.08, -0.4 },
 				meshes = {
-					{ name = "Calf_eyes", center = { 0, 1.4018, -0.75 }, size = { 0.607, 0.2035, 0.107 } },
+					{ name = "Calf_eyes", center = { 0, 1.3518, -0.75 }, size = { 0.607, 0.1035, 0.107 } },
 				},
-				lod1 = { name = "Calf_eyes_lod1", center = { 0, 1.4, -0.75 }, size = { 0.6, 0.2, 0.1 } },
+				lod1 = { name = "Calf_eyes_lod1", center = { 0, 1.35, -0.75 }, size = { 0.6, 0.1, 0.1 } },
 			},
 			{
 				name = "ears",
