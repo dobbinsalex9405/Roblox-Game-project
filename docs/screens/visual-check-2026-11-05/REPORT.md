@@ -1380,3 +1380,20 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 4. **Phone 844x392:**
    - Moonlit card: 224x157 at y 225-383, smallest text 12.0 px. The longest line, "58.00020% · 1 in 1.7", fits with no overlap (`144-phone-moonlit-card.jpg`).
    - Moonlit list: 420x244, 14.4 px. "14.50005% · 1 in 6.9" and the other rows show 0 truncated and 0 name/value overlaps (`144-phone-moonlit-list.jpg`).
+
+## #137 @ f28084c (Squid + Cuttlefish), built directly (head contains main f307436)
+
+**PASS, with two notes.**
+1. **World** (test-panel give, floor 1):
+   - **Squid:** 11 MeshParts, texture 128616687111175, 0 Neon, 0.000 gap. Drawn 2.22 tall; footprint 1.9 × 1.4. Scuttles 10.7 studs in 10 s, bottom median 0.74 on the 0.70 floor. Eyes read on the face (`137-pair.jpg`).
+   - **Cuttlefish:** 6 MeshParts (body, head, eyes, arms, finL, finR), texture 116948314889180, 0 Neon, 0.000 gap. Swims 2.4 studs in 10 s at a median 0.74.
+   - **Note, size:** the game draws every creature as tall as its stand-in (2.2 studs for these Uncommons). The Cuttlefish's 0.80-tall mesh (voxel art 1.0 tall) is therefore scaled about 2.75×, to a **7.5 × 2.2 × 4.6 footprint**. Along its length that overhangs the 6-stud pad by about 0.75 studs at each end (`137-cuttlefish-pad.jpg`). It reads fine, but it's the biggest Uncommon by far. The verifier or art may want it flatter, or a "lie" exception like the long Godlies.
+   - **Note, first-load fallback:** on the first session, Squid drew as **voxel boxes** (41 plain Parts, no meshes). Its fresh texture returned "Asset content representation is being generated", and the client never retries the preload. After restarting play the asset was ready, and it drew with meshes. That's a one-time state on new uploads: a server that starts before Roblox finishes processing would show voxels until it restarts. Worth a retry in the client loader.
+2. **Book, Uncommon tab:** 2/41. Both cards load their new thumbs: Squid `rbxassetid://118918310067525` and Cuttlefish `…86992268441666`. They read "Squid / Meadow Egg 1 in 100" and "Cuttlefish / Meadow Egg 1 in 100", names fit, 0 truncated (`137-book.jpg`).
+3. **Meadow odds list:** sums to 100.0000%, 0 truncated.
+   - Common 52 × "1.2885% · 1 in 77.6".
+   - **Uncommon 31 × "1.0000% · 1 in 100"**.
+   - Rare 2 × "1 in 118".
+   - UR 13 × "0.0214% · 1 in 4,673" each. The card's UR tier line reads **"0.2782% · 1 in 359"**.
+   - Epic 6 × "1 in 35,714". Legendary "1 in 33,333".
+4. **Phone 844x392, Meadow card:** 224x157 at y 225-383, smallest text 12.0 px, nothing truncated (`137-phone-meadow-card.jpg`).
