@@ -675,7 +675,8 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			end
 		else
 			gui.Enabled = false
-			releaseAll()
+			-- The built cards stay (hidden with the gui), so reopening the
+			-- book shows drawn pictures at once.
 			-- Anything found while the book was open has now been seen.
 			if newCount() > 0 then
 				ctx.fire(ctx.remotes["HH:BookSeen"])

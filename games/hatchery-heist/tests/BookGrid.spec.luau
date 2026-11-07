@@ -91,19 +91,17 @@ describe("Book grid", function()
 		expect(b).toBe(cap)
 	end)
 
-	it("lets the cards on screen draw before it warms any others", function()
-		-- Studio gate (#119 b044b4c): warming every card at once left cards
-		-- on screen blank at 0.3 s, as all the new pictures queued to draw
-		-- together. Warming waits warmDelaySeconds after a tab is shown.
+	it("starts warming the moment a tab is shown, several cards a frame", function()
+		-- Studio gate (#119 d9dc0ff): waiting 0.3 s and then warming 4 cards
+		-- a frame left rows of empty wells at 0, 0.3 and 1 s. Warming starts
+		-- at once, 8 or more a frame, nearest rows first; warmBudget still
+		-- holds off for any delay the config sets.
 		local look = atmosphere.book
-		expect(look.warmDelaySeconds >= 0.2).toBe(true)
-		expect(BookGrid.warmBudget(0, look.warmDelaySeconds, look.warmPerFrame)).toBe(0)
-		expect(BookGrid.warmBudget(look.warmDelaySeconds - 0.01, look.warmDelaySeconds, look.warmPerFrame)).toBe(
-			0
-		)
-		expect(BookGrid.warmBudget(look.warmDelaySeconds, look.warmDelaySeconds, look.warmPerFrame)).toBe(
-			look.warmPerFrame
-		)
+		expect(look.warmDelaySeconds).toBe(0)
+		expect(look.warmPerFrame >= 8).toBe(true)
+		expect(BookGrid.warmBudget(0, look.warmDelaySeconds, look.warmPerFrame)).toBe(look.warmPerFrame)
+		expect(BookGrid.warmBudget(0.1, 0.3, 4)).toBe(0)
+		expect(BookGrid.warmBudget(0.3, 0.3, 4)).toBe(4)
 	end)
 
 	it("warms a new card's picture behind a card on screen", function()

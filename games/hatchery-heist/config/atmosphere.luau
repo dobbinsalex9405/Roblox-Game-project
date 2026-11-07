@@ -193,13 +193,14 @@ return {
 	-- covers a 1,400 px flick on a 200-card tab. A ViewportFrame out of sight
 	-- never draws, so each new warm card first waits primeSeconds hidden
 	-- behind a card on screen, then moves to its place. Warming starts
-	-- warmDelaySeconds after a tab is shown, so the cards on screen draw
-	-- first (new pictures queue to draw together).
+	-- warmDelaySeconds after a tab is shown (0: at once; a 0.3 s wait was
+	-- too slow at the gate), and built cards are kept while the book is
+	-- closed, so reopening it is instant.
 	book = {
 		overscanRows = 2,
 		warmCards = 144,
-		warmPerFrame = 4,
-		warmDelaySeconds = 0.3,
+		warmPerFrame = 8,
+		warmDelaySeconds = 0,
 		primeSeconds = 1,
 	},
 	guide = {
