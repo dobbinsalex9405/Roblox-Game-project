@@ -1525,6 +1525,10 @@
    "imageId": 90686975988850,
    "source": "dd56b485feb2bfda"
   },
+  "AuroraStag": {
+   "imageId": 92978774676075,
+   "source": "bd3c05028c5db9dc"
+  },
   "Axolotl": {
    "imageId": 131521260547088,
    "source": "bed44b8de8e0e8e7"
@@ -1585,6 +1589,10 @@
    "imageId": 112528256770888,
    "source": "393ea2d91a689c30"
   },
+  "ButterflyEmpress": {
+   "imageId": 82459666012092,
+   "source": "29ae2d141890f89f"
+  },
   "Calf": {
    "imageId": 138179021472494,
    "source": "ee16a65e432588c8"
@@ -1592,6 +1600,10 @@
   "CalicoKitten": {
    "imageId": 107497470037711,
    "source": "98844779d83fa78d"
+  },
+  "CandyColossus": {
+   "imageId": 121059144475093,
+   "source": "5fa0e51d684de7e4"
   },
   "Carrotling": {
    "imageId": 124846781088482,
@@ -1613,9 +1625,17 @@
    "imageId": 114559786568498,
    "source": "71f11ebefdee15dd"
   },
+  "ChronoOwl": {
+   "imageId": 79622859576889,
+   "source": "544e3821f3e57892"
+  },
   "Cicada": {
    "imageId": 128045663333976,
    "source": "0a1d30713b7e3f13"
+  },
+  "ClockworkLeviathan": {
+   "imageId": 127316083579519,
+   "source": "f62c10e8bfac79e6"
   },
   "CloudSerpent": {
    "imageId": 136269116443651,
@@ -1641,6 +1661,10 @@
    "imageId": 82106277589111,
    "source": "2feea5a158c440ce"
   },
+  "CosmicWhale": {
+   "imageId": 121543413466001,
+   "source": "35d6f8cfd321e926"
+  },
   "Crab": {
    "imageId": 73454089611055,
    "source": "8c340fe717f475f6"
@@ -1661,9 +1685,17 @@
    "imageId": 85796191553076,
    "source": "5a9983c2dc7653f7"
   },
+  "CrystalHydra": {
+   "imageId": 90352770165800,
+   "source": "2dd2306761e67958"
+  },
   "CrystalStag": {
    "imageId": 84692928531479,
    "source": "650588709498238d"
+  },
+  "CrystalSwan": {
+   "imageId": 88762016326183,
+   "source": "80098e2a99aa686d"
   },
   "Cygnet": {
    "imageId": 81303867643072,
@@ -1708,6 +1740,10 @@
   "Earthworm": {
    "imageId": 100658637038405,
    "source": "4ecb0152741ad7f3"
+  },
+  "EclipseDragon": {
+   "imageId": 131299658354072,
+   "source": "eacd542846fe62ec"
   },
   "EmberFox": {
    "imageId": 140229744835945,
@@ -1825,6 +1861,10 @@
    "imageId": 132793447028320,
    "source": "8d7be8fbd54cbcd1"
   },
+  "HurricaneRoc": {
+   "imageId": 103514228926112,
+   "source": "442cf6462d99893c"
+  },
   "HuskyPup": {
    "imageId": 105131027989050,
    "source": "43420c1bbbfdecdc"
@@ -1913,6 +1953,10 @@
    "imageId": 102523496049160,
    "source": "ea7fbe8231053272"
   },
+  "MagmaBehemoth": {
+   "imageId": 135632792173313,
+   "source": "3735359b59a8a554"
+  },
   "Mantis": {
    "imageId": 70895032859960,
    "source": "55603a522fbe308b"
@@ -1920,6 +1964,10 @@
   "Marmoset": {
    "imageId": 79869748774958,
    "source": "146db53bf16571f7"
+  },
+  "MechaDragon": {
+   "imageId": 109549883563844,
+   "source": "62a29436afcf1ee2"
   },
   "Mole": {
    "imageId": 115580684106028,
@@ -1952,6 +2000,10 @@
   "NeonOctopus": {
    "imageId": 118005057520009,
    "source": "e28aa7134bddc102"
+  },
+  "OmegaChimera": {
+   "imageId": 114737073871429,
+   "source": "3a2ad3de000c17f9"
   },
   "Opossum": {
    "imageId": 71945275664392,
@@ -2016,6 +2068,10 @@
   "Pomeranian": {
    "imageId": 74472660646975,
    "source": "417dd4348cfd5f96"
+  },
+  "PrismAlicorn": {
+   "imageId": 119501265607309,
+   "source": "ee9174408e364178"
   },
   "Ptarmigan": {
    "imageId": 109341239659652,
@@ -2097,6 +2153,10 @@
    "imageId": 106743310830875,
    "source": "f77603557c80181a"
   },
+  "SolarLion": {
+   "imageId": 126886467932403,
+   "source": "f2e15631b1dba546"
+  },
   "SpottedPiglet": {
    "imageId": 104009272978727,
    "source": "5427562ca1fcf3dc"
@@ -2149,6 +2209,10 @@
    "imageId": 72159062690921,
    "source": "9864792d357e2540"
   },
+  "ThunderKraken": {
+   "imageId": 80067649824260,
+   "source": "eee0f7a76188e1fe"
+  },
   "Toad": {
    "imageId": 87257041825749,
    "source": "882a7ad4913b19e5"
@@ -2173,6 +2237,10 @@
    "imageId": 131445003908171,
    "source": "1c728c36309c2255"
   },
+  "VoidKitsune": {
+   "imageId": 133265371268099,
+   "source": "c1365d54a61b682f"
+  },
   "WalrusPup": {
    "imageId": 78885367045533,
    "source": "3b939114e724fa47"
@@ -2184,6 +2252,10 @@
   "WolverineKit": {
    "imageId": 78265412140628,
    "source": "1af3a81cec5ae2c1"
+  },
+  "WorldTurtle": {
+   "imageId": 132458911136045,
+   "source": "9a00018abb1969a0"
   },
   "YakCalf": {
    "imageId": 129178985138567,
