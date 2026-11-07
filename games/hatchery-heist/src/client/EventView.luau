@@ -120,10 +120,10 @@ function EventView.start(ctx: Context.Context)
 	badgeText.TextScaled = false
 	badgeText.TextSize = 16
 	badgeText.TextXAlignment = Enum.TextXAlignment.Center
-	local title = text(banner, "Title", UDim2.new(1, -54, 0.5, -3), UDim2.new(0, 48, 0, 4))
+	local title = text(banner, "Title", UDim2.new(1, -54, 0.5, -3), UDim2.fromOffset(48, 4))
 	title.TextScaled = false
 	title.TextSize = 15
-	local line = text(banner, "Line", UDim2.new(1, -54, 0.5, -3), UDim2.new(0.0, 48, 0.5, 0), false)
+	local line = text(banner, "Line", UDim2.new(1, -54, 0.5, -3), UDim2.new(0, 48, 0.5, 0), false)
 	line.TextScaled = false
 	line.TextSize = 14
 
@@ -167,7 +167,7 @@ function EventView.start(ctx: Context.Context)
 		l.TextSize = height
 		l.TextWrapped = true
 		l.AutomaticSize = Enum.AutomaticSize.Y
-		l.Size = UDim2.new(1, 0, 0, 0)
+		l.Size = UDim2.fromScale(1, 0)
 		l.LayoutOrder = order
 		return l
 	end
