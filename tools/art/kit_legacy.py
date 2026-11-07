@@ -415,8 +415,11 @@ def head_paint(c, H, col, col2=None, a=None):
         if len(crown) <= 6:
             for p in crown:
                 del head.v[p]
+    only = hexc(a['only']) if a.get('only') else None  # opt-in: repaint just this colour
     for p, (cc, g) in list(head.v.items()):
         if g or cc == INK or (cc == WHITE and region not in ('all', 'cap')):
+            continue
+        if only is not None and cc != only:
             continue
         if test(p):
             head.v[p] = (col, False)
@@ -1489,22 +1492,38 @@ def mayfly(c, H, col, col2=None, a=None):
         th.v = {}
         tc = hexc(a['threads']) if a.get('threads') else _mix(col, INK, 0.3)
         tip = max((q for q in body.v if q[0] >= 0), key=lambda q: (q[1], q[2]))
-        n = max(8, round(5.0 * k))
-        prev = None
-        for i in range(n + 1):
-            t = i / n
-            q = (tip[0] + round(1.6 * k * t), tip[1] + 1 + round(4.4 * k * t), tip[2] + round(2.4 * k * t * t))
-            if prev is not None:
-                steps = max(abs(q[j] - prev[j]) for j in range(3)) or 1
-                for s in range(steps + 1):
-                    r = tuple(round(prev[j] + (q[j] - prev[j]) * s / steps) for j in range(3))
-                    th.put(r, tc)
-            prev = q
+        # straight, unbranched filaments one voxel thick: one voxel per step
+        # back, drifting out and curving gently up, about 1.5x the body long
+        L = max(8, round(a.get('thread_len', 1.5) * (by1 - by0 + 1)))
+        spread, rise = a.get('spread', 0.9) * k, a.get('rise', 1.6) * k
+        for i in range(1, L + 1):
+            t = i / L
+            th.put((tip[0] + round(0.6 + spread * t), tip[1] + i, tip[2] + round(rise * t * t)), tc)
         for (x, y, z), v in list(th.v.items()):
             th.v[(_mx(x), y, z)] = v
 
 
 ACCESSORIES['mayfly'] = _fine_only(mayfly)
+
+def eye_shine(c, H, col=None, col2=None, a=None):
+    """A white shine on each eye: the face voxel just above the eye's outer
+    edge turns white (or col), so a dark eye on a dark face still reads."""
+    head, eyes = _head(c), _find(c, 'eyes')
+    if head is None or eyes is None or not eyes.v:
+        return
+    shine = col or WHITE
+    for side in (1, -1):
+        ev = [p for p in eyes.v if (p[0] >= 0) == (side > 0)]
+        if not ev:
+            continue
+        x = max(ev, key=lambda p: abs(p[0] + .5))[0]
+        z = max(p[2] for p in ev) + 1
+        f = head.front(x, z)
+        if f:
+            head.put(f, shine)
+
+
+ACCESSORIES['eye_shine'] = _fine_only(eye_shine)
 
 # Every kind carries the kit's own prefix, so no other kit's accessory name can clash with it.
 ACCESSORIES = {'lg_' + name: fn for name, fn in ACCESSORIES.items()}
