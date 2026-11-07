@@ -1533,6 +1533,10 @@
    "imageId": 73135854241499,
    "source": "a540e9de8b1a0db8"
   },
+  "DustBunny": {
+   "imageId": 84774251865377,
+   "source": "7299b4443aab8e44"
+  },
   "DutchBunny": {
    "imageId": 107411329825261,
    "source": "bfeaab8b090f6fd4"
@@ -1633,6 +1637,10 @@
    "imageId": 105131027989050,
    "source": "43420c1bbbfdecdc"
   },
+  "IcicleBat": {
+   "imageId": 119886473159238,
+   "source": "70e0737ac86bb869"
+  },
   "Iguana": {
    "imageId": 113871521676461,
    "source": "1258abb10b807eac"
@@ -1664,6 +1672,10 @@
   "Lamb": {
    "imageId": 135294007633644,
    "source": "42d39ad4d9a0e05f"
+  },
+  "LeafBat": {
+   "imageId": 128850714533411,
+   "source": "503169a338d3d03e"
   },
   "Lobster": {
    "imageId": 97116124672703,
@@ -1712,6 +1724,10 @@
   "NebulaSerpent": {
    "imageId": 74418140589025,
    "source": "b4dc8ba321616843"
+  },
+  "NeonOctopus": {
+   "imageId": 118005057520009,
+   "source": "e28aa7134bddc102"
   },
   "Opossum": {
    "imageId": 71945275664392,
