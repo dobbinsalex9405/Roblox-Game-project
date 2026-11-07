@@ -256,20 +256,7 @@ function Hud.start(ctx: Context.Context)
 		if signs == nil then
 			return
 		end
-		local eggs = ctx.config.eggs
-		local ids = {}
-		for eggId in ctx.config.economy.conveyor.weights do
-			table.insert(ids, eggId)
-		end
-		table.sort(ids, function(a, b)
-			local ea, eb = Hatchery.eggById(eggs, a), Hatchery.eggById(eggs, b)
-			local pa = if ea then ea.priceCoins or 0 else 0
-			local pb = if eb then eb.priceCoins or 0 else 0
-			if pa ~= pb then
-				return pa < pb
-			end
-			return a < b
-		end)
+		local ids = Hatchery.marketEggs(ctx.config.eggs, ctx.config.economy.conveyor.weights)
 		if #ids == 0 then
 			return
 		end

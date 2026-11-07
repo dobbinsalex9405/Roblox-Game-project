@@ -95,7 +95,13 @@ describe("Hatchery Book", function()
 		expect(Book.picture("Chick", thumbs)).toBe("rbxassetid://123")
 		expect(Book.picture("Kitten", thumbs)).toBe(nil) -- 0: not uploaded
 		expect(Book.picture("Frog", thumbs)).toBe(nil) -- none: drawn live
-		local list = Book.pictures({ Chick = {}, Kitten = {}, Frog = {} }, thumbs)
+		local function entry(id: string, rarity: string): Book.Entry
+			return { speciesId = id, rarity = rarity, rank = 1, coinsPerSecond = 1, weight = 1, total = 1 }
+		end
+		local list = Book.pictures(
+			{ entry("Chick", "Common"), entry("Kitten", "Common"), entry("Frog", "Common") },
+			thumbs
+		)
 		expect(#list).toBe(1)
 		expect(list[1]).toBe("rbxassetid://123")
 		-- The generated map only names creatures the game has.
@@ -103,5 +109,26 @@ describe("Hatchery Book", function()
 			expect(creatures.species[speciesId] ~= nil or `{speciesId} is not a creature`).toBe(true)
 			expect(id > 0).toBe(true)
 		end
+	end)
+
+	it("preloads the pictures in page order, several at a time", function()
+		-- Studio gate (#125): one call for all 114 pictures left the first
+		-- open blank for 1-3 s. The Common tab, where the Book opens, loads
+		-- first, over several requests at once.
+		local entries = Book.entries(creatures, eggs, RARITIES)
+		local thumbs = {}
+		for i, e in entries do
+			thumbs[e.speciesId] = i
+		end
+		local list = Book.pictures(entries, thumbs)
+		expect(#list).toBe(#entries)
+		expect(list[1]).toBe(`rbxassetid://1`)
+		expect(entries[1].rarity).toBe("Common")
+		for i = 2, #list do
+			expect(list[i] == `rbxassetid://{i}`).toBe(true)
+		end
+		local look = require("../config/atmosphere").book
+		expect(look.preloadStreams >= 2).toBe(true)
+		expect(look.preloadBatch >= 1).toBe(true)
 	end)
 end)

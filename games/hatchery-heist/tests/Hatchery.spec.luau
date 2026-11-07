@@ -49,6 +49,26 @@ local function always(id: string)
 end
 
 describe("Hatchery", function()
+	it("lists every belt egg, cheapest first, so the odds list can open any of them", function()
+		-- Studio gate (#131): a Moonlit Egg rides past its Buy prompt in about
+		-- 1 s, too short to reach its card's "See every creature"; the odds
+		-- list switches between the belt's eggs instead.
+		local ids = Hatchery.marketEggs(config.eggs, economy.conveyor.weights)
+		local count = 0
+		for eggId in economy.conveyor.weights do
+			count += 1
+			expect(table.find(ids, eggId) ~= nil).toBe(true)
+		end
+		expect(#ids).toBe(count)
+		for i = 2, #ids do
+			local a = Hatchery.eggById(config.eggs, ids[i - 1])
+			local b = Hatchery.eggById(config.eggs, ids[i])
+			expect((a.priceCoins or 0) <= (b.priceCoins or 0)).toBe(true)
+		end
+		expect(ids[1]).toBe("BasicEgg")
+		expect(table.find(ids, "MoonlitEgg") ~= nil).toBe(true)
+	end)
+
 	it("buys an egg into the first free incubator and pays its price", function()
 		local d = fresh()
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
