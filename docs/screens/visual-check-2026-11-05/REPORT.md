@@ -1301,3 +1301,25 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 4. **Phone 844x392:**
    - Book: 760x318, smallest text 12.8 px, nothing truncated, no overlap (`140-phone-book-ur.jpg`).
    - Moonlit list: 420x244, smallest text 14.4 px, nothing truncated (`140-phone-moonlit-ur.jpg`).
+
+## #141 @ bd6b201 (15 Epics + 5 Ultra Rares), built directly (head contains main 4afbcca)
+
+**PASS.** Two of the brief's expectations differ from the config; notes below.
+1. **Book:** Epic 0/60 and UR 0/33. All cards have loaded pictures, and 0 labels are truncated.
+   - New Epics: Moonlit "1 in 18,519" or "1 in 18,868"; DreamTapir "Meadow Egg 1 in 50,000".
+   - New URs: CloverPony, RainFrog and WillOWisp "Moonlit 1 in 756/757"; JellySlime and **PebbleGolem** "Meadow Egg 1 in 1,786".
+2. **Odds lists:**
+   - Moonlit: **Epic 54 entries** (the brief said 56), UR 28. Every one has a "1 in N", and the tier totals are unchanged: UR 3.7000%, Epic 0.2900%, Godly 0.0019%, Legendary 0.0080%. Sums to 100.0000%, 0 truncated.
+   - Meadow: DreamTapir (Epic) 1 in 50,000, JellySlime and PebbleGolem (UR) 1 in 1,786. Sums to 100.0000%.
+   - *Config note:* PebbleGolem is in the **Meadow** pool (creatures.luau), not Moonlit as the brief listed. That's why Moonlit UR is 28 (25 + 3).
+3. **World:** DreamTapir, JellySlime, GalaxyOwl and BrassDragonfly on floor 1, plus the unchanged GemDrake on floor 2 (floor 1 was full).
+   - Every part is a MeshPart (no fallback boxes), with one texture each. The largest gap is 0.000 (BrassDragonfly 0.008).
+   - Sizes: the Epics are 3.1-3.2 studs tall, JellySlime (UR) 2.7.
+   - Bottom medians are 0.73-0.80 on a 0.70 floor. Moved in 10 s: 2.0-12.4 studs.
+   - GemDrake is as at #129: 17 MeshParts, the same 5 glows.
+   - **Glow:** within the tier rules (VoxelArt.spec: no glow below Ultra Rare; no per-creature cap). BrassDragonfly has none; DreamTapir and GalaxyOwl have Epic accent glows.
+   - *Note:* **JellySlime** has 75 Neon parts, about 53% of its box volume, so its whole upper body reads as a glowing cyan jelly (`141-jellyslime-plot.jpg`). That's allowed, but it's by far the brightest UR. The art thread may want to tone it down, or accept it as the slime's look.
+4. **Phone 844x392:**
+   - Book (Epic and UR tabs): smallest text 12.8 px, nothing truncated, no overlap (`141-phone-book-ur.jpg`).
+   - Moonlit list: 420x244, 14.4 px, nothing truncated (`141-phone-moonlit.jpg`).
+- *Cosmetic:* WillOWisp's display name renders as "Will OWisp" in the list; "Will-o'-Wisp" would read better.
