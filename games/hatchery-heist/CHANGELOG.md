@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: a rare egg like the Moonlit Egg rides past its Buy prompt in about a
+  second, too fast to reach "See every creature". The full odds list now has
+  a tab for every egg on the belt, so any egg's list opens the others.
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
   the list is off.

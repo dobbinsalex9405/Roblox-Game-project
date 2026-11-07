@@ -69,6 +69,26 @@ local function eggById(eggs: { any }, eggId: string): any?
 end
 Hatchery.eggById = eggById
 
+-- The eggs the Egg Market's belt sells (the keys of `weights`, its
+-- conveyor weights), cheapest first: the order of its odds signs and of
+-- the odds list's egg tabs.
+function Hatchery.marketEggs(eggs: { any }, weights: { [string]: number }): { string }
+	local ids = {}
+	for eggId in weights do
+		table.insert(ids, eggId)
+	end
+	table.sort(ids, function(a, b)
+		local ea, eb = eggById(eggs, a), eggById(eggs, b)
+		local pa = if ea then ea.priceCoins or 0 else 0
+		local pb = if eb then eb.priceCoins or 0 else 0
+		if pa ~= pb then
+			return pa < pb
+		end
+		return a < b
+	end)
+	return ids
+end
+
 -- Coins per second one creature earns before rebirth and pass multipliers.
 function Hatchery.creatureIncome(creature: any, creatureConfig: any): number
 	local species = creatureConfig.species[creature.speciesId]

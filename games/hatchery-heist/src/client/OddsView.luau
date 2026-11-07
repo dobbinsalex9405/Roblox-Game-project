@@ -359,6 +359,8 @@ end
 
 -- A window listing every creature an egg can hatch with its exact chance,
 -- opened from the odds card: the same numbers the server rolls from.
+local TAB_HEIGHT = 40 -- tall enough to tap on a phone
+local TAB_GAP = 6
 local function buildList(): ScreenGui
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "OddsList"
@@ -405,11 +407,25 @@ local function buildList(): ScreenGui
 		gui.Enabled = false
 	end)
 	close.Parent = window
+	-- One tab per belt egg: a rare egg rides past its Buy prompt in about a
+	-- second (Studio gate, #131: Moonlit 0.98 s), too short to reach its
+	-- card's button, so any egg's list opens every other egg's.
+	local tabs = Instance.new("Frame")
+	tabs.Name = "Tabs"
+	tabs.BackgroundTransparency = 1
+	tabs.Position = UDim2.fromOffset(10, 52)
+	tabs.Size = UDim2.new(1, -20, 0, TAB_HEIGHT)
+	local tabLayout = Instance.new("UIListLayout")
+	tabLayout.FillDirection = Enum.FillDirection.Horizontal
+	tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	tabLayout.Padding = UDim.new(0, TAB_GAP)
+	tabLayout.Parent = tabs
+	tabs.Parent = window
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Name = "Rows"
 	scroll.BackgroundTransparency = 1
-	scroll.Position = UDim2.fromOffset(10, 54)
-	scroll.Size = UDim2.new(1, -20, 1, -64)
+	scroll.Position = UDim2.fromOffset(10, 52 + TAB_HEIGHT + 8)
+	scroll.Size = UDim2.new(1, -20, 1, -(52 + TAB_HEIGHT + 8 + 10))
 	scroll.CanvasSize = UDim2.new()
 	scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	scroll.ScrollBarThickness = 6
@@ -435,7 +451,43 @@ function OddsView.openList(eggId: string)
 	local window = list:FindFirstChild("Window") :: Frame
 	local scroll = window:FindFirstChild("Rows") :: ScrollingFrame
 	local title = window:FindFirstChild("Title") :: TextLabel
+	local tabs = window:FindFirstChild("Tabs") :: Frame
 	listEgg = eggId
+	local function renderTabs()
+		for _, child in tabs:GetChildren() do
+			if child:IsA("GuiButton") then
+				child:Destroy()
+			end
+		end
+		local ids = Hatchery.marketEggs(ctx.config.eggs, ctx.config.economy.conveyor.weights)
+		if table.find(ids, eggId) == nil then
+			-- An egg sold elsewhere (Premium Egg): its own list, no tabs.
+			tabs.Visible = false
+			return
+		end
+		tabs.Visible = true
+		for i, id in ids do
+			local tab = Instance.new("TextButton")
+			tab.Name = id
+			tab.LayoutOrder = i
+			tab.Size = UDim2.new(1 / #ids, -TAB_GAP * (#ids - 1) / #ids, 1, 0)
+			tab.AutoButtonColor = id ~= eggId
+			tab.BackgroundColor3 = if id == eggId then Color3.fromRGB(255, 200, 70) else Color3.fromRGB(55, 55, 75)
+			tab.Font = FONT
+			tab.TextSize = 15
+			tab.TextColor3 = if id == eggId then Color3.fromRGB(30, 25, 10) else Color3.new(1, 1, 1)
+			tab.TextTruncate = Enum.TextTruncate.AtEnd
+			tab.Text = (string.gsub(Layout.displayName(id), " Egg$", ""))
+			corner(tab, 8)
+			tab.Activated:Connect(function()
+				if id ~= eggId then
+					OddsView.openList(id)
+				end
+			end)
+			tab.Parent = tabs
+		end
+	end
+	renderTabs()
 	local function render()
 		for _, child in scroll:GetChildren() do
 			-- Keep the layout and the inset that holds rows off the scroll bar.
