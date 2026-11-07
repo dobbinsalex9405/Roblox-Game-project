@@ -35,6 +35,8 @@ API = 'https://apis.roblox.com/assets/v1'
 CLOUD_UNIVERSE = 'https://apis.roblox.com/cloud/v2/universes'
 GAMES = 'https://games.roblox.com/v1/games'
 GAME = 'hatchery-heist'
+TRIES = 5  # per request; waits 2, 4, 8, 16 s between them
+RETRY_CODES = (429, 500, 502, 503, 504)
 
 
 def call(method, url, key=None, body=None, ctype=None, soft=False):
@@ -46,18 +48,28 @@ def call(method, url, key=None, body=None, ctype=None, soft=False):
         req.add_header('x-api-key', key)
     if ctype:
         req.add_header('content-type', ctype)
-    for attempt in range(5):
+    for attempt in range(TRIES):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 return json.loads(r.read() or b'{}')
         except urllib.error.HTTPError as e:
             text = e.read().decode('utf-8', 'replace')[:500]
-            if e.code in (429, 500, 502, 503) and attempt < 4:
+            if e.code in RETRY_CODES and attempt < TRIES - 1:
                 time.sleep(2 ** attempt * 2)
                 continue
             if soft and 400 <= e.code < 500:
                 raise LookupError(f'HTTP {e.code}')
             raise SystemExit(f'{method} {url.split("?")[0]} failed: HTTP {e.code} {text}')
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            # the network, not Roblox's answer: a refused or reset connection
+            # or a timeout (run 42096155779 stopped on "Connection refused"
+            # after 11 creatures). Retried like a 5xx; a retried create can at
+            # worst leave one unused palette image behind.
+            if attempt < TRIES - 1:
+                print(f'{method} {url.split("?")[0]}: {e}; retrying', flush=True)
+                time.sleep(2 ** attempt * 2)
+                continue
+            raise SystemExit(f'{method} {url.split("?")[0]} failed after {TRIES} tries: {e}')
 
 
 def multipart(request, path, ctype='model/fbx'):

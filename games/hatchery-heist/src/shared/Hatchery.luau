@@ -11,6 +11,7 @@
 
 local Book = require("./Book")
 local Creatures = require("./Creatures")
+local Numbers = require("./Numbers")
 local Tower = require("./Tower")
 
 export type Data = { [string]: any }
@@ -234,6 +235,21 @@ function Hatchery.freeSlot(d: Data, slotCount: number): number?
 		end
 	end
 	return nil
+end
+
+-- What a player short of coins for `egg` is told: which egg it was and its
+-- price (the belt keeps moving, so the nearest Buy is often a dearer egg),
+-- and the cheapest egg on sale when that is a different one.
+function Hatchery.shortOfCoins(egg: any, cheapest: any?): string
+	local function name(e: any): string
+		return (string.gsub(e.id, "(%l)(%u)", "%1 %2"))
+	end
+	local article = if string.find(egg.id, "^[AEIOU]") then "an" else "a"
+	local text = `Not enough coins: {article} {name(egg)} costs {Numbers.short(egg.priceCoins)}.`
+	if cheapest and cheapest.id ~= egg.id and cheapest.priceCoins then
+		text ..= ` {name(cheapest)}s cost {Numbers.short(cheapest.priceCoins)}.`
+	end
+	return text
 end
 
 -- Buys a coin egg into the first free incubator. `pick` decides the outcome
