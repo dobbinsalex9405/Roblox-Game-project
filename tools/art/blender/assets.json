@@ -2094,12 +2094,6 @@
    "textureType": "Image",
    "version": "1"
   },
-  "GummyBear": {
-   "assetId": 133377156043379,
-   "textureId": 130433125023631,
-   "textureType": "Image",
-   "version": "1"
-  },
   "JellySlime": {
    "assetId": 111996189674111,
    "textureId": 137461933932625,
@@ -3314,10 +3308,6 @@
   "ZebraPiglet": {
    "imageId": 122821289359673,
    "source": "bd54e7d5ad399b01"
-  },
-  "GummyBear": {
-   "imageId": 87903919872388,
-   "source": "5c042b8fb0aa3942"
   },
   "JellySlime": {
    "imageId": 71245448240637,
