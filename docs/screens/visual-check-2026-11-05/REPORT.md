@@ -734,3 +734,21 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **At ≈1 s:** the flick lands fully drawn, and every card sits in the right slot (`119c-hh-1s-flick.jpg`).
 - **Read:** this is worse than 2c2042d in the first second, because of the visible bleed. It's the same after 1 s.
 - **Suggestions:** park warm cards off-screen inside a ClipsDescendants frame that still counts as on screen; or set the front cards' BackgroundTransparency to 0 and put warm cards at a lower ZIndex/LayoutOrder; or warm with a GroupTransparency of 1 inside a CanvasGroup.
+
+## Main @ 0d49cd0 after #92 (local build of the published commit)
+
+**PASS.** I couldn't drive the published Staging game: the desktop Player ignores synthetic input and screen-control is down. So I checked a local build of the exact published commit, which loads the same live mesh assets.
+- No "glow meshes missing" line in Output; the ThunderGriffin wing glow2 warning is gone.
+- Phoenix: 19 MeshParts, 10 glows, 0 boxes. ThunderGriffin: 17 MeshParts, 5 glows, 0 boxes.
+- All five kitten Book cards have meshes (9-10 MeshParts, 0 boxes). Calico and Persian on pads are the same.
+
+## #119 Book @ d9dc0ff
+
+**FAIL.** Desktop, Common tab.
+- **Fixed:** nothing peeks through the front cards any more (no text bleed). Layering is right: dark well under the picture, name and odds over it. After about 2 s every card is in its slot with its silhouette (`119d-hh-settled.jpg`).
+- **Still blank:**
+  - A flick right after opening lands on 18 visible cards with empty wells (`119d-hh-immediate.jpg`).
+  - At 0.3 s it's the same (`119d-hh-03s.jpg`).
+  - At 1 s, 5 of 12 fully visible cards are still empty (`119d-hh-1s.jpg`).
+- So this is **worse than 2c2042d**, where the 1 s flick was fully drawn. The new 0.3 s start delay plus 4 per frame isn't fast enough to warm the rows a flick reaches.
+- Not run: the tab-switch repeat and the NEW badge (no found cards in a fresh save), since the flick check already fails.
