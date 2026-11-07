@@ -6,6 +6,10 @@
     "bundle": "esbuild src/viewer.js --bundle --minify --format=iife --target=chrome100,edge100,firefox100,safari15 --legal-comments=eof --outfile=dist/viewer.js && node make-draco.mjs"
   },
   "devDependencies": {
+    "@gltf-transform/core": "4.1.1",
+    "@gltf-transform/extensions": "4.1.1",
+    "@gltf-transform/functions": "4.1.1",
+    "draco3dgltf": "1.5.7",
     "esbuild": "0.24.0",
     "three": "0.170.0"
   }

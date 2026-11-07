@@ -1024,7 +1024,14 @@ local SEEDS = {
 	{ "Camera", { ViewportSize = roblox.Vector2.new(1280, 720) } },
 	{
 		"Player",
-		{ AccountAge = 30, LocaleId = "en-us", MembershipType = Enum.MembershipType.None, FollowUserId = 0 },
+		{
+			AccountAge = 30,
+			LocaleId = "en-us",
+			MembershipType = Enum.MembershipType.None,
+			FollowUserId = 0,
+			CameraMaxZoomDistance = 128,
+			CameraMinZoomDistance = 0.5,
+		},
 	},
 	{
 		"BasePart",
@@ -1555,7 +1562,13 @@ local function defineServices()
 	ws.FindPartsInRegion3WithWhiteList = function()
 		return {}
 	end
-	ws.BulkMoveTo = function() end
+	-- Moves each part like setting its CFrame, so what a game moves this way
+	-- (the Egg Market's eggs) is where the audit draws it.
+	ws.BulkMoveTo = function(_self, parts, cframes)
+		for i, part in parts do
+			part.CFrame = cframes[i]
+		end
+	end
 	ws.Terrain = true -- built lazily by applyOverrides
 	ws.CurrentCamera = NIL -- set by the client boot
 	ws.PersistentLoaded = Signal.new("Workspace.PersistentLoaded")

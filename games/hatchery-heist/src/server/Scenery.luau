@@ -323,7 +323,7 @@ local function yard(parent: Instance)
 end
 
 -- Low fences and flower beds on each base: a side fence on the left and
--- right and a back fence, leaving the front (the belt side) open.
+-- right and a back fence, leaving the front (the yard side) open.
 local function dressPlot(parent: Instance, index: number, rng: Random)
 	local frame = Layout.plotCFrame(index)
 	local model = Instance.new("Model")
