@@ -14680,7 +14680,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	GoldenGoose = {
 		assetId = 78366279913804,
-		textureId = 86233301323196,
+		textureId = 132365633833596,
 		rarity = "Godly",
 		gait = "hover",
 		height = 4.4,
@@ -14924,7 +14924,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	NebulaSerpent = {
 		assetId = 133734762072662,
-		textureId = 94663921214126,
+		textureId = 86054197578838,
 		rarity = "Godly",
 		gait = "hover",
 		height = 4.1875,

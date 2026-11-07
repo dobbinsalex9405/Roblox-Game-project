@@ -380,9 +380,9 @@
   },
   "GoldenGoose": {
    "assetId": 78366279913804,
-   "textureId": 86233301323196,
+   "textureId": 132365633833596,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "GoldenTamarin": {
    "assetId": 89453806297155,
@@ -656,9 +656,9 @@
   },
   "NebulaSerpent": {
    "assetId": 133734762072662,
-   "textureId": 94663921214126,
+   "textureId": 86054197578838,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "Newt": {
    "assetId": 137451594093883,
