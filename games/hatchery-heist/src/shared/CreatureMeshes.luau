@@ -4515,7 +4515,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Cockatiel = {
 		assetId = 127502802002435,
-		textureId = 72463376334332,
+		textureId = 83681810766996,
 		rarity = "Common",
 		gait = "waddle",
 		height = 2.3,
@@ -6004,7 +6004,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Damselfly = {
 		assetId = 122865130295801,
-		textureId = 94690615856578,
+		textureId = 87298799050747,
 		rarity = "Common",
 		gait = "hover",
 		height = 0.8,
@@ -6201,7 +6201,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Donkey = {
 		assetId = 96147156751148,
-		textureId = 87794653224377,
+		textureId = 122184272250580,
 		rarity = "Common",
 		gait = "trot",
 		height = 2.3,
@@ -6324,7 +6324,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Dormouse = {
 		assetId = 92110049428322,
-		textureId = 105103357310529,
+		textureId = 114588280134710,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.8,
@@ -7501,7 +7501,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	FiddlerCrab = {
 		assetId = 97805200638979,
-		textureId = 133738302975375,
+		textureId = 101762196854483,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 0.9,
@@ -7688,7 +7688,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Firefly = {
 		assetId = 85008790844096,
-		textureId = 76860581154774,
+		textureId = 136723435152263,
 		rarity = "Common",
 		gait = "hover",
 		height = 1.1,
@@ -8156,7 +8156,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	GardenSpider = {
 		assetId = 79445149531475,
-		textureId = 94987149488775,
+		textureId = 77437908090897,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 1,
@@ -8722,7 +8722,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	GoldenTamarin = {
 		assetId = 89453806297155,
-		textureId = 97182528641626,
+		textureId = 97732189978241,
 		rarity = "Common",
 		gait = "trot",
 		height = 2,
@@ -9320,7 +9320,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	GuineaFowl = {
 		assetId = 75193486152658,
-		textureId = 129275092333208,
+		textureId = 135352104258404,
 		rarity = "Common",
 		gait = "waddle",
 		height = 2.1,
@@ -10308,7 +10308,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	HermitCrab = {
 		assetId = 129013331559648,
-		textureId = 114744626516197,
+		textureId = 106239098974597,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 1.6,
@@ -10491,7 +10491,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	HeronChick = {
 		assetId = 73262618330015,
-		textureId = 108713483575786,
+		textureId = 111386656255881,
 		rarity = "Common",
 		gait = "waddle",
 		height = 2.7,
