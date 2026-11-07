@@ -19,6 +19,7 @@ local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local Eggs = require(Shared.Eggs)
 local Hatchery = require(Shared.Hatchery)
+local OddsCard = require(Shared.OddsCard)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
@@ -77,8 +78,10 @@ function OddsView.ready(eggId: string): boolean
 	return ctx.restricted() or displays[eggId] ~= nil
 end
 
--- Row height in pixels on the odds card.
+-- Row height in pixels on the odds card, and the share of a row the left
+-- text gets.
 local rowHeight = 22
+local rowSplit = 0.5
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
 	local frame = Instance.new("Frame")
@@ -87,8 +90,9 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	frame.BackgroundTransparency = 1
 	frame.Size = UDim2.new(1, 0, 0, rowHeight)
 	local name = Instance.new("TextLabel")
+	name.Name = "Name"
 	name.BackgroundTransparency = 1
-	name.Size = UDim2.fromScale(0.5, 1)
+	name.Size = UDim2.fromScale(rowSplit, 1)
 	name.TextXAlignment = Enum.TextXAlignment.Left
 	name.Font = if bold then Enum.Font.GothamBold else Enum.Font.Gotham
 	name.TextScaled = true
@@ -96,9 +100,10 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	name.Text = left
 	name.Parent = frame
 	local value = Instance.new("TextLabel")
+	value.Name = "Value"
 	value.BackgroundTransparency = 1
-	value.Position = UDim2.fromScale(0.5, 0)
-	value.Size = UDim2.fromScale(0.5, 1)
+	value.Position = UDim2.fromScale(rowSplit, 0)
+	value.Size = UDim2.fromScale(1 - rowSplit, 1)
 	value.TextXAlignment = Enum.TextXAlignment.Right
 	value.Font = Enum.Font.GothamBold
 	value.TextScaled = true
@@ -110,33 +115,53 @@ end
 
 -- One text size for every row of a list. With TextScaled each label shrinks
 -- to its own text, so long names (Thunder Griffin) came out smaller than
--- their neighbours. This finds the largest size at which every label fits
--- its half of the row and gives it to all of them. Before the list has a
--- width on screen, the labels keep TextScaled.
+-- their neighbours. This finds the largest size at which every row's name
+-- and value fit side by side and gives it to all of them, never below
+-- MIN_TEXT_SIZE. Each value then gets the width its text needs and its
+-- name the rest (OddsCard.valueShare), so if a row is still too long its
+-- name ends in "...", never its odds. Before the list has a width on
+-- screen, the labels keep TextScaled.
+local MIN_TEXT_SIZE = OddsCard.MIN_TEXT_SIZE -- 11 px or more on screen at the card's smallest
 local function sameTextSize(container: GuiObject)
 	local width = container.AbsoluteSize.X
 	local pad = container:FindFirstChildOfClass("UIPadding")
 	if pad then
 		width -= pad.PaddingLeft.Offset + pad.PaddingRight.Offset
 	end
-	local labelWidth = width / 2 - 2
-	if labelWidth <= 0 then
+	if container:IsA("ScrollingFrame") then
+		width -= container.ScrollBarThickness
+	end
+	-- The card is drawn smaller on a phone (UIScale): measure unscaled.
+	local scaled = container:FindFirstAncestorWhichIsA("GuiObject")
+	local scale = scaled and scaled:FindFirstChildOfClass("UIScale")
+	if scale and scale.Scale > 0 then
+		width /= scale.Scale
+	end
+	if width <= 4 then
 		return
 	end
-	local labels: { TextLabel } = {}
+	type Row = { name: TextLabel, value: TextLabel? }
+	local rows: { Row } = {}
 	for _, frame in container:GetChildren() do
-		for _, l in frame:GetChildren() do
-			if l:IsA("TextLabel") then
-				table.insert(labels, l)
-			end
+		local name = frame:FindFirstChild("Name")
+		local value = frame:FindFirstChild("Value")
+		if name and name:IsA("TextLabel") then
+			local hasValue = value ~= nil and value:IsA("TextLabel") and value.Text ~= ""
+			table.insert(rows, { name = name, value = if hasValue then value :: TextLabel else nil })
 		end
 	end
-	local size = rowHeight - 4
 	local bounds = Vector2.new(10000, 10000)
-	while size > 8 do
+	local function widthOf(l: TextLabel?, size: number): number
+		if l == nil then
+			return 0
+		end
+		return TextService:GetTextSize(l.Text, size, l.Font, bounds).X
+	end
+	local size = rowHeight - 4
+	while size > MIN_TEXT_SIZE do
 		local fits = true
-		for _, l in labels do
-			if TextService:GetTextSize(l.Text, size, l.Font, bounds).X > labelWidth then
+		for _, r in rows do
+			if not OddsCard.fits(widthOf(r.name, size), widthOf(r.value, size), width) then
 				fits = false
 				break
 			end
@@ -146,10 +171,21 @@ local function sameTextSize(container: GuiObject)
 		end
 		size -= 1
 	end
-	for _, l in labels do
-		l.TextScaled = false
-		l.TextSize = size
-		l.TextTruncate = Enum.TextTruncate.AtEnd
+	for _, r in rows do
+		local share = OddsCard.valueShare(widthOf(r.value, size), width)
+		local function settle(l: TextLabel)
+			l.TextScaled = false
+			l.TextSize = size
+			l.TextTruncate = Enum.TextTruncate.AtEnd
+		end
+		settle(r.name)
+		r.name.Size = UDim2.fromScale(1 - share, 1)
+		local value = r.value
+		if value then
+			settle(value)
+			value.Position = UDim2.fromScale(1 - share, 0)
+			value.Size = UDim2.fromScale(share, 1)
+		end
 	end
 end
 
@@ -177,6 +213,41 @@ function OddsView.tiers(display: any): { { rarity: string, weight: number, perce
 	return out
 end
 
+-- The card's button that opens the egg's full list (OddsView.openList).
+local function listButton(container: GuiObject, eggId: string, text: string)
+	local button = Instance.new("TextButton")
+	button.Name = "SeeEvery"
+	button.LayoutOrder = 100
+	button.Size = UDim2.new(1, 0, 0, 30)
+	button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
+	button.Font = FONT
+	button.TextSize = 15
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Text = text
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 8)
+	c.Parent = button
+	button.Activated:Connect(function()
+		OddsView.openList(eggId)
+	end)
+	button.Parent = container
+end
+
+-- How a fixed-order wait reads: 0 is the next egg.
+local function waitText(wait: number): string
+	return if wait == 0 then "NEXT" else `in {wait + 1} eggs`
+end
+
+-- Eggs of the fixed order shown one by one on the card; the rest is per
+-- tier (Studio gate, #126: all 47 Basic Egg lines ran off the screen).
+OddsView.FIXED_UPCOMING = 3
+
+-- Eggs bought of this kind so far: where this player is in its fixed order.
+local function boughtOf(eggId: string): number
+	local data = ctx.data()
+	return if data then data.eggsBought[eggId] or 0 else 0
+end
+
 -- Fills `container` (which should have a UIListLayout) with one egg's odds:
 -- the card beside the Buy prompt.
 local function fill(container: GuiObject, eggId: string)
@@ -194,25 +265,44 @@ local function fill(container: GuiObject, eggId: string)
 	row(container, 0, Layout.displayName(egg.id), price, Color3.new(1, 1, 1), true)
 
 	if ctx.restricted() then
-		local data = ctx.data()
-		local bought = if data then data.eggsBought[egg.id] or 0 else 0
-		local nextId = Hatchery.fixedOrderOutcome(egg, bought)
-		row(container, 1, "Fixed order, no chance involved:", "", Color3.fromRGB(200, 200, 200), false)
-		local cycle = #Hatchery.fixedOrderCycle(egg)
-		for i, outcome in egg.outcomes do
-			local rarity = species[outcome.id].rarity
-			local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)
-			local isNext = outcome.id == nextId
-			local count = outcome.weight * cycle // (egg.total or 10000)
+		-- The next few eggs by name, then one line per tier: how many of
+		-- every cycle and how soon its first one comes. The whole order is
+		-- in the list.
+		local function rarityOf(id: string): string
+			return species[id].rarity
+		end
+		local summary = Hatchery.fixedOrderSummary(
+			egg,
+			boughtOf(egg.id),
+			rarityOf,
+			OddsView.FIXED_UPCOMING,
+			Eggs.RARITIES
+		)
+		-- Short texts in columns sized to them, so the card keeps main's
+		-- text size on a phone (Studio gate, #126: 5.6 px at 844x392).
+		local grey = Color3.fromRGB(200, 200, 200)
+		rowSplit = 1
+		row(container, 1, "Fixed order, no chance:", "", grey, false)
+		rowSplit = 0.66
+		for n, id in summary.upcoming do
+			local rarity = rarityOf(id)
+			row(container, 1 + n, Layout.displayName(id), waitText(n - 1), Layout.rarityColor(rarity), n == 1)
+		end
+		rowSplit = 1
+		row(container, 9, `Of every {summary.length} eggs:`, "", grey, false)
+		rowSplit = 0.5
+		for i, tier in summary.tiers do
 			row(
 				container,
-				i + 1,
-				`{Layout.displayName(outcome.id)} ({rarity}): {count} in every {cycle}`,
-				if isNext then "NEXT" elseif wait then `in {wait + 1} eggs` else "",
-				Layout.rarityColor(rarity),
-				isNext
+				10 + i,
+				`{tier.rarity} {tier.count}`,
+				waitText(tier.wait),
+				Layout.rarityColor(tier.rarity),
+				false
 			)
 		end
+		rowSplit = 0.5
+		listButton(container, eggId, "See the whole order")
 		return
 	end
 
@@ -241,22 +331,7 @@ local function fill(container: GuiObject, eggId: string)
 			false
 		)
 	end
-	local button = Instance.new("TextButton")
-	button.Name = "SeeEvery"
-	button.LayoutOrder = 100
-	button.Size = UDim2.new(1, 0, 0, 30)
-	button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
-	button.Font = FONT
-	button.TextSize = 15
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.Text = "See every creature"
-	local c = Instance.new("UICorner")
-	c.CornerRadius = UDim.new(0, 8)
-	c.Parent = button
-	button.Activated:Connect(function()
-		OddsView.openList(eggId)
-	end)
-	button.Parent = container
+	listButton(container, eggId, "See every creature")
 end
 
 function OddsView.render(container: GuiObject, eggId: string)
@@ -443,24 +518,64 @@ function OddsView.openList(eggId: string)
 				child:Destroy()
 			end
 		end
-		title.Text = `{Layout.displayName(eggId)}: every creature`
-		local display = displays[eggId]
-		if display == nil then
-			return
-		end
 		local species = ctx.config.creatures.species
 		local saved = rowHeight
 		rowHeight = 24
-		for i, r in display.rows do
-			local rarity = if species[r.id] then species[r.id].rarity else "Common"
-			row(
-				scroll,
-				i,
-				`{Layout.displayName(r.id)} ({rarity})`,
-				`{r.percent} · {r.oneIn}`,
-				Layout.rarityColor(rarity),
-				false
-			)
+		local egg = Hatchery.eggById(ctx.config.eggs, eggId)
+		if ctx.restricted() and egg then
+			-- Every creature in the order it next comes, soonest first, with
+			-- how many of every cycle it is. The wait gets its own column, wide
+			-- enough for "in 25011 eggs" (Studio gate, #126: "· in 2…").
+			title.Text = `{Layout.displayName(eggId)}: fixed order`
+			local bought = boughtOf(eggId)
+			local cycle = Hatchery.fixedOrderLength(egg)
+			local lines = {}
+			for _, outcome in egg.outcomes do
+				local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)
+				if wait then
+					table.insert(lines, {
+						id = outcome.id,
+						wait = wait,
+						count = outcome.weight * cycle // (egg.total or 10000),
+					})
+				end
+			end
+			table.sort(lines, function(a, b)
+				return a.wait < b.wait
+			end)
+			rowSplit = 1 -- one line across the whole row
+			row(scroll, 0, `How many of every {cycle} eggs:`, "", Color3.fromRGB(200, 200, 200), false)
+			rowSplit = 0.62
+			for i, line in lines do
+				local rarity = species[line.id].rarity
+				row(
+					scroll,
+					i,
+					`{Layout.displayName(line.id)} ({line.count})`,
+					waitText(line.wait),
+					Layout.rarityColor(rarity),
+					line.wait == 0
+				)
+			end
+			rowSplit = 0.5
+		else
+			title.Text = `{Layout.displayName(eggId)}: every creature`
+			local display = displays[eggId]
+			if display == nil then
+				rowHeight = saved
+				return
+			end
+			for i, r in display.rows do
+				local rarity = if species[r.id] then species[r.id].rarity else "Common"
+				row(
+					scroll,
+					i,
+					`{Layout.displayName(r.id)} ({rarity})`,
+					`{r.percent} · {r.oneIn}`,
+					Layout.rarityColor(rarity),
+					false
+				)
+			end
 		end
 		rowHeight = saved
 		for _, frame in scroll:GetChildren() do

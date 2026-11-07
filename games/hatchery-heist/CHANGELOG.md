@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Players who see a fixed hatch order instead of chances: the order is now
+  worked out one egg at a time, so eggs whose odds are written in tens of
+  millions (room for many more Legendaries and Epics) cost no memory. Each
+  outcome still comes exactly as often as its odds say, evenly spread.
+- Fix: for players who see a fixed hatch order, the odds card no longer
+  runs off the screen listing every creature. It shows the next three eggs
+  and one line per tier, and "See the whole order" opens the full list,
+  soonest first, each with its wait in full. The odds card never runs past
+  the bottom of the screen (a long one scrolls), and its text is never
+  smaller than 11 px, even on a phone. Each row's odds get the room they
+  need, so even "1 in 50,000" is never cut short.
 - Ten new Epic creatures can hatch: Mushroom Gnome, Troll Cub, Sapling Ent,
   Gingerbread Golem, Petal Sprite, Frost Sprite, Ember Imp, Yeti Cub, Rime
   Drakeling and Bonsai Dragon. They join the Epic tier's share of the eggs,

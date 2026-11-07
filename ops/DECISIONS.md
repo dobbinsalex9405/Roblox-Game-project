@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Fixed hatch order is worked out per place (Hatchery Heist)
+
+- Restricted players (PolicyService: no paid random items) get a fixed
+  order. It was a smooth weighted round robin built as a whole table, one
+  entry per egg of the cycle, which a 10,000,000 egg total would make a
+  10-million entry table per egg. Now outcome i (reduced weight w) takes
+  its k-th turn at (2k + 1) / (2w) of the way round, ties to the earlier
+  outcome, and any place or wait is computed from those turns in whole
+  numbers (`Hatchery.fixedOrderOutcome` / `fixedOrderWait`). Same promise:
+  exactly w per cycle, evenly spaced, shown before purchase. The order a
+  restricted player sees can differ from the old one after this ships;
+  nothing is owed, since the counts per cycle are unchanged.
+
 ## 2026-11-07: Open Cloud saves wait out Roblox's "Server is busy" (409)
 
 - Roblox answers `409 Conflict: Save failed. Server is busy` to a place save
