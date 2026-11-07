@@ -1168,3 +1168,18 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Bottom medians are 0.73-0.76 on a 0.70 floor. Leg corners dip to as low as 0.53 (Platypus).
   - Moved in 10 s: Calf 7.2, Butterfly 8.2, Monarch 5.6, Platypus 4.2, BeaverKit 2.7 studs.
 - The Book now reads Found x/168 (Epic 25) on main a84c672.
+
+## #133 @ 39d58cf (odds card + Book refit, wider list), merged onto main a84c672 locally
+
+**PASS.**
+- **Desktop Book** 1350x672: 760x560 at y 85-645, unchanged.
+- **Phone Book after resizing desktop → 844x392 with it open:**
+  - It refits to 760x318 at screen y 66-384: **8 px below the 58 px top bar and 8 px above the bottom edge**, with 42 px on each side.
+  - The title is at y 74 (`133-hh-phone-book.jpg`).
+- **Odds card refit:**
+  - On phone: 224x157 at scale 0.80, y 225-383, smallest text 12.0 px, nothing truncated.
+  - Resizing to desktop refits it to **280x214 at scale 1.00**, y 258-472, 14.4 px text. That fixes the no-refit note from #126.
+- **Odds list:**
+  - 420x524 on desktop. "Dalmatian Pup (Common)" fits in full (274 px name box), and 0 labels fail TextFits.
+  - On phone the list refits to 420x244 at y 138-382, Dalmatian Pup still in full (`133-hh-phone-list-dalmatian.jpg`).
+- **Tab switch:** I scrolled the Basic list to 600, switched to Moonlit, and it opened at the top (canvasY 0) (`133-hh-desktop-list-moonlit-top.jpg`).
