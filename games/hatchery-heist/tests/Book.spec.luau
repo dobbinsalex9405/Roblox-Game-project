@@ -87,4 +87,21 @@ describe("Hatchery Book", function()
 		expect(Book.newCount(found, creatures.species, 300)).toBe(0)
 		expect(Book.newCount(nil, creatures.species, 0)).toBe(0)
 	end)
+
+	it("shows a creature's picture once it has one, and lists them all to preload", function()
+		-- Studio gate (#119): live 3D cards drew blank on a flick, a reopen
+		-- and a tab switch. A card with a picture shows the image instead.
+		local thumbs = { Chick = 123, Kitten = 0 }
+		expect(Book.picture("Chick", thumbs)).toBe("rbxassetid://123")
+		expect(Book.picture("Kitten", thumbs)).toBe(nil) -- 0: not uploaded
+		expect(Book.picture("Frog", thumbs)).toBe(nil) -- none: drawn live
+		local list = Book.pictures({ Chick = {}, Kitten = {}, Frog = {} }, thumbs)
+		expect(#list).toBe(1)
+		expect(list[1]).toBe("rbxassetid://123")
+		-- The generated map only names creatures the game has.
+		for speciesId, id in require("../src/shared/CreatureThumbs") do
+			expect(creatures.species[speciesId] ~= nil or `{speciesId} is not a creature`).toBe(true)
+			expect(id > 0).toBe(true)
+		end
+	end)
 end)
