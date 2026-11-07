@@ -69,6 +69,31 @@ again with that group's key. Production then needs its own ids (see
   to 10 creatures light on a phone.
 - The palette textures are tiny (64 × 16 to 64 × 64 pixels).
 
+## Hatchery Book pictures
+
+The Hatchery Book shows each creature as a still picture, not a live 3D
+view: Roblox only draws a ViewportFrame while it is on screen, so a flick
+or a reopen left cards empty for a moment. The pictures come from the same
+meshes and colours as the game and Alex's viewer.
+
+1. `build.py OUT --thumbs` renders each creature the game lists at rest,
+   three-quarter view, on a clear background, cropped to its outline and
+   centred in a 256 × 256 PNG (`OUT/<id>/<id>_thumb.png`, about 4 s each).
+   `thumb.json` beside it holds the art fingerprint it was drawn from
+   (`thumbs.py`: meshes, colours and the picture style).
+2. Run the **Upload creature meshes** workflow with **art = thumbs** (and
+   `only` for a batch). It uploads each picture as an **Image** asset and
+   opens a draft PR recording the ids under `"thumbs"` in
+   `tools/art/blender/assets.json` and in `src/shared/CreatureThumbs.luau`.
+3. `luau.py` lists a picture only while its fingerprint matches the
+   creature's art now. A reworked or recoloured creature drops out of
+   `CreatureThumbs.luau` (and `luau.py` names it), so the Book draws it
+   live until its new picture is uploaded. Changing the picture style
+   means bumping `thumbs.STYLE`, which redraws them all.
+
+An uploaded Image is moderated before it shows. Until then it draws
+nothing, so look at a batch in game before merging its ids.
+
 ## Outdoor nature, skybox and grass
 
 The trees, bushes, rocks, flowers, the six skybox faces and the grass tile

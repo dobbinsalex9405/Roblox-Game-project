@@ -2,6 +2,26 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: The Hatchery Book shows rendered pictures, not live 3D
+
+- **What:** every creature gets a Blender-rendered Book picture
+  (`build.py --thumbs`, uploaded as an Image by the Upload creature meshes
+  workflow with `art = thumbs`, listed in `CreatureThumbs.luau`). The Book
+  shows the picture on an ImageLabel, tinted dark for creatures not yet
+  found, and keeps the live ViewportFrame only for a creature with no
+  current picture.
+- **Why:** Roblox draws a ViewportFrame only while it is on screen and
+  redraws it after it comes back, a few a frame. Three rounds of the Studio
+  gate on #119 showed empty cards on a fast flick, a reopen and a tab
+  switch however early the cards were built. An image has no such delay
+  once loaded, and the pictures are preloaded at join.
+- **Pictures follow the art:** each records a fingerprint of the meshes,
+  colours and picture style it came from. A creature whose art changed
+  drops out of the map until it is drawn again, so the Book never shows an
+  old look. Pictures are framed to the creature's outline, so a mouse and a
+  serpent fill their cards alike (the Book is a collection, not a size
+  chart), and Legendaries and Godlies are drawn level, without their hover.
+
 ## 2026-11-07: Big Epics fit their 120-box stand-in by coarsening, not by losing detail
 
 - **The in-game box art (VoxelArt, drawn before the meshes load) of the
