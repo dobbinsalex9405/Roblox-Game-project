@@ -228,6 +228,19 @@ def kappa(c, k, cols, opts):
             f = head.front(x, round(hz - 0.5 * k))
             if f and head.v[f][0] == beak:
                 head.put(f, dark(beak, 0.35))
+    # a flat, light face across the eyes: on a small round head the eyes sit
+    # where the front curves away, and the shaded rim round them read as
+    # sunglasses; a flat oval plate keeps every voxel round the eyes in one
+    # plane and one light green
+    face = light(col, 0.15)
+    yf = min(p[1] for p in head.v if abs(p[0] + .5) < 1 and abs(p[2] - hz) < 1)
+    fw, fh = 1.2 * k, 0.75 * k
+    for x in range(-math.ceil(fw), math.ceil(fw)):
+        for z in range(round(hz - fh), round(hz + fh) + 1):
+            if ((x + .5) / fw) ** 2 + ((z - hz) / fh) ** 2 <= 1.0:
+                for y in range(yf, yf + round(0.8 * k)):
+                    if (x, y, z) not in head.v or head.v[(x, y, z)][0] == col:
+                        head.put((x, y, z), face)
     eye_pair(c, head, max(1, round(0.45 * k)), round(hz - 0.05 * k), max(2, round(0.4 * k)), iris=iris)
     if fine:
         cheeks(head, round(1.05 * k), round(hz - 0.55 * k))
