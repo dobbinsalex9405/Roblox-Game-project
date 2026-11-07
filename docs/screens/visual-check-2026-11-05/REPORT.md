@@ -861,3 +861,15 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
    - All enabled labels showed SALE 0.07 s after Egg Sale started.
    - All were back to full price immediately when switching to Lucky Hatch.
    - The odds card reads "Boosted: Lucky Hatch".
+
+## #109 @ 5674076 (Common B legacy refits)
+
+**PASS.** Local build, desktop and phone.
+- **Scope:** compared with current main, the only in-game creature change in this head is **Bumblebee**: new textureId 82434895412728, raised 0.2 (height 1.1 → 1.3), tris 7076. Meerkat and the other refit commits are already on main or only touch the art-tool sources, so there's nothing else live to check.
+- **Bumblebee on a pad:**
+  - 9 MeshParts, 0 boxes, all using texture **82434895412728** (the new one).
+  - Every part touches its neighbour (gap 0.00): wings and legs on the body, head on the body, eyes on the head.
+  - Its lowest point stays 0.01-0.15 studs above the pad over 3 s of hover bob, so there's no clipping into the floor (`109-hh-bumblebee-pad.jpg`).
+- **Ladybug (control):** 9 meshes, 0 boxes, sits 0.01-0.09 above the pad.
+- **Book (phone 844x392):** the Bumblebee card shows the textured model (9 MeshParts, texture 82434895412728) with its NEW badge (`109-hh-book-bumblebee-phone.jpg`).
+- **Output:** only "content representation is being generated" for the fresh texture, plus my own script error from a lookup by the wrong card name. No asset failures.
