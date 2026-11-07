@@ -1130,3 +1130,14 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Moonlit list (per creature): Owlet 12.667→16.333 (x1.29 after normalising), Axolotl 1.85→2.783 (x1.50), Epics 0.022→0.037-0.039 (≤x1.77), Phoenix 0.008→0.013, Nebula 0.002→0.003. All are ≤ the uncapped product.
   - *Note:* the x3 cap can't actually be reached with today's sources. The largest product is Luck Boost x2 × Star of Fortune x1.2 = x2.4, so on screen the cap shows only as "never above". Spec tests cover the cap itself.
 - *Note (main, not this PR):* at 702x378 the main-branch odds card (without #126) runs below the screen, so "See every creature" can't be reached on a small phone. #126 fixes that.
+
+## #126 @ 8dca9a9 (value box sized to its text), merged onto main ad8133f as 675ec02
+
+**PASS.**
+- **Phone 844x392, unrestricted:**
+  - The card is 224x157 at UIScale 0.80, screen y 225-383, within ≤384.
+  - **TextFits is true on every row.** The Legendary row reads "0.002% · 1 in 50,000" in full.
+  - The smallest text is 12.0 px, and the rows scroll (canvas 171 in a 157 frame) (`126f-phone-unrestricted.jpg`).
+- **Desktop 1350x672, unrestricted, fresh session:** 280x214 at y 258-472 at scale 1.0. Smallest text 14.4 px, nothing truncated, and the same six rows as main (92.000% · 1 in 1.1 … 0.002% · 1 in 50,000). Unchanged from main.
+- **Phone, restricted (glance):** 224x157 at y 225-383, smallest text 12.0 px, nothing truncated, and the rows scroll (267 in a 157 frame).
+- *Note, not a FAIL:* the card doesn't refit when the viewport grows mid-session. After a phone → desktop resize it stayed 224x157 at scale 0.8 on a 1350x672 screen. It's still readable and fits (`126f-desktop-after-resize-no-refit.jpg`). A fresh desktop session is correct. This matters for rotation; the Book got a refit in #131 and this card could use the same.
