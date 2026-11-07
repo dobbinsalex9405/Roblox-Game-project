@@ -25,4 +25,8 @@ return {
 	neon = false,
 	-- Displays move (bob, spin, glow) only for players this close.
 	animateRange = 120,
+	-- Inside the shop the camera stays at most this far (studs) behind the
+	-- player: the shop's art is not in the camera's way-finding, so a
+	-- longer zoom ended up inside the counter and walls (Studio gate, Nov 5).
+	indoorZoom = 8,
 }
