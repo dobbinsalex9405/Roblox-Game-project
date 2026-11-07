@@ -30,6 +30,6 @@
    "options": {"kind": "rime"}},
   {"id": "BonsaiDragon", "rarity": "Epic", "plan": "epicdrake", "gait": "trot", "element": "Nature",
    "colors": {"col": "#5FB89A", "belly": "#E8F2C8", "accent": "#C9A66B", "leaf": "#3E8F4A", "glow": "#FF7AB8"},
-   "options": {"kind": "bonsai"}, "shape": {"body": [0.92, 0.92, 0.92], "head": 0.93}}
+   "options": {"kind": "bonsai"}, "shape": {"body": [0.95, 0.95, 0.95], "head": 0.95}}
  ]
 }

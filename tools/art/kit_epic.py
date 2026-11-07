@@ -101,20 +101,26 @@ def _gnome(c, H, cols):
     beardp.ell((0, -1.25 * k, 4.7 * k), (1.7 * k, 1.0 * k, 1.5 * k), beard,
                cond=lambda x, y, z: z <= round(5.6 * k))
     beardp.ell((0, -1.4 * k, 3.4 * k), (1.0 * k, 0.8 * k, 0.9 * k), beard)
-    beardp.paint(lambda p, cc, g: (_dark(beard, 0.08), False) if (p[0] + p[2]) % 3 == 0 else None)
+    if _fine(c):  # texture on the mesh build only (in-game box budget)
+        beardp.paint(lambda p, cc, g: (_dark(beard, 0.08), False) if (p[0] + p[2]) % 3 == 0 else None)
     # a belt
-    body.paint(lambda p, cc, g: (hexc('#4A3220'), False) if round(2.5 * k) <= p[2] <= round(2.5 * k) + max(0, round(0.2 * k)) else None)
+    if _fine(c):
+        body.paint(lambda p, cc, g: (hexc('#4A3220'), False) if round(2.5 * k) <= p[2] <= round(2.5 * k) + max(0, round(0.2 * k)) else None)
     # the mushroom-cap hat: a broad red dome over a pale band, white spots
     # that glow softly
     hat = c.part('hat', 'static')
     band_z = 7.65 * k
-    hat.ell((0, -0.2 * k, band_z), (1.75 * k, 1.6 * k, 0.6 * k), hexc('#F2E8D5'))
+    if _fine(c):
+        hat.ell((0, -0.2 * k, band_z), (1.75 * k, 1.6 * k, 0.6 * k), hexc('#F2E8D5'))
     hat.ell((0, -0.2 * k, band_z + 0.5 * k), (2.9 * k, 2.6 * k, 2.0 * k), cap, cond=lambda x, y, z: z >= round(band_z + 0.3 * k))
-    hat.paint(lambda p, cc, g: (_dark(cap, 0.25), False) if cc == cap and p[2] <= round(band_z + 0.5 * k) else None)
+    if _fine(c):
+        hat.paint(lambda p, cc, g: (_dark(cap, 0.25), False) if cc == cap and p[2] <= round(band_z + 0.5 * k) else None)
     # round white spots that glow softly, placed by direction from the
     # dome's centre so they stay round on the curve
     cen = (0, -0.2 * k, band_z + 0.5 * k)
     spots = [(270, 35), (215, 30), (325, 30), (180, 55), (0, 55), (90, 40), (130, 20), (50, 20), (270, 75)]
+    if not _fine(c):
+        spots = [(270, 40), (90, 55)]  # fewer, for the in-game boxes
     dirs = []
     for az, el in spots:
         a, e = math.radians(az), math.radians(el)
@@ -245,7 +251,8 @@ def _ent(c, H, cols):
                               cheeks=False)
     # the bark: darker vertical grooves on the trunk
     for p_ in (body, head):
-        p_.paint(lambda p, cc, g: (_dark(bark, 0.22), False) if cc == bark and (p[0] * 3 + (p[2] // max(1, round(1.4 * k)))) % 5 == 0 else None)
+        if _fine(c):  # texture on the mesh build only (in-game box budget)
+            p_.paint(lambda p, cc, g: (_dark(bark, 0.22), False) if cc == bark and (p[0] * 3 + (p[2] // max(1, round(1.4 * k)))) % 5 == 0 else None)
     # rosy knot cheeks
     for z in (round(5.7 * k),):
         x = round(1.3 * k)
@@ -263,9 +270,12 @@ def _ent(c, H, cols):
     crown = c.part('crown', 'static')
     clumps = [(0, 0, 8.6, 1.9), (1.5, -0.4, 8.2, 1.2), (1.0, 1.0, 9.2, 1.2), (0.0, -1.2, 9.4, 1.1), (1.9, 0.6, 7.7, 0.9),
               (0.6, 0.3, 10.1, 0.9)]
+    if not _fine(c):
+        clumps = [(0, 0, 8.6, 1.9), (1.5, -0.4, 8.2, 1.2), (0.0, -1.2, 9.4, 1.1)]
     for i, (x, y, z, r) in enumerate(clumps):
         crown.ell((x * k, y * k, z * k), (r * k, r * k, r * 0.8 * k), leaf if i % 2 == 0 else _light(leaf, 0.25))
-    crown.paint(lambda p, cc, g: (_dark(leaf, 0.2), False) if (p[0] + p[1] * 2 + p[2]) % 4 == 0 else None)
+    if _fine(c):  # texture on the mesh build only (in-game box budget)
+        crown.paint(lambda p, cc, g: (_dark(leaf, 0.2), False) if (p[0] + p[1] * 2 + p[2]) % 4 == 0 else None)
     _mirror(crown)
     # small glowing blossoms dotted over the crown's outside
     def blossom(p, cc, g):
@@ -273,7 +283,7 @@ def _ent(c, H, cols):
         if (x, y - 1, z) in crown.v and (x, y, z + 1) in crown.v:
             return None  # buried
         h = (abs(x * 7 + 3) * 13 + y * 5 + z * 11) % 17
-        return (glow, True) if h == 0 and z > round(7.6 * k) else None
+        return (glow, True) if h == 0 and z > round(7.6 * k) and (_fine(c) or (x + z) % 2 == 0) else None
     crown.paint(lambda p, cc, g: blossom(p, cc, g) if p[0] >= 0 else None)
     _mirror(crown)
     return c
@@ -292,7 +302,7 @@ def _yeti(c, H, cols):
         fy = head.front(x, z)
         if fy and fy[1] == y and ((x + .5) / (1.7 * k)) ** 2 + ((z + .5 - 6.3 * k) / (1.5 * k)) ** 2 <= 1:
             head.put((x, y, z), face_col)
-            if y + 1 <= max(p[1] for p in head.v):
+            if _fine(c) and y + 1 <= max(p[1] for p in head.v):
                 head.put((x, y + 1, z), face_col)
     for x in range(-max(1, round(0.4 * k)), max(1, round(0.4 * k))):
         f = head.front(x, round(5.4 * k))
@@ -300,13 +310,13 @@ def _yeti(c, H, cols):
             head.put(f, _dark(face_col, 0.55))
     # shaggy fur: jagged tufts round the body, head and shoulders
     shag = c.part('shag', 'static')
-    for ang in range(0, 360, 40):
+    for ang in range(0, 360, 40) if _fine(c) else ():
         a = math.radians(ang)
         for zz in (3.4,):
             r = 1.9 * k if zz != 2.6 else 1.6 * k
             shag.ell((math.cos(a) * r, math.sin(a) * r * 0.85, zz * k + (ang % 80) * 0.01 * k), (0.55 * k, 0.55 * k, 0.8 * k),
-                     fur if ang % 80 else _dark(fur, 0.06), cond=lambda x, y, z: z > 0)
-    for ang in range(0, 360, 60):
+                     fur if ang % 80 or not _fine(c) else _dark(fur, 0.06), cond=lambda x, y, z: z > 0)
+    for ang in (range(0, 360, 60) if _fine(c) else ()):
         a = math.radians(ang)
         if math.sin(a) < 0.1:
             continue  # leave the face clear
@@ -330,7 +340,9 @@ def _yeti(c, H, cols):
     ball = c.part('snowball', 'static')
     bc = (2.9 * k, -1.9 * k, 6.2 * k)
     ball.ell(bc, (1.0 * k, 1.0 * k, 1.0 * k), hexc('#CDE8FF'))
-    ball.paint(lambda p, cc, g: (glow, True) if (p[0] * 3 + p[1] * 5 + p[2] * 7) % 5 == 0 else
+    if not _fine(c):
+        ball.paint(lambda p, cc, g: (glow, True))  # one glowing ball in game
+    ball.paint(lambda p, cc, g: None if not _fine(c) else (glow, True) if (p[0] * 3 + p[1] * 5 + p[2] * 7) % (5 if _fine(c) else 13) == 0 else
                ((hexc('#A9D2F2'), False) if p[2] + .5 < bc[2] - 0.2 * k else None))
     return c
 
@@ -404,7 +416,7 @@ def _sprite(c, H, cols, kind):
         for ang in range(0, 360, 30):
             a = math.radians(ang)
             skirt.ell((math.cos(a) * 1.3 * k, math.sin(a) * 1.1 * k, 2.3 * k), (0.55 * k, 0.55 * k, 0.6 * k),
-                      acc if ang % 60 else _light(acc, 0.35), cond=lambda x, y, z: z >= round(1.8 * k))
+                      acc if ang % 60 or not _fine(c) else _light(acc, 0.35), cond=lambda x, y, z: z >= round(1.8 * k))
         _mirror(skirt)
         wing_col, edge = hexc('#D8F6FF'), glow
     else:
@@ -428,7 +440,7 @@ def _sprite(c, H, cols, kind):
                 t = i / max(1, round(1.0 * k))
                 skirt.ell((math.cos(a) * (1.0 + 0.7 * t) * k, math.sin(a) * (0.9 + 0.6 * t) * k, 2.6 * k - t * 0.9 * k),
                           (0.45 * k * (1 - 0.4 * t) + .3, 0.45 * k * (1 - 0.4 * t) + .3, 0.4 * k),
-                          _light(acc, 0.5 * t) if ang % 72 else _mix(acc, hexc('#FF7AA8'), 0.4))
+                          (_light(acc, 0.5 * t) if _fine(c) else acc) if ang % 72 else _mix(acc, hexc('#FF7AA8'), 0.4))
         _mirror(skirt)
         wing_col, edge = _light(acc, 0.35), glow
     # wings: thin panels on the back, two lobes each, glowing edges
@@ -442,8 +454,8 @@ def _sprite(c, H, cols, kind):
                     ez = (z + .5 - cz * k - tilt * (x - rx * k)) / (rz * k)
                     d = ex * ex + ez * ez
                     if d <= 1.0 and x >= round(0.4 * k):
-                        tmp[(x, round(1.3 * k), z)] = (edge, True) if d > 0.62 else (
-                            (wing_col, False) if kind != 'frost' or (x + z) % 3 else (_light(wing_col, 0.5), True))
+                        tmp[(x, round(1.3 * k), z)] = (edge, True) if d > 0.62 or not _fine(c) else (
+                            (wing_col, False) if kind != 'frost' or (x + z) % 3 or not _fine(c) else (_light(wing_col, 0.5), True))
         for (x, y, z), v in tmp.items():
             w.v[(x if sx > 0 else _mx(x), y, z)] = v
     return c
@@ -530,11 +542,11 @@ def _rime(c, H, cols):
         top = max((p[2] for p in body.v if p[1] == y and p[0] in (0, -1)), default=None)
         if top is not None:
             shard(y, top, max(3, round((1.5 - 0.15 * y / k) * k)))
-    for x, y, z, r in pts[2::4]:
+    for x, y, z, r in (pts[2::4] if _fine(c) else []):
         shard(round(y), round(z + r), max(2, round(0.8 * k)))
     # an icicle crest on the crown, the tallest in the middle
     head = c.part('head')
-    for y, n in ((-2.0 * k, 1.2), (-1.2 * k, 1.8), (-0.4 * k, 1.5), (0.4 * k, 1.1)):
+    for y, n in (((-2.0 * k, 1.2), (-1.2 * k, 1.8), (-0.4 * k, 1.5), (0.4 * k, 1.1)) if _fine(c) else ((-1.2 * k, 1.8), (0.0, 1.4))):
         yy = round(y)
         top = max((p[2] for p in head.v if p[1] == yy and p[0] in (0, -1)), default=None)
         if top is not None:
@@ -553,7 +565,7 @@ def _bonsai(c, H, cols):
     yb = 1.6 * k
     top = max((p[2] for p in body.v if p[1] == round(yb) and p[0] in (0, -1)), default=round(4.5 * k))
     tree = c.part('tree', 'static')
-    tree.ell((0, yb, top), (1.2 * k, 1.2 * k, 0.45 * k), hexc('#6FAE4A'))
+    tree.ell((0, yb, top), (1.2 * k, 1.2 * k, 0.45 * k), hexc('#6FAE4A'), cond=lambda x, y, z: (x, y, z) not in body.v)
     # a crooked trunk that leans out to the right of the head, one branch
     # back to the left, and flat cloud pads of leaves on top
     base = (0, yb, top + 0.2 * k)
@@ -563,14 +575,16 @@ def _bonsai(c, H, cols):
     line(tree, base, bend, bark, r=0.42 * k)
     line(tree, bend, crown, bark, r=0.34 * k)
     line(tree, (0.9 * k, yb + 0.2 * k, top + 3.0 * k), branch, bark, r=0.24 * k)
-    for (x, y, z, r) in ((crown[0], crown[1], crown[2] + 0.3 * k, 1.7), (branch[0], branch[1], branch[2] + 0.2 * k, 1.15),
-                         (crown[0] + 1.5 * k, crown[1] + 0.2 * k, crown[2] - 1.0 * k, 0.9)):
+    pads = [(crown[0], crown[1], crown[2] + 0.3 * k, 1.5), (branch[0], branch[1], branch[2] + 0.2 * k, 1.05),
+            (crown[0] + 1.5 * k, crown[1] + 0.2 * k, crown[2] - 1.0 * k, 0.9)]
+    for (x, y, z, r) in (pads if _fine(c) else pads[:2]):
         tree.ell((x, y, z), (r * k, r * 0.85 * k, r * 0.38 * k + .4), leaf)
-        tree.paint(lambda p, cc, g, z=z: (_light(leaf, 0.22), False) if cc == leaf and p[2] >= round(z + 0.1 * k) else None)
+        if _fine(c):
+            tree.paint(lambda p, cc, g, z=z: (_light(leaf, 0.22), False) if cc == leaf and p[2] >= round(z + 0.1 * k) else None)
     # glowing pink blossoms dotted over the top of the leaf pads
-    light = _light(leaf, 0.22)
+    light = _light(leaf, 0.22) if _fine(c) else leaf
     for (x, y, z), (cc, g) in list(tree.v.items()):
-        if cc == light and (x, y, z + 1) not in tree.v and (x * 7 + y * 11 + z * 3) % 9 == 0:
+        if cc == light and (x, y, z + 1) not in tree.v and (x * 7 + y * 11 + z * 3) % (13 if _fine(c) else 19) == 0:
             tree.v[(x, y, z)] = (glow, True)
             tree.put((x, y, z + 1), glow, True)
     return c
