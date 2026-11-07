@@ -2,6 +2,98 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
+
+- **Elevator cab, shaft, shaft top, ladder and floor plaque are built like
+  plain Roblox parts** (flat colours on a 0.2-stud grid, 0.5 for the
+  shaft), not sculpted 0.1-stud voxels. Alex found the old cab far too
+  heavy (631,740 triangles in the viewer). The cab is now 534 triangles
+  and 112 Parts boxes. The game's Parts version is the model exactly,
+  with nothing resampled away. Ids, `doorL`/`doorR` (slide) and the
+  shaft-top `wheel` (spin) are unchanged; the doors now sit in slots in
+  the side walls.
+- **`tools/art/world/build.py` makes flat greedy-quad meshes for every
+  world prop by default** (`vkit.flat`: speckle folded into its base
+  colour, patterns kept). The bevelled pillow mesh ran to 100k-2.4M
+  triangles for buildings and trees, too heavy for the viewer and over
+  Roblox's 20k MeshPart cap. `--full` still makes the pillow mesh.
+
+## 2026-11-05: Creature uploads retry a flaky network (tools)
+
+- **What:** `tools/art/blender/upload.py`'s `call()` retries connection
+  failures (refused, reset, timed out) the same way it already retried
+  429/5xx answers (now with 504 added): 5 tries, waiting 2, 4, 8 and 16 s
+  between them. Anything else still stops the run at once.
+  Covered by `tools/art/tests/test_upload_retry.py`.
+- **Why:** full upload run 42096155779 for #74 stopped on a single
+  "Connection refused" from Roblox after 11 creatures (Ant through BlueJay)
+  had already been rewritten in place. Staging then held a mix of old and
+  new meshes until a full run went through.
+- **Trade-off:** if a create times out after Roblox has already taken it,
+  the retry can leave one unused palette image. That is harmless.
+- **Rule:** a failed full run is re-run in full (no `only=`) so every live
+  creature ends up on the same mesh layout.
+
+## 2026-11-05: Moving creature parts are inset a hair (Hatchery Heist)
+
+- **What:** every creature part that moves against the body (legs, wings,
+  fins, tails, heads, ears, orbits) has its mesh skin moved 0.08 of a voxel
+  inward (`voxmesh.MeshData.inset`, `describe.INSET`). Faces resting on the
+  body (a leg's top) stay put, so no slit opens at the hip.
+- **Why:** a part turning about its hinge keeps the faces whose normal lies
+  along the hinge axis in one plane. Where such a face is flush with a body
+  face (a bunny's hind foot beside its flank), the two overlapped in one
+  plane mid-swing and flickered (Alex, Nov 5, Dutch Bunny hop). Clamping the
+  swing could not fix it: any swing of a flush leg overlaps. Inset, the
+  body's face always wins; 0.08 voxel (0.008 studs) is more than the pillow
+  lift (0.035), so even the raised face squares stay behind.
+- **Guard:** `tools/art/tests/test_overlap.py` (CI) fails if any moving part
+  of any creature shares a face plane with its body (1,055 parts did before).
+- **Box budget:** walking legs are their own parts in the in-game stand-in
+  boxes too (up to six one-voxel legs), so the Common budget is 36 boxes
+  (was 30) and Uncommon 44 (was 40), in `to_config.BOX_BUDGET` and
+  `VoxelArt.spec`. Dalmatian Pup went 28 -> 31 with its four legs split out.
+
+## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
+
+- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
+  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
+  finds the rest (quadrupeds, lizards) after the build and skips any creature
+  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
+  front to back, each its own anim, hinged at the hip.
+- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
+  never opens a hole in it; small birds' folded wings are only what shows
+  outside the body.
+- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
+  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
+- **Legendary and Godly always hover** (they float in CreatureLooks), so a
+  Phoenix does not waddle in mid-air.
+- **Sideways bug legs swing about the vertical axis**, lifting as they reach
+  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
+- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
+  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
+  Python and `Walk.spec` checks the game gives the same numbers; CI checks
+  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
+- **swim and finL/finR exist before any fish** so the pond batch can add fish
+  with data only.
+
+## 2026-11-05: Long Godlies lie along their row (Hatchery Heist)
+
+- A Godly takes three spots: an area 30 studs along the row and 10 deep.
+  A creature longer nose to tail than the depth allows (the Clockwork
+  Leviathan, the Cosmic Whale) is turned to lie along the row instead of
+  being shrunk (`Walk.lie`), so it keeps its tier's full height. Only a
+  creature longer than its row less `Layout.ROW_MARGIN` (2 studs, so 28 for
+  a Godly) is scaled down evenly (`ArtScale.drawScale`). One wider than the
+  depth faces the yard and sidesteps.
+- A creature lying lengthwise keeps that heading: it paces up and down its
+  row and never turns end for end or to face the yard, because turning on
+  the spot would sweep its length across the spots in front and behind.
+  Chosen over capping length at the 10-stud depth (it shrank the Leviathan
+  to well under a Godly's height) and over per-creature bounds (one more
+  number to set on every new creature). Ridden or carried, the cap scales
+  with the size.
+
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
 - **Each creature wanders only its own cell** (the 10-stud spots it takes),
@@ -22,6 +114,50 @@ Non-obvious choices, newest first, so a later session can trust them.
   only within `animateOtherStuds` (60). Four full neighbours at 180 studs
   took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
   rest cheap.
+
+## 2026-11-05: Tower upgrades furnish the room, built on each client
+
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
+## 2026-11-05: Roster creatures reach the game through a generated config block
+
+- **What:** `tools/art/to_config.py` writes a marked block at the end of
+  `species` in Hatchery Heist's `config/creatures.luau`: every creature that
+  is on the master list, built by tools/art and uploaded (assets.json, Image
+  colours) and not written by hand. Income is a stable hash inside its
+  tier's band (Common 1-3, Uncommon 4-10, Rare 15-35, Ultra Rare 60-90, Epic
+  130-200, Legendary 400-500, Godly 800-1000), mount speed per tier, pools by
+  family (Barnyard: Farm, Pet, City, Garden; Moonlit: Spooky, Mutant,
+  Fantasy, Mythic, Spirit, Cosmic, Crystal, Mechanical, Elemental, Dino;
+  everything else Meadow), moved to the first egg that rolls the tier if
+  its family's egg does not. CI runs `--check`.
+- **Review gate:** only ids in `tools/art/roster/master/reviewed.txt` enter
+  the block. `to_config.py --promoted <PROMOTED.log>` adds every id the
+  strict reviewer promoted (ids are only added). Nothing ships unreviewed.
+- **Why:** builders ship roster JSON only; without this step reviewed
+  creatures reached the design viewer but never an egg. One block in the
+  same file (not a second module) keeps a single `require` and lets a hand
+  entry override any generated one by moving its line out.
+- **In-game art rules:** a built creature whose voxel boxes break a
+  VoxelArt.spec rule (box budget per tier, glow below Ultra Rare) is left
+  out and printed by the generator until its builder fixes it.
+- **Limit to fix before Rare+ batches:** an egg tier's weight must be at
+  least its member count (Schemas.crossCheck), and tiers are written out of
+  100,000. Basic egg Legendary is 2 and Epic 18, so Legendary/Epic batches
+  need either more-precise totals or fewer creatures per pool.
 
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
@@ -54,45 +190,6 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Signs are blank:** stalls, the Theme Stand, Book stand, arch, silo and
   notice board carry a blank cream face; the game writes the text
   (SurfaceGui), at the prop's `anchor` (the face centre).
-
-## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
-
-- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
-  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
-  finds the rest (quadrupeds, lizards) after the build and skips any creature
-  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
-  front to back, each its own anim, hinged at the hip.
-- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
-  never opens a hole in it; small birds' folded wings are only what shows
-  outside the body.
-- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
-  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
-- **Legendary and Godly always hover** (they float in CreatureLooks), so a
-  Phoenix does not waddle in mid-air.
-- **Sideways bug legs swing about the vertical axis**, lifting as they reach
-  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
-- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
-  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
-  Python and `Walk.spec` checks the game gives the same numbers; CI checks
-  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
-- **swim and finL/finR exist before any fish** so the pond batch can add fish
-  with data only.
-
-## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
-
-- **Each creature wanders only its own cell** (the 10-stud spots it takes),
-  not the whole floor: no collision avoidance needed, the Steal prompt on
-  its pad stays beside it, and raids and income need no change.
-- **A schedule, not physics**: position and facing are a pure function of
-  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
-  nothing replicates. The client moves the server's invisible stand-in
-  locally; the server never sees it move.
-- **The step phase follows distance walked**, so feet do not slide; legged
-  bodies dip as the legs spread (feet stay planted), legless stand-ins
-  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
-  each species' legs), falling back to the leg part names.
-- **Cull by floor, not distance**: decks hide other floors anyway, and a
-  full tower is 80 creatures.
 
 ## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
 
@@ -134,6 +231,53 @@ Non-obvious choices, newest first, so a later session can trust them.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
 
+## 2026-11-05: Coin packs scale with income (Hatchery Heist)
+
+- **Minutes per pack rise faster than price** (5, 20, 45, 100 minutes for
+  25, 99, 199, 399 Robux), so a bigger pack is always better value per
+  Robux, at any income. The plan said "15 minutes"; one number for every
+  pack would make the 25 Robux pack worth as much as the 399 one to a top
+  player. Every pack stays at least 5 minutes of income (the studio rule).
+- **Shown amount is a floor**: the server remembers what each player's shop
+  last showed and grants at least that, so income dropping between looking
+  and buying never shortchanges anyone.
+- **Core shop gains `shop:personalize(key, describe)`** (a per-player name
+  and description for one item); other games are unaffected. The Roblox
+  product listings keep their fixed names ("80K Coins").
+
+
+## 2026-11-05: One shared Egg Market in the middle (Hatchery Heist)
+
+- **Two lanes as one schedule**: egg n rides lane n % 2 + 1, one every 0.5 s,
+  so purchases still name one egg number and the remotes did not change.
+  Lanes are two rings (r 22 and 27.5) turning opposite ways; the plan's
+  "two lanes" did not fit side by side on the art's 3.2-stud belt.
+- **First buyer wins, on the server**: a shared sold list in Actions; the
+  server tells every client (`HH:EggSold`) so the egg leaves its pedestal.
+  With the belt shared, the server also checks reach (`buyReach`, 20 studs
+  flat from where the clock has the egg), so nobody buys from across the map.
+- **No gaps in the belt**: the plan's eight gaps facing the bases became
+  belt parts that never collide, so players walk straight over it; the hub
+  thread's entrance arches mark the eight ways in.
+- **Eggs, pedestals and slats are client-only** and move together in one
+  `BulkMoveTo` each frame (about 1,900 small parts); the pedestal is three
+  boxes instead of the art's 48 to keep that number down. Eggs are pooled.
+- **Odds on a sign at each stop, not boards in the middle** (Studio gates,
+  Nov 5): boards big enough to read from the path hid the Golden Nest and
+  still failed on a phone, and a full tier table on a small sign was too
+  small too. Each stop gets a 10 x 3.3-stud sign beside its arch's left post,
+  face 3.6 to 6.9 studs up so the follow camera sees it over the character,
+  turned 20 degrees toward the path in. Three lines in about 1-stud type:
+  the egg and its price, then its two rarest tiers' exact "1 in N", the next
+  egg every 4 seconds. The odds card beside the Buy prompt keeps every tier.
+  To make room, the five hub pieces nearest the market (Book stand, Theme
+  stand, mailbox, notice board, flower stall) stand 2 to 4 studs further out.
+- **Buy only where you can pay**: the belt's nearest prompt was often a
+  dearer egg, so a player sees Buy only on eggs they can afford, unless they
+  can afford none (then pressing Buy says what eggs cost).
+- **One placer for WorldArt props** (`shared/VoxelProp`), with `register`
+  for other generated prop modules (the shop's), so every thread places
+  props the same way.
 
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
@@ -201,6 +345,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   behind them. Now each piece keeps `farm.clearRadius` studs round itself
   clear, a small tree stands on each side of every gap's farm piece (a bush
   at the foot of one), and the wood fills in behind.
+- **The wood is spread by slices, not at random** (gate follow-up): each
+  tree first tries its own 1/count slice of the ring, so no wedge is left
+  bare behind a farm piece (random angles left 24 degree gaps behind the
+  Barn and two fields). A slice with no room gives its tree to anywhere.
 - **Star Pines only on the hills** (gate follow-up): on flat grass in the
   wood they read as random, on the hilltops as landmarks. Every other hill
   gets one, the medium model scaled up (the large one's detail is never
