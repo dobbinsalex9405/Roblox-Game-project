@@ -1227,3 +1227,14 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Moved in 10 s: GoatKid 7.7, Mole 6.1, Hen 13.4, Fawn 1.7 studs (Fawn mostly idled).
 - **Shine eyes:** the Mole and GoatKid close-ups show the white highlight block on each eye (`110-hh-mole-goatkid-eyes.jpg`, overview `110-hh-four.jpg`).
 - **TidalOtter:** there's no TidalOtter in Hatchery Heist's creature config or test panel on main or in this PR, so there was nothing to compare. It may be another game's creature.
+
+## #99 @ 29ec29e (18 new Godlies), merged onto main ef8db0e locally (clean)
+
+**FAIL on check 1: one Godly is not 1 in 1,000,000.** Desktop 1350x672.
+- **Moonlit odds list:**
+  - 19 Godly rows. 18 read "0.0001% · 1 in 1,000,000", but **Clockwork Leviathan reads "0.0002% · 1 in 500,000"** (`99-hh-moonlit-godly-rows-FAIL.jpg`).
+  - The list sums to 100.000%, and 0 labels fail TextFits (window 420x524).
+- **Cause:** config/eggs.luau gives Moonlit `Godly = 20` out of `total = 1000000`. 20 split across 19 Godlies leaves a remainder of 1, and the largest-remainder rule hands it to one creature (weight 2). The comment there says "about 1 in 1,000,000".
+- **Fix options:** set Godly = 19, so all 19 are exactly 1 in 1,000,000 (the tier goes from 1 in 50,000 to 1 in 52,632). Or accept the uneven split and change the acceptance wording.
+- **Book (done before the FAIL):** the Godly tab reads 0/20, and all 20 cards have loaded pictures (18 new + Golden Goose + Nebula Serpent). The Book lines match the list: Clockwork Leviathan "Moonlit Egg 1 in 500,000", the other 18 Moonlit Godlies "1 in 1,000,000", Golden Goose "Premium Egg 1 in 10,000".
+- Stopped here: the phone width, placed Godlies and Moonlit hatch were not run on this head.
