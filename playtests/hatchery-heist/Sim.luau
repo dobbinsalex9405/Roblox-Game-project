@@ -23,6 +23,7 @@ local config = {
 	),
 	monetization = require("../../games/hatchery-heist/config/monetization"),
 	raids = require("../../games/hatchery-heist/config/raids"),
+	charms = require("../../games/hatchery-heist/config/charms"),
 }
 
 local Sim = {}

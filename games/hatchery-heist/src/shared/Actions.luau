@@ -9,6 +9,8 @@
 -- model, messages to the client) come in as callbacks, which keeps this file
 -- testable without Roblox.
 
+local Charms = require("./Charms")
+local Claw = require("./Claw")
 local Conveyor = require("./Conveyor")
 local Daily = require("./Daily")
 local Eggs = require("./Eggs")
@@ -28,7 +30,7 @@ export type Options = {
 	odds: any,
 	policy: any,
 	analytics: any,
-	config: { economy: any, creatures: any, eggs: { any } },
+	config: { economy: any, creatures: any, eggs: { any }, charms: any? },
 	sellsCurrency: boolean, -- coins are sold for Robux, so coin eggs are paid random items
 	perks: (player: any) -> Perks,
 	now: () -> number, -- unix seconds (os.time)
@@ -141,6 +143,8 @@ function Actions.new(options: Options): Actions
 			Hatchery.accrue(d, now, perSecond(d, player))
 			ledger = economy:ledger(player, d)
 			refusal = fn(d, ledger)
+			-- A pull's price follows the best income ever (shared/Claw).
+			Claw.notePeak(d, perSecond(d, player))
 		end)
 		if not ok then
 			return false, err
@@ -287,14 +291,16 @@ function Actions.new(options: Options): Actions
 		-- it whenever PaidRandomRestricted is set), whether or not this egg
 		-- counts as paid; everyone else rolls from the odds table they saw.
 		local paid = Eggs.isPaid(egg, options.sellsCurrency)
-		local function pick(e: any, boughtBefore: number): string?
+		-- Always the configured egg, not a copy with a shorter hatch time:
+		-- its fixed-order cycle is worked out once per egg and kept.
+		local function pick(_e: any, boughtBefore: number): string?
 			if not options.policy:paidRandomAllowed(player) then
-				return Hatchery.fixedOrderOutcome(e, boughtBefore)
+				return Hatchery.fixedOrderOutcome(egg, boughtBefore)
 			end
 			if paid then
-				return (options.odds:rollPaid(e.id, player, options.policy))
+				return (options.odds:rollPaid(egg.id, player, options.policy))
 			end
-			return options.odds:roll(e.id, player)
+			return options.odds:roll(egg.id, player)
 		end
 
 		local step: number? = nil
@@ -304,7 +310,14 @@ function Actions.new(options: Options): Actions
 				doubleCoins = perks.doubleCoins,
 				extraIncubators = perks.extraIncubators,
 			})
-			local incubator, refusal = Hatchery.buyEgg(d, ledger, egg, slots, options.now(), pick)
+			-- The equipped Warmer charm shortens the hatch, set at purchase.
+			local deal = egg
+			local seconds = Charms.hatchSeconds(egg.hatchSeconds, d, config.charms)
+			if seconds ~= egg.hatchSeconds then
+				deal = table.clone(egg)
+				deal.hatchSeconds = seconds
+			end
+			local incubator, refusal = Hatchery.buyEgg(d, ledger, deal, slots, options.now(), pick)
 			if refusal == "Not enough coins." then
 				refusal = Hatchery.shortOfCoins(egg, cheapestEgg())
 			end

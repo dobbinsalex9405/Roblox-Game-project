@@ -19,6 +19,7 @@ local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
+local Claw = require(Shared.Claw)
 local Conveyor = require(Shared.Conveyor)
 local DataTemplate = require(Shared.DataTemplate)
 local FeedbackContext = require(Shared.FeedbackContext)
@@ -31,6 +32,7 @@ local Raids = require(Shared.Raids)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
 
+local CharmService = require(script.CharmService)
 local CreatureAssets = require(script.CreatureAssets)
 local EnvAssets = require(script.EnvAssets)
 local Mounts = require(script.Mounts)
@@ -54,6 +56,7 @@ local raw = {
 	monetization = require(GameConfig.monetization),
 	atmosphere = require(GameConfig.atmosphere),
 	shophouse = require(GameConfig.shophouse),
+	charms = require(GameConfig.charms),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -69,6 +72,7 @@ local config = {
 	creatures = Config.get("creatures"),
 	eggs = Config.get("eggs"),
 	raids = Config.get("raids"),
+	charms = Config.get("charms"),
 }
 assert(
 	economy.incubators.maxSlots + economy.incubators.passBonusSlots <= Layout.INCUBATOR_POSITIONS,
@@ -218,7 +222,14 @@ services = CoreServer.start({
 	migrations = DataTemplate.migrations,
 	currencies = { coins = { field = "coins", max = economy.coinsMax } },
 	passes = ids.passes,
-	oddsTables = Eggs.oddsTables(config.eggs, sellsCurrency),
+	-- Every egg, and the claw machine's tables (shared/Claw).
+	oddsTables = (function()
+		local tables: { any } = Eggs.oddsTables(config.eggs, sellsCurrency)
+		for _, def in Claw.oddsTables(config.charms) do
+			table.insert(tables, def)
+		end
+		return tables
+	end)(),
 	remotes = Remotes,
 	onPlayerReady = onPlayerReady,
 	onPlayerLeaving = onPlayerLeaving,
@@ -406,6 +417,20 @@ end)
 net:on(Remotes["HH:Dismount"], function(player: Player)
 	ready:dismount(player)
 end)
+
+-- Charms and the claw machine. Its Robux pulls are registered with the
+-- receipts here, before the shop lists them (Shop.register).
+CharmService.start({
+	services = services,
+	actions = ready,
+	charms = config.charms,
+	eggs = config.eggs,
+	species = config.creatures.species,
+	productIds = ids.products,
+	groundY = Config.get("shophouse").groundY,
+	notify = notify,
+	remotes = Remotes,
+})
 
 local Shop = require(script.Shop)
 local function incomeOf(player: Player): number?

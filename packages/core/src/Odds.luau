@@ -61,6 +61,13 @@ export type Odds = {
 	roll: (self: Odds, tableId: string, player: any) -> string,
 	rollPaid: (self: Odds, tableId: string, player: any, policy: PolicyCheck) -> (string?, string?),
 	setBoosts: (self: Odds, player: any, tableId: string, boosts: { Boost }) -> (),
+	-- Like setBoosts, for one named source of boosts (a charm, an event):
+	-- each source keeps its own list, so setting one never clears another.
+	-- setBoosts is the source "default".
+	setSourceBoosts: (self: Odds, player: any, tableId: string, source: string, boosts: { Boost }) -> (),
+	-- The most every boost together may multiply one outcome's weight by
+	-- (nil = no limit). Hatchery Heist caps all luck at x3.
+	setBoostCap: (self: Odds, cap: number?) -> (),
 	setExcluded: (self: Odds, player: any, tableId: string, outcomeIds: { string }) -> (),
 	onChanged: (self: Odds, listener: (player: any, tableId: string) -> ()) -> (),
 	forget: (self: Odds, player: any) -> (),
@@ -237,7 +244,9 @@ function Odds.new(options: Options?): Odds
 			return math.random(min, max)
 		end
 	local tables: { [string]: TableDef } = {}
-	local boosts: { [any]: { [string]: { Boost } } } = {}
+	-- boosts[player][tableId][source] = that source's boosts.
+	local boosts: { [any]: { [string]: { [string]: { Boost } } } } = {}
+	local boostCap: number? = nil
 	local excluded: { [any]: { [string]: { [string]: boolean } } } = {}
 	local listeners: { (player: any, tableId: string) -> () } = {}
 
@@ -270,12 +279,38 @@ function Odds.new(options: Options?): Odds
 		return tables[tableId] ~= nil
 	end
 
+	-- Every boost on one player's table, sources in name order ("default"
+	-- first), each source's boosts in the order they were set.
+	local function activeBoosts(player: any, tableId: string): { Boost }
+		local bySource = boosts[player] and boosts[player][tableId]
+		local out: { Boost } = {}
+		if bySource == nil then
+			return out
+		end
+		local names = {}
+		for name in bySource do
+			table.insert(names, name)
+		end
+		table.sort(names, function(a, b)
+			if a == "default" or b == "default" then
+				return a == "default" and b ~= "default"
+			end
+			return a < b
+		end)
+		for _, name in names do
+			for _, boost in bySource[name] do
+				table.insert(out, boost)
+			end
+		end
+		return out
+	end
+
 	-- The single source of truth for both the odds screen and the roll.
 	function odds.effective(_self: Odds, tableId: string, player: any): { Outcome }
 		local def = getTable(tableId)
-		local playerBoosts = boosts[player] and boosts[player][tableId]
+		local playerBoosts = activeBoosts(player, tableId)
 		local playerExcluded = excluded[player] and excluded[player][tableId]
-		if (playerBoosts == nil or #playerBoosts == 0) and playerExcluded == nil then
+		if #playerBoosts == 0 and playerExcluded == nil then
 			return def.outcomes
 		end
 		local raw: { Outcome } = {}
@@ -283,10 +318,15 @@ function Odds.new(options: Options?): Odds
 			local weight: number = o.weight
 			if playerExcluded and playerExcluded[o.id] then
 				weight = 0
-			elseif playerBoosts then
+			else
+				local multiplier = 1
 				for _, boost in playerBoosts do
-					weight *= boost.multipliers[o.id] or 1
+					multiplier *= boost.multipliers[o.id] or 1
 				end
+				if boostCap then
+					multiplier = math.min(multiplier, boostCap)
+				end
+				weight *= multiplier
 			end
 			table.insert(raw, { id = o.id, weight = weight })
 		end
@@ -306,8 +346,7 @@ function Odds.new(options: Options?): Odds
 			})
 		end
 		local boostIds = {}
-		local active: { Boost } = (boosts[player] and boosts[player][tableId]) or {}
-		for _, boost in active do
+		for _, boost in activeBoosts(player, tableId) do
 			table.insert(boostIds, boost.id)
 		end
 		return { tableId = tableId, paid = def.paid, total = total, boosts = boostIds, rows = rows }
@@ -345,7 +384,16 @@ function Odds.new(options: Options?): Odds
 		return rollFrom(self:effective(tableId, player), Odds.totalOf(def)), nil
 	end
 
-	function odds.setBoosts(_self: Odds, player: any, tableId: string, list: { Boost })
+	function odds.setBoosts(self: Odds, player: any, tableId: string, list: { Boost })
+		self:setSourceBoosts(player, tableId, "default", list)
+	end
+
+	function odds.setBoostCap(_self: Odds, cap: number?)
+		assert(cap == nil or (type(cap) == "number" and cap >= 1), "a boost cap must be at least 1")
+		boostCap = cap
+	end
+
+	function odds.setSourceBoosts(_self: Odds, player: any, tableId: string, source: string, list: { Boost })
 		local def = getTable(tableId)
 		for _, boost in list do
 			for outcomeId, multiplier in boost.multipliers do
@@ -364,7 +412,9 @@ function Odds.new(options: Options?): Odds
 			end
 		end
 		boosts[player] = boosts[player] or {}
-		boosts[player][tableId] = table.clone(list)
+		local bySource = boosts[player][tableId] or {}
+		boosts[player][tableId] = bySource
+		bySource[source] = if #list > 0 then table.clone(list) else nil
 		changed(player, tableId)
 	end
 

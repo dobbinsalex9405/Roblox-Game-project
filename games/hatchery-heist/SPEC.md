@@ -271,6 +271,38 @@ shows the next creature and how many eggs until each other one, so nothing
 they buy is random and they get no more and no fewer rare creatures than
 anyone else.
 
+## Charms and the Charm Claw (Nov 7 2026, awaiting Alex's approval)
+
+Full spec: `/mnt/project-files/plans/hatchery-heist/charms-claw-build-spec.md`.
+Config `config/charms.luau`; rules `src/shared/Charms.luau` and
+`src/shared/Claw.luau`; server `src/shared/CharmActions.luau` and
+`src/server/CharmService.luau`; screens `src/client/CharmsView.luau`,
+`ClawView.luau`, `CharmView.luau` (worn ring); art `tools/art/world/claw.py`.
+
+- **42 charms**: six kinds x seven tiers. Feeder (+1% to +12% coins, in the
+  Hatchery Book's bucket), Clover (x1.02 to x1.2 on Rare and rarer hatch
+  weights; every luck source together capped at x3), Warmer (-3% to -20%
+  hatch time; at most half with an event). Ward, Snare and Sneak exist but
+  do nothing and never drop until Egg Heist (`stealCharms = false`).
+- **Slots**: 3 on floor 1, 4 from floor 3, 5 from 6, 6 from 9; one charm
+  per kind. Bag holds 300. Fuse 5 unequipped copies into 1 of the next tier
+  for 10% of a pull; Fuse all cascades from Common up.
+- **Charm Claw** in the hub (angle 15, radius 43, in front of the Golden
+  Egg Shop): 1, 10 or 100 pulls for coins at 1x, 9x and 80x a pull's price
+  (5 minutes of the player's best income ever, at least 5,000). Odds per
+  pull out of 100,000: Common 55,000, Uncommon 25,000, Rare 12,000, Ultra
+  Rare 5,000, Epic 2,200, Legendary 700, Godly 100, split evenly over the
+  active kinds. A 10-pull holds a Rare or better, a 100-pull an Epic or
+  better; 199 pulls without a Legendary make the next one Legendary or
+  better. Every table the server rolls is shown in the claw window.
+- **Robux**: `ClawPull10` (100 Robux) and `ClawPull100` (700), same odds
+  and promises, granted once per receipt. Held at id 0 until Alex approves.
+- **Restricted players** (PolicyService) get the Charm Counter: a chosen
+  Common, Uncommon or Rare charm for 1x, 4x or 10x a pull's price.
+- **Showing**: equipped charms ring behind the shoulders (character
+  attribute `Charms`). Hide all or one kind (the bonus stays); a client
+  setting hides other players' charms (drawn within 60 studs, 20 players).
+
 ## Save data
 
 Version 1 is in `src/shared/DataTemplate.luau`. Changes go through a migration;

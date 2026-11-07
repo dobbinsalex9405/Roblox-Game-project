@@ -9,6 +9,8 @@ local Economy = require("@core/Economy")
 local Odds = require("@core/Odds")
 local Policy = require("@core/Policy")
 local Actions = require("../src/shared/Actions")
+local CharmActions = require("../src/shared/CharmActions")
+local Claw = require("../src/shared/Claw")
 local Conveyor = require("../src/shared/Conveyor")
 local DataTemplate = require("../src/shared/DataTemplate")
 local Eggs = require("../src/shared/Eggs")
@@ -20,6 +22,7 @@ local config = {
 	creatures = require("../config/creatures"),
 	eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 	raids = require("../config/raids"),
+	charms = require("../config/charms"),
 }
 
 local Harness = {}
@@ -84,6 +87,10 @@ function Harness.new(options: Options?)
 	for _, def in Eggs.oddsTables(config.eggs, true) do
 		h.odds:define(def)
 	end
+	for _, def in Claw.oddsTables(config.charms) do
+		h.odds:define(def :: any)
+	end
+	h.odds:setBoostCap(config.charms.luckCap)
 	h.policy = Policy.new({
 		fetch = function()
 			return { ArePaidRandomItemsRestricted = opts.restricted == true, IsPaidItemTradingAllowed = false }
@@ -144,6 +151,33 @@ function Harness.new(options: Options?)
 			table.insert(h.slows, { player = player, factor = factor })
 		end,
 		changed = function() end,
+	})
+
+	-- Charms and the claw machine. `h.atClaw` says whether players stand at
+	-- the machine; `h.clawResults` records what each pull gave.
+	h.atClaw = true
+	h.clawResults = {} :: { { player: any, ids: { string }, source: string } }
+	h.charmChanges = 0
+	h.charms = CharmActions.new({
+		actions = h.actions,
+		odds = h.odds,
+		policy = h.policy,
+		analytics = h.analytics,
+		charms = config.charms,
+		now = h.clock.now,
+		nearClaw = function()
+			return h.atClaw
+		end,
+		notify = function(player: any, text: string)
+			table.insert(h.notices, text)
+			table.insert(h.noticesFor, { player = player, text = text })
+		end,
+		result = function(player: any, ids: { string }, source: string)
+			table.insert(h.clawResults, { player = player, ids = ids, source = source })
+		end,
+		changed = function()
+			h.charmChanges += 1
+		end,
 	})
 
 	-- The last notice a player got.

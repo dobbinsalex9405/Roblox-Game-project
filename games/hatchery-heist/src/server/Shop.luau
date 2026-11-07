@@ -50,7 +50,8 @@ function Shop.register(
 	end)
 
 	-- Passes need no registration: the core checks ownership by id.
-	local catalog: { Purchases.CatalogItem } = Products.catalog(monetization, raids) :: any
+	local catalog: { Purchases.CatalogItem } =
+		Products.catalog(monetization, raids, Config.get("charms")) :: any
 	services.shop:setCatalog(catalog)
 	for _, key in Products.COIN_PACKS do
 		local product = products[key]

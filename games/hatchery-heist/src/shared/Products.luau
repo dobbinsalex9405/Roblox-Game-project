@@ -11,11 +11,20 @@ export type CatalogItem = {
 	kind: "product" | "pass",
 	name: string,
 	description: string,
+	-- Random results (claw pulls): the core shop refuses them to players
+	-- PolicyService restricts, and until this odds table was shown.
+	oddsTable: string?,
+	paidRandom: boolean?,
+	oddsLabels: { [string]: string }?,
 }
 
+local Claw = require("./Claw")
 local Numbers = require("./Numbers")
 
 local Products = {}
+
+-- The claw machine's Robux pulls, in shop order.
+Products.CLAW_PULLS = table.freeze({ "ClawPull10", "ClawPull100" })
 
 -- The coin packs, in shop order.
 Products.COIN_PACKS = table.freeze({ "CoinPackSmall", "CoinPackMedium", "CoinPackBig", "CoinPackLarge" })
@@ -54,7 +63,9 @@ function Products.short(n: number): string
 	return Numbers.short(three(n))
 end
 
-function Products.catalog(monetization: any, raids: any): { CatalogItem }
+-- `charms` (config/charms.luau), when given, names the claw's charms on its
+-- odds list.
+function Products.catalog(monetization: any, raids: any, charms: any?): { CatalogItem }
 	local products = monetization.products
 	local catalog: { CatalogItem } = {}
 	for _, key in Products.COIN_PACKS do
@@ -90,6 +101,28 @@ function Products.catalog(monetization: any, raids: any): { CatalogItem }
 		name = "Auto-Collect",
 		description = "Your earnings move into your coins every 30 seconds, no trip to the collect pad.",
 	})
+	-- Claw machine pulls (src/server/CharmService.luau grants them). Sold at
+	-- the claw machine, with its odds on screen; Robux only for 10 and 100.
+	local labels: { [string]: string }? = nil
+	if charms then
+		local names: { [string]: string } = {}
+		for _, c in charms.charms do
+			names[c.id] = c.name
+		end
+		labels = names
+	end
+	for _, key in Products.CLAW_PULLS do
+		local listing = monetization.listings.products[key]
+		table.insert(catalog, {
+			key = key,
+			kind = "product",
+			name = listing.name,
+			description = listing.description,
+			oddsTable = Claw.TABLE,
+			paidRandom = true,
+			oddsLabels = labels,
+		})
+	end
 	return catalog
 end
 

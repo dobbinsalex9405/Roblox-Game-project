@@ -2,6 +2,47 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Charms and the Charm Claw (Hatchery Heist), held for Alex
+
+Built from the spec `plans/hatchery-heist/charms-claw-build-spec.md` (rev 1)
+and Alex's 09:05Z message (10 and 100 pulls at 100 and 700 Robux). The PR
+stays a draft until Alex approves the spec and the prices.
+
+- **Robux pulls ship switched off.** `ClawPull10` and `ClawPull100` keep id
+  0 and are listed in `monetization.awaitingApproval`; the pricing tool
+  marks them "Waiting for Alex" so the laptop never creates them, and the
+  claw window says "coming soon". 100 and 700 are off the price ladder, so
+  `tools/pricing` lists them as "Alex's price" (`ALEX_PRICES`), not a rule
+  change for other items. Coordinator suggested 99 for the 10-pull; Alex
+  wrote 100, so 100 stands until Alex says otherwise.
+- **Luck boosts stack by source in core Odds** (`setSourceBoosts`, with a
+  global `setBoostCap`). The spec had one combined boost list, but the
+  events thread's Lucky Hatch and the Luck Boost product each called
+  `setBoosts`, which replaced the whole list. Each system now owns its own
+  source ("default", "charms", ...), the multipliers multiply, and the cap
+  (`charms.luckCap` = 3) applies to the product. `setBoosts` is source
+  "default", so old callers are unchanged.
+- **The 10- and 100-pull promises use floor tables, not rerolls.** If no
+  pull so far reached the promised tier, the last pull rolls from
+  `ClawRarePlus` / `ClawEpicPlus`; pity rolls from `ClawLegendaryPlus`.
+  These are real paid odds tables, shown in full in the claw window
+  ("See every charm"), so every possible roll has published odds.
+- **Robux pulls go into a full bag** (over 300). They are paid for already;
+  refusing would mean a refund flow. Coin pulls and the Counter refuse
+  before taking coins.
+- **Coin pulls are paid random items** (coins are sold for Robux), so they
+  go through `rollPaid` and PolicyService. Restricted players get the
+  Charm Counter (Common 1x, Uncommon 4x, Rare 10x a pull's price).
+- **No save version bump.** The new fields (`charms`, `charmEquipped`,
+  `clawPity`, `incomePeak`, ...) are new keys the reconcile fills; nothing
+  is renamed or dropped (tested: an old save loads with them).
+- **Price follows `incomePeak`**, the best income ever, so pulling floors
+  off the tower never makes pulls cheaper.
+- **Kind icons are emoji** (🌽 🍀 🔥 🛡️ 🕸️ 👟) and card text avoids "·"
+  and arrows, which FredokaOne may draw as boxes.
+- **The side menu fits seven buttons on a short phone** by closing its gaps
+  first and only then scaling (never below 40 px a button).
+
 ## 2026-11-05: Roblox's player list is off in Hatchery Heist
 
 - On desktop the player list (top right) covered the side menu's top

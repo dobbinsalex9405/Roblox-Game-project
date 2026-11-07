@@ -39,6 +39,17 @@ DataTemplate.template = {
 	floorUpgrades = {},
 	towerVersion = 0,
 	daily = { lastDay = 0, streak = 0 }, -- Daily Rewards: UTC day last claimed, reward claimed then
+	-- Charms and the claw machine (shared/Charms.luau, shared/Claw.luau),
+	-- added after launch of version 1 like `found` (reconcile fills them
+	-- in). Charms are never deleted except by fusion.
+	charms = {}, -- { { uid, id, gotAt, source = "claw" | "fuse" | "counter" | "grant" } }
+	charmNextUid = 1,
+	charmEquipped = {}, -- { [kind] = charm uid }
+	charmHidden = {}, -- { [kind] = true }: that kind's worn charm is hidden
+	charmsShown = true, -- show my worn charms at all
+	clawPity = 0, -- pulls since the last Legendary-or-better charm
+	clawPulls = 0, -- every pull ever, coins and Robux
+	incomePeak = 0, -- best coins a second ever (a pull's price follows it)
 	stats = { raidsWon = 0, raidsLost = 0, playSeconds = 0 },
 	meta = { firstJoinAt = 0, lastJoinAt = 0, sessions = 0 }, -- written by the core on join
 }

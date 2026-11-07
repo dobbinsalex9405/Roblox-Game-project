@@ -732,6 +732,100 @@ local function voxelCreatures(): { any }
 end
 
 -------------------------------------------------------------------------------
+-- Hatchery Heist charms from ClawArt (one model per charm, its trim in the
+-- tier colour, as the game draws it)
+-------------------------------------------------------------------------------
+
+local function loadModule(path: string): any
+	local source = fs.readFile(path)
+	-- Type-only requires (WorldArt.Prop) have nothing to load here.
+	source = string.gsub(source, 'local %w+ = require%("[^"]+"%)\n', "")
+	return luau.load(source, { debugName = path })()
+end
+
+local function tierHexes(): { [string]: string }
+	local source = fs.readFile("games/hatchery-heist/src/shared/Layout.luau")
+	local block = string.match(source, "local RARITY_COLORS[^=]*= {(.-)\n}") or ""
+	local out = {}
+	for line in string.gmatch(block, "[^\n]+") do
+		local tier, r, g, b =
+			string.match(line, '%[?"?([%a ]+)"?%]?%s*=%s*Color3%.fromRGB%((%d+),%s*(%d+),%s*(%d+)%)')
+		if tier then
+			out[tier] = string.format(
+				"%02X%02X%02X",
+				tonumber(r) :: number,
+				tonumber(g) :: number,
+				tonumber(b) :: number
+			)
+		end
+	end
+	return out
+end
+
+local function clawCharms(): { any }
+	local artPath = "games/hatchery-heist/src/shared/ClawArt.luau"
+	if not fs.isFile(artPath) then
+		return {}
+	end
+	local art = loadModule(artPath)
+	local config = loadModule("games/hatchery-heist/config/charms.luau")
+	local tiers = tierHexes()
+	local out = {}
+	for _, c in config.charms do
+		local prop = art[`Charm{c.kind}`]
+		if prop then
+			local v = prop.voxel
+			local parts = {}
+			for _, part in prop.parts do
+				local b = part.boxes
+				for i = 1, #b, 7 do
+					local colour = prop.palette[b[i + 6]] or "CCCCCC"
+					if part.name == "trim" then
+						colour = tiers[c.tier] or colour
+					end
+					table.insert(parts, {
+						"block",
+						r3((b[i] + b[i + 3] / 2) * v),
+						r3((b[i + 1] + b[i + 4] / 2) * v),
+						r3((b[i + 2] + b[i + 5] / 2) * v),
+						1,
+						0,
+						0,
+						0,
+						1,
+						0,
+						0,
+						0,
+						1,
+						r3(b[i + 3] * v),
+						r3(b[i + 4] * v),
+						r3(b[i + 5] * v),
+						string.upper(colour),
+						0,
+						"SmoothPlastic",
+						part.name,
+					})
+				end
+			end
+			local centred, size = centre(parts)
+			table.insert(out, {
+				game = "hatchery-heist",
+				name = c.name,
+				rarity = c.tier,
+				variant = 1,
+				where = `Charms > {c.kind}`,
+				path = { "Charms", c.kind },
+				copies = 1,
+				size = size,
+				parts = centred,
+			})
+		end
+	end
+	print(`hatchery-heist: {#out} charms from ClawArt`)
+	return out
+end
+
+-------------------------------------------------------------------------------
 
 local all = {}
 for _, name in games do
@@ -747,6 +841,9 @@ for _, name in games do
 end
 if table.find(games, "hatchery-heist") then
 	for _, d in voxelCreatures() do
+		table.insert(all, d)
+	end
+	for _, d in clawCharms() do
 		table.insert(all, d)
 	end
 end
