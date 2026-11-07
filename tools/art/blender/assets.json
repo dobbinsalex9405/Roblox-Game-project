@@ -1499,6 +1499,12 @@
    "textureId": 95806592137832,
    "textureType": "Image",
    "version": "1"
+  },
+  "HurricaneRoc": {
+   "assetId": 92845448203322,
+   "textureId": 109204015653940,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
