@@ -93,3 +93,33 @@ describe("Hatchery Heist guide", function()
 		expect(Guide.isNewPlayer(bought)).toBe(false)
 	end)
 end)
+
+describe("Side menu", function()
+	-- Studio gate (#112): after "Let's go!" the side menu stayed hidden for
+	-- good, because the Core Feedback and Shop buttons (DisplayOrder 20 and
+	-- 30) are always-enabled ScreenGuis and counted as open windows.
+	local function gui(name: string, order: number, enabled: boolean, window: boolean?): Guide.Screen
+		return { name = name, enabled = enabled, displayOrder = order, windowVisible = window }
+	end
+	local corner = {
+		gui("CoreFeedback", 20, true),
+		gui("CoreShop", 30, true, false),
+		gui("CoreTestPanel", 35, true, false),
+		gui("HatcheryBook", 20, false, true),
+		gui("HatcheryGuide", 5, true),
+		gui("HatchReveal", 50, true, true),
+	}
+
+	it("stays out while only the top-bar buttons are on screen", function()
+		expect(Guide.windowOpen(corner)).toBe(false)
+	end)
+
+	it("hides while one of the game's windows or a Core window is open", function()
+		local book = table.clone(corner)
+		book[4] = gui("HatcheryBook", 20, true, true)
+		expect(Guide.windowOpen(book)).toBe(true)
+		local shop = table.clone(corner)
+		shop[2] = gui("CoreShop", 30, true, true)
+		expect(Guide.windowOpen(shop)).toBe(true)
+	end)
+end)
