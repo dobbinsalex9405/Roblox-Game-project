@@ -457,13 +457,25 @@ def hurricane_roc(c, H):
         gradient(part, [slateD, slate, slate, slateL], 1.6 * k, 7.8 * k, fine, keep=(silver,))
     if fine:
         b.paint(lambda p, cc, g: (_shade(cc, 0.86), False) if cc in (slate, slateL, slateD) and (p[2] + (p[0] // 2)) % 4 == 0 else None)
-    # hooked beak and fierce brows
-    for i in range(round(1.1 * k)):
-        w = max(1, round(0.35 * k * (1 - i / (1.3 * k))))
-        for x in range(-w, w):
-            f = front_at(h, x, round(6.2 * k))
-            if f:
-                h.put((f[0], f[1] - 1 - i, round(6.2 * k) - (i * i) // round(0.6 * k)), beakc)
+    # a raptor's beak: a solid upper bill rooted in the face, arching forward
+    # and hooking down to a dark tip, over a shorter lower bill
+    yf = front_at(h, 0, round(6.1 * k))[1] + 0.5
+    cere, beakD, beakT, tipc = C('#FFDD6B'), C('#E6A51F'), C('#D98A12'), C('#9A5E14')
+    L = 1.3 * k
+    n = 30
+    for i in range(n):
+        t = i / (n - 1)
+        # forward along the top, then the last third curls down into the hook
+        y = yf + 0.3 * k - L * (t if t < 0.7 else 0.7 + (t - 0.7) * 0.75)
+        z = 6.1 * k + 0.16 * k * math.sin(math.pi * min(t, 0.7) / 0.7 * 0.5) - (0.5 * k * ((t - 0.6) / 0.4) ** 1.6 if t > 0.6 else 0)
+        rx = 0.44 * k * (1 - t) ** 0.8 + 0.07 * k
+        rz = 0.36 * k * (1 - t) ** 0.55 + 0.09 * k
+        col = cere if t < 0.2 else (beakc if t < 0.62 else (beakT if t < 0.9 else tipc))
+        h.ell((0, y, z), (rx, 0.16 * k, rz), col)
+    for i in range(16):  # the lower bill, shorter, tucked under the hook
+        t = i / 15 * 0.42
+        h.ell((0, yf + 0.25 * k - L * t, 5.66 * k - 0.08 * k * t),
+              (0.28 * k * (1 - t) + 0.06 * k, 0.12 * k, 0.11 * k), beakD)
     proud_eyes(c, h, [(0.6 * k, 6.55 * k)], 0.34 * k, 0.32 * k, volt, ring=INK, pupil=INK, lid=slateD,
                iris2=C('#2E86E8'), behind=-1.6 * k)
     for sx in (1, -1):
@@ -502,8 +514,11 @@ def hurricane_roc(c, H):
                          math.floor(cz + math.sin(s * math.pi * 2) * r * 0.4 + t_ * 0.3))
                     part.put(q, col2 if t_ == 0 else col, True)
         return draw
-    orbit_ring(c, k, [(a, z, 0.6, gust(C('#BFEFFF'), WHITE)) for a, z in ((0, 1.6), (72, 3.0), (144, 4.4), (216, 2.2), (288, 3.6))],
-               margin=0.5)
+    # ten wind threads, two layers turning together: five low and wide, five
+    # high and between them
+    winds = [(a, z) for a, z in ((0, 1.6), (72, 3.0), (144, 4.4), (216, 2.2), (288, 3.6))]
+    winds += [(a + 36, z) for a, z in ((0, 3.8), (72, 2.0), (144, 3.2), (216, 4.6), (288, 1.4))]
+    orbit_ring(c, k, [(a, z, 0.55, gust(C('#BFEFFF'), WHITE)) for a, z in winds], margin=0.5)
     return c
 
 
