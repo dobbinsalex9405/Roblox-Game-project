@@ -58,4 +58,28 @@ function BookGrid.visible(
 	return firstRow * columns + 1, math.min(count, (lastRow + 1) * columns)
 end
 
+-- The cards kept built around the drawn range `first`..`last`: that range
+-- widened evenly both ways until it holds `cap` cards, any spare past one end
+-- of the tab going to the other side. A brand-new ViewportFrame takes up to
+-- a second to draw its first frame, so the book builds these ahead while it
+-- is open and a fast flick lands on cards that are already drawn.
+function BookGrid.warm(count: number, first: number, last: number, cap: number): (number, number)
+	if count <= 0 or last < first then
+		return 1, 0
+	end
+	local spare = math.max(0, cap - (last - first + 1))
+	local before = math.min(first - 1, spare // 2)
+	local after = math.min(count - last, spare - before)
+	before = math.min(first - 1, spare - after)
+	return first - before, last + after
+end
+
+-- Cards to warm this frame, `elapsed` seconds after a tab was shown: none
+-- until the cards on screen have had `delay` to draw (new pictures queue to
+-- draw together, so warming at once left cards on screen blank), then
+-- `perFrame`.
+function BookGrid.warmBudget(elapsed: number, delay: number, perFrame: number): number
+	return if elapsed < delay then 0 else perFrame
+end
+
 return BookGrid

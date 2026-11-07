@@ -200,9 +200,9 @@
   },
   "Crayfish": {
    "assetId": 88603996749113,
-   "textureId": 104225477198129,
+   "textureId": 73496619405386,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Cricket": {
    "assetId": 128670590921325,
@@ -380,9 +380,9 @@
   },
   "GoldenGoose": {
    "assetId": 78366279913804,
-   "textureId": 86233301323196,
+   "textureId": 132365633833596,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "GoldenTamarin": {
    "assetId": 89453806297155,
@@ -524,9 +524,9 @@
   },
   "Ladybug": {
    "assetId": 102641076306308,
-   "textureId": 70698355651419,
+   "textureId": 105653104153736,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "Lamb": {
    "assetId": 138591886331754,
@@ -656,9 +656,9 @@
   },
   "NebulaSerpent": {
    "assetId": 133734762072662,
-   "textureId": 94663921214126,
+   "textureId": 86054197578838,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "Newt": {
    "assetId": 137451594093883,

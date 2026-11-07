@@ -708,7 +708,7 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		if floor == owned + 1 and claimed and nextPrice then
 			if label == nil then
 				local size = Geometry.FLOOR_LABEL
-				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(size.width, size.height), "")
+				billboard(deck, Vector3.new(0, size.above, 0), UDim2.fromScale(size.width, size.height), "")
 			end
 			setLabel(deck, Tower.floorLabel(floor, nextPrice))
 		elseif label then
