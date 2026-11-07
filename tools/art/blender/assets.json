@@ -50,9 +50,9 @@
   },
   "Badger": {
    "assetId": 111724425078003,
-   "textureId": 74852804646676,
+   "textureId": 88814762454996,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "BananaSlug": {
    "assetId": 112403262999735,
@@ -62,9 +62,9 @@
   },
   "Bantam": {
    "assetId": 115664770832181,
-   "textureId": 83336001147951,
+   "textureId": 119540355415064,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "BearCub": {
    "assetId": 116984149505762,
@@ -74,7 +74,7 @@
   },
   "BeardedDragon": {
    "assetId": 79292759962077,
-   "textureId": 106916038470714,
+   "textureId": 73577068469347,
    "textureType": "Image",
    "version": "4"
   },
@@ -92,9 +92,9 @@
   },
   "BlackLamb": {
    "assetId": 119632087781097,
-   "textureId": 126430209941258,
+   "textureId": 88714224326385,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "BlazeBunny": {
    "assetId": 76575080466854,
@@ -182,9 +182,9 @@
   },
   "Bushbaby": {
    "assetId": 105373055800335,
-   "textureId": 87604131391044,
+   "textureId": 116836696624208,
    "textureType": "Image",
-   "version": "4"
+   "version": "5"
   },
   "Butterfly": {
    "assetId": 95471060225988,
@@ -212,9 +212,9 @@
   },
   "Canary": {
    "assetId": 113815489059370,
-   "textureId": 114406483017356,
+   "textureId": 115050231532036,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "CandyColossus": {
    "assetId": 128041062524831,
@@ -224,15 +224,15 @@
   },
   "Capybara": {
    "assetId": 91125177796791,
-   "textureId": 121605779924833,
+   "textureId": 114454215902173,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Cardinal": {
    "assetId": 97565402353215,
-   "textureId": 116272626135718,
+   "textureId": 94211752113707,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Carrotling": {
    "assetId": 137831762060363,
@@ -248,9 +248,9 @@
   },
   "Chameleon": {
    "assetId": 71075211584998,
-   "textureId": 105443136560562,
+   "textureId": 107742464763030,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Chick": {
    "assetId": 80751929611771,
@@ -260,9 +260,9 @@
   },
   "Chickadee": {
    "assetId": 100182228365404,
-   "textureId": 112452591952632,
+   "textureId": 73207139915674,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "ChimeraCub": {
    "assetId": 139503551912964,
@@ -2105,6 +2105,60 @@
    "textureId": 137461933932625,
    "textureType": "Image",
    "version": "1"
+  },
+  "Acornling": {
+   "assetId": 95116222326866,
+   "textureId": 135587025587606,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "AlleyCat": {
+   "assetId": 84172167625561,
+   "textureId": 107516314375063,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Aphid": {
+   "assetId": 75067507457185,
+   "textureId": 79050110417295,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BarnCat": {
+   "assetId": 129748156967199,
+   "textureId": 113671955918101,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BarnSwallow": {
+   "assetId": 125414730411240,
+   "textureId": 82849211729652,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BeaglePup": {
+   "assetId": 109536719328662,
+   "textureId": 71220295016945,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Bookworm": {
+   "assetId": 82377843078054,
+   "textureId": 94312131455892,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Centipede": {
+   "assetId": 77538856581854,
+   "textureId": 131170962359108,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ClickBeetle": {
+   "assetId": 130575651962492,
+   "textureId": 113573645222662,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -3268,6 +3322,70 @@
   "JellySlime": {
    "imageId": 71245448240637,
    "source": "46e185df95e83a7f"
+  },
+  "Acornling": {
+   "imageId": 71052356526210,
+   "source": "cf8de24c5d303c8c"
+  },
+  "AlleyCat": {
+   "imageId": 135008956948334,
+   "source": "84c45a33d878467c"
+  },
+  "Badger": {
+   "imageId": 95909659129660,
+   "source": "fa84e70f9a59fd2b"
+  },
+  "Bantam": {
+   "imageId": 80773091818275,
+   "source": "15b1a8ab5b079a6c"
+  },
+  "BarnCat": {
+   "imageId": 77616867003911,
+   "source": "75450bb88e7bf0a2"
+  },
+  "BarnSwallow": {
+   "imageId": 116141420118901,
+   "source": "e72d1a3736fef0cf"
+  },
+  "BeaglePup": {
+   "imageId": 114316876527504,
+   "source": "53094b094ef74371"
+  },
+  "BlackLamb": {
+   "imageId": 75115295119132,
+   "source": "83732884d4bdd1b0"
+  },
+  "Bookworm": {
+   "imageId": 96370812321790,
+   "source": "349f2185a71f369a"
+  },
+  "Bushbaby": {
+   "imageId": 71919721178066,
+   "source": "8b9b0b88a0b34c4b"
+  },
+  "Canary": {
+   "imageId": 137434643590598,
+   "source": "a46add1928dc5e94"
+  },
+  "Capybara": {
+   "imageId": 135390220970405,
+   "source": "ed2bfc97a1c0f633"
+  },
+  "Cardinal": {
+   "imageId": 118890587287367,
+   "source": "7a236e27bc2c6d2e"
+  },
+  "Chameleon": {
+   "imageId": 75247042683290,
+   "source": "e93b4c6cbab359b1"
+  },
+  "Chickadee": {
+   "imageId": 99556578695983,
+   "source": "31abe374f852e2fb"
+  },
+  "ClickBeetle": {
+   "imageId": 76298656660542,
+   "source": "45338ca7d118cf2a"
   }
  }
 }

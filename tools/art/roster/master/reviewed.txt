@@ -359,3 +359,13 @@ GhostOwl
 TripleGecko
 Squid
 Cuttlefish
+Badger
+Bantam
+BeardedDragon
+BlackLamb
+Bushbaby
+Canary
+Capybara
+Cardinal
+Chameleon
+Chickadee
