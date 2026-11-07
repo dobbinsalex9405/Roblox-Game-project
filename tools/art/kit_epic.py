@@ -323,6 +323,8 @@ def _yeti(c, H, cols):
         shag.ell((math.cos(a) * 2.2 * k, math.sin(a) * 1.9 * k - 0.2 * k, 7.0 * k), (0.55 * k, 0.55 * k, 0.6 * k), fur)
     shag.ell((0, 0, 8.6 * k), (1.1 * k, 1.0 * k, 0.7 * k), fur)
     shag.ell((0.4 * k, -0.6 * k, 9.1 * k), (0.4 * k, 0.4 * k, 0.6 * k), fur)
+    for p in [p for p in shag.v if p[0] < 0]:  # the ring is lopsided: keep the
+        del shag.v[p]                          # right half, mirror it exactly
     _mirror(shag)
     # two small horns
     horns = c.part('horns', 'static')
