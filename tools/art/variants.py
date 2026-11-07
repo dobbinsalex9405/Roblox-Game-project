@@ -141,7 +141,7 @@ def check(entry, where):
         bad(f'{sid}: a {plan} needs options.kind')
     sh = entry.get('shape', {})
     for key in sh:
-        if key not in ('body', 'head'):
+        if key not in ('body', 'head', 'keep_eyes'):
             bad(f'{sid}: shape has "body" [width, length, height] and "head", not "{key}"')
     if 'body' in sh and (len(sh['body']) != 3 or not all(0.8 <= v <= 1.35 for v in sh['body'])):
         bad(f'{sid}: shape.body must be 3 numbers from 0.8 to 1.35')
@@ -200,9 +200,12 @@ RING_CONTRAST = 0.12  # below this the deepened eye still sinks into the face
 # re-uploaded; then drop its id here, in the PR that carries the upload.
 # Binturong (promoted, not live yet) is here too: the shine would put it 84
 # tris over the Uncommon budget (15000), so it keeps its reviewed eyes.
+# Porcupine (promoted, not live yet) likewise: the shine puts it 136 tris
+# over the Common budget (15000) with its quill coat.
 EYE_CONTRAST_KEEP = frozenset({
     'BabyKraken', 'BearCub', 'Binturong', 'CocoaBunny', 'Cricket', 'Crow',
-    'GemDrake', 'Lemming', 'Skunk', 'StarWhaleCalf', 'StormHawk', 'TapirCalf',
+    'GemDrake', 'Lemming', 'Porcupine', 'Skunk', 'StarWhaleCalf', 'StormHawk',
+    'TapirCalf',
 })
 
 
@@ -392,7 +395,7 @@ def builder(entry):
             EXTRA_BUILDERS[plan](c, H, dict(cols), opts)
         sh = entry.get('shape')
         if sh:
-            kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))
+            kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0), sh.get('keep_eyes', False))
         for p in entry.get('patterns', []):
             with _glowing(c, p.get('glow')):
                 if p['kind'] in EXTRA_PATTERNS:
