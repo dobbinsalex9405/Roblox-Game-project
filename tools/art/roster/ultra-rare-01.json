@@ -1778,9 +1778,9 @@
    },
    "shape": {
     "body": [
-     0.92,
-     1.05,
-     1.0
+     0.88,
+     0.97,
+     0.95
     ]
    },
    "patterns": [
@@ -1793,17 +1793,20 @@
     {
      "kind": "long_legs",
      "color": "#9FE8C0",
-     "amount": 0.7
+     "amount": 0.55
     },
     {
      "kind": "horse_head",
      "color": "#E0FFF0",
-     "color2": "#3A6A4A"
+     "color2": "#3A6A4A",
+     "length": 2.9,
+     "tip": 0.6
     },
     {
      "kind": "leaf_mane",
-     "color": "#2F9A52",
-     "color2": "#1F6A38"
+     "color": "#1F7A3A",
+     "color2": "#145A28",
+     "lift": 0.5
     },
     {
      "kind": "horse_tail",
@@ -1811,10 +1814,9 @@
      "color2": "#2A7A48"
     },
     {
-     "kind": "aura_clover",
-     "color": "#2F8F4A",
-     "glow": true,
-     "size": 1.15
+     "kind": "forehead_clover",
+     "color": "#2FBF5A",
+     "color2": "#1F6A38"
     },
     {
      "kind": "mend",

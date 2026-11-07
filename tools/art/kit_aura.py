@@ -2428,6 +2428,29 @@ def clover(c, H, col, col2=None, a=None):
                 body.put((x, y, z), _dark(col, 0.25))
 
 
+def forehead_clover(c, H, col, col2=None, a=None):
+    """A big four-leaf clover on the forehead, above and between the eyes:
+    four round leaves (col, glowing) round a darker centre, standing a
+    voxel proud of the face. "size" scales it (1.0: about 4x4 coarse)."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    eyes = _find(c, 'eyes')
+    et = max(q[2] for q in eyes.v) if eyes and eyes.v else (z0 + z1) / 2
+    r = 0.42 * k * float((a or {}).get('size', 1.0)) + 0.3
+    zc = et + 1.0 * k + r
+    mid = col2 or _dark(col, 0.3)
+    for x in range(-math.ceil(2.2 * r) - 1, math.ceil(2.2 * r) + 1):
+        for z in range(math.floor(zc - 2.2 * r) - 1, math.ceil(zc + 2.2 * r) + 1):
+            X, Z = x + .5, z + .5 - zc
+            leaf = any(math.hypot(X - dx * r, Z - dz * r) <= r for dx, dz in ((1, 1), (-1, 1), (1, -1), (-1, -1)))
+            centre = math.hypot(X, Z) < 0.6
+            if not (leaf or centre):
+                continue
+            f = head.front(x, z)
+            if f:
+                head.put((f[0], f[1] - 1, f[2]), mid if centre else col, not centre)
+
+
 def ribs(c, H, col, col2=None):
     """Pumpkin ribs: darker grooves running front to back over the body."""
     k = H / 10.0
@@ -2866,11 +2889,12 @@ def horse_head(c, H, col, col2=None, a=None):
     # forward and a little down to a broad nose: the whole head reads long
     hw = max(p[0] for p in head.v if abs(p[2] - zc) <= 1) + 0.5
     steps = 6
+    length = float((a or {}).get('length', 2.4))
     for i in range(steps):
         t = i / (steps - 1)
-        y = yf + 0.6 * k - t * 2.4 * k
+        y = yf + 0.6 * k - t * length * k
         z = zc + 0.2 * k - t * 0.35 * k
-        tipw = 0.55 if wolf else 0.85
+        tipw = 0.55 if wolf else float((a or {}).get('tip', 0.85))
         rx = (hw * 0.85) * (1 - t) + tipw * k * t
         rz = 1.15 * k * (1 - t) + (0.6 if wolf else 0.8) * k * t
         head.ell((0, y, z), (rx, 0.55 * k, rz), face if t < 0.45 else col)
@@ -3695,44 +3719,52 @@ def dust_motes(c, H, col, col2=None):
 
 
 def _coin_spot(c):
-    """Where a jelly's coin hangs: low in the body and to its left, clear
-    of the face (straight under the eyes it read as a duck's bill)."""
+    """Where a jelly's coin hangs: on its right flank at mid height, well
+    behind the eye line (in front, low on the face, it read as a duck's
+    bill). Returns the jelly's parts and the coin's (y, z) centre."""
     parts = [p for p in (_find(c, 'body'), head_of(c)) if p and p.v]
     allq = [q for p in parts for q in p.v]
     z0, z1 = min(q[2] for q in allq), max(q[2] for q in allq)
-    xw = max(q[0] for q in allq) + 0.5
-    return parts, -xw * 0.5, z0 + (z1 - z0) * 0.36
+    y0, y1 = min(q[1] for q in allq), max(q[1] for q in allq)
+    return parts, y0 + (y1 - y0) * 0.6, z0 + (z1 - z0) * 0.45
+
+
+def _flank(parts, y, z):
+    """The outermost voxel on the right flank at (y, z), and its part."""
+    best = None
+    for p in parts:
+        xs = [q[0] for q in p.v if q[1] == y and q[2] == z]
+        if xs and (best is None or max(xs) > best[1][0]):
+            best = (p, (max(xs), y, z))
+    return best
 
 
 def coin_inside(c, H, col, col2=None):
-    """A gold coin suspended inside a jelly body, seen through the front:
-    a round glowing disc (col) with a darker rim (col2) and an embossed
-    mark standing a voxel proud, set low in the body and to one side, well
-    clear of the face."""
+    """A gold coin suspended inside a jelly, seen through its right flank
+    behind the eye line: a round glowing disc (col) with a darker rim (col2)
+    and an embossed cross mark standing a voxel proud."""
     k = H / 10.0
     if not _find(c, 'body'):
         return
     col2 = col2 or _dark(col, 0.3)
     hi = _light(col, 0.45)
-    parts, xc, zc = _coin_spot(c)
-    occ = {q: p for p in parts for q in p.v}
+    parts, yc, zc = _coin_spot(c)
     r = max(1.6, 0.85 * k)
-    for x in range(math.floor(xc - r) - 1, math.ceil(xc + r) + 1):
+    for y in range(math.floor(yc - r) - 1, math.ceil(yc + r) + 1):
         for z in range(math.floor(zc - r) - 1, math.ceil(zc + r) + 1):
-            d = math.hypot(x + .5 - xc, z + .5 - zc)
+            d = math.hypot(y + .5 - yc, z + .5 - zc)
             if d > r:
                 continue
-            ys = [q[1] for q in occ if q[0] == x and q[2] == z]
-            if not ys:
+            best = _flank(parts, y, z)
+            if not best:
                 continue
-            q = (x, min(ys), z)
-            p = occ[q]
+            p, q = best
             rim = d > r - 1.0
-            mark = (abs(x + .5 - xc) < 0.5 and abs(z + .5 - zc) < r * 0.5) or \
-                   (abs(z + .5 - zc) < 0.5 and abs(x + .5 - xc) < r * 0.5)
+            mark = (abs(y + .5 - yc) < 0.5 and abs(z + .5 - zc) < r * 0.5) or \
+                   (abs(z + .5 - zc) < 0.5 and abs(y + .5 - yc) < r * 0.5)
             p.v[q] = (col2, True) if rim else (col, True)
             if mark and not rim:
-                p.put((q[0], q[1] - 1, q[2]), hi, True)
+                p.put((q[0] + 1, q[1], q[2]), hi, True)
 
 
 def smile_line(c, H, col, col2=None):
@@ -3754,24 +3786,25 @@ def smile_line(c, H, col, col2=None):
 
 
 def jelly_core(c, H, col, col2=None):
-    """A jelly's bright inner core: a soft glowing halo (col) on the front
-    of the body around where the coin hangs, brightest at its middle, so
-    the coin reads as suspended inside; the top of the head gets a paler
-    highlight band (col2)."""
+    """A jelly's bright inner core: a soft glowing halo (col) on the right
+    flank round where the coin hangs, brightest at its middle, so the coin
+    reads as suspended inside; the top of the head gets a paler highlight
+    band (col2)."""
     k = H / 10.0
-    parts, xc, zc = _coin_spot(c)
-    occ = set(q for p in parts for q in p.v)
-    eyes = _find(c, 'eyes')
-    ez = min(q[2] for q in eyes.v) if eyes and eyes.v else max(q[2] for q in occ)
-    rr = max(2.5, 1.7 * k)
-    for p in parts:
-        for q in _surface(p):
-            cc, g = p.v[q]
-            if sum(cc) < 200 or q[2] >= ez - 1 or (q[0], q[1] - 1, q[2]) in occ:
+    parts, yc, zc = _coin_spot(c)
+    rr = max(2.5, 1.9 * k)
+    for y in range(math.floor(yc - rr) - 1, math.ceil(yc + rr) + 1):
+        for z in range(math.floor(zc - rr) - 1, math.ceil(zc + rr) + 1):
+            d = math.hypot(y + .5 - yc, z + .5 - zc) / rr
+            if d >= 1:
                 continue
-            d = math.hypot(q[0] + .5 - xc * 0.7, (q[2] + .5 - zc) * 1.1) / rr
-            if d < 1:
-                p.v[q] = (_mix(cc, col, 0.45 * (1 - d) + 0.05), True)
+            best = _flank(parts, y, z)
+            if not best:
+                continue
+            p, q = best
+            cc, g = p.v[q]
+            if q[0] > 0 and sum(cc) >= 200:
+                p.v[q] = (_mix(cc, col, 0.5 * (1 - d) + 0.1), True)
     head = head_of(c)
     if col2 and head and head.v:
         zt = max(q[2] for q in head.v)
@@ -3970,7 +4003,9 @@ def round_eyes(c, H, col=None, col2=None, a=None):
     3x3) set in the face colour (col2, or the fur round the old eyes), each
     with a white shine on its upper-left corner. No slant and no dark patch
     round them, so a pale face never reads as a panda or a mask. `lift`
-    raises them and `apart` moves them out (in voxels)."""
+    raises them and `apart` moves them out (in voxels). `shine`: "outer" puts
+    the shine in the top outer corner; `flick_gap` leaves that many voxels of
+    fur between the eye and its kohl flick."""
     a = a or {}
     eyes = _find(c, 'eyes')
     head = head_of(c)
@@ -3992,7 +4027,10 @@ def round_eyes(c, H, col=None, col2=None, a=None):
     z1 = math.floor(cz + n / 2.0 - 0.5)
     for cells in ([(x0 + i, z1 - j) for j in range(n) for i in range(n)],
                   [(_mx(x0 + i), z1 - j) for j in range(n) for i in range(n)]):
-        shine = min(cells, key=lambda q: (-q[1], q[0]))
+        if a.get('shine') == 'outer':  # top outer corner, away from the nose
+            shine = min(cells, key=lambda q: (-q[1], -abs(q[0] + 0.5)))
+        else:
+            shine = min(cells, key=lambda q: (-q[1], q[0]))
         fronts = {}
         for (x, z) in cells:
             ys = [q[1] for q in head.v if q[0] == x and q[2] == z]
@@ -4032,7 +4070,8 @@ def round_eyes(c, H, col=None, col2=None, a=None):
             xo = max(q[0] for q in cells) if cells[0][0] >= 0 else min(q[0] for q in cells)
             sx = 1 if cells[0][0] >= 0 else -1
             zb = min(q[1] for q in cells) + (n - 1) // 2
-            for (dx, dz) in ((1, 0), (2, 1)):
+            g = int(a.get('flick_gap', 0))  # bare fur between the eye and the flick
+            for (dx, dz) in ((1 + g, 0), (2 + g, 1)):
                 x, z = xo + sx * dx, zb + dz
                 ys = [q[1] for q in head.v if q[0] == x and q[2] == z]
                 if ys:
@@ -4284,17 +4323,20 @@ def blade_wings(c, H, col, col2=None, a=None):
         ym = (ys[0] + ys[-1]) / 2.0
         w.v = {}
         L = x1 - x0
-        half = max(2.2, L / 7.5)  # about four times longer than wide
+        half = max(2.6, L / 6.5)  # about four times longer than wide
+        vd = math.floor(half * 0.45) + 0.5  # the veins keep to one row each
         for cy in (ym - half - 0.5, ym + half + 0.5):
             for xi in range(math.floor(x0), math.ceil(x1) + 1):
                 t = (xi - x0) / max(1.0, L)
-                hw = half * (0.6 + 0.4 * math.sin(min(1.0, t * 1.1) * math.pi * 0.85))
+                hw = half * (0.7 + 0.3 * math.sin(min(1.0, t * 1.1) * math.pi * 0.85))
                 if t > 0.93:
                     hw *= 0.6
                 for y in range(math.floor(cy - hw), math.ceil(cy + hw)):
                     dy = y + 0.5 - cy
-                    edge = abs(dy) > hw - 0.9 or t > 0.97
-                    vein = not edge and abs(dy) < 0.5 and 0.1 < t < 0.85
+                    # one brass rim round the blade, pale glass inside, and two
+                    # veins running root to tip (no cross bars: they read as rungs)
+                    edge = abs(dy) > hw - 0.6 or t > 0.98 or t < 0.02
+                    vein = not edge and abs(abs(dy) - vd) < 0.1 and 0.04 < t < 0.92
                     x = xi if sx > 0 else _mx(xi)
                     w.put((x, y, z), rim if (edge or vein) else col)
 
@@ -4342,12 +4384,14 @@ def leaf_mane(c, H, col, col2=None, a=None):
     wz = max(q[2] for q in body.v if abs(q[1] - wy) < 1.5)
     part = c.part('mane', 'static')
     vein = col2 or _dark(col, 0.3)
-    n = max(4, round(math.hypot(wy - hy, wz - hz) / (0.9 * k)))
+    n = max(4, round(math.hypot(wy - hy, wz - hz) / (float((a or {}).get('step', 0.9)) * k)))
     for i in range(n + 1):
         t = i / n
         y = hy + 1.3 * k + (wy - hy - 1.3 * k) * t
-        z = hz - 0.2 * k + (wz - hz + 0.2 * k) * t + 0.4 * k
-        r = 0.36 * k + .2
+        lift = float((a or {}).get('lift', 0))
+        top = hz - (0.2 + 2.0 * lift) * k  # a raised mane starts lower, so it never towers over the ears
+        z = top + (wz - top) * t + (0.4 + lift) * k
+        r = (0.36 + 0.3 * float((a or {}).get('lift', 0))) * k + .2  # raised leaves are bigger, so they still meet the neck
         for (dx, dy, dz) in ((0, 0, 0.5), (-0.45, 0.2, 0.1), (0.45, 0.2, 0.1)):
             ball(part, (dx * k, y + dy * k, z + dz * k), (r, r * 0.8, r), col)
         part.put((-1, math.floor(y), math.floor(z)), vein)
@@ -4485,33 +4529,45 @@ def _belly_z(body):
 
 
 def tapir_trunk(c, H, col, col2=None, a=None):
-    """A tapir's short drooping trunk: it leaves the lower face below the
-    eyes, reaches forward and curves down past the mouth, with crease rings
-    (a darker shade) and a pink tip (col2). A dark mouth line sits under its
-    root. Replaces the plan's snout."""
+    """A tapir's long sloping head and short trunk: the head is carried a
+    little lower, the face runs forward and down into a long snout, and the
+    trunk sticks on FORWARD past it and then curves down (col, crease rings
+    a darker shade, a pink tip col2), so it shows in side and 3/4 profile. A
+    dark mouth line sits under the snout. Put it before the hat."""
     k = H / 10.0
+    _shift_head(c, 0, -float((a or {}).get('lower', 0.6)) * k)
     head, yf, ez, z0, z1 = _head_front(c)
-    zc = (ez - 0.9 * k) if ez is not None else (z0 + z1) / 2
+    face = head.v[next(iter(head.v))][0]
+    zc = (ez - 0.7 * k) if ez is not None else (z0 + z1) / 2
+    hw = max(q[0] for q in head.v if abs(q[2] - zc) <= 1) + 0.5
+    # the long sloping snout, in the face colour
+    steps = 5
+    for i in range(steps):
+        t = i / (steps - 1)
+        y = yf + 0.6 * k - t * 1.7 * k
+        z = zc + 0.2 * k - t * 0.7 * k
+        head.ell((0, y, z), (hw * 0.75 * (1 - t) + 0.6 * k * t, 0.6 * k, 0.85 * k * (1 - t) + 0.55 * k * t), face)
+    ys, zs = yf - 1.1 * k, zc - 0.5 * k
     ring = _dark(col, 0.18)
-    pts = [(0, yf + 0.4 * k, zc + 0.15 * k), (0, yf - 0.5 * k, zc + 0.1 * k), (0, yf - 0.95 * k, zc - 0.25 * k),
-           (0, yf - 1.15 * k, zc - 0.75 * k), (0, yf - 1.1 * k, zc - 1.1 * k)]
-    rs = (0.8, 0.62, 0.5, 0.42)
+    pts = [(0, ys + 0.3 * k, zs), (0, ys - 0.7 * k, zs - 0.05 * k), (0, ys - 1.15 * k, zs - 0.45 * k),
+           (0, ys - 1.25 * k, zs - 1.05 * k)]
+    rs = (0.5, 0.44, 0.38)
     for i, (p, q) in enumerate(zip(pts, pts[1:])):
         line(head, p, q, col, r=rs[i] * k)
     # crease rings across the top of the trunk
-    for (p, q, r) in ((pts[1], pts[2], rs[1]), (pts[2], pts[3], rs[2])):
+    for (p, q, r) in ((pts[0], pts[1], rs[0]), (pts[1], pts[2], rs[1])):
         m = tuple((p[j] + q[j]) / 2 for j in range(3))
         for x in range(-math.ceil(r * k), math.ceil(r * k) + 1):
             for z in range(math.floor(m[2]), math.ceil(m[2] + r * k) + 1):
                 f = (x, math.floor(m[1]), z)
-                if f in head.v and (x, f[1] - 1, z) not in head.v:
+                if f in head.v and (x, f[1], z + 1) not in head.v:
                     head.put(f, ring)
     tip = pts[-1]
-    head.ell((tip[0], tip[1], tip[2] - 0.15 * k), (0.42 * k, 0.42 * k, 0.3 * k), col2 or hexc('#E8A0B4'))
-    # the mouth: a dark line under the trunk's root
-    zm = round(zc - 0.75 * k)
+    head.ell((tip[0], tip[1], tip[2] - 0.1 * k), (0.4 * k, 0.4 * k, 0.28 * k), col2 or hexc('#E8A0B4'))
+    # the mouth: a dark line under the snout, behind the trunk's root
+    zm = round(zs - 0.6 * k)
     for x in range(-max(1, round(0.45 * k)), max(1, round(0.45 * k))):
-        for y in range(round(yf - 0.2 * k), round(yf + 2 * k)):
+        for y in range(round(ys), round(yf + 2 * k)):
             if (x, y, zm) in head.v:
                 head.put((x, y, zm), _dark(col, 0.5))
                 break
@@ -4803,7 +4859,7 @@ ACCESSORIES = {
     'serpent_tail': serpent_tail,
     'wattles': wattles,
     'rooster_comb': rooster_comb,
-    'smile_line': smile_line, 'jelly_core': jelly_core,
+    'smile_line': smile_line, 'forehead_clover': forehead_clover, 'jelly_core': jelly_core,
     'tapir_trunk': tapir_trunk, 'heavy_rump': heavy_rump, 'dream_stripes': dream_stripes,
     'forehead_moon': forehead_moon, 'bison_build': bison_build, 'bison_face': bison_face,
     'bison_horns': bison_horns, 'moose_nose': moose_nose, 'dewlap': dewlap,
