@@ -841,3 +841,23 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
    - The coin HUD and GOAL banner fill x 242-602, y 8-118, right where the sign's centre (x 422) lands. **On a phone the raised sign sits behind the HUD and GOAL banner from every distance on the path.**
    - Studio's capture tool renders BillboardGuis from its own camera, so screenshots of the sign's height aren't reliable. These numbers are projected from the actual follow-camera geometry instead.
    - Suggestion: put the sign back at about egg height, beside or in front of the egg, or attach it lower with the creature drawn above. Keep its centre below about 13 studs so it lands under y 120 on a phone.
+
+## #120 @ 576526e (phone sign fix, Giant Egg event special)
+
+**PASS.** Local build.
+1. **Giant Egg sign placement:**
+   - The sign is an 11 x 4.2-stud BillboardGui with its centre at y 7.45, offset 9.88 studs to the camera's right of the egg.
+   - Projected through the follow camera (12 behind, 4 up) from the path at 20, 25, 36, 50, 70 and 90 studs.
+   - **Phone 844x392:** sign at x 434-557, y 135-172. That's always below the HUD/GOAL band (bottom y 118), clear of the side menu (x ≥ 750), and right of the character (x 394-448).
+   - Raycasts to 9 points on the sign hit neither the Giant Egg nor the Legendary at any distance (0/9 occluded).
+   - **Tablet 1024x698:** y 240-306. **Desktop 1350x672:** y 231-295. Also 0/9 occluded.
+   - On phone, the sign shrinks to about 38x15 px at 70 studs and 31x11 px at 90, so the text is only readable from about 36 studs or closer (64x25 px there).
+2. **Event special:**
+   - With Money Rush started, the sign reads "EVENT SPECIAL: 250M coins · one a day". The prompt (key G, range 16) reads "Buy for 250M coins / Event special: costs coins now".
+   - With 250M coins, pressing G charged exactly **250,000,000** (log `reason=Shop:GiantEgg`, balance 200). The Thunder Griffin reveal played ("NEW! … LEGENDARY … +500 coins/s") and a Thunder Griffin was placed.
+   - After that the prompt reads "Yours today" and is disabled, and the sign says "Yours today! New Legendary in 2h 36m". A second G press bought nothing (still one Griffin).
+   - After Forget and Stop, the sign is back to "Coming soon · one a day · new in …" and the prompt to "Coming soon / Giant Legendary Egg".
+3. **Belt reprice:**
+   - All enabled labels showed SALE 0.07 s after Egg Sale started.
+   - All were back to full price immediately when switching to Lucky Hatch.
+   - The odds card reads "Boosted: Lucky Hatch".
