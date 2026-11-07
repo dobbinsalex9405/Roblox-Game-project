@@ -291,7 +291,8 @@
     },
     {
      "kind": "fit_boxes",
-     "color": "#000000"
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "plain",
@@ -536,9 +537,11 @@
     {
      "kind": "round_eyes",
      "color": "#1B1B2F",
-     "size": 3,
+     "size": 2,
      "flick": true,
-     "lift": -0.6
+     "lift": -0.6,
+     "flick_gap": 1,
+     "shine": "outer"
     },
     {
      "kind": "mend",
@@ -1205,6 +1208,12 @@
      "color2": "#5CC8FF"
     },
     {
+     "kind": "cone_beak",
+     "color": "#E8B83A",
+     "color2": "#B8862E",
+     "length": 0.8
+    },
+    {
      "kind": "round_eyes",
      "color": "#14102E",
      "size": 3,
@@ -1437,7 +1446,8 @@
     {
      "kind": "round_eyes",
      "color": "#1B1B2F",
-     "size": 3
+     "size": 2,
+     "shine": "outer"
     },
     {
      "kind": "ear_inner",
