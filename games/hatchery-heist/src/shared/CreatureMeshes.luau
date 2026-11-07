@@ -14230,7 +14230,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Phoenix = {
 		assetId = 71414247546855,
-		textureId = 81246540116900,
+		textureId = 138196067913676,
 		rarity = "Legendary",
 		gait = "hover",
 		height = 3.9,
@@ -14423,7 +14423,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	ThunderGriffin = {
 		assetId = 97687610747222,
-		textureId = 111527399758842,
+		textureId = 134531882891689,
 		rarity = "Legendary",
 		gait = "hover",
 		height = 3.2,
