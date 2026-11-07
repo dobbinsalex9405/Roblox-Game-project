@@ -2178,12 +2178,6 @@
    "textureType": "Image",
    "version": "1"
   },
-  "Glowworm": {
-   "assetId": 71988370925127,
-   "textureId": 81341480583144,
-   "textureType": "Image",
-   "version": "1"
-  },
   "Goldfish": {
    "assetId": 120269199245951,
    "textureId": 85619388671207,
@@ -2193,12 +2187,6 @@
   "Gumball": {
    "assetId": 101509239913326,
    "textureId": 109876966772130,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "GumdropSlug": {
-   "assetId": 129395436738053,
-   "textureId": 82566565395472,
    "textureType": "Image",
    "version": "1"
   }
@@ -3428,6 +3416,70 @@
   "ClickBeetle": {
    "imageId": 76298656660542,
    "source": "45338ca7d118cf2a"
+  },
+  "Cockatiel": {
+   "imageId": 99399709717456,
+   "source": "859c3407bca65251"
+  },
+  "Coneling": {
+   "imageId": 129786659556591,
+   "source": "c9d9acf7ad808bf6"
+  },
+  "Damselfly": {
+   "imageId": 121829742360166,
+   "source": "b214497290f6351f"
+  },
+  "Donkey": {
+   "imageId": 79723029933995,
+   "source": "b27aa27b50e29afb"
+  },
+  "Dormouse": {
+   "imageId": 83529616657116,
+   "source": "f9c3a82fd6b9bb9c"
+  },
+  "DoubleChick": {
+   "imageId": 124493946239771,
+   "source": "f01193d08b1fe886"
+  },
+  "FiddlerCrab": {
+   "imageId": 133440305487152,
+   "source": "796af1c53475c011"
+  },
+  "Firefly": {
+   "imageId": 119551233920991,
+   "source": "8f35c9e3dec6262a"
+  },
+  "Fuzzball": {
+   "imageId": 84382537517411,
+   "source": "fe14829a2cffaef7"
+  },
+  "GardenSpider": {
+   "imageId": 77057946259789,
+   "source": "80d02bb94c82de74"
+  },
+  "GoldenTamarin": {
+   "imageId": 109995072052751,
+   "source": "d299fd0653738e23"
+  },
+  "Goldfish": {
+   "imageId": 88675003001130,
+   "source": "8a45e9b12d42891a"
+  },
+  "GuineaFowl": {
+   "imageId": 130315775422937,
+   "source": "d76d3b33b306714c"
+  },
+  "Gumball": {
+   "imageId": 121857968468344,
+   "source": "d4c9932f9db1cdf0"
+  },
+  "HermitCrab": {
+   "imageId": 77979553091193,
+   "source": "2fc9f8b0cfcb445b"
+  },
+  "HeronChick": {
+   "imageId": 70562391962809,
+   "source": "ba84bf2c4eb0581c"
   }
  }
 }
