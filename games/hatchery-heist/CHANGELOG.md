@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The Gummy Bear glows softly along its back and the top of its head again,
+  so it reads as candy lit from inside rather than a solid red bear.
 - Fix: the Will-o'-Wisp is named "Will-o'-Wisp" in the Book, hatch
   reveal and odds lists (it showed as "Will OWisp").
 - Every creature in an egg's tier now shows exactly the same odds (one

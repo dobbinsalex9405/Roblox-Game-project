@@ -2094,12 +2094,6 @@
    "textureType": "Image",
    "version": "1"
   },
-  "GummyBear": {
-   "assetId": 133377156043379,
-   "textureId": 130433125023631,
-   "textureType": "Image",
-   "version": "1"
-  },
   "JellySlime": {
    "assetId": 111996189674111,
    "textureId": 137461933932625,
@@ -2157,6 +2151,12 @@
   "ClickBeetle": {
    "assetId": 130575651962492,
    "textureId": 113573645222662,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GummyBear": {
+   "assetId": 86113221179621,
+   "textureId": 133704092338001,
    "textureType": "Image",
    "version": "1"
   }
@@ -3315,10 +3315,6 @@
    "imageId": 122821289359673,
    "source": "bd54e7d5ad399b01"
   },
-  "GummyBear": {
-   "imageId": 87903919872388,
-   "source": "5c042b8fb0aa3942"
-  },
   "JellySlime": {
    "imageId": 71245448240637,
    "source": "46e185df95e83a7f"
@@ -3386,6 +3382,10 @@
   "ClickBeetle": {
    "imageId": 76298656660542,
    "source": "45338ca7d118cf2a"
+  },
+  "GummyBear": {
+   "imageId": 88046073935611,
+   "source": "deaeff0063dc90a7"
   }
  }
 }

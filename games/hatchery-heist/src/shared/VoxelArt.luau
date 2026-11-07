@@ -20345,7 +20345,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		GummyBear = {
 			rarity = "Ultra Rare",
 			size = { 8, 14, 14 },
-			palette = { "DF273B", "D3263A", "F0283C", "F86170", "BB2539", "C9263A", "D6273B", "E4273B", "1B1B2F", "F2384B", "F65969", "FB7986", "FF9AA4", "DB273B", "F54E5F" },
+			palette = { "DF273B", "D3263A", "F0283C", "FB7E8A*", "BB2539", "C9263A", "D6273B", "E4273B", "1B1B2F", "F2384B", "F65969", "FB7986*", "FF9AA4*", "DB273B", "F54E5F" },
 			parts = {
 				{
 					name = "body",
