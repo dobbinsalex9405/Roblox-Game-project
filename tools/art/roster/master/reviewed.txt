@@ -357,3 +357,13 @@ QuartzFox
 OpalFrog
 GhostOwl
 TripleGecko
+Badger
+Bantam
+BeardedDragon
+BlackLamb
+Bushbaby
+Canary
+Capybara
+Cardinal
+Chameleon
+Chickadee
