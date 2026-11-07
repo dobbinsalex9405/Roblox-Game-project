@@ -198,9 +198,11 @@ RING_CONTRAST = 0.12  # below this the deepened eye still sinks into the face
 # Live creatures whose in-game mesh and box art were made before the eye pass.
 # They keep their current eyes until each one is re-reviewed and its mesh is
 # re-uploaded; then drop its id here, in the PR that carries the upload.
+# Binturong (promoted, not live yet) is here too: the shine would put it 84
+# tris over the Uncommon budget (15000), so it keeps its reviewed eyes.
 EYE_CONTRAST_KEEP = frozenset({
-    'BabyKraken', 'BearCub', 'CocoaBunny', 'Cricket', 'Crow', 'GemDrake',
-    'Lemming', 'Skunk', 'StarWhaleCalf', 'StormHawk', 'TapirCalf',
+    'BabyKraken', 'BearCub', 'Binturong', 'CocoaBunny', 'Cricket', 'Crow',
+    'GemDrake', 'Lemming', 'Skunk', 'StarWhaleCalf', 'StormHawk', 'TapirCalf',
 })
 
 
