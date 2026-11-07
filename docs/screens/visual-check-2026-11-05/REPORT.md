@@ -1254,3 +1254,17 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
    - Moved in 10 s: 12.0 / 12.8 / 21.1 / 16.2 studs.
    - **Neighbours:** Turtle vs Leviathan stays ≥1.67 studs apart (box). Whale vs Lion box corners touch once in 30 samples (Lion orbit glow vs Whale head), but no part's centre ever enters the other (0/100), and visually there's no clipping (`99b-floor1-turtle-leviathan.jpg`, `99b-floor2-whale-lion.jpg`).
 4. **Moonlit hatch end to end:** bought from the belt (15K), incubated for 120 s, hatched with E: "NEW! … UNCOMMON Kitten +10 coins/s · 1 in 6.9", and the incubator went back to Empty (`99b-moonlit-hatch.jpg`).
+
+## #139 @ cea4f3e (20 new Epics), merged onto main aea6ba2 locally (clean)
+
+**PASS.** Local build, desktop.
+1. **Book, Epic tab:** 0/45. All 45 cards have loaded pictures, with no blanks. The 20 new Epics read "Moonlit Egg 1 in 13,699" or "1 in 13,889", and Rainbow Snail reads "Meadow Egg 1 in 25,000".
+2. **World:** PegasusFoal, Thunderbird, RainbowSnail and ShadowPanther, given from the test panel.
+   - All are fully textured. The only untextured parts are the Neon `_glow` overlays: Thunderbird's crest and sparks, RainbowSnail's body, head and shell, ShadowPanther's body, three leg glows and 13 wisps. PegasusFoal has none.
+   - The largest gap is 0.000 on all four.
+   - Bottom medians on the 0.70 floor: Pegasus 0.78, Thunderbird 0.79 (hovering), Snail 0.75, Panther 0.68.
+   - The Panther's leg boxes average 0.69-0.70 and dip to 0.42 mid-stride. At floor level the paws are planted on the ring and don't sink (`139-hh-panther-feet.jpg`).
+   - Moved in 10 s: Pegasus 9.2, Thunderbird 11.6, Snail 4.0, Panther 15.9 studs.
+3. **Odds lists:**
+   - Moonlit lists 19 new Epics. Meadow lists 1 new Epic, Rainbow Snail at 0.004% · 1 in 25,000 (`139-hh-meadow-list.jpg`).
+   - Each new Epic shows "1 in N", each list sums to 100.0000%, and 0 labels fail TextFits.
