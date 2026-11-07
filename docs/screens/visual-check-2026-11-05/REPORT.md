@@ -1286,3 +1286,18 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 4. **Phone 844x392:**
    - The Book is 760x318 at y 66-384, with 0 truncated labels and no overlap (`118-phone-book.jpg`).
    - The smallest text is 10.4 px, on the **"Clockwork Leviathan"** card name. That label is TextScaled and shrinks for the long name. It's pre-existing: this PR changes no client/UI code, only CreatureMeshes, CreatureThumbs and VoxelArt. Everything else is ≥11 px. "Hurricane Roc" renders at full size.
+
+## #140 @ 881c22d (20 new Ultra Rares), built directly (head contains main 12caf01)
+
+**PASS. The "about 1 in 649" expectation was off by one entry: it's 1 in 676.**
+1. **Book, Ultra Rare tab:** 0/28. All 28 cards have loaded pictures, none are placeholders, and 0 labels are truncated. All 20 new ones read "Moonlit Egg 1 in 676".
+2. **Moonlit odds list:**
+   - There are **25 Ultra Rare entries, not 24**: the 20 new plus Axolotl, Storm Hawk, Neon Octopus, Leaf Bat and Icicle Bat. Each reads "0.1480% · 1 in 676" (37,000 / 25 = 1,480 per million).
+   - The tier totals are unchanged: UR 3.7000%, Epic 0.2900% (1 in 345), Godly 0.0019% (1 in 52,632), Legendary 0.0080%. The list sums to 100.0000%, with 0 truncated labels.
+3. **World:** CrystalCrab, FlameMoth and GlacierPenguin, plus the unchanged Axolotl beside them.
+   - Every part is a MeshPart (no fallback boxes), with one texture each. The only untextured parts are the Neon `_glow` overlays (Crab body and crystals; Moth body and wings ×8; Penguin wings and crest; Axolotl gills, as before). The largest gap is 0.000.
+   - All are UR height (2.7-2.8 studs tall). Bottom medians are 0.71-0.76 on a 0.70 floor.
+   - Moved in 10 s: Crab 3.5, Moth 4.2, Penguin 13.0, Axolotl 5.5 studs (`140-four.jpg`).
+4. **Phone 844x392:**
+   - Book: 760x318, smallest text 12.8 px, nothing truncated, no overlap (`140-phone-book-ur.jpg`).
+   - Moonlit list: 420x244, smallest text 14.4 px, nothing truncated (`140-phone-moonlit-ur.jpg`).
