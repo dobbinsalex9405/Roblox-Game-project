@@ -695,3 +695,21 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - The data side reports all 24 visible cards have models, so the first-render blank from #115 is still there.
   - A player flicking fast will see blank rows for up to about 1 s.
 - **First screen:** apart from the moves above, nothing else changed.
+
+## #92 @ 7783949 (Legendaries, Phoenix and Thunder Griffin welds), local build
+
+**PASS, with notes.** Desktop.
+- **Scope:** in-game config at this head has only **2 Legendaries** (Phoenix, ThunderGriffin). The other "48 Legendaries" are art-tool sources (`tools/art/legendaries.py`, `kit_myth.py`) and aren't playable creatures yet, so the "six other Legendaries" spot-check isn't possible. The Book Legendary tab shows 2/2 (`92-hh-book-legendary.jpg`).
+- **Welds:** I computed the gap between every non-glow mesh part and its nearest neighbour (oriented boxes): **0.00 for every part** on both creatures.
+  - Phoenix: 9 parts. Wings, legs and tail touch the body; crest and eyes touch the head.
+  - ThunderGriffin: 12 parts. Wings touch the ruff, legs touch the body.
+  - No floating pieces (`92-hh-phoenix-pad.jpg`, `92-hh-griffin-pad.jpg`).
+- **Glow:**
+  - Phoenix has 10 glow parts, including wing glow2.
+  - ThunderGriffin has 5: wingR/L_glow plus tail_glow/glow2/glow3. This PR *removes* the wing glow2 meshes from CreatureMeshes and adds tail glow2/3.
+  - Output has **no** "glow meshes missing" line, so the main-126dd4a warning is fixed by this PR.
+  - Note for the verifier: there are no wing glow2 pieces, by design here.
+- **Size on the pad:** Phoenix bounding box 4.0x3.9x4.0 and ThunderGriffin 5.3x4.0x4.7, each on a 3.8-4.4 stud ring, hovering. Bloom is heavy at desktop size, as noted before for big tiers.
+- **Hatch reveal:** not checked. The Test panel can't trigger a Premium-egg reveal, and Phoenix/Griffin come only from Premium eggs. The Book card shows both whole.
+- **Kittens:** Calico, Persian, Siamese, Tabby, Tuxedo and Kitten all draw with meshes (9-10 MeshParts, 0 boxes) in world and Book. This was **before** the kitten re-upload.
+- **First screen:** unchanged (`92-hh-first-screen.jpg`).
