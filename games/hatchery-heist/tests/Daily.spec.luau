@@ -64,7 +64,7 @@ describe("Daily Rewards", function()
 		-- Between the floor and the cap the reward follows income.
 		local first = config.rewards[1]
 		local mid = (first.minCoins + first.maxCoins) / 2 / first.incomeSeconds
-		expect(Daily.amount(1, mid, config)).toBe(math.floor(mid * first.incomeSeconds))
+		expect(Daily.amount(1, mid, config)).toBe(Daily.round(mid * first.incomeSeconds))
 		for i = 2, #config.rewards do
 			expect(config.rewards[i].minCoins).toBeAtLeast(config.rewards[i - 1].minCoins)
 			expect(config.rewards[i].incomeSeconds).toBeAtLeast(config.rewards[i - 1].incomeSeconds)
@@ -79,5 +79,16 @@ describe("Daily Rewards", function()
 			expect(Daily.amount(day, 200, config)).toBe(reward.maxCoins)
 			expect(Daily.amount(day, 1e9, config)).toBe(reward.maxCoins)
 		end
+	end)
+
+	it("pays round amounts, not 601 or 5,410 (Studio gate)", function()
+		expect(Daily.round(601)).toBe(600)
+		expect(Daily.round(901)).toBe(900)
+		expect(Daily.round(5410)).toBe(5400)
+		expect(Daily.round(1250)).toBe(1300)
+		expect(Daily.round(87)).toBe(87)
+		-- Day 3 at 1.0017 coins a second was 601 coins.
+		expect(Daily.amount(3, 601 / 600, config)).toBe(600)
+		expect(Daily.amount(4, 5410 / 900, config)).toBe(5400)
 	end)
 end)

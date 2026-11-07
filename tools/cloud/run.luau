@@ -71,14 +71,19 @@ local function request(method: string, url: string, body: string?, contentType: 
 	if contentType then
 		headers["content-type"] = contentType
 	end
-	for attempt = 1, 4 do
+	for attempt = 1, publishLib.MAX_ATTEMPTS do
 		local response = net.request({ url = url, method = method :: any, headers = headers, body = body })
 		if response.ok then
 			return if response.body == "" then {} else serde.decode("json", response.body)
 		end
-		-- 429 (ten tasks per place at once, five creates a minute) and 5xx: wait and retry.
-		if (response.statusCode == 429 or response.statusCode >= 500) and attempt < 4 then
-			task.wait(2 ^ attempt * 2)
+		-- 409 (another save to this place is still settling), 429 (ten tasks
+		-- per place at once, five creates a minute) and 5xx: wait and retry.
+		local delay = publishLib.retryDelay(response.statusCode, attempt)
+		if delay then
+			print(
+				`HTTP {response.statusCode} from Roblox; trying again in {delay} s ({attempt}/{publishLib.MAX_ATTEMPTS})`
+			)
+			task.wait(delay)
 		else
 			-- Roblox's own error message; it never contains the key.
 			print(

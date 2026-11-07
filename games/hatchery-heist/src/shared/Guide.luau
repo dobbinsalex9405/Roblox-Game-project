@@ -45,7 +45,7 @@ function Guide.next(d: Hatchery.Data, economy: any, now: number, money: (number)
 	if firsts.FirstEggBought == nil and #d.incubators == 0 then
 		return {
 			id = "BuyEgg",
-			text = "Walk to the conveyor belt and buy an egg",
+			text = "Walk to the Egg Market in the middle and buy an egg",
 			target = { kind = "Belt" },
 		}
 	end
@@ -95,6 +95,24 @@ function Guide.isNewPlayer(d: Hatchery.Data): boolean
 	local firsts = d.firsts or {}
 	local sessions = if type(d.meta) == "table" then d.meta.sessions or 0 else 0
 	return firsts.FirstEggBought == nil and #d.incubators == 0 and #d.creatures == 0 and sessions <= 1
+end
+
+-- A ScreenGui as the side menu sees it: `windowVisible` is whether its own
+-- window frame ("Window", or the feedback "Form") is showing, nil when it
+-- has none (a top-bar button, the HUD).
+export type Screen = { name: string, enabled: boolean, displayOrder: number, windowVisible: boolean? }
+
+-- Whether a window (DisplayOrder 20 to 49) is open, so the side menu steps
+-- aside (Studio gate, Nov 5). Only a window that is actually showing counts:
+-- the Core Feedback and Shop buttons are always-enabled ScreenGuis in that
+-- range, and counting them hid the menu for good (#112 gate).
+function Guide.windowOpen(screens: { Screen }): boolean
+	for _, s in screens do
+		if s.enabled and s.windowVisible == true and s.displayOrder >= 20 and s.displayOrder < 50 then
+			return true
+		end
+	end
+	return false
 end
 
 return Guide

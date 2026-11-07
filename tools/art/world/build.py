@@ -3,7 +3,11 @@
 Parts version the game builds today (from build/world/worldart.json, so run
 export.py first), meta.json, and a copy in the 3D design viewer's folders.
 
-    PYTHONPATH=/opt/bpy python3 tools/art/world/build.py OUT [--only OakTree,Bush] [--designs /mnt/project-files/designs] [--fast]
+    PYTHONPATH=/opt/bpy python3 tools/art/world/build.py OUT [--only OakTree,Bush] [--designs /mnt/project-files/designs] [--fast] [--full]
+
+Meshes are flat greedy quads (vkit.flat): light enough for the viewer and
+under Roblox's 20k-triangle MeshPart cap. --full gives the heavy bevelled
+pillow voxels instead.
 
 OUT/<id>/ gets <id>.glb, hero.png, parts.png and meta.json; OUT/lineup.png
 shows every prop's Parts version side by side.
@@ -117,13 +121,14 @@ def aim(co, lo, hi, yaw=-35, pitch=22, k=1.0):
     co.rotation_euler = (c - eye).to_track_quat('-Z', 'Y').to_euler()
 
 
-def mesh_prop(p, coll, mats):
-    """Pillow meshes, one object per part (and glow), parented to an empty."""
+def mesh_prop(p, coll, mats, light=False):
+    """Pillow meshes (flat greedy quads when `light`), one object per part
+    (and glow), parented to an empty."""
     root = bpy.data.objects.new(p.id, None)
     coll.objects.link(root)
     obs = []
     for name, anim, parent, pivot, g in p.parts:
-        for ob in vkit.grid_objects(g, f'{p.id}_{name}', coll, mats):
+        for ob in vkit.grid_objects(g, f'{p.id}_{name}', coll, mats, light=light):
             ob.parent = root
             obs.append(ob)
     return root, obs
@@ -209,7 +214,7 @@ def export_glb(path, coll):
     )
 
 
-def build_one(pid, out, designs, fast, worldart):
+def build_one(pid, out, designs, fast, worldart, full=False):
     p = props.make(pid)
     d = os.path.join(out, pid)
     os.makedirs(d, exist_ok=True)
@@ -217,7 +222,10 @@ def build_one(pid, out, designs, fast, worldart):
     coll = bpy.data.collections.new(pid)
     s.collection.children.link(coll)
     mats = vkit.materials()
-    root, obs = mesh_prop(p, coll, mats)
+    # flat greedy quads by default: a 0.1-stud pillow mesh runs to hundreds of
+    # thousands of triangles for a building, far too heavy for the viewer and
+    # for Roblox's 20k-triangle MeshPart cap. --full keeps the pillow look.
+    root, obs = mesh_prop(p, coll, mats, light=not full)
     lo, hi = bounds(obs)
     size = hi - lo
     tris = sum(len(o.data.polygons) for o in obs) * 2
@@ -296,6 +304,7 @@ def main():
     ap.add_argument('--only')
     ap.add_argument('--designs')
     ap.add_argument('--fast', action='store_true')
+    ap.add_argument('--full', action='store_true', help='bevelled pillow voxels instead of flat quads (heavy)')
     a = ap.parse_args()
     out = os.path.abspath(a.out)
     os.makedirs(out, exist_ok=True)
@@ -306,7 +315,7 @@ def main():
         want = set(a.only.split(','))
         ids = [i for i in ids if i in want]
     for pid in ids:
-        m = build_one(pid, out, a.designs, a.fast, worldart)
+        m = build_one(pid, out, a.designs, a.fast, worldart, a.full)
         print(f"{pid:24s} {m['meshTris']:8d} tris  parts {m['partsBoxes']:4d} boxes", flush=True)
     lineup(out, sorted(props.REGISTRY))
 
