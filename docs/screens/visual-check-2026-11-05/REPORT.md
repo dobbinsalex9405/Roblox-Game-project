@@ -1022,3 +1022,25 @@ Text is measured as TextBounds.Y, the same measure as 5341bf8's 5.6 px and main'
   - Every row label is **TextSize 14 → 10.4 px tall on screen**, below the 11 px floor (`126d-phone-unrestricted-card-FAIL.jpg`). "See every creature" is TextSize 15 → 12.0 px.
   - 14 × 0.8 = 11.2 nominal, but the rendered glyph box comes out at 10.4. Fix: TextSize 15 for the rows, as the restricted card already uses, or keep the scale at 0.85 or more.
 - Stopped at this FAIL, so the unrestricted desktop card was not rechecked.
+
+## #129 @ b0bb378 (12 new Epics), merged onto main as caf29b1
+
+**PASS.** Local builds, desktop 1350x672.
+1. **Book:** the Epic tab reads 0/15 (3 old + 12 new). All 12 new Epics (Kappa, Star Jelly, Crystal Golem, Gem Drake, Baby Kraken, Sea Serpent, Sand Serpent, Star Whale Calf, Hippocampus, Cloud Serpent, Hydra Hatchling, Abyss Jelly) are live draws with 6-17 parts. None are blank or black (`129-hh-book-epic.jpg`).
+   - Odds lines: Abyss Jelly "Meadow Egg 1 in 11,111". The Moonlit ones read 1 in 4,348 or 1 in 4,545.
+2. **Odds cards:**
+   - Basic, Meadow and Moonlit each sum to 100.000%. Tier shares are unchanged; the new creatures split the existing tier share.
+   - Meadow list: Abyss Jelly 0.009% · 1 in 11,111 next to Crystal Stag 0.008%, which adds up to the 0.017% Epic tier.
+   - Moonlit list: 13 Epic rows (11 new + Dragonling + Moon Unicorn) at 0.022-0.023% each, totalling 0.290%. The list sums to 100.000%.
+   - (I caught the Moonlit card on the belt this time; see the #103 note.)
+3. **Restricted** (local policy patch): Meadow's fixed order has "Abyss Jelly (Epic): 9 in every 100000 → in 703 eggs". Moonlit's has all 11 new Epics, from Hydra Hatchling "23 in every 100000 → in 490 eggs" to Baby Kraken "22 … in 2839 eggs", with the waits only going up.
+   - Note: Meadow and Moonlit Buy prompts stay disabled until the player can afford the egg. With 200 coins only the Basic card appears, so I added test coins first.
+4. **World**, Star Jelly (hover), Crystal Golem (waddle) and Cloud Serpent (slither):
+   - The colour meshes are textured.
+   - The only untextured parts are the intended Neon `_glow` overlays: StarJelly heart and tail; Golem body, body2, eyes and crystals; Serpent body, tail and whiskers.
+   - The "Ring" part is the Epic floor disc.
+   - With the ring excluded, the largest gap is 0.000.
+   - Star Jelly hovers at 0.71-0.84, with its tentacle tips on the ring (`129-hh-starjelly.jpg`).
+   - Cloud Serpent sits at 0.71-0.81.
+   - Crystal Golem's leg boxes dip to 0.47 mid-step, but at floor level the foot is planted on the ring, not sunk (`129-hh-golem-feet.jpg`).
+   - All three move: 1.3 / 14.0 / 4.8 studs in 4 s.
