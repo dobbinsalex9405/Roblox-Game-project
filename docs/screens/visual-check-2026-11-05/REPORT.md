@@ -914,3 +914,23 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Odds lines:** unchanged ("Meadow Egg · 1 in 77.6", "Basic Egg · 1 in 42.4", Rare "1 in 125 / 118 / 7.9 / 3.1").
 - **Phone 844x392 (fresh session):** the window is 760x352 at y −9, so it fits, and the pictures show at once (`125-hh-phone-fresh.jpg`).
   - *Note:* if the viewport shrinks while the session is running (desktop → phone), the Book keeps its desktop height (760x560) and sits at y −113, cutting off the title. It doesn't refit on resize. That matters for a device rotation, not for a normal join.
+
+## #126 @ 5341bf8 (compact restricted odds card)
+
+**FAIL by 4 px. Everything else passes.** On a phone in restricted mode, the compact card's bottom edge is at screen y 388. The target is ≤384. The whole card still shows on the 392 px screen. Local builds. Restricted mode comes from the local policy-fetch patch, which was not committed.
+- **Phone 844x392, restricted:**
+  - The card is 211x163 after the UIScale, at screen y 226-388 (**4 px over the ≤384 target**) (`126c-phone-restricted-card.jpg`).
+  - The tier rows scroll (canvas 233 in a 163 frame).
+  - The smallest text is 5.6 px tall. That's small but readable in the capture.
+  - "See the whole order" can be reached by scrolling inside the rows.
+- **Whole order (phone):**
+  - The window covers screen y 138-382 and is titled "Basic Egg: fixed order".
+  - The header reads "How many of every 100000 eggs:".
+  - Rows read like "Gosling (3500) | NEXT" and "Turtle (3500) | in 2 eggs".
+  - **0 truncated labels**, so the right-hand column is complete.
+  - It scrolls (canvas 1194; I reached 1014) (`126c-phone-restricted-whole-order.jpg`).
+- **Desktop 1350x672, restricted:** 280x310 at y 152-462, the same as 952e6f8.
+  - Rows: Gosling NEXT / Turtle in 2 eggs / Bunny in 3 eggs, then the six tiers as "N in 100000 · in N eggs", then "See the whole order".
+  - 0 labels fail TextFits (`126c-desktop-restricted-card.jpg`).
+- **Desktop, unrestricted:** matches main. The card is 280x214, and Basic reads 92.000% · 1 in 1.1 / 7.000% · 1 in 14.3 / 0.800% · 1 in 125 / 0.180% · 1 in 556 / 0.018% · 1 in 5,556 / 0.002% · 1 in 50,000 (`126c-desktop-unrestricted-card.jpg`).
+- **Bumblebee Book card:** while unfound it's a drawn silhouette. After a test-panel give it shows the full-colour bee with a NEW badge, "Bumblebee", and "Meadow Egg 1 in 77.6". It's a live ViewportFrame with 9 parts and none of them dark, so it isn't a black card (`126c-book-bumblebee.jpg`).
