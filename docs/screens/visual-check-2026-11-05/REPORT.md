@@ -1435,3 +1435,13 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **(c) Unchanged names:** "Clover Pony" (world label and odds row), "Basic Egg", "Meadow Egg", "Gummy Bear", "Jelly Slime", "Jellybean Beetle", "Star Jelly".
 - **(d) Odds:** the Basic, Meadow and Moonlit lists each sum to 100.0000%, with 0 truncated on phone 844x392. Odds unchanged (UR 1 in 1,568 Moonlit, 1 in 4,673 Meadow).
 - **Pre-existing, not this PR:** the placed **WillOWisp draws as voxel boxes** (79 Parts, 0 meshes), even after restarting play. Its mesh entry and texture (`87366348989616`, from main/#141, unchanged here) never load. Roblox answered "Asset content representation is being generated" for that texture, and fetch status stays None. The wisp mesh may need a re-upload, or more time.
+
+## #145 FINAL @ ccb2349 (C1 remerged onto main 2df01c0): short confirmation pass
+
+**PASS.**
+- **Placed** (test panel give): **BeaglePup**, Canary and Capybara all draw textured MeshParts (8-10 each, 0 plain Parts, 0 untextured, 0 Neon, 0.000 gap). BeaglePup drew with meshes on first load this time.
+- **Will-o'-Wisp:** the placed label reads "Will-o'-Wisp 64/s". This time its mesh loaded: 14 MeshParts, 9 of them Neon glow, 0.000 gap. The #146 voxel fallback is gone now that the texture has finished processing.
+- **Book, Common tab:** 3/107. All 16 new cards have loaded pictures and 0 labels are truncated. Each new card reads "Basic Egg 1 in 51.1" or "Meadow Egg 1 in 89.5", 8 of each.
+- **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`145b-phone-meadow-list.jpg`).
+  - **Basic:** Common 47 × "1.9574% · 1 in 51.1"; Uncommon 7 × 1 in 100; Rare 0.8022% · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
+  - **Meadow:** Common 60 × "1.1167% · 1 in 89.5"; **Uncommon 31 × "1.0000% · 1 in 100"**; Rare 2 × 1 in 118; UR 13 × 1 in 4,673; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
