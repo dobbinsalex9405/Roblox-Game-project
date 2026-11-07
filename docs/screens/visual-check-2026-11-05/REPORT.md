@@ -1343,3 +1343,22 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 4. **Phone 844x392:**
    - Book UR tab: 760x318, smallest text 12.8 px, nothing truncated (`142-phone-book.jpg`).
    - Moonlit and Meadow lists: 420x244, 14.4 px, nothing truncated (`142-phone-moonlit.jpg`).
+
+## #143 @ 83a9f65 (18 new Ultra Rares, last go-live batch), built directly (head contains main 95b1f2f)
+
+**PASS.**
+1. **Book:** Ultra Rare 0/71. All 71 cards have loaded pictures, and 0 labels are truncated.
+   - The 18 new: 16 read "Moonlit Egg 1 in 1,567" (ThunderPup 1,570). IceCreamCow and CottonCandyCat read "Meadow Egg 1 in 4,762".
+   - Display names show no splits: "Ice Cream Cow", "Cotton Candy Cat", "Triple Gecko", "Gearhog".
+2. **UR count per egg:** **Moonlit 58** (42 + 16), **Meadow 13** (11 + 2). This matches the brief's 16/2 split.
+   - Every new UR shows "1 in N".
+   - Tier totals are unchanged. Moonlit: UR 3.7000%, Epic 0.2900% (54), Godly 0.0019% (19), Legendary 0.0080%. Meadow: UR 0.2800%, Epic 0.0170%.
+   - Both lists sum to 100.0000%, 0 truncated.
+3. **World:** GhostOwl, IceCreamCow, Gearhog and TripleGecko, plus the unchanged SteamTurtle from #142 (`143-five.jpg`).
+   - Every part is a MeshPart with one texture each; no fallback boxes. The largest gap is 0.000.
+   - All are UR height (2.7-2.8 studs). Bottom medians are 0.74-0.78 on a 0.70 floor.
+   - Moved in 10 s: 1.8-7.5 studs.
+   - **Glow share** (Neon box volume): GhostOwl 2% (4 parts), IceCreamCow 0%, Gearhog 0%, TripleGecko 0%, SteamTurtle 0%. **None reach 40%.** TripleGecko is bright green paint, not Neon.
+4. **Phone 844x392:**
+   - Book UR tab: 760x318, smallest text 12.8 px, nothing truncated (`143-phone-book.jpg`).
+   - Moonlit and Meadow lists: 420x244, 14.4 px, nothing truncated (`143-phone-meadow.jpg`).
