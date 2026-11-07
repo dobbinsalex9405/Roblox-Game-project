@@ -1397,3 +1397,25 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
    - UR 13 × "0.0214% · 1 in 4,673" each. The card's UR tier line reads **"0.2782% · 1 in 359"**.
    - Epic 6 × "1 in 35,714". Legendary "1 in 33,333".
 4. **Phone 844x392, Meadow card:** 224x157 at y 225-383, smallest text 12.0 px, nothing truncated (`137-phone-meadow-card.jpg`).
+
+## #145 @ 624af5b (go-live C1: 16 Commons), built directly (head contains cd9c8af)
+
+**PASS.**
+1. **World:** all 16 given from the test panel; floor 2 built for the second 8.
+   - Every one is a MeshPart creature (5-11 MeshParts, 0 plain Parts), fully textured, **0 Neon**, largest gap **0.000**, and has an eyes mesh.
+   - Bottom medians sit +0.01 to +0.05 above the pad, so on the floor.
+   - Gaits: hop (Acornling), trot (AlleyCat, Badger, BarnCat, BeaglePup, BlackLamb, Bushbaby, Capybara, Chameleon), waddle (Bantam, Canary, Cardinal, Chickadee), hover (BarnSwallow), slither (Bookworm), scuttle (ClickBeetle). They moved 3.2-10.3 studs in 8 s.
+   - **Voxel stand-ins** (box count = #boxes / 7, as VoxelArt.spec counts): Acornling 13, AlleyCat 28, Badger 20, Bantam 15, BarnCat 25, BarnSwallow 20, BeaglePup 29, BlackLamb 23, Bookworm 16, Bushbaby 27, Canary 17, Capybara 21, Cardinal 17, Chameleon 25, Chickadee 14, ClickBeetle 19. **All ≤ 31.**
+   - Drawn from the VoxelArt data with their palettes, they read as the creatures: grey cats, yellow Canary, red Cardinal, blue beetle, brown Capybara (`145-voxel-standins.jpg`).
+2. **Book, Common tab:** 16/107. All 16 new cards have loaded pictures, with names fitting ("Alley Cat", "Barn Swallow", "Beagle Pup", "Black Lamb", "Click Beetle" …) and 0 truncated.
+3. **Odds lists** (both sum to 100.0000%, 0 truncated):
+   - **Basic:** Common 47 × "1.9574% · 1 in 51.1"; Uncommon 7 × 1 in 100; Rare 0.8022% · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
+   - **Meadow:** Common 60 × "1.1167% · **1 in 89.5**"; Uncommon 29 × 1.0689% · 1 in 93.6; Rare 2 × 0.8503% · 1 in 118; UR 13 × 1 in 4,651; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
+   - *Note:* the brief said 1 in 89.6, but 1,000,000 / 11,167 = 89.549, so 89.5 is correct.
+4. **Phone 844x392:**
+   - Basic card: 224x157 at y 225-383, 12.0 px, nothing truncated.
+   - Meadow card: 224x157 at y 225-383, 12.0 px, nothing truncated (`145-phone-meadow-card.jpg`).
+5. **Fixed order** (restricted build via the local policy patch, fresh save):
+   - The Basic card and whole-order list read **Beagle Pup NEXT, Bunny in 2, Canary in 3, Chick in 4** (`145-restricted-order.jpg`).
+   - The first Basic hatch was a **Beagle Pup** (`145-restricted-first-hatch.jpg`).
+   - *Note:* that reveal drew the Beagle Pup as its voxel stand-in, the same first-load fallback as Squid on #137. Its fresh mesh/texture hadn't finished loading on that client. In the unrestricted session the Beagle Pup drew with meshes.
