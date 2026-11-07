@@ -1078,3 +1078,22 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
    - PetalSprite's stem rests on its ring, bottom 0.71-0.81 (`130-hh-petalsprite.jpg`). YetiCub sits at 0.71-0.81.
    - RimeDrakeling's leg boxes dip to 0.45 mid-trot, but its feet are planted on the ring at floor level (`130-hh-rime-feet.jpg`).
    - They moved 5.6 / 0.1 / 7.7 studs in 4 s. YetiCub was idling in that window.
+
+## #131 @ 673c56f (Book preload and refit, odds-list egg tabs), merged onto main c8b281b as 1f110f4
+
+**PASS.** Local builds.
+- **Book, fresh session (desktop):** the first open shows the Common tab, with all 18 visible card pictures (ImageLabels) already loaded at 0.00 s (`131-hh-book-first-open.jpg`).
+- **Book refit:**
+  - Resizing desktop → phone 844x392 with the Book open refits it to 760x352 at screen y 49-401. The title is fully visible at y 57-93.
+  - The window's bottom 9 px sit under the screen edge. That's the same geometry as the fresh-phone open in #125, and the pages scroll (`131-hh-book-resized-phone.jpg`).
+  - Resizing back to 1350x672 refits to 760x560 at y 85-645.
+  - Studio can't rotate, so I used the resize as the stand-in.
+- **Odds-list egg tabs, new 200-coin player at the belt (Meadow and Moonlit Buy prompts hidden):**
+  - The Basic card's "See every creature" opens the list with tabs Basic / Meadow / Moonlit, cheapest first, each 109x40.
+  - Each tab switches the title and the full list: Basic 45 rows, Meadow 62, Moonlit 11. Each sums to 100.000% (`131-hh-oddslist-tabs-desktop.jpg`, `131-hh-oddslist-moonlit-desktop.jpg`).
+  - Same on phone 844x392: the window covers y 138-382, the tabs are 109x40, and all three sum to 100.000% (`131-hh-oddslist-moonlit-phone.jpg`).
+  - *Note:* switching tabs keeps the previous scroll position. The Moonlit list opened scrolled to the bottom.
+- **Restricted, per tab:** main's restricted card (before #126) has no list button, so I checked this on main + #131 + #126 @ 434b2bf merged locally (11c79db; CHANGELOG conflict only, local patch).
+  - Each tab shows "<Egg>: fixed order" with "How many of every 100000 eggs:". Rows: Basic 45, Meadow 62, Moonlit 11. Each sums to exactly 100000.
+  - The waits go NEXT, in 2 eggs, … and only increase (`131-hh-restricted-moonlit-tab.jpg`).
+- *Left over from main, not introduced here:* "Dalmatian Pup (Common)" and "Siamese Kitten (Common)" are cut off with "…" in the Basic list's left column (161 px wide), and one Meadow name likewise. The row widths are unchanged by this PR (`131-hh-oddslist-truncated-names.jpg`).
