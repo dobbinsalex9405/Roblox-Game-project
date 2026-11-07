@@ -4674,7 +4674,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		BeaverKit = {
 			rarity = "Common",
 			size = { 6, 6, 7 },
-			palette = { "8A4524", "B8703E", "F2D2A8", "1B1B2F", "2E2622" },
+			palette = { "8A4524", "B8703E", "F2D2A8", "1B1B2F", "0C0C15", "2E2622" },
 			parts = {
 				{
 					name = "body",
@@ -4735,7 +4735,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					parent = "head",
 					pivot = { 0, 2.5, -1 },
 					boxes = {
-						-2, 4, -2.5, 1, 1, 1, 4, 1, 4, -2.5, 1, 1, 1, 4,
+						-2, 4, -2.5, 1, 1, 1, 5, 1, 4, -2.5, 1, 1, 1, 5,
 					},
 				},
 				{
@@ -4753,7 +4753,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					parent = "body",
 					pivot = { 0, 2.5, 2 },
 					boxes = {
-						-1, 3, 2.5, 2, 1, 1, 5,
+						-1, 3, 2.5, 2, 1, 1, 6,
 					},
 				},
 			},
@@ -9969,7 +9969,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		Platypus = {
 			rarity = "Common",
 			size = { 4, 6, 10 },
-			palette = { "7A5A44", "B08A6A", "3E3E4A", "30303F", "1B1B2F" },
+			palette = { "7A5A44", "B08A6A", "3E3E4A", "30303F", "0C0C15" },
 			parts = {
 				{
 					name = "body",
