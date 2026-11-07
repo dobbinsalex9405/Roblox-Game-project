@@ -77,6 +77,9 @@ extra keys are listed with each):
 - **cicada**: turns the dragonfly critter into a cicada: wide head, big
   bulging eyes at the sides (`eye`), a stout banded body and clear roof
   wings (color) with color2 veins.
+- **coarse_flat**: the in-game stand-in boxes only (the Blender meshes are
+  untouched): each part in its main colour so the boxes fit the tier's
+  budget; `keep` colours stay, `drop` leaves small parts out. Put it last.
 
 Patterns (roster `patterns`, `{"kind", "color", "parts"?, ...}`):
 
@@ -296,7 +299,7 @@ def cup(c, H, col, col2, a):
                     inner.add((x, y, z))
     ang = lambda x, y: math.atan2(y + .5 - cy, x + .5)  # noqa: E731
     if style == 'teacup':
-        # polka dots in rows round the wall, a gold rim, a handle on the right
+        # polka dots in rows round the wall, a gold rim, a handle at the back
         s = max(3, round(1.4 * k))
         R = (rx + ry) / 2
         n = max(6, round(2 * math.pi * R / (1.7 * s)))
@@ -317,19 +320,20 @@ def cup(c, H, col, col2, a):
             dz = (zi - row - 0.5) * s
             if math.hypot(du, dz) < s * 0.42 and z < z1 - 1:
                 part.put((x, y, z), col2)
-        # the handle: an open loop standing out from the wall, its hole
-        # clear, two voxels thick front to back
+        # the handle: an open loop standing out from the back wall, its hole
+        # clear, two voxels wide on the middle line so the cup stays mirrored
+        # left to right (the legs are checked as mirror pairs in game)
         zc = (z0 + z1) / 2
-        xr = max(p[0] for p in part.v if abs(p[2] - zc) <= 1)
+        yr = max(p[1] for p in part.v if abs(p[2] - zc) <= 1 and p[0] in (-1, 0))
         hr = max(1.5, (z1 - z0) * 0.36)
-        hx = xr + hr * 0.45
+        hy = yr + hr * 0.45
         for i in range(96):
             th = i / 96 * 2 * math.pi
-            x = round(hx + hr * math.cos(th))
-            if x <= xr:
+            y = round(hy + hr * math.cos(th))
+            if y <= yr:
                 continue
-            for d in (0,):
-                part.put((x, round(cy) + d, round(zc + hr * 1.1 * math.sin(th))), col)
+            for x in (-1, 0):
+                part.put((x, y, round(zc + hr * 1.1 * math.sin(th))), col)
     elif style == 'pumpkin':
         rib = dark(col, 0.18)
         for (x, y, z) in list(part.v):
@@ -337,7 +341,9 @@ def cup(c, H, col, col2, a):
                 if z == z1:
                     part.put((x, y, z), light(col, 0.35))
                 continue
-            if math.cos(ang(x, y) * 8) > 0.55:
+            # the ribs only on the Blender build: the in-game boxes stay in
+            # budget with a plain pumpkin
+            if getattr(c, 'fine', False) and math.cos(ang(x, y) * 8) > 0.55:
                 part.put((x, y, z), rib)
         # a curly stem and a leaf on the rim at the back
         st = c.part('stem', 'static')
@@ -1092,6 +1098,13 @@ def _plates(c, k, body, head, col, col2, belly, thi, a):
     the rows read as overlapping from any side."""
     seam = col2 or dark(col, 0.35)
     hi_col = light(col, 0.18)
+    if not getattr(c, 'fine', False):
+        # the in-game boxes: plain plate colour on the back, no shingles (box budget)
+        for src in [p for p in (body, _find(c, 'tail')) if p]:
+            for q, (cc, g) in list(src.v.items()):
+                if not g and (src is not body or q[2] >= belly + (thi[2] - belly) * 0.25):
+                    src.v[q] = (col, False)
+        return
     pw = max(4, round(1.3 * k))  # plate size
     tail = _find(c, 'tail')
     zcut = belly + (thi[2] - belly) * 0.25
@@ -1124,8 +1137,9 @@ def _plates(c, k, body, head, col, col2, belly, thi, a):
             if (p[0] + p[2] + (pw // 2 if row % 2 else 0)) % pw == 0:
                 cc = seam
             src.put(p, cc)
-            if u == pw - 1 and src is not tail:
-                # the back lip of the plate stands proud; its underside is the seam
+            if u == pw - 1 and src is not tail and getattr(c, 'fine', False):
+                # the back lip of the plate stands proud; its underside is the
+                # seam (the Blender build only: the in-game boxes stay in budget)
                 base = shell[p]
                 out = (p[0] + (p[0] - base[0]), p[1] + (p[1] - base[1]), p[2] + (p[2] - base[2]))
                 if out not in src.v and out[2] >= 0:
@@ -1156,6 +1170,8 @@ def mushrooms(c, H, col, col2, a):
     yf = ya + r0 * 0.8
     yb = max(yf + r0 * 2.0, yz - r0 * 0.6)
     spots = ((-(r0 + 0.6), yf, 0.9), (r0 + 0.6, yf + 0.5, 0.75), (-(r0 * 0.7), yb, 1.05), (r0 + 0.8, yb - 0.5, 0.65))
+    if not getattr(c, 'fine', False):
+        spots = (spots[2],)  # only the biggest in the in-game boxes (box budget)
     for i, (x, y, s) in enumerate(spots):
         cols = [(xx, yy) for (xx, yy) in top if abs(xx + .5 - x) < 1 and abs(yy + .5 - y) < 1]
         zt = max((top[q] for q in cols), default=thi[2]) + 1
@@ -1166,6 +1182,10 @@ def mushrooms(c, H, col, col2, a):
             for dx in range(sw):
                 for dy in range(sw):
                     m.put((x0 + dx, y0 + dy, zz), stem_col)
+        if not getattr(c, 'fine', False):
+            # in-game boxes: a square cap on the stem (box budget)
+            m.box((x0 - 1, y0 - 1, zt + stem), (x0 + sw, y0 + sw, zt + stem), col)
+            continue
         r = r0 * s
         cen = (x0 + sw / 2, y0 + sw / 2, zt + stem - 0.5)
         m.ell(cen, (r, r, r * 0.9), col, cond=lambda xx, yy, zz, c0=cen: zz + .5 >= c0[2])
@@ -1634,6 +1654,37 @@ def jellybean(c, H, col, col2, a):
                 mput(e, x, yf, z, INK if pupil else WHITE)
 
 
+def coarse_flat(c, H, col, col2, a):
+    """In-game boxes only (the Blender meshes are untouched): repaints each
+    part in its main colour so the stand-in boxes merge and fit the tier's
+    box budget. Ink and white (eyes, nostrils, glints) and any colour in
+    `keep` stay; `parts` limits it to those parts. `block` names parts drawn
+    as one solid box (their bounds, main colour; for short stubby legs), and
+    `drop` names small parts left out of the boxes. Put it last."""
+    if getattr(c, 'fine', False):
+        return
+    for part in c.parts:
+        if part.name in a.get('drop', []):
+            part.v = {}
+        elif part.name in a.get('block', []) and part.v:
+            main = Counter(cc for cc, g in part.v.values()).most_common(1)[0][0]
+            xs, ys, zs = zip(*part.v)
+            part.v = {(x, y, z): (main, False) for x in range(min(xs), max(xs) + 1)
+                      for y in range(min(ys), max(ys) + 1) for z in range(min(zs), max(zs) + 1)}
+    keep = {INK, WHITE} | {hexc(k) for k in a.get('keep', [])}
+    only = set(a.get('parts', []))
+    for part in c.parts:
+        if part.name == 'eyes' or (only and part.name not in only) or not part.v:
+            continue
+        main = Counter(cc for cc, g in part.v.values() if not g and cc not in keep).most_common(1)
+        if not main:
+            continue
+        main = main[0][0]
+        for q, (cc, g) in list(part.v.items()):
+            if not g and cc not in keep and cc != main:
+                part.v[q] = (main, False)
+
+
 ACCESSORIES = {
     'cup': cup, 'mitten': mitten, 'shell': shell, 'ball': ball_acc, 'pot': pot, 'bubble': bubble,
     'unc_tusks': tusks, 'snout': snout, 'hornset': hornset, 'earset': earset, 'tailset': tailset,
@@ -1641,7 +1692,7 @@ ACCESSORIES = {
     'fluff': fluff, 'frizz': frizz, 'unc_mushrooms': mushrooms, 'unc_spikes': spikes, 'feelers': whiskers,
     'bigeyes': bigeyes, 'mouth': mouth, 'sweater': sweater, 'snowcap': snowcap, 'mane_strip': mohawk,
     'crest': crest, 'beak': beak, 'fan': fan, 'leaf': leaf, 'eyedisc': eyedisc, 'cicada': cicada, 'goatee': goatee,
-    'jellybean': jellybean,
+    'jellybean': jellybean, 'coarse_flat': coarse_flat,
 }
 
 
