@@ -26697,13 +26697,13 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	GummyBear = {
-		assetId = 133377156043379,
-		textureId = 130433125023631,
+		assetId = 86113221179621,
+		textureId = 133704092338001,
 		rarity = "Ultra Rare",
 		gait = "trot",
 		height = 2.5,
 		size = { 1.6, 2.5, 2.2 },
-		tris = 18556,
+		tris = 16194,
 		trisLod1 = 1892,
 		parts = {
 			{
@@ -26713,8 +26713,26 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "GummyBear_body",
-						center = { 0, 0.8518, 0.25 },
-						size = { 1.207, 1.1035, 1.307 },
+						center = { 0, 0.7518, 0.25 },
+						size = { 1.207, 0.9035, 1.307 },
+					},
+					{
+						name = "GummyBear_body_glow",
+						center = { 0, 1.25, 0.25 },
+						size = { 0.8, 0.1, 0.9 },
+						glow = "FD8894",
+					},
+					{
+						name = "GummyBear_body_glow2",
+						center = { 0, 1.35, 0.35 },
+						size = { 0.6, 0.1, 0.7 },
+						glow = "FF9AA4",
+					},
+					{
+						name = "GummyBear_body_glow3",
+						center = { 0, 1.35, 0.2 },
+						size = { 0.4, 0.1, 0.2 },
+						glow = "FFFFFF",
 					},
 				},
 				lod1 = { name = "GummyBear_body_lod1", center = { 0, 0.85, 0.25 }, size = { 1.2, 1.1, 1.3 } },
@@ -26795,8 +26813,20 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "GummyBear_head",
-						center = { 0, 1.7978, -0.45 },
-						size = { 1.391, 1.1955, 1.291 },
+						center = { 0, 1.6978, -0.45 },
+						size = { 1.391, 0.9955, 1.291 },
+					},
+					{
+						name = "GummyBear_head_glow",
+						center = { 0, 2.25, -0.45 },
+						size = { 0.784, 0.1, 0.684 },
+						glow = "FC8591",
+					},
+					{
+						name = "GummyBear_head_glow2",
+						center = { 0, 2.346, -0.45 },
+						size = { 0.384, 0.092, 0.284 },
+						glow = "FF9AA4",
 					},
 				},
 				lod1 = { name = "GummyBear_head_lod1", center = { 0, 1.8, -0.45 }, size = { 1.4, 1.2, 1.3 } },
@@ -26817,10 +26847,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 2.206, -0.448 },
 				meshes = {
+					{ name = "GummyBear_ears", center = { 0, 2.254, -0.4 }, size = { 1.391, 0.292, 0.391 } },
 					{
-						name = "GummyBear_ears",
-						center = { 0, 2.3018, -0.4 },
-						size = { 1.391, 0.3875, 0.391 },
+						name = "GummyBear_ears_glow",
+						center = { 0, 2.446, -0.4 },
+						size = { 1.184, 0.092, 0.184 },
+						glow = "FF9AA4",
 					},
 				},
 				lod1 = { name = "GummyBear_ears_lod1", center = { 0, 2.3, -0.4 }, size = { 1.4, 0.4, 0.4 } },
@@ -26831,10 +26863,12 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.918, 0.918 },
 				meshes = {
+					{ name = "GummyBear_tail", center = { 0, 0.904, 0.946 }, size = { 0.391, 0.192, 0.299 } },
 					{
-						name = "GummyBear_tail",
-						center = { 0, 0.9557, 0.946 },
-						size = { 0.391, 0.2955, 0.299 },
+						name = "GummyBear_tail_glow",
+						center = { 0, 1.05, 0.946 },
+						size = { 0.2, 0.1, 0.292 },
+						glow = "FF9AA4",
 					},
 				},
 				lod1 = { name = "GummyBear_tail_lod1", center = { 0, 0.95, 0.95 }, size = { 0.4, 0.3, 0.3 } },
