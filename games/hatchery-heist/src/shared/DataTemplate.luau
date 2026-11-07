@@ -13,7 +13,7 @@ DataTemplate.template = {
 	slots = 3, -- incubator slots unlocked
 	incubators = {}, -- { { slot, eggId, startedAt, readyAt, outcome } }
 	eggsBought = {}, -- { [eggId] = count }, drives the fixed-order alternative
-	creatures = {}, -- { { uid, speciesId, mutation, slot?, eggId, hatchedAt } }; slot nil = storage
+	creatures = {}, -- { { uid, speciesId, mutation, slot?, eggId, hatchedAt } }; slot = first tower pad, nil = inventory
 	nextUid = 1, -- next creature uid
 	mountUid = "", -- creature being ridden ("" = on foot)
 	decoys = {}, -- { { spot } } decoy eggs on the decoy spots
@@ -29,6 +29,15 @@ DataTemplate.template = {
 	-- launch of version 1; reconcile fills it in, and join back-fills it from
 	-- the creatures a player already has.
 	found = {},
+	-- Unix seconds the player last opened the book; species found later show
+	-- NEW. Added after launch of version 1 (reconcile fills it in as 0).
+	bookSeenAt = 0,
+	-- The tower (shared/Tower.luau), added after launch of version 1 like
+	-- `found`: floors owned (1 to 10), upgrades bought per floor, and
+	-- `towerVersion` 1 once a pre-tower save has been placed best-first.
+	floors = 1,
+	floorUpgrades = {},
+	towerVersion = 0,
 	daily = { lastDay = 0, streak = 0 }, -- Daily Rewards: UTC day last claimed, reward claimed then
 	stats = { raidsWon = 0, raidsLost = 0, playSeconds = 0 },
 	meta = { firstJoinAt = 0, lastJoinAt = 0, sessions = 0 }, -- written by the core on join

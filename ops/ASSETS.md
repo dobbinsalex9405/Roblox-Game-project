@@ -12,11 +12,13 @@ broken upload never breaks a hatch.
    ROSTER line.
 2. **In-game boxes.** `python3 tools/art/export.py` writes
    `src/shared/VoxelArt.luau`. This works at once and needs no upload.
-3. **Meshes.** `tools/art/blender/build.py` turns the same voxels, at twice
-   the detail for the small tiers, into bevelled voxel meshes. It writes
+3. **Meshes.** `tools/art/blender/build.py` turns the same voxels, rebuilt
+   at one voxel size for every tier (0.1 stud, Alex's pick), into bevelled
+   voxel meshes plus a flat far version (`*_lod1`) of every part. It writes
    `.fbx` and `.glb` files, the palette texture, `meta.json` and review
-   renders. Renders for Alex go in project files under
-   `art/hatchery-heist/blender/<id>/`.
+   renders. `--designs /mnt/project-files/designs` also copies each creature
+   into the design library Alex browses in the 3D viewer
+   (`Creatures/Hatchery Heist/<Tier>/<Species>/`).
 4. **Upload.** Start the **Upload creature meshes** workflow by hand. It
    builds the meshes, uploads each creature's `.fbx` as a Model asset, and
    opens a draft PR that records the asset ids in
@@ -58,7 +60,49 @@ again with that group's key. Production then needs its own ids (see
 
 - Meshes are at most 18,000 triangles each. Roblox allows 20,000; bigger
   parts are split.
-- A Common is about 6,000 to 8,000 triangles in all. Legendaries and Godlies
-  are 40,000 to 65,000. Mesh render fidelity stays Automatic, so distant
-  creatures use fewer triangles.
+- Close up (LOD0), a creature is at most 15,000 triangles for Common to Rare,
+  20,000 for Ultra Rare, 28,000 for Epic and 40,000 for Legendary and Godly
+  (`CreatureMeshes.spec`). Today: Commons 5,500 to 10,800, Godlies 32,000 to
+  37,000. Undersides and glowing faces (Neon shows no bevel) are flat.
+- Far away (past 30 studs) the game draws LOD1: flat, greedy-merged faces, at
+  most 4,000 triangles a creature (most about 1,000). This keeps a floor of 8
+  to 10 creatures light on a phone.
 - The palette textures are tiny (64 × 16 to 64 × 64 pixels).
+
+## Hatchery Book pictures
+
+The Hatchery Book shows each creature as a still picture, not a live 3D
+view: Roblox only draws a ViewportFrame while it is on screen, so a flick
+or a reopen left cards empty for a moment. The pictures come from the same
+meshes and colours as the game and Alex's viewer.
+
+1. `build.py OUT --thumbs` renders each creature the game lists at rest,
+   three-quarter view, on a clear background, cropped to its outline and
+   centred in a 256 × 256 PNG (`OUT/<id>/<id>_thumb.png`, about 4 s each).
+   `thumb.json` beside it holds the art fingerprint it was drawn from
+   (`thumbs.py`: meshes, colours and the picture style).
+2. Run the **Upload creature meshes** workflow with **art = thumbs** (and
+   `only` for a batch). It uploads each picture as an **Image** asset and
+   opens a draft PR recording the ids under `"thumbs"` in
+   `tools/art/blender/assets.json` and in `src/shared/CreatureThumbs.luau`.
+3. `luau.py` lists a picture only while its fingerprint matches the
+   creature's art now. A reworked or recoloured creature drops out of
+   `CreatureThumbs.luau` (and `luau.py` names it), so the Book draws it
+   live until its new picture is uploaded. Changing the picture style
+   means bumping `thumbs.STYLE`, which redraws them all.
+
+An uploaded Image is moderated before it shows. Until then it draws
+nothing, so look at a batch in game before merging its ids.
+
+## Outdoor nature, skybox and grass
+
+The trees, bushes, rocks, flowers, the six skybox faces and the grass tile
+go the same way, from `tools/art/env` (its README says how). Run the
+**Upload creature meshes** workflow with **art = nature** on a branch; it
+commits `tools/art/env/assets.json`, `env.json` and `EnvArt.luau` back onto
+that branch. The sky faces and grass tile are uploaded as **Image** assets,
+never Decals: a Decal id on a Sky face or Texture draws nothing, and
+`luau.py` writes 0 for any image not recorded as an Image. A push made by
+the workflow does not start CI, so follow it with a real commit.
+`server/EnvAssets` loads the models into ServerStorage and
+Scenery places copies; until a tree loads the game draws its box tree.

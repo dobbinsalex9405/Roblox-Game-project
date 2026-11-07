@@ -1,6 +1,8 @@
 """Writes games/hatchery-heist/src/shared/CreatureMeshes.luau: where each
 creature's Blender meshes sit on its joints, and the Roblox asset that holds
-them (tools/art/blender/assets.json, filled in by the upload tool).
+them (tools/art/blender/assets.json, filled in by the upload tool); and
+CreatureThumbs.luau: each creature's Hatchery Book picture, when the
+uploaded one still matches its art (thumbs.py).
 
     python3 tools/art/blender/luau.py
 
@@ -14,10 +16,12 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from describe import manifest  # noqa: E402
+from describe import creatures, manifest  # noqa: E402
+from creatures import in_game  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 OUT = os.path.join(ROOT, 'games', 'hatchery-heist', 'src', 'shared', 'CreatureMeshes.luau')
+THUMBS_OUT = os.path.join(ROOT, 'games', 'hatchery-heist', 'src', 'shared', 'CreatureThumbs.luau')
 ASSETS = os.path.join(HERE, 'assets.json')
 
 
@@ -33,14 +37,14 @@ def vec(v):
 WIDTH = 110  # stylua.toml column_width; tabs count 4
 
 
-def table_lines(depth, fields, trail=','):
+def table_lines(depth, fields, trail=',', prefix=''):
     """A table of `fields` as StyLua would lay it out: on one line when it
     fits in WIDTH, otherwise one field a line, so the file is already
     formatted and `stylua --check` agrees with it."""
-    one = '\t' * depth + '{ ' + ', '.join(fields) + ' }' + trail
+    one = '\t' * depth + prefix + '{ ' + ', '.join(fields) + ' }' + trail
     if len(one.expandtabs(4)) <= WIDTH:
         return [one]
-    return ['\t' * depth + '{'] + ['\t' * (depth + 1) + f + ',' for f in fields] + ['\t' * depth + '}' + trail]
+    return ['\t' * depth + prefix + '{'] + ['\t' * (depth + 1) + f + ',' for f in fields] + ['\t' * depth + '}' + trail]
 
 
 def assets():
@@ -51,14 +55,20 @@ def assets():
     out = {}
     for k, v in data.get('models', {}).items():
         assert isinstance(v, dict) and isinstance(v.get('assetId'), int), f'assets.json: bad entry for {k}'
-        out[k] = v['assetId']
+        # only an Image id works as a MeshPart.TextureID; an older Decal id
+        # would draw the creature grey, so it counts as not uploaded (boxes)
+        out[k] = (v['assetId'], v.get('textureId', 0) if v.get('textureType') == 'Image' else 0)
     return out
 
 
 def write():
     ids = assets()
-    m = manifest()
-    known = {c['id'] for c in m['creatures']}
+    every = creatures()
+    kept, waiting = in_game(every)
+    if waiting:
+        print('meshes not in config/creatures.luau yet (left out): ' + ', '.join(waiting))
+    m = manifest(kept)
+    known = {c.species for c in every}  # uploaded before the config lists it is fine
     for k in ids:
         assert k in known, f'assets.json names {k}, which is not a creature'
     L = [
@@ -71,17 +81,30 @@ def write():
         '-- same names, anims and parents as VoxelArt, each with a pivot and the',
         '-- meshes that ride on it. Studs, at the creature\'s size on a pad; Y up,',
         '-- front -Z, feet at the origin. `assetId` is the uploaded Model holding',
-        '-- MeshParts named after the meshes; 0 = not uploaded, so the game draws',
-        '-- the VoxelArt boxes instead.',
+        '-- MeshParts named after the meshes, `textureId` the Image asset (never a Decal) of its colours',
+        '-- (every MeshPart\'s TextureID); 0 = not uploaded, so the game draws',
+        '-- the VoxelArt boxes instead. `gait` is how it walks: trot, waddle, hop,',
+        '-- scuttle, slither or hover; legs are parts legFL/FR/BL/BR, legL/R or',
+        '-- leg1L..leg3R, each swung about its pivot (the hip).',
         '',
         'export type Mesh = { name: string, center: { number }, size: { number }, glow: string? }',
-        'export type Part = { name: string, anim: string, parent: string?, pivot: { number }, meshes: { Mesh } }',
+        'export type Part = {',
+        '\tname: string,',
+        '\tanim: string,',
+        '\tparent: string?,',
+        '\tpivot: { number },',
+        '\tmeshes: { Mesh },',
+        '\tlod1: Mesh?,',
+        '}',
         'export type Creature = {',
         '\tassetId: number,',
+        '\ttextureId: number,',
         '\trarity: string,',
+        '\tgait: string,',
         '\theight: number,',
         '\tsize: { number },',
         '\ttris: number,',
+        '\ttrisLod1: number,',
         '\tparts: { Part },',
         '}',
         '',
@@ -89,11 +112,15 @@ def write():
     ]
     for c in m['creatures']:
         L.append(f'\t{c["id"]} = {{')
-        L.append(f'\t\tassetId = {ids.get(c["id"], 0)},')
+        asset, texture = ids.get(c['id'], (0, 0))
+        L.append(f'\t\tassetId = {asset},')
+        L.append(f'\t\ttextureId = {texture},')
         L.append(f'\t\trarity = "{c["rarity"]}",')
+        L.append(f'\t\tgait = "{c["gait"]}",')
         L.append(f'\t\theight = {num(c["heightStuds"])},')
         L.append(f'\t\tsize = {vec(c["sizeStuds"])},')
         L.append(f'\t\ttris = {c["tris"]},')
+        L.append(f'\t\ttrisLod1 = {c["trisLod1"]},')
         L.append('\t\tparts = {')
         for p in c['parts']:
             L.append('\t\t\t{')
@@ -109,6 +136,10 @@ def write():
                     fields.append(f'glow = "{ms["color"]}"')
                 L += table_lines(5, fields)
             L.append('\t\t\t\t},')
+            if p.get('lod1'):
+                lo = p['lod1']
+                f = [f'name = "{lo["name"]}"', f'center = {vec(lo["center"])}', f'size = {vec(lo["size"])}']
+                L += table_lines(4, f, prefix='lod1 = ')
             L.append('\t\t\t},')
         L.append('\t\t},')
         L.append('\t},')
@@ -118,6 +149,74 @@ def write():
     return len(m['creatures'])
 
 
+def write_thumbs():
+    """CreatureThumbs.luau: the picture of every creature in the game whose
+    uploaded picture was drawn from its art as it is now. A creature whose
+    art changed since is left out (and listed), so the Book draws it live
+    until a new picture is uploaded."""
+    import thumbs
+
+    data = {}
+    if os.path.exists(ASSETS):
+        with open(ASSETS) as f:
+            data = json.load(f).get('thumbs', {})
+    kept, _ = in_game(creatures())
+    by_id = {c.species: c for c in kept}
+    rows, stale = [], []
+    for sid in sorted(data):
+        v = data[sid]
+        assert isinstance(v.get('imageId'), int) and isinstance(v.get('source'), str), f'assets.json: bad picture for {sid}'
+        c = by_id.get(sid)
+        if c is None:
+            continue
+        if v['source'] != thumbs.fingerprint(c):
+            stale.append(sid)
+            continue
+        rows.append(f'\t{sid} = {v["imageId"]},')
+    if stale:
+        print('pictures drawn from older art (left out until uploaded again): ' + ', '.join(stale))
+    L = [
+        '--!strict',
+        '-- GENERATED by tools/art/blender/luau.py. Do not edit: run the Upload',
+        '-- creature meshes workflow with "thumbs", or `python3 tools/art/blender/luau.py`.',
+        '--',
+        '-- Each creature\'s Hatchery Book picture: the Image asset id of a render',
+        '-- of its meshes (tools/art/blender/thumbs.py), listed only while it still',
+        '-- matches the creature\'s art. A creature not listed is drawn live in a',
+        '-- ViewportFrame instead.',
+        '',
+    ]
+    if rows:
+        L += ['local CreatureThumbs: { [string]: number } = {'] + rows + ['}']
+    else:
+        L += ['local CreatureThumbs: { [string]: number } = {}']
+    L += ['', 'return CreatureThumbs', '']
+    with open(THUMBS_OUT, 'w') as f:
+        f.write('\n'.join(L))
+    return len(rows)
+
+
+MIRROR = os.path.join(ROOT, 'games', 'hatchery-heist', 'tests', 'WalkMirror.luau')
+
+
+def write_mirror():
+    """tests/WalkMirror.luau: Walk.pose as walkpose.py computes it, which
+    Walk.spec.luau checks against the game's own Walk.pose."""
+    import walkpose
+    L = ['-- Generated by tools/art/blender/luau.py from walkpose.py: do not edit.',
+         '-- The Blender walk clips pose creatures with these numbers; Walk.spec',
+         '-- checks the game\'s Walk.pose gives the same.', 'return {']
+    for gait, anim, ph, moving, h, legged, p in walkpose.samples():
+        nums = ', '.join(f'{v:.6f}' for v in p)
+        L.append(f'\t{{ "{gait}", "{anim}", {ph}, {moving}, {h:.1f}, {"true" if legged else "false"}, {{ {nums} }} }},')
+    L += ['}', '']
+    with open(MIRROR, 'w') as f:
+        f.write('\n'.join(L))
+
+
 if __name__ == '__main__':
     n = write()
-    print(f'wrote {os.path.relpath(OUT, ROOT)}: {n} creatures')
+    t = write_thumbs()
+    write_mirror()
+    print(f'wrote {os.path.relpath(OUT, ROOT)}: {n} creatures, {os.path.relpath(THUMBS_OUT, ROOT)}: '
+          f'{t} pictures, and {os.path.relpath(MIRROR, ROOT)}')

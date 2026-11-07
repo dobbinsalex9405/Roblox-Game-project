@@ -13,8 +13,10 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local IncubatorLabel = require(Shared.IncubatorLabel)
 local Layout = require(Shared.Layout)
+local PromptKeys = require(Shared.PromptKeys)
 
 local Context = require(script.Parent.Context)
+local TowerView = require(script.Parent.TowerView)
 
 local BaseView = {}
 
@@ -32,6 +34,10 @@ type PromptOptions = {
 	reach: number?,
 	offset: Vector2?,
 }
+
+local function keyOf(name: string): Enum.KeyCode
+	return (Enum.KeyCode :: any)[name]
+end
 
 local function prompt(
 	parent: Instance,
@@ -118,7 +124,10 @@ function BaseView.start(ctx: Context.Context)
 
 		for _, incubator in (model:WaitForChild("Incubators") :: Folder):GetChildren() do
 			local slot = incubator:GetAttribute("Slot") :: number
-			prompt(incubator, "Hatch", "Hatch").Triggered:Connect(function()
+			prompt(incubator, "Hatch", "Hatch", {
+				key = keyOf(PromptKeys.Hatch.keyboard),
+				gamepad = keyOf(PromptKeys.Hatch.gamepad),
+			}).Triggered:Connect(function()
 				ctx.fire(remotes["HH:Hatch"], slot)
 			end)
 			prompt(incubator, "Unlock", "Unlock", { hold = 0.5 }).Triggered:Connect(function()
@@ -126,18 +135,34 @@ function BaseView.start(ctx: Context.Context)
 			end)
 		end
 
+		-- The tower's elevator stops: the owner opens the floor list.
+		local tower = model:WaitForChild("Tower") :: Folder
+		for _, floor in tower:GetChildren() do
+			local stop = floor:FindFirstChild("Elevator")
+			if stop then
+				prompt(stop, "Elevator", "Ride", { reach = 8 }).Triggered:Connect(function()
+					TowerView.elevator()
+				end)
+			end
+		end
+
 		for _, pad in (model:WaitForChild("Pads") :: Folder):GetChildren() do
+			-- The prompts sit on an attachment in the middle of the
+			-- creature's pads (updatePads moves it for 2- and 3-pad creatures).
+			local spot = Instance.new("Attachment")
+			spot.Name = "PromptSpot"
+			spot.Parent = pad
 			local function uid(): string?
 				local value = pad:GetAttribute("CreatureUid")
 				return if type(value) == "string" then value else nil
 			end
-			prompt(pad, "Ride", "Ride").Triggered:Connect(function()
+			prompt(spot, "Ride", "Ride").Triggered:Connect(function()
 				local id = uid()
 				if id then
 					ctx.fire(remotes["HH:Ride"], id)
 				end
 			end)
-			prompt(pad, "Guard", "Make guard", {
+			prompt(spot, "Guard", "Make guard", {
 				hold = 0.3,
 				key = Enum.KeyCode.R,
 				gamepad = Enum.KeyCode.ButtonY,
@@ -148,7 +173,7 @@ function BaseView.start(ctx: Context.Context)
 					ctx.fire(remotes["HH:Guard"], id)
 				end
 			end)
-			prompt(pad, "Steal", "Steal", { hold = 0.4, reach = raids.pickupReach }).Triggered:Connect(
+			prompt(spot, "Steal", "Steal", { hold = 0.4, reach = raids.pickupReach }).Triggered:Connect(
 				function()
 					local index = plotIndex()
 					local padIndex = pad:GetAttribute("Pad")
@@ -175,15 +200,21 @@ function BaseView.start(ctx: Context.Context)
 
 		for _, trap in (model:WaitForChild("Traps") :: Folder):GetChildren() do
 			local spot = trap:GetAttribute("Spot") :: number
-			local snare = prompt(trap, "Snare", "Set snare", { hold = 0.3 })
+			local snare = prompt(trap, "Snare", "Set snare", {
+				hold = raids.trapPrompt.holdSeconds,
+				reach = raids.trapPrompt.reach,
+				key = keyOf(PromptKeys.Snare.keyboard),
+				gamepad = keyOf(PromptKeys.Snare.gamepad),
+			})
 			snare.ObjectText = `{Layout.shortNumber(raids.traps.Snare.price)} coins`
 			snare.Triggered:Connect(function()
 				ctx.fire(remotes["HH:BuyTrap"], spot, "Snare")
 			end)
 			local slime = prompt(trap, "Slime", "Set slime", {
-				hold = 0.3,
-				key = Enum.KeyCode.R,
-				gamepad = Enum.KeyCode.ButtonY,
+				hold = raids.trapPrompt.holdSeconds,
+				reach = raids.trapPrompt.reach,
+				key = keyOf(PromptKeys.Slime.keyboard),
+				gamepad = keyOf(PromptKeys.Slime.gamepad),
 				offset = SECOND_PROMPT,
 			})
 			slime.ObjectText = `{Layout.shortNumber(raids.traps.Slime.price)} coins`
@@ -246,15 +277,25 @@ function BaseView.start(ctx: Context.Context)
 			local riding = pad:GetAttribute("Riding") == true
 			local guarding = pad:GetAttribute("Guard") == true
 			local carried = pad:GetAttribute("Carried") == true
-			setPrompt(pad, "Ride", isOwn and has and not riding and not guarding, name)
+			local spot = pad:FindFirstChild("PromptSpot") :: Attachment?
+			if spot == nil then
+				continue
+			end
+			local span = pad:GetAttribute("Span")
+			local x = if type(span) == "number" then (span - 1) * 5 else 0
+			if spot:GetAttribute("X") ~= x then
+				spot:SetAttribute("X", x)
+				spot.Position = Vector3.new(x, 0, 0)
+			end
+			setPrompt(spot, "Ride", isOwn and has and not riding and not guarding, name)
 			setPrompt(
-				pad,
+				spot,
 				"Guard",
 				isOwn and has and not riding,
 				name,
 				if guarding then "Stand down" else "Make guard"
 			)
-			setPrompt(pad, "Steal", canSteal and has and not riding and not guarding and not carried, name)
+			setPrompt(spot, "Steal", canSteal and has and not riding and not guarding and not carried, name)
 		end
 	end
 
@@ -321,6 +362,20 @@ function BaseView.start(ctx: Context.Context)
 				local canSteal = own ~= nil and not isOwn and taken and not shielded and not carrying
 				updateIncubators(model, isOwn, now)
 				updatePads(model, isOwn, canSteal)
+				local tower = model:FindFirstChild("Tower")
+				if tower then
+					for _, floor in tower:GetChildren() do
+						local stop = floor:FindFirstChild("Elevator")
+						if stop then
+							setPrompt(
+								stop,
+								"Elevator",
+								isOwn and (stop :: BasePart).Transparency < 1,
+								"Elevator"
+							)
+						end
+					end
+				end
 				updateDefenses(model, isOwn, canSteal, now)
 				if isOwn then
 					local collect = (model:FindFirstChild("CollectPad") :: Part):FindFirstChild("Collect")

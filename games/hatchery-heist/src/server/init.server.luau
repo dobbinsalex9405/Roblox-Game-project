@@ -19,22 +19,27 @@ local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 local Shared = ReplicatedStorage.Shared
 local Actions = require(Shared.Actions)
 local Build = require(Shared.Build)
+local Conveyor = require(Shared.Conveyor)
 local DataTemplate = require(Shared.DataTemplate)
 local FeedbackContext = require(Shared.FeedbackContext)
 local Eggs = require(Shared.Eggs)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Tower = require(Shared.Tower)
 local Raids = require(Shared.Raids)
 local Remotes = require(Shared.Remotes)(Net, Schema)
 local Schemas = require(Shared.Schemas)(Schema, Odds)
 
 local CreatureAssets = require(script.CreatureAssets)
+local EnvAssets = require(script.EnvAssets)
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
+local ShopHouse = require(script.ShopHouse)
 local Speed = require(script.Speed)
 local World = require(script.World)
+local Market = require(script.Market)
 
 local TICK_SECONDS = 10 -- income is added to the pending pile this often
 
@@ -44,10 +49,11 @@ local GameConfig = ReplicatedStorage.GameConfig
 local raw = {
 	economy = require(GameConfig.economy),
 	creatures = require(GameConfig.creatures),
-	eggs = require(GameConfig.eggs),
+	eggs = Eggs.expand(require(GameConfig.eggs) :: any, (require(GameConfig.creatures) :: any).species),
 	raids = require(GameConfig.raids),
 	monetization = require(GameConfig.monetization),
 	atmosphere = require(GameConfig.atmosphere),
+	shophouse = require(GameConfig.shophouse),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -68,7 +74,7 @@ assert(
 	economy.incubators.maxSlots + economy.incubators.passBonusSlots <= Layout.INCUBATOR_POSITIONS,
 	"the map has fewer incubators than maxSlots + passBonusSlots"
 )
-assert(economy.creaturePads <= 20, "the map has 20 creature pads")
+assert(#economy.tower.floorPrices + 1 == Geometry.FLOORS, "the map has 10 tower floors")
 -- Raid geometry (plain numbers) must match the map (CFrames) exactly.
 for index = 1, Layout.PLOTS do
 	local frame = Layout.plotCFrame(index)
@@ -94,9 +100,29 @@ end
 local ids = Monetization.resolve(monetization, Build.environment)
 
 World.build()
-Scenery.build(Config.get("atmosphere"))
+-- Each base's floor shows only a low lip above the grass (Alex found a
+-- 1-stud step "way too high"). The boot check runs this, so it fails CI.
+for index = 1, Layout.PLOTS do
+	local plot = World.model(index)
+	local floor = plot and plot.PrimaryPart
+	assert(floor, "every base has a floor")
+	-- CFrame, not Position: the headless boot shim keeps Position at its default.
+	local top = floor.CFrame.Position.Y + floor.Size.Y / 2
+	assert(top > 0.05 and top <= 0.5, `base {index}'s floor top is at {top}, not a low lip above the grass`)
+end
+local atmosphere = Config.get("atmosphere")
+Scenery.build(atmosphere)
+ShopHouse.build(Config.get("shophouse"), monetization, Config.get("raids"))
+Market.build()
 Mounts.start()
 CreatureAssets.start(log)
+-- Nature meshes, skybox and grass tile (tools/art/env); until they load the
+-- world keeps its box trees, Roblox's sky and the plain Grass material.
+EnvAssets.start(log, function(url: string)
+	Scenery.grass(url, atmosphere)
+end, function()
+	Scenery.skybox(atmosphere)
+end)
 
 local services: CoreServer.Services
 local actions: Actions.Actions? = nil
@@ -164,8 +190,7 @@ local function onPlayerReady(player: Player)
 	end
 	player:SetAttribute("PaidRandomRestricted", not services.policy:paidRandomAllowed(player))
 	player.CharacterAdded:Connect(function(character: Model)
-		character:WaitForChild("HumanoidRootPart")
-		World.sendHome(player)
+		World.sendHomeOnSpawn(player, character)
 	end)
 	World.sendHome(player)
 	local loop = actions :: Actions.Actions
@@ -223,6 +248,25 @@ local ready: Actions.Actions = Actions.new({
 		return Workspace:GetServerTimeNow()
 	end,
 	plotOf = World.plotOf,
+	-- Reach is measured from the egg where the server's clock has it, with
+	-- room for the egg moving on during the player's latency.
+	nearEgg = function(player: Player, index: number, serverNow: number): boolean
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root == nil then
+			return false
+		end
+		local belt = config.economy.conveyor
+		local progress = (serverNow - Conveyor.spawnTime(index, belt)) / belt.travelSeconds
+		local at = Market.eggPosition(Conveyor.laneOf(index, belt), progress)
+		local flat = Vector3.new(root.Position.X - at.X, 0, root.Position.Z - at.Z)
+		return flat.Magnitude <= belt.buyReach
+	end,
+	eggSold = function(index: number)
+		for _, other in Players:GetPlayers() do
+			fire(Remotes["HH:EggSold"], other, index)
+		end
+	end,
 	notify = function(player: Player, text: string)
 		fire(Remotes["HH:Notice"], player, text)
 	end,
@@ -314,6 +358,42 @@ end)
 net:on(Remotes["HH:Collect"], function(player: Player)
 	ready:collect(player)
 end)
+net:on(Remotes["HH:BuyFloor"], function(player: Player)
+	ready:buyFloor(player)
+end)
+net:on(Remotes["HH:UpgradeFloor"], function(player: Player, floor: number)
+	ready:upgradeFloor(player, floor)
+end)
+net:on(Remotes["HH:Place"], function(player: Player, uid: string, floor: number)
+	ready:place(player, uid, floor)
+end)
+net:on(Remotes["HH:TakeBack"], function(player: Player, uid: string)
+	ready:takeBack(player, uid)
+end)
+net:on(Remotes["HH:PlaceBest"], function(player: Player)
+	ready:placeBest(player)
+end)
+-- The elevator: only from one of the player's own stops, only to a floor
+-- they have built.
+net:on(Remotes["HH:GoFloor"], function(player: Player, floor: number)
+	local d = services.data:get(player)
+	if d == nil then
+		return
+	end
+	local owned = Tower.owned(d)
+	if floor > owned then
+		notify(player, "Build that floor first.")
+		return
+	end
+	if not World.atElevator(player, owned) then
+		notify(player, "Step onto your elevator first.")
+		return
+	end
+	World.elevatorTo(player, floor)
+end)
+net:on(Remotes["HH:BookSeen"], function(player: Player)
+	ready:seeBook(player)
+end)
 net:on(Remotes["HH:ClaimDaily"], function(player: Player)
 	ready:claimDaily(player)
 end)
@@ -327,7 +407,29 @@ net:on(Remotes["HH:Dismount"], function(player: Player)
 	ready:dismount(player)
 end)
 
-require(script.Shop).register(services, Config, ids)
+local Shop = require(script.Shop)
+local function incomeOf(player: Player): number?
+	local d = services.data:get(player)
+	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
+end
+Shop.register(services, Config, ids, incomeOf)
+-- The shop's coin packs scale with income: resend a player's catalog when
+-- one of their pack amounts changes.
+local packsShown: { [Player]: string } = {}
+local function refreshPacks(player: Player)
+	local income = incomeOf(player)
+	if income == nil then
+		return
+	end
+	local amounts = Shop.packAmounts(Config, income)
+	if packsShown[player] ~= amounts then
+		packsShown[player] = amounts
+		services.shop:refresh(player)
+	end
+end
+Players.PlayerRemoving:Connect(function(player)
+	packsShown[player] = nil
+end)
 
 -- Income tick: adds earnings to each player's pending pile, runs Auto-Collect
 -- and redraws bases (a pass bought mid-session can unlock incubators, a
@@ -339,6 +441,7 @@ task.spawn(function()
 			if services.data:isLoaded(player) and World.plotOf(player) then
 				ready:tick(player)
 				syncBase(player)
+				refreshPacks(player)
 			end
 		end
 	end

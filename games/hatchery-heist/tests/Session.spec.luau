@@ -1,10 +1,12 @@
 --!strict
 -- Whole sessions through the real core services and Actions: the M2 bar is
 -- "10 minutes of play survive a rejoin".
+local Book = require("../src/shared/Book")
 local Creatures = require("../src/shared/Creatures")
 local Fakes = require("../../../packages/core/tests/Fakes")
 local Harness = require("./Harness")
 local Hatchery = require("../src/shared/Hatchery")
+local Tower = require("../src/shared/Tower")
 local Util = require("@core/Util")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
@@ -13,9 +15,9 @@ local config = Harness.config
 local economy = config.economy
 local NO_PERKS = { doubleCoins = false, extraIncubators = false, autoCollect = false }
 
--- A simple player: keeps incubators full of the best egg it can afford,
--- hatches what is ready, collects every 30 seconds, buys slots when it can and
--- rides its first creature.
+-- A simple player: keeps incubators full of the best egg it can afford
+-- while its tower has room, hatches what is ready, collects every 30
+-- seconds, buys slots and floors when it can and rides its first creature.
 local function play(h: any, player: any, seconds: number)
 	local elapsed = 0
 	local sinceCollect = 0
@@ -41,7 +43,12 @@ local function play(h: any, player: any, seconds: number)
 			h.actions:buySlot(player)
 		end
 		d = h.get(player)
-		if Hatchery.freeSlot(d, d.slots) then
+		local floorPrice = Tower.nextFloorPrice(d, economy)
+		if floorPrice and d.coins >= floorPrice then
+			h.actions:buyFloor(player)
+		end
+		d = h.get(player)
+		if Hatchery.freeSlot(d, d.slots) and not Hatchery.padsFull(d, config.creatures, economy) then
 			local eggId = if d.coins >= 2500 then "MeadowEgg" else "BasicEgg"
 			if d.coins >= 50 then
 				local index = h.findOnBelt(eggId)
@@ -79,7 +86,7 @@ describe("Hatchery Heist sessions", function()
 		play(h, player, 600)
 
 		local before = h.get(player)
-		expect(#before.creatures).toBeAtLeast(10)
+		expect(#before.creatures).toBeAtLeast(8) -- floor 1 full, saving for floor 2
 		expect(before.slots).toBeAtLeast(4) -- bought at least one slot
 		expect(before.mountUid ~= "").toBe(true)
 		expect(before.stats.playSeconds).toBeAtLeast(590)
@@ -129,12 +136,12 @@ describe("Hatchery Heist sessions", function()
 		h.join(player)
 		h.data:update(player, function(d: Hatchery.Data)
 			d.creatures = {}
-			for i = 1, economy.creaturePads + economy.storage.slots do
+			for i = 1, Tower.SPOTS + economy.storage.slots do
 				table.insert(d.creatures, {
 					uid = tostring(i),
 					speciesId = "Chick",
 					mutation = "None",
-					slot = if i <= economy.creaturePads then i else nil,
+					slot = if i <= Tower.SPOTS then i else nil,
 					eggId = "BasicEgg",
 					hatchedAt = 0,
 				})
@@ -151,7 +158,7 @@ describe("Hatchery Heist sessions", function()
 		local function soldNotices(): { string }
 			local out = {}
 			for _, n in h.noticesFor do
-				if n.player == player and string.find(n.text, "Storage is full", 1, true) then
+				if n.player == player and string.find(n.text, "Inventory is full", 1, true) then
 					table.insert(out, n.text)
 				end
 			end
@@ -162,9 +169,9 @@ describe("Hatchery Heist sessions", function()
 		end
 		local value =
 			Hatchery.sellValue({ speciesId = "Chick", mutation = "None" }, config.creatures, economy)
-		expect(soldNotices()).toEqual({ `Storage is full: sold Chick for {value} coins.` })
+		expect(soldNotices()).toEqual({ `Inventory is full: sold Chick for {value} coins.` })
 		h.wait(player, 25)
-		expect(soldNotices()[2]).toBe(`Storage is full: sold 2 creatures for {value * 2} coins.`)
+		expect(soldNotices()[2]).toBe(`Inventory is full: sold 2 creatures for {value * 2} coins.`)
 		expect(#soldNotices()).toBe(2)
 	end)
 
@@ -182,7 +189,15 @@ describe("Hatchery Heist sessions", function()
 		for _, args in h.eventsOf("onboarding") do
 			table.insert(steps, args[2])
 		end
-		expect(steps).toEqual({ "Joined", "FirstEggBought", "FirstHatch", "FirstRide", "FirstCollect" })
+		-- Floor 1 holds 8 creatures, so it fills in the first minute and a half.
+		expect(steps).toEqual({
+			"Joined",
+			"FirstEggBought",
+			"FirstHatch",
+			"FirstRide",
+			"FirstCollect",
+			"PadsFull",
+		})
 		-- The second session may reach new steps, but never repeats one.
 		for _, args in h2.eventsOf("onboarding") do
 			expect(table.find(steps, args[2])).toBeNil()
@@ -207,7 +222,7 @@ describe("Hatchery Heist sessions", function()
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "Chick", "Duckling", "Bunny" })
+		expect(outcomes).toEqual({ "Bunny", "Chick", "Chipmunk" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -224,8 +239,12 @@ describe("Hatchery Heist sessions", function()
 			h.wait(player, 15)
 			assert(h.actions:hatch(player, incubator.slot))
 		end
-		expect(seen.Chick).toBe(true)
-		expect(seen.Duckling).toBe(true)
+		-- 30 rolls among 16 Commons: many different creatures, not a fixed list.
+		local kinds = 0
+		for _ in seen do
+			kinds += 1
+		end
+		expect(kinds).toBeAtLeast(8)
 	end)
 
 	it("refuses what the player cannot do and leaves coins alone", function()
@@ -234,7 +253,8 @@ describe("Hatchery Heist sessions", function()
 		h.join(player)
 		expect(h.buy(player, "MeadowEgg")).toBeFalsy() -- 50 coins, egg costs 2500
 		expect(h.get(player).coins).toBe(economy.startingCoins)
-		expect(h.notices[#h.notices]).toBe("Not enough coins.")
+		-- Says which egg it was and which egg the player can afford.
+		expect(h.notices[#h.notices]).toBe("Not enough coins: a Meadow Egg costs 2.5K. Basic Eggs cost 50.")
 
 		local index = h.findOnBelt("BasicEgg") :: number
 		expect(h.actions:buyEgg(player, index)).toBe(true)
@@ -308,6 +328,60 @@ describe("Hatchery Heist sessions", function()
 		expect((h.actions:claimDaily(player))).toBe(true)
 		expect(h.get(player).daily.streak).toBe(2)
 	end)
+
+	it("moves a pre-tower save onto the tower best-first, once", function()
+		local h = Harness.new()
+		local player = Fakes.player(11)
+		h.join(player)
+		h.leave(player)
+		-- An older save: 20 creatures on the old pads, no tower yet.
+		do
+			local d = h.store.saved["Player_11"]
+			d.creatures = {}
+			for i = 1, 20 do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = if i == 20 then "Penguin" else "Chick",
+					mutation = "None",
+					slot = i,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.towerVersion = 0
+			d.mountUid = "3"
+		end
+		local h2 = Harness.new({ store = h.store, start = h.clock.now() + 10 })
+		h2.join(player)
+		local d = h2.get(player)
+		local placed = 0
+		for _, c in d.creatures do
+			if c.slot then
+				placed += 1
+			end
+		end
+		expect(#d.creatures).toBe(20) -- nothing lost
+		expect(placed).toBe(8)
+		expect(d.creatures[20].slot ~= nil).toBe(true) -- the Penguin earns
+		expect(d.mountUid).toBe("")
+		expect(d.towerVersion).toBe(1)
+	end)
+
+	it("opening the Hatchery Book clears its NEW cards", function()
+		local h = Harness.new()
+		local player = Fakes.player(10)
+		h.join(player)
+		h.actions:change(player, function(d)
+			d.found.Chick = h.clock.now()
+			return nil
+		end)
+		local d = h.get(player)
+		expect(Book.newCount(d.found, config.creatures.species, d.bookSeenAt)).toBe(1)
+		h.wait(player, 5)
+		h.actions:seeBook(player)
+		d = h.get(player)
+		expect(Book.newCount(d.found, config.creatures.species, d.bookSeenAt)).toBe(0)
+	end)
 end)
 
 -- The Studio test panel's "Give a creature": guard walks and rides can be
@@ -331,7 +405,7 @@ describe("Studio grant", function()
 		local id = speciesId :: string
 		local ok, text = h.actions:grantCreature(player, id)
 		expect(ok).toBe(true)
-		expect(text).toBe(`{id} added on pad 1, ready to ride or guard.`)
+		expect(text).toBe(`{id} added on floor 1, ready to ride or guard.`)
 		local d = h.get(player)
 		expect(#d.creatures).toBe(1)
 		local c = d.creatures[1]

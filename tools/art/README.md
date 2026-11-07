@@ -1,14 +1,48 @@
 # Creature art
 
-Hatchery Heist's 33 creatures as voxel models, in plain Python.
+Hatchery Heist's creatures as voxel models, in plain Python.
 
 | File | What it is |
 | --- | --- |
 | `voxkit.py` | Parts, voxels and merging voxels into as few boxes as possible |
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
-| `legends.py` | The two Legendaries and two Godlies, built in far more detail |
+| `legends.py` | The two Legendaries and two Godlies, built in far more detail (`FINER` in `creatures.py` gives a showpiece smaller voxels in the Blender build) |
+| `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
+| `roster/master/master-list.json` | The master creature list: every creature planned, all seven tiers (`master_list.py` checks it) |
+| `master_list.py` | Checks the master list and lists what is left to build (`--todo [TIER]`, `--plans`) |
+| `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
+| `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |
+| `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
+| `kit_puff.py` | The `puff` plan: small round invented critters that hop on two stubby feet (kinds pebble, seed, puddle, tadpole, fuzz, gum, mushroom, acorn, cone, pip, ball); other kits add kinds with `kit_puff.add_kind` |
+| `kit_mammal.py` | The `mammal` plan: Rare four-legged animals with their own shapes (camel, ermine, musk ox, sand cat, sea otter) |
+| `kit_extras.py` | More accessories for roster entries: `ridge` (back spikes), `third_eye`, `butter` (a pat on the head), `twin_tail`, `droopy_ears`, `fringe`, `shag`, `long_snout`, `streaks`, `cap`, `eye_ring`, `speckles`, `button_eye`, `knit_head`, `small_ears`, `stand_tall`, `rostrum`, `bristles`, `frog_eyes`; plans `twig` (stick insect), `termite`, `wasp`, `strider` (water strider), `shieldbug` and `shrimp` |
+| `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
+
+See `ANIMATION.md` for the rig and gait conventions every new creature follows (named leg, wing and fin parts; gaits).
+
+## Adding a creature (as data)
+
+Pick it from the master list first (`python3 tools/art/master_list.py --todo`)
+and keep its id, tier, plan, gait and element.
+
+1. Add one line to a file in `roster/` (a new file per batch, so batches
+   never collide). The fields are in `variants.py`'s docstring:
+   `{"id": "Calf", "rarity": "Common", "plan": "quadruped", "colors": {...},
+   "options": {...}, "shape": {"body": [1.2, 1.15, 1.05], "head": 1.05},
+   "patterns": [...], "accessories": [...]}`.
+2. `python3 tools/art/variants.py` checks every entry and names the file
+   and entry of any mistake.
+3. Look at it:
+   `PYTHONPATH=/opt/bpy python3 tools/art/blender/lineup.py out.png --only Calf,Foal --angle 35`.
+4. The game picks it up once `games/hatchery-heist/config/creatures.luau`
+   lists the id. Until then `export.py` and `blender/luau.py` leave it out
+   of the generated files and say so, so CI stays green. After adding the
+   config line, re-run both and commit the generated files.
+5. `python3 tools/art/check.py` must end in `RESULT: PASS` before the PR
+   goes to review; send the reviewer its table of new creatures, the head
+   commit and the renders.
 
 ## Changing a creature
 
@@ -42,8 +76,9 @@ pulse, light, sparkles, rarity ring, hover, orbiting lights. See
 ## Blender meshes (`blender/`)
 
 The same creatures as polished voxel meshes: each voxel face a bevelled
-square, twice the voxels for the small tiers, glowing parts as their own
-meshes, one joint per part. See `ops/ASSETS.md` for how they reach the game.
+square, every tier rebuilt from 0.1-stud voxels, glowing parts as their own
+(flat) meshes, a flat far version (`_lod1`) of every part, one joint per
+part. See `ops/ASSETS.md` for how they reach the game.
 
 | File | What it is |
 | --- | --- |

@@ -173,7 +173,7 @@ do
 	-- buy a Meadow egg at the far end of the belt (progress 0.95): allowed within tolerance
 	local idx
 	for _ = 1, 200 do
-		for _, e in Conveyor.onBelt(h.clock.now(), 1, economy.conveyor) do
+		for _, e in Conveyor.onBelt(h.clock.now(), economy.conveyor) do
 			if e.eggId == "BasicEgg" and e.progress > 0.93 and not h.taken[p][e.index] then
 				idx = e.index
 			end
@@ -395,8 +395,18 @@ do
 	local coinsBefore = dBefore.coins
 	-- 1 hour away at half rate
 	local penguin = config.creatures.species.Penguin.coinsPerSecond
-	-- The Penguin is the one species in the Hatchery Book: +1 book bonus.
-	local book = 1 + economy.book.incomePerSpecies
+	-- The Penguin is the one species in the Hatchery Book: its tier's share
+	-- of the capped book bonus.
+	local uncommons = 0
+	for _, s in config.creatures.species do
+		if s.rarity == config.creatures.species.Penguin.rarity then
+			uncommons += 1
+		end
+	end
+	local bookBonus = economy.book.maxBonus
+		* economy.book.tierShare[config.creatures.species.Penguin.rarity]
+		/ uncommons
+	local book = 1 + bookBonus
 	local away = math.floor(penguin * book * 3600 * economy.offline.rate)
 	local h2 = Sim.new({ store = h.store, start = h.clock.now() + 3600 })
 	h2.join(p)
@@ -404,7 +414,9 @@ do
 	check(
 		d.pendingCoins == pendingBefore + away,
 		"offline",
-		`1h away with a Penguin ({penguin}/s): +{d.pendingCoins - pendingBefore} to the pile (expected {away} = 50% rate, book +1%)`
+		`1h away with a Penguin ({penguin}/s): +{d.pendingCoins - pendingBefore} to the pile (expected {away} = 50% rate, book +{math.floor(
+			bookBonus * 1000 + 0.5
+		) / 10}%)`
 	)
 	check(
 		h2.welcomes[1] and h2.welcomes[1].coins == away and h2.welcomes[1].ready == 2,
@@ -565,10 +577,10 @@ do
 		"mounts",
 		"mount comes back on rejoin"
 	)
-	-- the ridden creature keeps its pad when a better one hatches into full pads
+	-- the ridden creature keeps its pad when a better one hatches onto a full tower
 	h2.data:update(p, function(d)
 		local list = {}
-		for i = 1, 20 do
+		for i = 1, 8 do
 			table.insert(list, {
 				uid = tostring(i),
 				speciesId = if i == 1 then "Chick" else "Turtle",
@@ -579,7 +591,7 @@ do
 			})
 		end
 		d.creatures = list
-		d.nextUid = 21
+		d.nextUid = 9
 		d.mountUid = "1"
 		d.incubators = { { slot = 1, eggId = "MeadowEgg", startedAt = 0, readyAt = 0, outcome = "Owlet" } }
 	end)
@@ -595,11 +607,7 @@ do
 	check(
 		chick.slot == 1 and stored == 1,
 		"mounts",
-		"the ridden Chick (weakest) kept its pad; a Turtle went to storage instead"
-	)
-	note(
-		"mounts/design",
-		"a weak ridden creature blocks a pad: the Owlet replaced an 8/s Turtle instead of the 1/s Chick, costing 7/s for as long as the player rides the Chick."
+		"the ridden Chick kept its pad; with floor 1 full, the new Owlet waits in the inventory (Place best moves it)"
 	)
 end
 
@@ -608,21 +616,21 @@ do
 	local h = Sim.new({ seed = 4242 })
 	local p = Fakes.player(901)
 	h.join(p)
-	-- fill 20 pads + 30 storage with Chicks, 12 slots, lots of coins
+	-- fill floor 1 (8 slots) and the inventory with Chicks, 12 slots, lots of coins
 	h.data:update(p, function(d)
 		local list = {}
-		for i = 1, 50 do
+		for i = 1, 8 + economy.storage.slots do
 			table.insert(list, {
 				uid = tostring(i),
 				speciesId = "Chick",
 				mutation = "None",
-				slot = if i <= 20 then i else nil,
+				slot = if i <= 8 then i else nil,
 				eggId = "BasicEgg",
 				hatchedAt = 0,
 			})
 		end
 		d.creatures = list
-		d.nextUid = 51
+		d.nextUid = 9 + economy.storage.slots
 		d.slots = 12
 	end)
 	give(h, p, 100000)
@@ -712,47 +720,25 @@ do
 		"multiplayer",
 		"a 9th player gets no base (server kicks: 'This server is full'); Server Size must be 8 in Roblox settings"
 	)
-	-- belts differ per plot at the same moment
+	-- The Egg Market is shared: the first buyer gets an egg, the second is told
 	local now = h.clock.now()
-	local kinds = {}
-	for plot = 1, 8 do
-		local s = {}
-		for _, e in Conveyor.onBelt(now, plot, economy.conveyor) do
-			table.insert(s, string.sub(e.eggId, 1, 1))
-		end
-		kinds[plot] = table.concat(s)
-	end
-	local distinct = {}
-	for _, k in kinds do
-		distinct[k] = true
-	end
-	local n = 0
-	for _ in distinct do
-		n += 1
-	end
-	check(
-		n > 1,
-		"multiplayer",
-		`belts differ between bases ({n} distinct patterns of 8): {table.concat(kinds, " ")}`
-	)
-	-- same index bought on two different bases is fine; the same index twice on one base is not
 	local idx = nil
-	for _, e in Conveyor.onBelt(now, 1, economy.conveyor) do
-		if
-			e.progress < 0.5
-			and Conveyor.eggAt(e.index, 1, economy.conveyor) == "BasicEgg"
-			and Conveyor.eggAt(e.index, 2, economy.conveyor) == "BasicEgg"
-		then
+	for _, e in Conveyor.onBelt(now, economy.conveyor) do
+		if e.progress < 0.5 and e.eggId == "BasicEgg" and not h.sold[e.index] then
 			idx = e.index
 		end
 	end
 	if idx then
+		local first = h.actions:buyEgg(players[1], idx)
+		local second, why = h.actions:buyEgg(players[2], idx)
 		check(
-			h.actions:buyEgg(players[1], idx) and h.actions:buyEgg(players[2], idx),
+			first and not second,
 			"multiplayer",
-			`players 1 and 2 both bought egg #{idx} from their own belts`
+			`player 1 bought market egg #{idx}; player 2 was refused ("{why}")`
 		)
-		check(not h.actions:buyEgg(players[2], idx), "multiplayer", "player 2 cannot buy their egg twice")
+		local n = h.noticesOf(players[2])
+		check(n[#n] == "Someone else got that egg first.", "multiplayer", `player 2 is told why: "{n[#n]}"`)
+		h.sold[idx] = true
 	end
 	-- everyone plays 2 minutes; data stays isolated
 	for _ = 1, 120 do
@@ -890,13 +876,13 @@ do
 				uid = tostring(i),
 				speciesId = "Chick",
 				mutation = "None",
-				slot = if i <= 20 then i else nil,
+				slot = if i <= 8 then i else nil,
 				eggId = "BasicEgg",
 				hatchedAt = 0,
 			})
 		end
 		d.creatures = list
-		d.nextUid = 51
+		d.nextUid = 9 + economy.storage.slots
 		d.slots = 6
 	end)
 	give(h, p, 50000)

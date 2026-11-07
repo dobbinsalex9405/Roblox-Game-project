@@ -119,7 +119,7 @@ function Defenses.toggleGuard(d: Data, uid: string): (boolean, string?)
 	end
 	local creature = Hatchery.creatureByUid(d, uid)
 	if creature == nil or creature.slot == nil then
-		return false, "Only a creature on a pad can guard."
+		return false, "Only a creature on a floor can guard."
 	end
 	if uid == d.mountUid then
 		return false, "Get off it first."

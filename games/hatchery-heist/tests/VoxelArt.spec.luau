@@ -4,17 +4,48 @@
 -- of each tier (CreatureLooks) must only grow with rarity.
 local VoxelArt = require("../src/shared/VoxelArt")
 local CreatureLooks = require("../src/shared/CreatureLooks")
+local ArtScale = require("../src/shared/ArtScale")
 local creatures = require("../config/creatures")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
-local ANIMS = { "static", "head", "ears", "tail", "wingL", "wingR", "blink", "glow" }
+local ANIMS = {
+	"static",
+	"head",
+	"ears",
+	"tail",
+	"wingL",
+	"wingR",
+	"blink",
+	"glow",
+	"orbit", -- turns about its pivot on the vertical axis (Godly planets)
+	"legFL",
+	"legFR",
+	"legBL",
+	"legBR",
+	"legL",
+	"legR",
+	"leg1L",
+	"leg1R",
+	"leg2L",
+	"leg2R",
+	"leg3L",
+	"leg3R",
+	"leg4L",
+	"leg4R",
+	"leg5L",
+	"leg5R",
+	"leg6L",
+	"leg6R",
+	"finL", -- fins paddle when a fish swims (Walk "swim")
+	"finR",
+}
 
 -- Parts a client builds per creature, at most, by tier. Commons are cheap so
 -- a base full of them stays light; Godlies may be lavish because they are
 -- one in tens of thousands.
-local BUDGET = { 30, 40, 60, 80, 120, 450, 800 }
+local BUDGET = { 36, 44, 60, 80, 120, 450, 800 }
 
 local function rank(rarity: string): number
 	return table.find(RARITIES, rarity) or 0
@@ -39,6 +70,26 @@ describe("Voxel art", function()
 		end
 		for id in VoxelArt.species do
 			expect(creatures.species[id] ~= nil and id or `{id} is not a species`).toBe(id)
+		end
+	end)
+
+	it("rides every part on the body: each parent chain ends at the body, with no loop", function()
+		for id, art in VoxelArt.species do
+			local parentOf: { [string]: string? } = {}
+			for _, part in art.parts do
+				parentOf[part.name] = part.parent
+			end
+			for _, part in art.parts do
+				local at, steps = part.name, 0
+				while parentOf[at] ~= nil and steps <= #art.parts do
+					at = parentOf[at] :: string
+					steps += 1
+				end
+				local ok = at == "body" and steps <= #art.parts
+				expect(if ok then "body" else `{id}.{part.name}: chain ends at {at} after {steps}`).toBe(
+					"body"
+				)
+			end
 		end
 	end)
 
@@ -86,7 +137,7 @@ describe("Voxel art", function()
 		end
 	end)
 
-	it("makes creatures bigger and more detailed as rarity rises", function()
+	it("makes creatures more detailed as rarity rises", function()
 		-- Per tier, by each creature's longest side: the biggest and the most
 		-- detailed of the tier below never clearly beat the smallest and the
 		-- plainest of the tier above.
@@ -99,12 +150,12 @@ describe("Voxel art", function()
 			most[r] = math.max(most[r] or 0, n)
 			fewest[r] = math.min(fewest[r] or math.huge, n)
 		end
+		-- How big a creature stands in the game comes from Layout.raritySize
+		-- (art is drawn exactly as tall as its stand-in), so only detail is
+		-- checked here, not the art's own height.
 		for r = 2, #RARITIES do
-			expect(shortest[r]).toBeAtLeast(tallest[r - 1] - 2)
 			expect(fewest[r]).toBeAtLeast(math.floor(most[r - 1] * 0.6))
 		end
-		-- Legendary and Godly are huge next to a Common.
-		expect(shortest[6]).toBeAtLeast(tallest[1] * 3.5)
 	end)
 
 	it("only glows from Ultra Rare up", function()
@@ -156,5 +207,84 @@ describe("Creature looks by tier", function()
 		-- even a Godly's stays short enough to sit through.
 		expect(CreatureLooks.Common.wobble + CreatureLooks.Common.hold).toBeAtMost(4)
 		expect(CreatureLooks.Godly.wobble + CreatureLooks.Godly.hold).toBeAtMost(10)
+	end)
+
+	-- Studio playtest: four or five Legendaries and Godlies on one base washed
+	-- it out in bloom. The biggest tiers glow less brightly per voxel (they
+	-- have the most glowing voxels), and their lights stay modest.
+	it("keeps the big tiers' glow from washing out a base", function()
+		local prev: CreatureLooks.Look? = nil
+		for _, rarity in RARITIES do
+			local look = CreatureLooks[rarity]
+			expect(look.neon > 0 and look.neon <= 1).toBe(true)
+			if prev then
+				expect(look.neon).toBeAtMost(prev.neon)
+			end
+			prev = look
+		end
+		expect(CreatureLooks.Legendary.neon).toBeAtMost(0.7)
+		expect(CreatureLooks.Godly.neon).toBeAtMost(0.6)
+		expect(CreatureLooks.Godly.light).toBeAtMost(16)
+	end)
+
+	-- Studio playtest: a ridden Phoenix stood 6.5 studs (its crest above its
+	-- body), over the 6-stud mount limit. Every creature's whole art, crest
+	-- and all, now stands exactly as tall as the server's stand-in, so the
+	-- pad, mount and carry sizes in Layout are the only size knobs.
+	it("draws every creature's whole art exactly as tall as its stand-in", function()
+		for speciesId, art in VoxelArt.species do
+			local artHeight = art.size[2] * VoxelArt.voxel
+			for _, standIn in { 2, 3.8, 4.8, 6 } do
+				local drawn = artHeight * ArtScale.drawScale(standIn, artHeight)
+				expect(math.abs(drawn - standIn) < 1e-6 and "fits" or `{speciesId}: {drawn} for {standIn}`).toBe(
+					"fits"
+				)
+			end
+		end
+	end)
+
+	-- Godly thread, Nov 5: at 6 studs tall the Clockwork Leviathan is about 15
+	-- studs long. It lies along its three spots' 30-stud row (Walk.lie) and
+	-- keeps its height; only a creature longer than the row (less 2 studs)
+	-- is scaled down, evenly, keeping its proportions.
+	it("keeps a long Godly's height and only shrinks one longer than its row", function()
+		-- The Leviathan: 6 tall, 15 long fits a 28-stud row as it is.
+		expect(ArtScale.drawScale(6, 6, 15, 28)).toBe(1)
+		-- A 40-stud serpent is scaled to the row, still 2.5 times as long as tall.
+		local k = ArtScale.drawScale(6, 6, 40, 28)
+		expect(math.abs(40 * k - 28) < 1e-9).toBe(true)
+		expect(math.abs((40 * k) / (6 * k) - 40 / 6) < 1e-9).toBe(true)
+		-- Every creature drawn today at Godly size (6 studs) fits a one-spot
+		-- row (8 studs), so none is shrunk.
+		for speciesId, art in VoxelArt.species do
+			local artHeight = art.size[2] * VoxelArt.voxel
+			local artLength = math.max(art.size[1], art.size[3]) * VoxelArt.voxel
+			local k6 = ArtScale.drawScale(6, artHeight, artLength, 28)
+			expect(math.abs(artHeight * k6 - 6) < 1e-6 and "fits" or `{speciesId} shrank`).toBe("fits")
+		end
+	end)
+
+	-- Studio gate, Nov 5: the Butterfly's head rode on its left wing and the
+	-- wing on its head, and it drew as one dark cube. Every part's chain of
+	-- parents must end at the body.
+	it("never lets two parts ride on each other", function()
+		for speciesId, art in VoxelArt.species do
+			local parentOf: { [string]: string? } = {}
+			for _, part in art.parts do
+				parentOf[part.name] = part.parent
+			end
+			for _, part in art.parts do
+				local name: string? = part.name
+				local steps = 0
+				while name and parentOf[name] do
+					name = parentOf[name]
+					steps += 1
+					if steps > #art.parts then
+						break
+					end
+				end
+				expect(if steps <= #art.parts then "ok" else `{speciesId}.{part.name} loops`).toBe("ok")
+			end
+		end
 	end)
 end)

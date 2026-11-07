@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -86,7 +87,7 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	window.Name = "Window"
 	window.AnchorPoint = Vector2.new(0.5, 0.5)
 	window.Position = UDim2.fromScale(0.5, 0.5)
-	window.Size = UDim2.fromOffset(520, 304)
+	window.Size = UDim2.fromOffset(520, 322)
 	window.BackgroundColor3 = PANEL
 	corner(window, 16)
 	stroke(window, GOLD, 3)
@@ -98,12 +99,15 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	title.Position = UDim2.fromOffset(16, 8)
 	title.Size = UDim2.new(1, -80, 0, 36)
 	title.TextXAlignment = Enum.TextXAlignment.Left
+	-- Fixed text sizes, wrapped rather than scaled: scaled text shrank to 10 or
+	-- 11 px on phones (audit, Nov 5); nothing here goes under 13 px.
 	local about =
 		text(window, "About", "Come back every day for a bigger reward. Miss a day and it starts over.", 15)
-	about.Position = UDim2.fromOffset(16, 46)
-	about.Size = UDim2.new(1, -32, 0, 20)
+	about.Position = UDim2.fromOffset(16, 44)
+	about.Size = UDim2.new(1, -76, 0, 38)
 	about.TextXAlignment = Enum.TextXAlignment.Left
-	about.TextScaled = true
+	about.TextYAlignment = Enum.TextYAlignment.Top
+	about.TextWrapped = true
 
 	local close = Instance.new("TextButton")
 	close.Name = "Close"
@@ -129,10 +133,10 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		f.Name = `Day{day}`
 		f.BackgroundColor3 = TILE
 		if big then
-			f.Position = UDim2.fromOffset(16, 186)
+			f.Position = UDim2.fromOffset(16, 204)
 			f.Size = UDim2.fromOffset(520 - 32 - 170, 70)
 		else
-			f.Position = UDim2.fromOffset(16 + (day - 1) * (tileW + gap), 76)
+			f.Position = UDim2.fromOffset(16 + (day - 1) * (tileW + gap), 94)
 			f.Size = UDim2.fromOffset(tileW, 100)
 		end
 		corner(f, 12)
@@ -141,10 +145,16 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		local label = text(f, "Day", `Day {day}`, if big then 22 else 16, if big then GOLD else nil)
 		label.Size = UDim2.new(1, 0, 0, if big then 28 else 22)
 		label.Position = UDim2.fromOffset(0, 4)
-		local amount = text(f, "Amount", "", if big then 24 else 15, GOLD)
-		amount.Size = UDim2.new(1, -8, 0, 26)
-		amount.Position = UDim2.fromOffset(4, if big then 34 else 34)
-		amount.TextScaled = not big
+		-- Small tiles show the number, with "coins" under it; the big tile
+		-- has room for both on one line.
+		local amount = text(f, "Amount", "", if big then 24 else 18, GOLD)
+		amount.Size = UDim2.new(1, -4, 0, 24)
+		amount.Position = UDim2.fromOffset(2, if big then 34 else 28)
+		if not big then
+			local unit = text(f, "Unit", "coins", 13, GOLD)
+			unit.Size = UDim2.new(1, 0, 0, 16)
+			unit.Position = UDim2.fromOffset(0, 52)
+		end
 		local state = text(f, "State", "", 14, Color3.fromRGB(220, 220, 235))
 		state.Size = UDim2.new(1, 0, 0, 20)
 		state.Position = UDim2.new(0, 0, 1, -26)
@@ -157,7 +167,7 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	local claim = Instance.new("TextButton")
 	claim.Name = "Claim"
 	claim.AnchorPoint = Vector2.new(1, 0)
-	claim.Position = UDim2.fromOffset(520 - 16, 186)
+	claim.Position = UDim2.fromOffset(520 - 16, 204)
 	claim.Size = UDim2.fromOffset(160, 70)
 	claim.Font = FONT
 	claim.TextSize = 24
@@ -167,13 +177,13 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	claim.Parent = window
 
 	local footer = text(window, "Footer", "", 16)
-	footer.Position = UDim2.fromOffset(16, 270)
+	footer.Position = UDim2.fromOffset(16, 288)
 	footer.Size = UDim2.new(1, -32, 0, 22)
 
 	local function fit()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		scale.Scale = math.min(1, (screen.X - 24) / 520, (screen.Y - 40) / 304)
+		scale.Scale = math.min(1, (screen.X - 24) / 520, (screen.Y - 40) / 322)
 	end
 
 	-- The badge on the side-menu button.
@@ -197,6 +207,31 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	badge.Parent = button
 
 	local waiting = false -- a claim is on its way to the server
+	local claiming: number? = nil -- coins the claim on its way pays
+
+	-- "+600 coins" rising from the Claim button once the coins land: the
+	-- window covers the coin counter, so this is where a player sees it.
+	-- The claim's "+N coins", in gold in the footer line just under the Claim
+	-- button, with a little bump; the countdown comes back after it. (Floating
+	-- up through the day cards, it covered their amounts: audit, #112.)
+	local poppedUntil = 0
+	local footerColor = footer.TextColor3
+	local footerSize = footer.TextSize
+	local function pop(amount: number)
+		poppedUntil = os.clock() + 1.6
+		footer.Text = `+{Layout.shortNumber(amount)} coins!`
+		footer.TextColor3 = GOLD
+		footer.TextSize = footerSize + 6
+		TweenService:Create(footer, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			TextSize = footerSize + 2,
+		}):Play()
+		task.delay(1.6, function()
+			if os.clock() >= poppedUntil then
+				footer.TextColor3 = footerColor
+				footer.TextSize = footerSize
+			end
+		end)
+	end
 	local function refresh()
 		local d = ctx.data()
 		if d == nil then
@@ -208,7 +243,8 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		-- Days already claimed in this run of the streak.
 		local claimedUpTo = if status.claimedToday and status.day == 1 then days else status.day - 1
 		for day, tile in tiles do
-			tile.amount.Text = `{Layout.shortNumber(Daily.amount(day, perSecond, config))} coins`
+			local coins = Layout.shortNumber(Daily.amount(day, perSecond, config))
+			tile.amount.Text = if day == days then `{coins} coins` else coins
 			local claimed = day <= claimedUpTo
 			local today = status.ready and day == status.day
 			local tomorrow = status.claimedToday and day == status.day and claimedUpTo < days
@@ -232,9 +268,11 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		claim.Text = if ready then "Claim!" elseif waiting then "..." else clock(status.secondsLeft)
 		claim.BackgroundColor3 = if ready then GREEN else GREY
 		claim.AutoButtonColor = ready
-		footer.Text = if status.ready
-			then `Day {status.day} reward is ready.`
-			else `Next reward in {clock(status.secondsLeft)}.`
+		if os.clock() >= poppedUntil then
+			footer.Text = if status.ready
+				then `Day {status.day} reward is ready.`
+				else `Next reward in {clock(status.secondsLeft)}.`
+		end
 		badge.Visible = status.ready
 	end
 
@@ -247,12 +285,14 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 			return
 		end
 		waiting = true
-		Sfx.play("reward")
+		local status = Daily.status(d, ctx.serverNow(), days)
+		claiming = Daily.amount(status.day, Hatchery.incomePerSecond(d, ctx.config, ctx.perks()), config)
 		ctx.fire(ctx.remotes["HH:ClaimDaily"])
 		refresh()
 		-- The new data clears `waiting`; if the server refused, try again soon.
 		task.delay(3, function()
 			waiting = false
+			claiming = nil
 			refresh()
 		end)
 	end)
@@ -264,6 +304,14 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	local autoOpened = false
 	ctx.onData(function(d: { [string]: any })
 		waiting = false
+		local paid = claiming
+		if paid and Daily.status(d, ctx.serverNow(), days).claimedToday then
+			claiming = nil
+			Sfx.play("reward")
+			if gui.Enabled then
+				pop(paid)
+			end
+		end
 		refresh()
 		-- Returning players with a reward waiting see the window once.
 		if not autoOpened then

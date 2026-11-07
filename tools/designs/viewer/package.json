@@ -1,0 +1,16 @@
+{
+  "name": "loop-lab-design-viewer",
+  "private": true,
+  "description": "Bundles src/viewer.js and three.js into dist/viewer.js, and the Draco decoder into dist/draco.js (classic scripts, so the viewer opens from disk). Run `npm ci && npm run bundle` after changing src/.",
+  "scripts": {
+    "bundle": "esbuild src/viewer.js --bundle --minify --format=iife --target=chrome100,edge100,firefox100,safari15 --legal-comments=eof --outfile=dist/viewer.js && node make-draco.mjs"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "4.1.1",
+    "@gltf-transform/extensions": "4.1.1",
+    "@gltf-transform/functions": "4.1.1",
+    "draco3dgltf": "1.5.7",
+    "esbuild": "0.24.0",
+    "three": "0.170.0"
+  }
+}

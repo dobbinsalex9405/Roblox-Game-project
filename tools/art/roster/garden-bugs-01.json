@@ -1,0 +1,24 @@
+{
+  "note": "Commons batch: garden bugs (Nov 5). New plan in kit_pond.py: critter (dragonfly, ant, grasshopper, spider, firefly, pillbug, worm, slug, mantis).",
+  "creatures": [
+    {"id": "Dragonfly", "rarity": "Common", "plan": "critter", "colors": {"col": "#2EA8E0", "accent": "#1F5F8A", "wing": "#DDF6FF"}, "options": {"kind": "dragonfly"}},
+    {"id": "Damselfly", "rarity": "Common", "plan": "critter", "colors": {"col": "#3FD6B0", "accent": "#1E7A6A", "wing": "#E8FFF8"}, "options": {"kind": "dragonfly"}, "shape": {"body": [0.8, 1.1, 0.85], "head": 1.1}, "accessories": [{"kind": "fold_wings", "color": "#E8FFF8", "color2": "#1E7A6A"}]},
+    {"id": "Firefly", "rarity": "Common", "plan": "critter", "colors": {"col": "#4A4038", "accent": "#FF6A4D", "wing": "#FFF27A"}, "options": {"kind": "firefly"}},
+    {"id": "Ant", "rarity": "Common", "plan": "critter", "colors": {"col": "#D9432F", "accent": "#A8301F"}, "options": {"kind": "ant"}},
+    {"id": "LeafAnt", "rarity": "Common", "plan": "critter", "colors": {"col": "#A8673A", "accent": "#7A4A2A"}, "options": {"kind": "ant"}, "accessories": [{"kind": "carry_leaf", "color": "#6CCB5F", "color2": "#3E8A3C"}]},
+    {"id": "Grasshopper", "rarity": "Common", "plan": "critter", "colors": {"col": "#8BD45F", "accent": "#5FA83F", "wing": "#C8F2A8"}, "options": {"kind": "grasshopper"}},
+    {"id": "Cricket", "rarity": "Common", "plan": "critter", "colors": {"col": "#6A4A30", "accent": "#3A2A20", "wing": "#A8835A"}, "options": {"kind": "grasshopper"}, "shape": {"head": 1.1}},
+    {"id": "GardenSpider", "rarity": "Common", "plan": "critter", "colors": {"col": "#E89A3C", "accent": "#FFF1DC"}, "options": {"kind": "spider"}},
+    {"id": "JumpingSpider", "rarity": "Common", "plan": "critter", "colors": {"col": "#7A6A9A", "accent": "#FFE14D"}, "options": {"kind": "spider"}, "shape": {"body": [0.9, 0.9, 1.0], "head": 1.2}, "accessories": [{"kind": "big_eyes", "color": "#1B1B2F", "size": 0.8, "small_pair": true}]},
+    {"id": "PillBug", "rarity": "Common", "plan": "critter", "colors": {"col": "#9AA3B3", "accent": "#7A8494"}, "options": {"kind": "pillbug"}, "shape": {"body": [1.0, 1.05, 1.15], "head": 1.1}},
+    {"id": "Earthworm", "rarity": "Common", "plan": "critter", "colors": {"col": "#F29A9A", "accent": "#D9737A"}, "options": {"kind": "worm"}, "accessories": [{"kind": "flower", "color": "#FFFFFF", "color2": "#FFD43B"}]},
+    {"id": "Inchworm", "rarity": "Common", "plan": "critter", "colors": {"col": "#A8E05F", "accent": "#7FC23F"}, "options": {"kind": "worm"}},
+    {"id": "BananaSlug", "rarity": "Common", "plan": "critter", "colors": {"col": "#FFD43B", "accent": "#F2B820"}, "options": {"kind": "slug"}, "patterns": [{"kind": "spots", "color": "#8A7420"}]},
+    {"id": "Mantis", "rarity": "Common", "plan": "critter", "colors": {"col": "#8FD45F", "accent": "#6AB83F", "wing": "#C8F2A8"}, "options": {"kind": "mantis"}},
+    {"id": "Moth", "rarity": "Common", "plan": "bug", "colors": {"col": "#D9C3A0", "accent": "#6A5A48", "wing": "#F2E6D0"}, "options": {"kind": "butterfly"}, "shape": {"body": [1.35, 1.1, 1.0], "head": 1.2}},
+    {"id": "Monarch", "rarity": "Common", "plan": "bug", "colors": {"col": "#FF8A1F", "accent": "#2A2433", "wing": "#2A2433"}, "options": {"kind": "butterfly"}},
+    {"id": "StagBeetle", "rarity": "Common", "plan": "bug", "colors": {"col": "#5A3A2A", "accent": "#A86A3A"}, "options": {"kind": "beetle"}, "shape": {"body": [1.1, 1.15, 1.2]}, "accessories": [{"kind": "mandibles", "color": "#A86A3A"}]},
+    {"id": "JewelBeetle", "rarity": "Common", "plan": "bug", "colors": {"col": "#2FBF71", "accent": "#FFD43B"}, "options": {"kind": "beetle"}, "shape": {"body": [1.0, 1.0, 1.2]}},
+    {"id": "Silkworm", "rarity": "Common", "plan": "bug", "colors": {"col": "#F4F1EA", "accent": "#E2DCCF"}, "options": {"kind": "caterpillar"}, "accessories": [{"kind": "short_feelers", "color": "#8A8478", "color2": "#B8AE98"}]}
+  ]
+}

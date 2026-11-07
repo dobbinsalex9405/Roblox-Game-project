@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loop Lab Designs</title>
+    <link rel="icon" href="app/icon.ico" />
+    <link rel="stylesheet" href="app/viewer.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="bar">
+        <div class="nav">
+          <button id="back" class="icon-btn" title="Back (Alt+Left)" aria-label="Back">&#8592;</button>
+          <button id="forward" class="icon-btn" title="Forward (Alt+Right)" aria-label="Forward">&#8594;</button>
+          <button id="up" class="icon-btn" title="Up one folder (Backspace)" aria-label="Up one folder">&#8593;</button>
+        </div>
+        <nav id="crumbs" class="crumbs" aria-label="Path"></nav>
+        <label class="search">
+          <span class="search-icon" aria-hidden="true">&#9906;</span>
+          <input id="search" type="search" placeholder="Search designs" autocomplete="off" spellcheck="false" />
+        </label>
+      </header>
+      <div class="body">
+        <aside id="tree" class="tree" aria-label="Folders"></aside>
+        <main id="main" class="main"></main>
+      </div>
+      <footer id="status" class="status"></footer>
+    </div>
+    <div id="lightbox" class="lightbox" hidden><img alt="" /></div>
+    <script src="data/catalog.js"></script>
+    <script src="app/viewer.js"></script>
+  </body>
+</html>

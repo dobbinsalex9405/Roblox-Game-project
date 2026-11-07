@@ -14,6 +14,9 @@
 --   orbit      glowing cubes circling it, 0 = none
 --   pulse      glowing voxels breathe brighter and dimmer
 --   shimmer    glowing voxels drift through the rainbow (Godly)
+--   neon       how bright glowing voxels are, 1 = their full colour. The big
+--              tiers have the most glowing voxels, so each glows less, or a
+--              base of them washes out in bloom (Studio playtest, Nov 5)
 --
 -- The hatch reveal (client HatchReveal) grows with rarity too:
 --   wobble     seconds the egg shakes before it cracks
@@ -33,6 +36,7 @@ export type Look = {
 	orbit: number,
 	pulse: boolean,
 	shimmer: boolean,
+	neon: number,
 	wobble: number,
 	rays: number,
 	confetti: number,
@@ -56,6 +60,7 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = false,
 		shimmer = false,
+		neon = 1,
 		wobble = 1.0,
 		rays = 0,
 		confetti = 0,
@@ -73,6 +78,7 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = false,
 		shimmer = false,
+		neon = 1,
 		wobble = 1.2,
 		rays = 0,
 		confetti = 0,
@@ -90,6 +96,7 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = false,
 		shimmer = false,
+		neon = 1,
 		wobble = 1.5,
 		rays = 8,
 		confetti = 0,
@@ -107,6 +114,7 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = true,
 		shimmer = false,
+		neon = 1,
 		wobble = 1.9,
 		rays = 10,
 		confetti = 0,
@@ -124,6 +132,7 @@ local CreatureLooks: { [string]: Look } = {
 		orbit = 0,
 		pulse = true,
 		shimmer = false,
+		neon = 0.85,
 		wobble = 2.4,
 		rays = 12,
 		confetti = 40,
@@ -133,14 +142,15 @@ local CreatureLooks: { [string]: Look } = {
 	Legendary = {
 		bob = 0.03,
 		bobSpeed = 0.5,
-		hover = 0.08,
+		hover = 0.14,
 		moves = moves(true, true, true, true, true),
-		light = 18,
+		light = 14,
 		particles = 14,
 		ring = true,
 		orbit = 0,
 		pulse = true,
 		shimmer = false,
+		neon = 0.65,
 		wobble = 3.2,
 		rays = 16,
 		confetti = 80,
@@ -150,14 +160,15 @@ local CreatureLooks: { [string]: Look } = {
 	Godly = {
 		bob = 0.03,
 		bobSpeed = 0.45,
-		hover = 0.1,
+		hover = 0.14,
 		moves = moves(true, true, true, true, true),
-		light = 24,
+		light = 16,
 		particles = 22,
 		ring = true,
 		orbit = 8,
 		pulse = true,
 		shimmer = true,
+		neon = 0.55,
 		wobble = 4.0,
 		rays = 20,
 		confetti = 120,

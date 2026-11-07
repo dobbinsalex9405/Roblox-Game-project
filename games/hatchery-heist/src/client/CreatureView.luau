@@ -20,16 +20,31 @@
 -- its Blender meshes (shared/CreatureMeshes, loaded by the server into
 -- ReplicatedStorage.CreatureMeshes) when they are there, otherwise its
 -- VoxelArt boxes. Meshes that arrive after a creature is drawn swap it over.
+--
+-- The creature you ride yourself fills most of your camera, so it keeps its
+-- colours but drops its glow: no neon, no light, no sparkles, ring or orbs.
+-- Everyone else still sees it shine.
 
+local ContentProvider = game:GetService("ContentProvider")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local ArtScale = require(Shared.ArtScale)
 local CreatureLooks = require(Shared.CreatureLooks)
 local CreatureMeshes = require(Shared.CreatureMeshes)
 local Layout = require(Shared.Layout)
 local VoxelArt = require(Shared.VoxelArt)
+local Walk = require(Shared.Walk)
+
+local GameConfig = ReplicatedStorage.GameConfig
+local atmosphere = require(GameConfig.atmosphere) :: any
+local wander = atmosphere.wander :: Walk.Config
+local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
+local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
+local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
 
 local CreatureView = {}
 
@@ -37,6 +52,13 @@ local ATTRIBUTE = "CreatureLook"
 local MESH_FOLDER = "CreatureMeshes" -- server/CreatureAssets fills it
 local ANIMATE_RANGE = 160 -- studs from the camera; further creatures hold still
 local RING_TRANSPARENCY = 0.45
+local ORBIT_SECONDS = 9 -- an "orbit" part's turn (the Nebula Serpent's planets)
+local LIGHT_BRIGHTNESS = 1 -- was 1.5 to 2.5 pulsing: a base of Legendaries washed out
+
+-- A glow colour at `neon` of its full brightness (CreatureLooks.neon).
+local function dim(color: Color3, neon: number): Color3
+	return color:Lerp(Color3.new(0, 0, 0), 1 - neon)
+end
 
 type Motor = { motor: Motor6D, anim: string }
 type Glow = { part: BasePart, color: Color3 }
@@ -63,9 +85,31 @@ type Visual = {
 	nextBlink: number,
 	blinkUntil: number,
 	connections: { RBXScriptConnection },
+	-- Walking (shared/Walk): only creatures standing on a tower floor wander.
+	gait: Walk.Gait,
+	legged: boolean,
+	roam: Roam?,
+	moving: number,
+	stepPhase: number,
+	wingPhase: number,
+	culled: boolean,
+	-- Meshed creatures: the close-up pieces that have a far (LOD1) version,
+	-- and those far pieces; one set is in the model at a time.
+	near: { BasePart },
+	far: { BasePart },
+	showingFar: boolean,
 }
 
+-- A floor creature's cell: the middle of its wander area (home), where the
+-- server stood it (stand), its schedule's seed and how far it may stray.
+-- `plot` is the base the tower belongs to: your own tower is drawn and
+-- animated further than other players' (Studio gate stress test, Nov 5).
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number, lie: number?, plot: Model? }
+
 local visuals: { [BasePart]: Visual } = {}
+-- Where the server put each floor creature's stand-in, before this client
+-- started walking it around (kept across redraws).
+local homes: { [BasePart]: CFrame } = {}
 
 local function rgb(hex: string): (Color3, boolean)
 	local r = tonumber(string.sub(hex, 1, 2), 16) or 255
@@ -111,6 +155,15 @@ local function remove(anchor: BasePart)
 		c:Disconnect()
 	end
 	v.model:Destroy()
+	-- whichever mesh set was out of the model
+	local outside: { BasePart } = if v.showingFar then v.near else v.far
+	for _, p in outside do
+		p:Destroy()
+	end
+	local home = homes[anchor]
+	if home then
+		anchor.CFrame = home
+	end
 end
 
 local function applyFade(v: Visual)
@@ -138,23 +191,41 @@ local function applyFade(v: Visual)
 	end
 end
 
--- The loaded meshes for a species, when the server has them and every mesh
--- the creature needs is there.
+-- Species whose meshes and texture this client has finished loading: until
+-- then (or if any fails) the creature is drawn as voxel boxes, never as a
+-- grey mesh that colours in later.
+local loaded: { [Instance]: boolean } = {}
+
+-- The loaded meshes for a species, when the server has them, every mesh the
+-- creature needs is there, and their content has loaded on this client.
 local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instance?)
 	local entry = CreatureMeshes[speciesId]
 	local folder = ReplicatedStorage:FindFirstChild(MESH_FOLDER)
 	local source = if entry and folder then folder:FindFirstChild(speciesId) else nil
-	if entry == nil or source == nil then
+	if entry == nil or source == nil or loaded[source] ~= true then
 		return nil, nil
 	end
 	for _, part in entry.parts do
 		for _, mesh in part.meshes do
-			if not source:FindFirstChild(mesh.name) then
+			-- a glow accent the server could not load is left out (CreatureAssets)
+			if mesh.glow == nil and not source:FindFirstChild(mesh.name) then
 				return nil, nil
 			end
 		end
 	end
 	return entry, source
+end
+
+-- The meshes are built at their own size in studs (tools/art/blender), so
+-- they are scaled to the height of the voxel boxes the game draws for the
+-- species: the pad, mount and carry sizes in Layout stay the one source of
+-- how big a creature is, whichever way it is drawn.
+local function fit(speciesId: string, mesh: CreatureMeshes.Creature): number
+	local art = VoxelArt.species[speciesId]
+	if art == nil or mesh.height <= 0 then
+		return 1
+	end
+	return art.size[2] * VoxelArt.voxel / mesh.height
 end
 
 local function vec(t: { number }, k: number): Vector3
@@ -196,16 +267,65 @@ local function build(anchor: BasePart, speciesId: string)
 	end
 	local rarity = if mesh then mesh.rarity else (art :: VoxelArt.Art).rarity
 	local look = CreatureLooks[rarity] or CreatureLooks.Common
-	-- k: the creature's size against its size on a pad, smaller when the
-	-- server draws it ridden or carried overhead. s: studs per voxel.
-	local k = anchor.Size.Y / Layout.raritySize(rarity)
+	-- k: scales the art so all of it, crest and all, stands as tall as the
+	-- server's ball (its size on a pad, ridden or carried). s: studs per voxel.
+	-- Meshes are drawn at their boxes' height (fit), so both paths fit the
+	-- same art height into the ball.
+	local meshFit = if mesh then fit(speciesId, mesh) else 1
+	local artHeight = if mesh then mesh.size[2] * meshFit else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
+	local native = if mesh then vec(mesh.size, meshFit) else vec((art :: VoxelArt.Art).size, VoxelArt.voxel)
+	local spots = slotsByRarity[rarity] or 1
+	local maxLength = (spots * 10 - Layout.ROW_MARGIN) * anchor.Size.Y / Layout.raritySize(rarity)
+	local k = ArtScale.drawScale(anchor.Size.Y, artHeight, math.max(native.X, native.Z), maxLength)
 	local s = VoxelArt.voxel * k
+	k *= meshFit
 	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)
 	local height = size.Y
 	local feet = anchor.CFrame * CFrame.new(0, -anchor.Size.Y / 2, 0)
 
 	local model = Instance.new("Model")
 	model.Name = "Look"
+
+	-- Gait from the meshes' data, else from the parts' names.
+	local anims: { [string]: boolean } = {}
+	for _, part in (if mesh then mesh.parts else (art :: VoxelArt.Art).parts) :: { any } do
+		anims[part.anim] = true
+	end
+	local legged = false
+	for anim in anims do
+		if Walk.isLeg(anim) then
+			legged = true
+		end
+	end
+	local gait: Walk.Gait = Walk.gaitOf(if mesh then (mesh :: any).gait else nil, anims, look.hover > 0)
+
+	-- Only a creature standing on a floor pad wanders, around its cell.
+	local roam: Roam? = nil
+	local pad = anchor.Parent
+	local uid = anchor:GetAttribute("Uid")
+	if anchor.Name == "Creature" and pad and string.match(pad.Name, "^Pad%d+$") and type(uid) == "string" then
+		local home = homes[anchor] or anchor.CFrame
+		homes[anchor] = home
+		local index = pad:GetAttribute("Pad")
+		-- Too long for the spot's depth: it lies along the row (Walk.lie).
+		local lie = Walk.lie(size.X, size.Z, wander.margin)
+		local along = if lie == math.pi / 2
+			then size.Z
+			elseif lie == 0 then size.X
+			else math.max(size.X, size.Z)
+		local across = if lie == math.pi / 2 then size.X elseif lie == 0 then size.Z else along
+		local cx, cz, rx, rz =
+			Walk.cell(if type(index) == "number" then index else 1, spots, along, wander.margin, across)
+		roam = {
+			home = home * CFrame.new(cx, 0, cz),
+			stand = home,
+			seed = Walk.seed(uid),
+			rx = rx,
+			rz = rz,
+			lie = lie,
+			plot = pad:FindFirstAncestorWhichIsA("Model"),
+		}
+	end
 
 	local v: Visual = {
 		anchor = anchor,
@@ -229,6 +349,16 @@ local function build(anchor: BasePart, speciesId: string)
 		nextBlink = os.clock() + 1 + math.random() * 3,
 		blinkUntil = 0,
 		connections = {},
+		gait = gait,
+		legged = legged,
+		roam = roam,
+		moving = 0,
+		stepPhase = 0,
+		wingPhase = 0,
+		culled = false,
+		near = {},
+		far = {},
+		showingFar = false,
 	}
 
 	local glowColor: Color3? = nil
@@ -245,10 +375,16 @@ local function build(anchor: BasePart, speciesId: string)
 		roots[name] = root
 		return root
 	end
+	-- Your own mount fills your camera: no glow on it for you.
+	local character = Players.LocalPlayer.Character
+	local ownMount = character ~= nil and anchor.Name == "Mount" and anchor:IsDescendantOf(character)
 	local function keep(piece: BasePart, anim: string, glow: Color3?)
 		piece.Parent = model
-		if glow then
-			table.insert(v.glow, { part = piece, color = glow })
+		if glow and ownMount then
+			piece.Material = Enum.Material.SmoothPlastic
+		elseif glow then
+			piece.Color = dim(glow, look.neon)
+			table.insert(v.glow, { part = piece, color = piece.Color })
 			if glowColor == nil then
 				glowColor = glow
 			end
@@ -263,12 +399,30 @@ local function build(anchor: BasePart, speciesId: string)
 	if mesh and source then
 		for _, part in mesh.parts do
 			local root = addRoot(part.name, feet * CFrame.new(vec(part.pivot, k)))
+			local lod = part.lod1
+			local farReady = lod ~= nil and source:FindFirstChild(lod.name) ~= nil
 			for _, m in part.meshes do
+				if not source:FindFirstChild(m.name) then
+					continue -- a glow accent left out by the server
+				end
 				local piece = meshPiece(source, m, k, feet * CFrame.new(vec(m.center, k)))
 				weld(root, piece)
 				keep(piece, part.anim, if m.glow then (rgb(m.glow)) else nil)
+				if farReady then
+					table.insert(v.near, piece)
+				end
 			end
-			table.insert(joints, { name = part.name, anim = part.anim, parent = part.parent })
+			if lod and farReady then
+				local piece = meshPiece(source, lod, k, feet * CFrame.new(vec(lod.center, k)))
+				weld(root, piece)
+				keep(piece, part.anim, if lod.glow then (rgb(lod.glow)) else nil)
+				piece.Parent = nil
+				table.insert(v.far, piece)
+			end
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	else
 		local voxel = art :: VoxelArt.Art
@@ -296,8 +450,10 @@ local function build(anchor: BasePart, speciesId: string)
 				weld(root, box)
 				keep(box, part.anim, if entry.glow then entry.color else nil)
 			end
-			local anim = if part.name == "body" then "body" else part.anim
-			table.insert(joints, { name = part.name, anim = anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	end
 	-- Joints: the body hangs from the ball, everything else from its parent.
@@ -316,7 +472,7 @@ local function build(anchor: BasePart, speciesId: string)
 	local width = math.max(size.X, size.Z)
 	local centre = feet * CFrame.new(0, height / 2, 0)
 
-	if look.ring then
+	if look.ring and not ownMount then
 		local ring = visualPart(
 			"Ring",
 			Vector3.new(0.12, width * 0.95, width * 0.95),
@@ -324,13 +480,13 @@ local function build(anchor: BasePart, speciesId: string)
 		)
 		ring.Shape = Enum.PartType.Cylinder
 		ring.Material = Enum.Material.Neon
-		ring.Color = rarityColor
+		ring.Color = dim(rarityColor, look.neon)
 		weld(anchor, ring)
 		ring.Parent = model
 		v.ring = ring
 	end
 
-	if look.light > 0 or look.particles > 0 then
+	if (look.light > 0 or look.particles > 0) and not ownMount then
 		local aura = visualPart("Aura", Vector3.new(width, height, width), centre)
 		aura.Transparency = 1
 		weld(roots.body or anchor, aura)
@@ -339,7 +495,7 @@ local function build(anchor: BasePart, speciesId: string)
 			local light = Instance.new("PointLight")
 			light.Color = glowColor or rarityColor
 			light.Range = look.light
-			light.Brightness = 1.5
+			light.Brightness = LIGHT_BRIGHTNESS
 			light.Shadows = false
 			light.Parent = aura
 			v.light = light
@@ -365,7 +521,15 @@ local function build(anchor: BasePart, speciesId: string)
 		end
 	end
 
-	if look.orbit > 0 then
+	-- A creature with its own "orbit" part (the Nebula Serpent's planets)
+	-- skips the generic rainbow cubes.
+	local ownOrbit = false
+	for _, joint in joints do
+		if joint.anim == "orbit" then
+			ownOrbit = true
+		end
+	end
+	if look.orbit > 0 and not ownMount and not ownOrbit then
 		local hub = visualPart("Orbit", Vector3.new(0.05, 0.05, 0.05), feet * CFrame.new(0, height * 0.55, 0))
 		hub.Transparency = 1
 		hub.Parent = model
@@ -388,7 +552,7 @@ local function build(anchor: BasePart, speciesId: string)
 					* CFrame.Angles(a, a, 0)
 			)
 			orb.Material = Enum.Material.Neon
-			orb.Color = Color3.fromHSV(i / look.orbit, 0.7, 1)
+			orb.Color = Color3.fromHSV(i / look.orbit, 0.7, look.neon)
 			weld(hub, orb)
 			orb.Parent = model
 			table.insert(v.orbiters, orb)
@@ -414,11 +578,14 @@ function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (M
 	local s = studsPerVoxel or VoxelArt.voxel
 	local mesh, source = meshSource(speciesId)
 	if mesh and source then
-		local k = s / VoxelArt.voxel
+		local k = s / VoxelArt.voxel * fit(speciesId, mesh)
 		local model = Instance.new("Model")
 		model.Name = speciesId
 		for _, part in mesh.parts do
 			for _, m in part.meshes do
+				if not source:FindFirstChild(m.name) then
+					continue -- a glow accent left out by the server
+				end
 				local piece = meshPiece(source, m, k, CFrame.new(vec(m.center, k)))
 				piece.Anchored = true
 				piece.Parent = model
@@ -490,28 +657,67 @@ local function watch(inst: Instance)
 end
 
 -- One pose per frame for every creature near the camera.
-local function animate(v: Visual, now: number)
+local function walkPose(v: Visual, anim: string): CFrame
+	local p = Walk.pose(v.gait, anim, v.stepPhase, v.moving, v.height, v.legged)
+	return CFrame.new(p.dx, p.dy, 0) * CFrame.Angles(p.rx, p.ry, p.rz)
+end
+
+local function animate(v: Visual, now: number, dt: number)
 	local look = v.look
 	local t = now + v.phase
 	local h = v.height
+	local walking = v.moving > 0
+	-- Wings keep their own phase so a faster beat while moving never jumps.
+	local big = look.hover > 0
+	v.wingPhase += dt * (if big then 2.6 else 4.5) * Walk.wingRate(v.gait, v.moving)
 	for _, m in v.motors do
 		local anim = m.anim
 		local pose: CFrame
 		if anim == "body" then
-			local lift = h * (look.hover + look.bob * (0.5 + 0.5 * math.sin(t * look.bobSpeed * math.pi * 2)))
-			local sway = if look.moves.head then math.sin(t * 0.4) * 0.05 else 0
+			-- Standing still it breathes (bobs) less as it walks.
+			local still = 1 - v.moving
+			local lift = h
+				* (look.hover + still * look.bob * (0.5 + 0.5 * math.sin(t * look.bobSpeed * math.pi * 2)))
+			local sway = if look.moves.head then still * math.sin(t * 0.4) * 0.05 else 0
 			pose = CFrame.new(0, lift, 0) * CFrame.Angles(0, sway, 0)
-		elseif anim == "head" and look.moves.head then
-			pose = CFrame.Angles(math.sin(t * 1.1) * 0.07, math.sin(t * 0.5) * 0.2, 0)
-		elseif anim == "ears" and look.moves.ears then
+			if walking then
+				pose *= walkPose(v, anim)
+			end
+		elseif anim == "head" and (look.moves.head or walking) then
+			local still = if look.moves.head then 1 - v.moving else 0
+			pose = CFrame.Angles(still * math.sin(t * 1.1) * 0.07, still * math.sin(t * 0.5) * 0.2, 0)
+			if walking then
+				pose *= walkPose(v, anim)
+			end
+		elseif anim == "ears" and (look.moves.ears or walking) then
 			local k = t % 3.3
-			pose = if k < 0.3 then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
-		elseif anim == "tail" and look.moves.tail then
-			pose = CFrame.Angles(0, math.sin(t * 6) * 0.35, 0)
-		elseif (anim == "wingL" or anim == "wingR") and look.moves.wings then
-			local big = look.hover > 0
-			local a = math.sin(t * (if big then 2.6 else 4.5)) * (if big then 0.45 else 0.25)
-			pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+			local flick = look.moves.ears and not walking and k < 0.3
+			pose = if flick then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			if walking then
+				pose *= walkPose(v, anim)
+			end
+		elseif anim == "tail" and (look.moves.tail or walking) then
+			local wag = if look.moves.tail then math.sin(t * 6) * 0.35 * (1 - v.moving) else 0
+			pose = CFrame.Angles(0, wag, 0)
+			if walking then
+				pose *= walkPose(v, anim)
+			end
+		elseif anim == "wingL" or anim == "wingR" then
+			if look.moves.wings or v.gait == "hover" then
+				local a = math.sin(v.wingPhase) * (if big then 0.45 else 0.25)
+				pose = CFrame.Angles(0, 0, if anim == "wingL" then a else -a)
+			elseif walking then
+				-- Tiers that don't flap still move their wings with the gait.
+				pose = walkPose(v, anim)
+			else
+				continue
+			end
+		elseif anim == "orbit" then
+			-- Turns about its pivot's vertical axis (the Nebula Serpent's
+			-- planets), one turn every ORBIT_SECONDS.
+			pose = CFrame.Angles(0, t / ORBIT_SECONDS * 2 * math.pi, 0)
+		elseif Walk.isLeg(anim) or anim == "finL" or anim == "finR" then
+			pose = walkPose(v, anim)
 		else
 			continue
 		end
@@ -536,19 +742,19 @@ local function animate(v: Visual, now: number)
 	if look.pulse then
 		local k = 0.5 + 0.5 * math.sin(t * 2.2)
 		for _, g in v.glow do
-			g.part.Color = g.color:Lerp(Color3.new(1, 1, 1), 0.3 * k)
+			g.part.Color = g.color:Lerp(Color3.new(1, 1, 1), 0.3 * k * look.neon)
 		end
 		if v.light then
-			v.light.Brightness = 1 + 1.5 * k
+			v.light.Brightness = LIGHT_BRIGHTNESS * (0.8 + 0.6 * k)
 		end
 	end
 	if look.shimmer then
 		local hue = (t * 0.12) % 1
 		if v.ring then
-			v.ring.Color = Color3.fromHSV(hue, 0.65, 1)
+			v.ring.Color = Color3.fromHSV(hue, 0.65, look.neon)
 		end
 		for i, orb in v.orbiters do
-			orb.Color = Color3.fromHSV((hue + i / #v.orbiters) % 1, 0.7, 1)
+			orb.Color = Color3.fromHSV((hue + i / #v.orbiters) % 1, 0.7, look.neon)
 		end
 	end
 	if v.orbit then
@@ -556,8 +762,69 @@ local function animate(v: Visual, now: number)
 	end
 end
 
--- Meshes for a species just arrived: redraw its creatures with them.
+-- Swap a meshed creature between its close-up and far meshes.
+local function setFar(v: Visual, far: boolean)
+	if far == v.showingFar or #v.far == 0 then
+		return
+	end
+	v.showingFar = far
+	for _, p in v.near do
+		p.Parent = if far then nil else v.model
+	end
+	for _, p in v.far do
+		p.Parent = if far then v.model else nil
+	end
+end
+
+-- Hide or show a floor creature (its model and its name label).
+local function setCulled(v: Visual, culled: boolean)
+	if culled == v.culled then
+		return
+	end
+	v.culled = culled
+	v.model.Parent = if culled then nil else v.anchor
+	local label = v.anchor:FindFirstChildOfClass("BillboardGui")
+	if label then
+		label.Enabled = not culled
+	end
+end
+
+-- Walk a floor creature to where its schedule has it now. Ridden, guarding
+-- or carried creatures (faded) stand at home.
+local function stroll(v: Visual, roam: Roam, serverNow: number)
+	if v.fade > 0 then
+		v.moving = 0
+		v.anchor.CFrame = roam.stand
+		return
+	end
+	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander, roam.lie)
+	v.anchor.CFrame = roam.home * CFrame.new(at.x, 0, at.z) * CFrame.Angles(0, at.yaw, 0)
+	v.moving = at.moving
+	v.stepPhase = Walk.phase(v.gait, at.travelled, v.height)
+end
+
+-- Meshes for a species just arrived: load their geometry and texture, then
+-- redraw its creatures with them.
 local function meshesArrived(model: Instance)
+	if loaded[model] ~= nil then
+		return
+	end
+	loaded[model] = false
+	local ok = pcall(function()
+		local failed = false
+		ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
+			if status ~= Enum.AssetFetchStatus.Success then
+				failed = true
+			end
+		end)
+		if failed then
+			error("asset failed")
+		end
+	end)
+	if not ok then
+		return -- stays on the boxes
+	end
+	loaded[model] = true
 	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
 	-- must not happen while iterating it.
 	local redraw: { BasePart } = {}
@@ -576,9 +843,11 @@ local function watchMeshFolder(folder: Instance)
 	if folder.Name ~= MESH_FOLDER or not folder:IsA("Folder") then
 		return
 	end
-	folder.ChildAdded:Connect(meshesArrived)
+	folder.ChildAdded:Connect(function(model)
+		task.spawn(meshesArrived, model)
+	end)
 	for _, model in folder:GetChildren() do
-		meshesArrived(model)
+		task.spawn(meshesArrived, model)
 	end
 end
 
@@ -593,15 +862,45 @@ function CreatureView.start()
 	end
 	ReplicatedStorage.ChildAdded:Connect(watchMeshFolder)
 
-	RunService.RenderStepped:Connect(function()
+	RunService.RenderStepped:Connect(function(dt: number)
 		local camera = Workspace.CurrentCamera
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		local now = os.clock()
+		local serverNow = Workspace:GetServerTimeNow()
+		-- Tower creatures are culled by distance only, so every floor shows:
+		-- your own tower out to `cullStuds`, other players' (the costly part
+		-- of a full server) out to `cullOtherStuds`, and theirs only move
+		-- within `animateOtherStuds` (Studio gates).
+		local userId = Players.LocalPlayer.UserId
+		local character = Players.LocalPlayer.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		for anchor, v in visuals do
 			if anchor.Parent == nil then
 				remove(anchor)
-			elseif v.fade < 1 and (anchor.Position - eye).Magnitude <= ANIMATE_RANGE + v.height * 4 then
-				animate(v, now)
+				continue
+			end
+			local roam = v.roam
+			local own = true
+			if roam then
+				local plot = roam.plot
+				own = plot == nil or plot:GetAttribute("OwnerUserId") == userId
+				local away = if root then (roam.home.Position - root.Position).Magnitude else 0
+				setCulled(v, Walk.culled(away, own, wander))
+				if v.culled then
+					continue
+				end
+			end
+			local distance = (anchor.Position - eye).Magnitude
+			if #v.far > 0 then
+				local limit = FAR_STUDS + (if v.showingFar then -LOD_SLACK else LOD_SLACK)
+				setFar(v, distance > limit)
+			end
+			local range = if own then ANIMATE_RANGE else wander.animateOtherStuds
+			if v.fade < 1 and distance <= range + v.height * 4 then
+				if roam then
+					stroll(v, roam, serverNow)
+				end
+				animate(v, now, dt)
 			end
 		end
 	end)
