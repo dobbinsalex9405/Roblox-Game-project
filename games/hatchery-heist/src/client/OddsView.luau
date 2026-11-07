@@ -177,6 +177,41 @@ function OddsView.tiers(display: any): { { rarity: string, weight: number, perce
 	return out
 end
 
+-- The card's button that opens the egg's full list (OddsView.openList).
+local function listButton(container: GuiObject, eggId: string, text: string)
+	local button = Instance.new("TextButton")
+	button.Name = "SeeEvery"
+	button.LayoutOrder = 100
+	button.Size = UDim2.new(1, 0, 0, 30)
+	button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
+	button.Font = FONT
+	button.TextSize = 15
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Text = text
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 8)
+	c.Parent = button
+	button.Activated:Connect(function()
+		OddsView.openList(eggId)
+	end)
+	button.Parent = container
+end
+
+-- How a fixed-order wait reads: 0 is the next egg.
+local function waitText(wait: number): string
+	return if wait == 0 then "NEXT" else `in {wait + 1} eggs`
+end
+
+-- Eggs of the fixed order shown one by one on the card; the rest is per
+-- tier (Studio gate, #126: all 47 Basic Egg lines ran off the screen).
+OddsView.FIXED_UPCOMING = 3
+
+-- Eggs bought of this kind so far: where this player is in its fixed order.
+local function boughtOf(eggId: string): number
+	local data = ctx.data()
+	return if data then data.eggsBought[eggId] or 0 else 0
+end
+
 -- Fills `container` (which should have a UIListLayout) with one egg's odds:
 -- the card beside the Buy prompt.
 local function fill(container: GuiObject, eggId: string)
@@ -194,25 +229,42 @@ local function fill(container: GuiObject, eggId: string)
 	row(container, 0, Layout.displayName(egg.id), price, Color3.new(1, 1, 1), true)
 
 	if ctx.restricted() then
-		local data = ctx.data()
-		local bought = if data then data.eggsBought[egg.id] or 0 else 0
-		local nextId = Hatchery.fixedOrderOutcome(egg, bought)
+		-- The next few eggs by name, then one line per tier: how many of
+		-- every cycle and how soon its first one comes. The whole order is
+		-- in the list.
+		local function rarityOf(id: string): string
+			return species[id].rarity
+		end
+		local summary = Hatchery.fixedOrderSummary(
+			egg,
+			boughtOf(egg.id),
+			rarityOf,
+			OddsView.FIXED_UPCOMING,
+			Eggs.RARITIES
+		)
 		row(container, 1, "Fixed order, no chance involved:", "", Color3.fromRGB(200, 200, 200), false)
-		local cycle = Hatchery.fixedOrderLength(egg)
-		for i, outcome in egg.outcomes do
-			local rarity = species[outcome.id].rarity
-			local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)
-			local isNext = outcome.id == nextId
-			local count = outcome.weight * cycle // (egg.total or 10000)
+		for n, id in summary.upcoming do
+			local rarity = rarityOf(id)
 			row(
 				container,
-				i + 1,
-				`{Layout.displayName(outcome.id)} ({rarity}): {count} in every {cycle}`,
-				if isNext then "NEXT" elseif wait then `in {wait + 1} eggs` else "",
+				1 + n,
+				`{Layout.displayName(id)} ({rarity})`,
+				waitText(n - 1),
 				Layout.rarityColor(rarity),
-				isNext
+				n == 1
 			)
 		end
+		for i, tier in summary.tiers do
+			row(
+				container,
+				10 + i,
+				tier.rarity,
+				`{tier.count} in {summary.length} · {waitText(tier.wait)}`,
+				Layout.rarityColor(tier.rarity),
+				false
+			)
+		end
+		listButton(container, eggId, "See the whole order")
 		return
 	end
 
@@ -241,22 +293,7 @@ local function fill(container: GuiObject, eggId: string)
 			false
 		)
 	end
-	local button = Instance.new("TextButton")
-	button.Name = "SeeEvery"
-	button.LayoutOrder = 100
-	button.Size = UDim2.new(1, 0, 0, 30)
-	button.BackgroundColor3 = Color3.fromRGB(70, 110, 200)
-	button.Font = FONT
-	button.TextSize = 15
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.Text = "See every creature"
-	local c = Instance.new("UICorner")
-	c.CornerRadius = UDim.new(0, 8)
-	c.Parent = button
-	button.Activated:Connect(function()
-		OddsView.openList(eggId)
-	end)
-	button.Parent = container
+	listButton(container, eggId, "See every creature")
 end
 
 function OddsView.render(container: GuiObject, eggId: string)
@@ -443,24 +480,59 @@ function OddsView.openList(eggId: string)
 				child:Destroy()
 			end
 		end
-		title.Text = `{Layout.displayName(eggId)}: every creature`
-		local display = displays[eggId]
-		if display == nil then
-			return
-		end
 		local species = ctx.config.creatures.species
 		local saved = rowHeight
 		rowHeight = 24
-		for i, r in display.rows do
-			local rarity = if species[r.id] then species[r.id].rarity else "Common"
-			row(
-				scroll,
-				i,
-				`{Layout.displayName(r.id)} ({rarity})`,
-				`{r.percent} · {r.oneIn}`,
-				Layout.rarityColor(rarity),
-				false
-			)
+		local egg = Hatchery.eggById(ctx.config.eggs, eggId)
+		if ctx.restricted() and egg then
+			-- Every creature in the order it next comes, soonest first, with
+			-- how many of every cycle it is.
+			title.Text = `{Layout.displayName(eggId)}: fixed order`
+			local bought = boughtOf(eggId)
+			local cycle = Hatchery.fixedOrderLength(egg)
+			local lines = {}
+			for _, outcome in egg.outcomes do
+				local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)
+				if wait then
+					table.insert(lines, {
+						id = outcome.id,
+						wait = wait,
+						count = outcome.weight * cycle // (egg.total or 10000),
+					})
+				end
+			end
+			table.sort(lines, function(a, b)
+				return a.wait < b.wait
+			end)
+			for i, line in lines do
+				local rarity = species[line.id].rarity
+				row(
+					scroll,
+					i,
+					`{Layout.displayName(line.id)} ({rarity})`,
+					`{line.count} in {cycle} · {waitText(line.wait)}`,
+					Layout.rarityColor(rarity),
+					line.wait == 0
+				)
+			end
+		else
+			title.Text = `{Layout.displayName(eggId)}: every creature`
+			local display = displays[eggId]
+			if display == nil then
+				rowHeight = saved
+				return
+			end
+			for i, r in display.rows do
+				local rarity = if species[r.id] then species[r.id].rarity else "Common"
+				row(
+					scroll,
+					i,
+					`{Layout.displayName(r.id)} ({rarity})`,
+					`{r.percent} · {r.oneIn}`,
+					Layout.rarityColor(rarity),
+					false
+				)
+			end
 		end
 		rowHeight = saved
 		for _, frame in scroll:GetChildren() do

@@ -6,6 +6,10 @@
   worked out one egg at a time, so eggs whose odds are written in tens of
   millions (room for many more Legendaries and Epics) cost no memory. Each
   outcome still comes exactly as often as its odds say, evenly spread.
+- Fix: for players who see a fixed hatch order, the odds card no longer
+  runs off the screen listing every creature. It shows the next three eggs
+  and one line per tier, and "See the whole order" opens the full list,
+  soonest first. The odds card also shrinks to fit any screen.
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
   the list is off.

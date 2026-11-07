@@ -193,6 +193,43 @@ describe("Hatchery", function()
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 
+	it("sums up the fixed order for the odds card in a few lines", function()
+		-- Studio gate (#126): the restricted odds card listed all 47 Basic Egg
+		-- outcomes, 1,142 px tall on a 672 px screen, NEXT off the top. The
+		-- card shows the next few eggs and one line per tier; the full order
+		-- is in the scrolling list.
+		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
+		local species = config.creatures.species
+		local function rarityOf(id: string): string
+			return species[id].rarity
+		end
+		local summary = Hatchery.fixedOrderSummary(basic, 0, rarityOf, 3, Eggs.RARITIES)
+		expect(#basic.outcomes > 40).toBe(true)
+		expect(summary.upcoming).toEqual({ "Gosling", "Turtle", "Bunny" })
+		expect(#summary.tiers <= #Eggs.RARITIES).toBe(true)
+		local total, seen = 0, {}
+		for _, tier in summary.tiers do
+			total += tier.count
+			seen[tier.rarity] = true
+			-- the tier's wait is its soonest creature's
+			local soonest = math.huge
+			for _, o in basic.outcomes do
+				if rarityOf(o.id) == tier.rarity then
+					soonest = math.min(soonest, Hatchery.fixedOrderWait(basic, 0, o.id) :: number)
+				end
+			end
+			expect(tier.wait).toBe(soonest)
+		end
+		expect(total).toBe(summary.length)
+		expect(summary.length).toBe(Hatchery.fixedOrderLength(basic))
+		expect(seen.Common and seen.Legendary).toBe(true)
+		-- In tier order, Common first.
+		expect(summary.tiers[1].rarity).toBe("Common")
+		-- After one egg the window moves on by one.
+		local after = Hatchery.fixedOrderSummary(basic, 1, rarityOf, 3, Eggs.RARITIES)
+		expect(after.upcoming).toEqual({ "Turtle", "Bunny", "Chick" })
+	end)
+
 	it("the fixed order works out any place without building the cycle", function()
 		-- Economy thread (Nov 7): egg totals of 10,000,000 (room for dozens of
 		-- Legendaries and Epics in one tier) would have built a 10-million

@@ -404,6 +404,44 @@ function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: stri
 	return placeOf(order, i, 0) + order.length - at -- round to the next cycle
 end
 
+export type FixedOrderTier = { rarity: string, count: number, wait: number }
+export type FixedOrderSummary = { upcoming: { string }, tiers: { FixedOrderTier }, length: number }
+
+-- What the odds card shows a restricted player, in a few lines however many
+-- creatures the egg holds: the next `upcoming` eggs in order, and for each
+-- tier (in `rarities` order) how many of a cycle's eggs it is and how many
+-- eggs until its first one (0 = the next). The full order is the odds list.
+function Hatchery.fixedOrderSummary(
+	egg: any,
+	boughtBefore: number,
+	rarityOf: (string) -> string,
+	upcoming: number,
+	rarities: { string }
+): FixedOrderSummary
+	local order = orderOf(egg)
+	local next = {}
+	for n = 0, math.min(upcoming, order.length) - 1 do
+		table.insert(next, Hatchery.fixedOrderOutcome(egg, boughtBefore + n))
+	end
+	local counts: { [string]: number } = {}
+	local waits: { [string]: number } = {}
+	for i, id in order.ids do
+		if order.weights[i] > 0 then
+			local rarity = rarityOf(id)
+			counts[rarity] = (counts[rarity] or 0) + order.weights[i]
+			local wait = Hatchery.fixedOrderWait(egg, boughtBefore, id) :: number
+			waits[rarity] = math.min(waits[rarity] or math.huge, wait)
+		end
+	end
+	local tiers = {}
+	for _, rarity in rarities do
+		if counts[rarity] then
+			table.insert(tiers, { rarity = rarity, count = counts[rarity], wait = waits[rarity] })
+		end
+	end
+	return { upcoming = next, tiers = tiers, length = order.length }
+end
+
 -- The whole cycle, in order. For tests and small eggs only: game code asks
 -- for single places, which cost nothing however long the cycle is.
 function Hatchery.fixedOrderCycle(egg: any): { string }

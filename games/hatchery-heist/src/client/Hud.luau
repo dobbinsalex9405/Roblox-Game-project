@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local OddsCard = require(Shared.OddsCard)
 
 local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
@@ -193,20 +194,30 @@ function Hud.start(ctx: Context.Context)
 	-- Buy prompt in view (Studio gate, Nov 5): 75% at 392 px tall.
 	local cardScale = Instance.new("UIScale")
 	cardScale.Parent = card
+	local cardLayout = card:FindFirstChildOfClass("UIListLayout") :: UIListLayout
 	local function fitCard()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		cardScale.Scale = math.clamp(screen.Y / 520, 0.75, 1)
 		-- On a short screen the card starts below the notice line (124 +
 		-- 36 px), so a refusal is never half under it.
-		if screen.Y < 500 then
+		local short = screen.Y < 500
+		if short then
 			card.AnchorPoint = Vector2.new(0, 0)
 			card.Position = UDim2.fromOffset(16, 168)
 		else
 			card.AnchorPoint = Vector2.new(0, 0.5)
 			card.Position = UDim2.new(0, 16, 0.5, 0)
 		end
+		-- The card's height at 100%: its rows (drawn at the current scale)
+		-- plus its 8 px padding top and bottom.
+		local natural = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 16
+		local scale = OddsCard.scale(screen.Y, natural, if short then 168 else 8)
+		if math.abs(scale - cardScale.Scale) > 0.001 then
+			cardScale.Scale = scale
+		end
 	end
+	-- Refit whenever the rows change (another egg, a fixed order moving on).
+	cardLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitCard)
 
 	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
 	-- title; this client draws its own odds (fixed order for a restricted
