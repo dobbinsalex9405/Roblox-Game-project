@@ -366,6 +366,12 @@
    "textureType": "Image",
    "version": "4"
   },
+  "DustBunny": {
+   "assetId": 105915027568147,
+   "textureId": 74666172236215,
+   "textureType": "Image",
+   "version": "1"
+  },
   "DutchBunny": {
    "assetId": 126563695035804,
    "textureId": 134746236804242,
@@ -618,6 +624,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "IcicleBat": {
+   "assetId": 74667045695520,
+   "textureId": 119887292147872,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Iguana": {
    "assetId": 118558176056309,
    "textureId": 124090721809046,
@@ -701,6 +713,12 @@
    "textureId": 95531773224890,
    "textureType": "Image",
    "version": "3"
+  },
+  "LeafBat": {
+   "assetId": 86294075717895,
+   "textureId": 99844926485791,
+   "textureType": "Image",
+   "version": "1"
   },
   "Lemming": {
    "assetId": 129776749483577,
@@ -833,6 +851,12 @@
    "textureId": 86054197578838,
    "textureType": "Image",
    "version": "5"
+  },
+  "NeonOctopus": {
+   "assetId": 103256171711386,
+   "textureId": 93824815863729,
+   "textureType": "Image",
+   "version": "1"
   },
   "Newt": {
    "assetId": 137451594093883,
