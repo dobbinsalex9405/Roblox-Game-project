@@ -118,6 +118,7 @@ Why these numbers:
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
 | Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |
+| Hatchery Heist | GiantEgg | Developer Product | Giant Legendary Egg | 199 | Power | Yes | Hatches the Legendary shown on today's Giant Egg in the middle of the map. One per player each day, and a new Legendary every day. |
 | Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |
 | Tidecatch Cove | AutoReel | Game Pass | Auto-reel | 149 | Capacity | Yes | Bites reel themselves in at an average player's success rate. Skill still pays. |
 | Tidecatch Cove | ExtraPools | Game Pass | Extra Pools | 149 | Capacity | Yes | More tide pools, so you can raise more creatures at once. |

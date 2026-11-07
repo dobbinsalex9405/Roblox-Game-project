@@ -11,6 +11,9 @@ export type CatalogItem = {
 	kind: "product" | "pass",
 	name: string,
 	description: string,
+	-- Bought at its own place in the world, not from a Golden Egg Shop
+	-- display (shared/ShopPlan skips it): the Giant Egg on the Golden Nest.
+	soldAt: string?,
 }
 
 local Numbers = require("./Numbers")
@@ -89,6 +92,15 @@ function Products.catalog(monetization: any, raids: any): { CatalogItem }
 		kind = "pass",
 		name = "Auto-Collect",
 		description = "Your earnings move into your coins every 30 seconds, no trip to the collect pad.",
+	})
+	-- Today's named Legendary (no odds: the egg shows which one before
+	-- purchase), once per player per day; src/server/GiantEgg.luau.
+	table.insert(catalog, {
+		key = "GiantEgg",
+		kind = "product",
+		name = "Giant Legendary Egg",
+		description = "Hatches the Legendary shown on today's Giant Egg in the middle of the map. One each day.",
+		soldAt = "GiantEgg",
 	})
 	return catalog
 end

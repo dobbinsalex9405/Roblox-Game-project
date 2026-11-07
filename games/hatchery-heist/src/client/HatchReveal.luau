@@ -568,7 +568,12 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 
 		layout()
 		clearScene()
-		local model, parts = buildEgg(Layout.eggColor(nextOne.eggId))
+		-- The Giant Legendary Egg (timed events) cracks in its own gold.
+		local model, parts = buildEgg(
+			if nextOne.eggId == "GiantEgg"
+				then Color3.fromRGB(255, 178, 46)
+				else Layout.eggColor(nextOne.eggId)
+		)
 		model.Parent = view
 		eggModel = model
 		eggParts = parts

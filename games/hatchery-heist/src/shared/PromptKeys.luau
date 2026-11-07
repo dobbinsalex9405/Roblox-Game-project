@@ -11,6 +11,8 @@ local PromptKeys: { [string]: Keys } = {
 	Hatch = { keyboard = "E", gamepad = "ButtonX" },
 	Snare = { keyboard = "F", gamepad = "DPadLeft" },
 	Slime = { keyboard = "R", gamepad = "ButtonY" },
+	-- The Giant Egg stands inside the Egg Market, whose belt eggs use E.
+	GiantEgg = { keyboard = "G", gamepad = "DPadUp" },
 }
 
 return PromptKeys

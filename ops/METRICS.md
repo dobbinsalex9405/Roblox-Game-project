@@ -64,7 +64,10 @@ read with a read-only Open Cloud key.
   `Progression:<Path>:<Status>` and `Funnel:<Name>:<Step>:<StepName>`. Session,
   retention and purchase events are counted by the fields above instead. At
   most 200 names a day per shard. A game gets more detail in the report by
-  sending more events; no other code is needed.
+  sending more events; no other code is needed. Hatchery Heist's timed
+  events count `Event:Seen` (each player once per event they saw, with
+  its kind), `Event:EggBought` (eggs bought during an event) and `GiantEgg:Prompted` /
+  `GiantEgg:Bought` (the Giant Egg's buy prompts and sales).
 - **Schema.** Days carry `schema = 2`. Schema 1 values (written before
   2026-11-02) are read and upgraded with the new fields at zero; a server
   never rewrites a value from a newer schema than its own.

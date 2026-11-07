@@ -12,6 +12,7 @@ local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
+local EventClock = require(script.Parent.EventClock)
 local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
 
@@ -314,8 +315,11 @@ function Hud.start(ctx: Context.Context)
 			if d then
 				local perSecond = Hatchery.incomePerSecond(d, ctx.config, ctx.perks())
 				coins.Text = `{Layout.shortNumber(d.coins)} coins`
-				income.Text = `+{Layout.shortNumber(perSecond)}/s`
-				local pile = Hatchery.pendingAt(d, ctx.serverNow(), perSecond)
+				-- A Money Rush (timed events) multiplies what is earning now.
+				local rush = EventClock.effects().incomeFactor
+				income.Text = `+{Layout.shortNumber(perSecond * rush)}/s`
+				income.TextColor3 = if rush > 1 then Color3.fromRGB(255, 210, 80) else Color3.new(1, 1, 1)
+				local pile = Hatchery.pendingAt(d, ctx.serverNow(), perSecond, EventClock.incomeSeconds)
 				pending.Text = if ctx.autoCollect()
 					then `Auto-collecting {Layout.shortNumber(pile)}`
 					else `Uncollected: {Layout.shortNumber(pile)}`

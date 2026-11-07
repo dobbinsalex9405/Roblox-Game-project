@@ -1,7 +1,7 @@
 """Builds Hatchery Heist's world props in Blender: a polished voxel mesh
 (.glb, Draco compressed), a review render of the mesh, a render of the
 Parts version the game builds today (from build/world/worldart.json, so run
-export.py first), meta.json, and a copy in the 3D design viewer's folders.
+export.py and giantexport.py first), meta.json, and a copy in the 3D design viewer's folders.
 
     PYTHONPATH=/opt/bpy python3 tools/art/world/build.py OUT [--only OakTree,Bush] [--designs /mnt/project-files/designs] [--fast] [--full]
 
@@ -38,12 +38,13 @@ import apartment  # noqa: E402,F401
 import tower  # noqa: E402,F401
 import rooms  # noqa: E402,F401
 import hub  # noqa: E402,F401
+import giantegg  # noqa: E402,F401  (kind "event": the Giant Legendary Egg)
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 
 FOLDER = {
     'tree': 'Nature/Hatchery Heist/Trees', 'bush': 'Nature/Hatchery Heist/Trees', 'stump': 'Nature/Hatchery Heist/Trees',
-    'egg': 'Eggs/Hatchery Heist',
+    'egg': 'Eggs/Hatchery Heist', 'event': 'Eggs/Hatchery Heist',
     'pedestal': 'World/Hatchery Heist/Egg Market', 'belt': 'World/Hatchery Heist/Egg Market', 'hub': 'World/Hatchery Heist/Egg Market',
     'elevator': 'World/Hatchery Heist/Elevator and ladder', 'ladder': 'World/Hatchery Heist/Elevator and ladder',
     'plaque': 'World/Hatchery Heist/Elevator and ladder',
@@ -310,6 +311,9 @@ def main():
     os.makedirs(out, exist_ok=True)
     wa_path = os.path.join(ROOT, 'build', 'world', 'worldart.json')
     worldart = json.load(open(wa_path)) if os.path.exists(wa_path) else {}
+    ga_path = os.path.join(ROOT, 'build', 'world', 'giantart.json')  # giantexport.py
+    if os.path.exists(ga_path):
+        worldart.update(json.load(open(ga_path)))
     ids = sorted(props.REGISTRY)
     if a.only:
         want = set(a.only.split(','))

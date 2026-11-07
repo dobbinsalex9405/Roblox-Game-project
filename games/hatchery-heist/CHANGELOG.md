@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- New: one 30-minute event a day at a different time: Egg Sale (half-price
+  eggs), Speedy Incubators (eggs hatch twice as fast), Money Rush (double
+  income) or Lucky Hatch (up to 3x luck on rare hatches). A banner at the
+  top of the screen counts down to the next one; tap it for details.
+- New: the Giant Legendary Egg in the middle of the map. It holds a
+  different Legendary every day, and each player can buy it once a day.
 - Fix: a creature's legs, wings, tails and heads no longer flicker where
   they swing against the body (a bunny's hind feet kicking back in a hop
   showed a striped patch at the hip).

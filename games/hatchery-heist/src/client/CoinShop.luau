@@ -10,11 +10,13 @@ local CoreClient = require(ReplicatedStorage.CoreClient.CoreClient)
 local UiKit = require(ReplicatedStorage.CoreClient.UiKit)
 local Shared = ReplicatedStorage.Shared
 local Defenses = require(Shared.Defenses)
+local Events = require(Shared.Events)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
+local EventClock = require(script.Parent.EventClock)
 
 local CoinShop = {}
 
@@ -160,8 +162,13 @@ function CoinShop.start(ctx: Context.Context)
 					body,
 					order,
 					Layout.displayName(egg.id),
-					`Rides the Egg Market in the middle. Walk up to it to see its odds and buy it. Hatches in {egg.hatchSeconds}s.`,
-					`{Layout.shortNumber(egg.priceCoins)} coins`,
+					`Rides the Egg Market in the middle. Walk up to it to see its odds and buy it. Hatches in {Events.hatchSeconds(
+						egg.hatchSeconds,
+						EventClock.effects()
+					)}s.`,
+					if EventClock.price(egg.priceCoins) < egg.priceCoins
+						then `SALE {Layout.shortNumber(EventClock.price(egg.priceCoins))} coins`
+						else `{Layout.shortNumber(egg.priceCoins)} coins`,
 					nil,
 					false,
 					nil

@@ -85,6 +85,13 @@ export type Shop = {
 	-- SOURCE_FRESH_SECONDS. A purchase uses up its source.
 	takeSource: (self: Shop, player: Player, kind: Kind, key: string) -> string,
 	forget: (self: Shop, player: Player) -> (),
+	-- A game's own rule for one item, checked before every prompt: returns
+	-- why this player cannot buy it right now (shown to them), or nil.
+	-- Hatchery Heist's Giant Egg: once per player per day.
+	guard: (self: Shop, key: string, check: (player: Player) -> string?) -> (),
+	-- Opens the purchase prompt from the server (a ProximityPrompt in the
+	-- world), with every check Shop:Buy makes. Returns whether it opened.
+	prompt: (self: Shop, player: Player, kind: Kind, key: string, source: string) -> boolean,
 }
 
 local log = Log.new("Shop")
@@ -96,6 +103,7 @@ function Purchases.start(deps: Deps): Shop
 	local byKey: { [string]: CatalogItem } = {}
 	local oddsSeen: { [Player]: { [string]: number } } = {}
 	local prompted: { [Player]: { [string]: { source: string, at: number } } } = {}
+	local guards: { [string]: (player: Player) -> string? } = {}
 
 	local shop = {}
 
@@ -208,10 +216,14 @@ function Purchases.start(deps: Deps): Shop
 		shop.refresh(shop :: any, player)
 	end)
 
-	deps.net:on(ShopRemotes["Shop:Buy"], function(player: Player, kind: Kind, key: string, source: string?)
+	function shop.guard(_self: Shop, key: string, check: (player: Player) -> string?)
+		guards[key] = check
+	end
+
+	local function buy(player: Player, kind: Kind, key: string, source: string?): boolean
 		local item = byKey[`{kind}:{key}`]
 		if item == nil then
-			return
+			return false
 		end
 		local id = idOf(item)
 		if id <= 0 then
@@ -221,23 +233,34 @@ function Purchases.start(deps: Deps): Shop
 					then `{item.name} is not on Roblox yet. Use the Test panel to grant it.`
 					else `{item.name} is not available yet.`
 			)
-			return
+			return false
 		end
 		if item.paidRandom and not deps.policy:paidRandomAllowed(player) then
 			notice(player, `{item.name} is not available in your region.`)
-			return
+			return false
 		end
 		if item.oddsTable then
 			local seenAt = oddsSeen[player] and oddsSeen[player][item.oddsTable]
 			if seenAt == nil or os.clock() - seenAt > ODDS_FRESH_SECONDS then
 				notice(player, `Check the odds for {item.name} first.`)
-				return
+				return false
+			end
+		end
+		local guard = guards[key]
+		if guard then
+			local ok, why = pcall(guard, player)
+			if not ok or why ~= nil then
+				notice(player, if ok then why :: string else `{item.name} is not available right now.`)
+				if not ok then
+					log:warn("shop guard failed", { key = key, err = tostring(why) })
+				end
+				return false
 			end
 		end
 		if kind == "pass" then
 			if deps.passes:owns(player, key) then
 				notice(player, `You already own {item.name}.`)
-				return
+				return false
 			end
 			MarketplaceService:PromptGamePassPurchase(player, id)
 		else
@@ -257,6 +280,15 @@ function Purchases.start(deps: Deps): Shop
 			end
 		end
 		log:info("purchase prompted", { userId = player.UserId, kind = kind, key = key, source = from })
+		return true
+	end
+
+	function shop.prompt(_self: Shop, player: Player, kind: Kind, key: string, source: string): boolean
+		return buy(player, kind, key, source)
+	end
+
+	deps.net:on(ShopRemotes["Shop:Buy"], function(player: Player, kind: Kind, key: string, source: string?)
+		buy(player, kind, key, source)
 	end)
 
 	return (shop :: any) :: Shop
