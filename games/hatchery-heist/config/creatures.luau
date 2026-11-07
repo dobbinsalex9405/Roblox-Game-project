@@ -380,7 +380,7 @@ return {
 			pools = { "Meadow" },
 			element = "Glacial",
 		},
-		-- Godly: 15 from the roster
+		-- Godly: 18 from the roster
 		AuroraStag = {
 			rarity = "Godly",
 			coinsPerSecond = 830,
@@ -397,6 +397,13 @@ return {
 		},
 		CandyColossus = { rarity = "Godly", coinsPerSecond = 986, mountSpeed = 36, pools = { "Moonlit" } },
 		ChronoOwl = { rarity = "Godly", coinsPerSecond = 852, mountSpeed = 36, pools = { "Moonlit" } },
+		ClockworkLeviathan = {
+			rarity = "Godly",
+			coinsPerSecond = 806,
+			mountSpeed = 36,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
 		CosmicWhale = { rarity = "Godly", coinsPerSecond = 988, mountSpeed = 36, pools = { "Moonlit" } },
 		CrystalHydra = {
 			rarity = "Godly",
@@ -412,6 +419,7 @@ return {
 			pools = { "Moonlit" },
 			element = "Glacial",
 		},
+		EclipseDragon = { rarity = "Godly", coinsPerSecond = 901, mountSpeed = 36, pools = { "Moonlit" } },
 		HurricaneRoc = {
 			rarity = "Godly",
 			coinsPerSecond = 859,
@@ -441,6 +449,13 @@ return {
 			mountSpeed = 36,
 			pools = { "Moonlit" },
 			element = "Ember",
+		},
+		ThunderKraken = {
+			rarity = "Godly",
+			coinsPerSecond = 979,
+			mountSpeed = 36,
+			pools = { "Moonlit" },
+			element = "Storm",
 		},
 		VoidKitsune = { rarity = "Godly", coinsPerSecond = 820, mountSpeed = 36, pools = { "Moonlit" } },
 		WorldTurtle = {
