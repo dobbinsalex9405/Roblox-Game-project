@@ -11,6 +11,7 @@
 -- turns over one card at a time for ten (best last), and the haul grouped
 -- by charm for a hundred. A tap skips ahead.
 
+local GuiService = game:GetService("GuiService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -691,17 +692,42 @@ function ClawView.start(ctx: Context.Context)
 	local skipNow: (() -> ())? = nil
 	local finish: (() -> ())? = nil
 
-	-- The room the reveal has: the safe area below Roblox's top bar, less a
-	-- 12 px margin on each side.
-	local function screenSize(): Vector2
-		local s = revealGui.AbsoluteSize
-		if s.X <= 0 or s.Y <= 0 then
-			local camera = Workspace.CurrentCamera
-			local view = if camera then camera.ViewportSize else Vector2.new(1280, 720)
-			s = Vector2.new(view.X, view.Y - TOP_BAR)
+	-- The safe area below Roblox's top bar. The reveal layer's own size can
+	-- still be the full screen in the frame it is switched on (the insets
+	-- apply a frame later), so it never counts for more than the viewport
+	-- less the top bar.
+	local function safeArea(): Vector2
+		local camera = Workspace.CurrentCamera
+		local view = if camera then camera.ViewportSize else Vector2.new(1280, 720)
+		local topLeft, bottomRight = GuiService:GetGuiInset()
+		local s = Vector2.new(view.X, view.Y - math.max(topLeft.Y, TOP_BAR) - bottomRight.Y)
+		local gui = revealGui.AbsoluteSize
+		if gui.X > 0 and gui.Y > 0 then
+			s = Vector2.new(math.min(s.X, gui.X), math.min(s.Y, gui.Y))
 		end
+		return s
+	end
+	-- The room the reveal lays out in: the safe area less a 12 px margin on
+	-- each side.
+	local function screenSize(): Vector2
+		local s = safeArea()
 		return Vector2.new(s.X - 24, s.Y - 24)
 	end
+	-- Whatever the layout measured, the stage is scaled down to fit the safe
+	-- area as it really is: checked again a frame after the reveal opens and
+	-- whenever the screen changes (rotation, window resize).
+	local stageScale = Instance.new("UIScale")
+	stageScale.Parent = stage
+	local function fitStage()
+		local room = screenSize()
+		local size = Vector2.new(stage.Size.X.Offset, stage.Size.Y.Offset)
+		if size.X <= 0 or size.Y <= 0 then
+			stageScale.Scale = 1
+			return
+		end
+		stageScale.Scale = math.clamp(math.min(room.X / size.X, room.Y / size.Y), 0.5, 1)
+	end
+	revealGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitStage)
 	-- Heading, gap, footer: what a stage needs besides its tray.
 	local CHROME = 44 + 12 + CharmUi.BUTTON
 
@@ -1022,6 +1048,8 @@ function ClawView.start(ctx: Context.Context)
 		else
 			showMany(next_.ids)
 		end
+		fitStage()
+		task.defer(fitStage)
 	end
 
 	shade.Activated:Connect(function()
