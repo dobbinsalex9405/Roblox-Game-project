@@ -15881,7 +15881,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	TeacupPiglet = {
 		assetId = 106517273378897,
-		textureId = 102755921798283,
+		textureId = 113063822168039,
 		rarity = "Uncommon",
 		gait = "trot",
 		height = 1.8,
