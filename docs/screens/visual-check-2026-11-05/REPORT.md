@@ -902,3 +902,15 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Buy one egg:** hatched **Gosling** (the old NEXT). After the hatch the card shows Turtle NEXT · Bunny in 2 eggs · Chick in 3 eggs, and the tier waits each dropped by 1 (Rare 44→43, Ultra Rare 296→295, Epic 2796→2795, Legendary 25011→25010).
 - **Phone 844x392, restricted: FAIL.** The card is 280x**310** placed at y 168, so its bottom is at y **478**, 86 px off the bottom of a 392 px screen. No UIScale was applied, so it didn't shrink as specified.
 - **Unrestricted:** the card matches main: 280x214, Basic 92.000% · 1 in 1.1 … 0.002% · 1 in 50,000. Desktop y 152; phone y 168-382 (fits).
+
+## #125 Book thumbnails @ 2f2f05f
+
+**PASS, with two notes.** Local build. Each card is now an ImageLabel "Picture" (91 in Common); there are no ViewportFrames.
+- **First open in a fresh session (cold image cache):** a flick right after opening showed **empty wells for about 1-3 s** while the images downloaded (`125-hh-first-open-cold.jpg`). They were filled by the next capture (`125-hh-first-open-3s.jpg`).
+  - At about 3 s, 72 of 91 images had loaded. The last 19 (Lamb, Lorikeet, MacawChick, Mole, Moth, Opossum, OtterPup, PacmanFrog, Parakeet, Platypus, SealPup, ShibaPup, SiameseKitten, Silkie, Skunk, Snail, SunConure, TreeFrog, WalrusPup) took longer, but **all had loaded by about 10 s. None stayed blank.**
+  - The first open of each other tab behaves the same way (Uncommon and Rare blank for about 1-3 s, then drawn).
+- **Reopen and fast flick (0→2100→700):** every visible card was drawn at once (`125-hh-reopen-flick.jpg`). The tab switch back was also instant once the tab had loaded. This is the big improvement over ViewportFrames.
+- **Silhouettes and pictures:** unfound creatures are solid black silhouettes (ImageColor3 0,0,0). After giving Ant, Bumblebee, Bunny, Chick and Crayfish, their cards show the coloured picture with a NEW badge. Spot-checked Bunny (white rabbit) and Chick (yellow chick): right species, well framed (`125-hh-found-colour.jpg`).
+- **Odds lines:** unchanged ("Meadow Egg · 1 in 77.6", "Basic Egg · 1 in 42.4", Rare "1 in 125 / 118 / 7.9 / 3.1").
+- **Phone 844x392 (fresh session):** the window is 760x352 at y −9, so it fits, and the pictures show at once (`125-hh-phone-fresh.jpg`).
+  - *Note:* if the viewport shrinks while the session is running (desktop → phone), the Book keeps its desktop height (760x560) and sits at y −113, cutting off the title. It doesn't refit on resize. That matters for a device rotation, not for a normal join.
