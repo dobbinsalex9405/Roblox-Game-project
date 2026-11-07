@@ -1183,3 +1183,13 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - 420x524 on desktop. "Dalmatian Pup (Common)" fits in full (274 px name box), and 0 labels fail TextFits.
   - On phone the list refits to 420x244 at y 138-382, Dalmatian Pup still in full (`133-hh-phone-list-dalmatian.jpg`).
 - **Tab switch:** I scrolled the Basic list to 600, switched to Moonlit, and it opened at the top (canvasY 0) (`133-hh-desktop-list-moonlit-top.jpg`).
+
+## #134 @ 572b5ed (54 thumbs), merged onto main a1a3019 locally (clean)
+
+**PASS.** Local build, desktop.
+- The diff adds 54 CreatureThumbs ids, all Uncommon and Epic species: the 32 new Uncommons, #129's 12 Epics and #130's 10. None are Legendary.
+- **Uncommon tab:** 39/39 cards use a picture (ImageLabel), with no live draws and no blanks (`134-hh-uncommon.jpg`).
+  - On the first cold scroll, 21 pictures took more than 3 s to report IsLoaded. On the second pass all 39 were loaded. That's the first fetch of the new assets.
+- **Epic tab:** 25/25 pictures, all loaded within 3 s (`134-hh-epic.jpg`).
+- **Legendary tab:** 2/2 pictures.
+- **Found cards:** after giving TeacupPiglet and GemDrake, both cards show the coloured picture. Gem Drake: `rbxassetid://137205862090420`, IsLoaded, "Gem Drake / Moonlit Egg 1 in 7,692 / NEW" (`134-hh-gemdrake-found.jpg`). Book cards are frames, not buttons, so there's nothing to open beyond that.
