@@ -987,3 +987,19 @@ Everything checked before the FAIL (desktop 1350x672 unless noted):
    - All 7 side-menu buttons fit, with Charms at y 341-384.
    - The claw window is 760x308 at y 70-378, both panes scroll, 0 TextFits failures, and the smallest text is 13.6 px (`127-hh-phone-claw.jpg`).
    - **The 10-pull reveal footer is cut off: FAIL (above).**
+
+## #103 @ 9784504 (32 new Uncommons), merged onto main as 45d414b
+
+**PASS, with one gap noted.** Local builds, desktop.
+1. **Book:** the Uncommon tab reads 0/39 (7 old + 32 new). I scrolled every card: all 39 have a live ViewportFrame with parts (4-43), so none are blank or black. Unfound cards show proper silhouettes (`103-hh-book-uncommon.jpg`).
+   - **TeacupPiglet** (a still copy, side and rear): a pink piglet in a white cup with pink hearts and a yellow rim. From the side the white loop handle is at the cup's back. From the rear it shows end-on as a white ring with a pink heart. It reads as a teacup (`103-hh-teacup-side.jpg`, `103-hh-teacup-rear.jpg`, in the plot `103-hh-teacup-plot.jpg`).
+2. **Odds cards:**
+   - Basic 92 / 7 / 0.8 / 0.18 / 0.018 / 0.002 sums to 100.000%. Its "See every creature" list sums to 100.000% with 7 Uncommon rows at 1.000% each: Gosling, Turtle, Radishling, Turnipling, Peapod, Carrotling, Cornling.
+   - Meadow 67 / 31 / 1.7 / 0.28 / 0.017 / 0.003 sums to 100.000%. Its list has 29 Uncommon rows (25 new + Fox Kit, Hedgehog, Squirrel, Puppy) at 1.069% each (Yak Calf 1.068%), totalling 31%.
+   - Moonlit card sums to 100.000%. *Gap:* I couldn't open the Moonlit per-creature list. A Moonlit egg stays at the stop only 0.98 s, too short to click "See every creature".
+3. **Restricted** (local policy patch): the Basic fixed order lists all 7 Uncommons in turn: Gosling in 40 … Cornling in 46. Then Raccoon in 47, Ember Fox in 87, Dragonling in 299 and Phoenix in 2,503. The waits only go up (NEXT, 2, 3 … 46).
+   - On this main-based build the restricted card is still the old full-length card. #126 replaces it.
+4. **World**, TeacupPiglet, Carrotling, YakCalf and Pangolin:
+   - Every MeshPart is textured, and the largest gap is 0.000.
+   - While walking, the median bottom of the part boxes is 0.72-0.76 on a 0.70 floor. Box corners dip to 0.49-0.66 during leg swing; Pangolin's tail box is the lowest.
+   - In 4 s they walked 3.5 / 0.6 (Carrotling hops, peak 1.46) / 3.4 / 3.6 studs.
