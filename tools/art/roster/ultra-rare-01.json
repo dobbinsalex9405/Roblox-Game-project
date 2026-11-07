@@ -1076,7 +1076,8 @@
     {
      "kind": "jelly",
      "color": "#F0283C",
-     "color2": "#FF9AA4"
+     "color2": "#FF9AA4",
+     "glow_from": 1.1
     },
     {
      "kind": "mend",

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the Will-o'-Wisp is named "Will-o'-Wisp" in the Book, hatch
+  reveal and odds lists (it showed as "Will OWisp").
 - The Hurricane Roc has a proper hooked raptor beak, and twice as many wind
   threads whirl around it.
 - 18 new Godlies can now hatch from the Moonlit Egg (19 Godlies there in
