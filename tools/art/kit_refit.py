@@ -8,7 +8,8 @@ it are untouched.
 Accessories (fn(c, H, color, color2, a); `a` is the roster's accessory
 dict, its extra keys are the settings named below):
 
-- **ears**: new ears in color, inner or rim color2. `style`: round (size),
+- **ears**: new ears in color, inner or rim color2. `style`: round (size,
+  `up` raises them, in k),
   tiny, rimmed (a red panda's: white rim, dark inside), folded (a pug's
   small flaps folding forward).
 - **muzzle**: a muzzle out from the face below the eyes, in color, with a
@@ -30,8 +31,9 @@ dict, its extra keys are the settings named below):
   question mark, rings of color and color2 (a ringtail lemur's).
 - **poms**: pom-poms on the crown, ear tips, tail and ankles (a poodle's).
 - **refit_beak**: the beak redrawn. `style`: pointed, cone (a finch's), hooked
-  (a parrot's), small_hook (a cockatiel's), long (a wader's), dagger (a heron's), pouch (a pelican's,
-  color2 the pouch). `len` (in k) for long, dagger and pouch.
+  (a parrot's), small_hook (a cockatiel's), heavy_hook (a crow's), chick_cone,
+  long (a wader's), dagger (a heron's), pouch (a pelican's, color2 the
+  pouch). `len` (in k) for long, dagger and pouch.
 - **cheeks**: a round patch on each cheek (a cockatiel's).
 - **face**: the face and throat painted color (a lovebird's).
 - **hood**: the head painted color above a ring of color2 (a drake
@@ -49,6 +51,20 @@ dict, its extra keys are the settings named below):
   color; color2 paints a stripe over the head.
 - **chameleon**: a tall casque, turret eyes on the sides and a tail rolled
   in a spiral (colour: casque; color2: eye turrets).
+
+- **eye_line**: a waxwing's mask, one voxel tall from the beak's base to
+  each eye, then angling up the side of the head into the crest; the eyes
+  stand on it, dark 2x2 with a shine in the top outer corner.
+- **tern_cap**: a tern's black cap from the beak's base over the crown and
+  down the nape, the eyes keeping a shine.
+- **tern_fork**: a long tail splitting into two thin spreading prongs
+  (`len` in k), tips color2. Reshapes the tail a tailset drew.
+- **goat_horns**: unbranched horns on the crown, tips color2. `style`: pair
+  (short, curving back), tri (two curling back and one straight up), nub
+  (short and upright); `out`, `back` move the roots.
+- **hooves**: the bottom of each leg painted color (`h` in k).
+- **goat_beard**: a tuft hanging from under the front of the muzzle.
+- **no_blush**: the plan's pink cheek blush painted out (color unused).
 
 And two plans: **sentinel**, a meerkat standing up on its hind legs on
 watch, tail behind as a prop (colours col, belly, patches, ear_col,
@@ -183,6 +199,7 @@ def ears(c, H, color, color2=None, a=None):
         if a.get('top'):  # set up on top of the head, not at its sides
             cx = max(1.0, half * 0.55)
             cz_e = top + 0.4 * k
+        cz_e += float(a.get('up', 0)) * k  # raised higher on the head (a mouse's)
         cells = {}
         for x in range(0, math.ceil(cx + r) + 1):
             for y in range(math.floor(cy - r), math.ceil(cy + r) + 1):
@@ -672,6 +689,11 @@ BEAKS = {
     'hooked': [(1, -1, 1), (1, -1, 1), (1, -2, 0), (1, -2, -1)],
     # a parrot's small hook: short, curling down at the tip
     'small_hook': [(1, -1, 1), (1, -2, 0)],
+    # a crow's heavy bill: deep at the base, three long, the tip dipping
+    'heavy_hook': [(1, -1, 1), (1, -1, 0), (1, -2, -1)],
+    # a chick's cone: three rows deep at the face, one at the point, set
+    # low so it sits under the eyes
+    'chick_cone': [(1, -2, 0), (1, -1, -1)],
 }
 
 
@@ -691,6 +713,11 @@ def beak(c, H, color, color2=None, a=None):
     if bcol == _main(head) or not old:
         return
     zc = round(sum(p[2] for p in old) / len(old) + (0.5 if len({p[2] for p in old}) % 2 == 0 else 0))
+    # anything else inside the old beak's box was painted over it (a
+    # pattern's sheen on the tip): it goes with the beak
+    lo = [min(p[i] for p in old) for i in range(3)]
+    hi = [max(p[i] for p in old) for i in range(3)]
+    old += [p for p in head.v if p not in old and all(lo[i] <= p[i] <= hi[i] for i in range(3))]
     for p in old:
         del head.v[p]
     # fill the holes the old beak leaves in the face: a removed voxel with
@@ -1324,6 +1351,227 @@ def fiddler(c, H, cols, opts):
     return c
 
 
+def _shine(c, head, e):
+    """A white shine on top of each ink eye (#96): the head voxel in front
+    of the cell above each eye moves into the eyes part, so it blinks too."""
+    for p in [q for q, (cc, g) in e.v.items() if cc == INK]:
+        f = head.front(p[0], p[2] + 1)
+        if f and f[1] <= p[1] + 1 and f not in e.v:
+            del head.v[f]
+            e.put(f, WHITE)
+
+
+def eye_line(c, H, color, color2=None, a=None):
+    """A waxwing's mask: a line one voxel tall from beside the beak's base
+    to the front of each eye, then from behind the eye angling up the side
+    of the head into the crest. Each eye is a dark 2x2 block on the line,
+    standing 1 voxel above it, with one white shine in its top outer corner
+    (#96)."""
+    col = _rgb(color)
+    head = _find(c, 'head')
+    le, re_, e = _eye_info(c)
+    if head is None or not (le or re_):
+        return
+    ez = min(p[2] for p in le + re_)
+    ex = min(p[0] for p in re_) if re_ else -max(p[0] for p in le) - 1
+    _clear_eyes(c, head)
+    hc = _main(head)
+    L = ez - 1
+    fine = _fine(c)
+    w = 2 if fine else 1
+    for side in (1, -1):
+        def X(x):
+            return x if side > 0 else _mx(x)
+        # the line on the face: from the beak's side to the eye's front
+        for x in range(0, ex):
+            f = head.front(X(x), L)
+            if f and head.v[f][0] == hc:
+                head.v[f] = (col, False)
+        # the eye: its bottom row on the line, standing 1 voxel above it
+        for dx in range(w):
+            for dz in range(w):
+                f = head.front(X(ex + dx), L + dz)
+                if f:
+                    del head.v[f]
+                    shine = fine and dx == w - 1 and dz == w - 1
+                    e.put(f, WHITE if shine else INK)
+        # behind the eye: along the outermost voxels, rising toward the crest
+        f = head.front(X(ex + w), L) or head.front(X(ex + w - 1), L)
+        if not f:
+            continue
+        y0 = f[1]
+        ys = sorted({p[1] for p in head.v if p[1] > y0})
+        for i, y in enumerate(ys):
+            z = L + (i + 1) // 2
+            row = [p for p in head.v if p[1] == y and p[2] == z]
+            if not row:
+                break
+            q = max(row, key=lambda p: p[0] * side)
+            if head.v[q][0] == hc:
+                head.v[q] = (col, False)
+
+
+def tern_cap(c, H, color, color2=None, a=None):
+    """A tern's black cap: from the top of the beak's base, over the crown
+    and down the nape, taking in the eyes, which keep a white shine."""
+    col = _rgb(color)
+    head = _find(c, 'head')
+    le, re_, e = _eye_info(c)
+    if head is None or not (le or re_):
+        return
+    ez = min(p[2] for p in le + re_)
+    lo_y, hi_y = min(p[1] for p in head.v), max(p[1] for p in head.v)
+    for q, (cc, g) in list(head.v.items()):
+        back = (q[1] - lo_y) / max(1, hi_y - lo_y)
+        if q[2] >= ez - 1 - round(1.5 * back) and cc != INK:
+            head.v[q] = (col, False)
+    if _fine(c):
+        _shine(c, head, e)
+
+
+def tern_fork(c, H, color, color2=None, a=None):
+    """A long forked tail (a tern's streamers): straight back from the rump,
+    2 wide, then splitting into two thin prongs that spread apart and lift
+    a little, so the fork shows from the side and from above; color2 tips."""
+    a = a or {}
+    k = H / 10.0
+    col = _rgb(color)
+    tip = _rgb(color2, _dark(col, 0.2))
+    tail = _find(c, 'tail')
+    if tail is None or not tail.v:
+        return
+    y0 = min(p[1] for p in tail.v)
+    zb = round(sum(p[2] for p in tail.v) / len(tail.v))
+    tail.v.clear()
+    n = max(4, round(float(a.get('len', 5.0)) * k))
+    split = max(2, round(n * 0.35))
+    for i in range(n):
+        y, z = y0 + i, zb + i // 4
+        cc = tip if i >= n - max(1, round(0.6 * k)) else col
+        if i < split:
+            for x in (-1, 0):
+                tail.put((x, y, z), col)
+                if i < 2:
+                    tail.put((x, y, z - 1), col)
+        else:
+            s = (i - split) // 2 + 1
+            tail.put((s, y, z), cc)
+            tail.put((-1 - s, y, z), cc)
+            # keep each prong joined face to face as it steps out
+            if (i - split) % 2 == 0:
+                tail.put((s - 1, y, z), cc)
+                tail.put((-s, y, z), cc)
+
+
+HORN_PATHS = {
+    # (x out, y back, z up) in k from the horn's root on the crown
+    'pair': [(0, 0, 0), (0.05, 0.3, 0.7), (0.1, 0.9, 1.1), (0.15, 1.5, 1.1), (0.2, 1.9, 0.7)],
+    'curl': [(0, 0, 0), (0.05, 0.25, 0.9), (0.15, 0.8, 1.5), (0.25, 1.6, 1.6), (0.35, 2.2, 1.15),
+             (0.4, 2.35, 0.55)],
+    'nub': [(0, 0, 0), (0.05, -0.1, 0.65), (0.1, -0.15, 1.15)],
+}
+
+
+def goat_horns(c, H, color, color2=None, a=None):
+    """Horns on the crown in front of the ears, unbranched: `style` pair (a
+    goat kid's, short and curving back), tri (two curling back and a third
+    straight up from the forehead) or nub (a horned hamster's, short and
+    upright); color2 the tips. Replaces any horns part."""
+    k = H / 10.0
+    a = a or {}
+    col = _rgb(color)
+    tip = _rgb(color2, _dark(col, 0.3))
+    head = _find(c, 'head')
+    if head is None or not head.v:
+        return
+    style = a.get('style', 'pair')
+    hp = _find(c, 'horns') or c.part('horns', 'static', head.pivot)
+    hp.v = {}
+    taken = set().union(*[set(p.v) for p in c.parts if p is not hp and p.name not in ('head', 'body')])
+    lo, hi, cz, yc, top, half = _head_frame(head)
+    bx = max(1, round(half * float(a.get('out', 0.45))))
+    by = round(yc + float(a.get('back', -0.2)) * k)
+    zs = [p[2] for p in head.v if p[0] == bx and p[1] == by]
+    bz = (max(zs) if zs else top) + 1
+    pts = [(bx + .5 + dx * k, by + .5 + dy * k, bz + .5 + dz * k)
+           for (dx, dy, dz) in HORN_PATHS['curl' if style == 'tri' else style]]
+    cells = {}
+    for i in range(len(pts) - 1):
+        _rod(cells, pts[i], pts[i + 1], col)
+    n = len(cells)
+    order = sorted(cells, key=lambda v: (v[2] - bz) ** 2 + (v[1] - by) ** 2)
+    for v in order[-max(1, round(n * 0.3)):]:
+        cells[v] = tip
+    if _fine(c) and k >= 1.5:  # a thicker root
+        for (x, y, z) in [v for v in order[:max(2, round(n * 0.3))]]:
+            cells.setdefault((x + 1, y, z), col)
+    if style == 'tri':
+        # the third horn: straight up from the middle of the forehead
+        fy = min(p[1] for p in head.v if p[2] >= top - 1) + max(1, round(0.4 * k))
+        zs = [p[2] for p in head.v if p[0] == 0 and p[1] == fy]
+        z0 = (max(zs) if zs else top) + 1
+        h = max(3, round(1.7 * k))
+        for i in range(h):
+            cells[(0, fy, z0 + i)] = tip if i >= h - max(1, round(0.5 * k)) else col
+    for (x, y, z), cc in cells.items():
+        if x >= 0 and (x, y, z) not in taken and (x, y, z) not in head.v:
+            _sym(hp, x, y, z, cc)
+
+
+def hooves(c, H, color, color2=None, a=None):
+    """Dark hooves: the bottom of each leg painted color (`h` in k), in the
+    legs and in the body (the rig cuts the legs out of it later)."""
+    k = H / 10.0
+    a = a or {}
+    col = _rgb(color)
+    h = max(1, round(float(a.get('h', 0.35)) * k))
+    parts = [p for p in c.parts if (p.name == 'body' or p.name.startswith('leg')) and p.v]
+    if not parts:
+        return
+    z0 = min(q[2] for p in parts for q in p.v)
+    for p in parts:
+        for q in list(p.v):
+            if q[2] < z0 + h:
+                p.v[q] = (col, False)
+
+
+def goat_beard(c, H, color, color2=None, a=None):
+    """A goat's tuft of beard hanging from under the front of the muzzle,
+    2 wide, narrowing to 1 at the tip (`len` in k)."""
+    k = H / 10.0
+    a = a or {}
+    col = _rgb(color)
+    head = _find(c, 'head')
+    if head is None or not head.v:
+        return
+    old = _find(c, 'beard')
+    bd = old if old is not None else c.part('beard', 'static', head.pivot)
+    bd.v = {}
+    ymin = min(p[1] for p in head.v if p[0] in (-1, 0))
+    front = [p for p in head.v if p[0] in (-1, 0) and p[1] <= ymin + max(2, round(0.9 * k))]
+    zb = min(p[2] for p in front)
+    yb = min(p[1] for p in front if p[2] == zb)
+    n = max(2, round(float(a.get('len', 0.9)) * k))
+    for i in range(n):
+        z = zb - 1 - i
+        y = yb + (1 if i >= n - 1 and n > 2 else 0)
+        bd.put((0, y, z), col)
+        if i < n - 1:
+            bd.put((-1, y, z), col)
+
+
+def no_blush(c, H, color=None, color2=None, a=None):
+    """The plan's pink cheek blush painted back to the head's colour."""
+    from creatures import BLUSH
+    head = _find(c, 'head')
+    if head is None:
+        return
+    hc = _main(head)
+    for q, (cc, g) in list(head.v.items()):
+        if tuple(cc) == tuple(BLUSH):
+            head.v[q] = (hc, False)
+
+
 PLANS = {'sentinel': ({'col', 'belly', 'patches', 'ear_col', 'tail_col'}, {}),
          'fiddler': ({'col', 'accent', 'claw'}, {})}
 BUILDERS = {'sentinel': sentinel, 'fiddler': fiddler}
@@ -1333,4 +1581,6 @@ ACCESSORIES = {
     'poms': poms, 'refit_beak': beak, 'cheeks': cheeks, 'face': face, 'hood': hood, 'throat_bars': throat_bars,
     'plume': plume, 'lift_legs': lift_legs, 'fold_wings': fold_wings, 'carry_leaf': leaf, 'mandibles': mandibles,
     'short_feelers': feelers, 'chameleon': chameleon, 'symmetry': symmetry,
+    'eye_line': eye_line, 'tern_cap': tern_cap, 'tern_fork': tern_fork,
+    'goat_horns': goat_horns, 'hooves': hooves, 'no_blush': no_blush, 'goat_beard': goat_beard,
 }
