@@ -238,7 +238,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Epic: 12 from the roster
+		-- Epic: 22 from the roster
 		AbyssJelly = {
 			rarity = "Epic",
 			coinsPerSecond = 130,
@@ -252,6 +252,13 @@ return {
 			mountSpeed = 28,
 			pools = { "Moonlit" },
 			element = "Storm",
+		},
+		BonsaiDragon = {
+			rarity = "Epic",
+			coinsPerSecond = 190,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Nature",
 		},
 		CloudSerpent = {
 			rarity = "Epic",
@@ -267,7 +274,22 @@ return {
 			pools = { "Moonlit" },
 			element = "Glacial",
 		},
+		EmberImp = {
+			rarity = "Epic",
+			coinsPerSecond = 189,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Ember",
+		},
+		FrostSprite = {
+			rarity = "Epic",
+			coinsPerSecond = 183,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Glacial",
+		},
 		GemDrake = { rarity = "Epic", coinsPerSecond = 194, mountSpeed = 28, pools = { "Moonlit" } },
+		GingerbreadGolem = { rarity = "Epic", coinsPerSecond = 172, mountSpeed = 28, pools = { "Meadow" } },
 		Hippocampus = {
 			rarity = "Epic",
 			coinsPerSecond = 163,
@@ -283,12 +305,40 @@ return {
 			pools = { "Moonlit" },
 			element = "Nature",
 		},
+		MushroomGnome = {
+			rarity = "Epic",
+			coinsPerSecond = 186,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Nature",
+		},
+		PetalSprite = {
+			rarity = "Epic",
+			coinsPerSecond = 176,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Nature",
+		},
+		RimeDrakeling = {
+			rarity = "Epic",
+			coinsPerSecond = 169,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Glacial",
+		},
 		SandSerpent = {
 			rarity = "Epic",
 			coinsPerSecond = 169,
 			mountSpeed = 28,
 			pools = { "Moonlit" },
 			element = "Ember",
+		},
+		SaplingEnt = {
+			rarity = "Epic",
+			coinsPerSecond = 192,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Nature",
 		},
 		SeaSerpent = {
 			rarity = "Epic",
@@ -299,6 +349,20 @@ return {
 		},
 		StarJelly = { rarity = "Epic", coinsPerSecond = 144, mountSpeed = 28, pools = { "Moonlit" } },
 		StarWhaleCalf = { rarity = "Epic", coinsPerSecond = 150, mountSpeed = 28, pools = { "Moonlit" } },
+		TrollCub = {
+			rarity = "Epic",
+			coinsPerSecond = 137,
+			mountSpeed = 28,
+			pools = { "Moonlit" },
+			element = "Nature",
+		},
+		YetiCub = {
+			rarity = "Epic",
+			coinsPerSecond = 170,
+			mountSpeed = 28,
+			pools = { "Meadow" },
+			element = "Glacial",
+		},
 		-- END generated
 	},
 	-- Mutations multiply a creature's income. "None" must exist.

@@ -108,6 +108,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "BonsaiDragon": {
+   "assetId": 125645975926641,
+   "textureId": 99948668360005,
+   "textureType": "Image",
+   "version": "2"
+  },
   "Bullfrog": {
    "assetId": 131281468055663,
    "textureId": 105519933967479,
@@ -378,6 +384,12 @@
    "textureType": "Image",
    "version": "5"
   },
+  "EmberImp": {
+   "assetId": 109924721814570,
+   "textureId": 79963411407341,
+   "textureType": "Image",
+   "version": "1"
+  },
   "FancyRat": {
    "assetId": 98704629813255,
    "textureId": 105466384806982,
@@ -432,6 +444,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "FrostSprite": {
+   "assetId": 75246998987520,
+   "textureId": 126633044566812,
+   "textureType": "Image",
+   "version": "1"
+  },
   "FrostWolf": {
    "assetId": 118793263738444,
    "textureId": 110550161976710,
@@ -467,6 +485,12 @@
    "textureId": 98533877479099,
    "textureType": "Image",
    "version": "3"
+  },
+  "GingerbreadGolem": {
+   "assetId": 100426625450119,
+   "textureId": 130316663817144,
+   "textureType": "Image",
+   "version": "1"
   },
   "GoatKid": {
    "assetId": 124544802455507,
@@ -798,6 +822,12 @@
    "textureType": "Image",
    "version": "4"
   },
+  "MushroomGnome": {
+   "assetId": 119500967729310,
+   "textureId": 78944178618487,
+   "textureType": "Image",
+   "version": "1"
+  },
   "NebulaSerpent": {
    "assetId": 133734762072662,
    "textureId": 86054197578838,
@@ -875,6 +905,12 @@
    "textureId": 112724510288064,
    "textureType": "Image",
    "version": "3"
+  },
+  "PetalSprite": {
+   "assetId": 140691040768394,
+   "textureId": 138511276897023,
+   "textureType": "Image",
+   "version": "1"
   },
   "Pheasant": {
    "assetId": 129197709371909,
@@ -1008,6 +1044,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "RimeDrakeling": {
+   "assetId": 127645522233340,
+   "textureId": 101940266391141,
+   "textureType": "Image",
+   "version": "1"
+  },
   "RingtailLemur": {
    "assetId": 79019198683303,
    "textureId": 120019182370251,
@@ -1043,6 +1085,12 @@
    "textureId": 106612305934468,
    "textureType": "Image",
    "version": "3"
+  },
+  "SaplingEnt": {
+   "assetId": 95014234729412,
+   "textureId": 113156239194115,
+   "textureType": "Image",
+   "version": "1"
   },
   "SeaSerpent": {
    "assetId": 134797330126351,
@@ -1230,6 +1278,12 @@
    "textureType": "Image",
    "version": "2"
   },
+  "TrollCub": {
+   "assetId": 106383596481372,
+   "textureId": 89187899227529,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Turkey": {
    "assetId": 94580063539814,
    "textureId": 91199339692719,
@@ -1299,6 +1353,12 @@
   "YakCalf": {
    "assetId": 137466435209107,
    "textureId": 73346813816622,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "YetiCub": {
+   "assetId": 100545239697167,
+   "textureId": 100767650469079,
    "textureType": "Image",
    "version": "1"
   },

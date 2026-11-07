@@ -23,6 +23,7 @@ Beetle
 BlueJay
 Boarlet
 Bobble
+BonsaiDragon
 Bookworm
 Bullfrog
 Bunny
@@ -72,6 +73,7 @@ DutchBunny
 Earthworm
 ElephantCalf
 EmberFox
+EmberImp
 Ermine
 FancyRat
 Fennec
@@ -79,6 +81,7 @@ FlamingoChick
 Fluffernut
 FoxKit
 Frog
+FrostSprite
 FruitBat
 Fuzzball
 Gecko
@@ -86,6 +89,7 @@ GemDrake
 GeodeCrab
 Gerbil
 GilaMonster
+GingerbreadGolem
 GlacierOrca
 GlasswingButterfly
 Glowworm
@@ -143,6 +147,7 @@ Moth
 Mouse
 MuddyPiglet
 Mushling
+MushroomGnome
 MuskOxCalf
 Narwhal
 NebulaSerpent
@@ -157,6 +162,7 @@ Peapod
 Pebblet
 Penguin
 PersianKitten
+PetalSprite
 Phoenix
 Pigeon
 Piglet
@@ -176,8 +182,10 @@ Radishling
 RaptorChick
 RexHatchling
 RhinoBeetle
+RimeDrakeling
 SandCat
 SandSerpent
+SaplingEnt
 Scorpion
 SeaOtter
 SeaSerpent
@@ -225,6 +233,7 @@ Toad
 Toastie
 TreeFrog
 TrikeHatchling
+TrollCub
 Turnipling
 Turtle
 TuxedoKitten
@@ -241,4 +250,5 @@ WolverineKit
 WoollyBear
 WorldTurtle
 YakCalf
+YetiCub
 ZebraPiglet
