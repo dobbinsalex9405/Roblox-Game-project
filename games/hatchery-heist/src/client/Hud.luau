@@ -12,6 +12,7 @@ local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local OddsCard = require(Shared.OddsCard)
+local Viewport = require(Shared.Viewport)
 
 local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
@@ -240,8 +241,11 @@ function Hud.start(ctx: Context.Context)
 			card.Size = UDim2.fromOffset(OddsCard.WIDTH, height)
 		end
 	end
-	-- Refit whenever the rows change (another egg, a fixed order moving on).
+	-- Refit whenever the rows change (another egg, a fixed order moving on)
+	-- and whenever the screen changes size (Studio gate, #126: the card kept
+	-- its phone scale after a phone to desktop resize).
 	cardLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitCard)
+	Viewport.watch(Workspace, fitCard)
 
 	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
 	-- title; this client draws its own odds (fixed order for a restricted
