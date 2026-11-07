@@ -822,3 +822,22 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **NEW badge:** after giving a Chick, its card shows the NEW badge with a coloured model. After closing and reopening the Book, NEW is gone and the side-menu badge has cleared (`119f-pr-new-badge.jpg`, `119f-pr-new-cleared.jpg`).
 - **No bleed-through:** layering is right (well, then picture, then name/odds, then NEW).
 - **Non-Book fixes hold:** PlayerList CoreGui off; side menu starts at y 124; YOUR HATCHERY banner offset 14.5, clear of "Floor 2: 25K coins".
+
+## #120 re-check @ 33ede02 (three findings, plus the phone sign fit)
+
+**(1) and (2) PASS; (3) FAIL on phone.** Local build.
+1. **Belt prices refresh:** when Egg Sale starts, every enabled Buy label shows SALE within **0.41 s**. When it stops, every label is back to full price within **0.35 s**.
+2. **Odds header:** reads "**Boosted: Lucky Hatch**" (`120b-hh-lucky-hatch-header.jpg`).
+3. **Giant Egg sign:** it's now a BillboardGui on the Hitbox, so it faces the camera from every side. Its centre is at y 20.6 (`SignBottom` 18.30). Today's Thunder Griffin top is at y 18.38, so the sign's bottom edge sits at the creature's head (about 0.1 overlap), **not 0.8 above**.
+   - **Phone fit (844x392), projected through a follow camera 12 behind and 4 up, facing the egg from the path:**
+
+     | Player distance from egg | Sign on screen |
+     |---|---|
+     | 25 studs | y 26-66 |
+     | 36 studs | y 57-87 |
+     | 50 studs | y 80-103 |
+     | 70 studs | y 99-116 |
+
+   - The coin HUD and GOAL banner fill x 242-602, y 8-118, right where the sign's centre (x 422) lands. **On a phone the raised sign sits behind the HUD and GOAL banner from every distance on the path.**
+   - Studio's capture tool renders BillboardGuis from its own camera, so screenshots of the sign's height aren't reliable. These numbers are projected from the actual follow-camera geometry instead.
+   - Suggestion: put the sign back at about egg height, beside or in front of the egg, or attach it lower with the creature drawn above. Keep its centre below about 13 studs so it lands under y 120 on a phone.
