@@ -46,6 +46,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "Storm",
@@ -122,6 +127,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Ember",
@@ -159,6 +168,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Storm",
@@ -178,22 +191,36 @@
    },
    "accessories": [
     {
-     "kind": "dragon_wings",
-     "color": "#3FA86A",
-     "color2": "#1F6E3A"
+     "kind": "raptor_beak",
+     "color": "#FFB627",
+     "color2": "#C83A1A"
     },
     {
-     "kind": "dragon_tail",
-     "color": "#3FA86A",
-     "color2": "#E8341A"
+     "kind": "wattles",
+     "color": "#E8341A"
     },
     {
-     "kind": "flame_crest",
-     "color": "#E8341A",
-     "color2": "#FFB627"
+     "kind": "bat_wings",
+     "color": "#3FA86A",
+     "color2": "#1F6E3A",
+     "span": 3.2
+    },
+    {
+     "kind": "serpent_tail",
+     "color": "#3FA86A",
+     "color2": "#2A7A48",
+     "tip": "#E8341A"
+    },
+    {
+     "kind": "rooster_comb",
+     "color": "#E8341A"
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -220,19 +247,29 @@
      1.15,
      1.0
     ],
-    "head": 1.05
+    "head": 0.95
    },
-   "patterns": [
-    {
-     "kind": "back",
-     "color": "#F0E8FF"
-    }
-   ],
    "accessories": [
     {
-     "kind": "trunk",
-     "color": "#9A84D8",
-     "color2": "#7A64B8"
+     "kind": "tiny_ears",
+     "color": "#9A84D8"
+    },
+    {
+     "kind": "heavy_rump",
+     "color": "#B8A3E8"
+    },
+    {
+     "kind": "tapir_trunk",
+     "color": "#8E78CC",
+     "color2": "#E8A0B4"
+    },
+    {
+     "kind": "dream_stripes",
+     "color": "#F4EEFF"
+    },
+    {
+     "kind": "forehead_moon",
+     "color": "#FFF2A8"
     },
     {
      "kind": "nightcap",
@@ -251,6 +288,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -261,11 +302,10 @@
    "rarity": "Epic",
    "plan": "quadruped",
    "colors": {
-    "col": "#6A4A3A",
+    "col": "#8A5E44",
     "belly": "#4A3428",
     "snout": "#3A2A20",
-    "ear_col": "#4A3428",
-    "mane": "#3A2A20"
+    "ear_col": "#4A3428"
    },
    "options": {
     "ears": "round",
@@ -273,27 +313,35 @@
    },
    "shape": {
     "body": [
-     1.0,
+     0.92,
      0.95,
-     0.92
+     0.9
     ],
-    "head": 0.9
+    "head": 0.85
    },
    "accessories": [
     {
      "kind": "long_legs",
-     "color": "#6A4A3A",
-     "amount": 0.4
+     "color": "#8A5E44",
+     "amount": 0.3
     },
     {
-     "kind": "horse_head",
-     "color": "#4A3428",
+     "kind": "tiny_ears",
+     "color": "#3E2C22"
+    },
+    {
+     "kind": "bison_build",
+     "color": "#3E2C22"
+    },
+    {
+     "kind": "bison_face",
+     "color": "#6A4A36",
      "color2": "#1A120C"
     },
     {
-     "kind": "horns",
-     "color": "#FFE84A",
-     "glow": true
+     "kind": "bison_horns",
+     "color": "#E8DCC0",
+     "color2": "#3A2A20"
     },
     {
      "kind": "cloud_hump",
@@ -302,6 +350,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -347,6 +399,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "plain",
@@ -368,11 +425,11 @@
    },
    "shape": {
     "body": [
-     0.95,
-     0.95,
-     0.92
+     0.9,
+     0.92,
+     0.88
     ],
-    "head": 0.9
+    "head": 0.84
    },
    "accessories": [
     {
@@ -385,17 +442,27 @@
      "color": "#6A4A34"
     },
     {
-     "kind": "horse_head",
-     "color": "#5A4232",
-     "color2": "#2A1A12"
+     "kind": "dewlap",
+     "color": "#6A4A34",
+     "color2": "#3A2A1E"
     },
     {
-     "kind": "mushroom_crown",
+     "kind": "moose_nose",
+     "color": "#5A4232",
+     "color2": "#1A100A"
+    },
+    {
+     "kind": "mushroom_antlers",
      "color": "#B84AE8",
-     "color2": "#9FFFE0"
+     "color2": "#9FFFE0",
+     "size": 0.8
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -458,7 +525,8 @@
     {
      "kind": "headdress",
      "color": "#FFC93C",
-     "color2": "#2F5BD6"
+     "color2": "#2F5BD6",
+     "from": 0.68
     },
     {
      "kind": "feather_wings",
@@ -466,7 +534,18 @@
      "color2": "#FFC93C"
     },
     {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 3,
+     "flick": true,
+     "lift": -0.6
+    },
+    {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -540,34 +619,57 @@
    "rarity": "Epic",
    "plan": "quadruped",
    "colors": {
-    "col": "#7A5A4A",
-    "snout": "#B8846A"
+    "col": "#86624E",
+    "belly": "#A07C66",
+    "snout": "#A07C66",
+    "ear_col": "#5E4234",
+    "tail_col": "#5E4234"
    },
    "options": {
     "ears": "pointy",
-    "tail": "curly",
-    "pig": true
+    "tail": "long"
    },
    "shape": {
     "body": [
-     0.92,
-     0.92,
+     0.95,
+     1.15,
      0.92
-    ]
+    ],
+    "head": 0.85
    },
    "accessories": [
     {
-     "kind": "thorn_mane",
-     "color": "#3F6E2A",
-     "color2": "#8A2AB8"
+     "kind": "boar_snout",
+     "color": "#E3A3AE",
+     "color2": "#3A2420",
+     "length": 1.4
     },
     {
      "kind": "aura_tusks",
-     "color": "#F2E6D0",
-     "color2": "#C8344A"
+     "color": "#F2E6D0"
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 2,
+     "lift": 1.0,
+     "apart": 0.5
+    },
+    {
+     "kind": "bristle_ridge",
+     "color": "#3A2A20"
+    },
+    {
+     "kind": "bramble_back",
+     "color": "#52A238",
+     "color2": "#6A2AA8"
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -612,6 +714,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "plain",
@@ -670,6 +777,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Storm",
@@ -712,6 +823,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Nature",
@@ -748,11 +863,34 @@
    ],
    "accessories": [
     {
+     "kind": "long_legs",
+     "color": "#5A6A9A",
+     "amount": 0.4
+    },
+    {
      "kind": "ear_bolts",
-     "color": "#FFE84A"
+     "color": "#1B1B2F",
+     "color2": "#FFE84A",
+     "tuft": true
+    },
+    {
+     "kind": "cheek_ruff",
+     "color": "#C8D4F0",
+     "color2": "#E8EEFF",
+     "big": true
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 3,
+     "lift": 0.5
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -810,7 +948,8 @@
    "patterns": [
     {
      "kind": "spots",
-     "color": "#5A6478"
+     "color": "#5CE6FF",
+     "glow": true
     }
    ],
    "accessories": [
@@ -820,11 +959,18 @@
      "color2": "#E0FBFF"
     },
     {
-     "kind": "glow_eyes",
-     "color": "#3FD8FF"
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 2,
+     "lift": -1.0,
+     "apart": 0
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -870,6 +1016,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -908,6 +1058,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "Nature",
@@ -952,6 +1107,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Ember",
@@ -971,13 +1130,17 @@
    },
    "accessories": [
     {
-     "kind": "stained_glass",
-     "color": "#FF6A6A",
-     "color2": "#7FD4FF"
+     "kind": "blade_wings",
+     "color": "#FFE6A8",
+     "color2": "#B8862E"
     },
     {
      "kind": "rivets",
      "color": "#F0D08A"
+    },
+    {
+     "kind": "leg_pivots",
+     "color": "#000000"
     },
     {
      "kind": "mend",
@@ -992,22 +1155,22 @@
    "rarity": "Epic",
    "plan": "bird",
    "colors": {
-    "col": "#B8B8C8",
-    "belly": "#E8E8F0",
+    "col": "#3E4656",
+    "belly": "#E8ECF2",
     "beak": "#C8963A",
-    "wing": "#9A9AAA",
+    "wing": "#3E4656",
     "feet": "#C8963A"
    },
    "accessories": [
     {
-     "kind": "windup_key",
-     "color": "#C8963A",
-     "color2": "#F0D08A"
+     "kind": "back_key",
+     "color": "#D8A84A",
+     "color2": "#7A5A2A"
     },
     {
      "kind": "rivets",
-     "color": "#E8E8F0",
-     "color2": "#7A7A8A"
+     "color": "#C8CCD8",
+     "color2": "#2A303C"
     },
     {
      "kind": "glow_eyes",
@@ -1034,10 +1197,7 @@
     "feet": "#FFD43B",
     "glow": "#B88AFF"
    },
-   "options": {
-    "big_eyes": true,
-    "tuft": true
-   },
+   "options": {},
    "accessories": [
     {
      "kind": "galaxy",
@@ -1045,11 +1205,23 @@
      "color2": "#5CC8FF"
     },
     {
-     "kind": "glow_eyes",
-     "color": "#FFF2A8"
+     "kind": "round_eyes",
+     "color": "#14102E",
+     "size": 3,
+     "disc": "#B9A6F0",
+     "disc_r": 2.3
+    },
+    {
+     "kind": "owl_tufts",
+     "color": "#3A3270",
+     "color2": "#B88AFF"
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -1097,6 +1269,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -1108,8 +1284,8 @@
    "plan": "quadruped",
    "colors": {
     "col": "#D81E3C",
-    "belly": "#FF6A80",
-    "snout": "#FF6A80",
+    "belly": "#FFB0BC",
+    "snout": "#FFB0BC",
     "ear_col": "#A8142C",
     "tail_col": "#D81E3C"
    },
@@ -1119,30 +1295,34 @@
    },
    "shape": {
     "body": [
-     1.0,
-     1.1,
-     1.0
-    ]
+     0.95,
+     1.05,
+     0.95
+    ],
+    "head": 0.95
    },
    "accessories": [
     {
      "kind": "long_legs",
      "color": "#D81E3C",
-     "amount": 0.5
+     "amount": 0.45
     },
     {
-     "kind": "horse_head",
-     "color": "#FF6A80",
-     "color2": "#5A0A18",
-     "nose": "wolf"
+     "kind": "fox_face",
+     "color": "#D81E3C",
+     "color2": "#5A0A18"
     },
     {
-     "kind": "facets",
-     "color": "#FF4A64",
-     "color2": "#A8142C"
+     "kind": "quartz_shards",
+     "color": "#FF2A50",
+     "color2": "#FFD0D8"
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -1223,6 +1403,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Storm",
@@ -1235,8 +1419,8 @@
    "colors": {
     "col": "#F4F8FC",
     "belly": "#FFFFFF",
-    "snout": "#DDE6F0",
-    "ear_col": "#C8D8E8"
+    "snout": "#BFE4FF",
+    "ear_col": "#F4F8FC"
    },
    "options": {
     "ears": "round",
@@ -1249,17 +1433,26 @@
      0.95
     ]
    },
-   "patterns": [
-    {
-     "kind": "tips",
-     "color": "#CFEFFF"
-    }
-   ],
    "accessories": [
     {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 3
+    },
+    {
+     "kind": "ear_inner",
+     "color": "#A8DAFF"
+    },
+    {
+     "kind": "paws",
+     "color": "#8FD0FF",
+     "height": 0.6
+    },
+    {
      "kind": "ice_crown",
-     "color": "#7FD4FF",
-     "color2": "#E8FBFF"
+     "color": "#4FB8FF",
+     "color2": "#D8F4FF",
+     "icicles": 4
     },
     {
      "kind": "mend",
@@ -1311,6 +1504,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Nature",
@@ -1322,10 +1519,10 @@
    "plan": "quadruped",
    "colors": {
     "col": "#8A8C94",
-    "belly": "#A8AAB2",
-    "snout": "#A8AAB2",
-    "ear_col": "#6A6C74",
-    "tail_col": "#6A6C74"
+    "belly": "#8A8C94",
+    "snout": "#8A8C94",
+    "ear_col": "#8A8C94",
+    "tail_col": "#8A8C94"
    },
    "options": {
     "ears": "pointy",
@@ -1333,25 +1530,49 @@
    },
    "accessories": [
     {
-     "kind": "cracks",
-     "color": "#5A5C64"
+     "kind": "tiny_ears",
+     "color": "#8A8C94"
     },
     {
-     "kind": "bat_wings",
-     "color": "#7A7C84",
-     "color2": "#5A5C64"
+     "kind": "gargoyle_wings",
+     "color": "#5A5C66",
+     "color2": "#3E4048",
+     "height": 3.4,
+     "spread": 2.0
     },
     {
-     "kind": "horns",
-     "color": "#5A5C64"
+     "kind": "curved_horns",
+     "color": "#C8BEA6",
+     "color2": "#8E8470",
+     "size": 1.2
+    },
+    {
+     "kind": "tail_spade",
+     "color": "#5A5C66"
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 3
     },
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
-   "gait": "hover"
+   "gait": "hover",
+   "shape": {
+    "body": [
+     0.95,
+     0.95,
+     0.88
+    ]
+   }
   },
   {
    "id": "SnowGriffin",
@@ -1384,6 +1605,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
