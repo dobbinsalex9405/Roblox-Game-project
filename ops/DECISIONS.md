@@ -7,7 +7,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **What:** every creature gets a Blender-rendered Book picture
   (`build.py --thumbs`, uploaded as an Image by the Upload creature meshes
   workflow with `art = thumbs`, listed in `CreatureThumbs.luau`). The Book
-  (in the PR after #119) shows the picture on an ImageLabel, tinted dark for creatures not yet
+  shows the picture on an ImageLabel, tinted dark for creatures not yet
   found, and keeps the live ViewportFrame only for a creature with no
   current picture.
 - **Why:** Roblox draws a ViewportFrame only while it is on screen and
