@@ -190,26 +190,33 @@ describe("Hatchery", function()
 				end
 			end
 		end
-		-- A cycle is at most the 100,000 the odds are written in (shorter when
+		-- A cycle is at most the total the odds are written in (shorter when
 		-- every weight shares a factor), and the rarest Basic outcome (a
-		-- Phoenix, 2 in 100,000) comes exactly as often as its odds say.
+		-- Phoenix) comes exactly as often as its odds say.
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
 		local cycle = Hatchery.fixedOrderCycle(basic)
-		expect(100000 % #cycle).toBe(0)
-		local phoenixes = 0
+		local basicTotal = basic.total :: number
+		expect(basicTotal % #cycle).toBe(0)
+		local phoenixes, phoenixWeight = 0, 0
 		for _, id in cycle do
 			if id == "Phoenix" then
 				phoenixes += 1
 			end
 		end
-		expect(phoenixes * 100000 / #cycle).toBe(2)
+		for _, o in basic.outcomes do
+			if o.id == "Phoenix" then
+				phoenixWeight = o.weight
+			end
+		end
+		expect(phoenixWeight > 0).toBe(true)
+		expect(phoenixes * basicTotal / #cycle).toBe(phoenixWeight)
 		local first = {}
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "Bunny", "Chick", "Chipmunk", "Crow" })
-		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(0)
-		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(1)
+		expect(first).toEqual({ "BeaglePup", "Bunny", "Canary", "Chick" })
+		expect(Hatchery.fixedOrderWait(basic, 0, "BeaglePup")).toBe(0)
+		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(1)
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 

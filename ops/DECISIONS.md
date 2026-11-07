@@ -2,6 +2,17 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Commons go in game at 31 boxes or fewer (Hatchery Heist)
+
+- **`to_config.py` holds a Common back above 31 in-game boxes**, not the
+  spec's 36. VoxelArt.spec's "more detailed as rarity rises" check wants the
+  plainest Uncommon (18 boxes, live) at least 60% of the heaviest Common,
+  so a 32-box Common fails CI. Go-live C1 hit it with Aphid (32), Centipede
+  (32) and BeardedDragon (36); they wait for a slimmer in-game drawing.
+- **Not coarsened automatically:** `fit_boxes` on these lost the Aphid's
+  and Centipede's antennae and the dragon's legs (its legs are split from
+  the body after accessories run). A hand fix of each drawing is better.
+
 ## 2026-11-07: Every creature in an egg tier gets the same weight (Hatchery Heist)
 
 - **`tools/economy/even_eggs.py` writes the coin eggs' tier weights** from
