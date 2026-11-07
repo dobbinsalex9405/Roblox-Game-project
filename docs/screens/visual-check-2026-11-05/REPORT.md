@@ -1268,3 +1268,21 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 3. **Odds lists:**
    - Moonlit lists 19 new Epics. Meadow lists 1 new Epic, Rainbow Snail at 0.004% · 1 in 25,000 (`139-hh-meadow-list.jpg`).
    - Each new Epic shows "1 in N", each list sums to 100.0000%, and 0 labels fail TextFits.
+
+## #118 @ 6ccfac0 (Hurricane Roc rework), built directly (head contains main 111dc64)
+
+**PASS.**
+1. **Book:**
+   - The Hurricane Roc card uses thumb `rbxassetid://139693014930236` (IsLoaded) and reads "Hurricane Roc / Moonlit Egg 1 in 1,000,000 / NEW" after a give.
+   - The picture shows the new Roc, a blue bird with a gold beak and white wind threads (`118-book-roc.jpg`).
+2. **Placed Roc** (test panel, floor 1, beside Clockwork Leviathan):
+   - 20 MeshParts, all using meshes; no Part or voxel fallback boxes. Every colour mesh uses texture 109204015653940. The only untextured parts are the Neon `_glow` overlays: eyes ×3, crest ×2, wings ×4, orbit ×2. The largest gap is 0.000.
+   - It hovers: body bottom median 1.26 on a 0.70 pad. Only the two big orbit-glow rings (7×2.4×7 boxes) dip at their tilted edge; the body and feet stay up.
+   - Moved 16.1 studs in 10 s.
+   - **Beak:** a solid, hooked gold block, not a zigzag (`118-roc-beak.jpg`).
+   - **Wind threads:** white dashed streaks in two orbit layers (orbit_glow, orbit_glow2) around the body, with nothing floating loose (`118-roc-full.jpg`).
+   - **Far (about 36 studs):** it still reads clearly as the Roc (`118-roc-far.jpg`).
+3. **Unchanged Godly:** Clockwork Leviathan on the next pad renders as before: texture 123277534619569 on 11 parts, 0.000 gaps, swims at 1.62, moved 12.8 in 10 s. It doesn't clip the Roc (`118-roc-plot-with-leviathan.jpg`).
+4. **Phone 844x392:**
+   - The Book is 760x318 at y 66-384, with 0 truncated labels and no overlap (`118-phone-book.jpg`).
+   - The smallest text is 10.4 px, on the **"Clockwork Leviathan"** card name. That label is TextScaled and shrinks for the long name. It's pre-existing: this PR changes no client/UI code, only CreatureMeshes, CreatureThumbs and VoxelArt. Everything else is ≥11 px. "Hurricane Roc" renders at full size.
