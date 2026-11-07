@@ -1193,3 +1193,14 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **Epic tab:** 25/25 pictures, all loaded within 3 s (`134-hh-epic.jpg`).
 - **Legendary tab:** 2/2 pictures.
 - **Found cards:** after giving TeacupPiglet and GemDrake, both cards show the coloured picture. Gem Drake: `rbxassetid://137205862090420`, IsLoaded, "Gem Drake / Moonlit Egg 1 in 7,692 / NEW" (`134-hh-gemdrake-found.jpg`). Book cards are frames, not buttons, so there's nothing to open beyond that.
+
+## #135 @ a0a51c3 (Book PreloadQueue), merged onto main b92d3f0 locally as bd6dc03 (clean)
+
+**PASS, with a warm-cache caveat.**
+- I started a fresh play session, opened the Book about 3 s after joining, and went straight to Uncommon, then Epic.
+- **Uncommon:** all 18 visible pictures were loaded the moment the tab showed (0.00 s).
+- **Epic:** 18/18 visible were loaded at 0.00 s. No image is blank across the whole tab (`135-hh-epic.jpg`).
+- **Common** (the Basic tab), switched to after those: 18/18 visible loaded immediately.
+  - A fast scroll through all 91 found 34 still loading.
+  - 3 s later all 91 were loaded with no blanks. That's the queue working through the off-screen cards after the opened tabs.
+- *Caveat:* this Studio had fetched all these thumbnails in earlier sessions today, so the asset cache was warm and "opened tab first" couldn't be timed under a truly cold fetch. I didn't clear Roblox's content cache (that's a Studio/system setting).
