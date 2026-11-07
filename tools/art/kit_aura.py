@@ -582,13 +582,16 @@ def toasted(c, H, col, col2=None):
                 body.v[q] = (cc, False)
 
 
-def jelly(c, H, col, col2=None):
+def jelly(c, H, col, col2=None, a=None):
     """Gummy candy lit from inside: every part shades from a deep candy
     colour (col, darkened) at its base to a glowing lighter core tint (col2)
     on top, with a glossy white highlight on the crown of the head and the
     top of the body. The mesh is opaque, so the glow carries the see-through
-    look."""
+    look. a['glow_from'] (default 0.4) is the height, as a fraction of each part,
+    above which the shading glows; above 1 nothing glows, the white highlight
+    included."""
     k = H / 10.0
+    glow = float((a or {}).get('glow_from', 0.4))
     col2 = col2 or _light(col, 0.4)
     deep = _dark(col, 0.25)
     for part in c.parts:
@@ -600,7 +603,7 @@ def jelly(c, H, col, col2=None):
             if sum(cc) < 200:  # keep nose and mouth
                 continue
             t = (q[2] - z0) / max(1, z1 - z0)
-            part.v[q] = (_mix(deep, col, t * 1.8) if t < 0.5 else _mix(col, col2, (t - 0.5) * 2), t >= 0.4)
+            part.v[q] = (_mix(deep, col, t * 1.8) if t < 0.5 else _mix(col, col2, (t - 0.5) * 2), t >= glow)
     for name in ('body',):
         part = _find(c, name)
         if not part or not part.v:
@@ -613,8 +616,8 @@ def jelly(c, H, col, col2=None):
         ym = sum(p[1] for p in hs) / len(hs)
         for p in _surface(part):
             if zt - 2 <= p[2] <= zt and 1 <= p[0] <= max(1, round(0.5 * k)) and ym - 0.8 * k <= p[1] <= ym:
-                part.v[p] = (WHITE, True)
-                part.v[(_mx(p[0]), p[1], p[2])] = (WHITE, True)
+                part.v[p] = (WHITE, glow <= 1)
+                part.v[(_mx(p[0]), p[1], p[2])] = (WHITE, glow <= 1)
 
 
 def ear_rims(c, H, col, col2=None):
@@ -3785,11 +3788,12 @@ def smile_line(c, H, col, col2=None):
             head.put(f, col)
 
 
-def jelly_core(c, H, col, col2=None):
+def jelly_core(c, H, col, col2=None, a=None):
     """A jelly's bright inner core: a soft glowing halo (col) on the right
     flank round where the coin hangs, brightest at its middle, so the coin
     reads as suspended inside; the top of the head gets a paler highlight
-    band (col2)."""
+    band (col2), which glows unless a['band_glow'] is false."""
+    band_glow = bool((a or {}).get('band_glow', True))
     k = H / 10.0
     parts, yc, zc = _coin_spot(c)
     rr = max(2.5, 1.9 * k)
@@ -3810,7 +3814,7 @@ def jelly_core(c, H, col, col2=None):
         zt = max(q[2] for q in head.v)
         for q in _surface(head):
             if q[2] >= zt - max(1, round(0.35 * k)) and (q[0], q[1], q[2] + 1) not in head.v:
-                head.v[q] = (col2, True)
+                head.v[q] = (col2, band_glow)
 
 
 def moss_top(c, H, col, col2=None):

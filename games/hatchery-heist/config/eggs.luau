@@ -53,9 +53,9 @@ local eggs: { Egg } = {
 		pool = "Meadow",
 		tiers = {
 			Common = 670020, -- 67.002% (60 x 11,167)
-			Uncommon = 309981, -- 30.9981% (29 x 10,689)
-			Rare = 17006, -- 1.7006% (2 x 8,503)
-			["Ultra Rare"] = 2795, -- 1 in 358 (13 x 215)
+			Uncommon = 310000, -- 31% (31 x 10,000)
+			Rare = 17000, -- 1.7% (2 x 8,500)
+			["Ultra Rare"] = 2782, -- 1 in 359 (13 x 214)
 			Epic = 168, -- 1 in 5,952 (6 x 28)
 			Legendary = 30, -- 1 in 33,333 (1 x 30)
 		},
