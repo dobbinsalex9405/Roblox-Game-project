@@ -125,12 +125,14 @@
     {
      "kind": "jelly",
      "color": "#3FBF7A",
-     "color2": "#4FD08A"
+     "color2": "#4FD08A",
+     "glow_from": 1.1
     },
     {
      "kind": "jelly_core",
      "color": "#7CFFB4",
-     "color2": "#E8FFF2"
+     "color2": "#E8FFF2",
+     "band_glow": false
     },
     {
      "kind": "coin_inside",

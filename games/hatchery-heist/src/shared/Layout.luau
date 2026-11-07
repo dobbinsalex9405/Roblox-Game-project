@@ -7,6 +7,7 @@
 
 local Numbers = require("./Numbers")
 local Geometry = require("./Geometry")
+local DisplayName = require("./DisplayName")
 
 local Layout = {}
 
@@ -200,9 +201,9 @@ function Layout.eggColor(eggId: string): Color3
 	return EGG_COLORS[eggId] or Color3.fromRGB(230, 230, 230)
 end
 
--- "BasicEgg" -> "Basic Egg"
+-- "BasicEgg" -> "Basic Egg"; "WillOWisp" -> "Will-o'-Wisp" (shared/DisplayName.luau)
 function Layout.displayName(id: string): string
-	return (string.gsub(id, "(%l)(%u)", "%1 %2"))
+	return DisplayName(id)
 end
 
 -- 1234567 -> "1.23M", 25000 -> "25K" (shared/Numbers.luau)

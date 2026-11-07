@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the Will-o'-Wisp is named "Will-o'-Wisp" in the Book, hatch
+  reveal and odds lists (it showed as "Will OWisp").
 - Every creature in an egg's tier now shows exactly the same odds (one
   Meadow Egg Epic read 1 in 50,000 while the others read 1 in 33,333). Tier
   odds are unchanged apart from rounding: the Meadow Egg's Ultra Rare is
