@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: in the Hatchery Book, the tab you open loads its pictures first, so
+  a tab opened soon after joining no longer waits on the others' pictures.
 - Fix: the odds card beside an egg refits when the screen changes size, so
   it no longer stays phone-sized after a window grows.
 - Fix: on a phone the Hatchery Book fits below Roblox's top bar; its bottom
