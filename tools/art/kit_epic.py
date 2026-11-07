@@ -330,20 +330,20 @@ def _yeti(c, H, cols):
         r = max(0.5, (0.4 - 0.25 * i / max(1, round(1.1 * k))) * k)
         horns.ell((1.6 * k + i * 0.35, 0, 8.1 * k + i * 0.8), (r, r, r), hexc('#E8E2D6'))
     _mirror(horns)
-    # arms: shaggy, the right one holding up a glowing snowball
+    # arms: shaggy, both reaching forward to hug a glowing snowball against
+    # the tummy (kept symmetric so the model and its legs stay centred)
     arm = c.part('arms', 'static')
-    arm.ell((1.95 * k, -0.2 * k, 3.6 * k), (0.65 * k, 0.65 * k, 1.05 * k), fur)
-    arm.ell((2.1 * k, -0.4 * k, 2.6 * k), (0.6 * k, 0.6 * k, 0.5 * k), face_col)
+    arm.ell((1.95 * k, -0.3 * k, 3.7 * k), (0.65 * k, 0.65 * k, 0.95 * k), fur)
+    line(arm, (1.85 * k, -0.6 * k, 3.4 * k), (1.5 * k, -2.0 * k, 3.0 * k), fur, r=0.55 * k)
+    arm.ell((1.35 * k, -2.55 * k, 2.95 * k), (0.5 * k, 0.5 * k, 0.5 * k), face_col)
     _mirror(arm)
-    arm.ell((2.45 * k, -0.9 * k, 4.6 * k), (0.6 * k, 0.6 * k, 0.9 * k), fur)
-    arm.ell((2.75 * k, -1.3 * k, 5.4 * k), (0.55 * k, 0.55 * k, 0.5 * k), face_col)
     ball = c.part('snowball', 'static')
-    bc = (2.9 * k, -1.9 * k, 6.2 * k)
-    ball.ell(bc, (1.0 * k, 1.0 * k, 1.0 * k), hexc('#CDE8FF'))
+    bc = (0, -2.75 * k, 3.25 * k)
+    ball.ell(bc, (1.1 * k, 1.05 * k, 1.1 * k), hexc('#A8DBFF'))
     if not _fine(c):
         ball.paint(lambda p, cc, g: (glow, True))  # one glowing ball in game
-    ball.paint(lambda p, cc, g: None if not _fine(c) else (glow, True) if (p[0] * 3 + p[1] * 5 + p[2] * 7) % (5 if _fine(c) else 13) == 0 else
-               ((hexc('#A9D2F2'), False) if p[2] + .5 < bc[2] - 0.2 * k else None))
+    ball.paint(lambda p, cc, g: None if not _fine(c) else (glow, True) if (p[0] * 3 + p[1] * 5 + p[2] * 7) % 5 == 0 else
+               ((hexc('#7FC0EE'), False) if p[2] + .5 < bc[2] - 0.2 * k else None))
     return c
 
 
