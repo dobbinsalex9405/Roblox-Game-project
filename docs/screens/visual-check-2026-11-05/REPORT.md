@@ -944,3 +944,46 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Walks:** it moved along a 2.40 stud path in 12 s with the waddle gait. Head and body stay together.
 - **Book card:** the Rare tab shows "Owlet / Moonlit Egg 1 in 7.9" with a NEW badge and the coloured model (8 viewport parts) (`87-hh-book-rare.jpg`).
 - **Rare odds unchanged:** Raccoon Basic 1 in 125, Penguin Meadow 1 in 118, Owlet Moonlit 1 in 7.9, Fennec and PandaCub Premium 1 in 3.1.
+
+## #127 @ 6e04cfe (Charms and the Charm Claw), merged onto main as 130c142
+
+**FAIL, phone layout.** On an 844x390 phone, the 10-pull reveal's footer runs about 14 px past the bottom of the screen. The Open Charms and Done buttons are cut off: only about 30 of their 44 px show (`127-hh-phone-pull10-FAIL.jpg`). The Lua numbers are stage y −13..346, heading −13..22, tray 30..290 and footer 302..346. The real pixels sit 58 px lower than those numbers say, even though IgnoreGuiInset is true, so on screen the heading is at about 45 and the footer at about 360..404. Likely cause: `screenSize()` takes off TOP_BAR, but the stage is centred at Position (0.5, 0.5)+29 in a gui that still renders under the top bar. Fix: anchor the stage to the safe area, or size it from (viewport − 58 − footer). I stopped at this FAIL, so the small phone was not checked.
+
+Everything checked before the FAIL (desktop 1350x672 unless noted):
+1. **Claw cabinet:**
+   - It sits at angle 15.0°, r 42.6 (pivot; spec r43) and faces the middle (look·centre = 1.000).
+   - It's in front of the Golden Egg Shop and off the door's line.
+   - The "Charm Claw" marquee is present. ClawPrompt reads "Play / Charm Claw" and reaches 9 studs (`127-hh-claw-hub.jpg`).
+2. **Claw window, 760x500:**
+   - Odds per tier with % and 1 in N (Common 55.000% · 1 in 1.8 … Godly 0.100% · 1 in 1,000).
+   - The split line, the 10-pull Rare+ and 100-pull Epic+ promise lines, and the pity line (Legendary+ within 200).
+   - "See every charm" opens 4 tables: Every pull (21 rows), 10-pull promise (15), 100-pull promise (9) and pity (6). Each sums to 100.000%. 0 labels fail TextFits (`127-hh-claw-window.jpg`, `127-hh-claw-every-charm.jpg`).
+   - Coin prices are x1 5K, x10 45K and x100 400K. Coins went down by exactly 5K + 45K.
+   - The Robux rows read "10 pulls: coming soon" and "100 pulls: coming soon". AutoButtonColor is off, and clicking both brought up no purchase prompt.
+3. **Bag and walking away:** "Bag 0 / 300" closes the claw and opens Charms. Walking away closed the window at 19.5 studs (reach 16, checked every 0.5 s).
+4. **Pulls:**
+   - x1 shows the "You got" card (Rabbit's Foot) (`127-hh-pull1.jpg`).
+   - x10 shows a 5x2 grid of "?" cards with Skip. Skip jumps to the full result, which stays up until Done. It held Rare+ (Lucky Horseshoe, Sunstone) (`127-hh-pull10-cards.jpg`, `127-hh-pull10-result.jpg`).
+   - x100 shows the haul grouped with counts, including a Godly and two Legendaries. The gold burst fired (Burst colour 1,0.82,0.25, 1.17 s after the pull) (`127-hh-pull100.jpg`).
+   - Minor: the top border of the haul's first row is clipped.
+   - Done takes you back to the claw window while you're in reach.
+5. **Charms window:**
+   - 3 slots plus locked Floor 3/6/9.
+   - Equipping Royal Banquet, Rabbit's Foot and Dragon's Hearth shows "Equipped: +8% coins, x1.08 luck, eggs 20% faster" and an "Equipped" ribbon on each card (`127-hh-charms-equipped.jpg`).
+   - Unequipping Dragon's Hearth drops the totals to "+8% coins, x1.08 luck".
+   - Fuse on Feed Bag x25 left 20 (bag 121→117, 500 coins).
+   - Fuse all showed a 10-line plan with a 11.5K fee. I checked it by hand: 23 fuses × 500 = 11.5K. After it, the bag went 117→25, the counts match the plan, and the equipped charms were kept (`127-hh-fuseall-confirm.jpg`).
+   - Minor: the ribbon covers the card's icon, and the "Others': On" button is clipped at the right edge of the controls row (the row scrolls sideways).
+6. **Worn ring:**
+   - Two worn charms circle behind the shoulders (`127-hh-worn-ring.jpg`).
+   - "My charms: Off" clears the character's Charms attribute, so others stop seeing them. The ring disappears and the stats stay. Turning it On brings the ring back.
+   - "Others': Off" toggles without touching your own ring. *Not covered:* I couldn't see another player's ring, because Studio solo has one client.
+7. **Luck:**
+   - Rabbit's Foot shows "Boosted: Rabbit's Foot" on the Basic card: Rare 0.864%, UR 0.195%, Epic 0.020%, Legendary 0.003% · 1 in 33,333. The total is 100.000% (`127-hh-odds-clover.jpg`).
+   - **The x3 cap with Luck Boost wasn't testable.** Luck Boost has no grant path in this build (product id 0, no test action, no luck event), so only Odds.spec covers it.
+   - *Note:* rounding the weights to whole numbers makes the small tiers jump: Legendary 2→3 weight is x1.5, Epic 18→20 is x1.11, against the advertised x1.08. The card shows what's rolled, but it overstates the charm on rare tiers.
+8. **Test panel "charm":** "Cornucopia added to your charm bag." Bag 25→26 and the card appears.
+9. **Phone 844x390:**
+   - All 7 side-menu buttons fit, with Charms at y 341-384.
+   - The claw window is 760x308 at y 70-378, both panes scroll, 0 TextFits failures, and the smallest text is 13.6 px (`127-hh-phone-claw.jpg`).
+   - **The 10-pull reveal footer is cut off: FAIL (above).**
