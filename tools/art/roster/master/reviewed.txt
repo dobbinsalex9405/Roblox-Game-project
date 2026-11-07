@@ -1,4 +1,5 @@
 # Creatures that passed the strict review (synced from PROMOTED.log by to_config.py --promoted).
+AbyssJelly
 Acornling
 AlleyCat
 Angelfish
@@ -9,6 +10,7 @@ Armadillo
 AtlasMoth
 AuroraStag
 Axolotl
+BabyKraken
 BabyOctopus
 BananaSlug
 BarnCat
@@ -39,6 +41,7 @@ ChronoOwl
 Cicada
 ClickBeetle
 ClockworkBeetle
+CloudSerpent
 Cloudlet
 Cockatoo
 CocoaBunny
@@ -51,6 +54,7 @@ Crab
 Crayfish
 Cricket
 Crow
+CrystalGolem
 CrystalHydra
 CrystalSwan
 Cygnet
@@ -81,6 +85,7 @@ FrostSprite
 FruitBat
 Fuzzball
 Gecko
+GemDrake
 GeodeCrab
 Gerbil
 GilaMonster
@@ -101,11 +106,13 @@ Hamster
 HarborSeal
 Hare
 HerculesBeetle
+Hippocampus
 HoneypotAnt
 Hoverfly
 Hummingbird
 HurricaneRoc
 HuskyPup
+HydraHatchling
 IbexKid
 Iguana
 Inchworm
@@ -113,6 +120,7 @@ JellybeanBeetle
 Jerboa
 JewelBeetle
 JumboEarMouse
+Kappa
 Kingfisher
 Kinkajou
 Kiwi
@@ -176,9 +184,11 @@ RexHatchling
 RhinoBeetle
 RimeDrakeling
 SandCat
+SandSerpent
 SaplingEnt
 Scorpion
 SeaOtter
+SeaSerpent
 SeaTurtle
 SealPup
 SharkPup
@@ -201,6 +211,8 @@ SpikyDuckling
 SpottedPiglet
 Sproutling
 Squirrel
+StarJelly
+StarWhaleCalf
 Starfish
 Starling
 StegoHatchling

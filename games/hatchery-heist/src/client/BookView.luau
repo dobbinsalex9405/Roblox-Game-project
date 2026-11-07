@@ -11,13 +11,16 @@
 -- Built for hundreds of cards: the page is sized for the whole tab, but only
 -- the cards on screen (and a couple of rows either side: config/atmosphere
 -- book) exist. A small pool of card frames is moved to whichever cards
--- scroll into view (BookGrid), each with its ViewportFrame and 3D model made
--- when it arrives and destroyed when it leaves, and only those cards are
--- repainted when the player's data changes. A 200-card tab costs the same
--- as a 20-card one.
+-- scroll into view (BookGrid), and only those cards are repainted when the
+-- player's data changes. A 200-card tab costs the same as a 20-card one.
+-- A card shows the creature's picture (Book.picture: a render of its
+-- meshes, preloaded at join), black for one not found yet. A creature with
+-- no current picture is drawn live in a ViewportFrame made when its card
+-- arrives and destroyed when it leaves.
 -- Opened from the side menu; the server keeps the book (data.found).
 
 local Players = game:GetService("Players")
+local ContentProvider = game:GetService("ContentProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -38,6 +41,8 @@ local BookView = {}
 local PANEL = Color3.fromRGB(28, 30, 48)
 local GOLD = Color3.fromRGB(255, 210, 63)
 local SHADOW = Color3.fromRGB(16, 16, 26)
+local WHITE = Color3.new(1, 1, 1)
+local BLACK = Color3.new(0, 0, 0) -- a picture's silhouette: no colour shows through
 local FONT = Enum.Font.FredokaOne
 local CARD = Vector2.new(104, 150)
 local GRID: BookGrid.Spec = { width = CARD.X, height = CARD.Y, gap = 8 }
@@ -84,6 +89,7 @@ type Card = {
 	frame: Frame,
 	border: UIStroke,
 	entry: Book.Entry?,
+	picture: ImageLabel,
 	view: ViewportFrame?,
 	model: Model?,
 	looks: { [BasePart]: { color: Color3, material: Enum.Material, texture: string } },
@@ -101,13 +107,20 @@ type Tab = {
 	entries: { Book.Entry },
 }
 
--- Puts a creature's model in a card and points the camera at it. A creature
--- not found yet is darkened BEFORE it goes in the card, so it never shows in
--- colour, not even for a frame (Studio gate, Nov 5).
+-- Puts a creature in a card: its picture, or else its model with the camera
+-- pointed at it. A creature not found yet is darkened BEFORE it shows, so it
+-- never shows in colour, not even for a frame (Studio gate, Nov 5).
 local function showModel(card: Card, entry: Book.Entry, owned: boolean)
-	local model, size = CreatureView.staticModel(entry.speciesId)
 	card.looks = {}
 	card.found = owned
+	local picture = Book.picture(entry.speciesId)
+	if picture then
+		card.picture.ImageColor3 = if owned then WHITE else BLACK
+		card.picture.Image = picture
+		card.picture.Visible = true
+		return
+	end
+	local model, size = CreatureView.staticModel(entry.speciesId)
 	if model == nil then
 		return
 	end
@@ -147,6 +160,8 @@ local function showModel(card: Card, entry: Book.Entry, owned: boolean)
 end
 
 local function dropModel(card: Card)
+	card.picture.Visible = false
+	card.picture.Image = ""
 	if card.view then
 		card.view:Destroy() -- the model and camera with it
 		card.view = nil
@@ -159,6 +174,11 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
 	local species = ctx.config.creatures.species
 	local bookConfig = ctx.config.economy.book
+	-- Every Book picture loads now, while the player looks round, so a card
+	-- shows its creature the moment it first scrolls into view.
+	task.spawn(function()
+		pcall(ContentProvider.PreloadAsync, ContentProvider, Book.pictures(species))
+	end)
 	-- How far past the view cards are drawn and kept built (config/atmosphere book).
 	local bookLook = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book
 	local overscan = bookLook.overscanRows :: number
@@ -343,6 +363,17 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		corner(well, 10)
 		well.Parent = frame
 
+		-- The creature's picture, over the well (showModel).
+		local picture = Instance.new("ImageLabel")
+		picture.Name = "Picture"
+		picture.BackgroundTransparency = 1
+		picture.Position = UDim2.fromOffset(4, 4)
+		picture.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
+		picture.ScaleType = Enum.ScaleType.Fit
+		picture.ZIndex = 1
+		picture.Visible = false
+		picture.Parent = frame
+
 		local name = text(frame, "Species", "", 14)
 		name.Position = UDim2.fromOffset(4, CARD.X - 6)
 		name.Size = UDim2.new(1, -8, 0, 18)
@@ -369,6 +400,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			frame = frame,
 			border = border,
 			entry = nil,
+			picture = picture,
 			view = nil,
 			model = nil,
 			looks = {},
@@ -408,6 +440,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		if card.found ~= owned then
 			card.found = owned
 			-- Not found yet: a dark silhouette, glow and all switched off.
+			card.picture.ImageColor3 = if owned then WHITE else BLACK
 			for part, look in card.looks do
 				part.Color = if owned then look.color else SHADOW
 				part.Material = if owned then look.material else Enum.Material.SmoothPlastic

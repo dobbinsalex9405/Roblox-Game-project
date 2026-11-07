@@ -55,7 +55,7 @@ PLANS = {
     'quadruped': (
         {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines', 'glow', 'horn',
          'antlers', 'wings'},
-        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy'},
+        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy', 'hanging'},
          'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'flame', 'none'},
          'fluffy': {True, False}, 'pig': {True, False}, 'cow': {True, False}, 'bunny': {True, False}},
     ),

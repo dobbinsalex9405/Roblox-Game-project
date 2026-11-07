@@ -2,8 +2,14 @@
 moving parts, idle and walk animations, .glb and .fbx files, a manifest, and
 review renders (a hero shot, an 8-view turntable and animated previews).
 
-    pip install --target=/opt/bpy bpy==5.1.2          # once, about 1 GB
+    pip install --target=/opt/bpy bpy==5.1.2 pillow   # once, about 1 GB
     PYTHONPATH=/opt/bpy python3 tools/art/blender/build.py OUT [--tier Common] [--only Chick,Frog] [--no-render] [--fast]
+    PYTHONPATH=/opt/bpy python3 tools/art/blender/build.py OUT --thumbs [--only Chick,Frog]
+
+--thumbs renders only the Hatchery Book picture of each creature the game
+lists (no meshes, no clips; about 4 s each): OUT/<id>/<id>_thumb.png, a square portrait on a clear background,
+and OUT/<id>/thumb.json with the art fingerprint it was drawn from
+(thumbs.fingerprint). upload.py --thumbs sends them to Roblox.
 
 The shapes come from tools/art (creatures.py, legends.py), the same source
 as the in-game VoxelArt boxes, so a creature's parts, pivots, size and
@@ -39,6 +45,7 @@ import bpy  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
 from describe import RANK, creatures, describe  # noqa: E402
+import thumbs  # noqa: E402
 import walkpose  # noqa: E402
 
 FPS = 30
@@ -388,8 +395,9 @@ def export_files(out_dir, c, coll, joints):
 
 # ------------------------------------------------------------------ render
 
-def stage(s, meta, fast):
-    """Sky, sun, a soft green ground and a camera, sized to the creature."""
+def stage(s, meta, fast, ground=True):
+    """Sky, sun, a soft green ground and a camera, sized to the creature.
+    Without the ground (the Book pictures) the sky only lights it."""
     w = bpy.data.worlds.new('Sky')
     s.world = w
     w.use_nodes = True
@@ -410,6 +418,22 @@ def stage(s, meta, fast):
 
     size = meta['sizeStuds']
     big = max(size)
+    cam = bpy.data.cameras.new('Cam')
+    cam.lens = 60
+    co = bpy.data.objects.new('Cam', cam)
+    s.collection.objects.link(co)
+    s.camera = co
+
+    s.render.engine = 'CYCLES'
+    s.cycles.device = 'CPU'
+    s.cycles.samples = 12 if fast else 48
+    s.cycles.use_denoising = True
+    s.cycles.max_bounces = 4
+    s.view_settings.view_transform = 'Standard'
+    s.view_settings.exposure = -0.15
+    s.render.film_transparent = not ground
+    if not ground:
+        return co
     bpy.ops.mesh.primitive_plane_add(size=big * 40, location=(0, 0, 0))
     ground = bpy.context.object
     gm = bpy.data.materials.new('Ground')
@@ -427,21 +451,6 @@ def stage(s, meta, fast):
         rb.inputs['Emission Color'].default_value = (*lin(RING[meta['rarity']]), 1)
         rb.inputs['Emission Strength'].default_value = 1.2
         bpy.context.object.data.materials.append(rm)
-
-    cam = bpy.data.cameras.new('Cam')
-    cam.lens = 60
-    co = bpy.data.objects.new('Cam', cam)
-    s.collection.objects.link(co)
-    s.camera = co
-
-    s.render.engine = 'CYCLES'
-    s.cycles.device = 'CPU'
-    s.cycles.samples = 12 if fast else 48
-    s.cycles.use_denoising = True
-    s.cycles.max_bounces = 4
-    s.view_settings.view_transform = 'Standard'
-    s.view_settings.exposure = -0.15
-    s.render.film_transparent = False
     return co
 
 
@@ -559,6 +568,36 @@ def build_one(c, out_root, do_render, fast):
     return meta
 
 
+def thumb_one(c, out_root):
+    """The Hatchery Book picture: the creature at rest, three-quarter view,
+    on a clear background, cropped to its outline and centred, so every card
+    is filled the same way whatever the creature's shape or size."""
+    from PIL import Image
+    out_dir = os.path.join(out_root, c.species)
+    os.makedirs(out_dir, exist_ok=True)
+    s = reset()
+    coll = bpy.data.collections.new(c.species)
+    s.collection.children.link(coll)
+    tmp = tempfile.mkdtemp(prefix='hhthumb-')  # the palette (read again at render) and the raw render
+    try:
+        meta, root, joints, glow_mats = creature_scene(c, tmp, coll)
+        co = stage(s, meta, False, ground=False)
+        s.cycles.samples = thumbs.SAMPLES
+        s.render.image_settings.color_mode = 'RGBA'
+        # level, not floating: the card has no ground for a hover to read against
+        lift = meta['sizeStuds'][1] * LOOKS[meta['rarity']]['hover']
+        root.location = (0, 0, -lift)
+        aim(co, meta, thumbs.YAW, pitch=thumbs.PITCH)
+        raw = os.path.join(tmp, 'thumb_raw.png')
+        render_still(s, raw, thumbs.RENDER)
+        im = Image.open(raw).convert('RGBA')
+        thumbs.frame(im).save(os.path.join(out_dir, f'{c.species}_thumb.png'), optimize=True)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    with open(os.path.join(out_dir, 'thumb.json'), 'w') as f:
+        json.dump({'id': c.species, 'source': thumbs.fingerprint(c)}, f)
+
+
 def to_designs(src, library, c):
     """Copy a built creature into the shared design library that Alex's 3D
     viewer reads: the glb (with its clips), meta.json and the renders."""
@@ -577,12 +616,22 @@ def main():
     ap.add_argument('--only')
     ap.add_argument('--no-render', action='store_true')
     ap.add_argument('--fast', action='store_true')
+    ap.add_argument('--thumbs', action='store_true', help='only the Hatchery Book pictures (see the top)')
     ap.add_argument('--designs', help='also copy each creature into this design library '
                     '(<dir>/Creatures/Hatchery Heist/<Tier>/<Species>/: glb, meta, renders)')
     a = ap.parse_args()
     out = os.path.abspath(a.out)
     os.makedirs(out, exist_ok=True)
     cs = creatures(a.tier, set(a.only.split(',')) if a.only else None)
+    if a.thumbs:
+        from creatures import in_game
+        cs, waiting = in_game(cs)  # a picture is only ever used for a creature the game lists
+        if waiting:
+            print('not in config/creatures.luau yet (no picture): ' + ', '.join(waiting), flush=True)
+        for c in cs:
+            thumb_one(c, out)
+            print(f'{c.species:16s} {c.rarity:10s} thumb', flush=True)
+        return
     metas = []
     for c in cs:
         m = build_one(c, out, not a.no_render, a.fast)
