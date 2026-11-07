@@ -660,6 +660,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "HurricaneRoc": {
+   "assetId": 92845448203322,
+   "textureId": 109204015653940,
+   "textureType": "Image",
+   "version": "1"
+  },
   "HuskyPup": {
    "assetId": 84879241101977,
    "textureId": 75765146213071,
@@ -1499,12 +1505,6 @@
    "textureId": 95806592137832,
    "textureType": "Image",
    "version": "1"
-  },
-  "HurricaneRoc": {
-   "assetId": 92845448203322,
-   "textureId": 109204015653940,
-   "textureType": "Image",
-   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -1862,8 +1862,8 @@
    "source": "8d7be8fbd54cbcd1"
   },
   "HurricaneRoc": {
-   "imageId": 103514228926112,
-   "source": "442cf6462d99893c"
+   "imageId": 139693014930236,
+   "source": "146f52dbb6491b1f"
   },
   "HuskyPup": {
    "imageId": 105131027989050,
