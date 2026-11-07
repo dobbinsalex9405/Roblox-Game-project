@@ -88,6 +88,7 @@ local CreatureThumbs: { [string]: number } = {
 	NebulaSerpent = 74418140589025,
 	Opossum = 71945275664392,
 	OtterPup = 111396962717895,
+	Owlet = 128943588124379,
 	PacmanFrog = 131114339555652,
 	PandaCub = 73453425768269,
 	Parakeet = 135203344142378,
