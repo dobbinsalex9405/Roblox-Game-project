@@ -2655,8 +2655,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "scuttle",
 		height = 1.3,
 		size = { 1.2, 1.3, 2.2 },
-		tris = 6896,
-		trisLod1 = 768,
+		tris = 6936,
+		trisLod1 = 764,
 		parts = {
 			{
 				name = "body",
@@ -2757,14 +2757,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Crayfish_leg2L",
-						center = { -0.2978, 0.154, -0.15 },
-						size = { 0.1955, 0.292, 0.091 },
+						center = { -0.3478, 0.154, -0.15 },
+						size = { 0.2955, 0.292, 0.091 },
 					},
 				},
 				lod1 = {
 					name = "Crayfish_leg2L_lod1",
-					center = { -0.3, 0.15, -0.15 },
-					size = { 0.2, 0.3, 0.1 },
+					center = { -0.35, 0.15, -0.15 },
+					size = { 0.3, 0.3, 0.1 },
 				},
 			},
 			{
@@ -2793,14 +2793,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Crayfish_leg3L",
-						center = { -0.2478, 0.204, 0.0478 },
-						size = { 0.2955, 0.392, 0.0955 },
+						center = { -0.2978, 0.204, 0.0478 },
+						size = { 0.1955, 0.392, 0.0955 },
 					},
 				},
 				lod1 = {
 					name = "Crayfish_leg3L_lod1",
-					center = { -0.25, 0.2, 0.05 },
-					size = { 0.3, 0.4, 0.1 },
+					center = { -0.3, 0.2, 0.05 },
+					size = { 0.2, 0.4, 0.1 },
 				},
 			},
 			{
@@ -3610,7 +3610,7 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "hover",
 		height = 0.9,
 		size = { 1.8, 0.9, 1.8 },
-		tris = 5204,
+		tris = 5192,
 		trisLod1 = 600,
 		parts = {
 			{
@@ -6673,135 +6673,135 @@ local CreatureMeshes: { [string]: Creature } = {
 		textureId = 70698355651419,
 		rarity = "Common",
 		gait = "scuttle",
-		height = 0.9,
-		size = { 1.2, 0.9, 1.5 },
-		tris = 5720,
+		height = 1.1,
+		size = { 1.2, 1.1, 1.5 },
+		tris = 6280,
 		trisLod1 = 702,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
-				pivot = { 0, 0, 0.05 },
+				pivot = { 0, 0.2, 0.05 },
 				meshes = {
-					{ name = "Ladybug_body", center = { 0, 0.4017, 0.2 }, size = { 1.207, 0.6035, 1.107 } },
+					{ name = "Ladybug_body", center = { 0, 0.6018, 0.2 }, size = { 1.207, 0.6035, 1.107 } },
 				},
-				lod1 = { name = "Ladybug_body_lod1", center = { 0, 0.4, 0.2 }, size = { 1.2, 0.6, 1.1 } },
+				lod1 = { name = "Ladybug_body_lod1", center = { 0, 0.6, 0.2 }, size = { 1.2, 0.6, 1.1 } },
 			},
 			{
 				name = "head",
 				anim = "static",
 				parent = "body",
-				pivot = { 0, 0.72, -0.35 },
+				pivot = { 0, 0.92, -0.35 },
 				meshes = {
 					{
 						name = "Ladybug_head",
-						center = { 0, 0.5018, -0.496 },
+						center = { 0, 0.7017, -0.496 },
 						size = { 0.591, 0.7875, 0.499 },
 					},
 				},
-				lod1 = { name = "Ladybug_head_lod1", center = { 0, 0.5, -0.5 }, size = { 0.6, 0.8, 0.5 } },
+				lod1 = { name = "Ladybug_head_lod1", center = { 0, 0.7, -0.5 }, size = { 0.6, 0.8, 0.5 } },
 			},
 			{
 				name = "leg1L",
 				anim = "leg1L",
 				parent = "body",
-				pivot = { -0.26, 0.18, -0.23 },
+				pivot = { -0.26, 0.38, -0.23 },
 				meshes = {
 					{
 						name = "Ladybug_leg1L",
-						center = { -0.35, 0.054, -0.2 },
-						size = { 0.091, 0.092, 0.091 },
+						center = { -0.35, 0.154, -0.2 },
+						size = { 0.091, 0.292, 0.091 },
 					},
 				},
 				lod1 = {
 					name = "Ladybug_leg1L_lod1",
-					center = { -0.35, 0.05, -0.2 },
-					size = { 0.1, 0.1, 0.1 },
+					center = { -0.35, 0.15, -0.2 },
+					size = { 0.1, 0.3, 0.1 },
 				},
 			},
 			{
 				name = "leg1R",
 				anim = "leg1R",
 				parent = "body",
-				pivot = { 0.26, 0.18, -0.23 },
+				pivot = { 0.26, 0.38, -0.23 },
 				meshes = {
 					{
 						name = "Ladybug_leg1R",
-						center = { 0.35, 0.054, -0.2 },
-						size = { 0.091, 0.092, 0.091 },
+						center = { 0.35, 0.154, -0.2 },
+						size = { 0.091, 0.292, 0.091 },
 					},
 				},
 				lod1 = {
 					name = "Ladybug_leg1R_lod1",
-					center = { 0.35, 0.05, -0.2 },
-					size = { 0.1, 0.1, 0.1 },
+					center = { 0.35, 0.15, -0.2 },
+					size = { 0.1, 0.3, 0.1 },
 				},
 			},
 			{
 				name = "leg2L",
 				anim = "leg2L",
 				parent = "body",
-				pivot = { -0.3, 0.18, 0.13 },
+				pivot = { -0.3, 0.38, 0.13 },
 				meshes = {
-					{ name = "Ladybug_leg2L", center = { -0.4, 0.054, 0.1 }, size = { 0.191, 0.092, 0.091 } },
+					{ name = "Ladybug_leg2L", center = { -0.4, 0.154, 0.1 }, size = { 0.191, 0.292, 0.091 } },
 				},
 				lod1 = {
 					name = "Ladybug_leg2L_lod1",
-					center = { -0.4, 0.05, 0.1 },
-					size = { 0.2, 0.1, 0.1 },
+					center = { -0.4, 0.15, 0.1 },
+					size = { 0.2, 0.3, 0.1 },
 				},
 			},
 			{
 				name = "leg2R",
 				anim = "leg2R",
 				parent = "body",
-				pivot = { 0.3, 0.18, 0.13 },
+				pivot = { 0.3, 0.38, 0.13 },
 				meshes = {
-					{ name = "Ladybug_leg2R", center = { 0.4, 0.054, 0.1 }, size = { 0.191, 0.092, 0.091 } },
+					{ name = "Ladybug_leg2R", center = { 0.4, 0.154, 0.1 }, size = { 0.191, 0.292, 0.091 } },
 				},
-				lod1 = { name = "Ladybug_leg2R_lod1", center = { 0.4, 0.05, 0.1 }, size = { 0.2, 0.1, 0.1 } },
+				lod1 = { name = "Ladybug_leg2R_lod1", center = { 0.4, 0.15, 0.1 }, size = { 0.2, 0.3, 0.1 } },
 			},
 			{
 				name = "leg3L",
 				anim = "leg3L",
 				parent = "body",
-				pivot = { -0.26, 0.18, 0.49 },
+				pivot = { -0.26, 0.38, 0.49 },
 				meshes = {
 					{
 						name = "Ladybug_leg3L",
-						center = { -0.3478, 0.104, 0.4978 },
-						size = { 0.0955, 0.192, 0.0955 },
+						center = { -0.3478, 0.204, 0.4978 },
+						size = { 0.0955, 0.392, 0.0955 },
 					},
 				},
 				lod1 = {
 					name = "Ladybug_leg3L_lod1",
-					center = { -0.35, 0.1, 0.5 },
-					size = { 0.1, 0.2, 0.1 },
+					center = { -0.35, 0.2, 0.5 },
+					size = { 0.1, 0.4, 0.1 },
 				},
 			},
 			{
 				name = "leg3R",
 				anim = "leg3R",
 				parent = "body",
-				pivot = { 0.26, 0.18, 0.49 },
+				pivot = { 0.26, 0.38, 0.49 },
 				meshes = {
 					{
 						name = "Ladybug_leg3R",
-						center = { 0.3478, 0.104, 0.4978 },
-						size = { 0.0955, 0.192, 0.0955 },
+						center = { 0.3478, 0.204, 0.4978 },
+						size = { 0.0955, 0.392, 0.0955 },
 					},
 				},
-				lod1 = { name = "Ladybug_leg3R_lod1", center = { 0.35, 0.1, 0.5 }, size = { 0.1, 0.2, 0.1 } },
+				lod1 = { name = "Ladybug_leg3R_lod1", center = { 0.35, 0.2, 0.5 }, size = { 0.1, 0.4, 0.1 } },
 			},
 			{
 				name = "eyes",
 				anim = "blink",
 				parent = "head",
-				pivot = { 0, 0.72, -0.35 },
+				pivot = { 0, 0.92, -0.35 },
 				meshes = {
-					{ name = "Ladybug_eyes", center = { 0, 0.4517, -0.6 }, size = { 0.407, 0.1035, 0.107 } },
+					{ name = "Ladybug_eyes", center = { 0, 0.6518, -0.6 }, size = { 0.407, 0.1035, 0.107 } },
 				},
-				lod1 = { name = "Ladybug_eyes_lod1", center = { 0, 0.45, -0.6 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Ladybug_eyes_lod1", center = { 0, 0.65, -0.6 }, size = { 0.4, 0.1, 0.1 } },
 			},
 		},
 	},
@@ -6921,8 +6921,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		gait = "scuttle",
 		height = 1.2,
 		size = { 1.2, 1.2, 2.4 },
-		tris = 6996,
-		trisLod1 = 802,
+		tris = 7036,
+		trisLod1 = 798,
 		parts = {
 			{
 				name = "body",
@@ -7011,14 +7011,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Lobster_leg2L",
-						center = { -0.2978, 0.154, -0.15 },
-						size = { 0.1955, 0.292, 0.091 },
+						center = { -0.3478, 0.154, -0.15 },
+						size = { 0.2955, 0.292, 0.091 },
 					},
 				},
 				lod1 = {
 					name = "Lobster_leg2L_lod1",
-					center = { -0.3, 0.15, -0.15 },
-					size = { 0.2, 0.3, 0.1 },
+					center = { -0.35, 0.15, -0.15 },
+					size = { 0.3, 0.3, 0.1 },
 				},
 			},
 			{
@@ -7047,14 +7047,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Lobster_leg3L",
-						center = { -0.2478, 0.204, 0.0478 },
-						size = { 0.2955, 0.392, 0.0955 },
+						center = { -0.2978, 0.204, 0.0478 },
+						size = { 0.1955, 0.392, 0.0955 },
 					},
 				},
 				lod1 = {
 					name = "Lobster_leg3L_lod1",
-					center = { -0.25, 0.2, 0.05 },
-					size = { 0.3, 0.4, 0.1 },
+					center = { -0.3, 0.2, 0.05 },
+					size = { 0.2, 0.4, 0.1 },
 				},
 			},
 			{
