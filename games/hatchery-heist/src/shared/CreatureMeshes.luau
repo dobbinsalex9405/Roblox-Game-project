@@ -13175,7 +13175,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	FrostWolf = {
 		assetId = 118793263738444,
-		textureId = 110550161976710,
+		textureId = 81588582898327,
 		rarity = "Ultra Rare",
 		gait = "trot",
 		height = 2.7,
@@ -13355,7 +13355,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	StormHawk = {
 		assetId = 113835090859855,
-		textureId = 138827177635432,
+		textureId = 120312812405080,
 		rarity = "Ultra Rare",
 		gait = "waddle",
 		height = 2.7,
@@ -13521,7 +13521,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	CrystalStag = {
 		assetId = 76176813759498,
-		textureId = 121132246129244,
+		textureId = 93345691724686,
 		rarity = "Epic",
 		gait = "trot",
 		height = 3.5,
@@ -14018,7 +14018,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	MoonUnicorn = {
 		assetId = 110066245966043,
-		textureId = 93661050390583,
+		textureId = 86300628439902,
 		rarity = "Epic",
 		gait = "trot",
 		height = 3.1,

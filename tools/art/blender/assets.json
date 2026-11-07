@@ -218,9 +218,9 @@
   },
   "CrystalStag": {
    "assetId": 76176813759498,
-   "textureId": 121132246129244,
+   "textureId": 93345691724686,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "Cygnet": {
    "assetId": 133402737023805,
@@ -350,9 +350,9 @@
   },
   "FrostWolf": {
    "assetId": 118793263738444,
-   "textureId": 110550161976710,
+   "textureId": 81588582898327,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "GardenSpider": {
    "assetId": 79445149531475,
@@ -638,9 +638,9 @@
   },
   "MoonUnicorn": {
    "assetId": 110066245966043,
-   "textureId": 93661050390583,
+   "textureId": 86300628439902,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "Moth": {
    "assetId": 91354475383587,
@@ -950,9 +950,9 @@
   },
   "StormHawk": {
    "assetId": 113835090859855,
-   "textureId": 138827177635432,
+   "textureId": 120312812405080,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "SugarGlider": {
    "assetId": 117770747714722,
