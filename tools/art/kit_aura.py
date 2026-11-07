@@ -1603,6 +1603,8 @@ def iris_eyes(c, H, col, col2=None, a=None):
     big = bool((a or {}).get('big_pupil'))  # a 2x2 pupil, so the iris never reads as a ring
     pupil = col2 or INK
     n = 3 if k >= 1.6 else 2
+    if big and k >= 2.5:
+        n = 4  # mesh build: a round 4x4 disc, cyan ring round a 2x2 pupil
     old = dict(e.v)
     e.v = {}
     hosts = [p for p in c.parts if p.name in ('head', 'body') and p.v]
@@ -1627,9 +1629,19 @@ def iris_eyes(c, H, col, col2=None, a=None):
         for i in range(n):
             for j in range(n):
                 x, z = x0 + i, z0 + j
+                if n == 4 and i in (0, 3) and j in (0, 3):
+                    continue  # round the corners off: the face stays there
                 for h in hosts:
                     h.v.pop((x, yd, z), None)
                 spot = (x, yd, z)
+                if n == 4:
+                    if i == 1 and j == 2:
+                        e.v[spot] = (WHITE, False)  # the shine, top of the pupil toward -x
+                    elif i in (1, 2) and j in (1, 2):
+                        e.v[spot] = (pupil, False)
+                    else:
+                        e.v[spot] = (col, glow)
+                    continue
                 if n == 3 and big and i >= 1 and j <= 1:
                     e.v[spot] = (pupil, False)  # a 2x2 pupil low in the eye
                 elif n == 3 and not big and i == 1 and j == 1:
