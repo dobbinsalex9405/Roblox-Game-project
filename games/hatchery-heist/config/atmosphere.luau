@@ -184,8 +184,30 @@ return {
 	-- The guide's gold arrow and beam hide once you are this close (studs,
 	-- flat) to where they point, so they never sit on top of the Buy prompt
 	-- you came for (Studio gate, Nov 5).
+	-- The Hatchery Book draws only the cards near the screen (client/
+	-- BookView). overscanRows past each edge are drawn at once; while the
+	-- book is open it then builds more, outward from the view, warmPerFrame
+	-- a frame, until warmCards are built, because a new card's picture takes
+	-- up to a second to draw its first frame (Studio gate, Nov 5 and 7: a
+	-- fast flick showed empty cards). 144 keeps the whole Common tab warm and
+	-- covers a 1,400 px flick on a 200-card tab. Warming starts
+	-- warmDelaySeconds after a tab is shown (0: at once), and built cards
+	-- are kept while the book is closed. Pictures can still take a moment
+	-- to draw on a fast flick: Roblox draws a ViewportFrame only while it
+	-- is on screen; static thumbnails will replace them.
+	book = {
+		overscanRows = 2,
+		warmCards = 144,
+		warmPerFrame = 8,
+		warmDelaySeconds = 0,
+	},
 	guide = {
 		arrivedStuds = 8,
+		-- Roblox's player list (top right on desktop) sat over the side
+		-- menu's top button, so clicks opened "Examine Avatar" instead of the
+		-- Guide (Studio gate, Nov 5). The game has no leaderboard stats, so
+		-- it stays off; true brings it back.
+		playerList = false,
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only

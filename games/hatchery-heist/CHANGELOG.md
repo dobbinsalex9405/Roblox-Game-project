@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Fix: on desktop, Roblox's player list no longer sits on top of the Guide
+  button (clicks opened "Examine Avatar"); the game has no leaderboard, so
+  the list is off.
+- The "YOUR HATCHERY" banner floats higher over your base sign, clear of the
+  next floor's price label, so the two no longer read as one crowded line.
+- Hatchery Book: the cards around the view (the whole Common tab today) are
+  built ahead as soon as it opens and kept while the book is closed, and
+  each card shows a dark picture well. Pictures can still take a moment to
+  appear on a fast flick.
 - 32 new Uncommon creatures can hatch, among them the Arctic Fox Kit,
   Teacup Piglet, Pangolin, Tardigrade, Shroomback Toad and the garden
   veggie puffs (Turnipling, Carrotling, Peapod, Cornling, Radishling).
