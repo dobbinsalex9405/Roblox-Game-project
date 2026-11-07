@@ -122,7 +122,7 @@ end
 -- name ends in "...", never its odds. Before the list has a width on
 -- screen, the labels keep TextScaled.
 local MIN_TEXT_SIZE = OddsCard.MIN_TEXT_SIZE -- 11 px or more on screen at the card's smallest
-local function sameTextSize(container: GuiObject)
+local function sameTextSize(container: GuiObject, largest: number?)
 	local width = container.AbsoluteSize.X
 	local pad = container:FindFirstChildOfClass("UIPadding")
 	if pad then
@@ -157,7 +157,7 @@ local function sameTextSize(container: GuiObject)
 		end
 		return TextService:GetTextSize(l.Text, size, l.Font, bounds).X
 	end
-	local size = rowHeight - 4
+	local size = largest or rowHeight - 4
 	while size > MIN_TEXT_SIZE do
 		local fits = true
 		for _, r in rows do
@@ -435,6 +435,8 @@ end
 -- A window listing every creature an egg can hatch with its exact chance,
 -- opened from the odds card: the same numbers the server rolls from.
 local TAB_HEIGHT = 40 -- tall enough to tap on a phone
+local LIST_WIDTH = 420
+local LIST_TEXT_SIZE = 15
 local TAB_GAP = 6
 local function buildList(): ScreenGui
 	local gui = Instance.new("ScreenGui")
@@ -448,11 +450,13 @@ local function buildList(): ScreenGui
 	-- shows the player's coins while the list is open.
 	window.AnchorPoint = Vector2.new(0.5, 0)
 	window.Position = UDim2.new(0.5, 0, 0, 80)
-	window.Size = UDim2.new(0, 360, 1, -90)
+	-- 420 px wide where the screen allows, so "Dalmatian Pup (Common)" and
+	-- its odds share a row in full (Studio gate, #131: names cut at 161 px).
+	window.Size = UDim2.new(1, -24, 1, -90)
 	window.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
 	corner(window, 12)
 	local limit = Instance.new("UISizeConstraint")
-	limit.MaxSize = Vector2.new(math.huge, 560)
+	limit.MaxSize = Vector2.new(LIST_WIDTH, 560)
 	limit.Parent = window
 	window.Parent = gui
 	local title = Instance.new("TextLabel")
@@ -515,6 +519,10 @@ local function buildList(): ScreenGui
 	inset.PaddingRight = UDim.new(0, 10)
 	inset.Parent = scroll
 	scroll.Parent = window
+	-- The rows' columns depend on the list's width, known once it is drawn.
+	scroll:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		sameTextSize(scroll, LIST_TEXT_SIZE)
+	end)
 	return gui
 end
 
@@ -527,6 +535,7 @@ function OddsView.openList(eggId: string)
 	local scroll = window:FindFirstChild("Rows") :: ScrollingFrame
 	local title = window:FindFirstChild("Title") :: TextLabel
 	local tabs = window:FindFirstChild("Tabs") :: Frame
+	local previous = if list.Enabled then listEgg else nil
 	listEgg = eggId
 	local function renderTabs()
 		for _, child in tabs:GetChildren() do
@@ -636,15 +645,23 @@ function OddsView.openList(eggId: string)
 			for _, l in frame:GetChildren() do
 				if l:IsA("TextLabel") then
 					l.TextScaled = false
-					l.TextSize = 15
+					l.TextSize = LIST_TEXT_SIZE
 					l.TextTruncate = Enum.TextTruncate.AtEnd
 				end
 			end
 		end
+		-- Each value gets the room it needs and its name the rest, so a
+		-- long name is shortened before any odds are.
+		sameTextSize(scroll, LIST_TEXT_SIZE)
 	end
 	renderList = render
-	render()
 	list.Enabled = true
+	if previous ~= eggId then
+		-- Another egg's list starts at its top (Studio gate, #131: a tab
+		-- switch kept the old scroll position).
+		scroll.CanvasPosition = Vector2.zero
+	end
+	render()
 end
 
 return OddsView

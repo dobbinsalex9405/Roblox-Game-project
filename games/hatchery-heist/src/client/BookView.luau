@@ -21,6 +21,7 @@
 
 local Players = game:GetService("Players")
 local ContentProvider = game:GetService("ContentProvider")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -30,6 +31,7 @@ local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
 local BookGrid = require(Shared.BookGrid)
 local Layout = require(Shared.Layout)
+local Viewport = require(Shared.Viewport)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
@@ -278,25 +280,11 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function fit()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		window.Size = UDim2.fromOffset(math.min(760, screen.X - 24), math.min(560, screen.Y - 40))
+		window.Size = UDim2.fromOffset(Book.windowSize(screen.X, screen.Y, GuiService:GetGuiInset().Y))
 	end
 	-- Refit when the screen changes size (a window resized, a phone turned):
 	-- Studio gate (#125) kept a desktop-sized Book on a phone, title cut off.
-	local watched: Camera? = nil
-	local function watchCamera()
-		local cam = Workspace.CurrentCamera
-		if cam and cam ~= watched then
-			watched = cam
-			cam:GetPropertyChangedSignal("ViewportSize"):Connect(function()
-				if watched == cam then
-					fit()
-				end
-			end)
-		end
-		fit()
-	end
-	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
-	watchCamera()
+	Viewport.watch(Workspace, fit)
 
 	local entries = Book.entries(ctx.config.creatures, ctx.config.eggs, Layout.RARITIES)
 
