@@ -234,20 +234,38 @@ def critter(c, H, kind, col, accent=None, wing=None):
         # on seven pairs of short legs mostly hidden under the rim
         fine = getattr(c, 'fine', False)
         zb = round(1.5 * k) if fine else max(1, round(0.6 * k))  # the underside
-        body.ell((0, 0.5 * k, zb), (2.3 * k, 3.1 * k, 2.2 * k), col, cond=lambda x, y, z: z >= zb)
+        # the dome, and its rim curling in under the sides (a shell lip a
+        # voxel or two thick) so the legs only peek out below it
+        rx, ry, rz = 2.3 * k, 3.1 * k, 2.2 * k
+
+        def shell(x, y, z):
+            if z >= zb:
+                return True
+            if not fine or z < 2:
+                return False
+            d = ((x + .5) / rx) ** 2 + ((y + .5 - 0.5 * k) / ry) ** 2 + ((z + .5 - zb) / rz) ** 2
+            return d >= 0.62
+
+        body.ell((0, 0.5 * k, zb), (rx, ry, rz), col, cond=shell)
         y0, y1 = round(-2.6 * k), round(3.6 * k) + 1
-        body.paint(lambda p, cc, g: (accent, False) if int((p[1] - y0) * 7 / (y1 - y0)) % 2 == 1 else None)
-        head.ell((0, -2.6 * k, zb + 0.3 * k), (1.4 * k, 0.8 * k, 0.9 * k), _dark(col, 0.15))
-        face(c, head, k, (zb + 0.4 * k) / k, x_off=0.4, size=0.5, cheek_z=zb / k)
-        antennae(head, k, 0.6, -3.2, (zb + 0.8 * k) / k, 0.7, _dark(col, 0.4), back=-0.3, spread=0.5)
+        # seven plates: a dark seam between each, and every other plate a
+        # shade darker
+        def plate(y):
+            return int((y - y0) * 7 / (y1 - y0))
+        body.paint(lambda p, cc, g: (_dark(accent, 0.35), False) if plate(p[1]) != plate(p[1] + 1) and p[1] + 1 < y1
+                   else ((accent, False) if plate(p[1]) % 2 == 1 else None))
+        # a small dark head tucked under the front plate, no blush
+        head.ell((0, -2.8 * k, zb + 0.1 * k), (1.1 * k, 0.7 * k, 0.8 * k), _dark(col, 0.25))
+        face(c, head, k, (zb + 0.15 * k) / k, x_off=0.35, size=0.45, cheeks=False)
+        antennae(head, k, 0.5, -3.0, (zb + 0.6 * k) / k, 0.7, _dark(col, 0.45), back=-0.3, spread=0.5)
         legc = _dark(col, 0.4)
         n = 7 if fine else 3
         for i in range(n):
-            y = round((-1.8 + i * 4.2 / (n - 1)) * k)
-            x = round(1.5 * k)
+            y = round((-0.9 + i * 3.0 / (n - 1)) * k)
+            x = round(1.0 * k)
             cells = {(x, y, z) for z in range(0, max(1, zb))}
             if fine:
-                cells.add((x + 1, y, 0))  # a little foot out toward the rim
+                cells.add((x + 1, y, 0))  # a little foot peeking out
             for sx in (-1, 1):
                 leg = _leg(c, sx, i, n, (sx * (x + .5), y + .5, zb))
                 for (cx, cy, cz) in cells:
@@ -294,9 +312,23 @@ def critter(c, H, kind, col, accent=None, wing=None):
             line(body, sh, el, col, r=0.4 * k)
             line(body, el, hand, accent, r=0.35 * k)
         legs(body, k, [(0.6, 0.6), (0.6, 1.8)], accent, out=1.2, height=2.0, c=c)
+    elif kind in CRITTER_KINDS:
+        CRITTER_KINDS[kind](c, H, k, col, accent, wc, body, head)
     else:
         raise ValueError(f'critter: unknown kind {kind}')
     return c
+
+
+# More critter kinds from other kit modules (kit_wild: scorpion): kind ->
+# fn(c, H, k, col, accent, wing, body, head), added with add_critter_kind.
+CRITTER_KINDS = {}
+
+
+def add_critter_kind(name, fn):
+    if name in PLANS['critter'][1]['kind']:
+        raise ValueError(f'critter kind "{name}" is already defined')
+    PLANS['critter'][1]['kind'].add(name)
+    CRITTER_KINDS[name] = fn
 
 
 # ------------------------------------------------------------------ shore

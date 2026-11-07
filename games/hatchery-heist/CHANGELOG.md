@@ -35,6 +35,9 @@
   built ahead as soon as it opens and kept while the book is closed, and
   each card shows a dark picture well. Pictures can still take a moment to
   appear on a fast flick.
+- Fix: Hatchery Book cards no longer show empty on a fast flick, a reopen or
+  a tab switch. Each creature is a ready-made picture, loaded when you join;
+  creatures you have not found yet are black silhouettes.
 
 - The Nebula Serpent is reworked: a finer, more detailed nebula coil with
   crystal antlers, a flowing mane, whiskers and a comet tail, and four
