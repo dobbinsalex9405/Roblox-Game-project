@@ -894,6 +894,15 @@ def P(h):
     return hexc(h)
 
 
+def _entry(e):
+    """A live creature rebuilt from a roster-style entry (plan, colours,
+    options, shape, accessories), so it can use the kit modules."""
+    def build(c, H):
+        import variants
+        return variants.builder(dict(e, id=c.species, rarity=c.rarity))(c, H)
+    return build
+
+
 ROSTER = [
     # Common
     ('Chick', 'Common', lambda c, H: bird(c, H, P('#FFD93B'), belly=P('#FFE97A'))),
@@ -922,13 +931,13 @@ ROSTER = [
     ('PandaCub', 'Rare', lambda c, H: quadruped(c, H, P('#FFFFFF'), snout=P('#FFFFFF'), ears='round', ear_col=P('#1B1B2F'), tail='short', patches=P('#1B1B2F'), fluffy=True)),
     # Ultra Rare
     ('EmberFox', 'Ultra Rare', lambda c, H: quadruped(c, H, P('#E8452C'), belly=P('#FFD6A0'), snout=P('#FFD6A0'), ears='pointy', ear_col=P('#7A1E14'), tail='flame', tail_col=P('#FF7A1A'), glow=P('#FFB627'))),
-    ('FrostWolf', 'Ultra Rare', lambda c, H: quadruped(c, H, P('#D6ECFF'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='pointy', ear_col=P('#9CC9F2'), tail='bushy', tail_col=P('#9CC9F2'), mane=P('#7FDBFF'), glow=P('#7FDBFF'))),
+    ('FrostWolf', 'Ultra Rare', _entry({'plan': 'quadruped', 'colors': {'col': '#D6ECFF', 'belly': '#FFFFFF', 'snout': '#FFFFFF', 'ear_col': '#9CC9F2', 'tail_col': '#9CC9F2', 'glow': '#7FDBFF'}, 'options': {'ears': 'pointy', 'tail': 'fox'}, 'shape': {'body': [0.9, 1.15, 0.95]}, 'accessories': [{'kind': 'long_legs', 'color': '#D6ECFF', 'amount': 0.6}, {'kind': 'horse_head', 'color': '#FFFFFF', 'color2': '#2A3A55', 'nose': 'wolf'}, {'kind': 'ice_crest', 'color': '#BFE6FF', 'color2': '#BFE6FF', 'glow': True, 'fan': True}, {'kind': 'mend', 'color': '#000000'}]})),
     ('Axolotl', 'Ultra Rare', lambda c, H: blob(c, H, 'axolotl', P('#FFB3D1'), P('#FF4FA3'))),
-    ('StormHawk', 'Ultra Rare', lambda c, H: bird(c, H, P('#4A5A8A'), belly=P('#DCE6FF'), beak=P('#FFD43B'), wing=P('#33406A'), crest=P('#7FDBFF'), tail=P('#33406A'), glow=P('#7FDBFF'), wing_span=2.6)),
+    ('StormHawk', 'Ultra Rare', _entry({'plan': 'bird', 'colors': {'col': '#4A5A8A', 'belly': '#8C9CCB', 'beak': '#FFD43B', 'wing': '#33406A', 'tail': '#33406A', 'glow': '#7FDBFF'}, 'shape': {'body': [0.78, 1.05, 1.0], 'head': 0.85}, 'accessories': [{'kind': 'raptor_pose', 'color': '#26304F', 'lean': 0.35}, {'kind': 'raptor_beak', 'color': '#FFD43B', 'color2': '#26304F'}, {'kind': 'raised_wings', 'color': '#3A4876', 'color2': '#7FDBFF', 'span': 5.2, 'angle': 28, 'drop': 1.2}, {'kind': 'storm_crest', 'color': '#7FDBFF', 'color2': '#E8FBFF'}, {'kind': 'mend', 'color': '#000000'}]})),
     # Epic
     ('Dragonling', 'Epic', lambda c, H: dragon(c, H, P('#2EC4B6'), P('#FFE8B0'), P('#FF6B6B'), P('#FFB627'), P('#FFE8B0'))),
-    ('CrystalStag', 'Epic', lambda c, H: quadruped(c, H, P('#B9A3FF'), belly=P('#F1EBFF'), snout=P('#F1EBFF'), ears='pointy', tail='short', antlers=P('#7FF2FF'), glow=P('#7FF2FF'))),
-    ('MoonUnicorn', 'Epic', lambda c, H: quadruped(c, H, P('#F7F3FF'), belly=P('#FFFFFF'), snout=P('#FFE3F1'), ears='pointy', tail='bushy', tail_col=P('#C9A3FF'), horn=P('#FFD43B'), mane=P('#C9A3FF'), glow=P('#E3C9FF'))),
+    ('CrystalStag', 'Epic', _entry({'plan': 'quadruped', 'colors': {'col': '#B9A3FF', 'belly': '#F1EBFF', 'ear_col': '#B9A3FF', 'antlers': '#7FF2FF', 'glow': '#7FF2FF'}, 'options': {'ears': 'pointy', 'tail': 'short'}, 'shape': {'body': [0.9, 1.15, 1.0]}, 'accessories': [{'kind': 'long_legs', 'color': '#B9A3FF', 'amount': 0.8}, {'kind': 'horse_head', 'color': '#D9CCFF', 'color2': '#4A3A7A'}, {'kind': 'facets', 'color': '#B9A3FF', 'color2': '#8F76E8'}, {'kind': 'gems', 'color': '#7FF2FF', 'glow': True}, {'kind': 'mend', 'color': '#000000'}]})),
+    ('MoonUnicorn', 'Epic', _entry({'plan': 'quadruped', 'colors': {'col': '#F7F3FF', 'belly': '#FFFFFF', 'ear_col': '#F7F3FF', 'tail_col': '#C9A3FF', 'mane': '#C9A3FF', 'glow': '#E3C9FF'}, 'options': {'ears': 'pointy', 'tail': 'bushy'}, 'shape': {'body': [0.9, 1.15, 1.0]}, 'accessories': [{'kind': 'long_legs', 'color': '#F7F3FF', 'amount': 0.8}, {'kind': 'horse_head', 'color': '#FFE3F1', 'color2': '#B48AD8'}, {'kind': 'spiral_horn', 'color': '#FFE27A', 'color2': '#E0A93A'}, {'kind': 'flank_crescent', 'color': '#FFD86B'}, {'kind': 'mend', 'color': '#000000'}]})),
     # Legendary
     ('Phoenix', 'Legendary', legends.phoenix),
     ('ThunderGriffin', 'Legendary', legends.thunder_griffin),
