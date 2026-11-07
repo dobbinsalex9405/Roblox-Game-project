@@ -2153,6 +2153,12 @@
    "textureId": 113573645222662,
    "textureType": "Image",
    "version": "1"
+  },
+  "GummyBear": {
+   "assetId": 86113221179621,
+   "textureId": 133704092338001,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
