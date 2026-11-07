@@ -3694,37 +3694,90 @@ def dust_motes(c, H, col, col2=None):
         part.ell(p, (r, r, r), col2 if i % 2 else col, True)
 
 
+def _coin_spot(c):
+    """Where a jelly's coin hangs: low in the body and to its left, clear
+    of the face (straight under the eyes it read as a duck's bill)."""
+    parts = [p for p in (_find(c, 'body'), head_of(c)) if p and p.v]
+    allq = [q for p in parts for q in p.v]
+    z0, z1 = min(q[2] for q in allq), max(q[2] for q in allq)
+    xw = max(q[0] for q in allq) + 0.5
+    return parts, -xw * 0.5, z0 + (z1 - z0) * 0.36
+
+
 def coin_inside(c, H, col, col2=None):
-    """A gold coin floating inside a jelly body, seen through the front: a
-    glowing disc (col) with a darker rim and a stamped mark (col2) set into
-    the front of the body, below the face."""
+    """A gold coin suspended inside a jelly body, seen through the front:
+    a round glowing disc (col) with a darker rim (col2) and an embossed
+    mark standing a voxel proud, set low in the body and to one side, well
+    clear of the face."""
     k = H / 10.0
-    body = _find(c, 'body')
-    if not body or not body.v:
+    if not _find(c, 'body'):
         return
     col2 = col2 or _dark(col, 0.3)
-    zs = sorted(q[2] for q in body.v)
-    zc = zs[len(zs) * 9 // 20]
-    r = max(1.6, 1.0 * k)
-    # the front-most part at that height carries it (a puff's head sits in front of its body)
-    head = head_of(c)
-    if head and head.v and any(abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1 for q in head.v):
-        hy = min(q[1] for q in head.v if abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1)
-        by = min((q[1] for q in body.v if abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1), default=hy + 1)
-        if hy < by:
-            body = head
-    yf = min(q[1] for q in body.v if abs(q[2] - zc) <= 1 and abs(q[0] + .5) <= 1)
-    for x in range(-math.ceil(r) - 1, math.ceil(r) + 1):
+    hi = _light(col, 0.45)
+    parts, xc, zc = _coin_spot(c)
+    occ = {q: p for p in parts for q in p.v}
+    r = max(1.6, 0.85 * k)
+    for x in range(math.floor(xc - r) - 1, math.ceil(xc + r) + 1):
         for z in range(math.floor(zc - r) - 1, math.ceil(zc + r) + 1):
-            d = math.hypot(x + .5, z + .5 - zc)
+            d = math.hypot(x + .5 - xc, z + .5 - zc)
             if d > r:
                 continue
-            q = next(((x, y, z) for y in range(yf - 2, yf + 6) if (x, y, z) in body.v), None)
-            if not q:
+            ys = [q[1] for q in occ if q[0] == x and q[2] == z]
+            if not ys:
                 continue
+            q = (x, min(ys), z)
+            p = occ[q]
             rim = d > r - 1.0
-            mark = abs(x + .5) < 0.6 and abs(z + .5 - zc) < r * 0.55
-            body.v[q] = (col2, True) if (rim or mark) else (col, True)
+            mark = (abs(x + .5 - xc) < 0.5 and abs(z + .5 - zc) < r * 0.5) or \
+                   (abs(z + .5 - zc) < 0.5 and abs(x + .5 - xc) < r * 0.5)
+            p.v[q] = (col2, True) if rim else (col, True)
+            if mark and not rim:
+                p.put((q[0], q[1] - 1, q[2]), hi, True)
+
+
+def smile_line(c, H, col, col2=None):
+    """A small mouth: a dark line under the eyes, curving up at the ends."""
+    k = H / 10.0
+    head = head_of(c)
+    eyes = _find(c, 'eyes')
+    if not head or not eyes or not eyes.v:
+        return
+    ez = min(q[2] for q in eyes.v)
+    zm = round(ez - max(2, 0.7 * k))
+    w = max(1, round(0.45 * k))
+    xs = list(range(-w, w))
+    for i, x in enumerate(xs):
+        z = zm + (1 if i in (0, len(xs) - 1) else 0)
+        f = head.front(x, z)
+        if f:
+            head.put(f, col)
+
+
+def jelly_core(c, H, col, col2=None):
+    """A jelly's bright inner core: a soft glowing halo (col) on the front
+    of the body around where the coin hangs, brightest at its middle, so
+    the coin reads as suspended inside; the top of the head gets a paler
+    highlight band (col2)."""
+    k = H / 10.0
+    parts, xc, zc = _coin_spot(c)
+    occ = set(q for p in parts for q in p.v)
+    eyes = _find(c, 'eyes')
+    ez = min(q[2] for q in eyes.v) if eyes and eyes.v else max(q[2] for q in occ)
+    rr = max(2.5, 1.7 * k)
+    for p in parts:
+        for q in _surface(p):
+            cc, g = p.v[q]
+            if sum(cc) < 200 or q[2] >= ez - 1 or (q[0], q[1] - 1, q[2]) in occ:
+                continue
+            d = math.hypot(q[0] + .5 - xc * 0.7, (q[2] + .5 - zc) * 1.1) / rr
+            if d < 1:
+                p.v[q] = (_mix(cc, col, 0.45 * (1 - d) + 0.05), True)
+    head = head_of(c)
+    if col2 and head and head.v:
+        zt = max(q[2] for q in head.v)
+        for q in _surface(head):
+            if q[2] >= zt - max(1, round(0.35 * k)) and (q[0], q[1], q[2] + 1) not in head.v:
+                head.v[q] = (col2, True)
 
 
 def moss_top(c, H, col, col2=None):
@@ -3732,11 +3785,22 @@ def moss_top(c, H, col, col2=None):
     turn mossy green (col), with a few lighter sprigs (col2) poking up."""
     k = H / 10.0
     col2 = col2 or _light(col, 0.3)
+    eyes = _find(c, 'eyes')
+    near = set()
+    if eyes and eyes.v:  # bare stone round the eyes: moss rings read as goggles
+        R = max(2, round(0.8 * k))
+        for (x, y, z) in eyes.v:
+            for dx in range(-R, R + 1):
+                for dz in range(-R, R + 2):
+                    for dy in range(0, R + 2):
+                        near.add((x + dx, y + dy, z + dz))
+    allz = [q[2] for p in c.parts for q in p.v]
+    zlo = min(allz) + (max(allz) - min(allz)) * 0.5
     for part in c.parts:
         if part.name in ('eyes',) or not part.v:
             continue
         for q in list(part.v):
-            if part.v[q][1]:
+            if part.v[q][1] or q in near or q[2] < zlo:
                 continue
             if (q[0], q[1], q[2] + 1) not in part.v and _hash(q[0] // 2, q[1] // 2, 29) % 5 < 3:
                 part.v[q] = (col, False)
@@ -3794,33 +3858,68 @@ def neon_rings(c, H, col, col2=None):
 
 
 def wisp_flame(c, H, col, col2=None):
-    """A will-o'-wisp's flame: the top of the orb draws up into three
-    flame tongues leaning back (col at the root to col2 at the tips, the
-    upper half glowing), and the orb shades from a deep base to col on top."""
+    """A will-o'-wisp: no feet (it hovers). The body is rebuilt as a
+    teardrop: a round bottom that narrows upward and splits at the top into
+    three flickering flame tongues, the middle one tallest, the side ones
+    curling out (col at the root to pale col2 tips, glowing toward the
+    tips). It shades from a deep base to col, the eyes sit on its new front,
+    and the bottom trails off behind into a wispy tail."""
     k = H / 10.0
     col2 = col2 or _light(col, 0.6)
     body = _find(c, 'body')
     head = head_of(c)
-    for part in (body, head):
-        if not part or not part.v:
-            continue
-        zs = [p[2] for p in part.v]
-        z0, z1 = min(zs), max(zs)
-        for q, (cc, g) in list(part.v.items()):
-            if sum(cc) < 200 or cc in (WHITE,):
-                continue
-            t = (q[2] - z0) / max(1, z1 - z0)
-            part.v[q] = (_mix(_dark(col, 0.3), col, min(1, t * 1.4)), False)
-    y, zt = _crown(c)
+    eyes = _find(c, 'eyes')
+    for p in c.parts:
+        if p.name.startswith('leg'):
+            p.v = {}
+    parts = [p for p in (body, head) if p and p.v]
+    allq = [q for p in parts for q in p.v]
+    z0 = min(q[2] for q in allq)
+    xw = max(q[0] for q in allq) + 0.5
+    yc = (min(q[1] for q in allq) + max(q[1] for q in allq)) / 2
+    deep = _dark(col, 0.3)
+    R = xw * 0.95
+    zc = z0 + R
+    ztop = zc + 1.4 * R
+    zsplit = zc + 0.85 * R
+    body.v, head.v = {}, {}
+
+    def shade(z):
+        return _mix(deep, col, min(1, (z - z0) / max(1, (zsplit - z0)) * 1.3))
+    for x in range(-math.ceil(R) - 1, math.ceil(R) + 1):
+        for y in range(math.floor(yc - R) - 1, math.ceil(yc + R) + 1):
+            for z in range(math.floor(z0), math.ceil(ztop) + 1):
+                rr = math.hypot(x + .5, y + .5 - yc)
+                if z + .5 <= zc:
+                    inside = rr * rr + (z + .5 - zc) ** 2 <= R * R
+                else:
+                    t = (z + .5 - zc) / (ztop - zc)
+                    inside = t <= 1 and rr <= R * (1 - t) ** 0.8
+                if inside:
+                    (body if z + .5 < zc - 0.3 * R else head).put((x, y, z), shade(z))
+    # the eyes sit on the new front
+    if eyes and eyes.v:
+        moved = {}
+        for (x, y, z), v in eyes.v.items():
+            ys = [q[1] for q in head.v if q[0] == x and q[2] == z] or [q[1] for q in body.v if q[0] == x and q[2] == z]
+            if ys:
+                fy = min(ys)
+                head.v.pop((x, fy, z), None)
+                body.v.pop((x, fy, z), None)
+                moved[(x, fy, z)] = v
+        eyes.v = moved
     part = c.part('flame', 'glow')
-    tongue(part, (0, y + 0.2 * k, zt - 1.2 * k), 3.6 * k, 1.5 * k, col, col2, lean=0.3, glow=False)
+    part.v = {}
+    rs = R * (1 - (zsplit - zc) / (ztop - zc)) ** 0.8
+    tongue(part, (0, yc + 0.2 * k, zsplit), (ztop - zsplit) + 3.0 * k, rs * 0.8 + 0.3, col, col2, lean=0.3, glow=True)
     for sx in (1, -1):
-        tongue(part, (sx * 1.1 * k, y + 0.6 * k, zt - 1.4 * k), 2.3 * k, 0.9 * k, col, col2, lean=0.35, side=sx * 0.12, glow=False)
-    # only the flame's upper half glows, so it reads blue, not white
+        tongue(part, (sx * rs * 0.85, yc + 0.3 * k, zsplit - 0.6 * k), (ztop - zsplit) + 1.8 * k, rs * 0.55 + 0.3,
+               col, col2, lean=0.25, side=sx * 0.3, glow=True)
     zf = [q[2] for q in part.v]
-    zmid = (min(zf) + max(zf)) / 2
+    zlow = min(zf) + (max(zf) - min(zf)) * 0.5
     for q, (cc, g) in list(part.v.items()):
-        part.v[q] = (cc, q[2] > zmid)
+        part.v[q] = (cc, q[2] > zlow)
+    ghost_tail(c, H, _dark(col, 0.15), col2)
 
 
 def sleepy_eyes(c, H, col=None, col2=None):
@@ -4704,6 +4803,7 @@ ACCESSORIES = {
     'serpent_tail': serpent_tail,
     'wattles': wattles,
     'rooster_comb': rooster_comb,
+    'smile_line': smile_line, 'jelly_core': jelly_core,
     'tapir_trunk': tapir_trunk, 'heavy_rump': heavy_rump, 'dream_stripes': dream_stripes,
     'forehead_moon': forehead_moon, 'bison_build': bison_build, 'bison_face': bison_face,
     'bison_horns': bison_horns, 'moose_nose': moose_nose, 'dewlap': dewlap,

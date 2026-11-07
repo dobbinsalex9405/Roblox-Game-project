@@ -108,6 +108,80 @@
    ]
   },
   {
+   "id": "JellySlime",
+   "rarity": "Ultra Rare",
+   "plan": "puff",
+   "gait": "hop",
+   "element": "plain",
+   "options": {
+    "kind": "gum"
+   },
+   "colors": {
+    "col": "#6FE3A0",
+    "accent": "#B8FFD6",
+    "feet": "#4CC982"
+   },
+   "accessories": [
+    {
+     "kind": "jelly",
+     "color": "#3FBF7A",
+     "color2": "#4FD08A"
+    },
+    {
+     "kind": "jelly_core",
+     "color": "#7CFFB4",
+     "color2": "#E8FFF2"
+    },
+    {
+     "kind": "coin_inside",
+     "color": "#FFD43B",
+     "color2": "#B07E10"
+    },
+    {
+     "kind": "smile_line",
+     "color": "#1E5A3A"
+    }
+   ]
+  },
+  {
+   "id": "PebbleGolem",
+   "rarity": "Ultra Rare",
+   "plan": "upright",
+   "gait": "waddle",
+   "element": "Nature",
+   "options": {
+    "kind": "golem"
+   },
+   "colors": {
+    "col": "#9A9690",
+    "accent": "#6FAE4A",
+    "belly": "#B4B0A8"
+   },
+   "shape": {
+    "body": [
+     0.85,
+     0.85,
+     0.9
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "river_stones",
+     "color": "#9A9690",
+     "color2": "#7E7A74"
+    },
+    {
+     "kind": "moss_top",
+     "color": "#5FA845",
+     "color2": "#8FD45E"
+    },
+    {
+     "kind": "eye_shine",
+     "color": "#14141E"
+    }
+   ]
+  },
+  {
    "id": "NeonOctopus",
    "rarity": "Ultra Rare",
    "plan": "octopus",
@@ -130,6 +204,32 @@
      "kind": "fit_boxes",
      "color": "#000000",
      "head": true
+    }
+   ]
+  },
+  {
+   "id": "WillOWisp",
+   "rarity": "Ultra Rare",
+   "plan": "puff",
+   "gait": "hover",
+   "element": "plain",
+   "options": {
+    "kind": "ball"
+   },
+   "colors": {
+    "col": "#3A8CF0",
+    "accent": "#7FC4FF",
+    "feet": "#2F6FD0"
+   },
+   "accessories": [
+    {
+     "kind": "wisp_flame",
+     "color": "#3A9CFF",
+     "color2": "#5FE4FF"
+    },
+    {
+     "kind": "sleepy_eyes",
+     "color": "#14203A"
     }
    ]
   }
