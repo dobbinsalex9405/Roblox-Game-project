@@ -1144,6 +1144,7 @@ def sentinel(c, H, cols, opts):
     patch = cols.get('patches', _dark(col, 0.5))
     ear = cols.get('ear_col', patch)
     tcol = cols.get('tail_col', col)
+    tipc = _dark(ear, 0.45)  # ear tips and tail tip
     c.gait_hint = 'waddle'
     body = c.part('body')
     head = c.part('head', 'static', (0, -0.3 * k, 6.8 * k))
@@ -1175,7 +1176,8 @@ def sentinel(c, H, cols, opts):
                 _sym(body, x + max(0, round(0.15 * k)), y, z, col)
     # the head: small and round with a tapered snout
     hz = hip + 5.4 * k
-    head.ell((0, -0.3 * k, hz), (1.6 * k, 1.15 * k, 1.05 * k), col)
+    # (a little wider in the fine build, so each eye has fur all round it)
+    head.ell((0, -0.3 * k, hz), ((1.95 if _fine(c) else 1.6) * k, 1.15 * k, 1.05 * k), col)
     head.ell((0, -1.2 * k, hz - 0.35 * k), (0.55 * k, 0.75 * k, 0.5 * k), belly)
     es = max(1, round(0.4 * k))
     ez = round(hz + 0.05 * k)
@@ -1190,10 +1192,9 @@ def sentinel(c, H, cols, opts):
     ex = max(0, min(2, max(xs) - es + 1))
     if _fine(c):
         # each eye a dark 2x2 block with one white shine in its top outer
-        # corner (#96), and a mid-brown tear streak 1 wide and 2 long running
-        # down from its lower outer corner; light fur stays between the
-        # streaks and the nose, and the dark eye is the strongest thing
-        ex = max(0, min(1, max(xs) - 1))
+        # corner (#96), set in plain light fur with fur on every side; no
+        # patches (the pose, the ears and the tail tip say meerkat)
+        ex = 1
         e = c.part('eyes', 'blink', head.pivot)
         for side in (1, -1):
             for dx, z in ((0, ez), (1, ez), (0, ez - 1), (1, ez - 1)):
@@ -1202,15 +1203,8 @@ def sentinel(c, H, cols, opts):
                 if f:
                     del head.v[f]
                     e.put(f, WHITE if (dx, z) == (1, ez) else INK)
-            px = ex + 1 if side > 0 else _mx(ex + 1)
-            last = head.front(px, ez - 1) or e.front(px, ez - 1)
-            for z in (ez - 2, ez - 3):
-                f = head.front(px, z)
-                if f is None and last is not None:
-                    f = (px, last[1], z)  # the streak runs on down past the jaw
-                if f is not None and (f not in head.v or head.v[f][0] != INK):
-                    head.put(f, patch)
-                    last = f
+                    if z == ez and head.front(xx, ez + 1) is None:
+                        head.put((xx, f[1] + 1, ez + 1), col)  # fur over the eye
     else:
         eyes(c, head, ex, ez, es)
         e = _find(c, 'eyes')
@@ -1221,12 +1215,19 @@ def sentinel(c, H, cols, opts):
     # small dark ears low on the sides
     ep = c.part('ears', 'static', head.pivot)
     r = max(1.0, 0.35 * k)
-    for x in range(0, math.ceil(1.6 * k) + 1):
+    exr = (1.7 if _fine(c) else 1.3) * k
+    for x in range(0, math.ceil(exr + r) + 1):
         for y in range(math.floor(-0.3 * k - r), math.ceil(-0.3 * k + r) + 1):
             for z in range(math.floor(hz + 0.4 * k - r), math.ceil(hz + 0.4 * k + r) + 1):
-                if ((x + .5 - 1.3 * k) / r) ** 2 + ((y + .5 + 0.3 * k) / (r * 0.7)) ** 2 + ((z + .5 - hz - 0.4 * k) / r) ** 2 <= 1:
+                if ((x + .5 - exr) / r) ** 2 + ((y + .5 + 0.3 * k) / (r * 0.7)) ** 2 + ((z + .5 - hz - 0.4 * k) / r) ** 2 <= 1:
                     if (x, y, z) not in head.v:
                         _sym(ep, x, y, z, ear)
+    if _fine(c) and ep.v:
+        # dark brown ear tips
+        zt = max(p[2] for p in ep.v)
+        for p in list(ep.v):
+            if p[2] == zt:
+                ep.v[p] = (tipc, False)
     # the tail: from the rump down behind, along the ground, a dark tip
     tl = c.part('tail', 'static', (0, 1.2 * k, hip + 0.6 * k))
     path = [(1.1, hip / k + 0.7), (1.9, 0.8), (2.6, 0.35), (3.4, 0.35)]
@@ -1244,8 +1245,8 @@ def sentinel(c, H, cols, opts):
         prev = (y, z)
     tip = max(tl.v, key=lambda p: p[1])
     for p in list(tl.v):
-        if p[1] >= tip[1] - max(0, round(0.4 * k)):
-            tl.v[p] = (patch, False)
+        if p[1] >= tip[1] - (1 if _fine(c) else max(0, round(0.4 * k))):
+            tl.v[p] = (tipc if _fine(c) else patch, False)  # a dark brown tip
     return c
 
 
