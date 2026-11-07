@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Big Epics fit their 120-box stand-in by coarsening, not by losing detail
+
+- **The in-game box art (VoxelArt, drawn before the meshes load) of the
+  twelve Epics in `tools/art/kit_epicmyth.py` keeps to the Epic budget of
+  120 boxes by redrawing its heaviest parts on a 2-voxel grid (then a
+  3-voxel grid if needed)**, never the head, eyes, ears, legs or small
+  glowing features. The Blender meshes, which players see once loaded,
+  are built from the full-detail voxels and are untouched. The kit_myth
+  plans were sized for Legendaries (450 boxes); without this, serpents,
+  the kraken and the golem came to 130 to 200 boxes.
+- **The count is taken after `creatures.build_all`'s one-part-per-voxel
+  step**, because that step punches holes in the body where the head
+  overlaps it and adds boxes; counting earlier left creatures 5 to 30
+  boxes over.
+
 ## 2026-11-05: Roblox's player list is off in Hatchery Heist
 
 - On desktop the player list (top right) covered the side menu's top
