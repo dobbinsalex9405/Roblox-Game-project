@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Ten new Epic creatures can hatch: Mushroom Gnome, Troll Cub, Sapling Ent,
+  Gingerbread Golem, Petal Sprite, Frost Sprite, Ember Imp, Yeti Cub, Rime
+  Drakeling and Bonsai Dragon. They join the Epic tier's share of the eggs,
+  so no other tier's odds change.
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
   the list is off.
