@@ -865,7 +865,8 @@ def tail2(c, H, col, col2=None, a=None):
 
 def wool(c, H, col, col2=None, a=None):
     """A woolly fleece: round curls standing out all over the body's top and
-    sides, a shade lighter, so the outline is bumpy."""
+    sides, a shade lighter, so the outline is bumpy. `share` (0-1, opt-in)
+    sets how many curls take col2, picked per grid cell."""
     a = a or {}
     k = _k(H)
     body = _find(c, 'body')
@@ -887,8 +888,14 @@ def wool(c, H, col, col2=None, a=None):
         n = (x + .5 - cx, (y + .5 - cy) * 0.6, z + .5 - cz)
         L = math.sqrt(sum(v * v for v in n)) or 1
         r = 0.42 * k + 0.3
+        if a.get('share') is not None:
+            # curls on an even grid all hash alike: mix by grid cell, and
+            # make `share` (0-1) of them the lighter shade
+            light_curl = _hash(x // step, y // step, z // step, 5) % 100 < a['share'] * 100
+        else:
+            light_curl = _hash(x, y, z, 5) % 2
         _ball(wp, x + .5 + n[0] / L * 0.5 * k, y + .5 + n[1] / L * 0.5 * k, z + .5 + n[2] / L * 0.5 * k, r,
-              lite if _hash(x, y, z, 5) % 2 else col)
+              lite if light_curl else col)
     for p in list(wp.v):
         if p in vox:
             del wp.v[p]
@@ -1424,6 +1431,72 @@ def quill_coat(c, H, col, col2=None, a=None):
 
 
 ACCESSORIES['quill_coat'] = _fine_only(quill_coat)
+
+def mayfly(c, H, col, col2=None, a=None):
+    """Rebuilds the critter-plan dragonfly into a mayfly: two tall upright
+    wings held together over the back (each on its own side of the middle,
+    so they open out when they flap), pale with a few vein lines (col2);
+    slim pale legs (a.legs); and two long tail threads (a.threads) curving
+    up and apart from the tip of the abdomen, drawn on the right and
+    mirrored so both match."""
+    a = a or {}
+    k = _k(H)
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    wing = col
+    vein = col2 or _mix(col, INK, 0.18)
+    (bx0, by0, bz0), (bx1, by1, bz1) = _bounds(body.v)
+    ztop = max(q[2] for q in body.v if q[1] <= by0 + 3)
+    yb0 = by0 - 1  # the wing's root runs along the thorax
+    root = max(3, round(a.get("root", 1.8) * k))
+    tall = max(5, round(a.get('height', 2.6) * k))
+    for side, name in ((1, 'wingR'), (-1, 'wingL')):
+        w = _find(c, name)
+        if w is None:
+            continue
+        w.v = {}
+        x = 0 if side > 0 else -1
+        for i in range(tall):
+            # the leading edge stands straight up; the trailing edge slopes back
+            t = i / max(1, tall - 1)
+            y_lo = yb0 + round(0.3 * k * t)
+            y_hi = yb0 + root + round(1.6 * k * t * (1 - t) * 2)
+            if i == tall - 1:
+                y_hi = y_lo + 1
+            for y in range(y_lo, y_hi + 1):
+                edge = y in (y_lo, y_hi) or (y - y_lo) % 3 == 2
+                w.put((x, y, ztop + 1 + i), vein if edge else wing)
+        w.pivot = (0.5 * side, yb0 + root / 2, ztop + 1)
+    # slim pale legs
+    lc = hexc(a['legs']) if a.get('legs') else None
+    if lc:
+        for p in c.parts:
+            if p.name.startswith('leg'):
+                for q in list(p.v):
+                    p.v[q] = (lc, False)
+    # tail threads, mirrored
+    th = _find(c, 'threads')
+    if th is not None:
+        th.v = {}
+        tc = hexc(a['threads']) if a.get('threads') else _mix(col, INK, 0.3)
+        tip = max((q for q in body.v if q[0] >= 0), key=lambda q: (q[1], q[2]))
+        n = max(8, round(5.0 * k))
+        prev = None
+        for i in range(n + 1):
+            t = i / n
+            q = (tip[0] + round(1.6 * k * t), tip[1] + 1 + round(4.4 * k * t), tip[2] + round(2.4 * k * t * t))
+            if prev is not None:
+                steps = max(abs(q[j] - prev[j]) for j in range(3)) or 1
+                for s in range(steps + 1):
+                    r = tuple(round(prev[j] + (q[j] - prev[j]) * s / steps) for j in range(3))
+                    th.put(r, tc)
+            prev = q
+        for (x, y, z), v in list(th.v.items()):
+            th.v[(_mx(x), y, z)] = v
+
+
+ACCESSORIES['mayfly'] = _fine_only(mayfly)
 
 # Every kind carries the kit's own prefix, so no other kit's accessory name can clash with it.
 ACCESSORIES = {'lg_' + name: fn for name, fn in ACCESSORIES.items()}
