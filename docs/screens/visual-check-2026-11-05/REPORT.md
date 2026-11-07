@@ -1238,3 +1238,19 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **Fix options:** set Godly = 19, so all 19 are exactly 1 in 1,000,000 (the tier goes from 1 in 50,000 to 1 in 52,632). Or accept the uneven split and change the acceptance wording.
 - **Book (done before the FAIL):** the Godly tab reads 0/20, and all 20 cards have loaded pictures (18 new + Golden Goose + Nebula Serpent). The Book lines match the list: Clockwork Leviathan "Moonlit Egg 1 in 500,000", the other 18 Moonlit Godlies "1 in 1,000,000", Golden Goose "Premium Egg 1 in 10,000".
 - Stopped here: the phone width, placed Godlies and Moonlit hatch were not run on this head.
+
+## #99 @ 70eae94 (Moonlit Godly 19), merged onto main ef8db0e locally (clean)
+
+**PASS.** Local build. Only eggs.luau and CHANGELOG changed since 29ec29e.
+1. **Moonlit odds card:**
+   - Desktop: 280x214 — Uncommon 58.0001% · 1 in 1.7 / Rare 38.0000% / UR 3.7000% · 1 in 27 / Epic 0.2900% · 1 in 345 / Legendary 0.0080% · 1 in 12,500 / **Godly 0.0019% · 1 in 52,632**. Sums to 100.000%, 0 TextFits failures.
+   - Phone 844x392: 224x157 at y 225-383, 12.0 px text, nothing truncated, and the rows scroll to "See every creature" (`99b-phone-moonlit-card.jpg`).
+   - **Moonlit odds list:** **19 Godly rows, every one "0.0001% · 1 in 1,000,000"** (Clockwork Leviathan fixed). Sums to 100.0000%, 0 truncated. Same on desktop 420x524 and phone 420x244 at y 138-382 (`99b-desktop-godly-list.jpg`, `99b-phone-godly-list.jpg`).
+2. **Book, Godly tab:** 20 cards, all with loaded pictures. The 19 Moonlit Godlies read "1 in 1,000,000", and Golden Goose reads "Premium Egg 1 in 10,000".
+3. **Placed Godlies:**
+   - Floor 1: World Turtle (hover) and Clockwork Leviathan (swim, the long one, spanning the 30-stud row from Pad5). Each Godly takes several pads, so floor 1 holds two. I built floor 2 with test coins for Cosmic Whale (swim) and Solar Lion (hover).
+   - All 21-29 MeshParts are textured. The only untextured parts are the Neon `_glow` overlays (orbits, eyes, crests, waterfalls, furnace). The largest gap is 0.000.
+   - Hover/swim heights above the pad top: Turtle +0.86, Leviathan +0.92, Whale +0.84, Lion +0.91 (medians, minimum +0.34). Nothing enters the floor.
+   - Moved in 10 s: 12.0 / 12.8 / 21.1 / 16.2 studs.
+   - **Neighbours:** Turtle vs Leviathan stays ≥1.67 studs apart (box). Whale vs Lion box corners touch once in 30 samples (Lion orbit glow vs Whale head), but no part's centre ever enters the other (0/100), and visually there's no clipping (`99b-floor1-turtle-leviathan.jpg`, `99b-floor2-whale-lion.jpg`).
+4. **Moonlit hatch end to end:** bought from the belt (15K), incubated for 120 s, hatched with E: "NEW! … UNCOMMON Kitten +10 coins/s · 1 in 6.9", and the incubator went back to Empty (`99b-moonlit-hatch.jpg`).
