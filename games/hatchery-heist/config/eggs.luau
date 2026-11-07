@@ -61,16 +61,18 @@ local eggs: { Egg } = {
 		hatchSeconds = 120,
 		-- Out of 1,000,000, not 100,000: every creature in a tier needs a
 		-- whole weight of at least 1, and 19 Godlies hatch from this egg.
-		-- Same odds as at 100,000, each weight times 10.
+		-- The Godly weight is a whole multiple of the Godly count, so every
+		-- Godly shows the same odds (a 20th Godly means 20 or 40); the spare
+		-- point goes to Uncommon. Otherwise the odds at 100,000, times 10.
 		total = 1000000,
 		pool = "Moonlit",
 		tiers = {
-			Uncommon = 580000, -- 58%
+			Uncommon = 580001, -- 58%
 			Rare = 380000, -- 38%
 			["Ultra Rare"] = 37000, -- 3.7%
 			Epic = 2900, -- 1 in 345
 			Legendary = 80, -- 1 in 12,500
-			Godly = 20, -- 1 in 50,000 (each of the 19 Godlies about 1 in 1,000,000)
+			Godly = 19, -- 1 in 52,632 (each of the 19 Godlies exactly 1 in 1,000,000)
 		},
 	},
 	{

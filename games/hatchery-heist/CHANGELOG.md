@@ -3,7 +3,7 @@
 ## Unreleased
 
 - 18 new Godlies can now hatch from the Moonlit Egg (19 Godlies there in
-  all). The egg's odds are unchanged: a Godly is still 1 in 50,000.
+  all), each 1 in 1,000,000 (a Godly from it is 1 in 52,632, was 1 in 50,000).
 - Fix: in the Hatchery Book, the tab you open loads its pictures first, so
   a tab opened soon after joining no longer waits on the others' pictures.
 - Fix: the odds card beside an egg refits when the screen changes size, so
