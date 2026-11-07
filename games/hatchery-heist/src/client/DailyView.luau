@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -206,6 +207,31 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	badge.Parent = button
 
 	local waiting = false -- a claim is on its way to the server
+	local claiming: number? = nil -- coins the claim on its way pays
+
+	-- "+600 coins" rising from the Claim button once the coins land: the
+	-- window covers the coin counter, so this is where a player sees it.
+	-- The claim's "+N coins", in gold in the footer line just under the Claim
+	-- button, with a little bump; the countdown comes back after it. (Floating
+	-- up through the day cards, it covered their amounts: audit, #112.)
+	local poppedUntil = 0
+	local footerColor = footer.TextColor3
+	local footerSize = footer.TextSize
+	local function pop(amount: number)
+		poppedUntil = os.clock() + 1.6
+		footer.Text = `+{Layout.shortNumber(amount)} coins!`
+		footer.TextColor3 = GOLD
+		footer.TextSize = footerSize + 6
+		TweenService:Create(footer, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			TextSize = footerSize + 2,
+		}):Play()
+		task.delay(1.6, function()
+			if os.clock() >= poppedUntil then
+				footer.TextColor3 = footerColor
+				footer.TextSize = footerSize
+			end
+		end)
+	end
 	local function refresh()
 		local d = ctx.data()
 		if d == nil then
@@ -242,9 +268,11 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		claim.Text = if ready then "Claim!" elseif waiting then "..." else clock(status.secondsLeft)
 		claim.BackgroundColor3 = if ready then GREEN else GREY
 		claim.AutoButtonColor = ready
-		footer.Text = if status.ready
-			then `Day {status.day} reward is ready.`
-			else `Next reward in {clock(status.secondsLeft)}.`
+		if os.clock() >= poppedUntil then
+			footer.Text = if status.ready
+				then `Day {status.day} reward is ready.`
+				else `Next reward in {clock(status.secondsLeft)}.`
+		end
 		badge.Visible = status.ready
 	end
 
@@ -257,12 +285,14 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 			return
 		end
 		waiting = true
-		Sfx.play("reward")
+		local status = Daily.status(d, ctx.serverNow(), days)
+		claiming = Daily.amount(status.day, Hatchery.incomePerSecond(d, ctx.config, ctx.perks()), config)
 		ctx.fire(ctx.remotes["HH:ClaimDaily"])
 		refresh()
 		-- The new data clears `waiting`; if the server refused, try again soon.
 		task.delay(3, function()
 			waiting = false
+			claiming = nil
 			refresh()
 		end)
 	end)
@@ -274,6 +304,14 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	local autoOpened = false
 	ctx.onData(function(d: { [string]: any })
 		waiting = false
+		local paid = claiming
+		if paid and Daily.status(d, ctx.serverNow(), days).claimedToday then
+			claiming = nil
+			Sfx.play("reward")
+			if gui.Enabled then
+				pop(paid)
+			end
+		end
 		refresh()
 		-- Returning players with a reward waiting see the window once.
 		if not autoOpened then

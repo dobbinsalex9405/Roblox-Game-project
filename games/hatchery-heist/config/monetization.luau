@@ -13,10 +13,14 @@ return {
 		AutoCollect = 0,
 	},
 	products = {
-		CoinPackSmall = { id = 0, coins = 5000 },
-		CoinPackMedium = { id = 0, coins = 30000 },
-		CoinPackBig = { id = 0, coins = 80000 },
-		CoinPackLarge = { id = 0, coins = 200000 },
+		-- A coin pack gives `coins`, or `incomeMinutes` of the buyer's income
+		-- right now, whichever is more (shared/Products.packCoins), so packs
+		-- stay worth buying as floors multiply income. Bigger packs give a
+		-- little more per Robux either way.
+		CoinPackSmall = { id = 0, coins = 5000, incomeMinutes = 5 },
+		CoinPackMedium = { id = 0, coins = 30000, incomeMinutes = 20 },
+		CoinPackBig = { id = 0, coins = 80000, incomeMinutes = 45 },
+		CoinPackLarge = { id = 0, coins = 200000, incomeMinutes = 100 },
 		ShieldRefill = { id = 0 },
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
