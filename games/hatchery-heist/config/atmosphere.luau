@@ -185,11 +185,16 @@ return {
 	-- flat) to where they point, so they never sit on top of the Buy prompt
 	-- you came for (Studio gate, Nov 5).
 	-- The Hatchery Book draws only the cards near the screen (client/
-	-- BookView): this many rows past each edge are drawn ahead, so a new
-	-- card's picture is ready before it scrolls into view (Studio gate,
-	-- Nov 5: a fast flick showed empty cards for a moment).
+	-- BookView). overscanRows past each edge are drawn at once; while the
+	-- book is open it then builds more, outward from the view, warmPerFrame
+	-- a frame, until warmCards are built, because a new card's picture takes
+	-- up to a second to draw its first frame (Studio gate, Nov 5 and 7: a
+	-- fast flick showed empty cards). 144 keeps the whole Common tab warm and
+	-- covers a 1,400 px flick on a 200-card tab.
 	book = {
 		overscanRows = 2,
+		warmCards = 144,
+		warmPerFrame = 4,
 	},
 	guide = {
 		arrivedStuds = 8,

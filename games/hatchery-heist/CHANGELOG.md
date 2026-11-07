@@ -7,8 +7,9 @@
   the list is off.
 - The "YOUR HATCHERY" banner floats higher over your base sign, clear of the
   next floor's price label, so the two no longer read as one crowded line.
-- Hatchery Book: cards two rows ahead are drawn before they scroll in, and
-  each card has a dark picture well, so a fast flick never shows empty cards.
+- Hatchery Book: while it is open, the cards around the view (the whole
+  Common tab today) are built ahead and kept, and each card has a dark
+  picture well, so a fast flick lands on cards that are already drawn.
 
 - Fix: a creature's legs, wings, tails and heads no longer flicker where
   they swing against the body (a bunny's hind feet kicking back in a hop

@@ -19,6 +19,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Odds = require(ReplicatedStorage.Core.Odds)
@@ -158,8 +159,11 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
 	local species = ctx.config.creatures.species
 	local bookConfig = ctx.config.economy.book
-	-- Rows drawn past each edge of the view (config/atmosphere book).
-	local overscan = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book.overscanRows :: number
+	-- How far past the view cards are drawn and kept built (config/atmosphere book).
+	local bookLook = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book
+	local overscan = bookLook.overscanRows :: number
+	local warmCards = bookLook.warmCards :: number
+	local warmPerFrame = bookLook.warmPerFrame :: number
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatcheryBook"
 	gui.ResetOnSpawn = false
@@ -440,14 +444,36 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 	end
 
+	-- A pooled card for the current tab's card `index`, model and all.
+	local function bind(tab: Tab, index: number, found: { [string]: any }, restricted: boolean)
+		local entry = tab.entries[index]
+		local card = table.remove(pool) or makeCard()
+		card.entry = entry
+		local color = Layout.rarityColor(entry.rarity)
+		card.frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
+		card.border.Color = color
+		local x, y = BookGrid.position(index, columns, GRID)
+		card.frame.Position = UDim2.fromOffset(x, y)
+		card.frame.Name = entry.speciesId
+		showModel(card, entry, found[entry.speciesId] ~= nil)
+		paintCard(card, found, restricted)
+		card.frame.Visible = true
+		bound[index] = card
+	end
+
+	-- The drawn range (the view and `overscan` rows either side) and the
+	-- wider warm range kept built around it (BookGrid.warm).
+	local drawnFirst, drawnLast, warmFirst, warmLast = 1, 0, 1, 0
+
 	-- Binds pooled cards to the cards in view (and `overscan` rows either
-	-- side) and returns the rest to the pool.
+	-- side) at once, and returns cards outside the warm range to the pool.
+	-- warmUp fills the rest of the warm range a few cards a frame.
 	local function cull()
 		local tab = current
 		if tab == nil or not gui.Enabled then
 			return
 		end
-		local first, last = BookGrid.visible(
+		drawnFirst, drawnLast = BookGrid.visible(
 			#tab.entries,
 			columns,
 			GRID,
@@ -455,32 +481,48 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			body.AbsoluteWindowSize.Y,
 			overscan
 		)
+		warmFirst, warmLast = BookGrid.warm(#tab.entries, drawnFirst, drawnLast, warmCards)
 		for index in bound do
-			if index < first or index > last then
+			if index < warmFirst or index > warmLast then
 				release(index)
 			end
 		end
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
 		local restricted = ctx.restricted()
-		for index = first, last do
+		for index = drawnFirst, drawnLast do
 			if bound[index] == nil then
-				local entry = tab.entries[index]
-				local card = table.remove(pool) or makeCard()
-				card.entry = entry
-				local color = Layout.rarityColor(entry.rarity)
-				card.frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
-				card.border.Color = color
-				local x, y = BookGrid.position(index, columns, GRID)
-				card.frame.Position = UDim2.fromOffset(x, y)
-				card.frame.Name = entry.speciesId
-				showModel(card, entry, found[entry.speciesId] ~= nil)
-				paintCard(card, found, restricted)
-				card.frame.Visible = true
-				bound[index] = card
+				bind(tab, index, found, restricted)
 			end
 		end
 	end
+
+	-- Builds up to `warmPerFrame` more cards of the warm range, nearest the
+	-- view first, so their pictures have drawn before they scroll in.
+	local function warmUp()
+		local tab = current
+		if tab == nil or not gui.Enabled or drawnLast < drawnFirst then
+			return
+		end
+		local d = ctx.data()
+		local found = if d then d.found or {} else {}
+		local restricted = ctx.restricted()
+		local built = 0
+		local function try(index: number): boolean
+			if index >= warmFirst and index <= warmLast and bound[index] == nil then
+				bind(tab, index, found, restricted)
+				built += 1
+			end
+			return built >= warmPerFrame
+		end
+		local reach = math.max(drawnFirst - warmFirst, warmLast - drawnLast)
+		for step = 1, reach do
+			if try(drawnLast + step) or try(drawnFirst - step) then
+				return
+			end
+		end
+	end
+	RunService.Heartbeat:Connect(warmUp)
 
 	local function refresh()
 		local d = ctx.data()

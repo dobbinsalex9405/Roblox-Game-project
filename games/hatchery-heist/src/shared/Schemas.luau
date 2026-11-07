@@ -372,6 +372,8 @@ return function(Schema: any, Odds: any)
 		-- The Hatchery Book's drawn-ahead rows (client/BookView).
 		book = Schema.record({
 			overscanRows = Schema.integer({ min = 1, max = 4 }),
+			warmCards = Schema.integer({ min = 24, max = 300 }),
+			warmPerFrame = Schema.integer({ min = 1, max = 20 }),
 		}),
 		guide = Schema.record({
 			arrivedStuds = Schema.number({ min = 2, max = 30 }),

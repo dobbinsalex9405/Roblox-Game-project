@@ -59,6 +59,38 @@ describe("Book grid", function()
 		expect(last < first).toBe(true)
 	end)
 
+	it("keeps pictures warm well past the view, so a fast flick lands on drawn cards", function()
+		-- Studio gate (#119, Nov 7): four 350 px jumps in 0.12 s left two
+		-- whole rows blank for up to a second: a brand-new ViewportFrame
+		-- takes that long to draw its first frame, so cards are built while
+		-- the book is open, outward from the view, and kept while near it.
+		local cap = atmosphere.book.warmCards
+		local columns, view = 6, 380
+		-- The whole Common tab (91 today) stays warm, wherever you look.
+		local first, last = BookGrid.visible(91, columns, SPEC, 0, view, 2)
+		local a, b = BookGrid.warm(91, first, last, cap)
+		expect(a).toBe(1)
+		expect(b).toBe(91)
+		-- A 200-card tab: the gate's 1,400 px flick lands inside the warm
+		-- window it had before the flick, both ways.
+		for scroll = 1400, 3200, 97 do
+			first, last = BookGrid.visible(200, columns, SPEC, scroll, view, 2)
+			a, b = BookGrid.warm(200, first, last, cap)
+			expect(a <= first and b >= last).toBe(true)
+			expect(b - a + 1 <= math.max(cap, last - first + 1)).toBe(true)
+			for _, jump in { -1400, 1400 } do
+				local f2, l2 = BookGrid.visible(200, columns, SPEC, scroll + jump, view, 0)
+				local inside = f2 >= a and l2 <= b
+				expect(inside or `{scroll}+{jump}: {f2}-{l2} outside {a}-{b}`).toBe(true)
+			end
+		end
+		-- Near an end the spare goes to the other side.
+		first, last = BookGrid.visible(200, columns, SPEC, 0, view, 2)
+		a, b = BookGrid.warm(200, first, last, cap)
+		expect(a).toBe(1)
+		expect(b).toBe(cap)
+	end)
+
 	it("draws two rows ahead, so a row has its picture before it scrolls in", function()
 		-- Studio gate (Nov 5): after a fast flick a new row showed empty
 		-- cards for a moment, while each new ViewportFrame drew its first
