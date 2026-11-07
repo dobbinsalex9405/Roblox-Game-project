@@ -124,9 +124,15 @@ function UiKit.window(gui: ScreenGui, title: string, onClose: () -> ()): (Frame,
 	window.BackgroundTransparency = 0.05
 	window.Visible = false
 	corner(window, 12)
+	-- On a short screen (a phone held sideways) the window goes wider and
+	-- uses nearly the whole height, so a list shows more than one item.
 	local function fit()
 		local view = Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(800, 600)
-		window.Size = UDim2.fromOffset(math.min(420, view.X - 32), math.min(520, view.Y - 80))
+		local short = view.Y < 500
+		window.Size = UDim2.fromOffset(
+			math.min(if short then 600 else 420, view.X - 32),
+			math.min(520, view.Y - (if short then 56 else 80))
+		)
 	end
 	fit()
 	if Workspace.CurrentCamera then

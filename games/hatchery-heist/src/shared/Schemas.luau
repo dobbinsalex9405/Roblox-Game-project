@@ -48,8 +48,11 @@ return function(Schema: any, Odds: any)
 			incomeBonusPerRebirth = positive,
 		}),
 		conveyor = Schema.record({
-			spawnSeconds = Schema.number({ min = 0.5, max = 60 }),
+			spawnSeconds = Schema.number({ min = 0.25, max = 60 }),
 			travelSeconds = Schema.number({ min = 2, max = 120 }),
+			lanes = Schema.integer({ min = 1, max = 2 }),
+			buyReach = Schema.number({ min = 10, max = 60 }),
+			signSeconds = Schema.number({ min = 1, max = 30 }),
 			weights = Schema.map(id, Schema.integer({ min = 1 })),
 		}),
 		tower = Schema.record({
@@ -169,6 +172,10 @@ return function(Schema: any, Odds: any)
 		freeShieldSeconds = count,
 		shieldCooldownSeconds = count,
 		shieldSeconds = count,
+		trapPrompt = Schema.record({
+			reach = Schema.number({ min = 1, max = 20 }),
+			holdSeconds = Schema.number({ min = 0, max = 5 }),
+		}),
 		traps = Schema.record({
 			Snare = Schema.record({
 				price = Schema.integer({ min = 1 }),
@@ -242,6 +249,19 @@ return function(Schema: any, Odds: any)
 			saturation = Schema.number({ min = -1, max = 1 }),
 			contrast = Schema.number({ min = -1, max = 1 }),
 			tint = rgb,
+		}),
+		wander = Schema.record({
+			speed = Schema.number({ min = 0.5, max = 10 }),
+			segmentSeconds = Schema.number({ min = 2, max = 60 }),
+			turnSeconds = Schema.number({ min = 0.1, max = 3 }),
+			faceFrontAfter = Schema.number({ min = 0, max = 30 }),
+			margin = Schema.number({ min = 0, max = 4 }),
+			cullStuds = Schema.number({ min = 40, max = 1000 }),
+			cullOtherStuds = Schema.number({ min = 20, max = 1000 }),
+			animateOtherStuds = Schema.number({ min = 10, max = 500 }),
+		}),
+		creatureLod = Schema.record({
+			farStuds = Schema.number({ min = 10, max = 200 }),
 		}),
 		scenery = Schema.check(
 			Schema.record({
@@ -341,6 +361,17 @@ return function(Schema: any, Odds: any)
 				return true
 			end
 		),
+		-- Menu buttons (client/TowerView): how long a row shows "Built!" or
+		-- "Need ... more" in place of its button, and how long it waits for
+		-- the server after a tap before showing the button again.
+		menus = Schema.record({
+			holdSeconds = Schema.number({ min = 0.5, max = 5 }),
+			waitSeconds = Schema.number({ min = 1, max = 10 }),
+		}),
+		-- The guide's arrow and beam (client/GuideView).
+		guide = Schema.record({
+			arrivedStuds = Schema.number({ min = 2, max = 30 }),
+		}),
 		music = Schema.record({
 			tracks = Schema.array(Schema.integer({ min = 1 }), { maxLength = 20 }),
 			volume = Schema.number({ min = 0, max = 1 }),
@@ -356,6 +387,11 @@ return function(Schema: any, Odds: any)
 				volume = unit,
 			})
 		),
+		towerShells = Schema.record({
+			drawStuds = Schema.number({ min = 20, max = 1000 }),
+			towers = Schema.integer({ min = 1, max = 8 }),
+			boxesPerFrame = Schema.integer({ min = 50, max = 10000 }),
+		}),
 	})
 
 	-- Name, Robux price and description of each pass and product on Roblox
@@ -532,6 +568,7 @@ return function(Schema: any, Odds: any)
 		lightColor = Schema.array(Schema.number({ min = 0, max = 255 }), { minLength = 3, maxLength = 3 }),
 		neon = Schema.boolean(),
 		animateRange = Schema.number({ min = 0, max = 400 }),
+		indoorZoom = Schema.number({ min = 4, max = 30 }),
 	})
 
 	function Schemas.sections(config: { [string]: any }): { [string]: Section }

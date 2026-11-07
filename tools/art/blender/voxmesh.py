@@ -49,7 +49,7 @@ def _add(a, b, s=1.0):
     return (a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s)
 
 
-def pillow_faces(voxels):
+def pillow_faces(voxels, flat=()):
     """Yields (voxel, dir_index, inner_quad, rims) for every visible face of
     `voxels` (a set or dict keyed by (x, y, z)). Corners are in voxels, art
     frame. inner_quad is 4 points; rims is 4 quads (outer edge, inner edge),
@@ -57,7 +57,8 @@ def pillow_faces(voxels):
 
     Faces that point straight down (bellies, chins, feet) are flat squares
     with no rims: the camera is nearly always above a creature, and it saves
-    about an eighth of the triangles."""
+    about an eighth of the triangles. So are faces against a voxel in
+    `flat` (where a leg meets the body: hidden until the leg swings)."""
     for p in voxels:
         for d, (n, u, v) in enumerate(DIRS):
             q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
@@ -66,7 +67,7 @@ def pillow_faces(voxels):
             # face origin: the voxel corner where this face's u, v start
             o = (p[0] + max(n[0], 0), p[1] + max(n[1], 0), p[2] + max(n[2], 0))
             outer = [o, _add(o, u), _add(_add(o, u), v), _add(o, v)]
-            if d == DOWN:
+            if d == DOWN or q in flat:
                 yield p, d, outer, []
                 continue
             b = BEVEL
@@ -98,6 +99,7 @@ class MeshData:
     def __init__(self, name):
         self.name, self.verts, self.tris, self.cells = name, [], [], []
         self._index = {}
+        self.tri_normals = []  # each triangle's outward face direction (None: an inner face)
 
     def vert(self, p):
         k = (round(p[0], 5), round(p[1], 5), round(p[2], 5))
@@ -108,13 +110,55 @@ class MeshData:
             self._index[k] = i
         return i
 
-    def quad(self, pts, cell):
+    def quad(self, pts, cell, normal=None):
         # art -> game swaps two axes, a mirror, so the winding flips
         a, b, c, d = (self.vert(p) for p in pts)
         self.tris.append((a, c, b))
         self.cells.append(cell)
         self.tris.append((a, d, c))
         self.cells.append(cell)
+        self.tri_normals += [normal, normal]
+
+    def inset(self, studs):
+        """Moves the whole skin `studs` inward, every vertex back along the
+        voxel faces it lies on (an edge along both of its faces' normals), so
+        the shell stays closed. A part that swings against the body (a leg, a
+        wing, a tail) is inset a hair: where its side is flush with the
+        body's side (a hind leg kicking back keeps its side faces in the
+        body's side plane), the two faces would be the same plane and flicker
+        (Alex, Nov 5: Dutch Bunny hop). Inset, the body's face always wins.
+
+        Where two voxels touch only along an edge, one vertex sits on faces
+        that point opposite ways (one voxel's top, the other's bottom); it is
+        split so each side moves back along its own face."""
+        users = {}
+        for t, (tri, n) in enumerate(zip(self.tris, self.tri_normals)):
+            if n is not None:
+                for k, i in enumerate(tri):
+                    users.setdefault(i, []).append((t, k, n))
+        verts = list(self.verts)
+        tris = [list(t) for t in self.tris]
+        for i, us in users.items():
+            ns = {n for _, _, n in us}
+            torn = [a for a in range(3) if any(n[a] > 0 for n in ns) and any(n[a] < 0 for n in ns)]
+            groups = {}
+            for t, k, n in us:
+                key = tuple(-1 if n[a] < 0 else 1 for a in torn)
+                groups.setdefault(key, []).append((t, k, n))
+            for g, (key, members) in enumerate(sorted(groups.items())):
+                x, y, z = self.verts[i]
+                for n in {n for _, _, n in members}:
+                    x, y, z = x - n[0] * studs, y - n[1] * studs, z - n[2] * studs
+                moved = (round(x, 5), round(y, 5), round(z, 5))
+                if g == 0:
+                    verts[i] = moved
+                    continue
+                verts.append(moved)
+                for t, k, _ in members:
+                    tris[t][k] = len(verts) - 1
+        self.verts = verts
+        self.tris = [tuple(t) for t in tris]
+        self._index = {}
 
     def bounds(self):
         lo = [min(v[i] for v in self.verts) for i in range(3)]
@@ -126,12 +170,18 @@ def _dot(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 
-def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
+def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False, contact=()):
     """Flat faces (no pillow) for the visible skin of `vox` ({(x, y, z):
     (rgb, glow)}), with neighbouring faces of one colour on one plane merged
     into rectangles (greedy meshing). keep(rgb, glow) picks which voxels get
     faces (all of them hide faces). step > 1 first merges step^3 blocks of
-    voxels into one (the most common colour wins), for a far LOD."""
+    voxels into one (the most common colour wins), for a far LOD.
+
+    closed: also make the faces where a kept voxel meets one that is not
+    kept, so the mesh is a closed shell. Glow meshes need it: Roblox's
+    importer drops an open one-voxel slab (glowing paw soles at ground level
+    vanished from four uploaded creatures). Those faces sit against the solid
+    mesh, which leaves its own face there out, so nothing new shows."""
     if step > 1:
         blocks = {}
         for p, col in vox.items():
@@ -147,12 +197,17 @@ def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
     for d, (n, u, v) in enumerate(DIRS):
         planes = {}
         for p, col in grid.items():
-            if (p[0] + n[0], p[1] + n[1], p[2] + n[2]) in grid:
+            q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
+            if q in grid and not (closed and keep and not keep(*grid[q])):
                 continue
             if keep and not keep(*col):
                 continue
-            planes.setdefault(_dot(p, n), {})[(_dot(p, u), _dot(p, v))] = col
-        for layer, cells in planes.items():
+            # a face against the part's own solid voxels (closed) or what it
+            # rests on (contact) stays put in an inset, so the glow still
+            # meets the solid skin around it
+            inner = q in grid or q in contact
+            planes.setdefault((_dot(p, n), inner), {})[(_dot(p, u), _dot(p, v))] = col
+        for (layer, inner), cells in planes.items():
             done = set()
             for (a, b) in sorted(cells, key=lambda ab: (ab[1], ab[0])):
                 if (a, b) in done:
@@ -176,7 +231,8 @@ def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1):
                 quad = [o, _add(o, u, w), _add(_add(o, u, w), v, h), _add(o, v, h)]
                 if step > 1:
                     quad = [(q[0] * step, q[1] * step, q[2] * step) for q in quad]
-                m.quad([to_game(q, centre, voxel) for q in quad], cell_of(key[0], key[1], 'face', 2))
+                m.quad([to_game(q, centre, voxel) for q in quad], cell_of(key[0], key[1], 'face', 2),
+                       None if inner else (n[0], n[2], n[1]))
     return m
 
 
@@ -200,18 +256,21 @@ def lod1_meshes(parts, centre, voxel, cell_of, prefix):
     return out
 
 
-def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
+def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=(), contact=()):
     """Meshes for one creature part: solid faces in one or more meshes (split
     so none passes max_tris; Roblox allows 20,000 per MeshPart) and glowing
     faces in one mesh per glow colour. cell_of(rgb, glow, kind, tone) gives the
     palette cell; kind is 'face' or 'rim'.
+
+    contact: voxels of the parts this one rests on. Its faces against them
+    are inner faces (no normal), which MeshData.inset leaves in place.
 
     Glowing and solid voxels of one part close against each other (a glow
     voxel hides the solid face beside it), so the part reads as one solid
     piece; only the outer skin is made."""
     solid_faces = []
     glow_faces = {}
-    for p, d, inner, rims in pillow_faces(part.v):
+    for p, d, inner, rims in pillow_faces(part.v, flat):
         rgb, glow = part.v[p]
         t = tone_of(p, d)
         item = (p, d, inner, rims, rgb, glow, t)
@@ -224,10 +283,12 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
         m = MeshData(name)
         for p, d, inner, rims, rgb, glow, t in items:
             g = lambda q: to_game(q, centre, voxel)  # noqa: E731
-            m.quad([g(q) for q in inner], cell_of(rgb, glow, 'face', t))
+            n = DIRS[d][0]
+            gn = None if (p[0] + n[0], p[1] + n[1], p[2] + n[2]) in contact else (n[0], n[2], n[1])
+            m.quad([g(q) for q in inner], cell_of(rgb, glow, 'face', t), gn)
             rc = cell_of(rgb, glow, 'rim', t)
             for r in rims:
-                m.quad([g(q) for q in r], rc)
+                m.quad([g(q) for q in r], rc, gn)
         return m
 
     out = []
@@ -247,6 +308,6 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000):
     # would be invisible: they are flat and greedy-merged instead.
     for k, rgb in enumerate(sorted(glow_faces)):
         m = flat_mesh(part.v, centre, voxel, cell_of, f'{part.name}_glow' + ('' if k == 0 else str(k + 1)),
-                      keep=lambda c, g, rgb=rgb: g and c == rgb)
+                      keep=lambda c, g, rgb=rgb: g and c == rgb, closed=True, contact=contact)
         out.append(('glow', rgb, m))
     return out
