@@ -713,3 +713,11 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Hatch reveal:** not checked. The Test panel can't trigger a Premium-egg reveal, and Phoenix/Griffin come only from Premium eggs. The Book card shows both whole.
 - **Kittens:** Calico, Persian, Siamese, Tabby, Tuxedo and Kitten all draw with meshes (9-10 MeshParts, 0 boxes) in world and Book. This was **before** the kitten re-upload.
 - **First screen:** unchanged (`92-hh-first-screen.jpg`).
+
+## #119 Book re-check @ 2c2042d
+
+**Mostly fixed. One case left.** Desktop, Common tab, four 350 px jumps.
+- **First flick after opening the Book (0.5 s wait): still blank.** Right after opening, the first fast flick down lands on two blank rows (`119b-hh-first-flick-blank.jpg`). At that point the data side reports all 91 cards built (ViewportFrames hold models), and fps is 60. So the warm range is built, but those frames haven't rendered once yet.
+- **Every later flick (down again after 0.8 s; up after 0.5 s): PASS.** Every row is drawn the moment it lands (`119b-hh-second-flick-down.jpg`, `119b-hh-flick-up.jpg`).
+- **Read:** building is fine. The blank comes from a ViewportFrame's first render, which only happens once it has been on screen. A first fast flick within about a second of opening still shows it.
+- **Possible fix:** on open, briefly cycle the canvas through the warm range off-screen, or keep ViewportFrames Visible with the cards at ImageTransparency 1 for one frame, so each one renders once before the player scrolls.
