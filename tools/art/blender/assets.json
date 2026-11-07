@@ -86,9 +86,9 @@
   },
   "Bumblebee": {
    "assetId": 137863202285617,
-   "textureId": 85667855511377,
+   "textureId": 82434895412728,
    "textureType": "Image",
-   "version": "6"
+   "version": "7"
   },
   "Bunny": {
    "assetId": 104598696622884,
@@ -680,9 +680,9 @@
   },
   "Owlet": {
    "assetId": 127514852994147,
-   "textureId": 122649575201337,
+   "textureId": 139903809045735,
    "textureType": "Image",
-   "version": "5"
+   "version": "6"
   },
   "PacmanFrog": {
    "assetId": 109396017995532,
