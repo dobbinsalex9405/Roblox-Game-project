@@ -7947,6 +7947,326 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				},
 			},
 		},
+		Coneling = {
+			rarity = "Common",
+			size = { 6, 12, 4 },
+			palette = { "D9A066", "4A322C", "7A4A28", "A0683C", "5FAE4A", "1B1B2F", "483326", "5C3D22" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 2, 0 },
+					boxes = {
+						-1, 5, -1, 2, 1, 1, 1, -1, 5, 0, 2, 1, 1, 2, -2, 6, 0, 1, 1, 1, 3, -1, 6, 0, 1, 1, 1, 4, 0, 6, 0, 2, 1, 1, 3, -1, 6, 1, 2, 1, 1, 3, -3, 7, -1, 1, 1, 1, 1, 2, 7, -1, 1, 1, 1, 1,
+						-2, 7, 0, 1, 2, 1, 2, -1, 7, 0, 1, 1, 1, 3, 0, 7, 0, 1, 1, 1, 4, 1, 7, 0, 1, 2, 1, 2, -1, 7, 1, 2, 1, 1, 1, -1, 8, 0, 1, 1, 1, 4, 0, 8, 0, 1, 1, 2, 3, -1, 8, 1, 1, 1, 1, 3,
+						-1, 9, 0, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 7.5, -0.5 },
+					boxes = {
+						-1, 6, -2, 2, 3, 2, 4, -2, 6, -1, 1, 2, 1, 4, 1, 6, -1, 1, 2, 1, 4, -1, 9, -1, 2, 1, 1, 4,
+					},
+				},
+				{
+					name = "tuft",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2, 0 },
+					boxes = {
+						-1, 10, 0, 3, 2, 1, 5, 0, 10, 1, 1, 2, 1, 5,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 7.5, -0.5 },
+					boxes = {
+						-2, 8, -1, 1, 1, 1, 6, 1, 8, -1, 1, 1, 1, 6,
+					},
+				},
+				{
+					name = "legR",
+					anim = "legR",
+					parent = "body",
+					pivot = { 1.5, 6.5, 0.5 },
+					boxes = {
+						1, 0, -1, 1, 1, 1, 7, 1, 0, 0, 1, 6, 1, 8, 2, 0, 0, 1, 1, 1, 7,
+					},
+				},
+				{
+					name = "legL",
+					anim = "legL",
+					parent = "body",
+					pivot = { -1.5, 6.5, 0.5 },
+					boxes = {
+						-2, 0, -1, 1, 1, 1, 7, -3, 0, 0, 1, 1, 1, 7, -2, 0, 0, 1, 6, 1, 8,
+					},
+				},
+			},
+		},
+		DoubleChick = {
+			rarity = "Common",
+			size = { 8, 8, 6 },
+			palette = { "FF9F1C", "FFE14D", "FFF3A8", "FF9418" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 5, 1, 2, -1, 1, 0, 2, 3, 2, 3, -1, 1, 2, 2, 4, 1, 2, -3, 2, -1, 1, 2, 1, 2, 2, 2, -1, 1, 3, 1, 2, -2, 2, 0, 1, 2, 3, 2,
+						1, 2, 0, 1, 2, 3, 2, -1, 4, 0, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-3, 4, -1, 2, 1, 3, 2, -3, 5, -3, 2, 1, 4, 4, 1, 5, -1, 2, 1, 3, 2, -4, 5, 0, 5, 1, 1, 2, -3, 5, 1, 2, 2, 1, 2, 1, 6, -3, 2, 1, 4, 4, -3, 6, -1, 2, 1, 2, 2, 0, 6, 0, 4, 1, 1, 2,
+						1, 6, 1, 2, 2, 1, 2, 1, 7, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
+		Fuzzball = {
+			rarity = "Common",
+			size = { 6, 7, 4 },
+			palette = { "FF9A3D", "FFC27A", "1B1B2F", "E07A22" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 3, -2, 2, 1, 4, 1, -2, 3, -1, 1, 1, 2, 1, 1, 3, -1, 1, 1, 2, 1, -2, 4, 0, 4, 2, 2, 1, -2, 6, 0, 4, 1, 1, 1, -1, 6, 1, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 5, -0.5 },
+					boxes = {
+						-2, 4, -2, 4, 1, 2, 1, -1, 5, -2, 2, 2, 2, 1, -2, 5, -1, 1, 2, 1, 1, 1, 5, -1, 1, 2, 1, 1,
+					},
+				},
+				{
+					name = "fur",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						2, 3, 0, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 4, -2, 1, 1, 1, 2, -3, 5, -2, 1, 1, 1, 1, -3, 5, 1, 1, 1, 1, 1, 2, 5, 1, 1, 1, 1, 1, -2, 6, -2, 1, 1, 1, 1, 1, 6, -2, 1, 1, 1, 1,
+						2, 6, -1, 1, 1, 1, 2, -3, 6, 0, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 5, -0.5 },
+					boxes = {
+						-2, 5, -2, 1, 1, 1, 3, 1, 5, -2, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "legL",
+					anim = "legL",
+					parent = "body",
+					pivot = { -1.5, 4, -0.5 },
+					boxes = {
+						-3, 0, -2, 2, 1, 2, 4, -3, 1, -1, 2, 2, 1, 4, -3, 3, -1, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "legR",
+					anim = "legR",
+					parent = "body",
+					pivot = { 1.5, 4, -0.5 },
+					boxes = {
+						1, 0, -2, 2, 1, 2, 4, 1, 1, -1, 2, 2, 1, 4, 2, 3, -1, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		Goldfish = {
+			rarity = "Common",
+			size = { 6, 5, 6 },
+			palette = { "FFD08A", "FF8A1F", "985826", "FFB347", "FFCA7E", "FFCE87", "E8A445" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-1, 1, -2, 2, 2, 2, 1, -2, 2, -1, 1, 1, 1, 1, 1, 2, -1, 1, 1, 1, 1, -2, 3, -2, 4, 1, 2, 2, -1, 3, 0, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "head",
+					parent = "body",
+					pivot = { 0, 3, -2 },
+					boxes = {
+						-1, 2, -3, 2, 1, 1, 3, -1, 3, -3, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "finR",
+					anim = "finR",
+					parent = "body",
+					pivot = { 1.5, 2, -1.5 },
+					boxes = {
+						1, 1, -2, 2, 1, 1, 4, 1, 2, -2, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "finL",
+					anim = "finL",
+					parent = "body",
+					pivot = { -1.5, 2, -1.5 },
+					boxes = {
+						-3, 1, -2, 2, 1, 1, 4, -2, 2, -2, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "dorsal",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-1, 4, -2, 2, 1, 3, 5,
+					},
+				},
+				{
+					name = "tail",
+					anim = "tail",
+					parent = "body",
+					pivot = { 0, 3, 1 },
+					boxes = {
+						-3, 0, 2, 6, 2, 1, 6, -2, 1, 1, 4, 1, 1, 6, -2, 2, 0, 4, 1, 1, 6, -2, 2, 1, 4, 1, 1, 7, -2, 3, 1, 4, 1, 2, 6, -3, 3, 2, 1, 2, 1, 6, 2, 3, 2, 1, 2, 1, 6, -2, 4, 2, 4, 1, 1, 6,
+					},
+				},
+			},
+		},
+		Gumball = {
+			rarity = "Common",
+			size = { 6, 7, 4 },
+			palette = { "E8384F", "FFFFFF", "1B1B2F", "B8243A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0 },
+					boxes = {
+						-1, 3, -1, 2, 1, 2, 1, -2, 4, 0, 4, 2, 1, 1, -1, 4, 1, 2, 2, 1, 1, -1, 6, 0, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 5, -0.5 },
+					boxes = {
+						-1, 4, -2, 2, 2, 2, 1, -2, 4, -1, 1, 1, 1, 1, 1, 4, -1, 1, 1, 1, 1, -1, 6, -1, 1, 1, 1, 2, 0, 6, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 5, -0.5 },
+					boxes = {
+						-2, 5, -1, 1, 1, 1, 3, 1, 5, -1, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "legL",
+					anim = "legL",
+					parent = "body",
+					pivot = { -1.5, 4, -0.5 },
+					boxes = {
+						-3, 0, -2, 2, 1, 2, 4, -3, 1, -1, 2, 3, 1, 4,
+					},
+				},
+				{
+					name = "legR",
+					anim = "legR",
+					parent = "body",
+					pivot = { 1.5, 4, -0.5 },
+					boxes = {
+						1, 0, -2, 2, 1, 2, 4, 1, 1, -1, 2, 3, 1, 4,
+					},
+				},
+			},
+		},
+		GuineaFowl = {
+			rarity = "Common",
+			size = { 6, 7, 6 },
+			palette = { "FF9F1C", "4A4E5C", "E8C9A0" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-2, 0, 0, 1, 2, 2, 1, 1, 0, 0, 1, 2, 2, 1, -1, 0, 1, 2, 4, 1, 2, -1, 1, 0, 2, 3, 1, 2, -1, 1, 2, 2, 4, 1, 2, -2, 2, 0, 1, 2, 3, 2, 1, 2, 0, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, 0.5 },
+					boxes = {
+						-1, 4, -1, 2, 1, 3, 2, -1, 5, -3, 2, 1, 4, 3, -2, 5, 0, 4, 1, 1, 2, -1, 5, 1, 2, 2, 1, 2, -1, 6, -1, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 1.5 },
+					boxes = {
+						-3, 2, 1, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 1.5 },
+					boxes = {
+						2, 2, 1, 1, 1, 1, 2,
+					},
+				},
+			},
+		},
 		Bantam = {
 			rarity = "Common",
 			size = { 6, 7, 8 },
@@ -8129,6 +8449,94 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					pivot = { 0, 0, 1 },
 					boxes = {
 						-2, 3, 0, 4, 1, 3, 4, -1, 4, 0, 2, 1, 3, 4,
+					},
+				},
+			},
+		},
+		Donkey = {
+			rarity = "Common",
+			size = { 5, 10, 8 },
+			palette = { "8E8A92", "E6E2E8", "1B1B2F", "4A464E" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { -0.5, 0, 1 },
+					boxes = {
+						-2.5, 1, 0, 1, 1, 1, 1, -1.5, 1, 0, 2, 2, 3, 2, 0.5, 1, 0, 1, 1, 1, 1, -2.5, 1, 3, 1, 1, 1, 1, 0.5, 1, 3, 1, 1, 1, 1, -1.5, 2, -2, 2, 1, 2, 2, -2.5, 2, 1, 4, 1, 1, 1, -1.5, 2, 3, 2, 1, 1, 1,
+						-1.5, 3, 0, 2, 1, 3, 1, -1.5, 4, 1, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1, 1, 0.5 },
+					boxes = {
+						0.5, 0, 0, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -2, 1, 0.5 },
+					boxes = {
+						-2.5, 0, 0, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1, 1, 3.5 },
+					boxes = {
+						0.5, 0, 3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -2, 1, 3.5 },
+					boxes = {
+						-2.5, 0, 3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { -0.5, 4.5, -1.5 },
+					boxes = {
+						-1.5, 4, -3, 2, 3, 2, 1, -1.5, 5, -4, 1, 1, 3, 2, -0.5, 5, -4, 1, 1, 3, 3, -2.5, 5, -3, 4, 1, 2, 1, -1.5, 5, -1, 2, 2, 1, 1, -2.5, 6, -2, 1, 1, 1, 1, 0.5, 6, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { -0.5, 4.5, -1.5 },
+					boxes = {
+						-2.5, 6, -3, 1, 1, 1, 3, 0.5, 6, -3, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 7, -2 },
+					boxes = {
+						-2.5, 7, -2, 5, 2, 1, 1, -1.5, 9, -2, 1, 1, 1, 1, 0.5, 9, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "mane",
+					anim = "static",
+					parent = "head",
+					pivot = { -0.5, 1, 0 },
+					boxes = {
+						-1.5, 4, 0, 2, 3, 1, 4, -1.5, 7, -1, 2, 1, 1, 4,
 					},
 				},
 			},
@@ -8793,6 +9201,94 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					pivot = { 0, 2.5, 2.5 },
 					boxes = {
 						0, 3, 3, 1, 1, 2, 1, 0, 4, 5, 1, 1, 1, 4,
+					},
+				},
+			},
+		},
+		Dormouse = {
+			rarity = "Common",
+			size = { 6, 8, 9 },
+			palette = { "E0A050", "FFF1DC", "1B1B2F", "D08E3E" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-2, 1, -0.5, 1, 1, 1, 1, -1, 1, -0.5, 2, 2, 3, 2, 1, 1, -0.5, 1, 1, 1, 1, -2, 1, 2.5, 1, 1, 1, 1, 1, 1, 2.5, 1, 1, 1, 1, -1, 2, -1.5, 2, 1, 1, 2, -2, 2, 0.5, 4, 1, 1, 1, -1, 2, 2.5, 2, 1, 1, 1,
+						-1, 3, -0.5, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, 0 },
+					boxes = {
+						1, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, 0 },
+					boxes = {
+						-2, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 3 },
+					boxes = {
+						1, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 3 },
+					boxes = {
+						-2, 0, 2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -1 },
+					boxes = {
+						-1, 3, -2.5, 2, 4, 2, 1, -1, 4, -4.5, 1, 1, 4, 2, 0, 4, -4.5, 1, 1, 4, 3, -3, 4, -2.5, 6, 1, 2, 1, -1, 4, -0.5, 2, 3, 1, 1, -3, 5, -1.5, 6, 1, 1, 1, -3, 6, -1.5, 2, 1, 1, 1, 1, 6, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -1 },
+					boxes = {
+						-3, 5, -2.5, 2, 2, 1, 3, 1, 5, -2.5, 2, 2, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -1.5 },
+					boxes = {
+						-3, 7, -1.5, 2, 1, 1, 1, 1, 7, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 3 },
+					boxes = {
+						-1, 3, 3.5, 2, 2, 1, 4,
 					},
 				},
 			},
@@ -14703,6 +15199,180 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				},
 			},
 		},
+		Damselfly = {
+			rarity = "Common",
+			size = { 4, 4, 5 },
+			palette = { "3FD6B0", "1E7A6A", "1B1B2F", "E8FFF8" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 1, -1.5, 2, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2 },
+					boxes = {
+						-1, 1, -2.5, 2, 1, 1, 1, -1, 2, -2.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -0.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1.5, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 0.5, 1, -0.5 },
+					boxes = {
+						0, 0, -1.5, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -0.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -0.5, 2, 1, 1, 3, -1, 1, -0.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 0.5, 1, -0.5 },
+					boxes = {
+						0, 0, -0.5, 2, 1, 1, 3, 0, 1, -0.5, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -0.5, 2, -1 },
+					boxes = {
+						-1, 2, -1.5, 1, 1, 4, 4, -1, 3, -1.5, 1, 1, 2, 4, -1, 3, 0.5, 1, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 0.5, 2, -1 },
+					boxes = {
+						0, 2, -1.5, 1, 1, 4, 4, 0, 3, -1.5, 1, 1, 2, 4, 0, 3, 0.5, 1, 1, 2, 2,
+					},
+				},
+			},
+		},
+		Firefly = {
+			rarity = "Common",
+			size = { 4, 5, 6 },
+			palette = { "4A4038", "FF6A4D", "1B1B2F", "FFF27A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-1, 1, -2, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2.5 },
+					boxes = {
+						-1, 1, -3, 2, 2, 1, 2, -1, 3, -3, 2, 1, 1, 3, -2, 4, -3, 1, 1, 1, 3, 1, 4, -3, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "shell",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-1, 2, -2, 2, 1, 3, 1,
+					},
+				},
+				{
+					name = "lamp",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-1, 1, 1, 2, 1, 2, 4, -1, 2, 1, 2, 1, 1, 4,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -0.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 0.5, 1, -1.5 },
+					boxes = {
+						0, 0, -2, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -0.5, 1, -0.5 },
+					boxes = {
+						-2, 0, -1, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 0.5, 1, -0.5 },
+					boxes = {
+						0, 0, -1, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -0.5, 1, 0.5 },
+					boxes = {
+						-2, 0, 0, 2, 1, 1, 3,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 0.5, 1, 0.5 },
+					boxes = {
+						0, 0, 0, 2, 1, 1, 3,
+					},
+				},
+			},
+		},
 		Ant = {
 			rarity = "Common",
 			size = { 4, 6, 7 },
@@ -14933,6 +15603,84 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					pivot = { 1, 2, 0 },
 					boxes = {
 						1, 0, 2.5, 1, 1, 1, 1, 1, 1, 1.5, 1, 3, 1, 1, 1, 2, 0.5, 1, 2, 1, 2,
+					},
+				},
+			},
+		},
+		GardenSpider = {
+			rarity = "Common",
+			size = { 6, 4, 5 },
+			palette = { "E89A3C", "FFF1DC", "C9873A" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 1, -0.5, 2, 2, 3, 1, -2, 2, 0.5, 4, 1, 1, 1, -1, 3, -0.5, 2, 1, 1, 1, -1, 3, 0.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, -2 },
+					boxes = {
+						-1, 2, -2.5, 2, 1, 2, 1,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -1, 2, -1.5 },
+					boxes = {
+						-3, 0, -2.5, 1, 3, 1, 3, -1, 1, -2.5, 1, 1, 1, 3, -2, 2, -2.5, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 1, 2, -1.5 },
+					boxes = {
+						2, 0, -2.5, 1, 3, 1, 3, 0, 1, -2.5, 1, 1, 1, 3, 1, 2, -2.5, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -1, 2, -0.5 },
+					boxes = {
+						-3, 0, -1.5, 1, 3, 1, 3, -1, 1, -1.5, 1, 1, 1, 3, -2, 2, -1.5, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 1, 2, -0.5 },
+					boxes = {
+						2, 0, -1.5, 1, 3, 1, 3, 0, 1, -1.5, 1, 1, 1, 3, 1, 2, -1.5, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "leg4L",
+					anim = "leg4L",
+					parent = "body",
+					pivot = { -1, 2, -0.5 },
+					boxes = {
+						-3, 0, -0.5, 1, 3, 1, 3, -2, 2, -0.5, 1, 2, 1, 3,
+					},
+				},
+				{
+					name = "leg4R",
+					anim = "leg4R",
+					parent = "body",
+					pivot = { 1, 2, -0.5 },
+					boxes = {
+						2, 0, -0.5, 1, 3, 1, 3, 1, 2, -0.5, 1, 2, 1, 3,
 					},
 				},
 			},
@@ -16652,6 +17400,66 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				},
 			},
 		},
+		Cockatiel = {
+			rarity = "Common",
+			size = { 6, 9, 5 },
+			palette = { "FF9F1C", "D0D0DA", "F7E9A8", "5E5E6E", "A8A8B6", "FFE14D" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-2, 0, -1.5, 1, 2, 2, 1, 1, 0, -1.5, 1, 2, 2, 1, -1, 0, -0.5, 2, 4, 1, 2, -1, 1, -1.5, 2, 3, 1, 3, -1, 1, 0.5, 2, 4, 1, 2, -2, 2, -1.5, 1, 2, 3, 2, 1, 2, -1.5, 1, 2, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 4.5, -1 },
+					boxes = {
+						-1, 4, -2.5, 2, 1, 3, 2, -1, 5, -2.5, 2, 1, 2, 4, -2, 5, -1.5, 4, 1, 1, 2, -1, 5, -0.5, 2, 2, 1, 2, -1, 6, -2.5, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 3.5, 0 },
+					boxes = {
+						-3, 2, -0.5, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 3.5, 0 },
+					boxes = {
+						2, 2, -0.5, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "crest",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-1, 7, -1.5, 1, 1, 1, 6,
+					},
+				},
+				{
+					name = "plume",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 4.5, -1 },
+					boxes = {
+						-1, 7, -0.5, 2, 1, 1, 6, -1, 7, 1.5, 2, 1, 1, 6, -1, 8, 0.5, 2, 1, 1, 6,
+					},
+				},
+			},
+		},
 		Canary = {
 			rarity = "Common",
 			size = { 6, 8, 6 },
@@ -17309,6 +18117,94 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				},
 			},
 		},
+		GoldenTamarin = {
+			rarity = "Common",
+			size = { 4, 7, 10 },
+			palette = { "FF9F3D", "6A4030", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -1 },
+					boxes = {
+						-2, 1, -2, 4, 2, 1, 1, -1, 1, -1, 2, 3, 2, 1, -2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 2, -3, 2, 1, 5, 1, -2, 2, -1, 4, 1, 2, 1, -1, 3, -2, 2, 1, 1, 1, -2, 3, -1, 1, 1, 1, 1,
+						1, 3, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFR",
+					anim = "legFR",
+					parent = "body",
+					pivot = { 1.5, 1, -1.5 },
+					boxes = {
+						1, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legFL",
+					anim = "legFL",
+					parent = "body",
+					pivot = { -1.5, 1, -1.5 },
+					boxes = {
+						-2, 0, -2, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBR",
+					anim = "legBR",
+					parent = "body",
+					pivot = { 1.5, 1, 1.5 },
+					boxes = {
+						1, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "legBL",
+					anim = "legBL",
+					parent = "body",
+					pivot = { -1.5, 1, 1.5 },
+					boxes = {
+						-2, 0, 1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-1, 3, -4, 2, 2, 1, 2, -1, 3, -3, 2, 3, 1, 1, -1, 4, -5, 2, 1, 3, 2, -2, 4, -4, 4, 1, 2, 1, -1, 4, -2, 2, 2, 1, 1, -1, 5, -4, 2, 1, 1, 1, -2, 5, -3, 1, 1, 1, 1, 1, 5, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3.5, -2.5 },
+					boxes = {
+						-2, 5, -4, 1, 1, 1, 3, 1, 5, -4, 1, 1, 1, 3,
+					},
+				},
+				{
+					name = "ears",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 6, -3 },
+					boxes = {
+						-2, 6, -3, 1, 1, 1, 1, 1, 6, -3, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "tail",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2.5, 1.5 },
+					boxes = {
+						0, 3, 2, 1, 1, 2, 1, 0, 4, 4, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
 		PacmanFrog = {
 			rarity = "Common",
 			size = { 6, 5, 4 },
@@ -17571,6 +18467,66 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					pivot = { 2, 3.5, 1.5 },
 					boxes = {
 						2, 2, 1, 1, 1, 1, 5,
+					},
+				},
+			},
+		},
+		HeronChick = {
+			rarity = "Common",
+			size = { 6, 10, 5 },
+			palette = { "C9B26A", "A9B4C2", "E6EBF0", "FFC93C", "6A7686" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, -0.5 },
+					boxes = {
+						-2, 0, -1.5, 1, 2, 2, 1, 1, 0, -1.5, 1, 2, 2, 1, -1, 0, -0.5, 2, 5, 1, 2, -1, 1, -1.5, 2, 4, 1, 3, -1, 1, 0.5, 2, 5, 1, 2, -2, 2, -1.5, 1, 3, 3, 2, 1, 2, -1.5, 1, 3, 3, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 5.5, -1 },
+					boxes = {
+						-1, 5, -2.5, 2, 1, 3, 2, -1, 6, -2.5, 2, 1, 2, 4, -2, 6, -1.5, 4, 1, 1, 2, -1, 6, -0.5, 2, 2, 1, 2, -1, 7, -2.5, 2, 1, 2, 2,
+					},
+				},
+				{
+					name = "wingL",
+					anim = "wingL",
+					parent = "body",
+					pivot = { -2, 4.5, 0 },
+					boxes = {
+						-3, 3, -0.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "wingR",
+					anim = "wingR",
+					parent = "body",
+					pivot = { 2, 4.5, 0 },
+					boxes = {
+						2, 3, -0.5, 1, 1, 1, 2,
+					},
+				},
+				{
+					name = "crest",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 1, -0.5 },
+					boxes = {
+						-1, 8, -1.5, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "plume",
+					anim = "static",
+					parent = "head",
+					pivot = { 0, 5.5, -1 },
+					boxes = {
+						-1, 8, -0.5, 2, 1, 1, 5, -1, 8, 1.5, 2, 1, 1, 5, -1, 9, 0.5, 2, 1, 1, 5,
 					},
 				},
 			},
@@ -17920,6 +18876,84 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 				},
 			},
 		},
+		HermitCrab = {
+			rarity = "Common",
+			size = { 4, 6, 7 },
+			palette = { "FF7A5A", "F2B880", "FF8FB1", "FFFFFF", "1B1B2F" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-1, 0, -1.5, 2, 1, 2, 1, -2, 1, -1.5, 1, 1, 1, 1, 1, 1, -1.5, 1, 1, 1, 1, -1, 1, -0.5, 2, 1, 1, 1, -2, 2, -3.5, 1, 1, 1, 2, 1, 2, -3.5, 1, 1, 1, 2, -2, 2, -2.5, 1, 1, 1, 1, 1, 2, -2.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 3, -1 },
+					boxes = {
+						-1, 1, -1.5, 2, 1, 1, 1, -2, 2, -1.5, 1, 1, 1, 3, 1, 2, -1.5, 1, 1, 1, 3, -2, 3, -1.5, 1, 1, 1, 1, 1, 3, -1.5, 1, 1, 1, 1, -2, 4, -1.5, 1, 1, 1, 4, 1, 4, -1.5, 1, 1, 1, 4,
+					},
+				},
+				{
+					name = "shell",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, 0.5 },
+					boxes = {
+						-2, 1, 1.5, 4, 3, 1, 2, -1, 1, 2.5, 2, 5, 1, 2, -1, 2, -0.5, 2, 2, 3, 2, -2, 2, 0.5, 1, 2, 1, 2, 1, 2, 0.5, 1, 2, 1, 2, -1, 4, 1.5, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 3, -1 },
+					boxes = {
+						-2, 4, -2.5, 1, 1, 1, 5, 1, 4, -2.5, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "leg1L",
+					anim = "leg1L",
+					parent = "body",
+					pivot = { -1, 1, 0 },
+					boxes = {
+						-2, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg1R",
+					anim = "leg1R",
+					parent = "body",
+					pivot = { 1, 1, 0 },
+					boxes = {
+						1, 0, -0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -1, 1, 1.5 },
+					boxes = {
+						-2, 0, 0.5, 1, 1, 1, 1, -1, 1, 0.5, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 1, 1, 1.5 },
+					boxes = {
+						1, 0, 0.5, 1, 1, 1, 1, 0, 1, 0.5, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
 		Lobster = {
 			rarity = "Common",
 			size = { 6, 5, 10 },
@@ -18072,6 +19106,84 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					pivot = { 1, 1, 0 },
 					boxes = {
 						1, 0, -1, 1, 1, 1, 1,
+					},
+				},
+			},
+		},
+		FiddlerCrab = {
+			rarity = "Common",
+			size = { 6, 5, 6 },
+			palette = { "FFC98A", "8A5AB8", "FFB35A", "FF8FB1", "FFFFFF", "1B1B2F", "D9AB75" },
+			parts = {
+				{
+					name = "body",
+					anim = "static",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						-3, 1, -1, 1, 1, 1, 1, -2, 1, -1, 1, 1, 2, 2, 2, 1, -1, 1, 1, 2, 2, 1, 1, 0, 1, 1, 1, 2, -2, 1, 1, 4, 1, 1, 3, -1, 1, 2, 2, 1, 1, 3, 2, 2, 0, 1, 1, 1, 2, -1, 2, 1, 2, 1, 1, 2,
+					},
+				},
+				{
+					name = "head",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 2, -0.5 },
+					boxes = {
+						-1, 1, 0, 2, 2, 1, 2, -2, 2, 0, 1, 1, 1, 4, 1, 2, 0, 1, 1, 1, 4, -2, 3, 0, 1, 1, 1, 2, 1, 3, 0, 1, 1, 1, 2, -2, 4, 0, 1, 1, 1, 5, 1, 4, 0, 1, 1, 1, 5,
+					},
+				},
+				{
+					name = "eyes",
+					anim = "blink",
+					parent = "head",
+					pivot = { 0, 2, -0.5 },
+					boxes = {
+						-2, 4, -1, 1, 1, 1, 6, 1, 4, -1, 1, 1, 1, 6,
+					},
+				},
+				{
+					name = "claw",
+					anim = "static",
+					parent = "body",
+					pivot = { 0, 0, 1 },
+					boxes = {
+						1, 1, -3, 2, 2, 1, 1, 1, 1, -2, 2, 1, 1, 7, 1, 2, -2, 2, 1, 1, 1, 2, 2, -1, 1, 1, 1, 1,
+					},
+				},
+				{
+					name = "leg2L",
+					anim = "leg2L",
+					parent = "body",
+					pivot = { -2.5, 2, 1.5 },
+					boxes = {
+						-3, 0, 1, 1, 2, 1, 2,
+					},
+				},
+				{
+					name = "leg2R",
+					anim = "leg2R",
+					parent = "body",
+					pivot = { 2.5, 2, 1.5 },
+					boxes = {
+						2, 0, 1, 1, 2, 1, 2,
+					},
+				},
+				{
+					name = "leg3L",
+					anim = "leg3L",
+					parent = "body",
+					pivot = { -2.5, 2, 2.5 },
+					boxes = {
+						-3, 0, 2, 1, 2, 1, 2,
+					},
+				},
+				{
+					name = "leg3R",
+					anim = "leg3R",
+					parent = "body",
+					pivot = { 2.5, 2, 2.5 },
+					boxes = {
+						2, 0, 2, 1, 2, 1, 2,
 					},
 				},
 			},

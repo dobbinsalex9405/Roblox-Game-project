@@ -2159,6 +2159,48 @@
    "textureId": 113573645222662,
    "textureType": "Image",
    "version": "1"
+  },
+  "Coneling": {
+   "assetId": 138947634006105,
+   "textureId": 70945202202058,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DoubleChick": {
+   "assetId": 110715464674910,
+   "textureId": 85307209294297,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Fuzzball": {
+   "assetId": 74100009593739,
+   "textureId": 119345090174932,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Glowworm": {
+   "assetId": 71988370925127,
+   "textureId": 81341480583144,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Goldfish": {
+   "assetId": 120269199245951,
+   "textureId": 85619388671207,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Gumball": {
+   "assetId": 101509239913326,
+   "textureId": 109876966772130,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GumdropSlug": {
+   "assetId": 129395436738053,
+   "textureId": 82566565395472,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
