@@ -1,8 +1,22 @@
 --!strict
--- The odds card beside an egg's Buy prompt always fits the screen.
+-- The odds card beside an egg's Buy prompt always fits the screen, with
+-- text a phone can read.
 local OddsCard = require("../src/shared/OddsCard")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
+
+local TOP_BAR = 58 -- Roblox's top bar; the GUI starts below it
+
+-- Where the drawn card ends: from y 168 down on a short screen (under 500
+-- px), else centred.
+local function bottom(rows: number, screenY: number): (number, number, number)
+	local guiHeight = screenY - TOP_BAR
+	local top = if screenY < 500 then 168 else 8
+	local scale, height = OddsCard.fit(rows, screenY, guiHeight, top)
+	local drawn = height * scale
+	local last = if top == 168 then TOP_BAR + top + drawn else TOP_BAR + guiHeight / 2 + drawn / 2
+	return last, scale, height
+end
 
 describe("Odds card", function()
 	it("is smaller on a phone held sideways", function()
@@ -10,20 +24,26 @@ describe("Odds card", function()
 		expect(OddsCard.scale(390)).toBe(0.75)
 	end)
 
-	it("keeps an everyday card whole", function()
-		-- 214 px: every tier and the button, on a desktop and on a phone.
-		expect(OddsCard.height(214, 672, 8)).toBe(214)
-		expect(OddsCard.height(214, 392, 168)).toBe(214)
+	it("keeps an everyday card whole, shrinking it a touch on a phone", function()
+		-- 214 px: every tier and the button.
+		local _, scale, height = bottom(214, 672)
+		expect(scale).toBe(1)
+		expect(height).toBe(214)
+		local last
+		last, scale, height = bottom(214, 392)
+		expect(height).toBe(214)
+		expect(scale >= OddsCard.MIN_SCALE).toBe(true)
+		expect(last <= 392 - 8 + 1e-9).toBe(true)
 	end)
 
-	it("never runs past the screen; the rows scroll instead", function()
-		-- Studio gate (#126): 310 px from y 168 on a 392 px phone ended at
-		-- y 478, 86 px off-screen; 1,142 px on a 672 px desktop.
-		for _, case in { { 310, 392, 168 }, { 1142, 672, 8 }, { 1142, 392, 168 } } do
-			local rows, screenY, top = case[1], case[2], case[3]
-			local height = OddsCard.height(rows, screenY, top)
-			-- Fits even when drawn at full size, so any scale only helps.
-			expect(top + height <= screenY - 8).toBe(true)
+	it("ends at least 8 px above the bottom with readable text; the rows scroll", function()
+		-- Studio gate (#126): on an 844x392 phone the card's bottom sat at
+		-- y 388 (the 58 px top bar not counted) and its text was 5.6 px.
+		for _, case in { { 310, 392 }, { 1142, 392 }, { 1142, 672 }, { 400, 600 }, { 214, 360 } } do
+			local rows, screenY = case[1], case[2]
+			local last, scale = bottom(rows, screenY)
+			expect(last <= screenY - 8 + 1e-9).toBe(true)
+			expect(13 * scale >= 9).toBe(true)
 		end
 	end)
 end)

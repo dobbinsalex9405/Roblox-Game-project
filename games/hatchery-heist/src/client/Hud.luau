@@ -5,6 +5,7 @@
 -- odds board at the conveyor. Built from code; art comes after the gate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -225,11 +226,16 @@ function Hud.start(ctx: Context.Context)
 			card.AnchorPoint = Vector2.new(0, 0.5)
 			card.Position = UDim2.new(0, 16, 0.5, 0)
 		end
-		cardScale.Scale = OddsCard.scale(screen.Y)
 		-- As tall as its rows (measured at the current scale) and its 8 px
 		-- padding, but never past the screen; the rows scroll beyond that.
+		-- The GUI starts below Roblox's top bar (Studio gate, #126: 4 px
+		-- off a 392 px phone, the 58 px bar not counted).
 		local rows = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 16
-		local height = OddsCard.height(rows, screen.Y, if short then 168 else 8)
+		local guiHeight = screen.Y - GuiService:GetGuiInset().Y
+		local scale, height = OddsCard.fit(rows, screen.Y, guiHeight, if short then 168 else 8)
+		if math.abs(cardScale.Scale - scale) > 0.001 then
+			cardScale.Scale = scale
+		end
 		if math.abs(card.Size.Y.Offset - height) >= 1 then
 			card.Size = UDim2.fromOffset(OddsCard.WIDTH, height)
 		end

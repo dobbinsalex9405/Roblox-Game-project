@@ -113,32 +113,42 @@ end
 -- One text size for every row of a list. With TextScaled each label shrinks
 -- to its own text, so long names (Thunder Griffin) came out smaller than
 -- their neighbours. This finds the largest size at which every label fits
--- its half of the row and gives it to all of them. Before the list has a
--- width on screen, the labels keep TextScaled.
+-- its share of the row and gives it to all of them, never below
+-- MIN_TEXT_SIZE (a label still too long ends in "..."). Before the list
+-- has a width on screen, the labels keep TextScaled.
+local MIN_TEXT_SIZE = 13 -- about 10 px on a phone at the card's 75% (Studio gate, #126)
 local function sameTextSize(container: GuiObject)
 	local width = container.AbsoluteSize.X
 	local pad = container:FindFirstChildOfClass("UIPadding")
 	if pad then
 		width -= pad.PaddingLeft.Offset + pad.PaddingRight.Offset
 	end
-	local labelWidth = width / 2 - 2
-	if labelWidth <= 0 then
+	if container:IsA("ScrollingFrame") then
+		width -= container.ScrollBarThickness
+	end
+	-- The card is drawn smaller on a phone (UIScale): measure unscaled.
+	local scaled = container:FindFirstAncestorWhichIsA("GuiObject")
+	local scale = scaled and scaled:FindFirstChildOfClass("UIScale")
+	if scale and scale.Scale > 0 then
+		width /= scale.Scale
+	end
+	if width <= 4 then
 		return
 	end
 	local labels: { TextLabel } = {}
 	for _, frame in container:GetChildren() do
 		for _, l in frame:GetChildren() do
-			if l:IsA("TextLabel") then
+			if l:IsA("TextLabel") and l.Size.X.Scale > 0 then
 				table.insert(labels, l)
 			end
 		end
 	end
 	local size = rowHeight - 4
 	local bounds = Vector2.new(10000, 10000)
-	while size > 8 do
+	while size > MIN_TEXT_SIZE do
 		local fits = true
 		for _, l in labels do
-			if TextService:GetTextSize(l.Text, size, l.Font, bounds).X > labelWidth then
+			if TextService:GetTextSize(l.Text, size, l.Font, bounds).X > width * l.Size.X.Scale - 2 then
 				fits = false
 				break
 			end
@@ -244,28 +254,30 @@ local function fill(container: GuiObject, eggId: string)
 			OddsView.FIXED_UPCOMING,
 			Eggs.RARITIES
 		)
-		row(container, 1, "Fixed order, no chance involved:", "", Color3.fromRGB(200, 200, 200), false)
+		-- Short texts in columns sized to them, so the card keeps main's
+		-- text size on a phone (Studio gate, #126: 5.6 px at 844x392).
+		local grey = Color3.fromRGB(200, 200, 200)
+		rowSplit = 1
+		row(container, 1, "Fixed order, no chance involved:", "", grey, false)
+		rowSplit = 0.66
 		for n, id in summary.upcoming do
 			local rarity = rarityOf(id)
-			row(
-				container,
-				1 + n,
-				`{Layout.displayName(id)} ({rarity})`,
-				waitText(n - 1),
-				Layout.rarityColor(rarity),
-				n == 1
-			)
+			row(container, 1 + n, Layout.displayName(id), waitText(n - 1), Layout.rarityColor(rarity), n == 1)
 		end
+		rowSplit = 1
+		row(container, 9, `Of every {summary.length} eggs:`, "", grey, false)
+		rowSplit = 0.5
 		for i, tier in summary.tiers do
 			row(
 				container,
 				10 + i,
-				tier.rarity,
-				`{tier.count} in {summary.length} · {waitText(tier.wait)}`,
+				`{tier.rarity} {tier.count}`,
+				waitText(tier.wait),
 				Layout.rarityColor(tier.rarity),
 				false
 			)
 		end
+		rowSplit = 0.5
 		listButton(container, eggId, "See the whole order")
 		return
 	end
