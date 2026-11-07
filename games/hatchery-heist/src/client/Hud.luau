@@ -5,6 +5,7 @@
 -- odds board at the conveyor. Built from code; art comes after the gate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
@@ -13,6 +14,9 @@ local Layout = require(Shared.Layout)
 local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
+
+-- The odds boards are 26 x 7 studs: 520 x 140 pixels, two columns of five
+-- 24-pixel lines.
 
 local Hud = {}
 
@@ -38,7 +42,7 @@ local function panel(parent: Instance, name: string, size: UDim2, position: UDim
 	f.Position = position
 	f.AnchorPoint = anchor
 	f.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-	f.BackgroundTransparency = 0.2
+	f.BackgroundTransparency = 0.05 -- nearly solid: world signs behind it showed through (Studio gate)
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0, 10)
 	corner.Parent = f
@@ -185,65 +189,101 @@ function Hud.start(ctx: Context.Context)
 	card.Visible = false
 	listLayout(card, 8)
 	local cardEgg: string? = nil
+	-- Smaller on a phone held sideways, so the card leaves the egg and its
+	-- Buy prompt in view (Studio gate, Nov 5): 75% at 392 px tall.
+	local cardScale = Instance.new("UIScale")
+	cardScale.Parent = card
+	local function fitCard()
+		local cam = Workspace.CurrentCamera
+		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
+		cardScale.Scale = math.clamp(screen.Y / 520, 0.75, 1)
+		-- On a short screen the card starts below the notice line (124 +
+		-- 36 px), so a refusal is never half under it.
+		if screen.Y < 500 then
+			card.AnchorPoint = Vector2.new(0, 0)
+			card.Position = UDim2.fromOffset(16, 168)
+		else
+			card.AnchorPoint = Vector2.new(0, 0.5)
+			card.Position = UDim2.new(0, 16, 0.5, 0)
+		end
+	end
 
-	-- Odds board over the player's own belt: every egg the belt carries.
-	local boardGui: SurfaceGui? = nil
+	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
+	-- title; this client draws its own odds (fixed order for a restricted
+	-- player) over them: one belt egg at a time, cheapest first, the next
+	-- every `conveyor.signSeconds` (all signs together).
+	local signGuis: { [BasePart]: SurfaceGui } = {}
+	local signGui: SurfaceGui? = nil -- set once the signs are found
+	local signPage = 1
 	local function renderBoard()
-		local model = ctx.plot()
-		if model == nil then
+		local market = Workspace:FindFirstChild("EggMarket")
+		local signs = market and market:FindFirstChild("Signs")
+		if signs == nil then
 			return
 		end
-		local board = model:FindFirstChild("OddsBoard")
-		if board == nil then
-			return
-		end
-		-- Everyone else sees the board's title; on your own board the real
-		-- odds replace it.
-		local title = board:FindFirstChild("Title")
-		if title and title:IsA("SurfaceGui") then
-			title.Enabled = false
-		end
-		if boardGui == nil or boardGui.Parent ~= board then
-			local sg = Instance.new("SurfaceGui")
-			sg.Name = "Odds"
-			sg.Face = Enum.NormalId.Front
-			sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			sg.PixelsPerStud = 25
-			sg.LightInfluence = 0 -- readable in the board's own shadow
-			sg.Adornee = board
-			local holder = Instance.new("Frame")
-			holder.Name = "Holder"
-			holder.Size = UDim2.fromScale(1, 1)
-			holder.BackgroundTransparency = 1
-			local layout = Instance.new("UIListLayout")
-			layout.FillDirection = Enum.FillDirection.Horizontal
-			layout.SortOrder = Enum.SortOrder.Name
-			layout.Padding = UDim.new(0, 12)
-			layout.Parent = holder
-			holder.Parent = sg
-			sg.Parent = ctx.player:WaitForChild("PlayerGui")
-			boardGui = sg
-		end
-		local holder = (boardGui :: SurfaceGui):FindFirstChild("Holder") :: Frame
+		local eggs = ctx.config.eggs
 		local ids = {}
 		for eggId in ctx.config.economy.conveyor.weights do
 			table.insert(ids, eggId)
 		end
-		table.sort(ids)
-		for _, eggId in ids do
-			local column = holder:FindFirstChild(eggId) :: Frame?
-			if column == nil then
-				local c = Instance.new("Frame")
-				c.Name = eggId
-				c.BackgroundTransparency = 1
-				c.Size = UDim2.new(1 / #ids, -12, 1, 0)
-				listLayout(c, 2)
-				c.Parent = holder
-				column = c
+		table.sort(ids, function(a, b)
+			local ea, eb = Hatchery.eggById(eggs, a), Hatchery.eggById(eggs, b)
+			local pa = if ea then ea.priceCoins or 0 else 0
+			local pb = if eb then eb.priceCoins or 0 else 0
+			if pa ~= pb then
+				return pa < pb
 			end
-			OddsView.render(column :: Frame, eggId, true)
+			return a < b
+		end)
+		if #ids == 0 then
+			return
+		end
+		local pps = OddsView.SIGN_PIXELS_PER_STUD
+		for _, sign in signs:GetChildren() do
+			if not sign:IsA("BasePart") then
+				continue
+			end
+			local title = sign:FindFirstChild("Title")
+			if title and title:IsA("SurfaceGui") then
+				title.Enabled = false
+			end
+			local sg: SurfaceGui? = signGuis[sign]
+			if sg == nil then
+				local g = Instance.new("SurfaceGui")
+				g.Name = `Odds{sign.Name}`
+				g.Face = Enum.NormalId.Front
+				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+				g.PixelsPerStud = pps
+				g.LightInfluence = 0 -- readable in shade
+				g.Adornee = sign
+				local holder = Instance.new("Frame")
+				holder.Name = "Holder"
+				holder.Size = UDim2.fromScale(1, 1)
+				holder.BackgroundTransparency = 1
+				holder.Parent = g
+				g.Parent = ctx.player:WaitForChild("PlayerGui")
+				signGuis[sign] = g
+				signGui = g
+				sg = g
+			end
+			local holder = (sg :: SurfaceGui):FindFirstChild("Holder") :: Frame
+			OddsView.renderSign(
+				holder,
+				ids[(signPage - 1) % #ids + 1],
+				Vector2.new(sign.Size.X, sign.Size.Y) * pps
+			)
 		end
 	end
+
+	task.spawn(function()
+		while true do
+			task.wait(ctx.config.economy.conveyor.signSeconds)
+			signPage += 1
+			if signGui then
+				renderBoard()
+			end
+		end
+	end)
 
 	local function renderCard()
 		if cardEgg then
@@ -281,7 +321,7 @@ function Hud.start(ctx: Context.Context)
 					else `Uncollected: {Layout.shortNumber(pile)}`
 			end
 			updateBanner()
-			if boardGui == nil then
+			if signGui == nil then
 				renderBoard()
 			end
 			task.wait(0.2)
@@ -291,6 +331,7 @@ function Hud.start(ctx: Context.Context)
 	return {
 		showOdds = function(eggId: string)
 			cardEgg = eggId
+			fitCard()
 			renderCard()
 			card.Visible = true
 		end,
