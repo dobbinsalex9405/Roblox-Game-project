@@ -752,3 +752,17 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - At 1 s, 5 of 12 fully visible cards are still empty (`119d-hh-1s.jpg`).
 - So this is **worse than 2c2042d**, where the 1 s flick was fully drawn. The new 0.3 s start delay plus 4 per frame isn't fast enough to warm the rows a flick reaches.
 - Not run: the tab-switch repeat and the NEW badge (no found cards in a fresh save), since the flick check already fails.
+
+## #71 @ f5b766b (Godly rework: Nebula Serpent, Golden Goose)
+
+**PASS, with two notes.** Local build, desktop, both given through the Test panel onto ground-floor pads.
+- **Meshes:** NebulaSerpent 42 MeshParts (33 glow), GoldenGoose 20 (10 glow). No placeholder boxes. The only non-mesh parts are the Godly Ring and the Goose's eight 0.3-stud orbiting Orbs (the tier effect).
+- **Hover:** bottom above the pad was sampled over 6 s.
+  - Serpent: 0.84-1.29 studs (0.18-0.27 of its 4.7 height).
+  - Goose: 0.84-1.02 (0.16-0.19 of 5.3).
+  - The minimum is above 0.14 of height, as expected with the bob on top of the 0.14 base.
+- **Welded:** gaps between nearest parts (oriented boxes) are 0.00 for every Serpent part (body_1-4, head_1-2, eyes, orbit_1-2).
+  - Goose: all 0.00 except the **nest, 0.15 studs** from its nearest part. That's a small but real gap under the body.
+- **Orbiting worlds:** orbit_1 is one 7.5-stud mesh (the ring of worlds) around the body, and orbit_2 is a small world. Close-ups show the worlds circling outside the coil (`71-hh-serpent-pad.jpg`). A box-overlap test can't separate "passes through" from "circles around" for a ring mesh, so this is judged by eye only: nothing seen passing through.
+- **Walk.lie:** on a ground-floor pad the Serpent is coiled upright (about 3.7x5.5 studs) and wanders, turning through 10 headings. It does **not** lie along the row. `Walk.lie` only fires when the creature is too long for the spot's depth, and this coil isn't, so I couldn't observe lie behaviour here.
+- **Book:** both Godly cards draw whole with NEW badges (`71-hh-book-godly.jpg`).
