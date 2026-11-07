@@ -90,6 +90,7 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	frame.BackgroundTransparency = 1
 	frame.Size = UDim2.new(1, 0, 0, rowHeight)
 	local name = Instance.new("TextLabel")
+	name.Name = "Name"
 	name.BackgroundTransparency = 1
 	name.Size = UDim2.fromScale(rowSplit, 1)
 	name.TextXAlignment = Enum.TextXAlignment.Left
@@ -99,6 +100,7 @@ local function row(parent: Instance, order: number, left: string, right: string,
 	name.Text = left
 	name.Parent = frame
 	local value = Instance.new("TextLabel")
+	value.Name = "Value"
 	value.BackgroundTransparency = 1
 	value.Position = UDim2.fromScale(rowSplit, 0)
 	value.Size = UDim2.fromScale(1 - rowSplit, 1)
@@ -113,10 +115,12 @@ end
 
 -- One text size for every row of a list. With TextScaled each label shrinks
 -- to its own text, so long names (Thunder Griffin) came out smaller than
--- their neighbours. This finds the largest size at which every label fits
--- its share of the row and gives it to all of them, never below
--- MIN_TEXT_SIZE (a label still too long ends in "..."). Before the list
--- has a width on screen, the labels keep TextScaled.
+-- their neighbours. This finds the largest size at which every row's name
+-- and value fit side by side and gives it to all of them, never below
+-- MIN_TEXT_SIZE. Each value then gets the width its text needs and its
+-- name the rest (OddsCard.valueShare), so if a row is still too long its
+-- name ends in "...", never its odds. Before the list has a width on
+-- screen, the labels keep TextScaled.
 local MIN_TEXT_SIZE = OddsCard.MIN_TEXT_SIZE -- 11 px or more on screen at the card's smallest
 local function sameTextSize(container: GuiObject)
 	local width = container.AbsoluteSize.X
@@ -136,20 +140,28 @@ local function sameTextSize(container: GuiObject)
 	if width <= 4 then
 		return
 	end
-	local labels: { TextLabel } = {}
+	type Row = { name: TextLabel, value: TextLabel? }
+	local rows: { Row } = {}
 	for _, frame in container:GetChildren() do
-		for _, l in frame:GetChildren() do
-			if l:IsA("TextLabel") and l.Size.X.Scale > 0 then
-				table.insert(labels, l)
-			end
+		local name = frame:FindFirstChild("Name")
+		local value = frame:FindFirstChild("Value")
+		if name and name:IsA("TextLabel") then
+			local hasValue = value ~= nil and value:IsA("TextLabel") and value.Text ~= ""
+			table.insert(rows, { name = name, value = if hasValue then value :: TextLabel else nil })
 		end
 	end
-	local size = rowHeight - 4
 	local bounds = Vector2.new(10000, 10000)
+	local function widthOf(l: TextLabel?, size: number): number
+		if l == nil then
+			return 0
+		end
+		return TextService:GetTextSize(l.Text, size, l.Font, bounds).X
+	end
+	local size = rowHeight - 4
 	while size > MIN_TEXT_SIZE do
 		local fits = true
-		for _, l in labels do
-			if TextService:GetTextSize(l.Text, size, l.Font, bounds).X > width * l.Size.X.Scale - 2 then
+		for _, r in rows do
+			if not OddsCard.fits(widthOf(r.name, size), widthOf(r.value, size), width) then
 				fits = false
 				break
 			end
@@ -159,10 +171,21 @@ local function sameTextSize(container: GuiObject)
 		end
 		size -= 1
 	end
-	for _, l in labels do
-		l.TextScaled = false
-		l.TextSize = size
-		l.TextTruncate = Enum.TextTruncate.AtEnd
+	for _, r in rows do
+		local share = OddsCard.valueShare(widthOf(r.value, size), width)
+		local function settle(l: TextLabel)
+			l.TextScaled = false
+			l.TextSize = size
+			l.TextTruncate = Enum.TextTruncate.AtEnd
+		end
+		settle(r.name)
+		r.name.Size = UDim2.fromScale(1 - share, 1)
+		local value = r.value
+		if value then
+			settle(value)
+			value.Position = UDim2.fromScale(1 - share, 0)
+			value.Size = UDim2.fromScale(share, 1)
+		end
 	end
 end
 

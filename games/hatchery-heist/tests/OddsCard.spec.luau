@@ -50,4 +50,26 @@ describe("Odds card", function()
 			expect(OddsCard.MIN_TEXT_SIZE * scale >= 12).toBe(true)
 		end
 	end)
+
+	it("gives each row's odds the width they need, so the rarest is never cut off", function()
+		-- Studio gate (#126): on an 844x392 phone the Legendary row's
+		-- "0.002% · 1 in 50,000" needed more than its half of a 260 px row
+		-- at TextSize 15 and showed "0.002% · 1 in...". The value now gets
+		-- its own width and the name the rest.
+		local row = 260
+		for _, case in { { 80, 150 }, { 90, 162 }, { 40, 60 }, { 120, 120 } } do
+			local name, value = case[1], case[2]
+			expect(OddsCard.fits(name, value, row)).toBe(true)
+			local share = OddsCard.valueShare(value, row)
+			expect(share * row >= value).toBe(true)
+			expect((1 - share) * row >= name + OddsCard.GAP - 2).toBe(true)
+		end
+		-- Too long together: a smaller size is tried; at the floor the odds
+		-- still keep their width and the name is the one shortened.
+		expect(OddsCard.fits(140, 150, row)).toBe(false)
+		expect(OddsCard.valueShare(150, row) * row >= 150).toBe(true)
+		-- A row with no value is one label across the row.
+		expect(OddsCard.fits(250, 0, row)).toBe(true)
+		expect(OddsCard.valueShare(0, row)).toBe(0)
+	end)
 end)

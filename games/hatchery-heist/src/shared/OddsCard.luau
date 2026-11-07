@@ -37,4 +37,27 @@ function OddsCard.fit(rows: number, screenY: number, guiHeight: number, top: num
 	return scale, math.max(0, math.min(rows, room / scale))
 end
 
+-- Each row is a name on the left and a value (the odds, or a wait) on the
+-- right. The value gets the width its text needs and the name the rest,
+-- GAP px apart, so the odds are never the part cut off (Studio gate, #126:
+-- "0.002% · 1 in 50,000" in half a phone row read "0.002% · 1 in...").
+OddsCard.GAP = 8
+
+-- Whether a row whose name is `nameWidth` px wide and whose value is
+-- `valueWidth` px (0 for none) fits `rowWidth` px at one text size.
+function OddsCard.fits(nameWidth: number, valueWidth: number, rowWidth: number): boolean
+	if valueWidth <= 0 then
+		return nameWidth <= rowWidth - 2
+	end
+	return nameWidth + OddsCard.GAP + valueWidth <= rowWidth
+end
+
+-- The share of a `rowWidth` px row the value's column takes.
+function OddsCard.valueShare(valueWidth: number, rowWidth: number): number
+	if valueWidth <= 0 or rowWidth <= 0 then
+		return 0
+	end
+	return math.clamp((valueWidth + 2) / rowWidth, 0, 1)
+end
+
 return OddsCard
