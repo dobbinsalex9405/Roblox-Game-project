@@ -39,6 +39,68 @@ def blush(head, x_off, z):
 
 # ---------------------------------------------------------------- body plans
 
+def owlet(c, H):
+    """The Owlet: the bird plan with an owl's face. A pale heart-shaped facial
+    disc with a brown rim, big round black eyes with a white glint, a brown V between them and a small hooked beak pointing down (not
+    a duck's bill), under feathered ear tufts."""
+    col, rim = P('#B07A4A'), P('#8A5A33')
+    bird(c, H, col, belly=P('#F2D49B'), beak=P('#FFB627'), wing=rim, big_eyes=True, tuft=True, crest=rim)
+    head = next(p for p in c.parts if p.name == 'head')
+    eyes_p = next(p for p in c.parts if p.name == 'eyes')
+    old = list(eyes_p.v)
+    ez = round(sum(q[2] for q in old) / len(old) - 0.5)
+    for q in old:  # fill the plan's eye holes back in
+        head.put(q, col)
+    eyes_p.v = {}
+    for q in [q for q, v in head.v.items() if v[0] in (P('#FF9418'), P('#FFB627'), BLUSH)]:
+        del head.v[q]  # the plan's bill and blush
+    head.v = {q: v for q, v in head.v.items() if q[2] != ez - 1 or q[0] not in (-1, 0) or
+              q[1] >= min(p[1] for p in head.v if p[2] == ez)}  # no bill stub
+    xs = [q[0] for q in head.v if q[2] == ez]
+    r = 1 if max(xs) - min(xs) + 1 >= 9 else 0
+    cx = r + 1  # right eye centre; the left mirrors it (x -> -1 - x)
+    disc, cream, beak, tip = P('#F6E6C4'), P('#FBF3DE'), P('#A89478'), P('#4A3C30')
+
+    def mx(x):
+        return x if x >= 0 else -1 - x
+
+    for x in range(min(xs) - 1, max(xs) + 2):
+        for z in range(ez - r - 3, ez + r + 2):
+            f = head.front(x, z)
+            if not f:
+                continue
+            d = math.hypot(mx(x) - cx, z - ez)
+            if mx(x) <= 0 and z >= ez + r:
+                head.put(f, rim)  # the V between the discs
+            elif d <= r + 0.5:
+                pass  # the eye itself, below
+            elif d <= r + 2.3 and z >= ez - r - 2:
+                head.put(f, disc if mx(x) > 0 or z < ez else cream)
+            elif d <= r + 3.0:
+                head.put(f, rim)
+    for x in range(-cx - r - 1, cx + r + 1):
+        for z in range(ez - r, ez + r + 1):
+            if math.hypot(mx(x) - cx, z - ez) > r + 0.5:
+                continue
+            f = head.front(x, z)
+            if not f:
+                continue
+            if r and z == ez - r and mx(x) != cx:
+                head.put(f, disc)  # round off the bottom of each eye
+                continue
+            del head.v[f]
+            eyes_p.put(f, WHITE if (r and z == ez + 1 and ((x >= 0 and x == cx - 1) or (x < 0 and x == -1 - cx - 1))) else INK)
+    # a small hooked beak: out of the face between the eyes, curving down
+    fy = min(q[1] for q in head.v if q[2] in (ez - 1, ez - 2) and q[0] in (-1, 0))
+    for x in (-1, 0):
+        head.put((x, fy - 1, ez - 1), beak)
+        head.put((x, fy - 1, ez - 2), beak)
+        if r:
+            head.put((x, fy - 1, ez - 3), tip)
+            head.put((x, fy, ez - 3), tip)
+    return c
+
+
 def pig_body(c, k, col, snout):
     """A round piglet for the finer Blender build: a barrel body as wide as
     it is tall, a big head set low on it, stubby legs, a flat disc snout with
@@ -684,6 +746,10 @@ def blob(c, H, kind, col, accent, glow=None):
             x = round(sx * 0.6 * k) - (1 if sx < 0 else 0)
             head.put((x, round(-3.0 * k), round(3.2 * k)), INK)
             head.put((x + sx, round(-3.2 * k), round(3.8 * k)), INK)
+        if getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the shell
+            import kit_refit
+            kit_refit.lift(c, max(1, round(1.0 * k)))
     elif kind == 'axolotl':
         body.ell((0, 0.8 * k, 2.2 * k), (1.8 * k, 3.4 * k, 1.6 * k), col)
         head.ell((0, -2.4 * k, 3.4 * k), (2.4 * k, 1.8 * k, 1.8 * k), col)
@@ -831,7 +897,7 @@ ROSTER = [
     # Rare
     ('Raccoon', 'Rare', lambda c, H: quadruped(c, H, P('#9A9AA8'), belly=P('#D8D8E0'), snout=P('#F0F0F4'), ears='pointy', ear_col=P('#3A3A4A'), tail='striped', mask=P('#2A2A3A'))),
     ('Penguin', 'Rare', lambda c, H: bird(c, H, P('#2A2F45'), belly=P('#FFFFFF'), beak=P('#FFB627'), wing=P('#1F2335'))),
-    ('Owlet', 'Rare', lambda c, H: bird(c, H, P('#B07A4A'), belly=P('#F2D49B'), beak=P('#FFB627'), wing=P('#8A5A33'), big_eyes=True, tuft=True, crest=P('#8A5A33'))),
+    ('Owlet', 'Rare', lambda c, H: owlet(c, H)),
     ('Fennec', 'Rare', lambda c, H: quadruped(c, H, P('#F2CC8F'), belly=P('#FFF6E3'), snout=P('#FFF6E3'), ears='big', ear_col=P('#F2CC8F'), tail='fox', tail_col=P('#F2CC8F'))),
     ('PandaCub', 'Rare', lambda c, H: quadruped(c, H, P('#FFFFFF'), snout=P('#FFFFFF'), ears='round', ear_col=P('#1B1B2F'), tail='short', patches=P('#1B1B2F'), fluffy=True)),
     # Ultra Rare
@@ -883,11 +949,23 @@ def in_game(cs):
 # then every creature is 'plain'. A themed variant names its element here.
 ELEMENT = {}
 
+# Showpieces drawn with smaller voxels than their tier in the Blender build:
+# the same size in studs, this many times more voxels each way. The in-game
+# boxes (VoxelArt) keep the tier's voxel. Alex, Nov 5: Godlies must be far
+# more detailed than everything else.
+FINER = {'NebulaSerpent': 1.6}
+
 # Creatures added as data (tools/art/roster/*.json, see variants.py).
 import variants  # noqa: E402
 
 ROSTER += variants.roster_entries()
 ELEMENT.update(variants.elements())
+
+# The Legendary batch from the master sheet, hand-built (legendaries.py).
+import legendaries  # noqa: E402
+
+ROSTER = legendaries.finish_existing(ROSTER) + legendaries.ROSTER
+ELEMENT.update(legendaries.ELEMENT)
 
 
 def build_all(detail=None):
@@ -898,7 +976,7 @@ def build_all(detail=None):
     out = []
     for species, rarity, fn in ROSTER:
         c = Creature(species, rarity)
-        mult = (detail or {}).get(rarity, 1)
+        mult = (detail or {}).get(rarity, 1) * (FINER.get(species, 1) if detail is not None else 1)
         c.detail = mult
         c.element = ELEMENT.get(species, 'plain')
         c.fine = detail is not None  # the Blender build, at any multiplier

@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage.Shared
 local IncubatorLabel = require(Shared.IncubatorLabel)
 local Layout = require(Shared.Layout)
+local PromptKeys = require(Shared.PromptKeys)
 
 local Context = require(script.Parent.Context)
 local TowerView = require(script.Parent.TowerView)
@@ -33,6 +34,10 @@ type PromptOptions = {
 	reach: number?,
 	offset: Vector2?,
 }
+
+local function keyOf(name: string): Enum.KeyCode
+	return (Enum.KeyCode :: any)[name]
+end
 
 local function prompt(
 	parent: Instance,
@@ -119,7 +124,10 @@ function BaseView.start(ctx: Context.Context)
 
 		for _, incubator in (model:WaitForChild("Incubators") :: Folder):GetChildren() do
 			local slot = incubator:GetAttribute("Slot") :: number
-			prompt(incubator, "Hatch", "Hatch").Triggered:Connect(function()
+			prompt(incubator, "Hatch", "Hatch", {
+				key = keyOf(PromptKeys.Hatch.keyboard),
+				gamepad = keyOf(PromptKeys.Hatch.gamepad),
+			}).Triggered:Connect(function()
 				ctx.fire(remotes["HH:Hatch"], slot)
 			end)
 			prompt(incubator, "Unlock", "Unlock", { hold = 0.5 }).Triggered:Connect(function()
@@ -192,15 +200,21 @@ function BaseView.start(ctx: Context.Context)
 
 		for _, trap in (model:WaitForChild("Traps") :: Folder):GetChildren() do
 			local spot = trap:GetAttribute("Spot") :: number
-			local snare = prompt(trap, "Snare", "Set snare", { hold = 0.3 })
+			local snare = prompt(trap, "Snare", "Set snare", {
+				hold = raids.trapPrompt.holdSeconds,
+				reach = raids.trapPrompt.reach,
+				key = keyOf(PromptKeys.Snare.keyboard),
+				gamepad = keyOf(PromptKeys.Snare.gamepad),
+			})
 			snare.ObjectText = `{Layout.shortNumber(raids.traps.Snare.price)} coins`
 			snare.Triggered:Connect(function()
 				ctx.fire(remotes["HH:BuyTrap"], spot, "Snare")
 			end)
 			local slime = prompt(trap, "Slime", "Set slime", {
-				hold = 0.3,
-				key = Enum.KeyCode.R,
-				gamepad = Enum.KeyCode.ButtonY,
+				hold = raids.trapPrompt.holdSeconds,
+				reach = raids.trapPrompt.reach,
+				key = keyOf(PromptKeys.Slime.keyboard),
+				gamepad = keyOf(PromptKeys.Slime.gamepad),
 				offset = SECOND_PROMPT,
 			})
 			slime.ObjectText = `{Layout.shortNumber(raids.traps.Slime.price)} coins`
