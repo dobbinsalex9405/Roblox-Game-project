@@ -60,6 +60,10 @@
      "kind": "ear_leaves",
      "color": "#5FAE45",
      "color2": "#2F7A2A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ]
   },
@@ -96,6 +100,10 @@
     {
      "kind": "shineeyes",
      "color": "#1B1B2F"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ]
   },
@@ -117,6 +125,11 @@
     {
      "kind": "neon_rings",
      "color": "#3DFFB8"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ]
   }
