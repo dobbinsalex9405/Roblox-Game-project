@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Uploads for live creatures go up only when the PR lands next (Hatchery Heist)
+
+- **What:** an upload run that republishes a live creature under its
+  existing asset id (a new model version, `tools/art/blender/upload.py`) is
+  dispatched only when its PR can merge right after. Otherwise the model
+  goes up as a new asset id.
+- **Why:** a new version of an asset id reaches Staging (and Production)
+  at once, but its new palette id only arrives with the PR's
+  `CreatureMeshes.luau`. In between, players get the new mesh with the old
+  palette, which can paint the wrong colours. This happened with #96's
+  eye-pass upload of Calf, Butterfly, Monarch, Platypus and BeaverKit, made
+  while #96 waited behind other merges.
+- **How:** the verifier schedules such uploads in the upload queue next to
+  the PR's merge slot. If the PR is held, upload later (or under a new id).
+
 ## 2026-11-05: Moving creature parts are inset a hair (Hatchery Heist)
 
 - **What:** every creature part that moves against the body (legs, wings,
