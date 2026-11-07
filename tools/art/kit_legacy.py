@@ -899,6 +899,14 @@ def wool(c, H, col, col2=None, a=None):
     for p in list(wp.v):
         if p in vox:
             del wp.v[p]
+    if a.get('share') is not None:
+        # the curls are drawn from an even grid, which is not symmetric about
+        # the middle: mirror the right side so the model's box stays centred
+        # (an off-centre box shifts every part, legs included, in the export)
+        right = {q: v for q, v in wp.v.items() if q[0] >= 0}
+        wp.v = dict(right)
+        for (x, y, z), v in right.items():
+            wp.v[(_mx(x), y, z)] = v
 
 
 def quills(c, H, col, col2=None, a=None):
