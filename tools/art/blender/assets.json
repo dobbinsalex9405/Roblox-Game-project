@@ -2093,6 +2093,18 @@
    "textureId": 95806592137832,
    "textureType": "Image",
    "version": "1"
+  },
+  "GummyBear": {
+   "assetId": 133377156043379,
+   "textureId": 130433125023631,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "JellySlime": {
+   "assetId": 111996189674111,
+   "textureId": 137461933932625,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
