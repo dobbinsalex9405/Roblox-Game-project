@@ -173,7 +173,8 @@ def jumbo_ears(c, H, col, col2, a=None):
                 ears.put((x, y0, z), col)
                 ears.put((x, y0 + 1, z), col)
                 if d > 0.78:
-                    ears.put((x, y0 - 1, z), col)
+                    if not (a or {}).get('simple'):  # simple: no raised rim (a Common's box budget)
+                        ears.put((x, y0 - 1, z), col)
                 elif d < 0.7:
                     ears.put((x, y0 - 1, z), inner)
                     ears.v.pop((x, y0 - 2, z), None)
@@ -395,7 +396,7 @@ def fly_eyes(c, H, col, col2, a=None):
         cx = sx * (w - 0.2 * k)
         fe.ell((cx, cy - 0.1 * k, cz), (r * 0.8, r, r), col)
         g = (math.floor(cx + sx * 0.2 * k), math.floor(cy - 0.8 * k), math.floor(cz + 0.5 * k))
-        fe.put(g, col2 or WHITE, True)
+        fe.put(g, col2 or WHITE, bool((a or {}).get('lit', True)))
     # facets: every other voxel a shade darker
     dark = _mix(col, INK, 0.25)
     fe.paint(lambda p, cc, gl: (dark, False) if not gl and (p[0] + p[1] + p[2]) % 3 == 0 else None)
