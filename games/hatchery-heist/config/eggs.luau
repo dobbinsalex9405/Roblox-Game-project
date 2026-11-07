@@ -4,8 +4,13 @@
 -- creatures listing the pool in config/creatures, by their in-tier weight).
 -- So adding a creature to a pool only splits its tier's share, and no other
 -- tier's chance ever moves. Weights are whole numbers out of `total`
--- (100,000, so 1 = 0.001%; Moonlit uses 1,000,000 so every Godly fits) and
--- must add up to exactly that.
+-- and must add up to exactly that (a power of ten, so the odds screen's
+-- percentages are exact and add up to 100%).
+-- Every creature in a tier gets the same whole weight, so every odds card in
+-- a tier reads the same: the coin eggs' tier weights are written by
+-- tools/economy/even_eggs.py from its target odds and the pools' member
+-- counts. Rerun it whenever a pool changes (CI and Eggs.spec fail until you
+-- do). Hatchery's fixed order is lazy, so totals up to 10,000,000 are fine.
 -- src/shared/Eggs.expand turns tiers into each creature's whole weight
 -- (largest remainder inside each tier, so every tier stays exact); the odds
 -- screen shows the result as-is, as a percentage and as "1 in N".
@@ -29,50 +34,46 @@ local eggs: { Egg } = {
 		id = "BasicEgg",
 		priceCoins = 50,
 		hatchSeconds = 10,
-		total = TOTAL,
+		total = 1000000,
 		pool = "Barnyard",
 		tiers = {
-			Common = 92000, -- 92%
-			Uncommon = 7000, -- 7%
-			Rare = 800, -- 1 in 125
-			["Ultra Rare"] = 180, -- 1 in 556
-			Epic = 18, -- 1 in 5,556
-			Legendary = 2, -- 1 in 50,000
+			Common = 920016, -- 92.0016% (48 x 19,167)
+			Uncommon = 70000, -- 7% (7 x 10,000)
+			Rare = 7984, -- 1 in 125 (1 x 7,984)
+			["Ultra Rare"] = 1800, -- 1 in 556 (1 x 1,800)
+			Epic = 180, -- 1 in 5,556 (1 x 180)
+			Legendary = 20, -- 1 in 50,000 (1 x 20)
 		},
 	},
 	{
 		id = "MeadowEgg",
 		priceCoins = 2500,
 		hatchSeconds = 60,
-		total = TOTAL,
+		total = 1000000,
 		pool = "Meadow",
 		tiers = {
-			Common = 67000, -- 67%
-			Uncommon = 31000, -- 31%
-			Rare = 1700, -- 1.7%
-			["Ultra Rare"] = 280, -- 1 in 357
-			Epic = 17, -- 1 in 5,882
-			Legendary = 3, -- 1 in 33,333
+			Common = 669972, -- 66.9972% (62 x 10,806)
+			Uncommon = 310039, -- 31.0039% (29 x 10,691)
+			Rare = 16996, -- 1.6996% (2 x 8,498)
+			["Ultra Rare"] = 2795, -- 1 in 358 (13 x 215)
+			Epic = 168, -- 1 in 5,952 (6 x 28)
+			Legendary = 30, -- 1 in 33,333 (1 x 30)
 		},
 	},
 	{
 		id = "MoonlitEgg",
 		priceCoins = 15000,
 		hatchSeconds = 120,
-		-- Out of 1,000,000, not 100,000: every creature in a tier needs a
-		-- whole weight of at least 1, and 19 Godlies hatch from this egg.
-		-- The Godly weight is a whole multiple of the Godly count, so every
-		-- Godly shows the same odds (a 20th Godly means 20 or 40); the spare
-		-- point goes to Uncommon. Otherwise the odds at 100,000, times 10.
-		total = 1000000,
+		-- Every Godly here is exactly 1 in 1,000,000, however many there are.
+		total = 10000000,
 		pool = "Moonlit",
 		tiers = {
-			Uncommon = 580001, -- 58%
-			Rare = 380000, -- 38%
-			["Ultra Rare"] = 37000, -- 3.7%
-			Epic = 2900, -- 1 in 345
-			Legendary = 80, -- 1 in 12,500
-			Godly = 19, -- 1 in 52,632 (each of the 19 Godlies exactly 1 in 1,000,000)
+			Uncommon = 5800020, -- 58.0002% (4 x 1,450,005)
+			Rare = 3800010, -- 38.0001% (3 x 1,266,670)
+			["Ultra Rare"] = 369982, -- 3.69982% (58 x 6,379)
+			Epic = 28998, -- 1 in 345 (54 x 537)
+			Legendary = 800, -- 1 in 12,500 (1 x 800)
+			Godly = 190, -- 1 in 52,632 (19 x 10)
 		},
 	},
 	{
