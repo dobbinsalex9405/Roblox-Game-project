@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Fix: the odds card beside an egg refits when the screen changes size, so
+  it no longer stays phone-sized after a window grows.
+- Fix: on a phone the Hatchery Book fits below Roblox's top bar; its bottom
+  edge was just off the screen.
+- The full odds list is wider where the screen allows, so long names like
+  "Dalmatian Pup (Common)" fit beside their odds (a name too long is
+  shortened, never the odds), and switching eggs starts at the top.
 - Fix: a rare egg like the Moonlit Egg rides past its Buy prompt in about a
   second, too fast to reach "See every creature". The full odds list now has
   a tab for every egg on the belt, so any egg's list opens the others.
