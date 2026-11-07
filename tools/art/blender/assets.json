@@ -1373,6 +1373,30 @@
    "textureId": 95806592137832,
    "textureType": "Image",
    "version": "1"
+  },
+  "DustBunny": {
+   "assetId": 105915027568147,
+   "textureId": 74666172236215,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "IcicleBat": {
+   "assetId": 74667045695520,
+   "textureId": 119887292147872,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "LeafBat": {
+   "assetId": 86294075717895,
+   "textureId": 99844926485791,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "NeonOctopus": {
+   "assetId": 103256171711386,
+   "textureId": 93824815863729,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -2048,6 +2072,22 @@
   "ZebraPiglet": {
    "imageId": 122821289359673,
    "source": "bd54e7d5ad399b01"
+  },
+  "DustBunny": {
+   "imageId": 84774251865377,
+   "source": "7299b4443aab8e44"
+  },
+  "IcicleBat": {
+   "imageId": 119886473159238,
+   "source": "70e0737ac86bb869"
+  },
+  "LeafBat": {
+   "imageId": 128850714533411,
+   "source": "503169a338d3d03e"
+  },
+  "NeonOctopus": {
+   "imageId": 118005057520009,
+   "source": "e28aa7134bddc102"
   }
  }
 }

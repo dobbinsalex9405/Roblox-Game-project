@@ -2,6 +2,18 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: New creatures fit the in-game box budget with `fit_boxes` (Hatchery Heist)
+
+- **What:** a roster creature over its tier's stand-in box budget (UR 80,
+  Epic 120) adds the `fit_boxes` accessory last (`tools/art/kit_aura.py`).
+  In the in-game boxes only, it redraws the heaviest parts on a 2-voxel
+  grid, then a 3-voxel grid (`kit_epicmyth._fit_budget`), never the face
+  or legs; `"head": true` also coarsens a big round head (NeonOctopus).
+  The Blender meshes players see once loaded are untouched, so uploaded
+  models stay valid.
+- **Why:** `to_config.py` holds back any creature over budget, and three
+  of the four URs in #128 were (87 to 117 boxes).
+
 ## 2026-11-07: Live creatures keep their eyes until re-uploaded (Hatchery Heist)
 
 - **What:** the eye pass (`variants.eye_contrast`: a white shine, deeper

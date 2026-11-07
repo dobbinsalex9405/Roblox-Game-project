@@ -1,0 +1,137 @@
+{
+ "creatures": [
+  {
+   "id": "IcicleBat",
+   "rarity": "Ultra Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "element": "Glacial",
+   "options": {
+    "face": "fox"
+   },
+   "colors": {
+    "col": "#CFE6FA",
+    "belly": "#F2FAFF",
+    "wing": "#8FC3EC",
+    "ear": "#B3D6F2",
+    "accent": "#7FDBFF"
+   },
+   "accessories": [
+    {
+     "kind": "wing_icicles",
+     "color": "#BFE6FF",
+     "color2": "#E8FAFF"
+    },
+    {
+     "kind": "ear_icicles",
+     "color": "#BFE6FF",
+     "color2": "#E8FAFF"
+    },
+    {
+     "kind": "iris_eyes",
+     "color": "#7FDBFF",
+     "color2": "#14203A",
+     "iris_glow": true
+    }
+   ]
+  },
+  {
+   "id": "LeafBat",
+   "rarity": "Ultra Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "element": "Nature",
+   "options": {
+    "face": "fox"
+   },
+   "colors": {
+    "col": "#6E8A3E",
+    "belly": "#D8E8B0",
+    "wing": "#5FBF45",
+    "ear": "#4E6A2A",
+    "accent": "#D8E8B0"
+   },
+   "accessories": [
+    {
+     "kind": "leaf_veins",
+     "color": "#2F7A2A"
+    },
+    {
+     "kind": "ear_leaves",
+     "color": "#5FAE45",
+     "color2": "#2F7A2A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ]
+  },
+  {
+   "id": "DustBunny",
+   "rarity": "Ultra Rare",
+   "plan": "puff",
+   "gait": "hop",
+   "element": "plain",
+   "options": {
+    "kind": "ball"
+   },
+   "colors": {
+    "col": "#B9B4AE",
+    "accent": "#D6D2CC",
+    "tuft": "#9C968F",
+    "feet": "#8C867F"
+   },
+   "accessories": [
+    {
+     "kind": "fuzz",
+     "color": "#A9A49E"
+    },
+    {
+     "kind": "ear_tufts",
+     "color": "#A9A49E",
+     "color2": "#C9C5BF"
+    },
+    {
+     "kind": "dust_motes",
+     "color": "#CFCAC4",
+     "color2": "#EDE6D8"
+    },
+    {
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ]
+  },
+  {
+   "id": "NeonOctopus",
+   "rarity": "Ultra Rare",
+   "plan": "octopus",
+   "gait": "scuttle",
+   "element": "plain",
+   "options": {
+    "kind": "octopus"
+   },
+   "colors": {
+    "col": "#2E2650",
+    "accent": "#3DFFB8",
+    "belly": "#4A3F78"
+   },
+   "accessories": [
+    {
+     "kind": "neon_rings",
+     "color": "#3DFFB8"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ]
+  }
+ ]
+}
