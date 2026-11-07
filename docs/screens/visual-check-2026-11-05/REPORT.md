@@ -766,3 +766,14 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Orbiting worlds:** orbit_1 is one 7.5-stud mesh (the ring of worlds) around the body, and orbit_2 is a small world. Close-ups show the worlds circling outside the coil (`71-hh-serpent-pad.jpg`). A box-overlap test can't separate "passes through" from "circles around" for a ring mesh, so this is judged by eye only: nothing seen passing through.
 - **Walk.lie:** on a ground-floor pad the Serpent is coiled upright (about 3.7x5.5 studs) and wanders, turning through 10 headings. It does **not** lie along the row. `Walk.lie` only fires when the creature is too long for the spot's depth, and this coil isn't, so I couldn't observe lie behaviour here.
 - **Book:** both Godly cards draw whole with NEW badges (`71-hh-book-godly.jpg`).
+
+## #119 Book @ 3978bac
+
+**FAIL.** Desktop, fresh join, Common tab. Each flick is four or more 350 px jumps.
+- **First open, flick at about 0 s:** at the first capture (about 1-2 s later, because the capture tool is slow), 3 of 18 visible cards were drawn and 15 were empty (`119e-hh-first-open-flick.jpg`). They were all filled by the next capture, about 5 s later.
+- **Reopen (all 91 cards reported built; built cards persist while closed), flick 0→2100→700:** 10 of 18 drawn, 8 empty (`119e-hh-reopen-flick.jpg`).
+- **Tab switch (Uncommon, then back to Common), flick to 1400:** 0 of 12 fully visible cards drawn (`119e-hh-tabswitch-flick.jpg`).
+- **Fixed:** no bleed-through, and layering is correct.
+- **Read:** the cards are built, and the data side counts 91/91 with models. But a ViewportFrame that has been off screen, or whose tab was hidden, still has to render again when it comes back. Reopening and switching tabs don't land on drawn cards, so the acceptance bar isn't met. Persisting the built cards doesn't help, because Roblox drops a ViewportFrame's render once the frame is hidden or its parent isn't visible.
+- **Suggestion:** consider a static image instead. Render each silhouette once into an EditableImage/capture or a pre-baked thumbnail per species, so the Book shows ImageLabels. That removes ViewportFrame first-render latency entirely.
+- **Not run:** the NEW badge check, since the flick checks fail.
