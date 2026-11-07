@@ -92,9 +92,9 @@
           "CFrame": {
             "CFrame": {
               "position": [
-                0,
+                52,
                 0.1,
-                26
+                0
               ],
               "orientation": [
                 [
@@ -114,7 +114,8 @@
                 ]
               ]
             }
-          }
+          },
+          "Transparency": 1
         }
       }
     }

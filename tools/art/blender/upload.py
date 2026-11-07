@@ -2,6 +2,7 @@
 one Model asset per creature, and records the asset ids in assets.json.
 
     python3 tools/art/blender/upload.py DIR [--only Chick,Frog] [--textures-only] [--dry-run]
+    python3 tools/art/blender/upload.py DIR --thumbs [--only Chick,Frog] [--dry-run]
 
 DIR is build.py's output (DIR/<id>/<id>.fbx). A creature already in
 assets.json gets a new version of the same asset, so its id never changes;
@@ -13,6 +14,11 @@ Each creature's colours are its palette PNG, uploaded as an **Image** asset
 the creature grey with "Asset type does not match requested type").
 --textures-only re-uploads just the palettes of creatures that already have
 a model asset.
+
+--thumbs uploads the Hatchery Book pictures instead (build.py --thumbs:
+DIR/<id>/<id>_thumb.png and thumb.json), each as an Image asset, and
+records its id with the art fingerprint it was drawn from under "thumbs".
+A picture is a new asset each time (an Image cannot take a new version).
 
 The API key comes from ROBLOX_API_KEY (the Hatchery Heist Staging key, with
 the Assets API "asset:read" and "asset:write" permissions). It is never
@@ -35,6 +41,8 @@ API = 'https://apis.roblox.com/assets/v1'
 CLOUD_UNIVERSE = 'https://apis.roblox.com/cloud/v2/universes'
 GAMES = 'https://games.roblox.com/v1/games'
 GAME = 'hatchery-heist'
+TRIES = 5  # per request; waits 2, 4, 8, 16 s between them
+RETRY_CODES = (429, 500, 502, 503, 504)
 
 
 def call(method, url, key=None, body=None, ctype=None, soft=False):
@@ -46,18 +54,28 @@ def call(method, url, key=None, body=None, ctype=None, soft=False):
         req.add_header('x-api-key', key)
     if ctype:
         req.add_header('content-type', ctype)
-    for attempt in range(5):
+    for attempt in range(TRIES):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 return json.loads(r.read() or b'{}')
         except urllib.error.HTTPError as e:
             text = e.read().decode('utf-8', 'replace')[:500]
-            if e.code in (429, 500, 502, 503) and attempt < 4:
+            if e.code in RETRY_CODES and attempt < TRIES - 1:
                 time.sleep(2 ** attempt * 2)
                 continue
             if soft and 400 <= e.code < 500:
                 raise LookupError(f'HTTP {e.code}')
             raise SystemExit(f'{method} {url.split("?")[0]} failed: HTTP {e.code} {text}')
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            # the network, not Roblox's answer: a refused or reset connection
+            # or a timeout (run 42096155779 stopped on "Connection refused"
+            # after 11 creatures). Retried like a 5xx; a retried create can at
+            # worst leave one unused palette image behind.
+            if attempt < TRIES - 1:
+                print(f'{method} {url.split("?")[0]}: {e}; retrying', flush=True)
+                time.sleep(2 ** attempt * 2)
+                continue
+            raise SystemExit(f'{method} {url.split("?")[0]} failed after {TRIES} tries: {e}')
 
 
 def multipart(request, path, ctype='model/fbx'):
@@ -116,17 +134,57 @@ def load():
     return {'note': 'Roblox Model asset ids for each creature\'s meshes (tools/art/blender/upload.py).', 'models': {}}
 
 
+def save(data):
+    with open(ASSETS, 'w') as f:  # after every upload, so a failure keeps the ids made so far
+        json.dump(data, f, indent=1, sort_keys=True)
+        f.write('\n')
+
+
+def upload_thumbs(a, key, data):
+    ids = sorted(d for d in os.listdir(a.dir) if os.path.isfile(os.path.join(a.dir, d, f'{d}_thumb.png')))
+    if a.only:
+        ids = [i for i in ids if i in set(a.only.split(','))]
+    if not ids:
+        raise SystemExit(f'no pictures in {a.dir} (run build.py --thumbs first)')
+    group = None if a.dry_run else owner_group(key)
+    pics = data.setdefault('thumbs', {})
+    for sid in ids:
+        png = os.path.join(a.dir, sid, f'{sid}_thumb.png')
+        with open(os.path.join(a.dir, sid, 'thumb.json')) as f:
+            source = json.load(f)['source']
+        if a.dry_run:
+            print(f'{sid}: would upload {png} as an Image (art {source})')
+            continue
+        body, ctype = multipart({
+            'assetType': 'Image',
+            'displayName': f'HH {sid} book',
+            'description': f'Hatchery Heist creature {sid}, Hatchery Book picture (tools/art/blender)',
+            'creationContext': {'creator': {'groupId': group}},
+        }, png, 'image/png')
+        img = wait(call('POST', f'{API}/assets', key, body, ctype), key)
+        kind = str(img.get('assetType', ''))
+        if 'IMAGE' not in kind.upper():
+            raise SystemExit(f'{sid}: picture came back as {kind or "an unknown type"}, not an Image')
+        pics[sid] = {'imageId': int(img['assetId']), 'source': source}
+        print(f'{sid}: picture {img["assetId"]}', flush=True)
+        save(data)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('dir')
     ap.add_argument('--only')
     ap.add_argument('--textures-only', action='store_true')
+    ap.add_argument('--thumbs', action='store_true', help='the Hatchery Book pictures (see the top)')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
     key = os.environ.get('ROBLOX_API_KEY', '')
     if not key and not a.dry_run:
         raise SystemExit('ROBLOX_API_KEY is not set')
     data = load()
+    if a.thumbs:
+        upload_thumbs(a, key, data)
+        return
     ids = sorted(d for d in os.listdir(a.dir) if os.path.isfile(os.path.join(a.dir, d, f'{d}.fbx')))
     if a.only:
         ids = [i for i in ids if i in set(a.only.split(','))]
@@ -172,9 +230,7 @@ def main():
         data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId'),
                                'textureId': int(tex['assetId']), 'textureType': 'Image'}
         print(f'{sid}: asset {asset}, texture {tex["assetId"]}', flush=True)
-        with open(ASSETS, 'w') as f:  # after every upload, so a failure keeps the ids made so far
-            json.dump(data, f, indent=1, sort_keys=True)
-            f.write('\n')
+        save(data)
 
 
 if __name__ == '__main__':

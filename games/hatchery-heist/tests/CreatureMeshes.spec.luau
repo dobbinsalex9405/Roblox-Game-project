@@ -86,7 +86,7 @@ describe("Creature meshes", function()
 	end)
 
 	it("say how each one walks, and swing every leg from a hip", function()
-		local GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover" }
+		local GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover", "swim" }
 		for id, m in CreatureMeshes do
 			expect(table.find(GAITS, m.gait) ~= nil and m.gait or `{id}: gait {m.gait}`).toBe(m.gait)
 			for _, part in m.parts do

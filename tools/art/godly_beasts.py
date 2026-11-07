@@ -771,9 +771,11 @@ def world_turtle(c, H):
     # little tail
     tail_tube(c, k, (0, 3.3, 1.6), (0, 4.0, 1.4), (0, 4.3, 1.0), 0.42, 0.25, lambda s: skin)
     tidy(c)
-    orbit_ring(c, k, [(0, 4.6, 0.75, cloud(WHITE, C('#DDEBFA'))), (120, 3.2, 0.62, cloud(WHITE, C('#DDEBFA'))),
-                      (240, 5.2, 0.68, cloud(WHITE, C('#DDEBFA')))]
-               + ([(60, 6.2, 0.3, star4(C('#FFE45C'), WHITE)), (300, 2.4, 0.42, ball(C('#FFD93B'), C('#FFF6B0'), glow=True, cap=True, fine=fine))] if fine else []))
+    # angles chosen so the orbit reaches as far left as right: the model is
+    # centred on its bounds, and the legs must mirror about that centre
+    orbit_ring(c, k, [(-40, 4.6, 0.75, cloud(WHITE, C('#DDEBFA'))), (80, 3.2, 0.62, cloud(WHITE, C('#DDEBFA'))),
+                      (200, 5.2, 0.68, cloud(WHITE, C('#DDEBFA')))]
+               + ([(20, 6.2, 0.3, star4(C('#FFE45C'), WHITE)), (260, 2.4, 0.42, ball(C('#FFD93B'), C('#FFF6B0'), glow=True, cap=True, fine=fine))] if fine else []))
     return c
 
 

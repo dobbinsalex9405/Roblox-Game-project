@@ -15,7 +15,33 @@ export type Entry = {
 	total: number,
 }
 
+local CreatureThumbs = require("./CreatureThumbs")
+
 local Book = {}
+
+-- A creature's Book picture (CreatureThumbs: a render of its meshes, kept
+-- only while it matches the art), or nil when the card draws it live.
+-- `thumbs` is for tests.
+function Book.picture(speciesId: string, thumbs: { [string]: number }?): string?
+	local id = (thumbs or CreatureThumbs)[speciesId]
+	if id ~= nil and id > 0 then
+		return `rbxassetid://{id}`
+	end
+	return nil
+end
+
+-- Every picture the Book can show, in page order (Book.entries: the Common
+-- tab first, where the Book opens), to preload at join.
+function Book.pictures(entries: { Entry }, thumbs: { [string]: number }?): { string }
+	local out = {}
+	for _, entry in entries do
+		local picture = Book.picture(entry.speciesId, thumbs)
+		if picture then
+			table.insert(out, picture)
+		end
+	end
+	return out
+end
 
 -- `rarities` lists the tiers from Common up (Layout.RARITIES).
 function Book.entries(creatureConfig: any, eggs: { any }, rarities: { string }): { Entry }
@@ -101,6 +127,14 @@ function Book.newCount(found: { [string]: any }?, species: { [string]: any }, se
 		end
 	end
 	return n
+end
+
+-- The Book window's size on a `screenX` x `screenY` screen whose top
+-- `insetY` px are Roblox's top bar: at most 760x560, 12 px clear of the
+-- sides and, centred in the GUI area below the bar, 8 px clear of its top
+-- and bottom (Studio gate, #131: 9 px of a phone Book were off screen).
+function Book.windowSize(screenX: number, screenY: number, insetY: number): (number, number)
+	return math.min(760, screenX - 24), math.min(560, screenY - insetY - 16)
 end
 
 return Book
