@@ -153,6 +153,19 @@ def _fit_budget(c, budget=120):
     return c
 
 
+def _mirror_leg(c, src='legR', dst='legL'):
+    """Redraws leg `dst` as the exact mirror of `src` (voxel x -> -1 - x,
+    hinge x -> -x), so a pair of legs match to the voxel."""
+    a = _part(c, src)
+    if a is None:
+        return
+    import rig
+    px, py, pz = a.pivot
+    b = rig.leg_part(c, dst[-1], 0, 1, (-px, py, pz))
+    b.pivot = (-px, py, pz)
+    b.v = {(-1 - x, y, z): v for (x, y, z), v in a.v.items()}
+
+
 def _with(plan, kind, cols, opts, c, H):
     o = dict(opts)
     o['kind'] = kind
@@ -175,13 +188,13 @@ def kappa(c, k, cols, opts):
     body = c.part('body')
     top = 1.5 * k
     import rig
-    for side in ('L', 'R'):
-        x = 0.85 * k if side == 'R' else -0.85 * k
-        lp = rig.leg_part(c, side, 0, 1, (x, 0.2 * k, top + 1))
-        for z in range(0, int(top) + 1):
-            lp.ell((x, 0.2 * k, z + .5), (0.55 * k, 0.55 * k, 0.5), dark(col, 0.1))
-        # wide webbed feet, toes forward
-        lp.ell((x, -0.35 * k, 0.5), (0.75 * k, 0.95 * k, 0.5), dark(col, 0.2))
+    x = 0.85 * k
+    lp = rig.leg_part(c, 'R', 0, 1, (x, 0.2 * k, top + 1))
+    for z in range(0, int(top) + 1):
+        lp.ell((x, 0.2 * k, z + .5), (0.55 * k, 0.55 * k, 0.5), dark(col, 0.1))
+    # wide webbed feet, toes forward
+    lp.ell((x, -0.35 * k, 0.5), (0.75 * k, 0.95 * k, 0.5), dark(col, 0.2))
+    _mirror_leg(c)
     bz = top + 1.5 * k
     body.ell((0, 0, bz), (1.5 * k, 1.25 * k, 1.65 * k), col)
     body.paint(lambda p, cc, g: (belly, False) if p[1] < -0.55 * k and abs(p[0] + .5) < 0.95 * k and cc == col else None)
@@ -236,6 +249,8 @@ def kappa(c, k, cols, opts):
     hair = cols.get('wing', dark(col, 0.45))
     for a in range(28 if fine else 12):
         ang = a / (28 if fine else 12) * math.pi * 2
+        if math.sin(ang) < -0.35:  # never over the face: the eyes stay clear
+            continue
         x = math.floor(math.cos(ang) * (R + 1.0))
         y = math.floor(math.sin(ang) * (R + 1.0) - 0.1 * k)
         drop = 1 + (a % 3 == 0)
@@ -1010,6 +1025,7 @@ def em_octopus(c, H, cols, opts):
             if i % 2 == 1 and r > 0.7:
                 part.put((math.floor(x), math.floor(y), math.floor(z - r)), glow, True)
         part.paint(lambda p, cc, g, part=part: (belly, False) if cc == col and (p[0], p[1], p[2] - 1) not in part.v and p[2] < z0 - 0.8 * k else None)
+    _mirror_leg(c)  # the two paddling front tentacles match exactly
     c.gait_hint = 'hover'
     return c
 
