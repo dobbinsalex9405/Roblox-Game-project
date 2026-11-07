@@ -676,3 +676,22 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
    - In the Common tab, all 91 cards have mesh models (4-10 MeshParts) and no boxes.
    - In the Uncommon tab, all 7 silhouettes and the found Hedgehog are whole (`74-hh-book-uncommon.jpg`). As on #115, newly shown cards take a moment before their first render.
 4. **First screen:** welcome card, HUD, side menu and shield look as before. Nothing regressed (`74-hh-first-screen.jpg`).
+
+## Post-#74 main @ 126dd4a (local build)
+
+**PASS, with one finding.**
+- Walking with legs: EmberFox, FrostWolf, CrystalStag, MoonUnicorn and Hedgehog each swing their legs 0.51-0.62 rad. Bunny hops (lift 0.62). NebulaSerpent waves (lift 1.2).
+- Paw glows: 5 glow parts on EmberFox, FrostWolf and CrystalStag; 6 on MoonUnicorn.
+- Hedgehog: 8 meshes, no boxes, no ears by design. NebulaSerpent's head is present.
+- **Finding:** Output says `creature glow meshes missing ... ThunderGriffin_wingR_glow2, ThunderGriffin_wingL_glow2`. This didn't appear on the PR head 1ef9dd3, so the live ThunderGriffin asset seems to be missing the wing glow2 parts.
+
+## #119 @ b93446a (polish)
+
+**FAIL on the Book flick; the other checks PASS.** Desktop maximised.
+- **Guide on desktop: PASS.** The PlayerList CoreGui is off. The side menu starts at y 124, and tapping Guide opens the welcome card (`119-hh-guide-desktop.jpg`).
+- **Floor-2 label vs YOUR HATCHERY: PASS.** The banner moved up to offset 14.5. From the yard the two no longer share a line (`119-hh-hatchery-banner.jpg`). The floor label isn't AlwaysOnTop (MaxDistance 80), so it hides behind the house from most angles.
+- **Book fast flick: FAIL.** Scrolling 4 jumps of 350 px in about 0.12 s leaves **two whole rows blank** right after (`119-hh-book-flick-blank.jpg`).
+  - About 0.5 s later most of them are filled, but not all (`-partial.jpg`). By about 1 s all are filled (`-filled.jpg`).
+  - The data side reports all 24 visible cards have models, so the first-render blank from #115 is still there.
+  - A player flicking fast will see blank rows for up to about 1 s.
+- **First screen:** apart from the moves above, nothing else changed.
