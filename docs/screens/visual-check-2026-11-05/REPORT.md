@@ -1216,3 +1216,14 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Dust Bunny: hops (median 0.77, peak 1.61).
   - The bats hover low. Body bottom median 0.70 (LeafBat) / 0.76 (IcicleBat). Only the rotated wing boxes dip to 0.28-0.43 at the bottom of a flap; at floor level the wings are up and clear (`128-hh-leafbat.jpg`).
   - Moved in 10 s: DustBunny 7.0, LeafBat 4.5, IcicleBat 5.0, NeonOctopus 2.3 studs.
+
+## #110 @ 48e9680 (Common A), merged onto main b401686 locally (clean)
+
+**PASS.** Local build, desktop.
+- **Book, Common tab:** all 91 cards draw a picture, with no blanks. All eleven (Bluebird, Chick, Fawn, Foal, GoatKid, Hen, Lamb, Mole, OtterPup, Parakeet, Robin) use a picture that reports IsLoaded.
+- **World:** GoatKid, Mole, Hen and Fawn, given from the test panel.
+  - All four are fully textured (8-11 MeshParts, none untextured), and the largest gap is 0.000.
+  - Bottom medians are 0.71-0.75 on a 0.70 floor. Leg-swing box corners dip to 0.43-0.60 mid-step.
+  - Moved in 10 s: GoatKid 7.7, Mole 6.1, Hen 13.4, Fawn 1.7 studs (Fawn mostly idled).
+- **Shine eyes:** the Mole and GoatKid close-ups show the white highlight block on each eye (`110-hh-mole-goatkid-eyes.jpg`, overview `110-hh-four.jpg`).
+- **TidalOtter:** there's no TidalOtter in Hatchery Heist's creature config or test panel on main or in this PR, so there was nothing to compare. It may be another game's creature.
