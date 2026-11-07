@@ -18,6 +18,7 @@ local CreatureThumbs: { [string]: number } = {
 	Bluebird = 131387195743289,
 	Boarlet = 104377293043655,
 	Bullfrog = 76521218802928,
+	Bumblebee = 94399800927993,
 	Bunny = 95669907003742,
 	Butterfly = 136274915538609,
 	Calf = 139661711457805,
