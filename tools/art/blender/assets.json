@@ -739,10 +739,10 @@
    "version": "1"
   },
   "HurricaneRoc": {
-   "assetId": 95434468290256,
-   "textureId": 88709286061047,
+   "assetId": 92845448203322,
+   "textureId": 109204015653940,
    "textureType": "Image",
-   "version": "2"
+   "version": "1"
   },
   "HuskyPup": {
    "assetId": 84879241101977,
@@ -2154,8 +2154,8 @@
    "source": "f500881046bbb585"
   },
   "HurricaneRoc": {
-   "imageId": 103514228926112,
-   "source": "442cf6462d99893c"
+   "imageId": 139693014930236,
+   "source": "146f52dbb6491b1f"
   },
   "HuskyPup": {
    "imageId": 105131027989050,
