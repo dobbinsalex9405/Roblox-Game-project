@@ -873,3 +873,18 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Ladybug (control):** 9 meshes, 0 boxes, sits 0.01-0.09 above the pad.
 - **Book (phone 844x392):** the Bumblebee card shows the textured model (9 MeshParts, texture 82434895412728) with its NEW badge (`109-hh-book-bumblebee-phone.jpg`).
 - **Output:** only "content representation is being generated" for the fresh texture, plus my own script error from a lookup by the wrong card name. No asset failures.
+
+## #126 @ b1abd44 (lazy hatch order in restricted mode)
+
+**Logic PASS. Layout FAIL (the odds card overflows the screen).** Local builds. Restricted mode came from the fallback: the policy fetch at CoreServer.luau:309 was patched locally to return `{ ArePaidRandomItemsRestricted = true, IsPaidItemTradingAllowed = false }`. That patch was not committed.
+- **Restricted, Basic Egg odds card:**
+  - Header: "Fixed order, no chance involved:".
+  - 47 rows, one per outcome, each "Name (Tier): N in every 100000" with a wait. Commons 2359 each (Silkie 2358), Uncommons 3500 each, Raccoon 800, Ember Fox 180, Dragonling 18, Phoenix 2. These match main's tier odds 92 / 7 / 0.8 / 0.18 / 0.018 / 0.002 %, split across the tier.
+  - Gosling = **NEXT**, Turtle "in 2 eggs", Bunny "in 3 eggs", … Phoenix "in 25011 eggs".
+- **Buy and hatch one Basic Egg:**
+  - The hatch was **Gosling** (Uncommon), the one marked NEXT.
+  - The reveal shows no "1 in N" line (`126-hh-restricted-reveal-gosling.jpg`).
+  - Afterwards every wait dropped by 1 (Bunny 3→2, Silkie 41→40, Raccoon 44→43, Phoenix 25011→25010). **Turtle became NEXT**, and Gosling moved to "in 41 eggs".
+- **Book in restricted mode:** the found Gosling card and the ??? cards have **blank odds lines**, with no egg name and no "1 in N" (`126-hh-restricted-book.jpg`).
+- **FAIL, layout:** the restricted odds card is **280x1142 px on a 672 px tall desktop viewport**, placed at y −264. It runs off the top and bottom of the screen and covers the Shop/Test buttons and the chat. There's no scroll, so most rows, including NEXT (near the bottom), can't be seen (`126-hh-restricted-oddscard-overflow.jpg`). On a phone it would be worse. Fix: make the list a ScrollingFrame capped to the viewport, or show only NEXT plus the next few rows and the rarest outcomes, grouping Commons as one line.
+- **Unrestricted pass:** the odds card is unchanged from main (Basic: 92.000% · 1 in 1.1 / 7.000% · 1 in 14.3 / 0.800% · 1 in 125 / 0.180% · 1 in 556 / 0.018% · 1 in 5,556 / 0.002% · 1 in 50,000; size 280x214).
