@@ -81,8 +81,9 @@ describe("Egg tiers", function()
 		raccoon.weight = 0.5
 		more.Raccoon = raccoon
 		local moonlit = byId(Eggs.expand(rawEggs, more)).MoonlitEgg
-		-- Fennec, Owlet and Panda Cub at 1, the Raccoon at 0.5: 2 parts in 7.
-		expect(moonlit.Raccoon).toBe(5429)
-		expect(moonlit.Fennec + moonlit.Owlet + moonlit.PandaCub + moonlit.Raccoon).toBe(38000)
+		-- Fennec, Owlet and Panda Cub at 1, the Raccoon at 0.5: 1 part in 7
+		-- of the Moonlit Egg's 30,000 Rare weight.
+		expect(moonlit.Raccoon).toBe(4286)
+		expect(moonlit.Fennec + moonlit.Owlet + moonlit.PandaCub + moonlit.Raccoon).toBe(30000)
 	end)
 end)

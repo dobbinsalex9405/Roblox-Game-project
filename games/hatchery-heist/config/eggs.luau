@@ -21,7 +21,15 @@ type Egg = {
 	tiers: { [string]: number },
 }
 
+-- The fixed-order alternative builds one cycle of `total` eggs per egg
+-- (Hatchery.fixedOrderCycle), so totals stay 100,000 until it computes the
+-- n-th outcome without the table.
 local TOTAL = 100000
+
+-- Odds tuned Nov 7 with tools/economy (ops/ECONOMY.md): the Meadow Egg is now
+-- the step up from Basic (it was 6x cheaper than Moonlit for 22x worse Rare
+-- odds, so players skipped it), and the Moonlit Egg's Rare-and-up odds come
+-- down so a regular player's first Epic lands on day 2-3, not in hour one.
 
 local eggs: { Egg } = {
 	{
@@ -32,41 +40,41 @@ local eggs: { Egg } = {
 		pool = "Barnyard",
 		tiers = {
 			Common = 92000, -- 92%
-			Uncommon = 7000, -- 7%
-			Rare = 800, -- 1 in 125
-			["Ultra Rare"] = 180, -- 1 in 556
-			Epic = 18, -- 1 in 5,556
+			Uncommon = 7200, -- 7.2%
+			Rare = 700, -- 1 in 143
+			["Ultra Rare"] = 90, -- 1 in 1,111
+			Epic = 8, -- 1 in 12,500
 			Legendary = 2, -- 1 in 50,000
 		},
 	},
 	{
 		id = "MeadowEgg",
-		priceCoins = 2500,
-		hatchSeconds = 60,
+		priceCoins = 1500,
+		hatchSeconds = 30,
 		total = TOTAL,
 		pool = "Meadow",
 		tiers = {
-			Common = 67000, -- 67%
-			Uncommon = 31000, -- 31%
-			Rare = 1700, -- 1.7%
-			["Ultra Rare"] = 280, -- 1 in 357
-			Epic = 17, -- 1 in 5,882
-			Legendary = 3, -- 1 in 33,333
+			Common = 58000, -- 58%
+			Uncommon = 37000, -- 37%
+			Rare = 4500, -- 4.5%
+			["Ultra Rare"] = 450, -- 1 in 222
+			Epic = 45, -- 1 in 2,222
+			Legendary = 5, -- 1 in 20,000
 		},
 	},
 	{
 		id = "MoonlitEgg",
-		priceCoins = 15000,
+		priceCoins = 20000,
 		hatchSeconds = 120,
 		total = TOTAL,
 		pool = "Moonlit",
 		tiers = {
-			Uncommon = 58000, -- 58%
-			Rare = 38000, -- 38%
-			["Ultra Rare"] = 3700, -- 3.7%
-			Epic = 290, -- 1 in 345
-			Legendary = 8, -- 1 in 12,500
-			Godly = 2, -- 1 in 50,000
+			Uncommon = 66600, -- 66.6%
+			Rare = 30000, -- 30%
+			["Ultra Rare"] = 3200, -- 3.2%
+			Epic = 190, -- 1 in 526
+			Legendary = 9, -- 1 in 11,111
+			Godly = 1, -- 1 in 100,000
 		},
 	},
 	{

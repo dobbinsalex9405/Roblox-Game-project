@@ -60,7 +60,7 @@ describe("Tower floors", function()
 		end
 	end)
 
-	it("sells floors in order at 3 times the one below, and four upgrades each", function()
+	it("sells floors in order, each dearer than the one below, and four upgrades each", function()
 		local d = fresh()
 		d.coins = 10 ^ 12
 		local prices = {}
@@ -69,9 +69,12 @@ describe("Tower floors", function()
 			expect((Tower.buyFloor(d, ledger(d), economy))).toBe(true)
 		end
 		expect(prices[1]).toBe(25000)
-		expect(prices[9]).toBe(165000000)
+		expect(prices[9]).toBe(750000000)
+		-- Steep early, gentler late (economy proposal, Nov 7): never less
+		-- than x2.5 nor more than x6 the floor below.
 		for i = 2, 9 do
-			expect(prices[i] / prices[i - 1]).toBeCloseTo(3, 0.1)
+			expect(prices[i] / prices[i - 1]).toBeAtLeast(2.5)
+			expect(prices[i] / prices[i - 1]).toBeAtMost(6)
 		end
 		expect(Tower.owned(d)).toBe(10)
 		expect(Tower.nextFloorPrice(d, economy)).toBeNil()

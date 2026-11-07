@@ -52,8 +52,8 @@ Each base is a cozy apartment-style tower of 10 floors (`economy.tower`,
 map (Alex, Nov 5). Floors: 1 Cozy Studio, 2 Book Nook, 3 Plant Sunroom,
 4 Bakery Kitchen, 5 Games Lounge, 6 Winter Cabin, 7 Art Studio, 8 Rooftop
 Garden, 9 Starlit Observatory, 10 Golden Sky Penthouse.
-Floor 1 is free; each next floor costs `floorPrices` (25K, 75K, 225K, 675K,
-2M, 6M, 18M, 55M, 165M) and must be built in order. A floor has 8 spots in a
+Floor 1 is free; each next floor costs `floorPrices` (25K, 150K, 750K, 3M,
+12M, 40M, 120M, 300M, 750M) and must be built in order. A floor has 8 spots in a
 4 by 2 grid. A creature takes 1 spot up to Ultra Rare, 2 for Epic and 3 for
 Legendary and Godly (`slotsByRarity`), side by side in one row.
 
@@ -125,16 +125,19 @@ studs, a carried one at most `Layout.CARRY_MAX`.
 remainder first, so every tier's chance is exact and adding a creature only
 splits its own tier. The odds card shows one line per tier; the
 "See every creature" list shows each creature as a percentage and as
-"1 in N". The rarest belt hatch is a Godly at 1 in 50,000 from the Moonlit
+"1 in N". The rarest belt hatch is a Godly at 1 in 100,000 from the Moonlit
 Egg. Each creature also has an optional `element`, unused until elements
 roll out with a much larger roster.
 
-| Egg | Price | Market share | Best odds |
-| --- | ---: | ---: | --- |
-| Basic | 50 coins | 55% | Phoenix 1 in 50,000 |
-| Meadow | 2,500 coins | 30% | Thunder Griffin 1 in 33,333 |
-| Moonlit | 15,000 coins | 15% | Nebula Serpent 1 in 50,000 |
-| Premium | Robux (not on sale yet) | | Golden Goose 1 in 10,000 |
+| Egg | Price | Hatch | Market share | Best odds |
+| --- | ---: | ---: | ---: | --- |
+| Basic | 50 coins | 10 s | 55% | Phoenix 1 in 50,000 |
+| Meadow | 1,500 coins | 30 s | 30% | Thunder Griffin 1 in 20,000 |
+| Moonlit | 20,000 coins | 120 s | 15% | Nebula Serpent 1 in 100,000 |
+| Premium | Robux (not on sale yet) | 30 s | | Golden Goose 1 in 10,000 |
+
+Odds, egg prices and the tower's prices were set on Nov 7 with the
+economy simulator (`tools/economy`, targets in `ops/ECONOMY.md`).
 
 ## Mounts (approved Nov 1, 2026)
 

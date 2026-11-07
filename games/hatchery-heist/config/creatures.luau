@@ -1,7 +1,8 @@
 --!strict
 -- Every creature an egg can hatch, in seven rarity tiers from Common to Godly.
--- coinsPerSecond is before rebirth and pass multipliers. Income roughly
--- doubles per tier and tops out at 1,000/s, so a coin pack stays worth
+-- coinsPerSecond is before rebirth and pass multipliers. Income per floor
+-- spot rises with every tier (an Epic takes 2 spots, a Legendary or Godly 3:
+-- Epic 190-260, Legendary 450-700, Godly 800-1000, Nov 7) and tops out at 1,000/s, so a coin pack stays worth
 -- minutes of play even to a lucky player (tests/Config.spec checks it). mountSpeed is the walk
 -- speed (studs per second) while riding it; a player on foot walks at 16, and
 -- rarer creatures ride faster. How each one looks (voxel model, size, glow,
@@ -111,30 +112,30 @@ return {
 		-- Epic: glow, a light and sparkles.
 		Dragonling = {
 			rarity = "Epic",
-			coinsPerSecond = 130,
+			coinsPerSecond = 190,
 			mountSpeed = 28,
 			pools = { "Barnyard", "Moonlit", "Premium" },
 			element = "Ember",
 		},
 		CrystalStag = {
 			rarity = "Epic",
-			coinsPerSecond = 160,
+			coinsPerSecond = 225,
 			mountSpeed = 28,
 			pools = { "Meadow", "Premium" },
 			element = "Glacial",
 		},
-		MoonUnicorn = { rarity = "Epic", coinsPerSecond = 200, mountSpeed = 28, pools = { "Moonlit" } },
+		MoonUnicorn = { rarity = "Epic", coinsPerSecond = 260, mountSpeed = 28, pools = { "Moonlit" } },
 		-- Legendary: huge, detailed, fully animated.
 		Phoenix = {
 			rarity = "Legendary",
-			coinsPerSecond = 400,
+			coinsPerSecond = 575,
 			mountSpeed = 32,
 			pools = { "Barnyard", "Moonlit", "Premium" },
 			element = "Ember",
 		},
 		ThunderGriffin = {
 			rarity = "Legendary",
-			coinsPerSecond = 500,
+			coinsPerSecond = 700,
 			mountSpeed = 32,
 			pools = { "Meadow", "Premium" },
 			element = "Storm",

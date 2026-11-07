@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Balance: the tower is a longer climb (floors 3 to 10 now cost 150K up
+  to 750M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
+  with better odds, the Moonlit Egg costs 20,000 with rarer Epics and
+  Legendaries, Epics and Legendaries earn more, and rebirth starts at 50M.
 - Fix: a creature's legs, wings, tails and heads no longer flicker where
   they swing against the body (a bunny's hind feet kicking back in a hop
   showed a striped patch at the hip).

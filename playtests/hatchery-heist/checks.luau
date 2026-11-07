@@ -327,7 +327,7 @@ do
 	local d = h.get(p)
 	h.actions:ride(p, d.creatures[1].uid)
 	check(not h.actions:rebirth(p), "rebirth", `refused when poor: "{h.noticesOf(p)[#h.noticesOf(p)]}"`)
-	give(h, p, 1000000)
+	give(h, p, Creatures.rebirthCost(0, economy))
 	local coinsBefore = h.get(p).coins
 	check(h.actions:rebirth(p), "rebirth", `rebirth with {coinsBefore} coins succeeds`)
 	d = h.get(p)

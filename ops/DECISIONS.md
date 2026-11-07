@@ -2,6 +2,33 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Hatchery Heist pacing retuned with a simulator (config only)
+
+- **What:** `tools/economy` simulates players (casual, regular, grinder,
+  charms, Heist Island, payer) on the real config and game code
+  (`ops/ECONOMY.md`). On main it showed a regular player (an hour a day)
+  owning all ten tower floors by day 7 and a grinder by day 3. Income then
+  stopped rising, because only floors cost enough to matter. The Meadow Egg
+  was skipped entirely (6x cheaper than Moonlit for 22x worse Rare odds).
+  Rebirth cost 120K, less than floor 3, while wiping every creature.
+- **Changed:** floor prices 25K, 150K, 750K, 3M, 12M, 40M, 120M, 300M,
+  750M (were x3 up to 165M); rebirth 50M, x4 each time (was 120K, x3);
+  Meadow Egg 1,500 coins and 30 s with better odds; Moonlit Egg 20,000
+  coins with Rare-and-up odds lowered (Epic 1 in 526, Legendary 1 in
+  11,111, Godly 1 in 100,000); Basic Egg UR and Epic odds halved; Epic
+  income 190-260 and Legendary 450-700 so each tier earns more per floor
+  spot than the one below (an Epic takes 2 spots, a Legendary 3).
+- **Result (60 runs each, regular player):** first Rare about 11 min,
+  first Epic day 2, first Legendary by day 14 for about a third of
+  players, floor 10 about day 13 (grinder day 6). Payers with Double Coins
+  and Extra Incubators are about 1.7x faster, not 5x.
+- **Kept:** egg totals at 100,000. The fixed-order alternative builds a
+  `total`-long cycle per egg, so a 10M total would be a 10M-entry table.
+  The polish thread will make it lazy before any total goes up.
+- **Not done here (Alex decides, in the economy proposal):** new eggs that
+  unlock with the tower, so income keeps rising after day 14; every Robux
+  price and placement.
+
 ## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
 
 - **Elevator cab, shaft, shaft top, ladder and floor plaque are built like

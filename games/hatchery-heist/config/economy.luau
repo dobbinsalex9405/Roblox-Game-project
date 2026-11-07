@@ -14,9 +14,12 @@ return {
 		passBonusSlots = 2,
 	},
 
+	-- Rebirth sits past the middle of the tower (between floors 6 and 7), so it
+	-- is a late-game reset, not something a new player trips over in their
+	-- first hour (economy proposal, Nov 7: tools/economy).
 	rebirth = {
-		baseCost = 120000,
-		costGrowth = 3, -- each rebirth costs this many times the previous one
+		baseCost = 50000000,
+		costGrowth = 4, -- each rebirth costs this many times the previous one
 		incomeBonusPerRebirth = 0.25, -- +25% income per rebirth
 	},
 
@@ -47,7 +50,11 @@ return {
 	-- Upgrade n costs upgradeShares[n] of the floor's price.
 	-- Each floor has 8 slots (shared/Geometry: the map is built for them).
 	tower = {
-		floorPrices = { 25000, 75000, 225000, 675000, 2000000, 6000000, 18000000, 55000000, 165000000 },
+		-- Steep early (x6, x5, x4), gentler late (x2.5): with x3 throughout a
+		-- regular player owned all ten floors by day 8 and then had nothing to
+		-- buy; now floor 9 lands around day 9 and floor 10 is a 2-3 week goal
+		-- (tools/economy/run, ops/ECONOMY.md).
+		floorPrices = { 25000, 150000, 750000, 3000000, 12000000, 40000000, 120000000, 300000000, 750000000 },
 		floorBonus = 0.25,
 		startBonus = 0.05,
 		upgradeBonus = 0.05,
