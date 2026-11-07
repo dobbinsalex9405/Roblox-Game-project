@@ -3,7 +3,11 @@
 Parts version the game builds today (from build/world/worldart.json, so run
 export.py first), meta.json, and a copy in the 3D design viewer's folders.
 
-    PYTHONPATH=/opt/bpy python3 tools/art/world/build.py OUT [--only OakTree,Bush] [--designs /mnt/project-files/designs] [--fast]
+    PYTHONPATH=/opt/bpy python3 tools/art/world/build.py OUT [--only OakTree,Bush] [--designs /mnt/project-files/designs] [--fast] [--full]
+
+Meshes are flat greedy quads (vkit.flat): light enough for the viewer and
+under Roblox's 20k-triangle MeshPart cap. --full gives the heavy bevelled
+pillow voxels instead.
 
 OUT/<id>/ gets <id>.glb, hero.png, parts.png and meta.json; OUT/lineup.png
 shows every prop's Parts version side by side.
@@ -29,10 +33,11 @@ import numpy as np  # noqa: E402
 
 import vkit  # noqa: E402
 import props  # noqa: E402
-try:
-    import decor  # noqa: E402,F401
-except ImportError:
-    decor = None
+import decor  # noqa: E402,F401
+import apartment  # noqa: E402,F401
+import tower  # noqa: E402,F401
+import rooms  # noqa: E402,F401
+import hub  # noqa: E402,F401
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 
@@ -42,16 +47,26 @@ FOLDER = {
     'pedestal': 'World/Hatchery Heist/Egg Market', 'belt': 'World/Hatchery Heist/Egg Market', 'hub': 'World/Hatchery Heist/Egg Market',
     'elevator': 'World/Hatchery Heist/Elevator and ladder', 'ladder': 'World/Hatchery Heist/Elevator and ladder',
     'plaque': 'World/Hatchery Heist/Elevator and ladder',
+    'building': 'World/Hatchery Heist/Farm hub/Buildings', 'hubprop': 'World/Hatchery Heist/Farm hub/Street props',
 }
-THEMES = ['Farmyard barn', 'Meadow cottage', 'Orchard loft', 'Mushroom grove', 'Crystal cave', 'Cloud garden', 'Ember forge',
-          'Frost hall', 'Moonlit observatory', 'Golden sky palace']
+from tower import THEMES  # noqa: E402
 
 
 def folder_of(p):
     if p.kind == 'decor':
-        theme = THEMES[p.floor - 1] if p.floor else 'Shared'
-        return f'Decor and props/Hatchery Heist/{p.floor:02d} {theme}' if p.floor else 'Decor and props/Hatchery Heist/Element rooms'
+        if not p.floor:
+            return 'World/Hatchery Heist/Farm centre'
+        return f'Decor and props/Hatchery Heist/{p.floor:02d} {THEMES[p.floor - 1]}'
+    if p.kind == 'room':
+        return f'Decor and props/Hatchery Heist/Tower interiors/{p.floor:02d} {THEMES[p.floor - 1]}'
+    if p.kind == 'tower':
+        if not p.floor:
+            return 'World/Hatchery Heist/Apartment tower/Roof'
+        return f'World/Hatchery Heist/Apartment tower/Floor {p.floor:02d} {THEMES[p.floor - 1]}'
     return FOLDER.get(p.kind, 'World/Hatchery Heist/Other')
+
+
+HEAVY_TRIS = 600_000
 
 
 def reset():
@@ -106,13 +121,14 @@ def aim(co, lo, hi, yaw=-35, pitch=22, k=1.0):
     co.rotation_euler = (c - eye).to_track_quat('-Z', 'Y').to_euler()
 
 
-def mesh_prop(p, coll, mats):
-    """Pillow meshes, one object per part (and glow), parented to an empty."""
+def mesh_prop(p, coll, mats, light=False):
+    """Pillow meshes (flat greedy quads when `light`), one object per part
+    (and glow), parented to an empty."""
     root = bpy.data.objects.new(p.id, None)
     coll.objects.link(root)
     obs = []
     for name, anim, parent, pivot, g in p.parts:
-        for ob in vkit.grid_objects(g, f'{p.id}_{name}', coll, mats):
+        for ob in vkit.grid_objects(g, f'{p.id}_{name}', coll, mats, light=light):
             ob.parent = root
             obs.append(ob)
     return root, obs
@@ -198,7 +214,7 @@ def export_glb(path, coll):
     )
 
 
-def build_one(pid, out, designs, fast, worldart):
+def build_one(pid, out, designs, fast, worldart, full=False):
     p = props.make(pid)
     d = os.path.join(out, pid)
     os.makedirs(d, exist_ok=True)
@@ -206,16 +222,33 @@ def build_one(pid, out, designs, fast, worldart):
     coll = bpy.data.collections.new(pid)
     s.collection.children.link(coll)
     mats = vkit.materials()
-    root, obs = mesh_prop(p, coll, mats)
+    # flat greedy quads by default: a 0.1-stud pillow mesh runs to hundreds of
+    # thousands of triangles for a building, far too heavy for the viewer and
+    # for Roblox's 20k-triangle MeshPart cap. --full keeps the pillow look.
+    root, obs = mesh_prop(p, coll, mats, light=not full)
     lo, hi = bounds(obs)
     size = hi - lo
     tris = sum(len(o.data.polygons) for o in obs) * 2
-    # glb: turned to face -Z
-    root.rotation_euler = (0, 0, math.pi)
-    bpy.context.view_layer.update()
-    export_glb(os.path.join(d, f'{pid}.glb'), coll)
-    root.rotation_euler = (0, 0, 0)
-    bpy.context.view_layer.update()
+    # glb: turned to face -Z. A big flat prop (a 40-stud rug) makes a pillow
+    # mesh of millions of triangles, too heavy for the 3D viewer: those ship
+    # their Parts version instead, which is what the game shows anyway.
+    glb_from = 'mesh'
+    if tris > HEAVY_TRIS and pid in worldart:
+        glb_from = 'parts'
+        light = bpy.data.collections.new(pid + '_light')
+        s.collection.children.link(light)
+        pob = parts_prop(dict(worldart[pid], id=pid), light, {})
+        pob.rotation_euler = (0, 0, math.pi)
+        bpy.context.view_layer.update()
+        export_glb(os.path.join(d, f'{pid}.glb'), light)
+        for ob in list(light.objects):
+            bpy.data.objects.remove(ob)
+    else:
+        root.rotation_euler = (0, 0, math.pi)
+        bpy.context.view_layer.update()
+        export_glb(os.path.join(d, f'{pid}.glb'), coll)
+        root.rotation_euler = (0, 0, 0)
+        bpy.context.view_layer.update()
     co = stage(s, size, fast)
     aim(co, lo, hi)
     render(s, os.path.join(d, 'hero.png'), 360 if fast else 640)
@@ -227,9 +260,9 @@ def build_one(pid, out, designs, fast, worldart):
         plo, phi = bounds([pob])
         aim(co, plo, phi)
         render(s, os.path.join(d, 'parts.png'), 360 if fast else 640)
-    meta = dict(id=pid, game='Hatchery Heist', kind=p.kind, direction='Storybook Farm', note=p.note,
+    meta = dict(id=pid, game='Hatchery Heist', kind=p.kind, direction='Storybook Farm centre, cozy apartment towers', note=p.note,
                 sizeStuds=[round(size.x, 2), round(size.z, 2), round(size.y, 2)], voxelStuds=vkit.VOX, meshTris=tris,
-                partsVoxelStuds=worldart.get(pid, {}).get('voxel'),
+                partsVoxelStuds=worldart.get(pid, {}).get('voxel'), glbFrom=glb_from,
                 partsBoxes=sum(len(pp['boxes']) // 7 for pp in worldart.get(pid, {}).get('parts', [])),
                 parts=[x[0] for x in p.parts])
     if p.floor:
@@ -271,6 +304,7 @@ def main():
     ap.add_argument('--only')
     ap.add_argument('--designs')
     ap.add_argument('--fast', action='store_true')
+    ap.add_argument('--full', action='store_true', help='bevelled pillow voxels instead of flat quads (heavy)')
     a = ap.parse_args()
     out = os.path.abspath(a.out)
     os.makedirs(out, exist_ok=True)
@@ -281,7 +315,7 @@ def main():
         want = set(a.only.split(','))
         ids = [i for i in ids if i in want]
     for pid in ids:
-        m = build_one(pid, out, a.designs, a.fast, worldart)
+        m = build_one(pid, out, a.designs, a.fast, worldart, a.full)
         print(f"{pid:24s} {m['meshTris']:8d} tris  parts {m['partsBoxes']:4d} boxes", flush=True)
     lineup(out, sorted(props.REGISTRY))
 

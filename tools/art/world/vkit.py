@@ -19,6 +19,7 @@ FACE_TONE = np.array([0.94, 0.98, 1.0, 1.04], np.float32)
 PAL = [((0, 0, 0), 0.0)]  # index 0 = empty
 _PIDX = {}
 FAMILY = {}  # palette index -> the index it stands in for when speckle is dropped (Parts export)
+NOISE = set()  # speckle ids drawn as per-voxel random noise (pick); the flat mesher folds these
 
 
 def hexrgb(h):
@@ -26,12 +27,17 @@ def hexrgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def col(h, glow=0.0):
+def col(h, glow=0.0, of=None):
+    """palette index of a colour. With `of` (another palette index) the colour
+    is a speckle of that one: it gets its own index, folded into `of` when the
+    Parts export drops speckle, so a colour used plainly elsewhere never folds."""
     rgb = hexrgb(h) if isinstance(h, str) else tuple(h)
-    k = (rgb, float(glow))
+    k = (rgb, float(glow)) if of is None else (rgb, float(glow), int(of))
     if k not in _PIDX:
+        if of is not None and (rgb, float(glow)) != (PAL[of][0], PAL[of][1]):
+            FAMILY[len(PAL)] = int(of)
         _PIDX[k] = len(PAL)
-        PAL.append(k)
+        PAL.append(k[:2])
     return _PIDX[k]
 
 
@@ -264,6 +270,78 @@ def pillow(grid, skip_bottom=False, glow_split=True):
     return out
 
 
+def _rects(S):
+    """greedy rectangles of equal non-zero ids in a 2D array -> [(i, j, w, h, id)]"""
+    used = np.zeros(S.shape, bool)
+    out = []
+    ni, nj = S.shape
+    for i in range(ni):
+        row = S[i]
+        if not row.any():
+            continue
+        j = 0
+        while j < nj:
+            c = row[j]
+            if c == 0 or used[i, j]:
+                j += 1
+                continue
+            j1 = j + 1
+            while j1 < nj and row[j1] == c and not used[i, j1]:
+                j1 += 1
+            i1 = i + 1
+            while i1 < ni and (S[i1, j:j1] == c).all() and not used[i1, j:j1].any():
+                i1 += 1
+            used[i:i1, j:j1] = True
+            out.append((i, j, i1 - i, j1 - j, int(c)))
+            j = j1
+    return out
+
+
+def flat(grid, skip_bottom=False):
+    """Light mesh for viewers: flat quads, coplanar faces of one colour merged
+    (greedy), random speckle folded into its base colour, patterns kept.
+    Same return shape as pillow() but 4 loops a face."""
+    C = grid.c.copy()
+    for i in NOISE:
+        C[C == i] = FAMILY.get(i, i)
+    filled = C > 0
+    pad = np.pad(filled, 1)
+    nx, ny, nz = C.shape
+    pal_lin = np.array([lin(p[0]) for p in PAL], np.float32)
+    pal_glow = np.array([p[1] for p in PAL], np.float32)
+    tone_d = np.array([0.97, 0.97, 1.0, 1.0, 1.02, 0.9], np.float32)
+    acc = {'solid': [], 'glow': []}
+    for d, (n, u, v) in enumerate(DIRS):
+        if skip_bottom and d == 5:
+            continue
+        nb = pad[1 + n[0]:1 + n[0] + nx, 1 + n[1]:1 + n[1] + ny, 1 + n[2]:1 + n[2] + nz]
+        ids = np.where(filled & ~nb, C, 0)
+        a, ua, va = n.index(next(x for x in n if x)), u.index(1), v.index(1)
+        ids = ids.transpose(a, ua, va)
+        n_, u_, v_ = (np.array(t, np.float32) for t in (n, u, v))
+        for k in range(ids.shape[0]):
+            if not ids[k].any():
+                continue
+            for i, j, w, h, c in _rects(ids[k]):
+                o = np.zeros(3, np.float32)
+                o[a] = k + max(n[a], 0)
+                o[ua], o[va] = i, j
+                q = np.stack([o, o + u_ * w, o + u_ * w + v_ * h, o + v_ * h])
+                q = (q + grid.o.astype(np.float32)) * VOX
+                kind = 'glow' if pal_glow[c] > 0 else 'solid'
+                acc[kind].append((q, pal_lin[c] * tone_d[d]))
+    out = {}
+    for kind, quads in acc.items():
+        if not quads:
+            continue
+        V = np.concatenate([q for q, _ in quads])
+        cols = np.ones((len(quads), 4, 4), np.float32)
+        cols[:, :, :3] = np.array([c for _, c in quads])[:, None, :]
+        F = len(quads)
+        out[kind] = (V, np.arange(F * 4, dtype=np.int64), cols.reshape(-1, 4), F)
+    return out
+
+
 # ------------------------------------------------------------------ blender
 def bl_mesh(name, V, loops, cols, coll, mat, loc=(0, 0, 0)):
     import bpy
@@ -309,8 +387,8 @@ def materials(rough=0.6, glow_strength=3.0, spec=0.3):
     return out
 
 
-def grid_objects(grid, name, coll, mats, skip_bottom=False):
+def grid_objects(grid, name, coll, mats, skip_bottom=False, light=False):
     obs = []
-    for kind, (V, loops, cols, F) in pillow(grid, skip_bottom).items():
+    for kind, (V, loops, cols, F) in (flat if light else pillow)(grid, skip_bottom).items():
         obs.append(bl_mesh(f'{name}_{kind}', V, loops, cols, coll, mats[0] if kind == 'solid' else mats[1]))
     return obs

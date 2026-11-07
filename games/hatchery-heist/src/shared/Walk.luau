@@ -29,7 +29,9 @@ export type Config = {
 	turnSeconds: number, -- turning on the spot before a walk
 	faceFrontAfter: number, -- stand this long, then turn to the yard
 	margin: number, -- studs kept clear of the cell's edge
-	cullFloors: number, -- creatures this many floors from you or more are not drawn
+	cullStuds: number, -- your own tower's creatures farther than this are not drawn
+	cullOtherStuds: number, -- other players' tower creatures farther than this are not drawn
+	animateOtherStuds: number, -- other players' tower creatures hold still beyond this
 }
 
 export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover" | "swim"
@@ -70,11 +72,32 @@ end
 
 -- How far from its cell's centre a creature may stand, in studs, along the
 -- floor's row (x) and across it (z). `spots`: spots it takes (1 to 3);
--- `footprint`: its width in studs.
-function Walk.range(spots: number, footprint: number, margin: number): (number, number)
-	local rx = math.max(0, (spots * 10 - footprint) / 2 - margin)
-	local rz = math.max(0, (10 - footprint) / 2 - margin)
+-- `along`: its size along the row in studs; `across`: across it (the same
+-- as `along` for a creature that turns freely).
+function Walk.range(spots: number, along: number, margin: number, across: number?): (number, number)
+	local rx = math.max(0, (spots * 10 - along) / 2 - margin)
+	local rz = math.max(0, (10 - (across or along)) / 2 - margin)
 	return rx, rz
+end
+
+-- A creature too long for a spot's 10-stud depth (the Clockwork Leviathan,
+-- the Cosmic Whale: Godlies take three spots, 30 studs along the row) lies
+-- along its floor's row instead of turning freely (Godly thread, Nov 5).
+-- `width` and `depth` are its drawn size across and along its facing (art
+-- faces -Z). Returns the yaw it keeps, or nil for a creature that fits any
+-- way round:
+--   * pi/2: longer nose to tail than the depth allows; it keeps side-on
+--     and paces up and down the row, never turning end for end (turning on
+--     the spot would sweep its length across the spots in front and behind);
+--   * 0: wider than the depth allows; it faces the yard and sidesteps.
+function Walk.lie(width: number, depth: number, margin: number): number?
+	local room = 10 - 2 * margin
+	if depth > room and depth >= width then
+		return math.pi / 2
+	elseif width > room then
+		return 0
+	end
+	return nil
 end
 
 -- The elevator shaft fills each floor's back-left corner (base x -24..-17,
@@ -90,10 +113,11 @@ local SHAFT_CUT = 3
 function Walk.cell(
 	pad: number,
 	spots: number,
-	footprint: number,
-	margin: number
+	along: number,
+	margin: number,
+	across: number?
 ): (number, number, number, number)
-	local rx, rz = Walk.range(spots, footprint, margin)
+	local rx, rz = Walk.range(spots, along, margin, across)
 	if (pad - 1) % 8 + 1 ~= SHAFT_SPOT then
 		return 0, 0, rx, rz
 	end
@@ -135,16 +159,30 @@ end
 -- Segment k's plan. Each segment's rest yaw is the next one's start, so the
 -- creature never snaps round; segment k - 1 is planned without its own
 -- start, which only its turn uses.
-local function plan(seed: number, k: number, rx: number, rz: number, cfg: Config, startYaw: number?): Segment
+local function plan(
+	seed: number,
+	k: number,
+	rx: number,
+	rz: number,
+	cfg: Config,
+	startYaw: number?,
+	lie: number?
+): Segment
+	if lie then
+		rz = 0 -- it keeps to the row's centreline
+	end
 	local fx, fz = waypoint(seed, k - 1, rx, rz)
 	local tx, tz = waypoint(seed, k, rx, rz)
 	local dx, dz = tx - fx, tz - fz
 	local distance = math.sqrt(dx * dx + dz * dz)
-	local walkYaw = if distance > 1e-3 then Walk.yawOf(dx, dz) else (startYaw or 0)
+	-- A creature lying along its row keeps its heading (Walk.lie).
+	local walkYaw = if lie then lie elseif distance > 1e-3 then Walk.yawOf(dx, dz) else (startYaw or 0)
 	local free = cfg.segmentSeconds - cfg.turnSeconds
 	local walkSeconds = math.min(distance / cfg.speed, free * 0.7)
 	local stand = free - walkSeconds
-	local faceFront = stand >= cfg.faceFrontAfter + cfg.turnSeconds
+	-- A creature lying along its row never turns to face the yard: across
+	-- the row it would reach into the spots in front and behind.
+	local faceFront = lie == nil and stand >= cfg.faceFrontAfter + cfg.turnSeconds
 	return {
 		fromX = fx,
 		fromZ = fz,
@@ -167,15 +205,15 @@ export type State = {
 }
 
 -- Where the creature with `seed` is at server time `now`, in a cell of
--- half-size (rx, rz).
-function Walk.at(seed: number, rx: number, rz: number, now: number, cfg: Config): State
+-- half-size (rx, rz); `lie` from Walk.lie for a creature lying along its row.
+function Walk.at(seed: number, rx: number, rz: number, now: number, cfg: Config, lie: number?): State
 	local D = cfg.segmentSeconds
 	local offset = noise(seed, 999983) * D
 	local clock = now + offset
 	local k = math.floor(clock / D)
 	local u = clock - k * D
-	local previous = plan(seed, k - 1, rx, rz, cfg, nil)
-	local seg = plan(seed, k, rx, rz, cfg, previous.restYaw)
+	local previous = plan(seed, k - 1, rx, rz, cfg, nil, lie)
+	local seg = plan(seed, k, rx, rz, cfg, previous.restYaw, lie)
 	local T = cfg.turnSeconds
 	if u < T then
 		return {
@@ -337,6 +375,35 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 		end
 		return STILL
 	end
+	-- A mesh with no leg parts (most of today's creature meshes) can't swing
+	-- legs, so it walks with its whole body: it rocks from foot to foot,
+	-- nods, bounces each step and swings its tail and ears, so it never
+	-- reads as gliding (Studio gate, Nov 5).
+	local steps = gait == "trot" or gait == "waddle" or gait == "scuttle"
+	if not legged and steps then
+		local rock = if gait == "waddle" then 0.2 elseif gait == "scuttle" then 0.08 else 0.15
+		local rate = if gait == "scuttle" then 2 else 1
+		local step = math.sin(a * rate)
+		local twice = math.sin(2 * a * rate)
+		local bounce = (1 - math.cos(2 * a * rate)) / 2
+		if anim == "body" then
+			return {
+				rx = 0.07 * moving * twice,
+				ry = 0.06 * moving * step,
+				rz = rock * moving * step,
+				dx = 0,
+				dy = h * 0.07 * moving * bounce,
+			}
+		elseif anim == "head" then
+			-- Nods with each step and leans against the rock, staying nearly level.
+			return { rx = 0.12 * moving * twice, ry = 0, rz = -0.6 * rock * moving * step, dx = 0, dy = 0 }
+		elseif anim == "tail" then
+			return { rx = 0, ry = 0.45 * moving * math.sin(a * rate - 0.8), rz = 0, dx = 0, dy = 0 }
+		elseif anim == "ears" then
+			return { rx = 0.18 * moving * math.max(0, twice), ry = 0, rz = 0, dx = 0, dy = 0 }
+		end
+		return STILL
+	end
 	if anim == "body" then
 		if gait == "trot" then
 			-- Legs swung out reach less far down, so the body dips as they
@@ -394,6 +461,9 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			return { rx = 0, ry = 0.5 * moving * math.sin(a - 1.2), rz = 0, dx = 0, dy = 0 }
 		elseif gait == "swim" then
 			return { rx = 0, ry = 0.55 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
+		elseif gait == "hover" then
+			-- a flyer's tail streams and sways behind it
+			return { rx = 0.1 * moving, ry = 0.25 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
 		end
 	elseif anim == "wingL" or anim == "wingR" then
 		if gait == "waddle" then
@@ -420,6 +490,29 @@ end
 -- Which floor (1 up) a height in studs above the ground floor's deck is on.
 function Walk.floorAt(above: number, floorHeight: number): number
 	return math.max(1, math.floor((above + 1) / floorHeight) + 1)
+end
+
+-- Whether a tower creature is left undrawn: only by distance, so every
+-- floor of a tower near you shows (Studio gate, Nov 5: culling by floor left
+-- whole floors looking empty). Other players' towers stop sooner: four full
+-- neighbours cost a phone 20 fps.
+function Walk.culled(distance: number, own: boolean, config: Config): boolean
+	return distance > (if own then config.cullStuds else config.cullOtherStuds)
+end
+
+-- The joint a part animates as. Exported meshes tag many heads, tails and
+-- ears "static" (they don't move standing still), but they still nod and
+-- swing while walking, so a static part named head, tail or ears walks as
+-- one (Studio gate, Nov 5: those parts stayed at 0 degrees).
+local WALKS_BY_NAME: { [string]: boolean } = { head = true, tail = true, ears = true }
+function Walk.role(name: string, anim: string): string
+	if name == "body" then
+		return "body"
+	end
+	if anim == "static" and WALKS_BY_NAME[name] then
+		return name
+	end
+	return anim
 end
 
 return Walk

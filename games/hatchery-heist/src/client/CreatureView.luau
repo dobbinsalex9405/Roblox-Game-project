@@ -25,6 +25,7 @@
 -- colours but drops its glow: no neon, no light, no sparkles, ring or orbs.
 -- Everyone else still sees it shine.
 
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -44,7 +45,6 @@ local wander = atmosphere.wander :: Walk.Config
 local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
 local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
 local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
-local FLOOR_HEIGHT = 12 -- Geometry.FLOOR_HEIGHT
 
 local CreatureView = {}
 
@@ -102,7 +102,9 @@ type Visual = {
 
 -- A floor creature's cell: the middle of its wander area (home), where the
 -- server stood it (stand), its schedule's seed and how far it may stray.
-type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number }
+-- `plot` is the base the tower belongs to: your own tower is drawn and
+-- animated further than other players' (Studio gate stress test, Nov 5).
+type Roam = { home: CFrame, stand: CFrame, seed: number, rx: number, rz: number, lie: number?, plot: Model? }
 
 local visuals: { [BasePart]: Visual } = {}
 -- Where the server put each floor creature's stand-in, before this client
@@ -189,18 +191,24 @@ local function applyFade(v: Visual)
 	end
 end
 
--- The loaded meshes for a species, when the server has them and every mesh
--- the creature needs is there.
+-- Species whose meshes and texture this client has finished loading: until
+-- then (or if any fails) the creature is drawn as voxel boxes, never as a
+-- grey mesh that colours in later.
+local loaded: { [Instance]: boolean } = {}
+
+-- The loaded meshes for a species, when the server has them, every mesh the
+-- creature needs is there, and their content has loaded on this client.
 local function meshSource(speciesId: string): (CreatureMeshes.Creature?, Instance?)
 	local entry = CreatureMeshes[speciesId]
 	local folder = ReplicatedStorage:FindFirstChild(MESH_FOLDER)
 	local source = if entry and folder then folder:FindFirstChild(speciesId) else nil
-	if entry == nil or source == nil then
+	if entry == nil or source == nil or loaded[source] ~= true then
 		return nil, nil
 	end
 	for _, part in entry.parts do
 		for _, mesh in part.meshes do
-			if not source:FindFirstChild(mesh.name) then
+			-- a glow accent the server could not load is left out (CreatureAssets)
+			if mesh.glow == nil and not source:FindFirstChild(mesh.name) then
 				return nil, nil
 			end
 		end
@@ -265,7 +273,10 @@ local function build(anchor: BasePart, speciesId: string)
 	-- same art height into the ball.
 	local meshFit = if mesh then fit(speciesId, mesh) else 1
 	local artHeight = if mesh then mesh.size[2] * meshFit else (art :: VoxelArt.Art).size[2] * VoxelArt.voxel
-	local k = ArtScale.drawScale(anchor.Size.Y, artHeight)
+	local native = if mesh then vec(mesh.size, meshFit) else vec((art :: VoxelArt.Art).size, VoxelArt.voxel)
+	local spots = slotsByRarity[rarity] or 1
+	local maxLength = (spots * 10 - Layout.ROW_MARGIN) * anchor.Size.Y / Layout.raritySize(rarity)
+	local k = ArtScale.drawScale(anchor.Size.Y, artHeight, math.max(native.X, native.Z), maxLength)
 	local s = VoxelArt.voxel * k
 	k *= meshFit
 	local size = if mesh then vec(mesh.size, k) else vec((art :: VoxelArt.Art).size, s)
@@ -296,13 +307,24 @@ local function build(anchor: BasePart, speciesId: string)
 		local home = homes[anchor] or anchor.CFrame
 		homes[anchor] = home
 		local index = pad:GetAttribute("Pad")
-		local cx, cz, rx, rz = Walk.cell(
-			if type(index) == "number" then index else 1,
-			slotsByRarity[rarity] or 1,
-			math.max(size.X, size.Z),
-			wander.margin
-		)
-		roam = { home = home * CFrame.new(cx, 0, cz), stand = home, seed = Walk.seed(uid), rx = rx, rz = rz }
+		-- Too long for the spot's depth: it lies along the row (Walk.lie).
+		local lie = Walk.lie(size.X, size.Z, wander.margin)
+		local along = if lie == math.pi / 2
+			then size.Z
+			elseif lie == 0 then size.X
+			else math.max(size.X, size.Z)
+		local across = if lie == math.pi / 2 then size.X elseif lie == 0 then size.Z else along
+		local cx, cz, rx, rz =
+			Walk.cell(if type(index) == "number" then index else 1, spots, along, wander.margin, across)
+		roam = {
+			home = home * CFrame.new(cx, 0, cz),
+			stand = home,
+			seed = Walk.seed(uid),
+			rx = rx,
+			rz = rz,
+			lie = lie,
+			plot = pad:FindFirstAncestorWhichIsA("Model"),
+		}
 	end
 
 	local v: Visual = {
@@ -380,6 +402,9 @@ local function build(anchor: BasePart, speciesId: string)
 			local lod = part.lod1
 			local farReady = lod ~= nil and source:FindFirstChild(lod.name) ~= nil
 			for _, m in part.meshes do
+				if not source:FindFirstChild(m.name) then
+					continue -- a glow accent left out by the server
+				end
 				local piece = meshPiece(source, m, k, feet * CFrame.new(vec(m.center, k)))
 				weld(root, piece)
 				keep(piece, part.anim, if m.glow then (rgb(m.glow)) else nil)
@@ -394,7 +419,10 @@ local function build(anchor: BasePart, speciesId: string)
 				piece.Parent = nil
 				table.insert(v.far, piece)
 			end
-			table.insert(joints, { name = part.name, anim = part.anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	else
 		local voxel = art :: VoxelArt.Art
@@ -422,8 +450,10 @@ local function build(anchor: BasePart, speciesId: string)
 				weld(root, box)
 				keep(box, part.anim, if entry.glow then entry.color else nil)
 			end
-			local anim = if part.name == "body" then "body" else part.anim
-			table.insert(joints, { name = part.name, anim = anim, parent = part.parent })
+			table.insert(
+				joints,
+				{ name = part.name, anim = Walk.role(part.name, part.anim), parent = part.parent }
+			)
 		end
 	end
 	-- Joints: the body hangs from the ball, everything else from its parent.
@@ -553,6 +583,9 @@ function CreatureView.staticModel(speciesId: string, studsPerVoxel: number?): (M
 		model.Name = speciesId
 		for _, part in mesh.parts do
 			for _, m in part.meshes do
+				if not source:FindFirstChild(m.name) then
+					continue -- a glow accent left out by the server
+				end
 				local piece = meshPiece(source, m, k, CFrame.new(vec(m.center, k)))
 				piece.Anchored = true
 				piece.Parent = model
@@ -656,9 +689,13 @@ local function animate(v: Visual, now: number, dt: number)
 			if walking then
 				pose *= walkPose(v, anim)
 			end
-		elseif anim == "ears" and look.moves.ears then
+		elseif anim == "ears" and (look.moves.ears or walking) then
 			local k = t % 3.3
-			pose = if k < 0.3 then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			local flick = look.moves.ears and not walking and k < 0.3
+			pose = if flick then CFrame.Angles(math.sin(k / 0.3 * math.pi) * 0.3, 0, 0) else CFrame.identity
+			if walking then
+				pose *= walkPose(v, anim)
+			end
 		elseif anim == "tail" and (look.moves.tail or walking) then
 			local wag = if look.moves.tail then math.sin(t * 6) * 0.35 * (1 - v.moving) else 0
 			pose = CFrame.Angles(0, wag, 0)
@@ -760,14 +797,34 @@ local function stroll(v: Visual, roam: Roam, serverNow: number)
 		v.anchor.CFrame = roam.stand
 		return
 	end
-	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander)
+	local at = Walk.at(roam.seed, roam.rx, roam.rz, serverNow, wander, roam.lie)
 	v.anchor.CFrame = roam.home * CFrame.new(at.x, 0, at.z) * CFrame.Angles(0, at.yaw, 0)
 	v.moving = at.moving
 	v.stepPhase = Walk.phase(v.gait, at.travelled, v.height)
 end
 
--- Meshes for a species just arrived: redraw its creatures with them.
+-- Meshes for a species just arrived: load their geometry and texture, then
+-- redraw its creatures with them.
 local function meshesArrived(model: Instance)
+	if loaded[model] ~= nil then
+		return
+	end
+	loaded[model] = false
+	local ok = pcall(function()
+		local failed = false
+		ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
+			if status ~= Enum.AssetFetchStatus.Success then
+				failed = true
+			end
+		end)
+		if failed then
+			error("asset failed")
+		end
+	end)
+	if not ok then
+		return -- stays on the boxes
+	end
+	loaded[model] = true
 	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
 	-- must not happen while iterating it.
 	local redraw: { BasePart } = {}
@@ -786,9 +843,11 @@ local function watchMeshFolder(folder: Instance)
 	if folder.Name ~= MESH_FOLDER or not folder:IsA("Folder") then
 		return
 	end
-	folder.ChildAdded:Connect(meshesArrived)
+	folder.ChildAdded:Connect(function(model)
+		task.spawn(meshesArrived, model)
+	end)
 	for _, model in folder:GetChildren() do
-		meshesArrived(model)
+		task.spawn(meshesArrived, model)
 	end
 end
 
@@ -808,8 +867,11 @@ function CreatureView.start()
 		local eye = if camera then camera.CFrame.Position else Vector3.zero
 		local now = os.clock()
 		local serverNow = Workspace:GetServerTimeNow()
-		-- Floor creatures more than `cullFloors` floors from you are not drawn:
-		-- the decks hide them anyway, and a full tower is 80 creatures.
+		-- Tower creatures are culled by distance only, so every floor shows:
+		-- your own tower out to `cullStuds`, other players' (the costly part
+		-- of a full server) out to `cullOtherStuds`, and theirs only move
+		-- within `animateOtherStuds` (Studio gates).
+		local userId = Players.LocalPlayer.UserId
 		local character = Players.LocalPlayer.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		for anchor, v in visuals do
@@ -818,11 +880,12 @@ function CreatureView.start()
 				continue
 			end
 			local roam = v.roam
+			local own = true
 			if roam then
-				local apart = if root
-					then math.abs(roam.home.Position.Y - root.Position.Y) / FLOOR_HEIGHT
-					else 0
-				setCulled(v, math.floor(apart + 0.5) > wander.cullFloors)
+				local plot = roam.plot
+				own = plot == nil or plot:GetAttribute("OwnerUserId") == userId
+				local away = if root then (roam.home.Position - root.Position).Magnitude else 0
+				setCulled(v, Walk.culled(away, own, wander))
 				if v.culled then
 					continue
 				end
@@ -832,7 +895,8 @@ function CreatureView.start()
 				local limit = FAR_STUDS + (if v.showingFar then -LOD_SLACK else LOD_SLACK)
 				setFar(v, distance > limit)
 			end
-			if v.fade < 1 and distance <= ANIMATE_RANGE + v.height * 4 then
+			local range = if own then ANIMATE_RANGE else wander.animateOtherStuds
+			if v.fade < 1 and distance <= range + v.height * 4 then
 				if roam then
 					stroll(v, roam, serverNow)
 				end

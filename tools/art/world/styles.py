@@ -67,10 +67,10 @@ STYLES = {
 
 def pick(names, seed=0, scale=1.0):
     """colour function: per-voxel random choice among names"""
-    ids = np.array([col(n) for n in names])
-    from vkit import FAMILY
-    for i in ids[1:]:
-        FAMILY.setdefault(int(i), int(ids[0]))
+    base = col(names[0])
+    ids = np.array([base] + [col(n, of=base) for n in names[1:]])
+    from vkit import NOISE
+    NOISE.update(int(i) for i in ids[1:])
 
     def f(X, Y, Z):
         h = hnoise(X * scale, Y * scale, Z * scale, seed)

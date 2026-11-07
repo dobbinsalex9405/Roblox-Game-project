@@ -10,10 +10,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
-from creatures import HEIGHT, build_all  # noqa: E402
+from creatures import FINER, HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
 import rig  # noqa: E402
+import walkpose  # noqa: E402
 
 RANK = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
 
@@ -27,6 +28,8 @@ VOXEL_STUDS = 0.1
 TIER_STUDS = {'Common': 2, 'Uncommon': 2.2, 'Rare': 2.4, 'Ultra Rare': 2.7, 'Epic': 3, 'Legendary': 3.4, 'Godly': 3.8}
 DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 
+
+ROBLOX_MESH_TRIS = 20000
 
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
 
@@ -96,12 +99,20 @@ def r4(v):
 def creatures(tiers=None, only=None):
     cs = build_all(DETAIL)
     for c in cs:
-        c.voxel = VOXEL_STUDS
+        c.voxel = VOXEL_STUDS / FINER.get(c.species, 1)  # a showpiece's finer voxels
     if tiers:
         cs = [c for c in cs if c.rarity in tiers]
     if only:
         cs = [c for c in cs if c.species in only]
     return cs
+
+
+# Parts that never move against the body (it, or what rides it rigidly).
+STILL_ROLES = ('body', 'static', 'blink', 'glow')
+# How far a moving part's skin sits inside its voxels, in voxels: more than
+# the pillow lift (voxmesh.LIFT), so even a leg's raised face squares stay
+# behind a body face in the same plane.
+INSET = 0.08
 
 
 def describe(c):
@@ -124,9 +135,20 @@ def describe(c):
             flat = set(next((o.v for o in c.parts if o.name == 'body'), ()))
         else:
             flat = ()
-        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of, flat=flat):
+        # A part that moves against the body is inset a hair (voxmesh
+        # MeshData.inset) so no face of it is ever the same plane as the
+        # body's: legs, wings, fins, tails, heads and ears.
+        moves = walkpose.role(part.name, part.anim) not in STILL_ROLES
+        # Its faces against what it rests on (the body and the parts riding
+        # it rigidly) stay put: inset, a leg's top would open a slit through
+        # the hip that shows the sky.
+        contact = {v for o in c.parts if o is not part and walkpose.role(o.name, o.anim) in STILL_ROLES
+                   for v in o.v} if moves else ()
+        for kind, rgb, md in voxmesh.part_meshes(part, centre, V, p.cell_of, flat=flat, contact=contact):
             if not md.tris:
                 continue
+            if moves:
+                md.inset(INSET * V)
             name = f'{c.species}_{md.name}'
             lo_m, hi_m = md.bounds()
             entry = {
@@ -164,6 +186,12 @@ def describe(c):
             'lod1': lod_entry,
         })
     check_parents(c.species, {m['name']: m['parent'] for m in parts_meta})
+    # Roblox refuses a mesh over 20,000 triangles at upload; solid meshes are
+    # split below that, but a glow mesh (one per colour) is not
+    for pm in parts_meta:
+        for mm in pm['meshes']:
+            if mm['tris'] > ROBLOX_MESH_TRIS:
+                raise ValueError(f"{c.species}: mesh {mm['name']} has {mm['tris']} triangles, over Roblox's {ROBLOX_MESH_TRIS}")
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
         'id': c.species,

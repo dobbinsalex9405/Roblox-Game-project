@@ -70,6 +70,18 @@ Geometry.SPOT_COLUMNS = 4
 -- The tower's footprint in base-local x, z (floors 2 and up).
 Geometry.TOWER_MIN = { -24, -3 }
 Geometry.TOWER_MAX = { 24, 23 }
+-- The ladder (a 2-stud truss) up the right side, just outside the decks,
+-- and the opening cut in every upper deck beside it, so a climber on the
+-- tower side of the ladder rises through each floor and steps back onto
+-- the deck there instead of hitting its underside. Base-local x, z.
+Geometry.LADDER = { 25.2, 14.5 }
+Geometry.LADDER_HOLE_MIN = { 21, 12.5 }
+Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
+
+-- The label floating over the next floor to buy ("Floor 10: 165M coins"),
+-- in studs: wide enough for the longest one at full text height, with room
+-- to spare (Studio gate, #84: the text was filling its box edge to edge).
+Geometry.FLOOR_LABEL = { width = 32, height = 2.2 }
 
 -- Base-local positions of things raids care about. Layout uses the same
 -- numbers for the parts. Pad `index` counts across the whole tower: pads 1
@@ -81,6 +93,14 @@ function Geometry.pad(index: number): (number, number, number)
 	local column = spot % Geometry.SPOT_COLUMNS
 	local row = spot // Geometry.SPOT_COLUMNS
 	return -15 + column * 10, 5 + row * 10, floor * Geometry.FLOOR_HEIGHT
+end
+
+-- Where a creature taking `span` side-by-side pads from pad `index` stands:
+-- the middle of its pads (x, z, height), which is also where its prompts
+-- sit and what a raider's reach is measured from.
+function Geometry.padCentre(index: number, span: number): (number, number, number)
+	local x, z, height = Geometry.pad(index)
+	return x + (span - 1) * 5, z, height
 end
 
 -- Whether a character whose root is `rootAbove` studs above the ground
@@ -96,5 +116,39 @@ end
 Geometry.TRAP_SPOTS = { { -10, -22 }, { 10, -22 }, { -27, 10 }, { 17, 27 } }
 Geometry.DECOY_SPOTS = { { -27, -4 }, { -27, 4 }, { -27, 22 } }
 Geometry.SHIELD_PYLON = { 27, 20 }
+
+-- The odds sign at each Egg Market stop (Studio gates, Nov 5): just outside
+-- the belt, its inner end beside the left post of the stop's arch (left for
+-- a player walking in), turned `turn` degrees from facing straight out so it
+-- faces the path a player walks in on. Its face is raised (about 4 to 7 studs)
+-- so the follow camera sees it over the character, in three big lines.
+-- Layout.marketSign places it; the farm hub keeps its pieces clear of it
+-- (tests/HubLayout.spec).
+Geometry.MARKET_SIGN = table.freeze({
+	width = 10, -- the face, studs
+	height = 3.3,
+	bottom = 3.6, -- the face's lower edge above the ground (clear of the phone's GOAL line)
+	frame = 0.3, -- the wooden frame round the face
+	depth = 1, -- face, frame and legs, front to back
+	innerOut = 30, -- the frame's inner end: studs from the centre...
+	innerLeft = 7.3, -- ...and studs left of the stop's path, walking in
+	turn = 20,
+})
+
+-- Sign `index`'s centre (x, z), the way its face looks (x, z, unit) and the
+-- way across it, from the inner end to the outer (x, z, unit).
+function Geometry.marketSign(index: number): (number, number, number, number, number, number)
+	local sign = Geometry.MARKET_SIGN
+	local a = angle(index)
+	local ox, oz = math.cos(a), math.sin(a) -- out from the centre
+	local lx, lz = -math.sin(a), math.cos(a) -- left, for a player walking in
+	local t = math.rad(sign.turn)
+	local ax, az = ox * math.sin(t) + lx * math.cos(t), oz * math.sin(t) + lz * math.cos(t)
+	local fx, fz = ox * math.cos(t) - lx * math.sin(t), oz * math.cos(t) - lz * math.sin(t)
+	local half = sign.width / 2 + sign.frame
+	local cx = ox * sign.innerOut + lx * sign.innerLeft + ax * half
+	local cz = oz * sign.innerOut + lz * sign.innerLeft + az * half
+	return cx, cz, fx, fz, ax, az
+end
 
 return Geometry

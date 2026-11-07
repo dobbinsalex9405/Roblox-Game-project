@@ -1,12 +1,18 @@
 """Uploads Hatchery Heist's creature meshes to Roblox through Open Cloud, as
 one Model asset per creature, and records the asset ids in assets.json.
 
-    python3 tools/art/blender/upload.py DIR [--only Chick,Frog] [--dry-run]
+    python3 tools/art/blender/upload.py DIR [--only Chick,Frog] [--textures-only] [--dry-run]
 
 DIR is build.py's output (DIR/<id>/<id>.fbx). A creature already in
 assets.json gets a new version of the same asset, so its id never changes;
 a new creature gets a new asset. Afterwards run luau.py so the game knows
 the ids.
+
+Each creature's colours are its palette PNG, uploaded as an **Image** asset
+(never a Decal: MeshPart.TextureID needs an image id, and a decal id draws
+the creature grey with "Asset type does not match requested type").
+--textures-only re-uploads just the palettes of creatures that already have
+a model asset.
 
 The API key comes from ROBLOX_API_KEY (the Hatchery Heist Staging key, with
 the Assets API "asset:read" and "asset:write" permissions). It is never
@@ -29,6 +35,8 @@ API = 'https://apis.roblox.com/assets/v1'
 CLOUD_UNIVERSE = 'https://apis.roblox.com/cloud/v2/universes'
 GAMES = 'https://games.roblox.com/v1/games'
 GAME = 'hatchery-heist'
+TRIES = 5  # per request; waits 2, 4, 8, 16 s between them
+RETRY_CODES = (429, 500, 502, 503, 504)
 
 
 def call(method, url, key=None, body=None, ctype=None, soft=False):
@@ -40,21 +48,31 @@ def call(method, url, key=None, body=None, ctype=None, soft=False):
         req.add_header('x-api-key', key)
     if ctype:
         req.add_header('content-type', ctype)
-    for attempt in range(5):
+    for attempt in range(TRIES):
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 return json.loads(r.read() or b'{}')
         except urllib.error.HTTPError as e:
             text = e.read().decode('utf-8', 'replace')[:500]
-            if e.code in (429, 500, 502, 503) and attempt < 4:
+            if e.code in RETRY_CODES and attempt < TRIES - 1:
                 time.sleep(2 ** attempt * 2)
                 continue
             if soft and 400 <= e.code < 500:
                 raise LookupError(f'HTTP {e.code}')
             raise SystemExit(f'{method} {url.split("?")[0]} failed: HTTP {e.code} {text}')
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            # the network, not Roblox's answer: a refused or reset connection
+            # or a timeout (run 42096155779 stopped on "Connection refused"
+            # after 11 creatures). Retried like a 5xx; a retried create can at
+            # worst leave one unused palette image behind.
+            if attempt < TRIES - 1:
+                print(f'{method} {url.split("?")[0]}: {e}; retrying', flush=True)
+                time.sleep(2 ** attempt * 2)
+                continue
+            raise SystemExit(f'{method} {url.split("?")[0]} failed after {TRIES} tries: {e}')
 
 
-def multipart(request, path):
+def multipart(request, path, ctype='model/fbx'):
     b = uuid.uuid4().hex
     with open(path, 'rb') as f:
         data = f.read()
@@ -62,7 +80,7 @@ def multipart(request, path):
         f'--{b}\r\nContent-Disposition: form-data; name="request"\r\nContent-Type: application/json\r\n\r\n'.encode(),
         json.dumps(request).encode(), b'\r\n',
         (f'--{b}\r\nContent-Disposition: form-data; name="fileContent"; filename="{os.path.basename(path)}"\r\n'
-         'Content-Type: model/fbx\r\n\r\n').encode(),
+         f'Content-Type: {ctype}\r\n\r\n').encode(),
         data, f'\r\n--{b}--\r\n'.encode(),
     ]
     return b''.join(parts), f'multipart/form-data; boundary={b}'
@@ -114,6 +132,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('dir')
     ap.add_argument('--only')
+    ap.add_argument('--textures-only', action='store_true')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
     key = os.environ.get('ROBLOX_API_KEY', '')
@@ -126,11 +145,16 @@ def main():
     group = None if a.dry_run else owner_group(key)
     for sid in ids:
         fbx = os.path.join(a.dir, sid, f'{sid}.fbx')
+        if not os.path.isfile(os.path.join(a.dir, sid, f'{sid}_palette.png')):
+            raise SystemExit(f'{sid}: no {sid}_palette.png next to the fbx')
         have = data['models'].get(sid)
         if a.dry_run:
-            print(f'{sid}: would {"update " + str(have["assetId"]) if have else "create"} from {fbx}')
+            what = 'keep' if a.textures_only and have else ('update ' + str(have['assetId'])) if have else 'create'
+            print(f'{sid}: would {what} model from {fbx} and upload its palette as an Image')
             continue
-        if have:
+        if a.textures_only and have:
+            res = {'assetId': have['assetId'], 'revisionId': have.get('version')}
+        elif have:
             body, ctype = multipart({'assetId': str(have['assetId'])}, fbx)
             op = call('PATCH', f'{API}/assets/{have["assetId"]}', key, body, ctype)
         else:
@@ -141,10 +165,25 @@ def main():
                 'creationContext': {'creator': {'groupId': group}},
             }, fbx)
             op = call('POST', f'{API}/assets', key, body, ctype)
-        res = wait(op, key)
+        if not (a.textures_only and have):
+            res = wait(op, key)
         asset = int(res.get('assetId') or have['assetId'])
-        data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId')}
-        print(f'{sid}: asset {asset}', flush=True)
+        # the colours: the palette image as its own asset, set as each
+        # MeshPart's TextureID by the game (the FBX carries no texture)
+        png = os.path.join(a.dir, sid, f'{sid}_palette.png')
+        body, ctype = multipart({
+            'assetType': 'Image',
+            'displayName': f'HH {sid} palette',
+            'description': f'Hatchery Heist creature {sid} colours (tools/art/blender)',
+            'creationContext': {'creator': {'groupId': group}},
+        }, png, 'image/png')
+        tex = wait(call('POST', f'{API}/assets', key, body, ctype), key)
+        kind = str(tex.get('assetType', ''))
+        if 'IMAGE' not in kind.upper():
+            raise SystemExit(f'{sid}: palette came back as {kind or "an unknown type"}, not an Image')
+        data['models'][sid] = {'assetId': asset, 'version': res.get('revisionId'),
+                               'textureId': int(tex['assetId']), 'textureType': 'Image'}
+        print(f'{sid}: asset {asset}, texture {tex["assetId"]}', flush=True)
         with open(ASSETS, 'w') as f:  # after every upload, so a failure keeps the ids made so far
             json.dump(data, f, indent=1, sort_keys=True)
             f.write('\n')

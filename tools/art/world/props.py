@@ -235,7 +235,7 @@ for _ek, _en in (('basic', 'BasicEgg'), ('meadow', 'MeadowEgg'), ('moonlit', 'Mo
 
     def _mk(p, k=_ek):
         draw_egg(p.part('body'), 0, 0, 0, k)
-    prop(_en, 'egg', (-_e['w'] / 2 - 0.05, -_e['w'] / 2 - 0.05, 0), (_e['w'] / 2 + 0.05, _e['w'] / 2 + 0.05, _e['h'] + 0.05), budget=60,
+    prop(_en, 'egg', (-_e['w'] / 2 - 0.05, -_e['w'] / 2 - 0.05, 0), (_e['w'] / 2 + 0.05, _e['w'] / 2 + 0.05, _e['h'] + 0.05), budget=90,
          note=f"{_e['w']} wide, {_e['h']} tall")(_mk)
 
 RING_R = 22.0
@@ -310,102 +310,141 @@ def _nest(p):
 
 
 # ----------------------------------------------------- elevator and ladder
-@prop('ElevatorCab', 'elevator', (-3.0, -3.0, 0), (3.0, 3.0, 9.0), budget=200, factors=(2, 5, 10),
-      note='6 x 6 x 9 cab, open front (-Z) with two sliding doors "doorL"/"doorR" (slide 1.4 studs outward to open) and a floor button panel')
+# Apartment style: a slate-blue cab with brass trim running in a glass and
+# iron shaft, and an iron fire-escape ladder.
+#
+# These are built like plain Roblox parts, not sculpted voxels: every piece
+# is a flat-coloured block on the 0.2-stud grid (0.5 for the shaft, whose
+# corners sit on half studs), so the game's Parts version is exactly this
+# model with nothing resampled away, and the viewer mesh is a few hundred
+# flat faces instead of hundreds of thousands of voxel faces.
+SLATE, SLATE_D, BRASS, FIRE = '#3D5A80', '#2E4766', '#C9A24A', '#2F3A4A'
+GLASS = '#BEE6FF'
+DOOR = '#E8E1D2'
+WARM = ('#FFC870', 3.0)
+
+
+def _wall_band(g, z0, z1, c, front=True):
+    """a flush band of colour c on the outer 0.2 of the cab's walls"""
+    g.box((-3, 2.8, z0), (3, 3, z1), c)
+    g.box((-3, -2.4, z0), (-2.8, 3, z1), c)
+    g.box((2.8, -2.4, z0), (3, 3, z1), c)
+    if front == 'full':
+        g.box((-3, -3, z0), (3, -2.8, z1), c)
+    elif front:
+        g.box((-3, -3, z0), (-2.2, -2.8, z1), c)
+        g.box((2.2, -3, z0), (3, -2.8, z1), c)
+
+
+@prop('ElevatorCab', 'elevator', (-3.0, -3.0, 0), (3.0, 3.0, 9.0), budget=200, factors=(2,),
+      note='6 x 6 x 9 cab, open front (-Z) with two sliding doors "doorL"/"doorR" (slide 1.4 studs outward to open, '
+           'into slots in the side walls) and a floor button panel; plain blocks on a 0.2-stud grid')
 def _cab(p):
     g = p.part('body')
-    wood = pick(WOOD, 121)
-    g.box((-3, -3, 0), (3, 3, 0.4), pick(WOOD_D, 122))  # floor
-    g.box((-3, 2.6, 0), (3, 3, 8.6), wood)  # back wall
-    g.box((-3, -3, 0), (-2.6, 3, 8.6), wood)
-    g.box((2.6, -3, 0), (3, 3, 8.6), wood)
-    g.box((-3, -3, 8.6), (3, 3, 9.0), col(RED))  # roof
-    # plank seams on the walls
-    g.paint((-3, -3, 0.4), (3, 3, 8.6), lambda X, Y, Z: (np.mod(X + Y, 0.8) < VOX), col('#B07A42'))
-    # windows on the sides (cream frames, warm glass)
-    for sx in (-1, 1):
-        x0 = -3 if sx < 0 else 2.6
-        g.box((x0 - 0.05, -1.4, 4.2), (x0 + 0.45, 1.4, 7.0), col(CREAM[0]))
-        g.box((x0 - 0.1, -1.1, 4.5), (x0 + 0.5, 1.1, 6.7), col('#BEE6FF'))
-    # front frame
-    g.box((-3, -3, 0.4), (-2.2, -2.6, 8.6), col(RED))
-    g.box((2.2, -3, 0.4), (3, -2.6, 8.6), col(RED))
-    g.box((-3, -3, 7.4), (3, -2.6, 8.6), col(RED))
-    g.box((-2.2, -3.05, 7.6), (2.2, -2.95, 8.4), col(CREAM[0]))  # sign board
-    # button panel inside, right of the door
-    g.box((1.9, -2.6, 3.2), (2.6, -2.4, 5.6), col(IRON))
-    for i in range(5):
-        g.box((2.15, -2.65, 3.4 + i * 0.42), (2.35, -2.55, 3.6 + i * 0.42), col('#FFC870', 3.0))
-    # ceiling lamp
-    g.box((-0.6, -0.6, 8.3), (0.6, 0.6, 8.6), col(*LAMP))
-    # hay-gold trim along the floor edge
-    g.box((-3, -3.05, 0.3), (3, -2.95, 0.5), col('#F4C542'))
+    slate, slate_d, brass = col(SLATE), col(SLATE_D), col(BRASS)
+    # floor: dark wood with a lighter parquet square in the middle
+    g.box((-3, -3, 0), (3, 3, 0.4), col(WOOD_D[0]))
+    g.box((-2.2, -2.0, 0.2), (2.2, 2.2, 0.4), col(WOOD[0]))
+    # walls; the side walls stop short of the front, leaving the door slots
+    g.box((-3, 2.6, 0.4), (3, 3, 8.6), slate)
+    g.box((-3, -2.4, 0.4), (-2.6, 3, 8.6), slate)
+    g.box((2.6, -2.4, 0.4), (3, 3, 8.6), slate)
+    # front frame: two posts and a header, brass edged round the doorway
+    g.box((-3, -3, 0.4), (-2.2, -2.6, 8.6), slate_d)
+    g.box((2.2, -3, 0.4), (3, -2.6, 8.6), slate_d)
+    g.box((-2.2, -3, 7.4), (2.2, -2.6, 8.6), slate_d)
+    g.box((-2.4, -3, 0.4), (-2.2, -2.8, 7.6), brass)
+    g.box((2.2, -3, 0.4), (2.4, -2.8, 7.6), brass)
+    g.box((-2.4, -3, 7.4), (2.4, -2.8, 7.6), brass)
+    # roof with a brass cornice, and brass bands at the base and waist
+    g.box((-3, -3, 8.6), (3, 3, 9.0), slate_d)
+    _wall_band(g, 8.4, 8.6, brass, front='full')
+    _wall_band(g, 0.4, 0.6, brass)
+    _wall_band(g, 3.2, 3.4, brass, front=False)
+    # inside: darker wainscot below a brass handrail on the back wall
+    g.box((-2.6, 2.4, 0.4), (2.6, 2.6, 3.2), slate_d)
+    g.box((-2.6, -2.4, 0.4), (-2.4, 2.6, 3.2), slate_d)
+    g.box((2.4, -2.4, 0.4), (2.6, 2.6, 3.2), slate_d)
+    g.box((-2.2, 2.2, 3.4), (2.2, 2.4, 3.6), brass)
+    # tall windows on both sides: brass frame, glass, a brass transom
+    for x0 in (-3.0, 2.6):
+        g.box((x0, -1.6, 3.8), (x0 + 0.4, 1.6, 7.4), brass)
+        g.box((x0, -1.2, 4.2), (x0 + 0.4, 1.2, 7.0), col(GLASS))
+        g.box((x0, -1.2, 6.0), (x0 + 0.4, 1.2, 6.2), brass)
+    # floor indicator over the doors: a brass plate with a lit arrow
+    g.box((-1.2, -3, 7.8), (1.2, -2.8, 8.4), brass)
+    g.box((-1.0, -3, 8.0), (1.0, -2.8, 8.2), col('#FFF4E0'))
+    g.box((-0.2, -3, 8.0), (0.2, -2.8, 8.2), col(*WARM))
+    # button panel on the right wall, inside
+    g.box((2.2, -2.2, 3.6), (2.4, -1.0, 5.8), brass)
+    for i in range(4):
+        z = 3.8 + i * 0.5
+        g.box((2.0, -2.0, z), (2.2, -1.8, z + 0.2), col(*WARM))
+        g.box((2.0, -1.4, z), (2.2, -1.2, z + 0.2), col(*WARM))
+    # ceiling lamp in a brass ring
+    g.box((-0.8, -0.8, 8.4), (0.8, 0.8, 8.6), brass)
+    g.box((-0.6, -0.6, 8.4), (0.6, 0.6, 8.6), col(*LAMP))
+    # doors: cream leaves with a brass edge and a glass light, sitting in the
+    # slot behind the front frame
     for name, x0, x1 in (('doorL', -2.2, 0.0), ('doorR', 0.0, 2.2)):
-        d = p.part(name, anim='slide', parent='body', pivot=((x0 + x1) / 2, -2.85, 0.4))
-        d.box((x0, -2.95, 0.4), (x1, -2.75, 7.4), pick(CREAM, 123))
-        d.box((x0 + 0.25, -3.0, 0.9), (x1 - 0.25, -2.9, 1.1), col(RED))
-        d.box((x0 + 0.25, -3.0, 6.7), (x1 - 0.25, -2.9, 6.9), col(RED))
-        L = x1 - x0 - 0.5
-        d.fill((x0 + 0.25, -3.0, 1.1), (x1 - 0.25, -2.9, 6.7),
-               lambda X, Y, Z, x0=x0, L=L: (np.abs((X - x0 - 0.25) / L - (Z - 1.1) / 5.6) < 0.05) | (np.abs((X - x0 - 0.25) / L + (Z - 1.1) / 5.6 - 1) < 0.05),
-               col(RED))
+        d = p.part(name, anim='slide', parent='body', pivot=((x0 + x1) / 2, -2.5, 0.6))
+        d.box((x0, -2.6, 0.6), (x1, -2.4, 7.4), brass)
+        d.box((x0 + 0.2, -2.6, 0.8), (x1 - 0.2, -2.4, 7.2), col(DOOR))
+        d.box((x0 + 0.4, -2.6, 3.6), (x1 - 0.4, -2.4, 6.6), col(GLASS))
+        d.box((x0 + 0.4, -2.6, 1.6), (x1 - 0.4, -2.4, 1.8), brass)
 
 
-@prop('ElevatorShaft', 'elevator', (-3.5, -3.5, 0), (3.5, 3.5, 1.0), budget=24, factors=(5, 10),
-      note='one stud of the 7 x 7 shaft frame (corner posts, cross rails every section); repeat up to the floor height')
+@prop('ElevatorShaft', 'elevator', (-3.5, -3.5, 0), (3.5, 3.5, 1.0), budget=24, factors=(5,),
+      note='one stud of the 7 x 7 glass and iron shaft: iron corner posts, glass on the two outside faces (-X and +Z, the '
+           'tower\'s left and back), open on the room sides; stack from the ground to the roof; plain blocks')
 def _shaft(p):
     g = p.part('body')
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            x0 = -3.5 if sx < 0 else 3.0
-            y0 = -3.5 if sy < 0 else 3.0
-            g.box((x0, y0, 0), (x0 + 0.5, y0 + 0.5, 1.0), pick(WOOD_D, 124))
-    g.box((-3.5, 3.0, 0.0), (3.5, 3.5, 0.2), col(RED))
-    g.box((-3.5, -3.5, 0.0), (-3.0, 3.5, 0.2), col(RED))
-    g.box((3.0, -3.5, 0.0), (3.5, 3.5, 0.2), col(RED))
+    for x0 in (-3.5, 3.0):
+        for y0 in (-3.5, 3.0):
+            g.box((x0, y0, 0), (x0 + 0.5, y0 + 0.5, 1.0), col(FIRE))
+    g.box((-3.0, 3.0, 0), (3.0, 3.5, 1.0), col(GLASS))  # back face
+    g.box((-3.5, -3.0, 0), (-3.0, 3.0, 1.0), col(GLASS))  # left face
 
 
-@prop('ElevatorShaftTop', 'elevator', (-3.8, -3.8, 0), (3.8, 3.8, 1.6), budget=40,
-      note='roof cap of the shaft, with a pulley wheel')
+@prop('ElevatorShaftTop', 'elevator', (-3.8, -3.8, 0), (3.8, 3.8, 1.6), budget=40, factors=(2,),
+      note='roof cap of the shaft: a stepped slate roof with a brass rim and an iron governor wheel that spins; plain blocks')
 def _shaft_top(p):
     g = p.part('body')
+    g.box((-3.8, -3.8, 0), (3.8, 3.8, 0.2), col(BRASS))
+    g.box((-3.8, -3.8, 0.2), (3.8, 3.8, 0.4), col(SLATE_D))
+    g.box((-3.2, -3.2, 0.4), (3.2, 3.2, 0.6), col(SLATE))
+    g.box((-2.4, -2.4, 0.6), (2.4, 2.4, 0.8), col(SLATE_D))
+    g.box((-0.4, -0.4, 0.8), (0.4, 0.4, 1.0), col(FIRE))
+    w = p.part('wheel', anim='spin', parent='body', pivot=(0, 0, 1.2))
+    w.box((-1.0, -0.2, 1.0), (1.0, 0.2, 1.2), col(FIRE))
+    w.box((-0.2, -1.0, 1.0), (0.2, 1.0, 1.2), col(FIRE))
+    w.box((-0.2, -0.2, 1.2), (0.2, 0.2, 1.4), col(BRASS))
 
-    def roof(X, Y, Z):
-        return Z <= 1.0 - 0.25 * np.maximum(np.abs(X), np.abs(Y)) / 3.8 * 2 + 0.5
-    g.fill((-3.8, -3.8, 0), (3.8, 3.8, 1.0), roof, col(RED))
-    g.box((-3.8, -3.8, 0), (3.8, 3.8, 0.25), col(RED_D))
-    w = p.part('wheel', anim='spin', parent='body', pivot=(0, 0, 1.25))
-    w.seg((0, -0.2, 1.25), (0, 0.2, 1.25), 0.45, col(IRON))
-    w.seg((0, -0.25, 1.25), (0, 0.25, 1.25), 0.15, col('#F4C542'))
 
-
-@prop('LadderSection', 'ladder', (-1.0, -0.2, 0), (1.0, 0.2, 1.0), budget=8, factors=(2, 5),
-      note='2 wide, 1 tall: two rails and one rung; stack for any height')
+@prop('LadderSection', 'ladder', (-1.0, -0.2, 0), (1.0, 0.2, 1.0), budget=12, factors=(2,),
+      note='2 wide, 1 tall iron fire-escape ladder: two rails and one rung; stack for any height; plain blocks')
 def _ladder(p):
     g = p.part('body')
-    g.box((-1.0, -0.15, 0), (-0.75, 0.15, 1.0), pick(WOOD_D, 125))
-    g.box((0.75, -0.15, 0), (1.0, 0.15, 1.0), pick(WOOD_D, 125))
-    g.box((-0.75, -0.1, 0.4), (0.75, 0.1, 0.6), pick(WOOD, 126))
+    g.box((-1.0, -0.2, 0), (-0.8, 0.2, 1.0), col(FIRE))
+    g.box((0.8, -0.2, 0), (1.0, 0.2, 1.0), col(FIRE))
+    g.box((-0.8, -0.2, 0.4), (0.8, 0.0, 0.6), col('#4A5568'))
 
 
-@prop('LadderTop', 'ladder', (-1.0, -0.6, 0), (1.0, 0.2, 1.2), budget=12, note='rail tops that curve over the floor edge')
+@prop('LadderTop', 'ladder', (-1.0, -0.6, 0), (1.0, 0.2, 1.2), budget=12, factors=(2,),
+      note='rail tops that curve over the floor edge, with brass caps; plain blocks')
 def _ladder_top(p):
     g = p.part('body')
-    for x0 in (-1.0, 0.75):
-        g.box((x0, -0.15, 0), (x0 + 0.25, 0.15, 0.9), pick(WOOD_D, 127))
-        g.box((x0, -0.6, 0.65), (x0 + 0.25, 0.15, 0.9), pick(WOOD_D, 127))
-        g.box((x0 - 0.05, -0.65, 0.88), (x0 + 0.3, -0.35, 1.05), col(RED))
+    for x0 in (-1.0, 0.8):
+        g.box((x0, -0.2, 0), (x0 + 0.2, 0.2, 0.8), col(FIRE))
+        g.box((x0, -0.6, 0.6), (x0 + 0.2, 0.2, 0.8), col(FIRE))
+        g.box((x0, -0.6, 0.8), (x0 + 0.2, -0.4, 1.0), col(BRASS))
 
 
-@prop('FloorPlaque', 'plaque', (-1.6, -0.25, 0), (1.6, 0.25, 1.6), budget=20,
-      note='3 x 1.5 wooden sign for the floor number; the game draws the number on the front (-Z) face of the "board" area')
+@prop('FloorPlaque', 'plaque', (-1.6, -0.2, 0), (1.6, 0.2, 1.6), budget=20, factors=(2,),
+      note='3.2 x 1.6 enamel apartment sign for the floor number, brass edged; the game draws the number on the front (-Z) '
+           'face of the "board" area; plain blocks')
 def _plaque(p):
     g = p.part('body')
-    g.box((-1.5, -0.1, 0), (1.5, 0.15, 1.5), pick(WOOD, 128))
-    g.box((-1.5, -0.15, 0), (1.5, -0.1, 0.12), col(RED))
-    g.box((-1.5, -0.15, 1.38), (1.5, -0.1, 1.5), col(RED))
-    g.box((-1.5, -0.15, 0), (-1.38, -0.1, 1.5), col(RED))
-    g.box((1.38, -0.15, 0), (1.5, -0.1, 1.5), col(RED))
-    for x in (-1.3, 1.2):
-        for z in (0.2, 1.2):
-            g.box((x, -0.2, z), (x + 0.1, -0.15, z + 0.1), col('#F4C542'))
+    g.box((-1.6, 0, 0), (1.6, 0.2, 1.6), col(BRASS))
+    g.box((-1.6, -0.2, 0), (1.6, 0, 1.6), col(BRASS))
+    g.box((-1.4, -0.2, 0.2), (1.4, 0, 1.4), col(SLATE))
