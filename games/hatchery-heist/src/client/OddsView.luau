@@ -19,6 +19,7 @@ local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local Eggs = require(Shared.Eggs)
 local Hatchery = require(Shared.Hatchery)
+local OddsCard = require(Shared.OddsCard)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
@@ -116,7 +117,7 @@ end
 -- its share of the row and gives it to all of them, never below
 -- MIN_TEXT_SIZE (a label still too long ends in "..."). Before the list
 -- has a width on screen, the labels keep TextScaled.
-local MIN_TEXT_SIZE = 13 -- about 10 px on a phone at the card's 75% (Studio gate, #126)
+local MIN_TEXT_SIZE = OddsCard.MIN_TEXT_SIZE -- 11 px or more on screen at the card's smallest
 local function sameTextSize(container: GuiObject)
 	local width = container.AbsoluteSize.X
 	local pad = container:FindFirstChildOfClass("UIPadding")
@@ -258,7 +259,7 @@ local function fill(container: GuiObject, eggId: string)
 		-- text size on a phone (Studio gate, #126: 5.6 px at 844x392).
 		local grey = Color3.fromRGB(200, 200, 200)
 		rowSplit = 1
-		row(container, 1, "Fixed order, no chance involved:", "", grey, false)
+		row(container, 1, "Fixed order, no chance:", "", grey, false)
 		rowSplit = 0.66
 		for n, id in summary.upcoming do
 			local rarity = rarityOf(id)

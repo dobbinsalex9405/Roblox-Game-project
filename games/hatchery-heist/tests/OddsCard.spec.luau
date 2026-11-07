@@ -21,29 +21,30 @@ end
 describe("Odds card", function()
 	it("is smaller on a phone held sideways", function()
 		expect(OddsCard.scale(720)).toBe(1)
-		expect(OddsCard.scale(390)).toBe(0.75)
+		expect(OddsCard.scale(390)).toBe(OddsCard.MIN_SCALE)
 	end)
 
-	it("keeps an everyday card whole, shrinking it a touch on a phone", function()
+	it("keeps an everyday card whole where it fits; on a short phone its rows scroll", function()
 		-- 214 px: every tier and the button.
 		local _, scale, height = bottom(214, 672)
 		expect(scale).toBe(1)
 		expect(height).toBe(214)
 		local last
 		last, scale, height = bottom(214, 392)
-		expect(height).toBe(214)
-		expect(scale >= OddsCard.MIN_SCALE).toBe(true)
+		expect(scale).toBe(OddsCard.MIN_SCALE)
+		expect(height < 214).toBe(true) -- the last rows scroll into view
 		expect(last <= 392 - 8 + 1e-9).toBe(true)
 	end)
 
-	it("ends at least 8 px above the bottom with readable text; the rows scroll", function()
+	it("ends at least 8 px above the bottom with text of 11 px or more; the rows scroll", function()
 		-- Studio gate (#126): on an 844x392 phone the card's bottom sat at
-		-- y 388 (the 58 px top bar not counted) and its text was 5.6 px.
+		-- y 388 (the 58 px top bar not counted) and its text was 5.6 px; the
+		-- verifier asks 11 px or more for the paid-odds disclosure.
 		for _, case in { { 310, 392 }, { 1142, 392 }, { 1142, 672 }, { 400, 600 }, { 214, 360 } } do
 			local rows, screenY = case[1], case[2]
 			local last, scale = bottom(rows, screenY)
 			expect(last <= screenY - 8 + 1e-9).toBe(true)
-			expect(13 * scale >= 9).toBe(true)
+			expect(OddsCard.MIN_TEXT_SIZE * scale >= 11).toBe(true)
 		end
 	end)
 end)
