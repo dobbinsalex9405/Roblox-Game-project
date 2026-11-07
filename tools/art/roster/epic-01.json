@@ -46,6 +46,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "Storm",
@@ -122,6 +127,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Ember",
@@ -158,6 +167,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -204,6 +217,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -271,6 +288,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -330,6 +351,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Storm",
@@ -374,6 +399,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "plain",
@@ -429,6 +459,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -508,6 +542,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -629,6 +667,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Nature",
@@ -672,6 +714,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "plain",
@@ -730,6 +777,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Storm",
@@ -771,6 +822,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -832,6 +887,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -909,6 +968,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Glacial",
@@ -953,6 +1016,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -991,6 +1058,11 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "Nature",
@@ -1034,6 +1106,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -1143,6 +1219,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -1188,6 +1268,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -1235,6 +1319,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -1314,6 +1402,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],
@@ -1412,6 +1504,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "Nature",
@@ -1462,6 +1558,10 @@
     {
      "kind": "mend",
      "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ],
    "element": "plain",
@@ -1505,6 +1605,10 @@
     },
     {
      "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
      "color": "#000000"
     }
    ],

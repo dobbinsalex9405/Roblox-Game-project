@@ -140,6 +140,10 @@
     {
      "kind": "smile_line",
      "color": "#1E5A3A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ]
   },
@@ -230,6 +234,10 @@
     {
      "kind": "sleepy_eyes",
      "color": "#14203A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
     }
    ]
   }
