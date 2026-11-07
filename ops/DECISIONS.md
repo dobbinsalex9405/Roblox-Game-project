@@ -215,6 +215,19 @@ Non-obvious choices, newest first, so a later session can trust them.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
 
+## 2026-11-05: Coin packs scale with income (Hatchery Heist)
+
+- **Minutes per pack rise faster than price** (5, 20, 45, 100 minutes for
+  25, 99, 199, 399 Robux), so a bigger pack is always better value per
+  Robux, at any income. The plan said "15 minutes"; one number for every
+  pack would make the 25 Robux pack worth as much as the 399 one to a top
+  player. Every pack stays at least 5 minutes of income (the studio rule).
+- **Shown amount is a floor**: the server remembers what each player's shop
+  last showed and grants at least that, so income dropping between looking
+  and buying never shortchanges anyone.
+- **Core shop gains `shop:personalize(key, describe)`** (a per-player name
+  and description for one item); other games are unaffected. The Roblox
+  product listings keep their fixed names ("80K Coins").
 
 
 ## 2026-11-05: One shared Egg Market in the middle (Hatchery Heist)
