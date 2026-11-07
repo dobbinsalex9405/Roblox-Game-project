@@ -8,11 +8,12 @@
 
 - **cuttlefish** swims level: a broad oval mantle with rippling colour
   bands across the back, a wavy fin skirt down both sides (finL/finR, which
-  ripple as it swims), a pale belly, big eyes in pale rings near the top of
-  the head and a bunch of eight short arms pointing forward.
+  ripple as it swims), a pale belly, big pale-gold eyes with a dark W pupil
+  standing out from the sides of the head and a bunch of eight pale pink
+  arms pointing forward.
 
 Colours: col (body), accent (the squid's freckles, the cuttlefish's bands)
-and belly (undersides, suckers, the cuttlefish's fin edge and eye rings).
+and belly (undersides, suckers and the cuttlefish's fin edge).
 No glow (Uncommon). Same frame as kit.py: x right, -y front, z up, feet at
 z = 0, k = H / 10."""
 
@@ -147,33 +148,41 @@ def cuttlefish(c, H, col, accent, belly):
             return (belly, False)
         ax = abs(x + .5)
         wob = 0.45 * k * math.sin(ax / (1.3 * k) * math.pi)
-        return (accent, False) if math.floor((y + .5 + wob) / (0.7 * k)) % 2 == 0 and y + .5 > -1.6 * k else None
+        return (accent, False) if math.floor((y + .5 + wob) / (0.7 * k)) % 2 == 0 and y + .5 > -0.7 * k else None
     body.paint(band)
     # the head at the front, as tall as the mantle, its eyes high up
     head = c.part('head', 'head', (0, -2.0 * k, cz))
     head.ell((0, -2.4 * k, cz + 0.05 * k), (1.6 * k, 1.3 * k, 1.3 * k), col)
     head.paint(lambda p, cc, g: (belly, False) if p[2] + .5 < cz - 0.3 * k else None)
-    face(c, head, k, (cz / k) + 0.35, x_off=0.7, size=0.6, cheek_z=(cz / k) - 0.25, cheek_x=1.35)
-    eyes = kit._find(c, 'eyes')
-    if eyes and eyes.v:
-        # a pale ring round each eye, as a cuttlefish's eyes have
-        for (x, y, z) in list(eyes.v):
-            for dx, dz in ((-1, 0), (1, 0), (0, -1), (0, 1), (-1, 1), (1, 1), (-1, -1), (1, -1)):
-                f = head.front(x + dx, z + dz)
-                if f and f not in eyes.v:
-                    head.put(f, belly)
+    # big pale-gold eyes on the sides of the head, 3 long and 2 tall, one
+    # voxel proud of the surface, with a dark W-shaped pupil (dark low at
+    # both ends and high in the middle), so each eye is a light shape on
+    # the brown and needs no ring; they blink
+    eyes = c.part('eyes', 'blink', head.pivot)
+    gold, ink = hexc('#F4D77A'), hexc('#1B1B2F')
+    ez = math.floor(cz + 0.35 * k)
+    ey = math.floor(-2.7 * k)
+    for (dy, dz), cc in (((0, 1), gold), ((1, 1), ink), ((2, 1), gold),
+                         ((0, 0), ink), ((1, 0), gold), ((2, 0), ink)):
+        y, z = ey + dy, ez + dz
+        xs = [q[0] for q in head.v if q[1] == y and q[2] == z and q[0] >= 0]
+        if not xs:
+            continue
+        x = max(xs) + 1
+        eyes.put((x, y, z), cc)
+        eyes.put((_mx(x), y, z), cc)
     # eight short arms bunched forward under the eyes, three a side and two
     # in the middle, the tips drooping and drawn together, paler at the end
     arms = c.part('arms', 'static', (0, -3.4 * k, cz - 0.3 * k))
-    tip = _light(col, 0.4)
+    pink, tip = hexc('#F0BFC2'), hexc('#FBE3E4')
     for ax, ln in ((0.3, 1.0), (0.85, 0.9), (1.3, 0.75)):
         for j in range(10):
             t = j / 9
             x = ax * k * (1 - 0.35 * t)
-            y = -3.4 * k - 1.9 * k * ln * t
+            y = -3.4 * k - 2.6 * k * ln * t
             z = cz - 0.2 * k - 0.9 * k * t * t
             r = (0.34 - 0.1 * t) * k
-            arms.ell((x, y, z), (max(r, .6), max(r, .6), max(r, .6)), tip if t > 0.65 else col, cond=lambda xx, yy, zz: xx >= 0)
+            arms.ell((x, y, z), (max(r, .6), max(r, .6), max(r, .6)), tip if t > 0.7 else pink, cond=lambda xx, yy, zz: xx >= 0)
     _mirror(arms)
     # the fin skirt: a wavy frill down each side of the mantle, two voxels
     # deep, in two parts (finL/finR) that ripple as it swims; pale at the edge
