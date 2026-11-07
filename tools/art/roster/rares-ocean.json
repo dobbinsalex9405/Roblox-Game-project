@@ -1,0 +1,272 @@
+{
+ "note": "Rare batch: ocean, pond and dinosaur Rares from the master list (kit_wild octopus/jelly, kit_myth whale/ray/fish/dino/bat).",
+ "creatures": [
+  {
+   "id": "DolphinCalf",
+   "rarity": "Rare",
+   "plan": "whale",
+   "gait": "swim",
+   "options": {
+    "kind": "dolphin"
+   },
+   "colors": {
+    "col": "#7FA3C8",
+    "belly": "#E3EEF8",
+    "accent": "#6A8CB0",
+    "glow": "#9FE8FF"
+   }
+  },
+  {
+   "id": "BabyOctopus",
+   "rarity": "Rare",
+   "plan": "octopus",
+   "gait": "scuttle",
+   "options": {
+    "kind": "octopus"
+   },
+   "colors": {
+    "col": "#FF8FB1",
+    "accent": "#FFE3EE",
+    "belly": "#FFD0DF"
+   }
+  },
+  {
+   "id": "MantaRay",
+   "rarity": "Rare",
+   "plan": "ray",
+   "gait": "swim",
+   "options": {
+    "kind": "manta"
+   },
+   "colors": {
+    "col": "#2F4A8A",
+    "belly": "#F2F6FF",
+    "accent": "#22386E",
+    "glow": "#7FD4FF"
+   }
+  },
+  {
+   "id": "MoonJelly",
+   "rarity": "Rare",
+   "plan": "jelly",
+   "gait": "swim",
+   "options": {
+    "kind": "moon"
+   },
+   "colors": {
+    "col": "#BFE0FF",
+    "accent": "#FF6FB8"
+   }
+  },
+  {
+   "id": "Angelfish",
+   "rarity": "Rare",
+   "plan": "fish",
+   "gait": "swim",
+   "options": {
+    "kind": "angelfish"
+   },
+   "colors": {
+    "col": "#F4E9C8",
+    "accent": "#2A2F45",
+    "belly": "#FFF8E0",
+    "glow": "#FFD43B"
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#FFF8E0"
+    }
+   ]
+  },
+  {
+   "id": "SharkPup",
+   "rarity": "Rare",
+   "plan": "fish",
+   "gait": "swim",
+   "options": {
+    "kind": "shark"
+   },
+   "colors": {
+    "col": "#8A9AB0",
+    "belly": "#F2F4F8",
+    "accent": "#8A9AB0"
+   },
+   "accessories": [
+    {
+     "kind": "gills",
+     "color": "#5CC8FF"
+    }
+   ]
+  },
+  {
+   "id": "Narwhal",
+   "rarity": "Rare",
+   "plan": "whale",
+   "gait": "swim",
+   "options": {
+    "kind": "narwhal"
+   },
+   "colors": {
+    "col": "#9AA6B8",
+    "belly": "#E8EDF4",
+    "accent": "#5E6A80",
+    "horn": "#FFF4D6"
+   },
+   "accessories": [
+    {
+     "kind": "wildspeckles",
+     "color": "#F4F8FC"
+    },
+    {
+     "kind": "narwhaltusk",
+     "color": "#FFF4D6",
+     "color2": "#C8A878"
+    }
+   ]
+  },
+  {
+   "id": "Koi",
+   "rarity": "Rare",
+   "plan": "fish",
+   "gait": "swim",
+   "options": {
+    "kind": "koi"
+   },
+   "colors": {
+    "col": "#FFFFFF",
+    "accent": "#FF7A1A",
+    "belly": "#FFFFFF"
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    },
+    {
+     "kind": "barbels",
+     "color": "#FFB866"
+    }
+   ]
+  },
+  {
+   "id": "Socktopus",
+   "rarity": "Rare",
+   "plan": "octopus",
+   "gait": "scuttle",
+   "options": {
+    "kind": "sock"
+   },
+   "colors": {
+    "col": "#5B8CFF",
+    "accent": "#FFD43B",
+    "belly": "#DDE7FF"
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    }
+   ]
+  },
+  {
+   "id": "RexHatchling",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "waddle",
+   "options": {
+    "kind": "rex"
+   },
+   "colors": {
+    "col": "#5FBF4A",
+    "belly": "#E8F5B0",
+    "accent": "#3E8F34",
+    "glow": "#C8FF6A"
+   }
+  },
+  {
+   "id": "TrikeHatchling",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "trot",
+   "options": {
+    "kind": "trike"
+   },
+   "colors": {
+    "col": "#F28C38",
+    "belly": "#FFE3B8",
+    "accent": "#C8642A",
+    "horn": "#FFF4D6",
+    "glow": "#FFE27A"
+   },
+   "shape": {
+    "body": [
+     0.857,
+     0.857,
+     0.884
+    ],
+    "head": 0.931
+   }
+  },
+  {
+   "id": "StegoHatchling",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "trot",
+   "options": {
+    "kind": "stego"
+   },
+   "colors": {
+    "col": "#2EB8A8",
+    "belly": "#D8F5EE",
+    "accent": "#FF7A5C",
+    "glow": "#FFB38F"
+   },
+   "shape": {
+    "body": [
+     0.892,
+     0.892,
+     0.921
+    ],
+    "head": 0.97
+   }
+  },
+  {
+   "id": "RaptorChick",
+   "rarity": "Rare",
+   "plan": "dino",
+   "gait": "waddle",
+   "options": {
+    "kind": "raptor"
+   },
+   "colors": {
+    "col": "#4A7BE0",
+    "belly": "#DCE8FF",
+    "accent": "#FFB627",
+    "glow": "#7FD4FF"
+   }
+  },
+  {
+   "id": "PteroChick",
+   "rarity": "Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "colors": {
+    "col": "#8E6BD8",
+    "belly": "#D9C9F7",
+    "wing": "#6A4BB0",
+    "crest": "#FF7A59",
+    "beak": "#F2C14E"
+   },
+   "options": {
+    "kind": "ptero"
+   },
+   "accessories": [
+    {
+     "kind": "colorglow",
+     "color": "#FF7A59"
+    }
+   ]
+  }
+ ]
+}
