@@ -1108,3 +1108,25 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Every other row fits. The longest values are 22 characters ("0.018% · 1 in 5,556" fits; "0.002% · 1 in 50,000" doesn't).
   - Fix: widen the value column (the name column has room: "Legendary" is short), drop the "· " separator on phones, or let the value wrap.
 - Stopped at this FAIL. The unrestricted desktop card and the restricted phone glance were not done on this head. (Restricted 12.0 px at y 225-383 passed on effcae6, and the #131+#126 combined build showed restricted tabs working.)
+
+## #127 @ fe40382 (reveal safe-area refit), merged onto main ad8133f as 6cd33fe
+
+**PASS.** Local build.
+- **Phone 844x390, 10-pull reveal:**
+  - ClawReveal is CoreUISafeInsets, 844x332.
+  - The stage is 308 px, screen y 70-378.
+  - Open Charms 160x44 and Done 120x44 sit at y 334-378, **12 px above the edge** (`127c-phone-pull10.jpg`).
+- **Refit on resize** (the stand-in for rotation; Studio can't rotate):
+  - I resized 844x390 → small phone 702x378 with the reveal open.
+  - The stage refit at UIScale 0.962 to y 70-366, and Done sits at y 324-366, 12 px clear. All 10 cards fit inside x 51-650 (`127c-smallphone-refit.jpg`).
+- **Small phone 702x378, fresh 10-pull:** the stage is 308 at scale 1.0. **Skip** 120x44 at y 322-366 is 12 px clear, and Done / Open Charms are at the same spot after Skip (`127c-smallphone-skip.jpg`).
+- **x100 haul (small phone):** the grid has 4 px top padding. The first card is 4 px below the scroll top with a 3 px stroke, so the first-row borders are fully visible (`127c-smallphone-x100.jpg`).
+- **Charms window (small phone):**
+  - The controls row is 646 px wide in a 646 px frame. "Show mine: On" and "See others: On" both fit (TextFits) and aren't clipped.
+  - The "On" badge (30x18 at the top-left corner) sits clear of the 🍀 glyph (`127c-smallphone-charms-badge.jpg`).
+  - Equipping Wishbone shows "Equipped: +8% coins, x1.11 luck".
+- **Luck Boost cap:** test panel "luckboost" On ("Luck Boost odds on.") + Wishbone (x1.11). Every egg card reads "Boosted: Wishbone, Luck Boost" and sums to exactly 100.000%.
+  - Basic: Rare 0.800→1.322 (x1.65), UR 0.180→0.347 (x1.93), Epic 0.018→0.039 (x2.17), Legendary 0.002→0.004 (x2.0). Each is ≤ base × boost × 1.11 (1.665 / 1.94 / 2.22 / 2.22) and ≤ x3.
+  - Moonlit list (per creature): Owlet 12.667→16.333 (x1.29 after normalising), Axolotl 1.85→2.783 (x1.50), Epics 0.022→0.037-0.039 (≤x1.77), Phoenix 0.008→0.013, Nebula 0.002→0.003. All are ≤ the uncapped product.
+  - *Note:* the x3 cap can't actually be reached with today's sources. The largest product is Luck Boost x2 × Star of Fortune x1.2 = x2.4, so on screen the cap shows only as "never above". Spec tests cover the cap itself.
+- *Note (main, not this PR):* at 702x378 the main-branch odds card (without #126) runs below the screen, so "See every creature" can't be reached on a small phone. #126 fixes that.
