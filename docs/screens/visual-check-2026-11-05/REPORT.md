@@ -1097,3 +1097,14 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Each tab shows "<Egg>: fixed order" with "How many of every 100000 eggs:". Rows: Basic 45, Meadow 62, Moonlit 11. Each sums to exactly 100000.
   - The waits go NEXT, in 2 eggs, … and only increase (`131-hh-restricted-moonlit-tab.jpg`).
 - *Left over from main, not introduced here:* "Dalmatian Pup (Common)" and "Siamese Kitten (Common)" are cut off with "…" in the Basic list's left column (161 px wide), and one Meadow name likewise. The row widths are unchanged by this PR (`131-hh-oddslist-truncated-names.jpg`).
+
+## #126 @ 434b2bf (row TextSize 15), merged onto main ad8133f as 8156f82
+
+**FAIL: the Legendary odds are cut off on the unrestricted phone card.**
+- **Phone 844x392, unrestricted:**
+  - The card is 224x157 at UIScale 0.80, screen y 225-383, so it's within ≤384. The rows scroll (canvas 171 in a 157 frame).
+  - The smallest text is now 12.0 px (TextSize 15), which meets the 11 px floor.
+  - **But the Legendary value label "0.002% · 1 in 50,000" no longer fits its 104x17 box.** It renders as **"0.002% · 1 in…"** (TextFits false), so the player can't read the rarest odds (`126e-phone-unrestricted-legendary-truncated-FAIL.jpg`).
+  - Every other row fits. The longest values are 22 characters ("0.018% · 1 in 5,556" fits; "0.002% · 1 in 50,000" doesn't).
+  - Fix: widen the value column (the name column has room: "Legendary" is short), drop the "· " separator on phones, or let the value wrap.
+- Stopped at this FAIL. The unrestricted desktop card and the restricted phone glance were not done on this head. (Restricted 12.0 px at y 225-383 passed on effcae6, and the #131+#126 combined build showed restricted tabs working.)
