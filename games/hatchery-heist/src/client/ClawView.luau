@@ -133,16 +133,16 @@ local function oddsRow(
 	f.BackgroundTransparency = 1
 	f.Size = UDim2.new(1, -8, 0, ROW)
 	local a = CharmUi.text(f, "Name", left, 16, color)
-	a.Size = UDim2.new(0.5, 0, 1, 0)
+	a.Size = UDim2.fromScale(0.5, 1)
 	a.TextXAlignment = Enum.TextXAlignment.Left
 	a.TextTruncate = Enum.TextTruncate.AtEnd
 	local b = CharmUi.text(f, "Percent", percent, 16)
 	b.Position = UDim2.fromScale(0.5, 0)
-	b.Size = UDim2.new(0.22, 0, 1, 0)
+	b.Size = UDim2.fromScale(0.22, 1)
 	b.TextXAlignment = Enum.TextXAlignment.Right
 	local c = CharmUi.text(f, "OneIn", oneIn, 14, Color3.fromRGB(200, 205, 225))
 	c.Position = UDim2.fromScale(0.72, 0)
-	c.Size = UDim2.new(0.28, 0, 1, 0)
+	c.Size = UDim2.fromScale(0.28, 1)
 	c.TextXAlignment = Enum.TextXAlignment.Right
 	f.Parent = parent
 end
@@ -659,7 +659,7 @@ function ClawView.start(ctx: Context.Context)
 	footer.Name = "Footer"
 	footer.BackgroundTransparency = 1
 	footer.AnchorPoint = Vector2.new(0.5, 1)
-	footer.Position = UDim2.new(0.5, 0, 1, 0)
+	footer.Position = UDim2.fromScale(0.5, 1)
 	footer.Size = UDim2.new(1, 0, 0, CharmUi.BUTTON)
 	footer.Parent = stage
 	local footerRow = Instance.new("UIListLayout")

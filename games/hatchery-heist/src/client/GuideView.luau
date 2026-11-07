@@ -250,7 +250,6 @@ local function sideMenu(gui: ScreenGui): SideMenu
 		end
 		local room = screen - 12
 		local roomy = count * 44 + (count - 1) * 8
-		local tight = count * 44 + (count - 1) * 4
 		if roomy <= room * 0.9 then
 			list.Padding = UDim.new(0, 8)
 			column.Position = UDim2.new(1, -10, 0.45, 0)

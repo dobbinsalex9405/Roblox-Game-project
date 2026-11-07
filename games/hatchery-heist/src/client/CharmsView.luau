@@ -268,7 +268,7 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 
 	local refresh: () -> ()
 
-	local function select(id: string?)
+	local function showDetail(id: string?)
 		selected = id
 		confirm.Visible = false
 		detail.Visible = id ~= nil
@@ -373,7 +373,7 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 				card.ribbon.Visible = s.equipped
 				card.button.Activated:Connect(function()
 					Sfx.play("click")
-					select(s.def.id)
+					showDetail(s.def.id)
 				end)
 				cards[s.def.id] = card
 			end
@@ -437,7 +437,7 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 			local id = slot.button:GetAttribute("CharmId")
 			if type(id) == "string" then
 				Sfx.play("click")
-				select(id)
+				showDetail(id)
 			end
 		end)
 	end
@@ -491,7 +491,7 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 	end)
 	back.Activated:Connect(function()
 		Sfx.play("click")
-		select(nil)
+		showDetail(nil)
 	end)
 	fuseAll.Activated:Connect(function()
 		local d = data()
@@ -501,7 +501,7 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 		local steps, spent = Charms.fuseAllPlan(d, config, fee(d), d.coins or 0)
 		Sfx.play("click")
 		if #steps == 0 then
-			select(nil)
+			showDetail(nil)
 			confirm.Visible = true
 			plan.Text = `Nothing to fuse yet: you need {config.fuseCount} of the same charm, not equipped.`
 			yes.Visible = false
@@ -519,7 +519,7 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 			end
 		end
 		table.insert(lines, `Fee: {Layout.shortNumber(spent)} coins.`)
-		select(nil)
+		showDetail(nil)
 		plan.Text = table.concat(lines, "\n")
 		yes.Visible = true
 		confirm.Visible = true
@@ -536,18 +536,18 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 	close.Activated:Connect(function()
 		Sfx.play("click")
 		gui.Enabled = false
-		select(nil)
+		showDetail(nil)
 	end)
 
 	local function toggle(id: string?)
 		if id == nil and gui.Enabled then
 			gui.Enabled = false
-			select(nil)
+			showDetail(nil)
 			return
 		end
 		gui.Enabled = true
 		fit()
-		select(id)
+		showDetail(id)
 	end
 	opener = function(id: string?)
 		if gui.Enabled and id == nil then

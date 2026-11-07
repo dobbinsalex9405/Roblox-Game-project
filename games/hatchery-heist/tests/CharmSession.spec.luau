@@ -172,7 +172,7 @@ describe("Robux claw pulls", function()
 		end
 		expect(best >= 5).toBe(true)
 		local event = lastEvent(h, "Claw:Pull")
-		assert(event)
+		assert(event, "no Claw:Pull event")
 		expect(event[2]).toBe(100)
 	end)
 end)
