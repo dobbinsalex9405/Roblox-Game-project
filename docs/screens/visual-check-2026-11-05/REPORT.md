@@ -1323,3 +1323,23 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
    - Book (Epic and UR tabs): smallest text 12.8 px, nothing truncated, no overlap (`141-phone-book-ur.jpg`).
    - Moonlit list: 420x244, 14.4 px, nothing truncated (`141-phone-moonlit.jpg`).
 - *Cosmetic:* WillOWisp's display name renders as "Will OWisp" in the list; "Will-o'-Wisp" would read better.
+
+## #142 @ ea953ac (20 new Ultra Rares), built directly (head contains main d91c5e8)
+
+**PASS.**
+1. **Book:** Ultra Rare 0/53. All 53 cards have loaded pictures, and 0 labels are truncated.
+   - The 20 new: 14 read "Moonlit Egg 1 in 1,135" (AmberAnt 1,136). Six are Meadow: GummyBear, PumpkinPup and LanternFrog "1 in 4,000"; PaperCrane, MarshmallowLamb and TreasureCrab "1 in 3,846".
+   - Display names show no split words ("Paper Crane", "Marshmallow Lamb", "Phoenix Chick" …).
+2. **UR count per egg:** **Moonlit 42**, **Meadow 11**.
+   - Every new UR shows "1 in N".
+   - Tier totals are unchanged. Moonlit: UR 3.7000%, Epic 0.2900%, Godly 0.0019%, Legendary 0.0080%. Meadow: UR 0.2800%, Epic 0.0170%.
+   - Both lists sum to 100.0000%, 0 truncated.
+3. **World:** GummyBear, PhoenixChick, SteamTurtle and TidalOtter, plus the unchanged FrostOwl from #140 (`142-five.jpg`).
+   - Every part is a MeshPart with one texture each; no fallback boxes. The largest gap is 0.000.
+   - All are UR height (2.7-2.9 studs). Bottom medians are 0.73-0.79 on a 0.70 floor.
+   - Moved in 10 s: 2.0-8.8 studs.
+   - **Glow** (Neon share of box volume): SteamTurtle 0%, TidalOtter 0%, FrostOwl 3% (8 parts, as before), PhoenixChick 9% (20 parts).
+   - **GummyBear 53% (20 parts): as bright as JellySlime.** Its whole body glows pink and red, as expected; the follow-up tones it down.
+4. **Phone 844x392:**
+   - Book UR tab: 760x318, smallest text 12.8 px, nothing truncated (`142-phone-book.jpg`).
+   - Moonlit and Meadow lists: 420x244, 14.4 px, nothing truncated (`142-phone-moonlit.jpg`).
