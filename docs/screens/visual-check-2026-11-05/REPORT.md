@@ -934,3 +934,13 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - 0 labels fail TextFits (`126c-desktop-restricted-card.jpg`).
 - **Desktop, unrestricted:** matches main. The card is 280x214, and Basic reads 92.000% · 1 in 1.1 / 7.000% · 1 in 14.3 / 0.800% · 1 in 125 / 0.180% · 1 in 556 / 0.018% · 1 in 5,556 / 0.002% · 1 in 50,000 (`126c-desktop-unrestricted-card.jpg`).
 - **Bumblebee Book card:** while unfound it's a drawn silhouette. After a test-panel give it shows the full-colour bee with a NEW badge, "Bumblebee", and "Meadow Egg 1 in 77.6". It's a live ViewportFrame with 9 parts and none of them dark, so it isn't a black card (`126c-book-bumblebee.jpg`).
+
+## #87 @ e7332eb (Owlet re-texture), merged onto main as b478729
+
+**PASS.** Local Staging build. I gave an Owlet from the test panel and watched it in the plot.
+- **Textured:** all 8 MeshParts (16 parts in total) use TextureID 139903809045735, the new id from the PR. None are untextured. It shows as a brown feathered owl with yellow feet (`87-hh-owlet-plot.jpg`).
+- **No gaps:** the largest OBB gap between visible parts is 0.000 studs.
+- **Feet on ground:** the plot floor is at y 0.70. While walking, the leg boxes' lowest corner reaches 0.67, a 0.03 stud corner dip from the leg swing, and no other part goes below 0.75. At rest the bottom of the bounding box is at 0.71.
+- **Walks:** it moved along a 2.40 stud path in 12 s with the waddle gait. Head and body stay together.
+- **Book card:** the Rare tab shows "Owlet / Moonlit Egg 1 in 7.9" with a NEW badge and the coloured model (8 viewport parts) (`87-hh-book-rare.jpg`).
+- **Rare odds unchanged:** Raccoon Basic 1 in 125, Penguin Meadow 1 in 118, Owlet Moonlit 1 in 7.9, Fennec and PandaCub Premium 1 in 3.1.
