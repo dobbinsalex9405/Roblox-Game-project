@@ -137,25 +137,27 @@ return {
 			lamps = { id = "LampPost", radii = { 41 }, side = 6.5 },
 			-- A signpost at the market end of every path (left side).
 			signposts = { id = "Signpost", radius = 35, side = 7.5 },
+			-- The pieces nearest the market stand back from it (r39 and up)
+			-- so the odds sign beside each stop (Layout.marketSign) has room.
 			pieces = {
 				-- 67.5: the Hatchery Barn, the hub's landmark, and the Book stand
-				{ id = "BookStand", angle = 67.5, radius = 37 },
+				{ id = "BookStand", angle = 67.5, radius = 41 },
 				{ id = "HatcheryBarn", angle = 67.5, radius = 56 },
 				-- 112.5: the Theme Stand by the market, two market stalls behind
-				{ id = "ThemeStand", angle = 112.5, radius = 37 },
+				{ id = "ThemeStand", angle = 112.5, radius = 41 },
 				{ id = "StallRed", angle = 106, radius = 54 },
 				{ id = "StallBlue", angle = 119, radius = 54 },
 				-- 157.5: the Daily Rewards mailbox, the well and the windmill
-				{ id = "Mailbox", angle = 157.5, radius = 35 },
+				{ id = "Mailbox", angle = 157.5, radius = 39 },
 				{ id = "Well", angle = 149, radius = 44 },
 				{ id = "Windmill", angle = 157.5, radius = 57 },
 				-- 202.5: the notice board, the hen house, the egg cart and the silo
-				{ id = "NoticeBoard", angle = 202.5, radius = 35 },
+				{ id = "NoticeBoard", angle = 202.5, radius = 39 },
 				{ id = "EggCart", angle = 194, radius = 45 },
 				{ id = "ChickenCoop", angle = 211, radius = 46 },
 				{ id = "Silo", angle = 202.5, radius = 60 },
 				-- 247.5: the flower stall, a planter and a haystack
-				{ id = "StallGreen", angle = 247.5, radius = 40 },
+				{ id = "StallGreen", angle = 247.5, radius = 42 },
 				{ id = "FlowerPlanter", angle = 247.5, radius = 52 },
 				{ id = "HayStack", angle = 239, radius = 58 },
 				-- 292.5: a little green with benches and the duck pond
@@ -169,6 +171,43 @@ return {
 				{ id = "VegetablePatch", angle = 337.5, radius = 57 },
 			},
 		},
+	},
+	-- The Tower window's Build and Upgrade buttons (client/TowerView). After
+	-- a tap the row shows "Building..." until the server answers (at most
+	-- waitSeconds), then "Built!" for holdSeconds, so a double tap never
+	-- buys the next thing (Studio gate, Nov 5). A tap you can't afford shows
+	-- how many more coins you need for holdSeconds.
+	menus = {
+		holdSeconds = 1.5,
+		waitSeconds = 3,
+	},
+	-- The guide's gold arrow and beam hide once you are this close (studs,
+	-- flat) to where they point, so they never sit on top of the Buy prompt
+	-- you came for (Studio gate, Nov 5).
+	-- The Hatchery Book draws only the cards near the screen (client/
+	-- BookView). overscanRows past each edge are drawn at once; while the
+	-- book is open it then builds more, outward from the view, warmPerFrame
+	-- a frame, until warmCards are built, because a new card's picture takes
+	-- up to a second to draw its first frame (Studio gate, Nov 5 and 7: a
+	-- fast flick showed empty cards). 144 keeps the whole Common tab warm and
+	-- covers a 1,400 px flick on a 200-card tab. Warming starts
+	-- warmDelaySeconds after a tab is shown (0: at once), and built cards
+	-- are kept while the book is closed. Pictures can still take a moment
+	-- to draw on a fast flick: Roblox draws a ViewportFrame only while it
+	-- is on screen; static thumbnails will replace them.
+	book = {
+		overscanRows = 2,
+		warmCards = 144,
+		warmPerFrame = 8,
+		warmDelaySeconds = 0,
+	},
+	guide = {
+		arrivedStuds = 8,
+		-- Roblox's player list (top right on desktop) sat over the side
+		-- menu's top button, so clicks opened "Examine Avatar" instead of the
+		-- Guide (Studio gate, Nov 5). The game has no leaderboard stats, so
+		-- it stays off; true brings it back.
+		playerList = false,
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
@@ -203,17 +242,27 @@ return {
 	creatureLod = {
 		farStuds = 30,
 	},
-	-- Sound effects: Roblox audio asset ids from Roblox's own licensed
-	-- library (Creator Store, Audio, by Roblox), picked by ear in Studio.
-	-- id 0 = silent until one is picked; the game works the same either way.
+	-- Sound effects: Roblox audio asset ids, free Creator Store audio, each
+	-- loaded in Studio and picked by title and length (Nov 5); Alex listens
+	-- on Staging and swaps any by ear. id 0 = silent; the game works the
+	-- same either way.
 	sounds = {
-		eggShake = { id = 0, volume = 0.5 }, -- the egg wobbles before it hatches
-		eggCrack = { id = 0, volume = 0.6 }, -- the shell breaks
-		reveal = { id = 0, volume = 0.5 }, -- Common to Rare appears
-		revealBig = { id = 0, volume = 0.7 }, -- Ultra Rare and Epic appear
-		revealLegend = { id = 0, volume = 0.8 }, -- Legendary and Godly appear
-		newEntry = { id = 0, volume = 0.5 }, -- a new creature in the Hatchery Book
-		reward = { id = 0, volume = 0.6 }, -- a daily reward claimed
-		click = { id = 0, volume = 0.4 }, -- a menu button
+		eggShake = { id = 9120784504, volume = 0.5 }, -- the egg wobbles before it hatches (0.3 s)
+		eggCrack = { id = 9113959343, volume = 0.6 }, -- the shell breaks (1.0 s)
+		reveal = { id = 90618709727045, volume = 0.5 }, -- Common to Rare appears (2.5 s)
+		revealBig = { id = 85188102085028, volume = 0.7 }, -- Ultra Rare and Epic appear (2.4 s)
+		revealLegend = { id = 1840076509, volume = 0.8 }, -- Legendary and Godly appear (2.3 s)
+		newEntry = { id = 73774648241042, volume = 0.4 }, -- a new creature in the Hatchery Book (4.2 s, kept soft)
+		reward = { id = 100288208393628, volume = 0.6 }, -- a reward claimed (1.4 s sparkle)
+		click = { id = 73629124033518, volume = 0.4 }, -- a menu button (0.2 s)
+	},
+	-- The apartment shells (WorldArt Tower*, tools/art/world/tower.py) the
+	-- client draws over each tower's grey box: your own and the nearest
+	-- others, up to `towers` in all within `drawStuds` (a full tower is
+	-- about 4,700 boxes); the rest keep the grey box.
+	towerShells = {
+		drawStuds = 160,
+		towers = 4,
+		boxesPerFrame = 400, -- built a little each frame, so nothing hitches
 	},
 }

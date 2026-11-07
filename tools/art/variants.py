@@ -195,6 +195,14 @@ def _lum(rgb):
 DARK_FACE = 0.35
 RING_CONTRAST = 0.12  # below this the deepened eye still sinks into the face
 
+# Live creatures whose in-game mesh and box art were made before the eye pass.
+# They keep their current eyes until each one is re-reviewed and its mesh is
+# re-uploaded; then drop its id here, in the PR that carries the upload.
+EYE_CONTRAST_KEEP = frozenset({
+    'BabyKraken', 'BearCub', 'CocoaBunny', 'Cricket', 'Crow', 'GemDrake',
+    'Lemming', 'Skunk', 'StarWhaleCalf', 'StormHawk', 'TapirCalf',
+})
+
 
 def eye_contrast(c):
     """Dark eyes vanish on a dark face (or a dark mask). When the face around
@@ -401,7 +409,8 @@ def builder(entry):
                     kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
         if entry.get('gait'):
             c.gait_hint = entry['gait']  # the sheet's gait wins over one a body plan set
-        eye_contrast(c)
+        if entry.get('id') not in EYE_CONTRAST_KEEP:
+            eye_contrast(c)
         return c
 
     return build
