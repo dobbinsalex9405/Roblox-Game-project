@@ -14,6 +14,10 @@
 - Fix: Hatchery Book cards no longer show empty on a fast flick, a reopen or
   a tab switch. Each creature is a ready-made picture, loaded when you join;
   creatures you have not found yet are black silhouettes.
+- Fix: the Hatchery Book's pictures load faster after you join, the Common
+  tab first, so the first open no longer shows empty cards for a moment.
+- Fix: the Hatchery Book refits when the screen changes size (a window
+  resized, a phone turned), so its title is never cut off.
 
 - The Nebula Serpent is reworked: a finer, more detailed nebula coil with
   crystal antlers, a flowing mane, whiskers and a comet tail, and four

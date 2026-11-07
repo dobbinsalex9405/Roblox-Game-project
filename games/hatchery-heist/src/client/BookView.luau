@@ -174,11 +174,6 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
 	local species = ctx.config.creatures.species
 	local bookConfig = ctx.config.economy.book
-	-- Every Book picture loads now, while the player looks round, so a card
-	-- shows its creature the moment it first scrolls into view.
-	task.spawn(function()
-		pcall(ContentProvider.PreloadAsync, ContentProvider, Book.pictures(species))
-	end)
 	-- How far past the view cards are drawn and kept built (config/atmosphere book).
 	local bookLook = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book
 	local overscan = bookLook.overscanRows :: number
@@ -285,8 +280,55 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
 		window.Size = UDim2.fromOffset(math.min(760, screen.X - 24), math.min(560, screen.Y - 40))
 	end
+	-- Refit when the screen changes size (a window resized, a phone turned):
+	-- Studio gate (#125) kept a desktop-sized Book on a phone, title cut off.
+	local watched: Camera? = nil
+	local function watchCamera()
+		local cam = Workspace.CurrentCamera
+		if cam and cam ~= watched then
+			watched = cam
+			cam:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+				if watched == cam then
+					fit()
+				end
+			end)
+		end
+		fit()
+	end
+	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
+	watchCamera()
 
 	local entries = Book.entries(ctx.config.creatures, ctx.config.eggs, Layout.RARITIES)
+
+	-- Every Book picture loads now, while the player looks round, so a card
+	-- shows its creature the moment it first scrolls into view: in page
+	-- order (the Common tab first, as the Book opens there), several at a
+	-- time, each through an ImageLabel so it is fetched as an image. Studio
+	-- gate (#125): one call for all 114 left the first open blank for 1-3 s.
+	task.spawn(function()
+		local queue: { Instance } = {}
+		for _, picture in Book.pictures(entries) do
+			local holder = Instance.new("ImageLabel")
+			holder.Image = picture
+			table.insert(queue, holder)
+		end
+		local nextIndex = 1
+		for _ = 1, bookLook.preloadStreams :: number do
+			task.spawn(function()
+				while nextIndex <= #queue do
+					local batch = {}
+					for _ = 1, bookLook.preloadBatch :: number do
+						if nextIndex > #queue then
+							break
+						end
+						table.insert(batch, queue[nextIndex])
+						nextIndex += 1
+					end
+					pcall(ContentProvider.PreloadAsync, ContentProvider, batch)
+				end
+			end)
+		end
+	end)
 	local tabs: { Tab } = {}
 	local tabOf: { [string]: Tab } = {}
 	for _, entry in entries do

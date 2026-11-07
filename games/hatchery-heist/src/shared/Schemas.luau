@@ -375,6 +375,8 @@ return function(Schema: any, Odds: any)
 			warmCards = Schema.integer({ min = 24, max = 300 }),
 			warmPerFrame = Schema.integer({ min = 1, max = 20 }),
 			warmDelaySeconds = Schema.number({ min = 0, max = 2 }),
+			preloadStreams = Schema.integer({ min = 1, max = 8 }),
+			preloadBatch = Schema.integer({ min = 1, max = 30 }),
 		}),
 		guide = Schema.record({
 			arrivedStuds = Schema.number({ min = 2, max = 30 }),
