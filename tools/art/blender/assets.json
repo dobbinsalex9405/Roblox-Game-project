@@ -300,6 +300,12 @@
    "textureType": "Image",
    "version": "6"
   },
+  "Cuttlefish": {
+   "assetId": 88046643540455,
+   "textureId": 116948314889180,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Cygnet": {
    "assetId": 133402737023805,
    "textureId": 96321077470619,
@@ -1205,6 +1211,12 @@
    "textureId": 77041801196805,
    "textureType": "Image",
    "version": "3"
+  },
+  "Squid": {
+   "assetId": 112051874677531,
+   "textureId": 128616687111175,
+   "textureType": "Image",
+   "version": "1"
   },
   "Squirrel": {
    "assetId": 92755741632027,
