@@ -238,7 +238,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Ultra Rare: 49 from the roster
+		-- Ultra Rare: 67 from the roster
 		AmberAnt = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 90,
@@ -252,6 +252,13 @@ return {
 			mountSpeed = 25,
 			pools = { "Moonlit" },
 			element = "Ember",
+		},
+		BlossomBee = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 71,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Nature",
 		},
 		BlossomDeer = {
 			rarity = "Ultra Rare",
@@ -295,6 +302,12 @@ return {
 			pools = { "Moonlit" },
 			element = "Ember",
 		},
+		CottonCandyCat = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 84,
+			mountSpeed = 25,
+			pools = { "Meadow" },
+		},
 		CrystalCrab = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 80,
@@ -324,6 +337,13 @@ return {
 			pools = { "Moonlit" },
 			element = "Ember",
 		},
+		FlowerCrab = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 89,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Nature",
+		},
 		FrostOwl = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 89,
@@ -331,6 +351,9 @@ return {
 			pools = { "Moonlit" },
 			element = "Glacial",
 		},
+		GalaxySnail = { rarity = "Ultra Rare", coinsPerSecond = 80, mountSpeed = 25, pools = { "Moonlit" } },
+		Gearhog = { rarity = "Ultra Rare", coinsPerSecond = 78, mountSpeed = 25, pools = { "Moonlit" } },
+		GhostOwl = { rarity = "Ultra Rare", coinsPerSecond = 62, mountSpeed = 25, pools = { "Moonlit" } },
 		GlacierPenguin = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 88,
@@ -346,6 +369,14 @@ return {
 			element = "Glacial",
 		},
 		GummyBear = { rarity = "Ultra Rare", coinsPerSecond = 76, mountSpeed = 25, pools = { "Meadow" } },
+		IceCreamCow = { rarity = "Ultra Rare", coinsPerSecond = 79, mountSpeed = 25, pools = { "Meadow" } },
+		IceSpider = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 62,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Glacial",
+		},
 		IceTurtle = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 77,
@@ -389,6 +420,13 @@ return {
 			pools = { "Moonlit" },
 			element = "Nature",
 		},
+		LightningBug = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 65,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
 		MagmaMole = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 66,
@@ -409,6 +447,7 @@ return {
 			mountSpeed = 25,
 			pools = { "Meadow" },
 		},
+		MoonBunny = { rarity = "Ultra Rare", coinsPerSecond = 83, mountSpeed = 25, pools = { "Moonlit" } },
 		MossBear = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 69,
@@ -417,6 +456,7 @@ return {
 			element = "Nature",
 		},
 		NeonOctopus = { rarity = "Ultra Rare", coinsPerSecond = 64, mountSpeed = 25, pools = { "Moonlit" } },
+		OpalFrog = { rarity = "Ultra Rare", coinsPerSecond = 87, mountSpeed = 25, pools = { "Moonlit" } },
 		PaperCrane = { rarity = "Ultra Rare", coinsPerSecond = 69, mountSpeed = 25, pools = { "Meadow" } },
 		PebbleGolem = {
 			rarity = "Ultra Rare",
@@ -433,6 +473,7 @@ return {
 			element = "Ember",
 		},
 		PumpkinPup = { rarity = "Ultra Rare", coinsPerSecond = 81, mountSpeed = 25, pools = { "Meadow" } },
+		QuartzFox = { rarity = "Ultra Rare", coinsPerSecond = 76, mountSpeed = 25, pools = { "Moonlit" } },
 		RainFrog = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 70,
@@ -483,6 +524,20 @@ return {
 			pools = { "Moonlit" },
 			element = "Ember",
 		},
+		StormCrow = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 84,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
+		StormDuck = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 69,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
 		SunParrot = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 62,
@@ -504,6 +559,13 @@ return {
 			pools = { "Moonlit" },
 			element = "Storm",
 		},
+		ThunderPup = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 89,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
 		TidalOtter = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 66,
@@ -511,7 +573,9 @@ return {
 			pools = { "Moonlit" },
 			element = "Storm",
 		},
+		TinCanary = { rarity = "Ultra Rare", coinsPerSecond = 61, mountSpeed = 25, pools = { "Moonlit" } },
 		TreasureCrab = { rarity = "Ultra Rare", coinsPerSecond = 65, mountSpeed = 25, pools = { "Meadow" } },
+		TripleGecko = { rarity = "Ultra Rare", coinsPerSecond = 84, mountSpeed = 25, pools = { "Moonlit" } },
 		VineChameleon = {
 			rarity = "Ultra Rare",
 			coinsPerSecond = 67,
@@ -527,6 +591,13 @@ return {
 			element = "Storm",
 		},
 		WillOWisp = { rarity = "Ultra Rare", coinsPerSecond = 64, mountSpeed = 25, pools = { "Moonlit" } },
+		ZapSquirrel = {
+			rarity = "Ultra Rare",
+			coinsPerSecond = 69,
+			mountSpeed = 25,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
 		-- Epic: 57 from the roster
 		AbyssJelly = {
 			rarity = "Epic",
