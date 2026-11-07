@@ -1,5 +1,11 @@
 {
  "models": {
+  "AbyssJelly": {
+   "assetId": 132197968584880,
+   "textureId": 94689880794110,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Ant": {
    "assetId": 87546349137217,
    "textureId": 104535375030209,
@@ -11,6 +17,12 @@
    "textureId": 138581998066084,
    "textureType": "Image",
    "version": "6"
+  },
+  "BabyKraken": {
+   "assetId": 97211272518950,
+   "textureId": 139059613965310,
+   "textureType": "Image",
+   "version": "1"
   },
   "Badger": {
    "assetId": 111724425078003,
@@ -174,6 +186,12 @@
    "textureType": "Image",
    "version": "4"
   },
+  "CloudSerpent": {
+   "assetId": 71406945751985,
+   "textureId": 103522750070693,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Cockatiel": {
    "assetId": 127502802002435,
    "textureId": 72463376334332,
@@ -215,6 +233,12 @@
    "textureId": 103763748722778,
    "textureType": "Image",
    "version": "3"
+  },
+  "CrystalGolem": {
+   "assetId": 103836918698422,
+   "textureId": 126247072214445,
+   "textureType": "Image",
+   "version": "1"
   },
   "CrystalStag": {
    "assetId": 76176813759498,
@@ -366,6 +390,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "GemDrake": {
+   "assetId": 100677160906212,
+   "textureId": 106551934418824,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Gerbil": {
    "assetId": 112839047293516,
    "textureId": 98533877479099,
@@ -474,11 +504,23 @@
    "textureType": "Image",
    "version": "3"
   },
+  "Hippocampus": {
+   "assetId": 89777391844653,
+   "textureId": 122062613772444,
+   "textureType": "Image",
+   "version": "1"
+  },
   "HuskyPup": {
    "assetId": 84879241101977,
    "textureId": 75765146213071,
    "textureType": "Image",
    "version": "3"
+  },
+  "HydraHatchling": {
+   "assetId": 116159556559365,
+   "textureId": 73296510795446,
+   "textureType": "Image",
+   "version": "1"
   },
   "Iguana": {
    "assetId": 118558176056309,
@@ -503,6 +545,12 @@
    "textureId": 81596563678001,
    "textureType": "Image",
    "version": "3"
+  },
+  "Kappa": {
+   "assetId": 101157855838001,
+   "textureId": 122311572074928,
+   "textureType": "Image",
+   "version": "1"
   },
   "Kingfisher": {
    "assetId": 101073885523889,
@@ -846,11 +894,23 @@
    "textureType": "Image",
    "version": "3"
   },
+  "SandSerpent": {
+   "assetId": 128592002448474,
+   "textureId": 117970807067193,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Sandpiper": {
    "assetId": 86866444257236,
    "textureId": 106612305934468,
    "textureType": "Image",
    "version": "3"
+  },
+  "SeaSerpent": {
+   "assetId": 134797330126351,
+   "textureId": 117667820691813,
+   "textureType": "Image",
+   "version": "1"
   },
   "SeaTurtle": {
    "assetId": 133782426794564,
@@ -935,6 +995,18 @@
    "textureId": 106918453104028,
    "textureType": "Image",
    "version": "3"
+  },
+  "StarJelly": {
+   "assetId": 73075550270457,
+   "textureId": 85881082859337,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "StarWhaleCalf": {
+   "assetId": 110472497256519,
+   "textureId": 132749415739711,
+   "textureType": "Image",
+   "version": "1"
   },
   "Starfish": {
    "assetId": 90166749217348,
