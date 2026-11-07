@@ -26,7 +26,7 @@ Same frame as the rest of tools/art: x right, y back (front is -y), z up,
 in voxels; k = H / 10, so every size below reads as tenths of the height."""
 import math
 
-from voxkit import hexc
+from voxkit import Part, hexc
 from legends import _ball_pts, _fbm, _hash, _mix, _shade, _vnoise, tube  # noqa: F401
 
 INK = hexc('#1B1B2F')
@@ -300,7 +300,7 @@ def solid_voxels(c, skip=('orbit',)):
     return out
 
 
-def orbit_ring(c, k, items, margin=0.9):
+def orbit_ring(c, k, items, margin=0.9, balance=True):
     """Everything that circles the creature, as one `orbit` part turning about
     the body's centre. `items` are (angle in degrees, height in k units,
     radius in k units, draw), where draw(part, centre, r) paints one piece.
@@ -309,7 +309,12 @@ def orbit_ring(c, k, items, margin=0.9):
     `margin` k for the head turning and wings flapping), so it never passes
     through the body as it turns. If that would push it past the sweep limit
     (0.8x the height), the piece moves to the nearest height where it fits;
-    a piece that fits nowhere is an error, not a silent overlap."""
+    a piece that fits nowhere is an error, not a silent overlap.
+
+    With `balance`, a creature with paired legs has the whole ring turned (by
+    the smallest whole number of degrees that does it) so the creature
+    reaches as far left as right: the export centres a model on its bounds,
+    and its left and right legs must mirror about that centre."""
     taken = solid_voxels(c)
     xs = [p[0] + .5 for p in taken]
     ys = [p[1] + .5 for p in taken]
@@ -347,12 +352,38 @@ def orbit_ring(c, k, items, margin=0.9):
             raise ValueError(f'{c.species}: orbit piece at {ang} deg, r {rk} does not fit within {ORBIT_SWEEP}x height')
         z, dist = best
         cur_top = max(cur_top, math.ceil(z + r + 1))
-        a = math.radians(ang)
-        centre = (mx + math.cos(a) * dist, my + math.sin(a) * dist, z)
-        draw(orbit, centre, r)
-        placed.append(centre)
-    for p in [p for p in orbit.v if p in taken]:
-        del orbit.v[p]
+        placed.append((ang, z, dist, r, draw))
+
+    def paint(part, turn):
+        for ang, z, dist, r, draw in placed:
+            a = math.radians(ang + turn)
+            draw(part, (mx + math.cos(a) * dist, my + math.sin(a) * dist, z), r)
+        for p in [p for p in part.v if p in taken]:
+            del part.v[p]
+
+    turn = 0
+    legs = {p.name for p in c.parts if p.name.startswith('leg') and p.v}
+    if balance and any(n.endswith('L') and n[:-1] + 'R' in legs for n in legs):
+        others = solid_voxels(c, skip=('orbit',))
+        lo0, hi0 = min(p[0] for p in others), max(p[0] for p in others) + 1
+
+        def lean(t):
+            scratch = Part('orbit', 'orbit', orbit.pivot)
+            paint(scratch, t)
+            xs = [p[0] for p in scratch.v]
+            lo, hi = min([lo0] + xs), max([hi0] + [x + 1 for x in xs])
+            return abs(lo + hi), hi - lo
+
+        best_turn = (lean(0), 0)
+        if best_turn[0][0] > 0:
+            for t in sorted(range(-90, 91), key=lambda t: (abs(t), t)):
+                score = lean(t)
+                if score[0] < best_turn[0][0]:
+                    best_turn = (score, t)
+                if score[0] == 0:
+                    break
+        turn = best_turn[1]
+    paint(orbit, turn)
     ratio = sweep_ratio(c)
     if ratio > ORBIT_SWEEP:
         raise ValueError(f'{c.species}: orbit sweeps {ratio:.2f}x the height, over {ORBIT_SWEEP}')
