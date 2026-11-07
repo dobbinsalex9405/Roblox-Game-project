@@ -2003,24 +2003,35 @@
    "rarity": "Ultra Rare",
    "plan": "quadruped",
    "colors": {
-    "col": "#E6E8F4",
-    "belly": "#FFFFFF",
-    "snout": "#FFFFFF",
-    "ear_col": "#C8CCE8"
+    "col": "#C4C8D8",
+    "belly": "#D8DBE8",
+    "snout": "#E4E6F0",
+    "ear_col": "#B4B8CC"
    },
    "options": {
     "ears": "long",
     "tail": "short",
     "bunny": true
    },
+   "patterns": [
+    {
+     "kind": "tips",
+     "color": "#FFE680",
+     "parts": [
+      "ears"
+     ],
+     "glow": true
+    }
+   ],
    "accessories": [
     {
-     "kind": "crescent",
-     "color": "#FFF2A8"
+     "kind": "flank_crescent",
+     "color": "#FFE066"
     },
     {
-     "kind": "stars",
-     "color": "#FFF6C8"
+     "kind": "craters",
+     "color": "#767B98",
+     "color2": "#A3A8C0"
     },
     {
      "kind": "mend",
@@ -2135,32 +2146,39 @@
    "rarity": "Ultra Rare",
    "plan": "quadruped",
    "colors": {
-    "col": "#F7B8D0",
-    "belly": "#FFE3EE",
-    "snout": "#FFE3EE",
-    "ear_col": "#E890B0",
-    "tail_col": "#F7B8D0"
+    "col": "#F4AFC8",
+    "belly": "#FFF6F9",
+    "snout": "#FFF6F9",
+    "ear_col": "#D97FA3",
+    "tail_col": "#F4AFC8"
    },
    "options": {
-    "ears": "pointy",
+    "ears": "big",
     "tail": "fox"
+   },
+   "shape": {
+    "body": [
+     0.8,
+     0.95,
+     0.85
+    ],
+    "head": 0.9
    },
    "accessories": [
     {
      "kind": "long_legs",
-     "color": "#F7B8D0",
-     "amount": 0.5
+     "color": "#F4AFC8",
+     "amount": 0.45
     },
     {
-     "kind": "horse_head",
-     "color": "#FFE3EE",
-     "color2": "#8A3A5A",
-     "nose": "wolf"
+     "kind": "fox_face",
+     "color": "#F4AFC8",
+     "color2": "#3A2030"
     },
     {
-     "kind": "facets",
-     "color": "#FFC8DC",
-     "color2": "#E08AAE"
+     "kind": "quartz_shards",
+     "color": "#EE6FA2",
+     "color2": "#FFFFFF"
     },
     {
      "kind": "mend",
@@ -2200,11 +2218,11 @@
    "rarity": "Ultra Rare",
    "plan": "bird",
    "colors": {
-    "col": "#F0F4FF",
-    "belly": "#FFFFFF",
-    "beak": "#C8D0E8",
-    "wing": "#E0E8FF",
-    "feet": "#C8D0E8"
+    "col": "#C8D2EE",
+    "belly": "#E6ECFF",
+    "beak": "#9AA6CC",
+    "wing": "#B8C4E8",
+    "feet": "#9AA6CC"
    },
    "options": {
     "big_eyes": true,
@@ -2213,18 +2231,23 @@
    "accessories": [
     {
      "kind": "ghost",
-     "color": "#DDE6FF",
+     "color": "#D4DDF8",
      "color2": "#BDD0FF"
     },
     {
-     "kind": "iris_eyes",
-     "color": "#3FD8F0",
-     "color2": "#14203A",
-     "iris_glow": true
+     "kind": "facial_disc",
+     "color": "#EEF2FF"
     },
     {
-     "kind": "wisps",
-     "color": "#C8E8FF"
+     "kind": "iris_eyes",
+     "color": "#3FC8F0",
+     "color2": "#14203A",
+     "big_pupil": true
+    },
+    {
+     "kind": "ghost_tail",
+     "color": "#C4CEF0",
+     "color2": "#E4ECFF"
     },
     {
      "kind": "mend",

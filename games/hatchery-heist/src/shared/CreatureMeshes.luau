@@ -5215,10 +5215,10 @@ local CreatureMeshes: { [string]: Creature } = {
 		textureId = 95821417286983,
 		rarity = "Ultra Rare",
 		gait = "trot",
-		height = 2.8,
-		size = { 1.2, 2.8, 3.7 },
-		tris = 19454,
-		trisLod1 = 2048,
+		height = 2.7,
+		size = { 1.2, 2.7, 3.7 },
+		tris = 19336,
+		trisLod1 = 1984,
 		parts = {
 			{
 				name = "body",
@@ -5345,7 +5345,7 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "FrostWolf_ears",
-						center = { 0, 2.4478, -0.554 },
+						center = { 0, 2.4478, -0.546 },
 						size = { 1.191, 0.4955, 0.199 },
 					},
 				},
@@ -5377,15 +5377,15 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "FrostWolf_crest_glow",
-						center = { 0, 2.35, -0.4 },
-						size = { 0.4, 0.9, 1.1 },
+						center = { 0, 2.2, -0.55 },
+						size = { 0.8, 0.8, 0.6 },
 						glow = "BFE6FF",
 					},
 				},
 				lod1 = {
 					name = "FrostWolf_crest_lod1",
-					center = { 0, 2.35, -0.4 },
-					size = { 0.4, 0.9, 1.1 },
+					center = { 0, 2.2, -0.55 },
+					size = { 0.8, 0.8, 0.6 },
 				},
 			},
 		},
