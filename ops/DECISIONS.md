@@ -2,6 +2,23 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Every creature in an egg tier gets the same weight (Hatchery Heist)
+
+- **`tools/economy/even_eggs.py` writes the coin eggs' tier weights** from
+  target odds and each pool's member count, so every odds card in a tier
+  reads the same "1 in N". Largest-remainder splits left ones 1 point apart,
+  which in small tiers showed as visibly different odds (a Meadow Epic at
+  1 in 50,000 beside 1 in 33,333). Eggs.spec and CI fail until it is rerun
+  after a pool changes; go-live batches rerun it with to_config.
+- **Totals stay powers of ten** (Basic and Meadow 1,000,000, Moonlit
+  10,000,000, Premium 100,000) because the odds screen prints percentages
+  in steps of 1 / total and paid random items must add up to exactly 100%.
+  The rounding goes to whichever tiers it shifts least, usually Common and
+  Uncommon.
+- **Every Godly is exactly 1 in 1,000,000** in the Moonlit Egg, however many
+  there are; the Godly tier grows with the roster. The Premium Egg is
+  checked, not rewritten (its tiers are already even).
+
 ## 2026-11-05: The 18 new Godlies from the master sheet (Hatchery Heist)
 
 - **Hand-built, like the legends**, not roster data: tools/art/godlies.py
