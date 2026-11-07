@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Players who see a fixed hatch order instead of chances: the order is now
+  worked out one egg at a time, so eggs whose odds are written in tens of
+  millions (room for many more Legendaries and Epics) cost no memory. Each
+  outcome still comes exactly as often as its odds say, evenly spread.
+
 - Fix: a creature's legs, wings, tails and heads no longer flicker where
   they swing against the body (a bunny's hind feet kicking back in a hop
   showed a striped patch at the hip).

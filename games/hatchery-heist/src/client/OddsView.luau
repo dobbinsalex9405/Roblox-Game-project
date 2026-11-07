@@ -198,7 +198,7 @@ local function fill(container: GuiObject, eggId: string)
 		local bought = if data then data.eggsBought[egg.id] or 0 else 0
 		local nextId = Hatchery.fixedOrderOutcome(egg, bought)
 		row(container, 1, "Fixed order, no chance involved:", "", Color3.fromRGB(200, 200, 200), false)
-		local cycle = #Hatchery.fixedOrderCycle(egg)
+		local cycle = Hatchery.fixedOrderLength(egg)
 		for i, outcome in egg.outcomes do
 			local rarity = species[outcome.id].rarity
 			local wait = Hatchery.fixedOrderWait(egg, bought, outcome.id)

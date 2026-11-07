@@ -193,6 +193,38 @@ describe("Hatchery", function()
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 
+	it("the fixed order works out any place without building the cycle", function()
+		-- Economy thread (Nov 7): egg totals of 10,000,000 (room for dozens of
+		-- Legendaries and Epics in one tier) would have built a 10-million
+		-- entry cycle per egg. Each place is worked out on its own instead.
+		local egg = {
+			id = "HugeEgg",
+			total = 10000000,
+			outcomes = {
+				{ id = "A", weight = 9000001 },
+				{ id = "B", weight = 999990 },
+				{ id = "C", weight = 7 },
+				{ id = "D", weight = 2 },
+			},
+		}
+		expect(Hatchery.fixedOrderLength(egg)).toBe(10000000)
+		-- Exactly 2 D's per cycle, and the wait to each lands on it.
+		local d1 = Hatchery.fixedOrderWait(egg, 0, "D") :: number
+		local d2 = d1 + 1 + (Hatchery.fixedOrderWait(egg, d1 + 1, "D") :: number)
+		expect(Hatchery.fixedOrderOutcome(egg, d1)).toBe("D")
+		expect(Hatchery.fixedOrderOutcome(egg, d2)).toBe("D")
+		expect(Hatchery.fixedOrderWait(egg, d2 + 1, "D") :: number + d2 + 1).toBe(d1 + 10000000)
+		-- Spread evenly: the two D's sit half a cycle apart.
+		expect(math.abs((d2 - d1) - 5000000) <= 1).toBe(true)
+		-- Any stretch of 1,000 places holds A and B in their proportion.
+		local counts: { [string]: number } = {}
+		for n = 4321000, 4321999 do
+			local id = Hatchery.fixedOrderOutcome(egg, n)
+			counts[id] = (counts[id] or 0) + 1
+		end
+		expect(math.abs((counts.B or 0) - 100) <= 2).toBe(true)
+	end)
+
 	it("rides only creatures on a floor", function()
 		local d = fresh()
 		d.creatures = {
