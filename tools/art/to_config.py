@@ -69,7 +69,7 @@ ELEMENTS = {'Ember', 'Glacial', 'Nature', 'Storm'}
 # before meshes load) must meet, as games/hatchery-heist/tests/VoxelArt.spec
 # checks them: a box budget per tier, and no glow below Ultra Rare. A built
 # creature that misses one is left out (and printed) until its builder fixes it.
-BOX_BUDGET = {'Common': 30, 'Uncommon': 40, 'Rare': 60, 'Ultra Rare': 80, 'Epic': 120, 'Legendary': 450,
+BOX_BUDGET = {'Common': 36, 'Uncommon': 44, 'Rare': 60, 'Ultra Rare': 80, 'Epic': 120, 'Legendary': 450,
               'Godly': 800}
 GLOW_FROM = 'Ultra Rare'
 

@@ -17,8 +17,9 @@
 -- How: one gait per species (CreatureMeshes.gait, set from its legs by the
 -- art tools): trot (four legs in diagonal pairs), waddle (two legs and a
 -- roll), hop, scuttle (bug legs in two sets of three), slither (a body wave)
--- and hover (a lean and faster wing beats). A creature whose parts have no
--- legs (some voxel stand-ins) bounces its body in time with the steps.
+-- hover (a lean, faster wing beats and dangling legs) and swim (a tail
+-- sweep and paddling fins, for fish). A creature whose parts have no legs
+-- (some voxel stand-ins) bounces its body in time with the steps.
 
 local Walk = {}
 
@@ -33,9 +34,9 @@ export type Config = {
 	animateOtherStuds: number, -- other players' tower creatures hold still beyond this
 }
 
-export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover"
+export type Gait = "trot" | "waddle" | "hop" | "scuttle" | "slither" | "hover" | "swim"
 
-Walk.GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover" } :: { Gait }
+Walk.GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover", "swim" } :: { Gait }
 
 -- Studs moved per full step cycle, as a share of the creature's height.
 local STRIDE: { [Gait]: number } = {
@@ -45,6 +46,7 @@ local STRIDE: { [Gait]: number } = {
 	scuttle = 0.4,
 	slither = 1.2,
 	hover = 1.0,
+	swim = 1.0,
 }
 
 -- 32-bit FNV-1a of a string: the creature's own seed.
@@ -269,7 +271,9 @@ function Walk.gaitOf(given: string?, anims: { [string]: boolean }, hovers: boole
 end
 
 local LEG_SETS: { [string]: number } = {
-	-- +1 swings with the first beat, -1 against it.
+	-- +1 swings with the first beat, -1 against it. Bug legs alternate down
+	-- each side (left 1, 3, 5 with right 2, 4, 6), so six legs walk as two
+	-- tripods and a spider's eight as two sets of four.
 	legFL = 1,
 	legBR = 1,
 	legFR = -1,
@@ -279,16 +283,30 @@ local LEG_SETS: { [string]: number } = {
 	leg1L = 1,
 	leg2R = 1,
 	leg3L = 1,
-	leg1R = -1,
-	leg2L = -1,
-	leg3R = -1,
 	leg4R = 1,
 	leg5L = 1,
 	leg6R = 1,
+	leg1R = -1,
+	leg2L = -1,
+	leg3R = -1,
 	leg4L = -1,
 	leg5R = -1,
 	leg6L = -1,
 }
+
+-- Gaits whose numbered (sideways) legs swing about Y; hop and hover keep
+-- their own leg poses.
+local SIDEWAYS_GAITS: { [string]: boolean } = { scuttle = true, trot = true, waddle = true }
+
+-- Bug, crab and spider legs (leg1L..leg6R) stick out sideways, so they swing
+-- about the vertical axis; +1 for the right side, -1 for the left, so both
+-- reach forward on a positive swing.
+local function sideways(anim: string): number?
+	if string.match(anim, "^leg%d[LR]$") then
+		return if string.sub(anim, -1) == "R" then 1 else -1
+	end
+	return nil
+end
 
 function Walk.isLeg(anim: string): boolean
 	return LEG_SETS[anim] ~= nil
@@ -329,6 +347,19 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 	local s = math.sin(a)
 	local side = LEG_SETS[anim]
 	if side then
+		local out = sideways(anim)
+		if out and SIDEWAYS_GAITS[gait] then
+			-- Swing forward and back about the hip, lifting the foot (a roll
+			-- that raises the leg's outer end) while it swings forward.
+			local lift = math.max(0, side * math.cos(a))
+			return {
+				rx = 0,
+				ry = 0.45 * moving * side * s * out,
+				rz = 0.3 * moving * lift * out,
+				dx = 0,
+				dy = 0,
+			}
+		end
 		if gait == "trot" then
 			return { rx = 0.55 * moving * side * s, ry = 0, rz = 0, dx = 0, dy = 0 }
 		elseif gait == "waddle" then
@@ -338,6 +369,9 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 		elseif gait == "hop" then
 			-- Legs push back on take-off and tuck in the air.
 			return { rx = -0.7 * moving * hopArc(phase), ry = 0, rz = 0, dx = 0, dy = 0 }
+		elseif gait == "hover" then
+			-- Off the ground: legs trail back and paddle a little.
+			return { rx = moving * (-0.3 + 0.12 * side * s), ry = 0, rz = 0, dx = 0, dy = 0 }
 		end
 		return STILL
 	end
@@ -399,20 +433,49 @@ function Walk.pose(gait: Gait, anim: string, phase: number, moving: number, h: n
 			local jitter = (1 - math.cos(4 * a)) / 2
 			return { rx = 0, ry = 0.06 * moving * s, rz = 0, dx = 0, dy = h * 0.015 * moving * jitter }
 		elseif gait == "slither" then
-			return { rx = 0, ry = 0.28 * moving * s, rz = 0, dx = h * 0.08 * moving * s, dy = 0 }
+			-- Worms, slugs, snails and caterpillars creep: a gentle sway and a
+			-- small surge each stride (a bigger swing spins a short body round).
+			local surge = (1 - math.cos(2 * a)) / 2
+			return {
+				rx = 0,
+				ry = 0.1 * moving * s,
+				rz = 0,
+				dx = h * 0.04 * moving * s,
+				dy = h * 0.02 * moving * surge,
+			}
 		elseif gait == "hover" then
 			return { rx = -0.14 * moving, ry = 0, rz = 0.05 * moving * s, dx = 0, dy = h * 0.06 * moving }
+		elseif gait == "swim" then
+			-- The body sways against the tail.
+			return { rx = 0, ry = -0.12 * moving * s, rz = 0, dx = h * 0.03 * moving * s, dy = 0 }
 		end
 	elseif anim == "head" then
 		if gait == "waddle" then
 			-- A bird's head pecks forward each step.
 			return { rx = 0.12 * moving * math.max(0, math.sin(2 * a)), ry = 0, rz = 0, dx = 0, dy = 0 }
 		elseif gait == "slither" then
-			return { rx = 0, ry = -0.22 * moving * s, rz = 0, dx = 0, dy = 0 }
+			return { rx = 0, ry = -0.12 * moving * s, rz = 0, dx = 0, dy = 0 }
 		end
 	elseif anim == "tail" then
 		if gait == "slither" then
 			return { rx = 0, ry = 0.5 * moving * math.sin(a - 1.2), rz = 0, dx = 0, dy = 0 }
+		elseif gait == "swim" then
+			return { rx = 0, ry = 0.55 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
+		elseif gait == "hover" then
+			-- a flyer's tail streams and sways behind it
+			return { rx = 0.1 * moving, ry = 0.25 * moving * math.sin(a - 0.8), rz = 0, dx = 0, dy = 0 }
+		end
+	elseif anim == "wingL" or anim == "wingR" then
+		if gait == "waddle" then
+			-- Folded wings flick out a little on every step, for balance.
+			local flick = 0.18 * moving * (1 - math.cos(2 * a)) / 2
+			return { rx = 0, ry = 0, rz = if anim == "wingL" then flick else -flick, dx = 0, dy = 0 }
+		end
+	elseif anim == "finL" or anim == "finR" then
+		if gait == "swim" then
+			-- Fins paddle in turn, out and back.
+			local paddle = 0.4 * moving * math.sin(a + (if anim == "finL" then 0 else math.pi))
+			return { rx = 0, ry = 0, rz = if anim == "finL" then paddle else -paddle, dx = 0, dy = 0 }
 		end
 	end
 	return STILL

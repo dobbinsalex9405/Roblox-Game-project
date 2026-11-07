@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+- Fix: a creature's legs, wings, tails and heads no longer flicker where
+  they swing against the body (a bunny's hind feet kicking back in a hop
+  showed a striped patch at the hip).
+- Glowing paw soles and other small glowing bits on creatures no longer go
+  missing after upload: each glow piece is now a closed shape.
+- Creature legs, tails and little bug legs that only touched the body at a
+  corner no longer look like they float: every loose piece is now joined to
+  the body.
+- Every creature walks on its own legs: birds step on two little legs and
+  flick their wings out, bunnies push off with their hind feet, frogs kick
+  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
+  two alternating sets and spiders on eight; ladybugs, turtles and pill
+  bugs no longer slide along on their bellies. Legendaries and Godlies
+  fly, with their legs trailing. The 3D design viewer's walk clips match.
+- Fix: crabs and lizards had thinner legs on their left side, a seal's
+  belly was taken for one of its legs, and a widened body (Guinea Pig)
+  could end up with mismatched legs; every creature's legs now mirror.
+- Creatures walk on real legs: every leg is its own part that swings from
+  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
+  slither or hover).
+- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
+  crayfish and lobsters now walk on all their legs, and dragonflies,
+  fireflies and the Phoenix hover.
+- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
+  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
+  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
+  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
+  cheeks.
 - Fix: the side menu (Guide, Book, Tower, Pets, Daily, Music) no longer
   disappears for good after the welcome card; only an open window hides it.
 - Fix: tapping Build or Upgrade twice no longer buys the next upgrade. The
