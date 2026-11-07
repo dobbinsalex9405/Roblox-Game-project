@@ -291,7 +291,8 @@
     },
     {
      "kind": "fit_boxes",
-     "color": "#000000"
+     "color": "#000000",
+     "head": true
     }
    ],
    "element": "plain",
