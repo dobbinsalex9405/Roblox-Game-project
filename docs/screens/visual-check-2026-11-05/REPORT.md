@@ -1204,3 +1204,15 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - A fast scroll through all 91 found 34 still loading.
   - 3 s later all 91 were loaded with no blanks. That's the queue working through the off-screen cards after the opened tabs.
 - *Caveat:* this Studio had fetched all these thumbnails in earlier sessions today, so the asset cache was warm and "opened tab first" couldn't be timed under a truly cold fetch. I didn't clear Roblox's content cache (that's a Studio/system setting).
+
+## #128 @ eb6bd94 (four Ultra Rares), merged onto main b92d3f0 locally (clean)
+
+**PASS.** Local build, desktop.
+- **Book:** the Ultra Rare tab reads 4/8 after giving the four. Dust Bunny (Meadow 1 in 1,064), Neon Octopus, Leaf Bat and Icicle Bat (Moonlit 1 in 135) each show a coloured picture, IsLoaded, NEW. All four read clearly as their creature in the picture (`128-hh-book-ultrarare.jpg`).
+- **World:**
+  - Every colour MeshPart is textured. The only untextured parts are the Neon `_glow` overlays: IcicleBat's eyes, ears and wings; DustBunny's motes ×2; NeonOctopus's head plus **8 leg glows, leg1-4 L/R, one band per tentacle**. LeafBat has none.
+  - The largest gap is 0.000 on all four.
+  - Neon Octopus: a cyan band near the tip of each tentacle, sitting on the floor (bottom median 0.75, min 0.66 on a 0.70 floor) (`128-hh-neonoctopus.jpg`).
+  - Dust Bunny: hops (median 0.77, peak 1.61).
+  - The bats hover low. Body bottom median 0.70 (LeafBat) / 0.76 (IcicleBat). Only the rotated wing boxes dip to 0.28-0.43 at the bottom of a flap; at floor level the wings are up and clear (`128-hh-leafbat.jpg`).
+  - Moved in 10 s: DustBunny 7.0, LeafBat 4.5, IcicleBat 5.0, NeonOctopus 2.3 studs.
