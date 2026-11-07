@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Fix: on desktop, Roblox's player list no longer sits on top of the Guide
+  button (clicks opened "Examine Avatar"); the game has no leaderboard, so
+  the list is off.
+- The "YOUR HATCHERY" banner floats higher over your base sign, clear of the
+  next floor's price label, so the two no longer read as one crowded line.
+- Hatchery Book: the cards around the view (the whole Common tab today) are
+  built ahead as soon as it opens and kept while the book is closed, and
+  each card shows a dark picture well. Pictures can still take a moment to
+  appear on a fast flick.
+
 - The Nebula Serpent is reworked: a finer, more detailed nebula coil with
   crystal antlers, a flowing mane, whiskers and a comet tail, and four
   little worlds (a ringed planet, an ocean world, a lava world and a moon)

@@ -22,6 +22,17 @@ Non-obvious choices, newest first, so a later session can trust them.
   serpent fill their cards alike (the Book is a collection, not a size
   chart), and Legendaries and Godlies are drawn level, without their hover.
 
+## 2026-11-05: Roblox's player list is off in Hatchery Heist
+
+- On desktop the player list (top right) covered the side menu's top
+  button, and clicks opened "Examine Avatar" instead of the Guide. The game
+  has no leaderboard stats, so the list only showed names; switching it off
+  (`config/atmosphere` `guide.playerList = false`) beats moving the menu,
+  whose top would still depend on how many players the list shows. Players
+  can still friend or report each other from their avatars and the Roblox
+  menu. If leaderboard stats are ever added, turn it back on and start the
+  side menu below it.
+
 ## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
 
 - **Elevator cab, shaft, shaft top, ladder and floor plaque are built like
