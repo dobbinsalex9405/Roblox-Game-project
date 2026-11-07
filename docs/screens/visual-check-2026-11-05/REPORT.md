@@ -1362,3 +1362,21 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 4. **Phone 844x392:**
    - Book UR tab: 760x318, smallest text 12.8 px, nothing truncated (`143-phone-book.jpg`).
    - Moonlit and Meadow lists: 420x244, 14.4 px, nothing truncated (`143-phone-meadow.jpg`).
+
+## #144 @ 6ce8d95 (even egg odds), built directly (head contains main 99abf4c)
+
+**PASS.**
+1. **Egg Market:** Basic "50 coins", Meadow "2.5K coins" and Moonlit "15K coins" crates all show Buy prompts on the belt, enabled as they arrive, the same as before. The Premium egg has no in-world stand or prompt here, just as on main (only the Book lists its odds).
+2. **Odds lists:** every tier shows one identical value per creature, and every list sums to 100.0000%. No "0.0000%" and no scientific notation (`144-moonlit-desktop.jpg`).
+   - **Basic:** Common 39 × "2.3590% · 1 in 42.4"; Uncommon 7 × "1.0000% · 1 in 100"; Rare 1 × "1 in 125"; UR 1 × "1 in 556"; Epic 1 × "1 in 5,556"; Legendary 1 × "1 in 50,000".
+   - **Meadow:** Common 52 × "1.2884% · 1 in 77.6"; Uncommon 29 × "1.0691% · 1 in 93.5"; Rare 2 × "1 in 118"; UR 13 × "0.0215% · 1 in 4,651"; Epic 6 × "0.0028% · 1 in 35,714"; Legendary 1 × "1 in 33,333". The card's tier lines: UR 0.2795% · 1 in 358, Epic 0.0168% · 1 in 5,952.
+   - **Moonlit** (out of 10,000,000; 5 decimals): Uncommon 4 × "14.50005% · 1 in 6.9"; Rare 3 × "12.66670% · 1 in 7.9"; **UR 58 × "0.06379% · 1 in 1,568"**; **Epic 54 × "0.00537% · 1 in 18,622"**; Legendary 1 × "1 in 12,500"; **Godly 19 × "0.00010% · 1 in 1,000,000"**. The card: Godly 0.00190% · 1 in 52,632.
+   - **Premium** (Book cards, all the same within each tier): Rare ×2 "1 in 3.1", UR ×2 "1 in 7.1", Epic ×2 "1 in 30.8", Legendary ×2 "1 in 408", Godly ×1 "1 in 10,000".
+3. **Hatching:** I bought a Basic and a Moonlit egg on the belt and hatched both with E.
+   - Basic: "NEW! … COMMON Cockatoo +3 coins/s · 1 in 42.4" (`144-hatch-basic.jpg`).
+   - Moonlit: "NEW! … UNCOMMON Puppy +9 coins/s · 1 in 6.9" (`144-hatch-moonlit.jpg`).
+   - Both incubators went back to Empty, and the Book badge counted 2.
+   - *(Studio note: teleporting the character next to an incubator snapped back, so I walked there instead.)*
+4. **Phone 844x392:**
+   - Moonlit card: 224x157 at y 225-383, smallest text 12.0 px. The longest line, "58.00020% · 1 in 1.7", fits with no overlap (`144-phone-moonlit-card.jpg`).
+   - Moonlit list: 420x244, 14.4 px. "14.50005% · 1 in 6.9" and the other rows show 0 truncated and 0 name/value overlaps (`144-phone-moonlit-list.jpg`).
