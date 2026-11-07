@@ -25,7 +25,16 @@ return {
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
 		LuckBoost = { id = 0 },
+		-- Claw machine pulls bought with Robux (config/charms.luau claw.pulls
+		-- says how many each gives). Single pulls are coins only (Alex, Nov 7).
+		-- Id 0 until Alex approves the prices: the machine shows "Coming soon".
+		ClawPull10 = { id = 0 },
+		ClawPull100 = { id = 0 },
 	},
+	-- Built, but waiting for Alex to approve the price: ops/PRICING.md marks
+	-- them "Waiting for Alex" so the laptop doesn't create them on Roblox.
+	-- Take a key out once Alex says yes.
+	awaitingApproval = { "ClawPull10", "ClawPull100" },
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
 	environments = {
@@ -105,6 +114,18 @@ return {
 				name = "Luck Boost",
 				robux = 49,
 				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
+			},
+			-- Off the 25..399 ladder by Alex's choice (Nov 7, 09:05Z): 10 pulls
+			-- for 100 and 100 pulls for 700 (ops/PRICING.md lists them).
+			ClawPull10 = {
+				name = "10 Claw Pulls",
+				robux = 100,
+				description = "Ten claw machine pulls, with at least one Rare or better charm. Exact odds are shown before you buy.",
+			},
+			ClawPull100 = {
+				name = "100 Claw Pulls",
+				robux = 700,
+				description = "A hundred claw machine pulls, with at least one Epic or better charm. Exact odds are shown before you buy.",
 			},
 		},
 	},

@@ -20,7 +20,7 @@ local GameConfig = ReplicatedStorage.GameConfig
 
 export type Context = {
 	player: Player,
-	config: { economy: any, creatures: any, eggs: { any }, raids: any },
+	config: { economy: any, creatures: any, eggs: { any }, raids: any, charms: any },
 	remotes: { [string]: Net.Remote },
 	plot: () -> (Model?, number?), -- the player's own base, once assigned
 	plotIndexOf: (model: Instance) -> number?,
@@ -59,6 +59,7 @@ function Context.new(): Context
 				(require(GameConfig.creatures) :: any).species
 			),
 			raids = require(GameConfig.raids) :: any,
+			charms = require(GameConfig.charms) :: any,
 		},
 		remotes = Remotes,
 		plot = plot,

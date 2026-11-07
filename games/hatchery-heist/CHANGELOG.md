@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+- New: **Charms and the Charm Claw.** A claw machine stands in the farm hub
+  in front of the Golden Egg Shop. Pull 1, 10 or 100 times for coins (a
+  pull costs 5 minutes of your best income, at least 5,000 coins), see the
+  exact odds of every pull first, and get a Rare or better in every
+  10-pull and an Epic or better in every 100-pull. Pity: a Legendary or
+  better within 200 pulls. 10 and 100 pulls for Robux are ready but show
+  "coming soon" until they're live on Roblox.
+- New: 42 charms in seven tiers. Three kinds work now: Feeders add coins,
+  Clovers add luck on Rare and rarer hatches, Warmers make eggs hatch
+  faster. The other three wake up with Egg Heist. Bonuses are small and
+  capped (luck x3 with every boost together, hatch time at most halved).
+- New: the **Charms** window in the side menu: 3 to 6 equip slots (more as
+  your tower grows), your charm bag (300), Fuse 5 into 1 of the next tier
+  for a small fee, and Fuse all.
+- New: equipped charms float in a slow ring behind your shoulders. Hide
+  them all or one kind at a time (the bonus stays), and switch other
+  players' charms off for yourself.
+- Players whose region doesn't allow paid random items get the Charm
+  Counter instead: a chosen Common, Uncommon or Rare charm for coins.
+- The side menu closes its gaps (and only then shrinks a little) on short
+  phone screens, so all seven buttons fit.
+- Boosted egg odds (Luck Boost, Clovers) no longer round a rare creature
+  above its exact boosted chance.
+
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
   the list is off.

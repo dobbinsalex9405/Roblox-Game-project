@@ -17,6 +17,13 @@ lib.LADDER = table.freeze({
 	{ robux = 399, tier = "Large", what = "large currency pack (best value per Robux); the ceiling" },
 })
 
+-- Prices off the ladder that Alex chose himself, and what each is for. A
+-- price here passes the ladder check; anything else off the ladder fails.
+lib.ALEX_PRICES = table.freeze({
+	{ robux = 100, tier = "Alex's price", what = "10 claw pulls (Hatchery Heist, Alex, Nov 7 2026)" },
+	{ robux = 700, tier = "Alex's price", what = "100 claw pulls (Hatchery Heist, Alex, Nov 7 2026)" },
+})
+
 -- Roblox's limits on a pass or product listing.
 lib.NAME_MAX = 50
 lib.DESCRIPTION_MAX = 1000
@@ -41,12 +48,20 @@ export type Row = {
 	robux: number,
 	description: string,
 	live: boolean,
+	-- Built but waiting for Alex to approve its price (monetization
+	-- `awaitingApproval`): the laptop must not create it on Roblox yet.
+	held: boolean,
 }
 
 local function tierOf(robux: number): string?
 	for _, rung in lib.LADDER do
 		if rung.robux == robux then
 			return rung.tier
+		end
+	end
+	for _, price in lib.ALEX_PRICES do
+		if price.robux == robux then
+			return price.tier
 		end
 	end
 	return nil
@@ -58,6 +73,10 @@ function lib.rows(g: Game): { Row }
 	local live: { [string]: boolean } = {}
 	for _, item in g.catalog do
 		live[`{item.kind}:{item.key}`] = true
+	end
+	local held: { [string]: boolean } = {}
+	for _, key in g.monetization.awaitingApproval or {} do
+		held[key] = true
 	end
 	local rows: { Row } = {}
 	for _, kind: "pass" | "product" in { "pass" :: "pass", "product" :: "product" } do
@@ -82,7 +101,8 @@ function lib.rows(g: Game): { Row }
 				name = l.name,
 				robux = l.robux,
 				description = l.description,
-				live = live[`{kind}:{key}`] == true,
+				live = live[`{kind}:{key}`] == true and not held[key],
+				held = held[key] == true,
 			})
 		end
 	end
@@ -175,6 +195,7 @@ function lib.markdown(games: { Game }): string
 					row.name
 				)} | {row.robux} | {tierOf(row.robux) or "OFF LADDER"} | {if row.live
 					then "Yes"
+					elseif row.held then "Waiting for Alex"
 					else "Not yet"} | {cell(row.description)} |`
 			)
 		end

@@ -921,6 +921,126 @@ do
 	)
 end
 
+---------------------------------------------------------------- Charms and the claw machine
+do
+	local CharmActions = require("../../games/hatchery-heist/src/shared/CharmActions")
+	local Charms = require("../../games/hatchery-heist/src/shared/Charms")
+	local Claw = require("../../games/hatchery-heist/src/shared/Claw")
+	local charms = config.charms
+	local function setup(restricted)
+		local h = Sim.new()
+		for _, def in Claw.oddsTables(charms) do
+			h.odds:define(def)
+		end
+		h.odds:setBoostCap(charms.luckCap)
+		local results = {}
+		local play = CharmActions.new({
+			actions = h.actions,
+			odds = h.odds,
+			policy = h.policy,
+			analytics = h.analytics,
+			charms = charms,
+			now = h.clock.now,
+			notify = function(player, text)
+				table.insert(h.notices, { player = player, text = text })
+			end,
+			result = function(_player, ids, source)
+				table.insert(results, { ids = ids, source = source })
+			end,
+			changed = function() end,
+		})
+		local p = Fakes.player(301)
+		h.join(p, restricted)
+		return h, p, play, results
+	end
+
+	local h, p, play, results = setup(false)
+	local d = h.get(p)
+	d.incomePeak = 40 -- a few hatches in: 40 coins a second
+	local one = Claw.price(d.incomePeak, charms, 1)
+	local startCoins = d.coins
+	give(h, p, one * (1 + 9 + 80))
+	local ok1 = play:pull(p, 1)
+	local ok10 = play:pull(p, 10)
+	local ok100 = play:pull(p, 100)
+	check(
+		ok1 and ok10 and ok100 and Charms.bagCount(d) == 111 and d.coins == startCoins,
+		"charms/claw",
+		`coin pulls x1, x10, x100 at {one} coins a pull gave 111 charms and took exactly their price`,
+		`coin pulls failed: {tostring(ok1)}/{tostring(ok10)}/{tostring(ok100)}, bag {Charms.bagCount(d)}, coins {d.coins}`
+	)
+	local best10 = 0
+	for _, id in results[2].ids do
+		best10 = math.max(best10, Charms.def(charms, id).rank)
+	end
+	local best100 = 0
+	for _, id in results[3].ids do
+		best100 = math.max(best100, Charms.def(charms, id).rank)
+	end
+	check(
+		best10 >= 3 and best100 >= 5,
+		"charms/claw",
+		`10-pull best tier {charms.tiers[best10]}, 100-pull best {charms.tiers[best100]}`
+	)
+
+	-- Equip the best of each active kind; income rises by the Feeder.
+	local perks = { doubleCoins = false, extraIncubators = false }
+	local cfg = { economy = economy, creatures = config.creatures, charms = charms }
+	local before = Charms.incomeBonus(d, charms)
+	local equipped = {}
+	for _, stack in Charms.stacks(d, charms) do
+		if equipped[stack.def.kind] == nil then
+			equipped[stack.def.kind] = stack.def.id
+			play:equip(p, stack.def.id)
+		end
+	end
+	local stats = Charms.stats(d, charms)
+	check(
+		Charms.incomeBonus(d, charms) > before and stats.luck > 1 and stats.hatchCut > 0,
+		"charms/equip",
+		`equipped {Charms.wornAttribute(d, charms)}: {Charms.totalsText(stats)}`
+	)
+	local _ = Hatchery.incomePerSecond(d, cfg, perks)
+
+	-- Hide everything: the bonus stays, nothing is worn.
+	play:setShown(p, "all", false)
+	check(
+		Charms.wornAttribute(d, charms) == "" and Charms.stats(d, charms).income == stats.income,
+		"charms/show",
+		"hiding every charm keeps the bonus and shows nothing on the character"
+	)
+	play:setShown(p, "all", true)
+
+	-- Fuse all, with coins for the fees.
+	give(h, p, 1e7)
+	local bagBefore = Charms.bagCount(d)
+	local okFuse = play:fuseAll(p)
+	check(
+		okFuse and Charms.bagCount(d) < bagBefore,
+		"charms/fuse",
+		`Fuse all shrank the bag from {bagBefore} to {Charms.bagCount(d)}`
+	)
+	note(
+		"charms/pacing",
+		`a 1-pull costs {charms.claw.incomeMinutes} minutes of the best income (min {charms.claw.minCoins}); at 40/s that is {one} coins, a 100-pull {Claw.price(
+			40,
+			charms,
+			100
+		)}`
+	)
+
+	-- PolicyService: no claw, the Charm Counter instead.
+	local h2, p2, play2 = setup(true)
+	give(h2, p2, 1e6)
+	local okPull = play2:pull(p2, 1)
+	local okCounter = play2:counter(p2, "HoneyPot")
+	check(
+		not okPull and okCounter and Charms.bagCount(h2.get(p2)) == 1,
+		"charms/policy",
+		"a restricted player can't pull and buys a chosen charm at the Charm Counter instead"
+	)
+end
+
 ---------------------------------------------------------------- summary
 local counts = { PASS = 0, BUG = 0, NOTE = 0 }
 for _, r in results do

@@ -10,6 +10,7 @@
 -- hatch outcomes are arguments, which keeps every rule unit-testable.
 
 local Book = require("./Book")
+local Charms = require("./Charms")
 local Creatures = require("./Creatures")
 local Numbers = require("./Numbers")
 local Tower = require("./Tower")
@@ -141,7 +142,8 @@ function Hatchery.seeBook(d: Data, at: number)
 end
 
 -- Coins per second from creatures placed on the tower, each times its
--- floor's bonus, with rebirth, pass and book multipliers.
+-- floor's bonus, with rebirth, pass and book multipliers. The equipped
+-- Feeder charm adds to the book's bucket (config.charms; none when absent).
 function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
 	local base = 0
 	for _, c in d.creatures do
@@ -155,7 +157,7 @@ function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
 	end
 	return base
 		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
-		* (1 + Hatchery.bookBonus(d, config))
+		* (1 + Hatchery.bookBonus(d, config) + Charms.incomeBonus(d, config.charms))
 end
 
 -- One placed creature's coins per second with every bonus, as the Creatures
@@ -167,7 +169,7 @@ function Hatchery.earning(d: Data, creature: any, config: any, perks: Perks): nu
 	return Hatchery.creatureIncome(creature, config.creatures)
 		* Tower.multiplier(d, Tower.floorOf(creature.slot), config.economy)
 		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
-		* (1 + Hatchery.bookBonus(d, config))
+		* (1 + Hatchery.bookBonus(d, config) + Charms.incomeBonus(d, config.charms))
 end
 
 -- Adds earnings since `lastIncomeAt` to the pending pile at full rate.

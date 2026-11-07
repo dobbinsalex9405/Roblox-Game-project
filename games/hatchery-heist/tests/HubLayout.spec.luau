@@ -4,9 +4,11 @@
 -- the bases, keeps off the paths to the bases and the shop's plot, and
 -- overlaps no other piece, lamp, signpost or market odds sign. Footprints come from each
 -- prop's size, turned to face the centre as the game places them.
+local ClawArt = require("../src/shared/ClawArt")
 local Geometry = require("../src/shared/Geometry")
 local WorldArt = require("../src/shared/WorldArt")
 local atmosphere = require("../config/atmosphere")
+local charms = require("../config/charms")
 local shophouse = require("../config/shophouse")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
@@ -219,6 +221,47 @@ describe("Farm hub layout", function()
 				expect(hit and `{a.name} overlaps {b.name}` or "clear").toBe("clear")
 			end
 		end
+	end)
+
+	it("stands the Charm Claw in the hub, off the paths and clear of everything else", function()
+		local claw = charms.claw
+		local art = ClawArt.ClawMachine
+		local scale = claw.height / (art.size[2] * art.voxel)
+		local w, d = art.size[1] * art.voxel * scale, art.size[3] * art.voxel * scale
+		-- Room in front of the console to stand and play.
+		local machine = rect("Charm Claw", claw.angle, claw.radius - 1, w, d + 2)
+		expect(pathClearance(machine) >= hub.pathWidth / 2).toBe(true)
+		for _, v in machine.corners do
+			local r = math.sqrt(v[1] * v[1] + v[2] * v[2])
+			expect(r >= hub.innerRadius and r <= hub.outerRadius).toBe(true)
+		end
+		local others = pieces()
+		for _, r in streetProps() do
+			table.insert(others, r)
+		end
+		for _, r in marketSigns() do
+			table.insert(others, r)
+		end
+		table.insert(others, rect("shop", hub.shop.angle, hub.shop.radius, hub.shop.width, hub.shop.depth))
+		local arch = WorldArt.props[hub.arch.id]
+		for k = 0, 7 do
+			table.insert(
+				others,
+				rect(
+					`arch {k * 45}`,
+					k * 45,
+					hub.arch.radius,
+					arch.size[1] * arch.voxel,
+					arch.size[3] * arch.voxel
+				)
+			)
+		end
+		for _, r in others do
+			expect(overlaps(machine, r) and `{r.name} is on the Charm Claw` or r.name).toBe(r.name)
+		end
+		-- The prompt reaches the console from the front, and the server's
+		-- reach is wider than the prompt so a pull is never refused there.
+		expect(claw.reach >= claw.promptDistance + d / 2).toBe(true)
 	end)
 
 	it("stands each market odds sign raised, off the belt and the path, facing the path", function()

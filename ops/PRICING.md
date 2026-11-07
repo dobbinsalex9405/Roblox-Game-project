@@ -53,6 +53,16 @@ Why these numbers:
 - **Roblox keeps 30%.** The studio earns about 70% of each price, so a 199
   pass earns about 139 Robux.
 
+## Prices Alex set off the ladder
+
+Alex can set a price himself; it passes the ladder check once it is in
+`lib.ALEX_PRICES` (`tools/pricing/lib.luau`), with what it is for.
+
+| Robux | What | Decided |
+| ---: | --- | --- |
+| 100 | Hatchery Heist: 10 claw pulls | Alex, Nov 7 2026 (the economy thread had proposed 99) |
+| 700 | Hatchery Heist: 100 claw pulls | Alex, Nov 7 2026 |
+
 ## Money rules these prices respect
 
 - **Exact odds before paying for randomness.** Mystery Bait, the Premium Egg
@@ -73,7 +83,11 @@ Why these numbers:
 
 ## For the laptop: creating the items on Roblox
 
-1. Create **only the rows marked "In shop now: Yes"**, in the game's
+1. Create **only the rows marked "In shop now: Yes"**. Never create a
+   "Waiting for Alex" row: its code is built but Alex has not approved its
+   price yet. Once he does, its key comes out of `awaitingApproval` in the
+   game's `config/monetization.luau` and the row turns to "Yes".
+   Create them in the game's
    **Staging** experience first. A "Not yet" item has no code behind it.
    Never create a "Not yet" Game Pass: a pass on sale shows on the
    experience's Store tab and could be bought for nothing.
@@ -117,8 +131,10 @@ Why these numbers:
 | Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy. |
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
+| Hatchery Heist | ClawPull10 | Developer Product | 10 Claw Pulls | 100 | Alex's price | Waiting for Alex | Ten claw machine pulls, with at least one Rare or better charm. Exact odds are shown before you buy. |
 | Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |
 | Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |
+| Hatchery Heist | ClawPull100 | Developer Product | 100 Claw Pulls | 700 | Alex's price | Waiting for Alex | A hundred claw machine pulls, with at least one Epic or better charm. Exact odds are shown before you buy. |
 | Tidecatch Cove | AutoReel | Game Pass | Auto-reel | 149 | Capacity | Yes | Bites reel themselves in at an average player's success rate. Skill still pays. |
 | Tidecatch Cove | ExtraPools | Game Pass | Extra Pools | 149 | Capacity | Yes | More tide pools, so you can raise more creatures at once. |
 | Tidecatch Cove | SellMultiplier | Game Pass | Sell Multiplier | 199 | Power | Yes | Every creature you sell pays double, forever. |

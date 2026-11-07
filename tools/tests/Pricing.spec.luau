@@ -66,7 +66,8 @@ describe("pricing", function()
 					live += 1
 				end
 			end
-			expect(live).toBe(#g.catalog)
+			local held = #(g.monetization.awaitingApproval or {})
+			expect(live).toBe(#g.catalog - held)
 		end
 	end)
 
@@ -86,6 +87,29 @@ describe("pricing", function()
 		expect(text).toContain("DoubleCoins costs 250 Robux, which is not on the studio ladder")
 		expect(text).toContain("passes.AutoCollect has no listing")
 		expect(text).toContain("listings.products.Ghost is not one of the game's products")
+	end)
+
+	it("allows only the off-ladder prices Alex set", function()
+		local g = fakeGame()
+		g.monetization.listings.passes.DoubleCoins.robux = 700
+		expect(table.concat(lib.problems(g), "\n")).toBe("")
+		g.monetization.listings.passes.DoubleCoins.robux = 701
+		expect(table.concat(lib.problems(g), "\n")).toContain(
+			"costs 701 Robux, which is not on the studio ladder"
+		)
+	end)
+
+	it("marks an item waiting for Alex's approval so the laptop leaves it alone", function()
+		local g = fakeGame()
+		table.insert(g.catalog, { key = "PackSmall", kind = "product", name = "100 Coins" })
+		g.monetization.awaitingApproval = { "PackSmall" }
+		local text = lib.markdown({ g })
+		expect(text).toContain("| 100 Coins | 25 | Impulse | Waiting for Alex |")
+		for _, row in lib.rows(g) do
+			if row.key == "PackSmall" then
+				expect(row.live).toBe(false)
+			end
+		end
 	end)
 
 	it("catches a shop name that differs from the listing", function()

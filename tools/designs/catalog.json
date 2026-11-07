@@ -14,6 +14,7 @@
     "World",
     "Nature",
     "Decor and props",
+    "Items",
     "Plots and bases",
     "Maps",
     "Concepts",
@@ -41,6 +42,57 @@
       },
       "folder": "Maps",
       "name": "{game} map"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Charms > Feeder"
+      },
+      "folder": "Items/{game}/Charms/Feeder"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Charms > Clover"
+      },
+      "folder": "Items/{game}/Charms/Clover"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Charms > Warmer"
+      },
+      "folder": "Items/{game}/Charms/Warmer"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Charms > Ward"
+      },
+      "folder": "Items/{game}/Charms/Ward"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Charms > Snare"
+      },
+      "folder": "Items/{game}/Charms/Snare"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "Charms > Sneak"
+      },
+      "folder": "Items/{game}/Charms/Sneak"
+    },
+    {
+      "match": {
+        "game": "hatchery-heist",
+        "where": "",
+        "name": "ClawMachine"
+      },
+      "folder": "World/{game}/Hub",
+      "name": "Claw Machine"
     },
     {
       "match": {

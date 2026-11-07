@@ -10,6 +10,8 @@ return function(Net: any, Schema: any)
 	local spot = Schema.integer({ min = 1, max = 8 })
 	local floor = Schema.integer({ min = 1, max = 10 })
 	local pad = Schema.integer({ min = 1, max = 80 }) -- across the tower (Geometry.pad)
+	local charmId = Schema.string({ maxLength = 30, pattern = "^%u%w*$" })
+	local kindId = Schema.string({ maxLength = 12, pattern = "^%a+$" }) -- a charm kind, or "all"
 	return {
 		-- Buy egg number `index` off the Egg Market (see Conveyor.luau).
 		["HH:BuyEgg"] = Net.toServer(
@@ -48,6 +50,36 @@ return function(Net: any, Schema: any)
 		),
 		["HH:BuyDecoy"] = Net.toServer("HH:BuyDecoy", { spot }, { count = 2, window = 1 }),
 		["HH:Guard"] = Net.toServer("HH:Guard", { uid }, { count = 2, window = 1 }),
+
+		-- Charms and the claw machine (shared/Charms, shared/Claw). The server
+		-- checks the player stands at the machine, the price, the bag and
+		-- PolicyService; ids and kinds are checked against config there.
+		["HH:ClawPull"] = Net.toServer(
+			"HH:ClawPull",
+			{ Schema.oneOf({ 1, 10, 100 }) },
+			{ count = 2, window = 3 }
+		),
+		["HH:CharmCounter"] = Net.toServer("HH:CharmCounter", { charmId }, { count = 2, window = 2 }),
+		["HH:CharmEquip"] = Net.toServer("HH:CharmEquip", { charmId }, { count = 4, window = 1 }),
+		["HH:CharmUnequip"] = Net.toServer("HH:CharmUnequip", { kindId }, { count = 4, window = 1 }),
+		-- Show or hide worn charms: a kind, or "all".
+		["HH:CharmShown"] = Net.toServer(
+			"HH:CharmShown",
+			{ kindId, Schema.boolean() },
+			{ count = 4, window = 1 }
+		),
+		["HH:CharmFuse"] = Net.toServer(
+			"HH:CharmFuse",
+			{ charmId, Schema.integer({ min = 1, max = 60 }) },
+			{ count = 2, window = 1 }
+		),
+		["HH:CharmFuseAll"] = Net.toServer("HH:CharmFuseAll", {}, { count = 1, window = 2 }),
+		-- What a pull gave, for the reveal: charm ids in pull order, and
+		-- where it came from ("Coins", "Robux", "Counter").
+		["HH:ClawResult"] = Net.toClient("HH:ClawResult", {
+			Schema.array(Schema.string({ maxLength = 30 }), { maxLength = 100 }),
+			Schema.string({ maxLength = 10 }),
+		}),
 
 		-- The answer to HH:BuyEgg: belt egg `index`, and whether it was bought.
 		-- The client hides the egg only once this says yes.

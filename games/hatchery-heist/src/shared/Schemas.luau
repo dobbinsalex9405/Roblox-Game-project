@@ -417,6 +417,7 @@ return function(Schema: any, Odds: any)
 
 	Schemas.monetization = Schema.record({
 		listings = listings,
+		awaitingApproval = Schema.optional(Schema.array(id)),
 		passes = Schema.record({
 			DoubleCoins = productId,
 			ExtraIncubators = productId,
@@ -452,6 +453,155 @@ return function(Schema: any, Odds: any)
 			})
 		),
 	})
+
+	-- Charms and the claw machine (config/charms.luau).
+	local tierName =
+		Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" })
+	local fraction = Schema.number({ min = 0, max = 1 })
+	Schemas.charms = Schema.check(
+		Schema.record({
+			tiers = Schema.array(tierName, { minLength = 7, maxLength = 7 }),
+			kinds = Schema.array(
+				Schema.record({
+					id = id,
+					stat = Schema.oneOf({
+						"income",
+						"luck",
+						"hatchCut",
+						"shieldSeconds",
+						"thiefSlow",
+						"carryBonus",
+					}),
+					steal = Schema.boolean(),
+					icon = Schema.string({ minLength = 1, maxLength = 16 }),
+					label = Schema.string({ minLength = 1, maxLength = 12 }),
+				}),
+				{ minLength = 1, maxLength = 12 }
+			),
+			stealCharms = Schema.boolean(),
+			charms = Schema.array(
+				Schema.record({
+					id = Schema.string({ maxLength = 30, pattern = "^%u%w*$" }),
+					name = Schema.string({ minLength = 1, maxLength = 30 }),
+					kind = id,
+					tier = tierName,
+					value = Schema.number({ min = 0, max = 1000 }),
+				}),
+				{ minLength = 1 }
+			),
+			slotsByFloor = Schema.array(
+				Schema.record({
+					floors = Schema.integer({ min = 1, max = 10 }),
+					slots = Schema.integer({ min = 1, max = 12 }),
+				}),
+				{ minLength = 1 }
+			),
+			bagSlots = Schema.integer({ min = 10, max = 2000 }),
+			bagWarnAt = Schema.integer({ min = 1, max = 2000 }),
+			luckCap = Schema.number({ min = 1, max = 10 }),
+			hatchCutCap = fraction,
+			fuseCount = Schema.integer({ min = 2, max = 20 }),
+			fuseFeeShare = fraction,
+			claw = Schema.record({
+				minCoins = Schema.integer({ min = 1 }),
+				incomeMinutes = Schema.number({ min = 0.5, max = 120 }),
+				pulls = Schema.array(
+					Schema.record({
+						count = Schema.integer({ min = 1, max = 100 }),
+						multiple = Schema.number({ min = 1 }),
+						product = Schema.optional(id),
+						atLeast = Schema.optional(tierName),
+					}),
+					{ minLength = 1 }
+				),
+				total = Schema.integer({ min = 100, max = 10000000 }),
+				tierWeights = Schema.map(tierName, Schema.integer({ min = 1 })),
+				pityAt = Schema.integer({ min = 2, max = 10000 }),
+				pityTier = tierName,
+				counter = Schema.map(tierName, Schema.number({ min = 1 })),
+				angle = Schema.number({ min = 0, max = 360 }),
+				radius = Schema.number({ min = 30, max = 72 }),
+				height = Schema.number({ min = 3, max = 20 }),
+				promptDistance = Schema.number({ min = 4, max = 16 }),
+				reach = Schema.number({ min = 4, max = 30 }),
+				revealSeconds = Schema.record({
+					single = Schema.number({ min = 0.5, max = 10 }),
+					ten = Schema.number({ min = 0.5, max = 10 }),
+				}),
+			}),
+			worn = Schema.record({
+				size = Schema.number({ min = 0.2, max = 2 }),
+				ringRadius = Schema.number({ min = 0.5, max = 6 }),
+				height = Schema.number({ min = -2, max = 6 }),
+				behind = Schema.number({ min = 0, max = 4 }),
+				degreesPerSecond = Schema.number({ min = 0, max = 360 }),
+				othersRange = Schema.number({ min = 0, max = 500 }),
+				othersMax = Schema.integer({ min = 0, max = 100 }),
+				lightBrightness = Schema.number({ min = 0, max = 1 }),
+				lightRange = Schema.number({ min = 0, max = 20 }),
+			}),
+		}),
+		function(v: any): (boolean, string?)
+			local seen: { [string]: boolean } = {}
+			local kinds: { [string]: boolean } = {}
+			for _, kind in v.kinds do
+				kinds[kind.id] = true
+			end
+			-- Every kind has one charm in every tier, and stronger tiers do more.
+			local byKind: { [string]: { [number]: number } } = {}
+			for _, c in v.charms do
+				if seen[c.id] then
+					return false, `charm {c.id} is listed twice`
+				end
+				seen[c.id] = true
+				if not kinds[c.kind] then
+					return false, `charm {c.id} has unknown kind {c.kind}`
+				end
+				local rank = table.find(v.tiers, c.tier) :: number
+				byKind[c.kind] = byKind[c.kind] or {}
+				if byKind[c.kind][rank] then
+					return false, `{c.kind} has two {c.tier} charms`
+				end
+				byKind[c.kind][rank] = c.value
+			end
+			for kindId in kinds do
+				local row = byKind[kindId] or {}
+				for rank = 1, #v.tiers do
+					if row[rank] == nil then
+						return false, `{kindId} has no {v.tiers[rank]} charm`
+					end
+					if rank > 1 and row[rank] <= row[rank - 1] then
+						return false,
+							`{kindId}: the {v.tiers[rank]} charm must do more than the {v.tiers[rank - 1]}`
+					end
+				end
+			end
+			local weights = 0
+			for _, tier in v.tiers do
+				local w = v.claw.tierWeights[tier]
+				if w == nil then
+					return false, `claw.tierWeights has no {tier}`
+				end
+				weights += w
+			end
+			if weights ~= v.claw.total then
+				return false, `claw.tierWeights add up to {weights}, not claw.total {v.claw.total}`
+			end
+			local hasSingle = false
+			for _, pull in v.claw.pulls do
+				if pull.count == 1 then
+					hasSingle = true
+				end
+			end
+			if not hasSingle then
+				return false, "claw.pulls needs a single pull"
+			end
+			if v.bagWarnAt > v.bagSlots then
+				return false, "bagWarnAt is more than bagSlots"
+			end
+			return true, nil
+		end
+	)
 
 	-- Rules that need more than one file. Returns a list of problems.
 	function Schemas.crossCheck(config: { [string]: any }): { string }
@@ -537,6 +687,30 @@ return function(Schema: any, Odds: any)
 			for _, eggId in boost.eggs do
 				if not eggIds[eggId] then
 					table.insert(problems, `monetization.boosts.{boostId}: unknown egg {eggId}`)
+				end
+			end
+		end
+
+		-- Every Robux claw pull names a product that exists, and back.
+		if config.charms then
+			local named: { [string]: boolean } = {}
+			for _, pull in config.charms.claw.pulls do
+				if pull.product then
+					named[pull.product] = true
+					if products[pull.product] == nil then
+						table.insert(
+							problems,
+							`charms.claw.pulls: product {pull.product} is not in monetization.products`
+						)
+					end
+				end
+			end
+			for key in products do
+				if string.match(key, "^ClawPull") and not named[key] then
+					table.insert(
+						problems,
+						`monetization.products.{key} is no claw pull in config/charms.luau`
+					)
 				end
 			end
 		end

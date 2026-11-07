@@ -238,6 +238,31 @@ local function sideMenu(gui: ScreenGui): SideMenu
 	list.Parent = column
 	column.Parent = gui
 	local count = 0
+	-- Seven buttons are 356 px tall: on a short phone screen (an iPhone SE
+	-- in landscape has about 340 px) the gaps close up, the column centres,
+	-- and only then does it shrink, never below 40 px a button.
+	local scale = Instance.new("UIScale")
+	scale.Parent = column
+	local function fit()
+		local screen = gui.AbsoluteSize.Y
+		if screen <= 0 or count == 0 then
+			return
+		end
+		local room = screen - 12
+		local roomy = count * 44 + (count - 1) * 8
+		if roomy <= room * 0.9 then
+			list.Padding = UDim.new(0, 8)
+			column.Position = UDim2.new(1, -10, 0.45, 0)
+			scale.Scale = 1
+		else
+			local padding = if roomy <= room then 8 else 4
+			list.Padding = UDim.new(0, padding)
+			column.Position = UDim2.new(1, -10, 0.5, 0)
+			local height = count * 44 + (count - 1) * padding
+			scale.Scale = math.clamp(room / height, 40 / 44, 1)
+		end
+	end
+	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
 	return {
 		add = function(name: string, label: string, onClick: () -> ()): TextButton
 			count += 1
@@ -259,6 +284,7 @@ local function sideMenu(gui: ScreenGui): SideMenu
 			stroke.Parent = b
 			b.Activated:Connect(onClick)
 			b.Parent = column
+			fit()
 			return b
 		end,
 	}

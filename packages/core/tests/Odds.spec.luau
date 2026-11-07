@@ -105,6 +105,60 @@ describe("Odds", function()
 		expect(odds:effective("BasicEgg", p)[4].weight).toBe(100)
 	end)
 
+	it("boosts from different sources multiply, and clearing one keeps the others", function()
+		local odds = Odds.new()
+		odds:define(BASIC)
+		local p = Fakes.player(1)
+		odds:setBoosts(p, "BasicEgg", { { id = "Luck", multipliers = { Phoenix = 2 } } })
+		odds:setSourceBoosts(p, "BasicEgg", "charms", { { id = "Clover", multipliers = { Phoenix = 1.5 } } })
+		-- 100 * 2 * 1.5 = 300 raw out of 10200 raw => 294, as one x3 boost.
+		expect(odds:effective("BasicEgg", p)[4].weight).toBe(294)
+		local display = odds:display("BasicEgg", p)
+		expect(display.boosts[1]).toBe("Luck")
+		expect(display.boosts[2]).toBe("Clover")
+		expect(percentTotal(display)).toBe(10000)
+		-- An empty list clears only that source.
+		odds:setSourceBoosts(p, "BasicEgg", "charms", {})
+		-- 100 * 2 = 200 raw out of 10100 raw => 198.0 => 198
+		expect(odds:effective("BasicEgg", p)[4].weight).toBe(198)
+		expect(#odds:display("BasicEgg", p).boosts).toBe(1)
+		odds:setBoosts(p, "BasicEgg", {})
+		expect(odds:effective("BasicEgg", p)[4].weight).toBe(100)
+	end)
+
+	it("a boost cap limits what every source adds up to", function()
+		local odds = Odds.new()
+		odds:define(BASIC)
+		local p = Fakes.player(1)
+		odds:setBoostCap(3)
+		odds:setBoosts(p, "BasicEgg", { { id = "Luck", multipliers = { Phoenix = 2 } } })
+		odds:setSourceBoosts(p, "BasicEgg", "charms", { { id = "Clover", multipliers = { Phoenix = 2 } } })
+		-- x4 capped at x3: the same 294 as a single x3 boost.
+		expect(odds:effective("BasicEgg", p)[4].weight).toBe(294)
+		expect(function()
+			odds:setBoostCap(0.5)
+		end).toThrow()
+		odds:setBoostCap(nil)
+		-- 100 * 4 = 400 raw out of 10300 raw => 388.3 => 388
+		expect(odds:effective("BasicEgg", p)[4].weight).toBe(388)
+	end)
+
+	it("rounding never lifts a boosted outcome above its exact boosted share", function()
+		local raw = {
+			{ id = "A", weight = 5000 },
+			{ id = "B", weight = 4999 },
+			{ id = "C", weight = 1.9 }, -- boosted: exact share under 2
+		}
+		-- Plain largest remainder rounds C up to 2.
+		expect(Odds.normalize(raw, 10000)[3].weight).toBe(2)
+		-- With only A and B taking the leftover, C keeps its floor of 1.
+		local held = Odds.normalize(raw, 10000, { [1] = true, [2] = true })
+		expect(held[3].weight).toBe(1)
+		expect(totalOf(held)).toBe(10000)
+		-- If nothing may take the leftover, it goes back to everyone.
+		expect(totalOf(Odds.normalize(raw, 10000, {}))).toBe(10000)
+	end)
+
 	it("outcomes a player can only get once drop out of their table", function()
 		local odds = Odds.new()
 		odds:define(BASIC)
