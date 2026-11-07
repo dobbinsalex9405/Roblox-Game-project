@@ -374,6 +374,7 @@ return function(Schema: any, Odds: any)
 			overscanRows = Schema.integer({ min = 1, max = 4 }),
 			warmCards = Schema.integer({ min = 24, max = 300 }),
 			warmPerFrame = Schema.integer({ min = 1, max = 20 }),
+			warmDelaySeconds = Schema.number({ min = 0, max = 2 }),
 			primeSeconds = Schema.number({ min = 0, max = 3 }),
 		}),
 		guide = Schema.record({

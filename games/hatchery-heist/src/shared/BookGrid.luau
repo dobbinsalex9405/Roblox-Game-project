@@ -74,6 +74,14 @@ function BookGrid.warm(count: number, first: number, last: number, cap: number):
 	return first - before, last + after
 end
 
+-- Cards to warm this frame, `elapsed` seconds after a tab was shown: none
+-- until the cards on screen have had `delay` to draw (new pictures queue to
+-- draw together, so warming at once left cards on screen blank), then
+-- `perFrame`.
+function BookGrid.warmBudget(elapsed: number, delay: number, perFrame: number): number
+	return if elapsed < delay then 0 else perFrame
+end
+
 -- Where a warming card waits while its picture draws for the first time:
 -- behind one of the cards on screen (`first`..`last`, no overscan), spread
 -- across them by index. A ViewportFrame scrolled out of sight never draws,

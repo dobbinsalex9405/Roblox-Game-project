@@ -192,11 +192,14 @@ return {
 	-- fast flick showed empty cards). 144 keeps the whole Common tab warm and
 	-- covers a 1,400 px flick on a 200-card tab. A ViewportFrame out of sight
 	-- never draws, so each new warm card first waits primeSeconds hidden
-	-- behind a card on screen, then moves to its place.
+	-- behind a card on screen, then moves to its place. Warming starts
+	-- warmDelaySeconds after a tab is shown, so the cards on screen draw
+	-- first (new pictures queue to draw together).
 	book = {
 		overscanRows = 2,
 		warmCards = 144,
-		warmPerFrame = 8,
+		warmPerFrame = 4,
+		warmDelaySeconds = 0.3,
 		primeSeconds = 1,
 	},
 	guide = {

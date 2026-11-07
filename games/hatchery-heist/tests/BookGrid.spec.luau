@@ -91,6 +91,21 @@ describe("Book grid", function()
 		expect(b).toBe(cap)
 	end)
 
+	it("lets the cards on screen draw before it warms any others", function()
+		-- Studio gate (#119 b044b4c): warming every card at once left cards
+		-- on screen blank at 0.3 s, as all the new pictures queued to draw
+		-- together. Warming waits warmDelaySeconds after a tab is shown.
+		local look = atmosphere.book
+		expect(look.warmDelaySeconds >= 0.2).toBe(true)
+		expect(BookGrid.warmBudget(0, look.warmDelaySeconds, look.warmPerFrame)).toBe(0)
+		expect(BookGrid.warmBudget(look.warmDelaySeconds - 0.01, look.warmDelaySeconds, look.warmPerFrame)).toBe(
+			0
+		)
+		expect(BookGrid.warmBudget(look.warmDelaySeconds, look.warmDelaySeconds, look.warmPerFrame)).toBe(
+			look.warmPerFrame
+		)
+	end)
+
 	it("warms a new card's picture behind a card on screen", function()
 		-- Studio gate (#119, Nov 7): a ViewportFrame scrolled out of sight
 		-- never draws, so a flick in the first second after opening landed

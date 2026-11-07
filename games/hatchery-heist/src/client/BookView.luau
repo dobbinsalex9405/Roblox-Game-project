@@ -166,10 +166,14 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local warmCards = bookLook.warmCards :: number
 	local warmPerFrame = bookLook.warmPerFrame :: number
 	local primeSeconds = bookLook.primeSeconds :: number
+	local warmDelay = bookLook.warmDelaySeconds :: number
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatcheryBook"
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 20
+	-- Children always draw over their parent and ZIndex sorts siblings, so a
+	-- warming card at 0 hides wholly behind the card on screen at 1.
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Enabled = false
 	gui.Parent = player:WaitForChild("PlayerGui")
 
@@ -337,7 +341,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		well.BorderSizePixel = 0
 		well.Position = UDim2.fromOffset(4, 4)
 		well.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
-		well.ZIndex = 0 -- under the picture, the name and the NEW badge
+		well.ZIndex = 0 -- under the picture, the name and the NEW badge (Sibling)
 		corner(well, 10)
 		well.Parent = frame
 
@@ -455,6 +459,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	-- around it (BookGrid.warm).
 	local viewFirst, viewLast = 1, 0
 	local drawnFirst, drawnLast, warmFirst, warmLast = 1, 0, 1, 0
+	local shownAt = 0 -- when the current tab was shown (os.clock)
 
 	-- Puts card `index` where it belongs, or, while it is still warming and
 	-- off screen, exactly behind a card on screen: a ViewportFrame out of
@@ -470,7 +475,9 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		else
 			card.primeUntil = nil
 		end
-		card.frame.ZIndex = if at == index then 1 else 0 -- behind its host
+		-- Behind its host: the gui sorts by sibling, so the host card (1)
+		-- covers this one (0) and everything in it.
+		card.frame.ZIndex = if at == index then 1 else 0
 		local x, y = BookGrid.position(at, columns, GRID)
 		card.frame.Position = UDim2.fromOffset(x, y)
 	end
@@ -493,9 +500,9 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		bound[index] = card
 	end
 
-	-- Binds pooled cards to the cards in view (and `overscan` rows either
-	-- side) at once, and returns cards outside the warm range to the pool.
-	-- warmUp fills the rest of the warm range a few cards a frame.
+	-- Binds pooled cards to the cards on screen at once, and returns cards
+	-- outside the warm range to the pool. warmUp fills the rest of the warm
+	-- range, the `overscan` rows first, a few cards a frame.
 	local function cull()
 		local tab = current
 		if tab == nil or not gui.Enabled then
@@ -515,7 +522,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
 		local restricted = ctx.restricted()
-		for index = drawnFirst, drawnLast do
+		for index = viewFirst, viewLast do
 			if bound[index] == nil then
 				bind(tab, index, found, restricted)
 			end
@@ -539,17 +546,21 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
 		local restricted = ctx.restricted()
+		local budget = BookGrid.warmBudget(now - shownAt, warmDelay, warmPerFrame)
+		if budget <= 0 or viewLast < viewFirst then
+			return
+		end
 		local built = 0
 		local function try(index: number): boolean
 			if index >= warmFirst and index <= warmLast and bound[index] == nil then
 				bind(tab, index, found, restricted)
 				built += 1
 			end
-			return built >= warmPerFrame
+			return built >= budget
 		end
-		local reach = math.max(drawnFirst - warmFirst, warmLast - drawnLast)
+		local reach = math.max(viewFirst - warmFirst, warmLast - viewLast)
 		for step = 1, reach do
-			if try(drawnLast + step) or try(drawnFirst - step) then
+			if try(viewLast + step) or try(viewFirst - step) then
 				return
 			end
 		end
@@ -597,6 +608,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			releaseAll()
 		end
 		current = tab
+		shownAt = os.clock()
 		body.CanvasPosition = Vector2.zero
 		layout()
 		refresh()
