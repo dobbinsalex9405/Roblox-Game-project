@@ -49,6 +49,26 @@ local function always(id: string)
 end
 
 describe("Hatchery", function()
+	it("lists every belt egg, cheapest first, so the odds list can open any of them", function()
+		-- Studio gate (#131): a Moonlit Egg rides past its Buy prompt in about
+		-- 1 s, too short to reach its card's "See every creature"; the odds
+		-- list switches between the belt's eggs instead.
+		local ids = Hatchery.marketEggs(config.eggs, economy.conveyor.weights)
+		local count = 0
+		for eggId in economy.conveyor.weights do
+			count += 1
+			expect(table.find(ids, eggId) ~= nil).toBe(true)
+		end
+		expect(#ids).toBe(count)
+		for i = 2, #ids do
+			local a = Hatchery.eggById(config.eggs, ids[i - 1])
+			local b = Hatchery.eggById(config.eggs, ids[i])
+			expect((a.priceCoins or 0) <= (b.priceCoins or 0)).toBe(true)
+		end
+		expect(ids[1]).toBe("BasicEgg")
+		expect(table.find(ids, "MoonlitEgg") ~= nil).toBe(true)
+	end)
+
 	it("buys an egg into the first free incubator and pays its price", function()
 		local d = fresh()
 		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
@@ -187,10 +207,85 @@ describe("Hatchery", function()
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "Gosling", "Turtle", "Bunny", "Chick" })
-		expect(Hatchery.fixedOrderWait(basic, 0, "Gosling")).toBe(0)
-		expect(Hatchery.fixedOrderWait(basic, 0, "Turtle")).toBe(1)
+		expect(first).toEqual({ "Bunny", "Chick", "Chipmunk", "Crow" })
+		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(0)
+		expect(Hatchery.fixedOrderWait(basic, 0, "Chick")).toBe(1)
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
+	end)
+
+	it("sums up the fixed order for the odds card in a few lines", function()
+		-- Studio gate (#126): the restricted odds card listed all 47 Basic Egg
+		-- outcomes, 1,142 px tall on a 672 px screen, NEXT off the top. The
+		-- card shows the next few eggs and one line per tier; the full order
+		-- is in the scrolling list.
+		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
+		local species = config.creatures.species
+		local function rarityOf(id: string): string
+			return species[id].rarity
+		end
+		local summary = Hatchery.fixedOrderSummary(basic, 0, rarityOf, 3, Eggs.RARITIES)
+		expect(#basic.outcomes > 40).toBe(true)
+		-- The next three are the order's next three (the names change as
+		-- creatures join the egg, so they are not written here).
+		local order = {}
+		for n = 0, 3 do
+			order[n + 1] = Hatchery.fixedOrderOutcome(basic, n)
+		end
+		expect(summary.upcoming).toEqual({ order[1], order[2], order[3] })
+		expect(#summary.tiers <= #Eggs.RARITIES).toBe(true)
+		local total, seen = 0, {}
+		for _, tier in summary.tiers do
+			total += tier.count
+			seen[tier.rarity] = true
+			-- the tier's wait is its soonest creature's
+			local soonest = math.huge
+			for _, o in basic.outcomes do
+				if rarityOf(o.id) == tier.rarity then
+					soonest = math.min(soonest, Hatchery.fixedOrderWait(basic, 0, o.id) :: number)
+				end
+			end
+			expect(tier.wait).toBe(soonest)
+		end
+		expect(total).toBe(summary.length)
+		expect(summary.length).toBe(Hatchery.fixedOrderLength(basic))
+		expect(seen.Common and seen.Legendary).toBe(true)
+		-- In tier order, Common first.
+		expect(summary.tiers[1].rarity).toBe("Common")
+		-- After one egg the window moves on by one.
+		local after = Hatchery.fixedOrderSummary(basic, 1, rarityOf, 3, Eggs.RARITIES)
+		expect(after.upcoming).toEqual({ order[2], order[3], order[4] })
+	end)
+
+	it("the fixed order works out any place without building the cycle", function()
+		-- Economy thread (Nov 7): egg totals of 10,000,000 (room for dozens of
+		-- Legendaries and Epics in one tier) would have built a 10-million
+		-- entry cycle per egg. Each place is worked out on its own instead.
+		local egg = {
+			id = "HugeEgg",
+			total = 10000000,
+			outcomes = {
+				{ id = "A", weight = 9000001 },
+				{ id = "B", weight = 999990 },
+				{ id = "C", weight = 7 },
+				{ id = "D", weight = 2 },
+			},
+		}
+		expect(Hatchery.fixedOrderLength(egg)).toBe(10000000)
+		-- Exactly 2 D's per cycle, and the wait to each lands on it.
+		local d1 = Hatchery.fixedOrderWait(egg, 0, "D") :: number
+		local d2 = d1 + 1 + (Hatchery.fixedOrderWait(egg, d1 + 1, "D") :: number)
+		expect(Hatchery.fixedOrderOutcome(egg, d1)).toBe("D")
+		expect(Hatchery.fixedOrderOutcome(egg, d2)).toBe("D")
+		expect(Hatchery.fixedOrderWait(egg, d2 + 1, "D") :: number + d2 + 1).toBe(d1 + 10000000)
+		-- Spread evenly: the two D's sit half a cycle apart.
+		expect(math.abs((d2 - d1) - 5000000) <= 1).toBe(true)
+		-- Any stretch of 1,000 places holds A and B in their proportion.
+		local counts: { [string]: number } = {}
+		for n = 4321000, 4321999 do
+			local id = Hatchery.fixedOrderOutcome(egg, n)
+			counts[id] = (counts[id] or 0) + 1
+		end
+		expect(math.abs((counts.B or 0) - 100) <= 2).toBe(true)
 	end)
 
 	it("rides only creatures on a floor", function()

@@ -15,7 +15,33 @@ export type Entry = {
 	total: number,
 }
 
+local CreatureThumbs = require("./CreatureThumbs")
+
 local Book = {}
+
+-- A creature's Book picture (CreatureThumbs: a render of its meshes, kept
+-- only while it matches the art), or nil when the card draws it live.
+-- `thumbs` is for tests.
+function Book.picture(speciesId: string, thumbs: { [string]: number }?): string?
+	local id = (thumbs or CreatureThumbs)[speciesId]
+	if id ~= nil and id > 0 then
+		return `rbxassetid://{id}`
+	end
+	return nil
+end
+
+-- Every picture the Book can show, in page order (Book.entries: the Common
+-- tab first, where the Book opens), to preload at join.
+function Book.pictures(entries: { Entry }, thumbs: { [string]: number }?): { string }
+	local out = {}
+	for _, entry in entries do
+		local picture = Book.picture(entry.speciesId, thumbs)
+		if picture then
+			table.insert(out, picture)
+		end
+	end
+	return out
+end
 
 -- `rarities` lists the tiers from Common up (Layout.RARITIES).
 function Book.entries(creatureConfig: any, eggs: { any }, rarities: { string }): { Entry }

@@ -573,12 +573,12 @@ def _bonsai(c, H, cols):
     base = (0, yb, top + 0.2 * k)
     bend = (1.5 * k, yb + 0.2 * k, top + 2.2 * k)
     crown = (1.0 * k, yb, top + 4.4 * k)
-    branch = (-1.3 * k, yb + 0.4 * k, top + 3.6 * k)
+    branch = (-1.1 * k, yb + 0.4 * k, top + 3.6 * k)
     line(tree, base, bend, bark, r=0.42 * k)
     line(tree, bend, crown, bark, r=0.34 * k)
     line(tree, (0.9 * k, yb + 0.2 * k, top + 3.0 * k), branch, bark, r=0.24 * k)
     pads = [(crown[0], crown[1], crown[2] + 0.3 * k, 1.5), (branch[0], branch[1], branch[2] + 0.2 * k, 1.05),
-            (crown[0] + 1.5 * k, crown[1] + 0.2 * k, crown[2] - 1.0 * k, 0.9)]
+            (crown[0] + 1.3 * k, crown[1] + 0.2 * k, crown[2] - 1.0 * k, 0.9)]
     for (x, y, z, r) in (pads if _fine(c) else pads[:2]):
         tree.ell((x, y, z), (r * k, r * 0.85 * k, r * 0.38 * k + .4), leaf)
         if _fine(c):
@@ -589,6 +589,23 @@ def _bonsai(c, H, cols):
         if cc == light and (x, y, z + 1) not in tree.v and (x * 7 + y * 11 + z * 3) % (13 if _fine(c) else 19) == 0:
             tree.v[(x, y, z)] = (glow, True)
             tree.put((x, y, z + 1), glow, True)
+    # The leaning tree must not skew the model's bounding box (the export
+    # centres on it, so the legs would swing off x = 0): slide the trunk and
+    # pads sideways by whole voxels until the whole model is centred.
+    saddle = hexc('#6FAE4A')
+    others = [q[0] for p in c.parts if p is not tree for q in p.v]
+    lo_o, hi_o = min(others), max(others)
+    moving = {q: v for q, v in tree.v.items() if v[0] != saddle}
+    lo_t, hi_t = min(q[0] for q in moving), max(q[0] for q in moving)
+
+    def skew(sh):
+        return abs(min(lo_o, lo_t + sh) + max(hi_o, hi_t + sh) + 1), abs(sh)
+
+    sh = min(range(-4 * round(k), 4 * round(k) + 1), key=skew)
+    for q in moving:
+        del tree.v[q]
+    for (x, y, z), v in moving.items():
+        tree.v[(x + sh, y, z)] = v
     return c
 
 

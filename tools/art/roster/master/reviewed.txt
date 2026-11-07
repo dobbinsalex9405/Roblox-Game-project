@@ -1,4 +1,5 @@
 # Creatures that passed the strict review (synced from PROMOTED.log by to_config.py --promoted).
+AbyssJelly
 Acornling
 AlleyCat
 Angelfish
@@ -9,6 +10,7 @@ Armadillo
 AtlasMoth
 AuroraStag
 Axolotl
+BabyKraken
 BabyOctopus
 BananaSlug
 BarnCat
@@ -21,6 +23,7 @@ Beetle
 BlueJay
 Boarlet
 Bobble
+BonsaiDragon
 Bookworm
 Bullfrog
 Bunny
@@ -38,6 +41,7 @@ ChronoOwl
 Cicada
 ClickBeetle
 ClockworkBeetle
+CloudSerpent
 Cloudlet
 Cockatoo
 CocoaBunny
@@ -50,6 +54,7 @@ Crab
 Crayfish
 Cricket
 Crow
+CrystalGolem
 CrystalHydra
 CrystalSwan
 Cygnet
@@ -64,10 +69,12 @@ Dragonfly
 Dragonling
 Duckling
 Ducktopus
+DustBunny
 DutchBunny
 Earthworm
 ElephantCalf
 EmberFox
+EmberImp
 Ermine
 FancyRat
 Fennec
@@ -75,12 +82,15 @@ FlamingoChick
 Fluffernut
 FoxKit
 Frog
+FrostSprite
 FruitBat
 Fuzzball
 Gecko
+GemDrake
 GeodeCrab
 Gerbil
 GilaMonster
+GingerbreadGolem
 GlacierOrca
 GlasswingButterfly
 Glowworm
@@ -97,24 +107,29 @@ Hamster
 HarborSeal
 Hare
 HerculesBeetle
+Hippocampus
 HoneypotAnt
 Hoverfly
 Hummingbird
 HurricaneRoc
 HuskyPup
+HydraHatchling
 IbexKid
+IcicleBat
 Iguana
 Inchworm
 JellybeanBeetle
 Jerboa
 JewelBeetle
 JumboEarMouse
+Kappa
 Kingfisher
 Kinkajou
 Kiwi
 Koala
 Koi
 LavaDrake
+LeafBat
 Lemming
 LionCub
 Lobster
@@ -135,9 +150,11 @@ Moth
 Mouse
 MuddyPiglet
 Mushling
+MushroomGnome
 MuskOxCalf
 Narwhal
 NebulaSerpent
+NeonOctopus
 Nuthatch
 OmegaChimera
 Opossum
@@ -149,6 +166,7 @@ Peapod
 Pebblet
 Penguin
 PersianKitten
+PetalSprite
 Phoenix
 Pigeon
 Piglet
@@ -168,9 +186,13 @@ Radishling
 RaptorChick
 RexHatchling
 RhinoBeetle
+RimeDrakeling
 SandCat
+SandSerpent
+SaplingEnt
 Scorpion
 SeaOtter
+SeaSerpent
 SeaTurtle
 SealPup
 SharkPup
@@ -193,6 +215,8 @@ SpikyDuckling
 SpottedPiglet
 Sproutling
 Squirrel
+StarJelly
+StarWhaleCalf
 Starfish
 Starling
 StegoHatchling
@@ -213,6 +237,7 @@ Toad
 Toastie
 TreeFrog
 TrikeHatchling
+TrollCub
 Turnipling
 Turtle
 TuxedoKitten
@@ -229,4 +254,5 @@ WolverineKit
 WoollyBear
 WorldTurtle
 YakCalf
+YetiCub
 ZebraPiglet
