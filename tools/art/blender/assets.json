@@ -810,6 +810,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "GummyBear": {
+   "assetId": 133377156043379,
+   "textureId": 130433125023631,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Hamster": {
    "assetId": 139623795240964,
    "textureId": 80185459184181,
@@ -933,6 +939,12 @@
   "Jackalope": {
    "assetId": 117256107606542,
    "textureId": 114015902002567,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "JellySlime": {
+   "assetId": 111996189674111,
+   "textureId": 137461933932625,
    "textureType": "Image",
    "version": "1"
   },
@@ -2093,18 +2105,6 @@
    "textureId": 95806592137832,
    "textureType": "Image",
    "version": "1"
-  },
-  "GummyBear": {
-   "assetId": 133377156043379,
-   "textureId": 130433125023631,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "JellySlime": {
-   "assetId": 111996189674111,
-   "textureId": 137461933932625,
-   "textureType": "Image",
-   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -2573,6 +2573,10 @@
    "imageId": 134305530593855,
    "source": "400d1e66c658463a"
   },
+  "GummyBear": {
+   "imageId": 87903919872388,
+   "source": "5c042b8fb0aa3942"
+  },
   "Hamster": {
    "imageId": 90102955679060,
    "source": "642b8633bdf93e23"
@@ -2644,6 +2648,10 @@
   "Jackalope": {
    "imageId": 99272993614638,
    "source": "29fd4b92c3261ad1"
+  },
+  "JellySlime": {
+   "imageId": 71245448240637,
+   "source": "46e185df95e83a7f"
   },
   "JellybeanBeetle": {
    "imageId": 98829446769033,
