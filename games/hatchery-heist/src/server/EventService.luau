@@ -90,7 +90,11 @@ function EventService.new(config: any): EventService
 						{ rarityMultipliers = effects.rarityMultipliers },
 						deps.species
 					)
-					table.insert(list, { id = kind :: string, multipliers = multipliers })
+					-- The id is what the odds card shows: "Boosted: Lucky Hatch".
+					table.insert(
+						list,
+						{ id = Events.boostName(kind :: string, config), multipliers = multipliers }
+					)
 				end
 				deps.odds:setBoosts(player, egg.id, list)
 			end

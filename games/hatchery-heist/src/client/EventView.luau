@@ -40,6 +40,7 @@ local TOPBAR_BUTTON = 72 -- UiKit.topbarButton's Shop and Test buttons
 local FEEDBACK_WIDTH = 112 -- FeedbackUi's top-bar button
 local GOLD = Color3.fromRGB(255, 196, 60)
 local DARK = Color3.fromRGB(25, 25, 35)
+local SIGN_SIZE = Vector2.new(14, 4.6) -- studs
 local ROCK_EVERY = 7 -- seconds between the shell's wobbles
 local ROCK_SECONDS = 1.4
 local ROCK_ANGLE = math.rad(4)
@@ -266,8 +267,14 @@ function EventView.start(ctx: Context.Context)
 		local g = Instance.new("BillboardGui")
 		g.Name = "GiantEggSign"
 		g.Adornee = hitbox
-		g.Size = UDim2.fromScale(14, 4.6) -- studs
-		g.StudsOffsetWorldSpace = Vector3.new(0, config.giantEgg.height + 1.5, 0)
+		g.Size = UDim2.fromScale(SIGN_SIZE.X, SIGN_SIZE.Y) -- studs
+		-- Its bottom edge just above today's Legendary (the server's
+		-- SignBottom), so the creature on top never hides it.
+		local bottom = m:GetAttribute("SignBottom")
+		local lift = if type(bottom) == "number"
+			then bottom - hitbox.Position.Y
+			else config.giantEgg.height + 1.5
+		g.StudsOffsetWorldSpace = Vector3.new(0, lift + SIGN_SIZE.Y / 2, 0)
 		g.MaxDistance = 260
 		g.LightInfluence = 0
 		g.AlwaysOnTop = false

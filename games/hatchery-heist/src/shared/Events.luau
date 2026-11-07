@@ -268,6 +268,13 @@ export type Banner = {
 }
 
 -- What the event banner says at `t`.
+-- The name a running event's odds boost goes by: the odds card shows it
+-- ("Boosted: Lucky Hatch"), so it is the player-facing title, not the id.
+function Events.boostName(kind: string, config: any): string
+	local def = config.kinds[kind]
+	return if def then def.title else kind
+end
+
 function Events.banner(t: number, config: any, override: Override?): Banner
 	local state = Events.state(t, config, override)
 	local active = state.active

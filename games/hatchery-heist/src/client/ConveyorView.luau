@@ -289,6 +289,21 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 			refreshPrompt(egg)
 		end
 	end)
+	-- When an Egg Sale starts or ends, every egg on the belt changes price
+	-- at once, not each at its own next update (Studio gate, Nov 7).
+	task.spawn(function()
+		local lastFactor = EventClock.price(1_000_000)
+		while true do
+			task.wait(0.5)
+			local factor = EventClock.price(1_000_000)
+			if factor ~= lastFactor then
+				lastFactor = factor
+				for _, egg in shown do
+					refreshPrompt(egg)
+				end
+			end
+		end
+	end)
 	ctx.onData(function(d: { [string]: any })
 		if d.coins ~= coins then
 			coins = d.coins

@@ -206,6 +206,11 @@ describe("Events effects", function()
 end)
 
 describe("Events banner and Giant Egg", function()
+	it("names a Lucky Hatch boost the way players read it on the odds card", function()
+		expect(Events.boostName("LuckyHatch", config)).toBe("Lucky Hatch")
+		expect(Events.boostName("Unknown", config)).toBe("Unknown")
+	end)
+
 	it("counts down in plain words", function()
 		expect(Events.countdown(7)).toBe("0:07")
 		expect(Events.countdown(45 * 60 + 9)).toBe("45:09")
