@@ -215,7 +215,7 @@ def cone_beak(c, H, col, col2=None, a=None):
 
 ACCESSORIES['cone_beak'] = cone_beak
 
-def eye_stripe(c, H, col, col2=None, a=None):
+def back_eye_stripe(c, H, col, col2=None, a=None):
     """A thin dark stripe running BACK from each eye along the side of the
     head (a kookaburra's): one voxel high, at the eye's height, starting just
     behind the eye, `length` k long (default 2.0). The eye itself stays in
@@ -249,7 +249,7 @@ def eye_stripe(c, H, col, col2=None, a=None):
                     eyes.put((x, y, ez - 1), eyes.v[(x, y, ez)][0])
 
 
-ACCESSORIES['eye_stripe'] = eye_stripe
+ACCESSORIES['back_eye_stripe'] = back_eye_stripe
 
 # ---- helpers for narrow_head (same as kit_legacy's) ----
 INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
