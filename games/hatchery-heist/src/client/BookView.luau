@@ -31,6 +31,7 @@ local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
 local BookGrid = require(Shared.BookGrid)
 local Layout = require(Shared.Layout)
+local PreloadQueue = require(Shared.PreloadQueue)
 local Viewport = require(Shared.Viewport)
 
 local Context = require(script.Parent.Context)
@@ -293,30 +294,24 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	-- order (the Common tab first, as the Book opens there), several at a
 	-- time, each through an ImageLabel so it is fetched as an image. Studio
 	-- gate (#125): one call for all 114 left the first open blank for 1-3 s.
-	task.spawn(function()
-		local queue: { Instance } = {}
-		for _, picture in Book.pictures(entries) do
-			local holder = Instance.new("ImageLabel")
-			holder.Image = picture
-			table.insert(queue, holder)
-		end
-		local nextIndex = 1
-		for _ = 1, bookLook.preloadStreams :: number do
-			task.spawn(function()
-				while nextIndex <= #queue do
-					local batch = {}
-					for _ = 1, bookLook.preloadBatch :: number do
-						if nextIndex > #queue then
-							break
-						end
-						table.insert(batch, queue[nextIndex])
-						nextIndex += 1
-					end
-					pcall(ContentProvider.PreloadAsync, ContentProvider, batch)
+	-- A tab the player opens jumps the queue (selectTab below).
+	local preload = PreloadQueue.new(Book.pictures(entries))
+	for _ = 1, bookLook.preloadStreams :: number do
+		task.spawn(function()
+			while true do
+				local batch: { Instance } = {}
+				for _, picture in PreloadQueue.take(preload, bookLook.preloadBatch :: number) do
+					local holder = Instance.new("ImageLabel")
+					holder.Image = picture
+					table.insert(batch, holder)
 				end
-			end)
-		end
-	end)
+				if #batch == 0 then
+					break
+				end
+				pcall(ContentProvider.PreloadAsync, ContentProvider, batch)
+			end
+		end)
+	end
 	local tabs: { Tab } = {}
 	local tabOf: { [string]: Tab } = {}
 	for _, entry in entries do
@@ -634,6 +629,9 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function selectTab(tab: Tab)
 		if current ~= tab then
 			releaseAll()
+			-- This tab's pictures load next (Studio gate, #134: a cold
+			-- Uncommon tab waited 3 s+ behind the Common tab's).
+			PreloadQueue.prioritize(preload, Book.pictures(tab.entries))
 		end
 		current = tab
 		shownAt = os.clock()

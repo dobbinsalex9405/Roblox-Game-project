@@ -196,7 +196,8 @@ return {
 	-- to draw on a fast flick: Roblox draws a ViewportFrame only while it
 	-- is on screen, so a creature with a picture (CreatureThumbs) shows that
 	-- instead. The pictures load at join in page order, preloadStreams
-	-- requests at a time, preloadBatch pictures each (Studio gate, #125).
+	-- requests at a time, preloadBatch pictures each (Studio gate, #125);
+	-- a tab the player opens jumps the queue.
 	book = {
 		overscanRows = 2,
 		warmCards = 144,
