@@ -1044,3 +1044,17 @@ Text is measured as TextBounds.Y, the same measure as 5341bf8's 5.6 px and main'
    - Cloud Serpent sits at 0.71-0.81.
    - Crystal Golem's leg boxes dip to 0.47 mid-step, but at floor level the foot is planted on the ring, not sunk (`129-hh-golem-feet.jpg`).
    - All three move: 1.3 / 14.0 / 4.8 studs in 4 s.
+
+## #127 @ 4c9ea8b (claw gate fixes), merged onto main locally as 7238772
+
+**FAIL again on the 10-pull reveal at 844x390.** The footer is still cut off by the same 14 px (`127b-phone-pull10-FAIL.jpg`).
+
+*Merge note:* 4c9ea8b conflicts with current main (c8b281b, after #104) in `ops/DECISIONS.md` (docs only). I took the PR's side locally to build.
+
+The new ScreenInsets layout is in the build: the ClawReveal gui is CoreUISafeInsets, 844x332. But the stage is 359 px tall (y −13..346 inside the 332 px gui), so it spills 13 px above and 14 px below.
+- On screen, Open Charms (160x44) and Done (120x44) sit at y 360-404 on a 390 px screen. Only 30 of their 44 px show.
+- Likely cause: the tray is 260 px tall, i.e. cellH = 126, the maximum. That means `screenSize()` read about 390 px of height, not 332. `revealGui.AbsoluteSize` still holds the full-screen size in the same frame that `playNext` sets `Enabled = true` and calls `showFew`, before the safe-area insets apply.
+- Expected with the insets: s.Y = 332 − 24 = 308 → cellH = (308 − 100 − 8) / 2 = 100 → stage 308. That fits, with 12 px clearance.
+- Fix: wait a frame after enabling before measuring, re-layout on `AbsoluteSize` change, or compute from `ViewportSize − GuiService.TopbarInset`.
+
+Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x100 border were not rechecked on this head.
