@@ -883,6 +883,12 @@ def in_game(cs):
 # then every creature is 'plain'. A themed variant names its element here.
 ELEMENT = {}
 
+# Showpieces drawn with smaller voxels than their tier in the Blender build:
+# the same size in studs, this many times more voxels each way. The in-game
+# boxes (VoxelArt) keep the tier's voxel. Alex, Nov 5: Godlies must be far
+# more detailed than everything else.
+FINER = {'NebulaSerpent': 1.6}
+
 # Creatures added as data (tools/art/roster/*.json, see variants.py).
 import variants  # noqa: E402
 
@@ -904,7 +910,7 @@ def build_all(detail=None):
     out = []
     for species, rarity, fn in ROSTER:
         c = Creature(species, rarity)
-        mult = (detail or {}).get(rarity, 1)
+        mult = (detail or {}).get(rarity, 1) * (FINER.get(species, 1) if detail is not None else 1)
         c.detail = mult
         c.element = ELEMENT.get(species, 'plain')
         c.fine = detail is not None  # the Blender build, at any multiplier
