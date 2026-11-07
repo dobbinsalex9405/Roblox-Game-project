@@ -6485,7 +6485,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		},
 		TabbyKitten = {
 			rarity = "Common",
-			size = { 5, 8, 10 },
+			size = { 5, 10, 10 },
 			palette = { "F2A65A", "FFF1DC", "C2662A", "1B1B2F", "E08A3E" },
 			parts = {
 				{
@@ -6557,7 +6557,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					parent = "head",
 					pivot = { -0.5, 6, -3 },
 					boxes = {
-						-2.5, 6, -3, 5, 1, 1, 5, -1.5, 7, -3, 1, 1, 1, 5, 0.5, 7, -3, 1, 1, 1, 5,
+						-2.5, 6, -3, 5, 1, 1, 5, -1.5, 7, -3, 1, 3, 1, 5, 0.5, 7, -3, 1, 3, 1, 5,
 					},
 				},
 				{
@@ -6573,7 +6573,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		},
 		CalicoKitten = {
 			rarity = "Common",
-			size = { 5, 8, 10 },
+			size = { 5, 10, 10 },
 			palette = { "FFFFFF", "3A3440", "F2A65A", "1B1B2F" },
 			parts = {
 				{
@@ -6646,7 +6646,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					parent = "head",
 					pivot = { -0.5, 6, -3 },
 					boxes = {
-						-2.5, 6, -3, 5, 1, 1, 3, -1.5, 7, -3, 1, 1, 1, 3, 0.5, 7, -3, 1, 1, 1, 3,
+						-2.5, 6, -3, 5, 1, 1, 3, -1.5, 7, -3, 1, 3, 1, 3, 0.5, 7, -3, 1, 3, 1, 3,
 					},
 				},
 				{
@@ -6662,7 +6662,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		},
 		SiameseKitten = {
 			rarity = "Common",
-			size = { 5, 8, 10 },
+			size = { 5, 9, 10 },
 			palette = { "5A3E30", "F5EBDA", "6B4A3A", "1B1B2F" },
 			parts = {
 				{
@@ -6733,7 +6733,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					parent = "head",
 					pivot = { -0.5, 6, -3 },
 					boxes = {
-						-2.5, 6, -3, 5, 1, 1, 1, -1.5, 7, -3, 1, 1, 1, 1, 0.5, 7, -3, 1, 1, 1, 1,
+						-2.5, 6, -3, 5, 1, 1, 1, -1.5, 7, -3, 1, 2, 1, 1, 0.5, 7, -3, 1, 2, 1, 1,
 					},
 				},
 				{
@@ -6749,7 +6749,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 		},
 		TuxedoKitten = {
 			rarity = "Common",
-			size = { 5, 8, 10 },
+			size = { 5, 10, 10 },
 			palette = { "FFFFFF", "64647C", "1B1B2F", "FFD43B", "E84855" },
 			parts = {
 				{
@@ -6821,7 +6821,7 @@ local VoxelArt: { voxel: number, species: { [string]: Art } } = {
 					parent = "head",
 					pivot = { -0.5, 6, -3 },
 					boxes = {
-						-2.5, 6, -3, 5, 1, 1, 2, -1.5, 7, -3, 1, 1, 1, 2, 0.5, 7, -3, 1, 1, 1, 2,
+						-2.5, 6, -3, 5, 1, 1, 2, -1.5, 7, -3, 1, 3, 1, 2, 0.5, 7, -3, 1, 3, 1, 2,
 					},
 				},
 				{

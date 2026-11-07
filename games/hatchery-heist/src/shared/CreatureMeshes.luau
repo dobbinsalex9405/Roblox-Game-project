@@ -1647,10 +1647,10 @@ local CreatureMeshes: { [string]: Creature } = {
 		textureId = 138554039450922,
 		rarity = "Common",
 		gait = "trot",
-		height = 2,
-		size = { 1.2, 2, 2.2 },
-		tris = 10192,
-		trisLod1 = 1100,
+		height = 1.9,
+		size = { 1.2, 1.9, 2.2 },
+		tris = 10496,
+		trisLod1 = 1136,
 		parts = {
 			{
 				name = "body",
@@ -1781,14 +1781,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "CalicoKitten_ears",
-						center = { 0, 1.8018, -0.6 },
-						size = { 0.791, 0.3875, 0.191 },
+						center = { 0, 1.7018, -0.6 },
+						size = { 1.191, 0.3875, 0.191 },
 					},
 				},
 				lod1 = {
 					name = "CalicoKitten_ears_lod1",
-					center = { 0, 1.8, -0.6 },
-					size = { 0.8, 0.4, 0.2 },
+					center = { 0, 1.7, -0.6 },
+					size = { 1.2, 0.4, 0.2 },
 				},
 			},
 			{
@@ -9697,10 +9697,10 @@ local CreatureMeshes: { [string]: Creature } = {
 		textureId = 103944678582096,
 		rarity = "Common",
 		gait = "trot",
-		height = 2,
-		size = { 1, 2, 2.2 },
-		tris = 9764,
-		trisLod1 = 900,
+		height = 1.9,
+		size = { 1, 1.9, 2.2 },
+		tris = 10260,
+		trisLod1 = 922,
 		parts = {
 			{
 				name = "body",
@@ -9835,14 +9835,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "SiameseKitten_ears",
-						center = { 0, 1.8018, -0.6 },
-						size = { 0.791, 0.3875, 0.191 },
+						center = { 0, 1.6517, -0.6 },
+						size = { 0.991, 0.4875, 0.191 },
 					},
 				},
 				lod1 = {
 					name = "SiameseKitten_ears_lod1",
-					center = { 0, 1.8, -0.6 },
-					size = { 0.8, 0.4, 0.2 },
+					center = { 0, 1.65, -0.6 },
+					size = { 1, 0.5, 0.2 },
 				},
 			},
 			{
@@ -10605,10 +10605,10 @@ local CreatureMeshes: { [string]: Creature } = {
 		textureId = 97669108548691,
 		rarity = "Common",
 		gait = "trot",
-		height = 2,
-		size = { 1.2, 2, 2.2 },
-		tris = 10192,
-		trisLod1 = 1090,
+		height = 1.9,
+		size = { 1.2, 1.9, 2.2 },
+		tris = 10496,
+		trisLod1 = 1122,
 		parts = {
 			{
 				name = "body",
@@ -10739,14 +10739,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "TabbyKitten_ears",
-						center = { 0, 1.8018, -0.6 },
-						size = { 0.791, 0.3875, 0.191 },
+						center = { 0, 1.7018, -0.6 },
+						size = { 1.191, 0.3875, 0.191 },
 					},
 				},
 				lod1 = {
 					name = "TabbyKitten_ears_lod1",
-					center = { 0, 1.8, -0.6 },
-					size = { 0.8, 0.4, 0.2 },
+					center = { 0, 1.7, -0.6 },
+					size = { 1.2, 0.4, 0.2 },
 				},
 			},
 			{
@@ -10980,10 +10980,10 @@ local CreatureMeshes: { [string]: Creature } = {
 		textureId = 73013573129837,
 		rarity = "Common",
 		gait = "trot",
-		height = 2,
-		size = { 1.2, 2, 2.2 },
-		tris = 10504,
-		trisLod1 = 1072,
+		height = 1.9,
+		size = { 1.2, 1.9, 2.2 },
+		tris = 10880,
+		trisLod1 = 1104,
 		parts = {
 			{
 				name = "body",
@@ -11114,14 +11114,14 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "TuxedoKitten_ears",
-						center = { 0, 1.8018, -0.604 },
-						size = { 0.791, 0.3875, 0.199 },
+						center = { 0, 1.7018, -0.604 },
+						size = { 1.191, 0.3875, 0.199 },
 					},
 				},
 				lod1 = {
 					name = "TuxedoKitten_ears_lod1",
-					center = { 0, 1.8, -0.6 },
-					size = { 0.8, 0.4, 0.2 },
+					center = { 0, 1.7, -0.6 },
+					size = { 1.2, 0.4, 0.2 },
 				},
 			},
 			{
