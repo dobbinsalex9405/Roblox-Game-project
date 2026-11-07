@@ -276,3 +276,6 @@ WorldTurtle
 YakCalf
 YetiCub
 ZebraPiglet
+ClockworkLeviathan
+EclipseDragon
+ThunderKraken
