@@ -575,7 +575,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Butterfly = {
 		assetId = 95471060225988,
-		textureId = 110947583418224,
+		textureId = 75234402063720,
 		rarity = "Common",
 		gait = "hover",
 		height = 1.6,
@@ -692,7 +692,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Calf = {
 		assetId = 102259764137875,
-		textureId = 110955241044536,
+		textureId = 111114539954319,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.8,

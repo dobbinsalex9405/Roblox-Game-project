@@ -44,9 +44,9 @@
   },
   "BeaverKit": {
    "assetId": 116488229452023,
-   "textureId": 118708839839734,
+   "textureId": 99136824023751,
    "textureType": "Image",
-   "version": "3"
+   "version": "5"
   },
   "Beetle": {
    "assetId": 71950813452077,
@@ -104,15 +104,15 @@
   },
   "Butterfly": {
    "assetId": 95471060225988,
-   "textureId": 110947583418224,
+   "textureId": 75234402063720,
    "textureType": "Image",
-   "version": "5"
+   "version": "7"
   },
   "Calf": {
    "assetId": 102259764137875,
-   "textureId": 110955241044536,
+   "textureId": 111114539954319,
    "textureType": "Image",
-   "version": "5"
+   "version": "7"
   },
   "CalicoKitten": {
    "assetId": 84406244306823,
@@ -632,9 +632,9 @@
   },
   "Monarch": {
    "assetId": 102542582315730,
-   "textureId": 101539042203616,
+   "textureId": 79780491290101,
    "textureType": "Image",
-   "version": "2"
+   "version": "4"
   },
   "MoonUnicorn": {
    "assetId": 110066245966043,
@@ -752,9 +752,9 @@
   },
   "Platypus": {
    "assetId": 93967352011850,
-   "textureId": 119000074137948,
+   "textureId": 111886204868940,
    "textureType": "Image",
-   "version": "2"
+   "version": "4"
   },
   "Pomeranian": {
    "assetId": 134363274382152,
