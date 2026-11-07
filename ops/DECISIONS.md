@@ -2,6 +2,20 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Live creatures keep their eyes until re-uploaded (Hatchery Heist)
+
+- **What:** the eye pass (`variants.eye_contrast`: a white shine, deeper
+  ink and, if needed, a faint ring on dark faces) skips the species in
+  `variants.EYE_CONTRAST_KEEP`. Those are 11 live creatures that landed
+  after the eye pass was built (BabyKraken, BearCub, CocoaBunny, Cricket,
+  Crow, GemDrake, Lemming, Skunk, StarWhaleCalf, StormHawk, TapirCalf) and
+  Binturong, whose shine would put it 84 tris over the Uncommon budget.
+- **Why:** turning the pass on for them would change their box art and
+  pictures at once, and their meshes would no longer match the uploaded
+  models. No live creature may change without a review and an upload.
+- **How a creature leaves the list:** re-review its art with the eye pass,
+  upload its mesh (and its picture), and remove its id in the same PR.
+
 ## 2026-11-07: Uploads for live creatures go up only when the PR lands next (Hatchery Heist)
 - **What:** an upload run that republishes a live creature under its
   existing asset id (a new model version, `tools/art/blender/upload.py`) is
