@@ -484,7 +484,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		viewFirst, viewLast = BookGrid.visible(count, columns, GRID, scroll, height, 0)
 		drawnFirst, drawnLast = BookGrid.visible(count, columns, GRID, scroll, height, overscan)
 		warmFirst, warmLast = BookGrid.warm(count, drawnFirst, drawnLast, warmCards)
-		for index, card in bound do
+		for index in bound do
 			if index < warmFirst or index > warmLast then
 				release(index)
 			end
