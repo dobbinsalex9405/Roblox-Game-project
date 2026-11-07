@@ -44,7 +44,10 @@ describe("Odds card", function()
 			local rows, screenY = case[1], case[2]
 			local last, scale = bottom(rows, screenY)
 			expect(last <= screenY - 8 + 1e-9).toBe(true)
-			expect(OddsCard.MIN_TEXT_SIZE * scale >= 11).toBe(true)
+			-- Measured, not nominal: TextSize 14 at 0.8 is 11.2 on paper but
+			-- its bounds are 10.4 px tall (Studio gate, #126).
+			expect(OddsCard.MIN_TEXT_SIZE * scale * OddsCard.GLYPH_SHARE >= 11).toBe(true)
+			expect(OddsCard.MIN_TEXT_SIZE * scale >= 12).toBe(true)
 		end
 	end)
 end)

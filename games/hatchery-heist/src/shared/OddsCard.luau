@@ -8,8 +8,13 @@ OddsCard.MARGIN = 8 -- px kept clear below the card
 -- The smallest text on the card, and the smallest the card is drawn, so no
 -- text is under 11 px on screen: this card is the paid-odds disclosure
 -- (verifier, #126: 5.6 px on a phone was a regression; main reads 14.4).
-OddsCard.MIN_TEXT_SIZE = 14
+-- 15, not 14: drawn at MIN_SCALE, TextSize 14 measured 10.4 px tall by
+-- TextBounds.Y (Studio gate, #126), under the floor; 15 measured 12.0 px.
+OddsCard.MIN_TEXT_SIZE = 15
 OddsCard.MIN_SCALE = 0.8
+-- The smallest measured share of TextSize * scale that the text's bounds
+-- really are on screen (10.4 / (14 * 0.8)), for checking the floor.
+OddsCard.GLYPH_SHARE = 0.92
 
 -- The card's scale on a screen `screenY` px tall: smaller on a phone held
 -- sideways, so the egg and its Buy prompt stay in view (Studio gate, Nov 5),
