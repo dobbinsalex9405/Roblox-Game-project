@@ -43,7 +43,7 @@ local GiantEgg = {}
 GiantEgg.MODEL_NAME = "GiantEgg"
 GiantEgg.SOURCE = "GiantEgg" -- where its purchases are counted (ops/METRICS.md)
 local PROP = "GiantLegendaryEgg"
-local SIGN_GAP = 0.8 -- studs between the Legendary's head and the sign
+local SIGN_DROP = 0.45 -- the sign's centre, this share of the egg's height below its top
 local SHOWCASE_SCALE = 1.5 -- today's Legendary on top, this many times its pad size
 local LIGHT_BRIGHTNESS = 0.35 -- warm, soft (studio lighting rule: 0.3 to 0.4, no Neon)
 
@@ -178,12 +178,10 @@ function GiantEgg.start(deps: Deps)
 			showcase = ball
 		end
 	end
-	-- Where the client's sign goes: clear above today's Legendary, so the
-	-- creature never hides it from any side (Studio gate, Nov 7).
-	model:SetAttribute(
-		"SignBottom",
-		top.Position.Y + Layout.raritySize("Legendary") * SHOWCASE_SCALE + SIGN_GAP
-	)
+	-- Where the client's sign goes: beside the egg at about its middle
+	-- (Studio gate, Nov 7). Above the egg, the Legendary on top hid it, and
+	-- higher still a phone's follow camera put it under the coin bar.
+	model:SetAttribute("SignY", top.Position.Y - events.giantEgg.height * SIGN_DROP)
 	refresh()
 	task.spawn(function()
 		while true do

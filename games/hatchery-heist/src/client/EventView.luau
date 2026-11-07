@@ -41,7 +41,7 @@ local TOPBAR_BUTTON = 72 -- UiKit.topbarButton's Shop and Test buttons
 local FEEDBACK_WIDTH = 112 -- FeedbackUi's top-bar button
 local GOLD = Color3.fromRGB(255, 196, 60)
 local DARK = Color3.fromRGB(25, 25, 35)
-local SIGN_SIZE = Vector2.new(14, 4.6) -- studs
+local SIGN_SIZE = Vector2.new(11, 4.2) -- studs
 local ROCK_EVERY = 7 -- seconds between the shell's wobbles
 local ROCK_SECONDS = 1.4
 local ROCK_ANGLE = math.rad(4)
@@ -269,13 +269,13 @@ function EventView.start(ctx: Context.Context)
 		g.Name = "GiantEggSign"
 		g.Adornee = hitbox
 		g.Size = UDim2.fromScale(SIGN_SIZE.X, SIGN_SIZE.Y) -- studs
-		-- Its bottom edge just above today's Legendary (the server's
-		-- SignBottom), so the creature on top never hides it.
-		local bottom = m:GetAttribute("SignBottom")
-		local lift = if type(bottom) == "number"
-			then bottom - hitbox.Position.Y
-			else config.giantEgg.height + 1.5
-		g.StudsOffsetWorldSpace = Vector3.new(0, lift + SIGN_SIZE.Y / 2, 0)
+		-- Beside the egg at about its middle (the server's SignY), shifted
+		-- to the camera's right so neither the egg nor the Legendary on top
+		-- hides it, and low enough that a phone's follow camera never puts
+		-- it under the coin bar (Studio gate, Nov 7).
+		local y = m:GetAttribute("SignY")
+		g.StudsOffsetWorldSpace = Vector3.new(0, if type(y) == "number" then y - hitbox.Position.Y else 0, 0)
+		g.StudsOffset = Vector3.new(hitbox.Size.Y / 2 + SIGN_SIZE.X / 2 + 1, 0, 0)
 		g.MaxDistance = 260
 		g.LightInfluence = 0
 		g.AlwaysOnTop = false
