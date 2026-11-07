@@ -19,6 +19,7 @@ from voxkit import hexc
 from kit import _find, _hash, ball, head_of, crown
 
 INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
+WHITE_FUR = hexc('#FFF6F9')
 CREAM = hexc('#F6EBD2')
 GOLD = hexc('#FFC93C')
 
@@ -336,12 +337,19 @@ def ice_crown(c, H, col, col2=None):
         shard(part, (x, y - math.sin(a) * 0.6 * k, zt - 0.5 * k), (x * 0.25, -0.1, 1), L, 0.55 * k, col, col2)
 
 
-def ice_crest(c, H, col, col2=None):
-    """Three ice shards fanning back from the top of the head."""
+def ice_crest(c, H, col, col2=None, a=None):
+    """Three ice shards fanning back from the top of the head. With "fan":
+    true they splay out sideways too and are shorter and thicker, so from
+    behind the crest reads as a frosty crown, not one thin bar (mesh build
+    only; the box build keeps the classic crest within its box budget)."""
     k = H / 10.0
     col2 = col2 or _light(col, 0.6)
     y, zt = _crown(c)
     part = c.part('crest', 'glow')
+    if (a or {}).get('fan') and getattr(c, 'fine', False):  # boxes stay in the live box budget
+        for sx, dy, L, w in ((0, 0.3, 2.3, 0.85), (-1, 0.7, 1.8, 0.75), (1, 0.7, 1.8, 0.75)):
+            shard(part, (sx * 0.6 * k, y + dy * k, zt - 0.6 * k), (sx * 0.55, 0.6, 1), L * k, w * k, col, col2)
+        return
     for i, (dy, L) in enumerate(((-0.2, 2.4), (0.6, 3.2), (1.4, 2.2))):
         shard(part, (0, y + dy * k, zt - 0.6 * k), (0, 0.5 + 0.3 * i, 1), L * k, 0.65 * k, col, col2)
 
@@ -464,12 +472,28 @@ def eye_shine(c, H, col=None, col2=None):
             eyes.v[q] = (WHITE if (cx, cz) == shine else rgb, False)
 
 
+# One six-point snowflake, 7 wide and 9 tall (the raised wings lean out
+# about 45 degrees, which squashes it back to a round star in view): a
+# vertical bar crossed by an X, with a short crossbar near the centre.
+_FLAKE_ROWS = (
+    '...#...',
+    '#..#..#',
+    '.#.#.#.',
+    '..###..',
+    '...#...',
+    '..###..',
+    '.#.#.#.',
+    '#..#..#',
+    '...#...',
+)
+_FLAKE = {(i - 3, 4 - r) for r, row in enumerate(_FLAKE_ROWS) for i, ch in enumerate(row) if ch == '#'}
+
+
 def wing_snowflakes(c, H, col, col2=None):
-    """A six-point snowflake (col) on the outer face of each raised wing:
-    three crossing 1-voxel bars with a small V on each arm, drawn on the
-    outermost voxel of every row so the lines stay crisp on a slanted wing;
-    mirrored on the two wings. col2 repaints the wing first as an even
-    ground for the flake."""
+    """ONE centred six-point snowflake (col, a 7x7 star) on the outer face
+    of each raised wing, on clear col2 ground; drawn on the outermost voxel
+    of every row so the lines stay crisp on a slanted wing, and mirrored on
+    the two wings."""
     w = _find(c, 'wingR')
     if not w or not w.v:
         return
@@ -482,31 +506,23 @@ def wing_snowflakes(c, H, col, col2=None):
     for (x, y, z) in w.v:
         if x > outer.get((y, z), -1e9):
             outer[(y, z)] = x
-    ys = [y for y, _ in outer]
-    zs = [z for _, z in outer]
-    yc = round((min(ys) + max(ys)) / 2 - 0.15 * (max(ys) - min(ys)))
-    zc = round((min(zs) + max(zs)) / 2 + 0.1 * (max(zs) - min(zs)))
-    L = max(3, round(0.4 * min(max(ys) - min(ys), max(zs) - min(zs))))
-    cells = {(yc, zc)}
-    for i in range(6):
-        a = math.pi / 2 + i * math.pi / 3
-        uy, uz = math.cos(a), math.sin(a)
-        for t in range(1, L + 1):
-            cells.add((yc + round(uy * t), zc + round(uz * t)))
-        # a small V two thirds of the way out
-        by, bz = yc + uy * L * 0.62, zc + uz * L * 0.62
-        for sgn in (-1, 1):
-            b = a + sgn * math.pi / 3
-            for t in (1, 2):
-                cells.add((round(by + math.cos(b) * t), round(bz + math.sin(b) * t)))
-    for (y, z) in cells:
-        x = outer.get((y, z))
+    # centre the flake on the widest clear area of the wing face
+    best = None
+    for (y, z) in outer:
+        fit = sum((y + dy, z + dz) in outer for dy, dz in _FLAKE)
+        key = (fit, -abs(z - sum(zz for _, zz in outer) / len(outer)))
+        if best is None or key > best[0]:
+            best = (key, y, z)
+    _, yc, zc = best
+    for dy, dz in _FLAKE:
+        x = outer.get((yc + dy, zc + dz))
         if x is None:
             continue
-        w.v[(x, y, z)] = (col, False)
-        m = (_mx(x), y, z)
-        if wl and m in wl.v:
-            wl.v[m] = (col, False)
+        # painted on the face and raised one voxel proud of it, so the
+        # star reads as a crisp emblem from any angle on a slanted wing
+        w.v[(x, yc + dy, zc + dz)] = (col, False)
+        if wl:
+            wl.v[(_mx(x), yc + dy, zc + dz)] = (col, False)
 
 
 def pink_nose(c, H, col, col2=None):
@@ -1412,6 +1428,60 @@ def crescent(c, H, col, col2=None):
                     part.put((x, math.floor(y + yy), math.floor(cz + zz)), col, True)
 
 
+def craters(c, H, col, col2=None):
+    """Moon craters on the body and the back of the head: round dents, each a
+    darker centre (col) sunk one voxel, ringed in a lighter rim (col2). Only
+    spots a player sees (upper half, not the face or belly) get one."""
+    k = H / 10.0
+    col2 = col2 or _light(col, 0.4)
+    for name in ('body', 'head'):
+        part = _find(c, name)
+        if not part or not part.v:
+            continue
+        yf = min(p[1] for p in part.v)
+        zs = sorted(p[2] for p in part.v)
+        zmid = zs[len(zs) // 2] if name == 'body' else zs[len(zs) * 2 // 3]
+        surf = [p for p in _surface(part) if not (name == 'head' and p[1] < yf + 2.0 * k)]
+        sset = set(surf)
+        # keep clear of anything already glowing (a crescent, a marking)
+        lit = [p for p, v in part.v.items() if v[1]]
+        surf = [p for p in surf if not part.v[p][1]]
+        n_max = 4 if name == 'body' else 2
+        r = max(1.6, 0.6 * k) if name == 'body' else max(1.3, 0.5 * k)
+        xw = max(abs(p[0] + .5) for p in surf)
+        # the flanks and the top of the back: where a player looks
+        hd = _find(c, 'head')
+        under = {(q[0], q[1]) for q in hd.v} if (hd and name == 'body') else set()
+        cand = [p for p in surf if p[2] >= (zs[len(zs) // 4] if name == 'body' else zmid)
+                and (name == 'head' or abs(p[0] + .5) >= 0.45 * xw or p[1] > yf + 0.6 * (zs[-1] - zs[0]))
+                and (p[0], p[1]) not in under
+                and all(math.dist(p, q) > r + 0.5 for q in lit)]
+        picked = []
+        for p in sorted(cand, key=lambda q: _hash(*q, 71)):
+            if len(picked) >= n_max:
+                break
+            if any(math.dist(p, q) < 2.3 * r for q in picked):
+                continue
+            picked.append(p)
+        for p in picked:
+            for q in surf:
+                d = math.dist(q, p)
+                if d <= r * 0.35:
+                    # sink the centre: the voxel goes, the one behind it shows dark
+                    inner = [n for n in ((q[0] + 1, q[1], q[2]), (q[0] - 1, q[1], q[2]), (q[0], q[1] + 1, q[2]),
+                                         (q[0], q[1] - 1, q[2]), (q[0], q[1], q[2] - 1)) if n in part.v and n not in sset]
+                    if inner:
+                        del part.v[q]
+                        for n in inner:
+                            part.v[n] = (col, False)
+                    else:
+                        part.v[q] = (col, False)
+                elif d <= r * 0.8:
+                    part.v[q] = (col, False)
+                elif d <= r * 1.3:
+                    part.v[q] = (col2, False)
+
+
 def flank_crescent(c, H, col, col2=None):
     """A glowing crescent moon marked on each flank (a moon unicorn's)."""
     k = H / 10.0
@@ -1530,6 +1600,7 @@ def iris_eyes(c, H, col, col2=None, a=None):
         return
     k = H / 10.0
     glow = bool((a or {}).get('iris_glow'))
+    big = bool((a or {}).get('big_pupil'))  # a 2x2 pupil, so the iris never reads as a ring
     pupil = col2 or INK
     n = 3 if k >= 1.6 else 2
     old = dict(e.v)
@@ -1559,7 +1630,9 @@ def iris_eyes(c, H, col, col2=None, a=None):
                 for h in hosts:
                     h.v.pop((x, yd, z), None)
                 spot = (x, yd, z)
-                if n == 3 and i == 1 and j == 1:
+                if n == 3 and big and i >= 1 and j <= 1:
+                    e.v[spot] = (pupil, False)  # a 2x2 pupil low in the eye
+                elif n == 3 and not big and i == 1 and j == 1:
                     e.v[spot] = (pupil, False)
                 elif i == 0 and j == n - 1:  # the shine: upper corner toward -x
                     e.v[spot] = (WHITE, False)
@@ -1667,6 +1740,29 @@ def wisps(c, H, col, col2=None):
     for i, (y, z) in enumerate(_spine(c, 2, 0.4, 0.85)):
         tongue(part, ((-0.7 if i else 0.7) * k, y, z - 0.3 * k), 2.6 * k, 0.9 * k, col, col2, lean=0.45)
         tongue(part, ((0.7 if i else -0.7) * k, y, z - 0.3 * k), 2.2 * k, 0.8 * k, col, col2, lean=0.45)
+
+
+def ghost_tail(c, H, col, col2=None):
+    """A ghost's wispy tail: the bottom of the body trails off behind into a
+    tapering, softly glowing wisp (col, fading to col2 at the tip) that
+    dips and curls up at the end."""
+    k = H / 10.0
+    body = _find(c, 'body')
+    if not body or not body.v:
+        return
+    col2 = col2 or WHITE
+    part = c.part('wisp', 'tail')
+    y1 = max(p[1] for p in body.v)
+    zs = [p[2] for p in body.v if p[1] >= y1 - 2]
+    z0 = min(zs) + 0.4 * k
+    part.pivot = (0, y1 - 0.5 * k, z0)
+    n = 14
+    for i in range(n + 1):
+        t = i / n
+        y = y1 - 1.4 * k + t * 3.8 * k
+        z = z0 - math.sin(t * math.pi) * 0.6 * k + max(0, t - 0.7) * 2.4 * k
+        r = 1.25 * k * (1 - t) ** 0.9 + 0.15 * k
+        part.ell((0, y, z), (r + .2, r * 0.8 + .2, r * 0.7 + .2), _mix(col, col2, t), t > 0.75)
 
 
 def cloak(c, H, col, col2=None):
@@ -2615,6 +2711,66 @@ def _head_front(c):
     return head, yf, ez, min(zs), max(zs)
 
 
+def fox_face(c, H, col, col2=None):
+    """A fox's face and coat: a narrow pointed snout (col on top) reaching
+    forward from below the eyes to a dark nose (col2), a white lower jaw,
+    a white chest bib and a fuller, white-tipped brush of a tail."""
+    k = H / 10.0
+    head, yf, ez, z0, z1 = _head_front(c)
+    face = head.v[next(iter(head.v))][0]
+    top = (ez - 0.2 * k) if ez is not None else (z0 + z1) / 2
+    zc = top - 0.8 * k
+    L = max(3.0, 1.6 * k)
+    steps = 3
+    for i in range(steps + 1):
+        t = i / steps
+        y = yf + 0.3 * k - t * L
+        rx = 1.05 * k * (1 - t) + 0.5 * k * t
+        rz = 0.75 * k * (1 - t) + 0.45 * k * t
+        head.ell((0, y, zc - 0.15 * k * t), (rx + 0.3, 0.6, rz + 0.3), face)
+    zmid = zc - 0.05 * k
+    head.paint(lambda p, cc, g: (WHITE_FUR, False)
+               if (p[1] < yf + 0.6 * k and p[2] < zmid and not g and cc != INK) else None)
+    yn = min(p[1] for p in head.v)
+    nose = col2 or INK
+    for p in [q for q in head.v if q[1] == yn]:
+        if p[2] >= zc - 0.1 * k:
+            head.put(p, nose)
+    # chest bib
+    body = _find(c, 'body')
+    if body and body.v:
+        by = min(p[1] for p in body.v)
+        bz = sorted(p[2] for p in body.v)
+        zlo, zhi = bz[len(bz) // 4], bz[-1]
+        body.paint(lambda p, cc, g: (WHITE_FUR, False)
+                   if (p[1] <= by + 1.0 * k and zlo <= p[2] <= zhi - 0.6 * k and abs(p[0] + .5) < 1.3 * k and not g)
+                   else None)
+    # a fuller brush, white at the tip
+    tl = _find(c, 'tail')
+    if tl and tl.v:
+        ys = [p[1] for p in tl.v]
+        y0, y1 = min(ys), max(ys)
+        zs = [p[2] for p in tl.v]
+        zm = (min(zs) + max(zs)) / 2
+        tl.ell((0, (y0 + y1) / 2 + 0.2 * k, zm + 0.15 * k), (1.05 * k, (y1 - y0) / 2 + 0.3 * k, 1.0 * k), col)
+        y1 = max(p[1] for p in tl.v)
+        tl.paint(lambda p, cc, g: (WHITE_FUR, False) if p[1] > y1 - 1.0 * k else None)
+
+
+def quartz_shards(c, H, col, col2=None):
+    """Rose-quartz crystals: two pale shards (col) along the back, each with a glossy white glint (col2) running up
+    its front edge and a glowing tip."""
+    k = H / 10.0
+    col2 = col2 or WHITE
+    sp = _spine(c, 2, 0.35, 0.7)
+    part = c.part('crystals', 'glow')
+    for i, (y, z) in enumerate(sp):
+        h = (3.6, 2.9)[i % 2] * k
+        shard(part, (0, y, z - 0.3 * k), (0, 0.3, 1), h, 0.85 * k, _dark(col, 0.1), col, tip_glow=True)
+        # the glint: a glossy white line up the shard's front edge
+        line(part, (0, y - 0.55 * k, z), (0, y - 0.25 * k + 0.3 * h * 0.5, z - 0.6 * k + h * 0.5), col2, 0.0, True)
+
+
 def long_muzzle(c, H, col, col2=None):
     """A longer muzzle (a pony's, a deer's, a hound's, a moose's) below the
     eyes, with a dark nose: the face stops reading as a round cub's."""
@@ -3347,7 +3503,7 @@ def mend(c, H, col=None, col2=None):
 ACCESSORIES = {
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
-    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
+    'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'ghost_tail': ghost_tail, 'craters': craters, 'fox_face': fox_face, 'quartz_shards': quartz_shards, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,
     'paper_wings': paper_wings, 'long_muzzle': long_muzzle, 'long_legs': long_legs, 'raptor_beak': raptor_beak, 'horse_head': horse_head, 'trunk': trunk, 'aura_hump': hump,
     'flames': flames, 'back_flame': back_flame, 'ear_flames': ear_flames, 'tail_flame': tail_flame,
     'aura_embers': embers, 'cracks': cracks, 'claws': claws,
