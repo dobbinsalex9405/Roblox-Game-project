@@ -352,13 +352,13 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	BeaverKit = {
 		assetId = 116488229452023,
-		textureId = 133620532847670,
+		textureId = 99136824023751,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.5,
 		size = { 1.6, 1.5, 2 },
-		tris = 10464,
-		trisLod1 = 1024,
+		tris = 10736,
+		trisLod1 = 1094,
 		parts = {
 			{
 				name = "body",
@@ -463,15 +463,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "BeaverKit_eyes",
-						center = { 0, 1.0517, -0.95 },
-						size = { 0.407, 0.1035, 0.107 },
+						center = { 0, 1.1018, -0.9 },
+						size = { 0.607, 0.2035, 0.207 },
 					},
 				},
-				lod1 = {
-					name = "BeaverKit_eyes_lod1",
-					center = { 0, 1.05, -0.95 },
-					size = { 0.4, 0.1, 0.1 },
-				},
+				lod1 = { name = "BeaverKit_eyes_lod1", center = { 0, 1.1, -0.9 }, size = { 0.6, 0.2, 0.2 } },
 			},
 			{
 				name = "ears",
@@ -1420,13 +1416,13 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Butterfly = {
 		assetId = 95471060225988,
-		textureId = 85852113909515,
+		textureId = 75234402063720,
 		rarity = "Common",
 		gait = "hover",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
-		tris = 7492,
-		trisLod1 = 738,
+		tris = 7716,
+		trisLod1 = 778,
 		parts = {
 			{
 				name = "body",
@@ -1450,7 +1446,7 @@ local CreatureMeshes: { [string]: Creature } = {
 					{
 						name = "Butterfly_head",
 						center = { 0, 0.7017, -0.396 },
-						size = { 0.6, 0.7875, 0.499 },
+						size = { 0.591, 0.7875, 0.499 },
 					},
 				},
 				lod1 = { name = "Butterfly_head_lod1", center = { 0, 0.7, -0.4 }, size = { 0.6, 0.8, 0.5 } },
@@ -1463,11 +1459,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				meshes = {
 					{
 						name = "Butterfly_eyes",
-						center = { 0, 0.6518, -0.5 },
-						size = { 0.407, 0.1035, 0.107 },
+						center = { 0, 0.6018, -0.5 },
+						size = { 0.607, 0.2035, 0.307 },
 					},
 				},
-				lod1 = { name = "Butterfly_eyes_lod1", center = { 0, 0.65, -0.5 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Butterfly_eyes_lod1", center = { 0, 0.6, -0.5 }, size = { 0.6, 0.2, 0.3 } },
 			},
 			{
 				name = "wingL",
@@ -1537,13 +1533,13 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Calf = {
 		assetId = 102259764137875,
-		textureId = 107779417241089,
+		textureId = 111114539954319,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.8,
 		size = { 1.2, 1.8, 1.8 },
-		tris = 9968,
-		trisLod1 = 812,
+		tris = 10176,
+		trisLod1 = 830,
 		parts = {
 			{
 				name = "body",
@@ -1610,9 +1606,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 1.08, -0.4 },
 				meshes = {
-					{ name = "Calf_eyes", center = { 0, 1.3518, -0.75 }, size = { 0.607, 0.1035, 0.107 } },
+					{ name = "Calf_eyes", center = { 0, 1.4018, -0.75 }, size = { 0.607, 0.2035, 0.107 } },
 				},
-				lod1 = { name = "Calf_eyes_lod1", center = { 0, 1.35, -0.75 }, size = { 0.6, 0.1, 0.1 } },
+				lod1 = { name = "Calf_eyes_lod1", center = { 0, 1.4, -0.75 }, size = { 0.6, 0.2, 0.1 } },
 			},
 			{
 				name = "ears",
@@ -7807,13 +7803,13 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Monarch = {
 		assetId = 102542582315730,
-		textureId = 131226064884804,
+		textureId = 79780491290101,
 		rarity = "Common",
 		gait = "hover",
 		height = 1.6,
 		size = { 1.4, 1.6, 1.3 },
-		tris = 7492,
-		trisLod1 = 738,
+		tris = 7716,
+		trisLod1 = 778,
 		parts = {
 			{
 				name = "body",
@@ -7830,7 +7826,11 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "body",
 				pivot = { 0, 0.68, -0.35 },
 				meshes = {
-					{ name = "Monarch_head", center = { 0, 0.7017, -0.396 }, size = { 0.6, 0.7875, 0.499 } },
+					{
+						name = "Monarch_head",
+						center = { 0, 0.7017, -0.396 },
+						size = { 0.591, 0.7875, 0.499 },
+					},
 				},
 				lod1 = { name = "Monarch_head_lod1", center = { 0, 0.7, -0.4 }, size = { 0.6, 0.8, 0.5 } },
 			},
@@ -7840,9 +7840,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.68, -0.35 },
 				meshes = {
-					{ name = "Monarch_eyes", center = { 0, 0.6518, -0.5 }, size = { 0.407, 0.1035, 0.107 } },
+					{ name = "Monarch_eyes", center = { 0, 0.6018, -0.5 }, size = { 0.607, 0.2035, 0.307 } },
 				},
-				lod1 = { name = "Monarch_eyes_lod1", center = { 0, 0.65, -0.5 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Monarch_eyes_lod1", center = { 0, 0.6, -0.5 }, size = { 0.6, 0.2, 0.3 } },
 			},
 			{
 				name = "wingL",
@@ -8944,13 +8944,13 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Platypus = {
 		assetId = 93967352011850,
-		textureId = 138518515354480,
+		textureId = 111886204868940,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.5,
 		size = { 1.4, 1.5, 2.6 },
-		tris = 10688,
-		trisLod1 = 906,
+		tris = 10960,
+		trisLod1 = 976,
 		parts = {
 			{
 				name = "body",
@@ -9045,13 +9045,9 @@ local CreatureMeshes: { [string]: Creature } = {
 				parent = "head",
 				pivot = { 0, 0.62, -0.6 },
 				meshes = {
-					{
-						name = "Platypus_eyes",
-						center = { 0, 1.1518, -1.05 },
-						size = { 0.407, 0.1035, 0.107 },
-					},
+					{ name = "Platypus_eyes", center = { 0, 1.2018, -1 }, size = { 0.607, 0.2035, 0.207 } },
 				},
-				lod1 = { name = "Platypus_eyes_lod1", center = { 0, 1.15, -1.05 }, size = { 0.4, 0.1, 0.1 } },
+				lod1 = { name = "Platypus_eyes_lod1", center = { 0, 1.2, -1 }, size = { 0.6, 0.2, 0.2 } },
 			},
 			{
 				name = "tail",
