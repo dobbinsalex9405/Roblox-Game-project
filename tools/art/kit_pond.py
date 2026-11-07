@@ -294,9 +294,23 @@ def critter(c, H, kind, col, accent=None, wing=None):
             line(body, sh, el, col, r=0.4 * k)
             line(body, el, hand, accent, r=0.35 * k)
         legs(body, k, [(0.6, 0.6), (0.6, 1.8)], accent, out=1.2, height=2.0, c=c)
+    elif kind in CRITTER_KINDS:
+        CRITTER_KINDS[kind](c, H, k, col, accent, wc, body, head)
     else:
         raise ValueError(f'critter: unknown kind {kind}')
     return c
+
+
+# More critter kinds from other kit modules (kit_wild: scorpion): kind ->
+# fn(c, H, k, col, accent, wing, body, head), added with add_critter_kind.
+CRITTER_KINDS = {}
+
+
+def add_critter_kind(name, fn):
+    if name in PLANS['critter'][1]['kind']:
+        raise ValueError(f'critter kind "{name}" is already defined')
+    PLANS['critter'][1]['kind'].add(name)
+    CRITTER_KINDS[name] = fn
 
 
 # ------------------------------------------------------------------ shore
