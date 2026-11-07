@@ -2,6 +2,75 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Every creature in an egg tier gets the same weight (Hatchery Heist)
+
+- **`tools/economy/even_eggs.py` writes the coin eggs' tier weights** from
+  target odds and each pool's member count, so every odds card in a tier
+  reads the same "1 in N". Largest-remainder splits left ones 1 point apart,
+  which in small tiers showed as visibly different odds (a Meadow Epic at
+  1 in 50,000 beside 1 in 33,333). Eggs.spec and CI fail until it is rerun
+  after a pool changes; go-live batches rerun it with to_config.
+- **Totals stay powers of ten** (Basic and Meadow 1,000,000, Moonlit
+  10,000,000, Premium 100,000) because the odds screen prints percentages
+  in steps of 1 / total and paid random items must add up to exactly 100%.
+  The rounding goes to whichever tiers it shifts least, usually Common and
+  Uncommon.
+- **Every Godly is exactly 1 in 1,000,000** in the Moonlit Egg, however many
+  there are; the Godly tier grows with the roster. The Premium Egg is
+  checked, not rewritten (its tiers are already even).
+
+## 2026-11-05: The 18 new Godlies from the master sheet (Hatchery Heist)
+
+- **Hand-built, like the legends**, not roster data: tools/art/godlies.py
+  lists them (id, element) and creatures.py adds them to the ROSTER and to
+  FINER (1.6x, the Godly standard). godly_beasts.py draws the ones on legs,
+  godly_skies.py the fliers, floaters and swimmers; godly_common.py holds
+  the shared pieces (eyes proud of the face in a `blink` part, legs as leg
+  parts, wings, the orbit). The game picks one up when config/creatures.luau
+  lists it.
+- **One `orbit` part each, placed by `orbit_ring`**: every piece sits just
+  outside everything else at its height (plus room for the head and wings),
+  and the sweep stays at or under 0.8x the creature's height; a piece that
+  cannot fit is a build error, never a silent overlap. A round floater (the
+  Cosmic Whale) may carry its moons above its back; the added height counts.
+- **Long or wide bodies are drawn a little smaller** (Solar Lion, Omega
+  Chimera, Magma Behemoth, World Turtle, Crystal Hydra, the dragons) to stay
+  inside 100k triangles; long, low or round bodies a little bigger (Cosmic
+  Whale, Clockwork Leviathan, Crystal Swan, Hurricane Roc) so their voxels
+  match the rest once the game scales every Godly to 6 studs tall.
+- **The swimmers swim level** (the strict review: they must read as a whale):
+  the Clockwork Leviathan and the Cosmic Whale are long and low, their
+  orbits ride above the back, and they swim (tail sweeps, flippers paddle).
+  Scaled to 6 studs tall they are about 15 and 10.5 studs long: longer than
+  the 10-stud depth of the three-spot area, inside its 30-stud width; the
+  reviewer asked for the Leviathan at least 3x as long as tall.
+- **They hover** (rig: Legendary and Godly always hover); legs, tentacles
+  (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
+  so the hover pose tucks and paddles them.
+
+## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
+
+- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
+  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
+- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
+  draws a showpiece with smaller voxels in the Blender build (the serpent at
+  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
+  have changed the Goose Alex approved. **1.6x is the standard for every
+  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
+  keeps its approved build unless its size changes.
+- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
+  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
+  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
+  1 in 50,000 each) to pass that.
+- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
+  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
+  so the serpent stays within the Godly 800-box budget (794).
+- **Worlds never pass through the body.** Each orbiting world sits further
+  out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
 ## 2026-11-07: New creatures fit the in-game box budget with `fit_boxes` (Hatchery Heist)
 
 - **What:** a roster creature over its tier's stand-in box budget (UR 80,
@@ -209,6 +278,21 @@ Non-obvious choices, newest first, so a later session can trust them.
   number to set on every new creature). Ridden or carried, the cap scales
   with the size.
 
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
 - **Each creature wanders only its own cell** (the 10-stud spots it takes),
@@ -333,30 +417,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   polish thread's placer build them. No letters or numbers in the art: the
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
-
-## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
-
-- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
-  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
-- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
-  draws a showpiece with smaller voxels in the Blender build (the serpent at
-  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
-  have changed the Goose Alex approved. **1.6x is the standard for every
-  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
-  keeps its approved build unless its size changes.
-- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
-  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
-  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
-  1 in 50,000 each) to pass that.
-- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
-  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
-  so the serpent stays within the Godly 800-box budget (794).
-- **Worlds never pass through the body.** Each orbiting world sits further
-  out than anything else at its height, plus room for the head to turn.
-- **Godlies are one solid piece, face to face**, like rig.weld makes the
-  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
-  look is kept: its toes, nest, egg, crown and tail were joined with a straw
-  bed, two straw strands to the feet and filled corners, nothing redrawn.
 
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 
@@ -587,6 +647,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
   the repo: designs are for looking at before anything is decided, and big
   .glb files do not belong in git.
+
 ## 2026-11-05: Creature meshes v2 (Hatchery Heist)
 
 - **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
@@ -603,8 +664,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   Godlies, the look Alex had just approved.
 - **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
   gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
-
-
 
 ## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)
 
@@ -673,6 +732,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   arrow's "▼" are not in the game fonts and showed as boxes. The goal line
   has a drawn gold "GOAL" tag and the arrow is two frames. Emoji are fine:
   Roblox draws them with its emoji font.
+
 ## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
 
 - **Meshes are generated from the voxel art, not modelled separately.**
@@ -763,6 +823,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   about 8 for a Meadow Egg).
 - **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
   number on its own line); CI re-runs the exporter and fails if it differs.
+
 ## 2026-11-05: Games start without DataStores (Studio)
 
 - A built `.rbxl` opened in Studio is an unpublished place, where
@@ -819,7 +880,6 @@ Non-obvious choices, newest first, so a later session can trust them.
 - The gate is a commit status (`visual-playtest`, `.github/workflows/visual-gate.yml`)
   because GitHub Free cannot require checks on a private repo; the verifier
   merges only when it is green.
-
 
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
@@ -990,6 +1050,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
   test first, verified by the playtest thread, auto-merged, production by
   Alex's click.
+
 ## 2026-11-01: Boot check and key flows gate every merge and publish
 
 - **Why.** PR #5 merged with a start-up assert in Street Food Empire's

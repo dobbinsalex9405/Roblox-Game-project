@@ -7,6 +7,7 @@ import math
 import os
 from voxkit import Creature, Part, hexc
 import legends
+import godlies
 import rig
 
 VOXEL = 0.25  # studs per voxel in game
@@ -959,7 +960,7 @@ ROSTER = [
     # Godly
     ('GoldenGoose', 'Godly', legends.golden_goose),
     ('NebulaSerpent', 'Godly', legends.nebula_serpent),
-]
+] + godlies.ROSTER  # the Godlies from the master sheet (godlies.py)
 
 
 CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'games', 'hatchery-heist', 'config',
@@ -991,13 +992,13 @@ def in_game(cs):
 # Each creature's element (Ember, Glacial, Nature, Storm, ...). Elements roll
 # out once there are many creatures per element and tier (Alex, Nov 5); until
 # then every creature is 'plain'. A themed variant names its element here.
-ELEMENT = {}
+ELEMENT = dict(godlies.ELEMENT)
 
 # Showpieces drawn with smaller voxels than their tier in the Blender build:
 # the same size in studs, this many times more voxels each way. The in-game
 # boxes (VoxelArt) keep the tier's voxel. Alex, Nov 5: Godlies must be far
 # more detailed than everything else.
-FINER = {'NebulaSerpent': 1.6}
+FINER = {'NebulaSerpent': 1.6, **godlies.FINER}
 
 # Creatures added as data (tools/art/roster/*.json, see variants.py).
 import variants  # noqa: E402

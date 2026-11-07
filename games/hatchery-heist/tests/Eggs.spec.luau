@@ -53,6 +53,21 @@ describe("Egg tiers", function()
 		end
 	end)
 
+	it("gives every creature in a tier the same weight (tools/economy/even_eggs.py)", function()
+		for _, egg in Eggs.expand(rawEggs, creatures.species) do
+			local seen: { [string]: number } = {}
+			for _, o in egg.outcomes do
+				local rarity = creatures.species[o.id].rarity
+				seen[rarity] = seen[rarity] or o.weight
+				if o.weight ~= seen[rarity] then
+					error(
+						`{egg.id}: {o.id} has weight {o.weight}, others in {rarity} {seen[rarity]}; run even_eggs.py`
+					)
+				end
+			end
+		end
+	end)
+
 	it("never moves another tier's odds when a creature is added", function()
 		local before = byId(Eggs.expand(rawEggs, creatures.species))
 		local more = table.clone(creatures.species)
@@ -81,8 +96,14 @@ describe("Egg tiers", function()
 		raccoon.weight = 0.5
 		more.Raccoon = raccoon
 		local moonlit = byId(Eggs.expand(rawEggs, more)).MoonlitEgg
-		-- Fennec, Owlet and Panda Cub at 1, the Raccoon at 0.5: 2 parts in 7.
-		expect(moonlit.Raccoon).toBe(5429)
-		expect(moonlit.Fennec + moonlit.Owlet + moonlit.PandaCub + moonlit.Raccoon).toBe(38000)
+		local rare = 0
+		for _, egg in rawEggs do
+			if egg.id == "MoonlitEgg" then
+				rare = egg.tiers.Rare
+			end
+		end
+		-- Fennec, Owlet and Panda Cub at 1, the Raccoon at 0.5: 1 part in 7.
+		expect(math.abs(moonlit.Raccoon - rare / 7)).toBeAtMost(1)
+		expect(moonlit.Fennec + moonlit.Owlet + moonlit.PandaCub + moonlit.Raccoon).toBe(rare)
 	end)
 end)

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Every creature in an egg's tier now shows exactly the same odds (one
+  Meadow Egg Epic read 1 in 50,000 while the others read 1 in 33,333). Tier
+  odds are unchanged apart from rounding: the Meadow Egg's Ultra Rare is
+  1 in 358 (was 357) and its Epic 1 in 5,952 (was 5,882).
+- The Hurricane Roc has a proper hooked raptor beak, and twice as many wind
+  threads whirl around it.
+- 18 new Godlies can now hatch from the Moonlit Egg (19 Godlies there in
+  all), each 1 in 1,000,000 (a Godly from it is 1 in 52,632, was 1 in 50,000).
 - Fix: in the Hatchery Book, the tab you open loads its pictures first, so
   a tab opened soon after joining no longer waits on the others' pictures.
 - Fix: the odds card beside an egg refits when the screen changes size, so
