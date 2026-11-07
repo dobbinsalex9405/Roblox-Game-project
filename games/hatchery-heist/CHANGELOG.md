@@ -111,6 +111,10 @@
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
   and dark unlit price tags that stay readable in the lit room.
+- Coin packs grow with you: each gives its fixed coins or 5, 20, 45 or 100
+  minutes of what you earn now, whichever is more. The shop shows your exact
+  amount.
+
 - Fix: after a respawn you are sent back to your base again, not left at
   the plaza.
 - The Egg Market: the conveyors at the front of each base are gone. One
