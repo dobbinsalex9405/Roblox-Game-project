@@ -808,3 +808,17 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
   - *Finding:* the sign faces one way, and from the main path it's partly behind the egg (`120-hh-giantegg-phone.jpg`).
 - **Test panel:** "event" buttons start each kind, and Stop works. "giantegg → Forget" replies "Today's Giant Egg can be bought again."
 - **Output:** nothing new from #120. The voxel NebulaSerpent line comes from the branch base, before #71.
+
+## #119 trimmed @ 454a645 vs main 00ac01c
+
+**PASS: no regression, and better on reopen.** Desktop, fresh join, Common tab. Same procedure on both builds; captures land about 1-2 s after each flick.
+
+| Moment | main 00ac01c | #119 454a645 |
+|---|---|---|
+| First open, flick to 1400 at once | 2 of 12 visible cards drawn | 1 of 12 drawn (same) |
+| Close, reopen, flick 0→2100→700 | about 1 of 12 full cards drawn | **9 of 12** full cards drawn, plus the top partial row drawn |
+
+- **Dark well** visible under every card on #119 (main has none), so an unfilled card reads as "loading", not "missing".
+- **NEW badge:** after giving a Chick, its card shows the NEW badge with a coloured model. After closing and reopening the Book, NEW is gone and the side-menu badge has cleared (`119f-pr-new-badge.jpg`, `119f-pr-new-cleared.jpg`).
+- **No bleed-through:** layering is right (well, then picture, then name/odds, then NEW).
+- **Non-Book fixes hold:** PlayerList CoreGui off; side menu starts at y 124; YOUR HATCHERY banner offset 14.5, clear of "Floor 2: 25K coins".
