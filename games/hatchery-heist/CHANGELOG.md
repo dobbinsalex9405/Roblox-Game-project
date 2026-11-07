@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- New: one 30-minute event a day at a different time: Egg Sale (half-price
+  eggs), Speedy Incubators (eggs hatch twice as fast), Money Rush (double
+  income) or Lucky Hatch (up to 3x luck on rare hatches). A banner at the
+  top of the screen counts down to the next one; tap it for details.
+- New: the Giant Legendary Egg in the middle of the map. It holds a
+  different Legendary every day, and each player can buy it once a day:
+  for coins while the daily event runs, for Robux the rest of the day.
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
   the list is off.

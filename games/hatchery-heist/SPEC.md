@@ -231,6 +231,38 @@ never sold.
 - **Sound effects** (`config/atmosphere.luau` `sounds`): named hooks; an id
   of 0 is silent until one is picked by ear.
 
+## Timed events and the Giant Egg (Alex, Nov 7 2026)
+
+Rules in `src/shared/Events.luau` and `src/shared/GiantEgg.luau`, numbers in
+`config/events.luau`, the reasons in `ops/DECISIONS.md` (2026-11-07).
+
+- **One event a day.** Days run 12:00 to 12:00 UTC; each has one 30-minute
+  event starting at a seeded random time between 15:00 and 03:00 UTC. Every
+  server and client computes the same schedule from the seed. Kinds: Egg
+  Sale (market eggs cost half), Speedy Incubators (eggs bought during it
+  hatch in half the time), Money Rush (income x2 while it runs, the offline
+  pile counting only the seconds it covered), Lucky Hatch (Rare x1.5 up to
+  Legendary and Godly x3; odds still total exactly 100% and show live).
+- **Banner** in the middle of the top bar: the next event and when it
+  starts (a live countdown in its last hour), or the running event and the
+  time left. Tapping opens a card with what it does and today's Giant Egg.
+  Notices go to everyone shortly before it starts, at the start and at the
+  end. The HUD's income line turns gold and shows x2 during a Money Rush;
+  egg prompts and the coin shop show sale prices and faster hatch times.
+- **Giant Legendary Egg** (`src/server/GiantEgg.luau`, art from
+  `tools/art/world/giantegg.py`): a big gold egg on a plinth in the middle
+  of the map with today's Legendary standing on top. A sign shows the
+  Legendary, its income, the price and the time to the next one. It is an
+  event special: while the day's event runs its Buy prompt (G / DPadUp)
+  sells it for coins (the larger of `coinPriceMin` and
+  `coinPriceIncomeHours` of the buyer's income), the rest of the day for
+  product `GiantEgg` (299 Robux). Once per player per day either way;
+  the buyer gets that Legendary, placed like a hatch, with the hatch
+  reveal. After buying, the sign says "Yours today" and the prompt turns
+  off until the next day. Saves keep `giantEgg = { lastCycle, bought }`.
+- **Studio:** the Test panel's `event` action starts any event now, the
+  next one in 2 minutes, or stops it; `giantegg` forgets today's purchase.
+
 ## Money
 
 All prices need Alex's approval (M5). Product and pass ids stay 0 in

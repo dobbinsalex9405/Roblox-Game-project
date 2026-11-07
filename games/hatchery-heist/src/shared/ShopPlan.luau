@@ -20,6 +20,7 @@ export type CatalogItem = {
 	description: string,
 	oddsTable: string?,
 	paidRandom: boolean?,
+	soldAt: string?, -- sold at its own place in the world, never on a display
 }
 
 export type Display = {
@@ -45,6 +46,8 @@ function ShopPlan.displays(layout: { any }, catalog: { CatalogItem }): ({ Displa
 			local item = byKey[id]
 			if item == nil then
 				table.insert(problems, `display {id} is not in the shop's catalog`)
+			elseif item.soldAt ~= nil then
+				table.insert(problems, `display {id} is sold at {item.soldAt}, not in the shop`)
 			elseif item.oddsTable ~= nil or item.paidRandom then
 				table.insert(
 					problems,
@@ -65,7 +68,7 @@ function ShopPlan.displays(layout: { any }, catalog: { CatalogItem }): ({ Displa
 		end
 	end
 	for id, item in byKey do
-		if not shown[id] and item.oddsTable == nil and not item.paidRandom then
+		if not shown[id] and item.oddsTable == nil and not item.paidRandom and item.soldAt == nil then
 			table.insert(problems, `{id} ({item.name}) has no display in the shop`)
 		end
 	end

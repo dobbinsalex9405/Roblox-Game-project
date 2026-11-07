@@ -98,7 +98,29 @@ describe("Golden Egg Shop displays", function()
 	it("has exactly one display for every item in the Shop window", function()
 		local displays, problems = ShopPlan.displays(ShopArt.layout, catalog :: any)
 		expect(table.concat(problems, "\n")).toBe("")
-		expect(#displays).toBe(#catalog)
+		-- Items sold at their own place in the world (the Giant Egg) have none.
+		local onDisplay = 0
+		for _, item in catalog :: { any } do
+			if item.soldAt == nil then
+				onDisplay += 1
+			end
+		end
+		expect(onDisplay >= #catalog - 1).toBe(true)
+		expect(#displays).toBe(onDisplay)
+	end)
+
+	it("keeps items sold elsewhere off the displays", function()
+		local _, problems = ShopPlan.displays(ShopArt.layout, catalog :: any)
+		expect(table.concat(problems, "\n")).toBe("")
+		local moved = table.clone(catalog) :: { any }
+		for i, item in moved do
+			if item.key == "AutoCollect" then
+				moved[i] = table.clone(item)
+				moved[i].soldAt = "Somewhere"
+			end
+		end
+		local _, more = ShopPlan.displays(ShopArt.layout, moved :: any)
+		expect(table.concat(more, "\n")).toContain("pass:AutoCollect is sold at Somewhere")
 	end)
 
 	it("never puts an item with random results on a display", function()

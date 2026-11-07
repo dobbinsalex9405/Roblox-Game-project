@@ -173,20 +173,32 @@ end
 -- Adds earnings since `lastIncomeAt` to the pending pile at full rate.
 -- Call while the player is in the server: on a timer, and before any change
 -- to what earns (hatching, rebirth, a pass purchase), so the old rate is paid
--- for the time it applied.
-function Hatchery.accrue(d: Data, now: number, perSecond: number)
+-- for the time it applied. `seconds(from, to)`, when given, says how many
+-- seconds of income the span is worth (a Money Rush event counts its part
+-- twice: shared/Events.incomeSeconds); plain seconds otherwise.
+function Hatchery.accrue(d: Data, now: number, perSecond: number, seconds: ((number, number) -> number)?)
 	if d.lastIncomeAt <= 0 or now < d.lastIncomeAt then
 		d.lastIncomeAt = now
 		return
 	end
-	d.pendingCoins += perSecond * (now - d.lastIncomeAt)
+	local worth = if seconds then seconds(d.lastIncomeAt, now) else now - d.lastIncomeAt
+	d.pendingCoins += perSecond * worth
 	d.lastIncomeAt = now
 end
 
 -- The pending pile as it stands at `now`, for display (does not change data).
-function Hatchery.pendingAt(d: Data, now: number, perSecond: number): number
-	local since = if d.lastIncomeAt > 0 then math.max(0, now - d.lastIncomeAt) else 0
-	return d.pendingCoins + perSecond * since
+-- `seconds` as for `accrue`.
+function Hatchery.pendingAt(
+	d: Data,
+	now: number,
+	perSecond: number,
+	seconds: ((number, number) -> number)?
+): number
+	if d.lastIncomeAt <= 0 or now <= d.lastIncomeAt then
+		return d.pendingCoins
+	end
+	local worth = if seconds then seconds(d.lastIncomeAt, now) else now - d.lastIncomeAt
+	return d.pendingCoins + perSecond * worth
 end
 
 -- Call once when the player joins, before anything else touches income. Pays

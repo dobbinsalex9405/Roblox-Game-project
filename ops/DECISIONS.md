@@ -2,6 +2,57 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-07: Timed events and the Giant Legendary Egg (Hatchery Heist)
+
+Alex asked for "a one time purchase of a giant legendary egg in the middle,
+runs once every 24 hours, and randomized spawn for 30 min during that 24
+hour window. egg sales, faster incubators, more money production. better
+hatching rarity". Read as two features:
+
+- **One 30-minute event a day.** Days ("cycles") run 12:00 to 12:00 UTC.
+  Each cycle's event starts at a random 5-minute step between 15:00 and
+  03:00 UTC (hours 3 to 15 of the cycle), when US and EU players are on.
+  The time and the kind come from a hash of `seed` and the cycle number
+  (`shared/Events.luau`), so every server and every client agrees with no
+  DataStore or messaging. The four kinds are shuffled per round of four,
+  never the same twice in a row: **Egg Sale** (market eggs half price in
+  coins), **Speedy Incubators** (eggs bought during it hatch in half the
+  time), **Money Rush** (income x2 for exactly the seconds it runs,
+  offline pile included), **Lucky Hatch** (Rare x1.5, Ultra Rare x2, Epic
+  x2.5, Legendary and Godly x3 on every egg; odds re-normalise to exactly
+  100% and the odds card shows them live). A plain x2 on everything would
+  do nothing on eggs with no Commons, so the multipliers rise with rarity.
+  Every number is in `config/events.luau`. Robux items (Premium Egg) are
+  never discounted by an event.
+- **The Giant Legendary Egg** stands in the middle of the map (where the
+  decorative Golden Egg was; the three small eggs moved out to make room).
+  Each player can buy it **once per cycle** for Robux and gets **today's
+  named Legendary** (shown on the egg and its sign), not a random one: so
+  no odds screen or PolicyService gate is needed, and a player knows what
+  they pay for. The Legendary rotates through every Legendary, never the
+  same two days running. The purchase grants inside the receipt's data
+  update (exactly once), the server refuses a second one per cycle before
+  prompting, and the creature is placed like a hatch.
+- **An event special (Alex, 09:05Z Nov 7): coins during the event, 299
+  Robux outside it.** While the day's event runs, the egg's prompt buys it
+  for coins: the larger of 250M and 6 hours of the buyer's income right now
+  (economy thread's proposal; `coinPriceMin` and `coinPriceIncomeHours` in
+  config/events.luau), in one data update. The rest of the day it is the
+  299 Robux product, and the server refuses the Robux prompt during the
+  event. Still one per player per cycle either way. 299 is a new ladder
+  rung ("Premium", tools/pricing/lib.luau). The product id stays 0 (never
+  sold) until it is created on Roblox, which waits for Alex's approval of
+  the Robux list.
+- **Prompt key G** (gamepad DPadUp): E, F and the other keys were taken.
+- Lucky Hatch uses `Odds.setBoosts`, which replaces a player's whole boost
+  list per egg; a paid Luck Boost added later must join the same list.
+- The banner sits in the middle of the Roblox top bar, between Shop and
+  Feedback, so it never covers the HUD, the side menu or a window's X
+  (the player's-eye audit caught the first top-right spot doing both).
+- Telemetry: `Event:Seen` (once per player per event, with its kind),
+  `Event:EggBought` (kind, egg), `GiantEgg:Prompted`, `GiantEgg:Bought`
+  (Robux) and `GiantEgg:BoughtCoins`.
+
 ## 2026-11-07: Big Epics fit their 120-box stand-in by coarsening, not by losing detail
 
 - **The in-game box art (VoxelArt, drawn before the meshes load) of the
