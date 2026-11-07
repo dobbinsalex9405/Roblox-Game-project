@@ -17,6 +17,8 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |
 
+See `ANIMATION.md` for the rig and gait conventions every new creature follows (named leg, wing and fin parts; gaits).
+
 ## Adding a creature (as data)
 
 Pick it from the master list first (`python3 tools/art/master_list.py --todo`)
