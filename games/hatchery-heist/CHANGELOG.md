@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The Hurricane Roc has a proper hooked raptor beak, and twice as many wind
+  threads whirl around it.
 - 18 new Godlies can now hatch from the Moonlit Egg (19 Godlies there in
   all), each 1 in 1,000,000 (a Godly from it is 1 in 52,632, was 1 in 50,000).
 - Fix: in the Hatchery Book, the tab you open loads its pictures first, so

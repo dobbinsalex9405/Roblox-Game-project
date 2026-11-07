@@ -96,6 +96,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "BlossomDeer": {
+   "assetId": 138888591836890,
+   "textureId": 109712256382408,
+   "textureType": "Image",
+   "version": "1"
+  },
   "BlueJay": {
    "assetId": 122202931599637,
    "textureId": 82645402169247,
@@ -270,6 +276,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "CinderPup": {
+   "assetId": 86097726663984,
+   "textureId": 80536807872313,
+   "textureType": "Image",
+   "version": "1"
+  },
   "ClockworkLeviathan": {
    "assetId": 128685687301015,
    "textureId": 123277534619569,
@@ -294,6 +306,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "CloudSheep": {
+   "assetId": 135308285080480,
+   "textureId": 108573297252568,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Cloudlet": {
    "assetId": 73817175768105,
    "textureId": 114922843559372,
@@ -303,6 +321,12 @@
   "CloverPony": {
    "assetId": 91527183531350,
    "textureId": 125317792894255,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CoalPiglet": {
+   "assetId": 108879084869233,
+   "textureId": 96781081018796,
    "textureType": "Image",
    "version": "1"
   },
@@ -371,6 +395,12 @@
    "textureId": 103763748722778,
    "textureType": "Image",
    "version": "3"
+  },
+  "CrystalCrab": {
+   "assetId": 94387147083454,
+   "textureId": 107104760153716,
+   "textureType": "Image",
+   "version": "1"
   },
   "CrystalGolem": {
    "assetId": 103836918698422,
@@ -546,6 +576,12 @@
    "textureType": "Image",
    "version": "3"
   },
+  "FlameMoth": {
+   "assetId": 97926264861840,
+   "textureId": 109783629143848,
+   "textureType": "Image",
+   "version": "1"
+  },
   "Fluffernut": {
    "assetId": 71247469890282,
    "textureId": 89511129768460,
@@ -569,6 +605,12 @@
    "textureId": 104675166205076,
    "textureType": "Image",
    "version": "3"
+  },
+  "FrostOwl": {
+   "assetId": 82666053645140,
+   "textureId": 99905515636884,
+   "textureType": "Image",
+   "version": "1"
   },
   "FrostSprite": {
    "assetId": 75246998987520,
@@ -627,6 +669,12 @@
   "GingerbreadGolem": {
    "assetId": 100426625450119,
    "textureId": 130316663817144,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GlacierPenguin": {
+   "assetId": 118499385850680,
+   "textureId": 75305896648347,
    "textureType": "Image",
    "version": "1"
   },
@@ -745,10 +793,10 @@
    "version": "1"
   },
   "HurricaneRoc": {
-   "assetId": 95434468290256,
-   "textureId": 88709286061047,
+   "assetId": 92845448203322,
+   "textureId": 109204015653940,
    "textureType": "Image",
-   "version": "2"
+   "version": "1"
   },
   "HuskyPup": {
    "assetId": 84879241101977,
@@ -765,6 +813,12 @@
   "IbexKid": {
    "assetId": 135012519293515,
    "textureId": 88422905191935,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "IceTurtle": {
+   "assetId": 76313951554637,
+   "textureId": 88057722380239,
    "textureType": "Image",
    "version": "1"
   },
@@ -876,6 +930,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "LavaGecko": {
+   "assetId": 76785766500605,
+   "textureId": 75883181952172,
+   "textureType": "Image",
+   "version": "1"
+  },
   "LeafAnt": {
    "assetId": 104811792725794,
    "textureId": 95531773224890,
@@ -885,6 +945,12 @@
   "LeafBat": {
    "assetId": 86294075717895,
    "textureId": 99844926485791,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "LeafLynx": {
+   "assetId": 70401810334309,
+   "textureId": 138246718954261,
    "textureType": "Image",
    "version": "1"
   },
@@ -947,6 +1013,12 @@
    "textureId": 73069979502788,
    "textureType": "Image",
    "version": "3"
+  },
+  "MagmaToad": {
+   "assetId": 120643582754504,
+   "textureId": 76893503003186,
+   "textureType": "Image",
+   "version": "1"
   },
   "Magpie": {
    "assetId": 124989844309184,
@@ -1013,6 +1085,12 @@
    "textureId": 86300628439902,
    "textureType": "Image",
    "version": "6"
+  },
+  "MossBear": {
+   "assetId": 100091753053762,
+   "textureId": 91339513318052,
+   "textureType": "Image",
+   "version": "1"
   },
   "MossbackTortoise": {
    "assetId": 83653263282123,
@@ -1410,6 +1488,12 @@
    "textureType": "Image",
    "version": "1"
   },
+  "ShroomSnail": {
+   "assetId": 106463875654450,
+   "textureId": 90978899858017,
+   "textureType": "Image",
+   "version": "1"
+  },
   "ShroombackToad": {
    "assetId": 114272027261946,
    "textureId": 127734539050467,
@@ -1464,11 +1548,23 @@
    "textureType": "Image",
    "version": "1"
   },
+  "SnowHare": {
+   "assetId": 88279082005577,
+   "textureId": 125523150934774,
+   "textureType": "Image",
+   "version": "1"
+  },
   "SolarLion": {
    "assetId": 91121798372653,
    "textureId": 75039170903688,
    "textureType": "Image",
    "version": "3"
+  },
+  "SparkBeetle": {
+   "assetId": 80099861896317,
+   "textureId": 95587917395991,
+   "textureType": "Image",
+   "version": "1"
   },
   "SphinxCub": {
    "assetId": 129132760461996,
@@ -1523,6 +1619,12 @@
    "textureId": 79376716376620,
    "textureType": "Image",
    "version": "2"
+  },
+  "StaticCat": {
+   "assetId": 136163812580054,
+   "textureId": 119858284614194,
+   "textureType": "Image",
+   "version": "1"
   },
   "Stoat": {
    "assetId": 126074753415887,
@@ -1584,6 +1686,12 @@
    "textureType": "Image",
    "version": "2"
   },
+  "ThornHedgehog": {
+   "assetId": 133924013712532,
+   "textureId": 138936397345818,
+   "textureType": "Image",
+   "version": "1"
+  },
   "ThornWolf": {
    "assetId": 122849234184828,
    "textureId": 95197359419917,
@@ -1593,6 +1701,12 @@
   "ThunderBison": {
    "assetId": 101137126750286,
    "textureId": 86639234742303,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ThunderBunny": {
+   "assetId": 97143792440610,
+   "textureId": 82622843607612,
    "textureType": "Image",
    "version": "1"
   },
@@ -1655,6 +1769,12 @@
    "textureId": 107836813950147,
    "textureType": "Image",
    "version": "4"
+  },
+  "VineChameleon": {
+   "assetId": 77383296321801,
+   "textureId": 94621593268906,
+   "textureType": "Image",
+   "version": "1"
   },
   "VoidKitsune": {
    "assetId": 134240204764051,
@@ -1793,9 +1913,9 @@
    "imageId": 120912949448970,
    "source": "44d765b550ef3be1"
   },
-  "BlizzardBearCub": {
-   "imageId": 137430108001949,
-   "source": "9313e7a0665984ed"
+  "BlossomDeer": {
+   "imageId": 81112678255133,
+   "source": "3b72c07e944a4a34"
   },
   "BlueJay": {
    "imageId": 94401009739360,
@@ -1816,14 +1936,6 @@
   "BonsaiDragon": {
    "imageId": 105707860741846,
    "source": "6595bc402e600a0c"
-  },
-  "BrambleBoar": {
-   "imageId": 86656509072929,
-   "source": "f5fa29672eea516e"
-  },
-  "BrassDragonfly": {
-   "imageId": 77886982154180,
-   "source": "186656973b15b71c"
   },
   "Bullfrog": {
    "imageId": 76521218802928,
@@ -1889,6 +2001,10 @@
    "imageId": 128045663333976,
    "source": "0a1d30713b7e3f13"
   },
+  "CinderPup": {
+   "imageId": 93030528038832,
+   "source": "cf3a110171abd0f2"
+  },
   "ClockworkLeviathan": {
    "imageId": 127316083579519,
    "source": "f62c10e8bfac79e6"
@@ -1897,29 +2013,25 @@
    "imageId": 98113668846964,
    "source": "fa584c594ca42ea8"
   },
-  "ClockworkPenguin": {
-   "imageId": 103479164580838,
-   "source": "e49466e08bb286e7"
-  },
   "CloudSerpent": {
    "imageId": 136269116443651,
    "source": "796815eb0337f3c7"
+  },
+  "CloudSheep": {
+   "imageId": 107898640203381,
+   "source": "07dab01175210cc1"
   },
   "Cloudlet": {
    "imageId": 73391164236467,
    "source": "7f3f9ea644d3e66b"
   },
-  "CloverPony": {
-   "imageId": 71160201238593,
-   "source": "7de024cdce668287"
+  "CoalPiglet": {
+   "imageId": 123782076480055,
+   "source": "54c76b61d0bf905f"
   },
   "Cockatoo": {
    "imageId": 71022261836153,
    "source": "5eab09cbd4c8f47e"
-  },
-  "Cockatrice": {
-   "imageId": 100873603292597,
-   "source": "2cc4f6d4ed60434e"
   },
   "CocoaBunny": {
    "imageId": 135947264943118,
@@ -1952,6 +2064,10 @@
   "Crow": {
    "imageId": 79172681125114,
    "source": "00eb74d5b57d0c67"
+  },
+  "CrystalCrab": {
+   "imageId": 121279878208666,
+   "source": "2d2782c23e20b9e7"
   },
   "CrystalGolem": {
    "imageId": 85796191553076,
@@ -2001,10 +2117,6 @@
    "imageId": 89825151566101,
    "source": "0aeac10a51fa6c6a"
   },
-  "DreamTapir": {
-   "imageId": 101696034933760,
-   "source": "bb6579d4d861eed9"
-  },
   "Duckling": {
    "imageId": 73135854241499,
    "source": "a540e9de8b1a0db8"
@@ -2049,6 +2161,10 @@
    "imageId": 134880216608812,
    "source": "1c6a30cf9aa7b10a"
   },
+  "FlameMoth": {
+   "imageId": 140643937030940,
+   "source": "02ed51f5f3993480"
+  },
   "Fluffernut": {
    "imageId": 120212191644068,
    "source": "e61057c7f29f33e4"
@@ -2065,6 +2181,10 @@
    "imageId": 104210492818160,
    "source": "15ee87fcfb540007"
   },
+  "FrostOwl": {
+   "imageId": 134882658277355,
+   "source": "5b77460d9dce1982"
+  },
   "FrostSprite": {
    "imageId": 71124287642967,
    "source": "a4015ddf2d8ce368"
@@ -2076,14 +2196,6 @@
   "FruitBat": {
    "imageId": 130090787260764,
    "source": "b6f2aa8a4589628a"
-  },
-  "GalaxyOwl": {
-   "imageId": 140690407723284,
-   "source": "3d81b1226e056e38"
-  },
-  "GargoylePup": {
-   "imageId": 137658710033341,
-   "source": "33b8677a29f9da22"
   },
   "Gecko": {
    "imageId": 76495034711463,
@@ -2100,6 +2212,10 @@
   "GingerbreadGolem": {
    "imageId": 140478709753921,
    "source": "54e3f655db9d0d27"
+  },
+  "GlacierPenguin": {
+   "imageId": 100301103854474,
+   "source": "bc582ada06630196"
   },
   "GoatKid": {
    "imageId": 85033420868320,
@@ -2158,8 +2274,8 @@
    "source": "f500881046bbb585"
   },
   "HurricaneRoc": {
-   "imageId": 103514228926112,
-   "source": "442cf6462d99893c"
+   "imageId": 139693014930236,
+   "source": "146f52dbb6491b1f"
   },
   "HuskyPup": {
    "imageId": 105131027989050,
@@ -2172,6 +2288,10 @@
   "IbexKid": {
    "imageId": 110089507189627,
    "source": "e15e71439bd76f1f"
+  },
+  "IceTurtle": {
+   "imageId": 83303115612805,
+   "source": "fde56af9f035cef6"
   },
   "IcicleBat": {
    "imageId": 119886473159238,
@@ -2188,10 +2308,6 @@
   "Jackalope": {
    "imageId": 99272993614638,
    "source": "29fd4b92c3261ad1"
-  },
-  "JellySlime": {
-   "imageId": 115569225636736,
-   "source": "71892817d88712ce"
   },
   "JellybeanBeetle": {
    "imageId": 98829446769033,
@@ -2241,9 +2357,17 @@
    "imageId": 106309750079466,
    "source": "ab4b3fe6ed4dd126"
   },
+  "LavaGecko": {
+   "imageId": 85487192744975,
+   "source": "8cecb9960cf4e0f7"
+  },
   "LeafBat": {
    "imageId": 128850714533411,
    "source": "503169a338d3d03e"
+  },
+  "LeafLynx": {
+   "imageId": 101129174450987,
+   "source": "0ce5e34f78bd3663"
   },
   "Lemming": {
    "imageId": 112910433452364,
@@ -2269,6 +2393,10 @@
    "imageId": 135632792173313,
    "source": "3735359b59a8a554"
   },
+  "MagmaToad": {
+   "imageId": 101513175496557,
+   "source": "3bfa24be3cad05a8"
+  },
   "Mantis": {
    "imageId": 70895032859960,
    "source": "55603a522fbe308b"
@@ -2281,10 +2409,6 @@
    "imageId": 109549883563844,
    "source": "62a29436afcf1ee2"
   },
-  "MimicChest": {
-   "imageId": 99016721103470,
-   "source": "476742f0f13754b5"
-  },
   "Mole": {
    "imageId": 86283043865254,
    "source": "0947537c364d9e59"
@@ -2296,6 +2420,10 @@
   "MoonUnicorn": {
    "imageId": 93137043299342,
    "source": "8eaf630df90636da"
+  },
+  "MossBear": {
+   "imageId": 122111998729949,
+   "source": "cb75bb0083c555b4"
   },
   "MossbackTortoise": {
    "imageId": 133092495125237,
@@ -2361,10 +2489,6 @@
    "imageId": 78864892899353,
    "source": "6094718ed84e3ac3"
   },
-  "PebbleGolem": {
-   "imageId": 106431273364502,
-   "source": "eee2e190827a214b"
-  },
   "PegasusFoal": {
    "imageId": 131950586047914,
    "source": "342517f3172dd1d3"
@@ -2425,10 +2549,6 @@
    "imageId": 96367906387399,
    "source": "5a457ec3e403d56f"
   },
-  "RainFrog": {
-   "imageId": 136705224861229,
-   "source": "d5e70dd22da31036"
-  },
   "RainbowSnail": {
    "imageId": 95951849050687,
    "source": "739b3c0d68997ab4"
@@ -2469,10 +2589,6 @@
    "imageId": 127430919230019,
    "source": "d8b78169ba526c91"
   },
-  "SelkiePup": {
-   "imageId": 139589801913103,
-   "source": "fa04a8cc8bf421fe"
-  },
   "ShadowPanther": {
    "imageId": 84735497169428,
    "source": "7cf68ec62e5f5dc7"
@@ -2481,9 +2597,9 @@
    "imageId": 109968712237514,
    "source": "ac1eea4b74d784a0"
   },
-  "ShroomMoose": {
-   "imageId": 102925477638890,
-   "source": "247f42e963dda70b"
+  "ShroomSnail": {
+   "imageId": 120007060583805,
+   "source": "a5cfd98d8e19e246"
   },
   "ShroombackToad": {
    "imageId": 116773309825543,
@@ -2509,17 +2625,17 @@
    "imageId": 106743310830875,
    "source": "f77603557c80181a"
   },
-  "SnowGriffin": {
-   "imageId": 121192836782771,
-   "source": "b55d6b30a7d6320e"
+  "SnowHare": {
+   "imageId": 92161221255509,
+   "source": "c5aa9619af9210a9"
   },
   "SolarLion": {
    "imageId": 126886467932403,
    "source": "f2e15631b1dba546"
   },
-  "SphinxCub": {
-   "imageId": 78411538534578,
-   "source": "970736efc4ba437a"
+  "SparkBeetle": {
+   "imageId": 85042335921690,
+   "source": "2e691dde02f8881e"
   },
   "SpiritFox": {
    "imageId": 101600808196368,
@@ -2548,6 +2664,10 @@
   "Starfish": {
    "imageId": 94835980755282,
    "source": "382ddbb9631ad554"
+  },
+  "StaticCat": {
+   "imageId": 96936214422284,
+   "source": "8b11b92424405ad5"
   },
   "Stoat": {
    "imageId": 112121129640037,
@@ -2585,13 +2705,17 @@
    "imageId": 127578171829330,
    "source": "fdc435993311907a"
   },
+  "ThornHedgehog": {
+   "imageId": 128986959996395,
+   "source": "91f5ee4aa43c5c94"
+  },
   "ThornWolf": {
    "imageId": 88598272260048,
    "source": "8c5c52b6fc47c661"
   },
-  "ThunderBison": {
-   "imageId": 83147918831958,
-   "source": "948297b61247ad99"
+  "ThunderBunny": {
+   "imageId": 102125310976554,
+   "source": "440ec99a6d04f4f1"
   },
   "ThunderGriffin": {
    "imageId": 72159062690921,
@@ -2629,13 +2753,13 @@
    "imageId": 131445003908171,
    "source": "1c728c36309c2255"
   },
+  "VineChameleon": {
+   "imageId": 101997141217880,
+   "source": "dcd6719f8a910afd"
+  },
   "VoidKitsune": {
    "imageId": 133265371268099,
    "source": "c1365d54a61b682f"
-  },
-  "VoltLynx": {
-   "imageId": 109116451012459,
-   "source": "2559663e50296e53"
   },
   "WalrusPup": {
    "imageId": 78885367045533,
@@ -2644,10 +2768,6 @@
   "WaterVole": {
    "imageId": 123194548452364,
    "source": "87f0a7960fd5308f"
-  },
-  "WillOWisp": {
-   "imageId": 91109433924052,
-   "source": "0127fd7de7480dc4"
   },
   "WolverineKit": {
    "imageId": 78265412140628,
@@ -2668,6 +2788,86 @@
   "ZebraPiglet": {
    "imageId": 122821289359673,
    "source": "bd54e7d5ad399b01"
+  },
+  "BlizzardBearCub": {
+   "imageId": 137430108001949,
+   "source": "9313e7a0665984ed"
+  },
+  "BrambleBoar": {
+   "imageId": 86656509072929,
+   "source": "f5fa29672eea516e"
+  },
+  "BrassDragonfly": {
+   "imageId": 77886982154180,
+   "source": "186656973b15b71c"
+  },
+  "ClockworkPenguin": {
+   "imageId": 103479164580838,
+   "source": "e49466e08bb286e7"
+  },
+  "CloverPony": {
+   "imageId": 71160201238593,
+   "source": "7de024cdce668287"
+  },
+  "Cockatrice": {
+   "imageId": 100873603292597,
+   "source": "2cc4f6d4ed60434e"
+  },
+  "DreamTapir": {
+   "imageId": 101696034933760,
+   "source": "bb6579d4d861eed9"
+  },
+  "GalaxyOwl": {
+   "imageId": 140690407723284,
+   "source": "3d81b1226e056e38"
+  },
+  "GargoylePup": {
+   "imageId": 137658710033341,
+   "source": "33b8677a29f9da22"
+  },
+  "JellySlime": {
+   "imageId": 115569225636736,
+   "source": "71892817d88712ce"
+  },
+  "MimicChest": {
+   "imageId": 99016721103470,
+   "source": "476742f0f13754b5"
+  },
+  "PebbleGolem": {
+   "imageId": 106431273364502,
+   "source": "eee2e190827a214b"
+  },
+  "RainFrog": {
+   "imageId": 136705224861229,
+   "source": "d5e70dd22da31036"
+  },
+  "SelkiePup": {
+   "imageId": 139589801913103,
+   "source": "fa04a8cc8bf421fe"
+  },
+  "ShroomMoose": {
+   "imageId": 102925477638890,
+   "source": "247f42e963dda70b"
+  },
+  "SnowGriffin": {
+   "imageId": 121192836782771,
+   "source": "b55d6b30a7d6320e"
+  },
+  "SphinxCub": {
+   "imageId": 78411538534578,
+   "source": "970736efc4ba437a"
+  },
+  "ThunderBison": {
+   "imageId": 83147918831958,
+   "source": "948297b61247ad99"
+  },
+  "VoltLynx": {
+   "imageId": 109116451012459,
+   "source": "2559663e50296e53"
+  },
+  "WillOWisp": {
+   "imageId": 91109433924052,
+   "source": "0127fd7de7480dc4"
   }
  }
 }
