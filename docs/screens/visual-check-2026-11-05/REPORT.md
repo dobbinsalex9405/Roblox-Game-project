@@ -888,3 +888,17 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Book in restricted mode:** the found Gosling card and the ??? cards have **blank odds lines**, with no egg name and no "1 in N" (`126-hh-restricted-book.jpg`).
 - **FAIL, layout:** the restricted odds card is **280x1142 px on a 672 px tall desktop viewport**, placed at y −264. It runs off the top and bottom of the screen and covers the Shop/Test buttons and the chat. There's no scroll, so most rows, including NEXT (near the bottom), can't be seen (`126-hh-restricted-oddscard-overflow.jpg`). On a phone it would be worse. Fix: make the list a ScrollingFrame capped to the viewport, or show only NEXT plus the next few rows and the rarest outcomes, grouping Commons as one line.
 - **Unrestricted pass:** the odds card is unchanged from main (Basic: 92.000% · 1 in 1.1 / 7.000% · 1 in 14.3 / 0.800% · 1 in 125 / 0.180% · 1 in 556 / 0.018% · 1 in 5,556 / 0.002% · 1 in 50,000; size 280x214).
+
+## #126 fixed head @ 952e6f8
+
+**Desktop and logic PASS. Phone FAIL (the card overflows the bottom). One truncation finding.** Local builds; restricted mode uses the local policy-fetch patch, not committed.
+- **Desktop 1350x672, restricted:** the card is 280x310 at y 152-462, so it fits (`126b-hh-restricted-card-desktop.jpg`). Contents:
+  - "Fixed order, no chance involved:", then the next three: Gosling NEXT · Turtle in 2 eggs · Bunny in 3 eggs.
+  - Then one line per tier: Common 92000 in 100000 · in 3 eggs; Uncommon 7000 · NEXT; Rare 800 · in 44; Ultra Rare 180 · in 296; Epic 18 · in 2796; Legendary 2 · in 25011.
+  - The tier counts sum to **100000**, the cycle length.
+  - Rows are small text at desktop size, but readable.
+- **"See the whole order":** opens "Basic Egg: fixed order", 340x460, soonest first with "count in 100000 · wait" per creature (45 creatures). It **scrolls**: canvas 1168 px, CanvasPosition reached 708 (`126b-hh-whole-order-list.jpg`).
+  - *Finding:* the right column truncates: "3500 in 100000 · in 2…" (`TextFits=false`, needs 141.6 px in a 161.5 px label at this size, `TextTruncate=AtEnd`). The wait value is the part being cut off.
+- **Buy one egg:** hatched **Gosling** (the old NEXT). After the hatch the card shows Turtle NEXT · Bunny in 2 eggs · Chick in 3 eggs, and the tier waits each dropped by 1 (Rare 44→43, Ultra Rare 296→295, Epic 2796→2795, Legendary 25011→25010).
+- **Phone 844x392, restricted: FAIL.** The card is 280x**310** placed at y 168, so its bottom is at y **478**, 86 px off the bottom of a 392 px screen. No UIScale was applied, so it didn't shrink as specified.
+- **Unrestricted:** the card matches main: 280x214, Basic 92.000% · 1 in 1.1 … 0.002% · 1 in 50,000. Desktop y 152; phone y 168-382 (fits).
