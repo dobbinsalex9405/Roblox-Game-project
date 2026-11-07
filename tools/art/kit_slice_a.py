@@ -169,7 +169,8 @@ def cone_beak(c, H, col, col2=None, a=None):
     """The bird plan's wide flat bill swapped for a small pointed cone (a
     chick's or songbird's): two voxels wide, two high at the root and one at
     the tip, `length` (default 1.0) scaling how far it sticks out. col2, if
-    given, darkens the tip."""
+    given, darkens the tip. `strip`: also remove thin rows in front of the
+    face whatever their colour (a bill a pattern painted over)."""
     a = a or {}
     k = H / 10.0
     head = _find(c, 'head')
@@ -180,10 +181,20 @@ def cone_beak(c, H, col, col2=None, a=None):
     bill = {p for p, v in head.v.items() if v[0] == old and p[1] <= ymin + max(2, round(0.8 * k))}
     zs = sorted({p[2] for p in bill})
     zc = round((zs[0] + zs[-1]) / 2) if zs else round(min(p[2] for p in head.v) + 2 * k)
+    if a.get('strip'):
+        # a patterned bill (swirls painted over it) isn't one colour: also
+        # take every thin row standing out in front of the face
+        y = ymin
+        while True:
+            row = [p for p in head.v if p[1] == y]
+            if not row or len(row) > 8:
+                break
+            bill |= set(row)
+            y += 1
     for p in bill:
         del head.v[p]
     # close the face where the bill sat in it
-    for p in sorted(bill, key=lambda p: -p[1]):
+    for p in ([] if a.get('strip') else sorted(bill, key=lambda p: -p[1])):
         behind = (p[0], p[1] + 1, p[2])
         if behind in head.v and head.v[behind][0] != old:
             ys = [q[1] for q in head.v if q[2] == p[2] and -2 <= q[0] <= 1]
@@ -221,12 +232,21 @@ def eye_stripe(c, H, col, col2=None, a=None):
             continue
         z = min(p[2] for p in ev)  # the lower eye row
         y0 = max(p[1] for p in ev) + 1
-        for y in range(y0, y0 + L):
-            row = [p for p in head.v if p[1] == y and p[2] == z and (p[0] >= 0) == (side > 0)]
+        drop = a.get('drop', 0.0)  # how far it falls per voxel back
+        for i, y in enumerate(range(y0, y0 + L)):
+            zz = z - math.floor(i * drop)
+            row = [p for p in head.v if p[1] == y and p[2] == zz and (p[0] >= 0) == (side > 0)]
             if not row:
                 continue
             q = max(row, key=lambda p: abs(p[0] + .5))
+            f = head.front(q[0], q[2])
+            if a.get('hide_front') and f and f[1] == q[1]:
+                continue  # seen from the front it would join the eye into a bar
             head.v[q] = (col, False)
+        if a.get('tall_eye'):  # a 1x2 eye: one more dark voxel under it
+            for (x, y, ez) in ev:
+                if (x, y, ez - 1) not in eyes.v:
+                    eyes.put((x, y, ez - 1), eyes.v[(x, y, ez)][0])
 
 
 ACCESSORIES['eye_stripe'] = eye_stripe
@@ -550,7 +570,7 @@ ACCESSORIES['arm_hair'] = _fine_only(arm_hair)
 def mitten_plus(c, H, col, col2=None, a=None):
     """Makes kit_uncommon's mitten read as a mitten (run after it, same
     colours): the knit grows a rounded fingertip end past the rump, a big
-    thumb sticks out and up from the +x flank (the one the hero camera
+    thumb rises from the top of the +x flank (the one the hero camera
     sees), and the white cuff rolls out one voxel all round the opening.
     All of it stays above the belly, clear of the legs."""
     a = a or {}
@@ -583,16 +603,16 @@ def mitten_plus(c, H, col, col2=None, a=None):
     for (x, y, z) in (tip.v if a.get('tip', True) else ()):
         if y > y1 - 1 and z >= z0 and (x, y, z) not in body.v:
             body.put((x, y, z), knit_col(x, y, z))
-    # the thumb: a fat rod from the flank, out, up and a little forward
-    # on the +x flank (the one the hero camera sees; a.side -1 for the
-    # other), halfway back so the head never hides it: out to the side,
-    # then up past the mitten's top
+    # the thumb: a fat rod rising from the top of the +x flank (the side
+    # the hero camera sees), up and a little forward. It stays inside the
+    # knit's width: the export centres each part on its box, so anything
+    # sticking out on one side would shift the body off the legs' mirror.
     ym = y0 + (y1 - y0) * 0.5
     sd = a.get('side', 1)
-    xe = x1 if sd > 0 else x0 + 1
-    base = (xe - sd * 0.3 * k, ym, cz)
-    mid = (xe + sd * 0.9 * k, ym - 0.2 * k, cz + 0.5 * k)
-    end = (xe + sd * 1.2 * k, ym - 0.4 * k, z1 + 0.8 * k)
+    xe = x1 if sd > 0 else x0
+    base = (xe - sd * 1.0 * k, ym, z1 - 0.4 * k)
+    mid = (xe - sd * 0.8 * k, ym - 0.2 * k, z1 + 0.6 * k)
+    end = (xe - sd * 0.7 * k, ym - 0.5 * k, z1 + 1.4 * k)
     th = Part('thumb')
     for (p, q) in ((base, mid), (mid, end)):
         n = 6
@@ -601,7 +621,7 @@ def mitten_plus(c, H, col, col2=None, a=None):
             pt = tuple(p[j] + (q[j] - p[j]) * t for j in range(3))
             th.ell(pt, (0.65 * k, 0.65 * k, 0.65 * k), red)
     for (x, y, z) in th.v:
-        if z >= z0 and (x, y, z) not in body.v:
+        if x0 <= x <= x1 and z >= z0 and (x, y, z) not in body.v:
             body.put((x, y, z), knit_col(x, y, z))
     # the cuff rolls out one voxel all round the opening
     if cuff:
@@ -819,3 +839,131 @@ def origami_frog(c, H, col, col2=None, a=None):
 
 
 ACCESSORIES['origami_frog'] = _fine_only(origami_frog)
+
+
+def bird_neck(c, H, col, col2=None, a=None):
+    """A long neck for a ratite chick (ostrich, emu): the head and every
+    part riding it (eyes, beak, crest) lift by `length` k (default 1.6),
+    and a neck column in col joins the body's top front to the head's
+    underside. Run it after the beak and before stilts."""
+    a = a or {}
+    k = _k(H)
+    body, head = _find(c, 'body'), _find(c, 'head')
+    if body is None or head is None or not body.v or not head.v:
+        return
+    n = max(3, round(a.get('length', 1.6) * k))
+    riders = [p for p in c.parts if p is head or (p.name in ('eyes', 'beak', 'crest', 'ears', 'comb')
+                                                    and p.v and min(q[2] for q in p.v) >= min(q[2] for q in head.v))]
+    hz0 = min(q[2] for q in head.v)
+    hy = sorted(q[1] for q in head.v if q[2] == hz0)
+    ny = hy[len(hy) // 2]
+    for p in riders:
+        p.v = {(x, y, z + n): v for (x, y, z), v in p.v.items()}
+        if getattr(p, 'pivot', None):
+            p.pivot = (p.pivot[0], p.pivot[1], p.pivot[2] + n)
+    # the neck: a column under the head, 2k wide, from inside the body up
+    # into the lifted head, leaning back a little where it meets the body
+    top = max(q[2] for q in body.v)
+    r = max(1.0, a.get('r', 0.55) * k)
+    for z in range(top - round(0.8 * k), hz0 + n + 2):
+        t = (z - top) / max(1, hz0 + n - top)
+        y = ny + (1 - max(0.0, t)) * 0.6 * k
+        for x in range(-math.ceil(r) - 1, math.ceil(r) + 1):
+            for dy in range(-math.ceil(r) - 1, math.ceil(r) + 1):
+                if (x + .5) ** 2 + (dy) ** 2 <= r * r:
+                    q = (x, round(y + dy), z)
+                    if q not in body.v and q not in head.v:
+                        head.put(q, col) if z >= hz0 + n else body.put(q, col)
+
+
+ACCESSORIES['bird_neck'] = _fine_only(bird_neck)
+
+
+def long_stripes(c, H, col, col2=None, a=None):
+    """Lengthwise stripes, head to tail (an emu chick's). The body and the
+    wings are recoloured col2 (the cream ground), then every other band of
+    angle around the body's long (y) axis is painted col: `bands` wide dark
+    stripes over the back and sides (default 4), the same axis for the
+    wings so their stripes carry on from the body's. The belly (the lowest
+    quarter) stays cream. The head stays cream except one dark stripe down
+    the middle of the crown, clear of the eyes."""
+    a = a or {}
+    ground = col2 or hexc('#EADBB8')
+    n = a.get('bands', 4)
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    (bx0, by0, bz0), (bx1, by1, bz1) = _bounds(body.v)
+    zc = bz0 + (bz1 - bz0) * 0.45
+    belly = bz0 + (bz1 - bz0) * 0.25
+    step = math.pi / (2 * n - 1)
+    for p in [body] + [q for q in c.parts if q.name in ('wingL', 'wingR')]:
+        for q, v in list(p.v.items()):
+            x, y, z = q
+            if v[1]:
+                continue
+            th = math.atan2(abs(x + .5), z + .5 - zc)  # 0 on top, pi/2 at the side
+            band = int((th + step / 2) // step)  # band 0 is centred on the spine
+            dark = z >= belly and band % 2 == 0 and band < n
+            p.v[q] = (col if dark else ground, False)
+    head = _find(c, 'head')
+    if head is not None and head.v:
+        ztop = max(q[2] for q in head.v)
+        for q, v in list(head.v.items()):
+            if v[1]:
+                continue
+            crown = abs(q[0] + .5) <= 1 and q[2] >= ztop - 2
+            head.v[q] = (col if crown else ground, False)
+
+
+ACCESSORIES['long_stripes'] = long_stripes
+
+
+def spike_rows(c, H, col, col2=None, a=None):
+    """Hedgehog spines that stand up: the flat 'spines' patch is replaced
+    by rows of 1x1 spikes rising up and back from the top of the back,
+    `length` voxels long (default 3), the last voxel in col2 (a pale tip).
+    Spikes stand on a staggered grid, `every` voxels apart (default 2),
+    from `from_y` of the way along the back (0 front, 1 rump; default 0.2),
+    mirrored left and right. `thin_cup` (a hex colour: the cup's) puts
+    back every other row of a thimble's dimples, to pay for the spikes in
+    the triangle budget."""
+    a = a or {}
+    body = _find(c, 'body')
+    if body is None or not body.v:
+        return
+    tip = col2 or myth.light(col, 0.6)
+    sp = _find(c, 'spines')
+    host = sp if sp is not None else body
+    if sp is not None:
+        sp.v = {}
+    if a.get('thin_cup'):
+        cup = hexc(a['thin_cup'])
+        dim = myth.dark(cup, 0.2) if hasattr(myth, 'dark') else None
+        for q, v in list(body.v.items()):
+            if v[0] == dim and q[2] % 4 >= 2:
+                body.v[q] = (cup, v[1])
+    # the back: the top voxel of each column of the body, above the rim
+    tops = {}
+    for (x, y, z) in body.v:
+        if (x, y) not in tops or z > tops[(x, y)]:
+            tops[(x, y)] = z
+    ys = [y for (_, y) in tops]
+    yf, yb = min(ys), max(ys)
+    zmin = a.get('min_z')
+    n = a.get('length', 3)
+    ev = a.get('every', 2)
+    y_start = yf + round((yb - yf) * a.get('from_y', 0.2))
+    for (x, y), z in tops.items():
+        if x < 0 or y < y_start or (zmin is not None and z < zmin):
+            continue
+        if x % ev or (y + (x // ev) % 2) % ev:
+            continue
+        for i in range(1, n + 1):
+            q = (x, y + (i - 1) // 2, z + i)
+            cc = tip if i == n else col
+            host.put(q, cc)
+            host.put((_mx(x), q[1], q[2]), cc)
+
+
+ACCESSORIES['spike_rows'] = _fine_only(spike_rows)
