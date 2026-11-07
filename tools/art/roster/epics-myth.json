@@ -1,0 +1,15 @@
+{"note": "Twelve Epics from the master sheet, built with kit_epicmyth.py (kinds and plans prefixed em_).",
+ "creatures": [
+  {"id": "Kappa", "rarity": "Epic", "plan": "upright", "element": "Nature", "gait": "waddle", "colors": {"col": "#5DBB63", "belly": "#D4ECA0", "accent": "#6B4F2A", "snout": "#FFC93C", "glow": "#2EC8FF", "horn": "#EDE6D6", "wing": "#2E6B3E"}, "options": {"kind": "em_kappa"}},
+  {"id": "StarJelly", "rarity": "Epic", "plan": "em_jelly", "element": "plain", "gait": "hover", "colors": {"col": "#8A5CF0", "belly": "#D6C4FF", "accent": "#B48CFF", "glow": "#FFD84A"}, "options": {"kind": "star"}},
+  {"id": "CrystalGolem", "rarity": "Epic", "plan": "upright", "element": "Glacial", "gait": "waddle", "colors": {"col": "#4F8FE0", "belly": "#9FD4FF", "accent": "#2E5FB8", "glow": "#2EE6FF", "horn": "#BFF4FF"}, "options": {"kind": "em_crystal"}},
+  {"id": "GemDrake", "rarity": "Epic", "plan": "drake", "element": "plain", "gait": "trot", "colors": {"col": "#5B4F8A", "belly": "#C9B8F0", "accent": "#3E3466", "horn": "#A58CFF", "wing": "#7A6AB8"}, "options": {"kind": "em_gem"}},
+  {"id": "BabyKraken", "rarity": "Epic", "plan": "em_octopus", "element": "Storm", "gait": "hover", "colors": {"col": "#2346A8", "belly": "#5B86E0", "glow": "#3FE0FF"}, "options": {"kind": "kraken"}},
+  {"id": "SeaSerpent", "rarity": "Epic", "plan": "serpent", "element": "Storm", "gait": "slither", "colors": {"col": "#1FA7A0", "belly": "#BFF2E6", "accent": "#0E6E8A", "glow": "#22D3EE"}, "options": {"kind": "em_sea"}},
+  {"id": "SandSerpent", "rarity": "Epic", "plan": "serpent", "element": "Ember", "gait": "slither", "colors": {"col": "#E0A82E", "belly": "#FFE6A0", "accent": "#C8781E", "glow": "#FF7A10", "horn": "#9A5A14"}, "options": {"kind": "em_sand"}},
+  {"id": "StarWhaleCalf", "rarity": "Epic", "plan": "whale", "element": "plain", "gait": "hover", "colors": {"col": "#2B3F8C", "belly": "#7088D0", "glow": "#FFD84A", "horn": "#7FD8FF"}, "options": {"kind": "em_starcalf"}},
+  {"id": "Hippocampus", "rarity": "Epic", "plan": "upright", "element": "Storm", "gait": "hover", "colors": {"col": "#3FA0C8", "belly": "#CFF3FF", "accent": "#2E7DB0", "wing": "#7FE0F0", "glow": "#22C8E8", "horn": "#E9FBFF"}, "options": {"kind": "em_hippocampus"}},
+  {"id": "CloudSerpent", "rarity": "Epic", "plan": "serpent", "element": "Storm", "gait": "slither", "colors": {"col": "#EEF4FF", "belly": "#AFC0E4", "accent": "#5B78C8", "horn": "#FFC94A", "glow": "#FFE14D"}, "options": {"kind": "em_cloud"}},
+  {"id": "HydraHatchling", "rarity": "Epic", "plan": "serpent", "element": "plain", "gait": "slither", "colors": {"col": "#4CAF50", "belly": "#D4F0A0", "accent": "#8ED67A", "horn": "#FFF6E0", "wing": "#E2D3A8", "snout": "#FFE27A"}, "options": {"kind": "em_hydra"}},
+  {"id": "AbyssJelly", "rarity": "Epic", "plan": "em_jelly", "element": "Storm", "gait": "hover", "colors": {"col": "#1C2A6E", "belly": "#3A55B8", "accent": "#2E4AA8", "glow": "#3FE0FF", "eye": "#7FF0FF"}, "options": {"kind": "abyss"}}
+]}
