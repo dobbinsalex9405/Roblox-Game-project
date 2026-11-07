@@ -2,6 +2,22 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
+
+- **Elevator cab, shaft, shaft top, ladder and floor plaque are built like
+  plain Roblox parts** (flat colours on a 0.2-stud grid, 0.5 for the
+  shaft), not sculpted 0.1-stud voxels. Alex found the old cab far too
+  heavy (631,740 triangles in the viewer). The cab is now 534 triangles
+  and 112 Parts boxes. The game's Parts version is the model exactly,
+  with nothing resampled away. Ids, `doorL`/`doorR` (slide) and the
+  shaft-top `wheel` (spin) are unchanged; the doors now sit in slots in
+  the side walls.
+- **`tools/art/world/build.py` makes flat greedy-quad meshes for every
+  world prop by default** (`vkit.flat`: speckle folded into its base
+  colour, patterns kept). The bevelled pillow mesh ran to 100k-2.4M
+  triangles for buildings and trees, too heavy for the viewer and over
+  Roblox's 20k MeshPart cap. `--full` still makes the pillow mesh.
+
 ## 2026-11-05: Creature uploads retry a flaky network (tools)
 
 - **What:** `tools/art/blender/upload.py`'s `call()` retries connection
