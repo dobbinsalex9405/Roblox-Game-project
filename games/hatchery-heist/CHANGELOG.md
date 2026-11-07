@@ -2,19 +2,123 @@
 
 ## Unreleased
 
+- The Hurricane Roc has a proper hooked raptor beak, and twice as many wind
+  threads whirl around it.
+- 18 new Godlies can now hatch from the Moonlit Egg (19 Godlies there in
+  all), each 1 in 1,000,000 (a Godly from it is 1 in 52,632, was 1 in 50,000).
+- Fix: in the Hatchery Book, the tab you open loads its pictures first, so
+  a tab opened soon after joining no longer waits on the others' pictures.
+- Fix: the odds card beside an egg refits when the screen changes size, so
+  it no longer stays phone-sized after a window grows.
+- Fix: on a phone the Hatchery Book fits below Roblox's top bar; its bottom
+  edge was just off the screen.
+- The full odds list is wider where the screen allows, so long names like
+  "Dalmatian Pup (Common)" fit beside their odds (a name too long is
+  shortened, never the odds), and switching eggs starts at the top.
+- Fix: a rare egg like the Moonlit Egg rides past its Buy prompt in about a
+  second, too fast to reach "See every creature". The full odds list now has
+  a tab for every egg on the belt, so any egg's list opens the others.
+- Players who see a fixed hatch order instead of chances: the order is now
+  worked out one egg at a time, so eggs whose odds are written in tens of
+  millions (room for many more Legendaries and Epics) cost no memory. Each
+  outcome still comes exactly as often as its odds say, evenly spread.
+- Fix: for players who see a fixed hatch order, the odds card no longer
+  runs off the screen listing every creature. It shows the next three eggs
+  and one line per tier, and "See the whole order" opens the full list,
+  soonest first, each with its wait in full. The odds card never runs past
+  the bottom of the screen (a long one scrolls), and its text is never
+  smaller than 11 px, even on a phone. Each row's odds get the room they
+  need, so even "1 in 50,000" is never cut short.
+- Ten new Epic creatures can hatch: Mushroom Gnome, Troll Cub, Sapling Ent,
+  Gingerbread Golem, Petal Sprite, Frost Sprite, Ember Imp, Yeti Cub, Rime
+  Drakeling and Bonsai Dragon. They join the Epic tier's share of the eggs,
+  so no other tier's odds change.
+- Fix: on desktop, Roblox's player list no longer sits on top of the Guide
+  button (clicks opened "Examine Avatar"); the game has no leaderboard, so
+  the list is off.
+- The "YOUR HATCHERY" banner floats higher over your base sign, clear of the
+  next floor's price label, so the two no longer read as one crowded line.
+- Hatchery Book: the cards around the view (the whole Common tab today) are
+  built ahead as soon as it opens and kept while the book is closed, and
+  each card shows a dark picture well. Pictures can still take a moment to
+  appear on a fast flick.
+- Fix: Hatchery Book cards no longer show empty on a fast flick, a reopen or
+  a tab switch. Each creature is a ready-made picture, loaded when you join;
+  creatures you have not found yet are black silhouettes.
+- Fix: the Hatchery Book's pictures load faster after you join, the Common
+  tab first, so the first open no longer shows empty cards for a moment.
+- Fix: the Hatchery Book refits when the screen changes size (a window
+  resized, a phone turned), so its title is never cut off.
+
+- 32 new Uncommon creatures can hatch, among them the Arctic Fox Kit,
+  Teacup Piglet, Pangolin, Tardigrade, Shroomback Toad and the garden
+  veggie puffs (Turnipling, Carrotling, Peapod, Cornling, Radishling).
+- The Nebula Serpent is reworked: a finer, more detailed nebula coil with
+  crystal antlers, a flowing mane, whiskers and a comet tail, and four
+  little worlds (a ringed planet, an ocean world, a lava world and a moon)
+  circling it. It and the Golden Goose are each one solid piece, so
+  nothing floats loose when they hover.
+- Fix: a creature's legs, wings, tails and heads no longer flicker where
+  they swing against the body (a bunny's hind feet kicking back in a hop
+  showed a striped patch at the hip).
 - Glowing paw soles and other small glowing bits on creatures no longer go
   missing after upload: each glow piece is now a closed shape.
 - Creature legs, tails and little bug legs that only touched the body at a
   corner no longer look like they float: every loose piece is now joined to
   the body.
+- Every creature walks on its own legs: birds step on two little legs and
+  flick their wings out, bunnies push off with their hind feet, frogs kick
+  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
+  two alternating sets and spiders on eight; ladybugs, turtles and pill
+  bugs no longer slide along on their bellies. Legendaries and Godlies
+  fly, with their legs trailing. The 3D design viewer's walk clips match.
+- Fix: crabs and lizards had thinner legs on their left side, a seal's
+  belly was taken for one of its legs, and a widened body (Guinea Pig)
+  could end up with mismatched legs; every creature's legs now mirror.
+- Creatures walk on real legs: every leg is its own part that swings from
+  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
+  slither or hover).
+- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
+  crayfish and lobsters now walk on all their legs, and dragonflies,
+  fireflies and the Phoenix hover.
+- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
+  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
+  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
+  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
+  cheeks.
+- Fix: the side menu (Guide, Book, Tower, Pets, Daily, Music) no longer
+  disappears for good after the welcome card; only an open window hides it.
+- Fix: tapping Build or Upgrade twice no longer buys the next upgrade. The
+  row shows "Building..." and then "Built!" (with a sound) before the next
+  button appears. Tapping one you can't afford says how many more coins you
+  need.
+- Fix: Daily Rewards pay round amounts (600, not 601), and claiming shows
+  "+600 coins" rising from the button.
+- Fix: the camera no longer ends up inside the Golden Egg Shop's counter and
+  walls; indoors it stays close behind you.
+- Phone: the coin panel is solid, so the base sign no longer shows through;
+  the side menu hides while a window is open; the welcome card shows all
+  four steps without scrolling; the Robux shop shows more items at a time.
 
-- Fix: climbing the tower ladder from inside the tower no longer gets you
-  stuck under the next floor. Each floor has an opening beside the ladder
-  you climb through and step off onto.
-- Fix: the Tower and Pets windows' buttons are 40 px tall, easy to tap on a
-  phone.
-- Fix: prices read "25K coins", not "25.00K coins". The next floor's label
-  no longer says "(Tower menu)".
+- The apartment towers now look like apartments from outside: walls,
+  windows, balconies and a roof on every built floor of your tower and the
+  nearest towers (the rest keep their plain floors until you come close).
+- Fix: the ladder now stops at your top built floor, with a landing to step
+  off onto, instead of running past it.
+
+- Fix: the price label over the next floor to buy no longer fills its box
+  edge to edge; it has room for the longest price ("Floor 10: 165M coins").
+
+- Long Godlies (the Clockwork Leviathan, the Cosmic Whale) lie along their
+  three spots at full Godly height and pace up and down them, instead of
+  reaching into the spots in front and behind.
+
+- Fix: pressing E at a ready egg no longer sets a trap by mistake. Traps are
+  set with F (snare) or R (slime), with a short hold, from closer by.
+
+- Sound effects: the egg shakes and cracks, each reveal has its own sting,
+  new Book entries, rewards and menu buttons all make a sound now.
+
 - Creatures on your tower walk around their spot: they turn, walk, stop,
   and turn to face you, the same for every player. They really walk: four
   legs trot in diagonal pairs, birds waddle, frogs hop, bugs scuttle,
@@ -33,6 +137,15 @@
   their three spots.
 - Creature meshes more than 30 studs away draw their lighter far version,
   so a busy yard of detailed Godlies stays smooth.
+
+- Fix: a creature no longer stays blocky for a whole server when Roblox
+  turns away one of its model loads. Loads go a few at a time and retry,
+  and the server log says why a creature stayed on its blocks. A missing
+  glow accent (Ember Fox's glowing paws) no longer sends the whole creature
+  back to blocks.
+- 61 more Commons can hatch from the Basic and Meadow eggs (91 Commons in
+  all): pups, kittens, parrots, woodland and pond critters, beetles and more.
+  Egg tier odds are unchanged; the new creatures share the Common chance.
 - Fix: climbing the tower ladder from inside the tower no longer gets you
   stuck under the next floor. Each floor has an opening beside the ladder
   you climb through and step off onto.
@@ -40,29 +153,38 @@
   phone.
 - Fix: prices read "25K coins", not "25.00K coins". The next floor's label
   no longer says "(Tower menu)".
-- Every creature walks on its own legs: birds step on two little legs and
-  flick their wings out, bunnies push off with their hind feet, frogs kick
-  their back legs, beetles, ants, crabs and pill bugs walk on six legs in
-  two alternating sets and spiders on eight; ladybugs, turtles and pill
-  bugs no longer slide along on their bellies. Legendaries and Godlies
-  fly, with their legs trailing. The 3D design viewer's walk clips match.
-- Fix: crabs and lizards had thinner legs on their left side, a seal's
-  belly was taken for one of its legs, and a widened body (Guinea Pig)
-  could end up with mismatched legs; every creature's legs now mirror.
 - The Golden Egg Shop: a walk-in shop in the yard with every Robux item on
   its own display (coin packs, passes, Shield Refill), price tags, a Buy
   prompt at each, a counter and a shopkeeper. Soft lamps, no Neon glare,
   and dark unlit price tags that stay readable in the lit room.
+- Coin packs grow with you: each gives its fixed coins or 5, 20, 45 or 100
+  minutes of what you earn now, whichever is more. The shop shows your exact
+  amount.
 
-- Creature legs, tails and little bug legs that only touched the body at a
-  corner no longer look like they float: every loose piece is now joined to
-  the body.
+- Fix: after a respawn you are sent back to your base again, not left at
+  the plaza.
+- The Egg Market: the conveyors at the front of each base are gone. One
+  round belt in the middle of the map carries eggs for everyone, on two
+  lanes turning opposite ways, each egg on its own pedestal. Whoever buys an
+  egg first gets it. Moonlit Eggs come along three times as often (the mix
+  is now 55% Basic, 30% Meadow, 15% Moonlit), and a sign beside each
+  stop shows each egg in turn: its price and its rarest chances, in big
+  type. Pressing Buy on an egg you can't afford says which egg it was and
+  what the cheapest egg costs, and Buy only shows on eggs you can afford
+  (unless you can afford none). On a phone the odds card is smaller, and the
+  guide's gold arrow steps aside once you reach the market.
 - Your base is now a cozy 10-floor apartment tower (Cozy Studio up to the
   Golden Sky Penthouse). Build floors for coins (25K up to
   165M); higher floors make the creatures on them earn more (up to x3.25),
   and each floor has 4 upgrades with props you can see. 8 spots a floor:
   Epics take 2, Legendaries and Godlies 3. Ride the elevator or climb the
   ladder.
+- Every floor upgrade now furnishes the room: themed beds on all eight
+  spots, then a big rug, then glowing ceiling lights, then corner plants
+  and the floor's crest, each growing in with a sparkle. The Tower menu
+  shows what the next upgrade brings.
+- Fix: with a big income, Upgrade and Build taps in the Tower menu were
+  sometimes lost (the menu rebuilt itself every time coins went up).
 - Only creatures on a floor earn. The rest wait in your inventory (now 150,
   up from 30); "Your Creatures" moves them, and Place best fills the tower
   with your strongest. Old bases are placed best first on the next join.
@@ -75,24 +197,11 @@
   and three sizes, with bushes, mossy rocks, flowers, grass and glowing
   mushroom rings, pines on the hills, a painted storybook sky with voxel
   clouds and floating islands, and a grass texture on the ground.
-
 - Small trees and a bush now frame each piece of the farm between the
   bases, the wood grows behind the farm too, and the Star Pines stand on
   the hills (one on every other hill) instead of on flat grass.
-- Creatures walk on real legs: every leg is its own part that swings from
-  the hip, and each creature has a gait (trot, waddle, hop, scuttle,
-  slither or hover).
-- Fix: crab meshes had legs on one side only; spiders, ants, crickets,
-  crayfish and lobsters now walk on all their legs, and dragonflies,
-  fireflies and the Phoenix hover.
-- The Calf now reads as a calf (boxy head, wide pink muzzle, horn buds,
-  sideways ears, hooves, Holstein patches, tufted tail), and the bunnies
-  (Bunny, Lop Bunny, Dutch, Lionhead) sit upright with slim front paws,
-  long hind feet and rounder faces; the Lop Bunny's ears hang beside its
-  cheeks.
-- Small trees and a bush now frame each piece of the farm between the
-  bases, the wood grows behind the farm too, and the Star Pines stand on
-  the hills (one on every other hill) instead of on flat grass.
+- The wood now goes all the way round the ring, so no bare grass shows
+  behind the barn or the fields.
 
 - 20 new Commons: Hen, Chipmunk, Guinea Pig, Calf, Foal, Goat Kid, Lop
   Bunny, Mole, Crab and Parakeet from the Basic Egg; Caterpillar, Beetle,

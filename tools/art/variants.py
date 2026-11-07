@@ -55,7 +55,7 @@ PLANS = {
     'quadruped': (
         {'col', 'belly', 'snout', 'ear_col', 'tail_col', 'mask', 'patches', 'mane', 'spines', 'glow', 'horn',
          'antlers', 'wings'},
-        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy'},
+        {'ears': {'pointy', 'cat', 'big', 'round', 'long', 'floppy', 'hanging'},
          'tail': {'short', 'curly', 'bushy', 'fox', 'long', 'striped', 'flame', 'none'},
          'fluffy': {True, False}, 'pig': {True, False}, 'cow': {True, False}, 'bunny': {True, False}},
     ),
@@ -141,7 +141,7 @@ def check(entry, where):
         bad(f'{sid}: a {plan} needs options.kind')
     sh = entry.get('shape', {})
     for key in sh:
-        if key not in ('body', 'head'):
+        if key not in ('body', 'head', 'keep_eyes'):
             bad(f'{sid}: shape has "body" [width, length, height] and "head", not "{key}"')
     if 'body' in sh and (len(sh['body']) != 3 or not all(0.8 <= v <= 1.35 for v in sh['body'])):
         bad(f'{sid}: shape.body must be 3 numbers from 0.8 to 1.35')
@@ -187,6 +187,180 @@ def load(directory=ROSTER_DIR):
     return out
 
 
+def _lum(rgb):
+    r, g, b = (v / 255.0 for v in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+DARK_FACE = 0.35
+RING_CONTRAST = 0.12  # below this the deepened eye still sinks into the face
+
+# Live creatures whose in-game mesh and box art were made before the eye pass.
+# They keep their current eyes until each one is re-reviewed and its mesh is
+# re-uploaded; then drop its id here, in the PR that carries the upload.
+# Binturong (promoted, not live yet) is here too: the shine would put it 84
+# tris over the Uncommon budget (15000), so it keeps its reviewed eyes.
+# Porcupine (promoted, not live yet) likewise: the shine puts it 136 tris
+# over the Common budget (15000) with its quill coat.
+EYE_CONTRAST_KEEP = frozenset({
+    'BabyKraken', 'BearCub', 'Binturong', 'CocoaBunny', 'Cricket', 'Crow',
+    'GemDrake', 'Lemming', 'Porcupine', 'Skunk', 'StarWhaleCalf', 'StormHawk',
+    'TapirCalf',
+})
+
+
+def eye_contrast(c):
+    """Dark eyes vanish on a dark face (or a dark mask). When the face around
+    an eye is dark, every eye gets a one-voxel white shine on the same upper
+    corner (a one-voxel eye grows to 2x2 to carry it).
+    The eye's ink is deepened toward black; only when that still leaves too
+    little contrast does a big eye also get a faint ring, 25% toward white. The two
+    rings never touch: where they would, the ring between the eyes is
+    dropped, so they never read as goggles. Glowing eyes are left alone."""
+    eyes = next((p for p in c.parts if p.name == 'eyes'), None)
+    if not eyes or not eyes.v:
+        return
+    ink = [q for q, (rgb, g) in eyes.v.items() if not g and _lum(rgb) < 0.25]
+    if not ink:
+        return
+    face = [p for p in c.parts if p is not eyes and p.name in ('head', 'body')]
+    WHITE = (255, 255, 255)
+    sides = []
+    for sx, side in ((1, lambda x: x >= 0), (-1, lambda x: x < 0)):
+        dots = [q for q in ink if side(q[0])]
+        if not dots:
+            continue
+        ring = {}
+        for (x, y, z) in dots:
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                for dy in (0, 1, -1):
+                    q = (x + dx, y + dy, z + dz)
+                    if q in eyes.v:
+                        break
+                    hit = next((p for p in face if q in p.v), None)
+                    if hit:
+                        ring[q] = hit
+                        break
+        if not ring:
+            continue
+        cols = [ring[q].v[q][0] for q in ring]
+        sides.append((sx, side, dots, ring, sum(_lum(col) for col in cols) / len(cols) < DARK_FACE))
+    # the eyes are a pair: when one needs the pass, both get it, so a face
+    # stays symmetric (a salamander's eye on its dark stripe, the other not)
+    if not any(dark for *_, dark in sides):
+        return
+    sides = [sd[:4] for sd in sides]
+
+    def flat(qs):
+        return {(q[0], q[2]) for q in qs}
+
+    # rings that would touch lose the voxels between the eyes
+    if len(sides) == 2:
+        (_, _, d0, r0), (_, _, d1, r1) = sides
+        a, b = flat(r0) | flat(d0), flat(r1) | flat(d1)
+        if any((x + dx, z + dz) in b for (x, z) in a for dx, dz in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))):
+            inner0 = min(q[0] for q in d0)  # the right eye's inner edge
+            inner1 = max(q[0] for q in d1)  # the left eye's inner edge
+            for ring in (r0, r1):
+                for q in [q for q in ring if inner1 < q[0] < inner0]:
+                    del ring[q]
+
+    for sx, side, dots, ring in sides:
+        for q in dots:  # deepen the ink so the eye separates from the face
+            eyes.v[q] = (tuple(round(v * 0.45) for v in eyes.v[q][0]), False)
+        face_lum = sum(_lum(part.v[q][0]) for q, part in ring.items()) / max(1, len(ring))
+        ink_lum = sum(_lum(eyes.v[q][0]) for q in dots) / len(dots)
+        if len(dots) > 2 and face_lum - ink_lum < RING_CONTRAST:
+            for q, part in ring.items():
+                rgb, g = part.v[q]
+                if not g:
+                    part.v[q] = (tuple(round(v + (255 - v) * 0.25) for v in rgb), False)
+
+    # One light direction per creature: both eyes carry the shine on the same
+    # upper corner, so they look straight ahead rather than glancing outward.
+    # Upper left (-x) unless upper right keeps the shines clear of pale
+    # markings (a calf's patch sits on one side of its face).
+    plans = [_shine_plan(eyes, face, sides, ink, lx) for lx in (-1, 1)]
+    _, moves = min(plans, key=lambda p: p[0])
+    for q, part, rgb in moves:
+        if part is not None:
+            del part.v[q]
+        eyes.v[q] = (rgb, False)
+
+
+def _shine_plan(eyes, face, sides, ink, lx):
+    """(penalty, [(cell, face part to take it from or None, colour)]) that
+    gives each eye a white shine on its upper corner toward lx."""
+    WHITE = (255, 255, 255)
+
+    def pale_at(x, z, y):
+        f = _front(face, x, z, y)
+        return bool(f) and _lum(f[1].v[f[0]][0]) > 0.6
+
+    def corner(cells):
+        return max(cells, key=lambda q: (q[1], q[0] * lx))
+
+    total, moves, small = 0, [], []
+    for sx, side, dots, ring in sides:
+        if any(eyes.v[q][0] == WHITE for q in eyes.v if side(q[0])):
+            continue
+        if len(dots) >= 2:
+            top = max(dots, key=lambda q: (q[2], q[0] * lx, -q[1]))
+            moves.append((top, None, WHITE))
+        else:
+            small.append((sx, side, dots[0]))
+    if not small:
+        return total, moves
+
+    # A one-voxel eye is too small to carry a shine, so it grows to a 2x2
+    # eye: outward and down by preference, but onto whichever side keeps it
+    # on its dark patch (a calf's eye patch, a raccoon's mask). Both eyes
+    # grow the same (mirrored) way, so the face stays symmetric.
+    def grow(sx, side, eye, rel):
+        x, y, z = eye
+        gx, gz = rel[0] * sx, rel[1]
+        if gx == -sx and any(abs(x + gx - q[0]) < 3 for q in ink if not side(q[0])):
+            return None  # growing inward would close the gap between the eyes
+        cells = [(x + gx, z), (x, z + gz), (x + gx, z + gz)]
+        spots = [_front(face, cx, cz, y) for cx, cz in cells]
+        if not all(spots) or any(sp[0] in eyes.v or sp[1].v[sp[0]][1] for sp in spots):
+            return None
+        square = {(x, z)} | set(cells)
+        rim = {(cx + dx, cz + dz) for cx, cz in square for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))} - square
+        shine = corner(square)
+        near = {(shine[0] + dx, shine[1] + dz) for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))}
+        # stay on the dark patch: a pale voxel around the eye swallows it,
+        # and one beside the shine merges with it, so that counts triple
+        pale = sum(pale_at(rx, rz, y) * (3 if (rx, rz) in near else 1) for rx, rz in rim)
+        return pale, spots, shine
+
+    best = None
+    for rank, rel in enumerate(((1, -1), (-1, -1), (1, 1), (-1, 1))):  # (outward, down) ...
+        plans = [grow(sx, side, eye, rel) for sx, side, eye in small]
+        if not all(plans):
+            continue
+        pale = sum(p[0] for p in plans)
+        if best is None or (pale, rank) < best[0]:
+            best = ((pale, rank), plans)
+    if best is None:
+        return total, moves
+    total += best[0][0]
+    for (sx, side, eye), (_, spots, shine) in zip(small, best[1]):
+        ink_rgb = eyes.v[eye][0]
+        for q, part in [(eye, None)] + spots:
+            moves.append((q, part, WHITE if (q[0], q[2]) == shine else ink_rgb))
+    return total, moves
+
+
+def _front(parts, x, z, y0):
+    """The front-most face voxel at (x, z) near depth y0, and its part."""
+    for y in range(y0 - 2, y0 + 4):
+        part = next((p for p in parts if (x, y, z) in p.v), None)
+        if part:
+            return (x, y, z), part
+    return None
+
+
 def builder(entry):
     """fn(c, H) that builds the entry, for the ROSTER."""
     import creatures as cr
@@ -221,7 +395,7 @@ def builder(entry):
             EXTRA_BUILDERS[plan](c, H, dict(cols), opts)
         sh = entry.get('shape')
         if sh:
-            kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0))
+            kit.shape(c, tuple(sh.get('body', (1.0, 1.0, 1.0))), sh.get('head', 1.0), sh.get('keep_eyes', False))
         for p in entry.get('patterns', []):
             with _glowing(c, p.get('glow')):
                 if p['kind'] in EXTRA_PATTERNS:
@@ -240,6 +414,8 @@ def builder(entry):
                     kit.accessory(c, H, a['kind'], a['color'], a.get('color2'))
         if entry.get('gait'):
             c.gait_hint = entry['gait']  # the sheet's gait wins over one a body plan set
+        if entry.get('id') not in EYE_CONTRAST_KEEP:
+            eye_contrast(c)
         return c
 
     return build

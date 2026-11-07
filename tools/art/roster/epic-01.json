@@ -1,0 +1,1651 @@
+{
+ "creatures": [
+  {
+   "id": "PegasusFoal",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#F7F4FF",
+    "belly": "#FFFFFF",
+    "snout": "#FFE8F2",
+    "ear_col": "#E8E0FF",
+    "mane": "#9FD6FF",
+    "tail_col": "#9FD6FF"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     0.84,
+     0.92,
+     0.9
+    ],
+    "head": 0.9
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#F7F4FF",
+     "amount": 0.6
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FFE8F2",
+     "color2": "#B8A0D8"
+    },
+    {
+     "kind": "raised_wings",
+     "color": "#FFFFFF",
+     "color2": "#BDE3FF",
+     "span": 3.8,
+     "angle": 50,
+     "drop": 0.0
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ],
+   "element": "Storm",
+   "gait": "hover"
+  },
+  {
+   "id": "Jackalope",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#B98A5A",
+    "belly": "#F3E6C8",
+    "snout": "#F3E6C8",
+    "ear_col": "#A9784A"
+   },
+   "options": {
+    "ears": "long",
+    "tail": "short",
+    "bunny": true
+   },
+   "accessories": [
+    {
+     "kind": "aura_antlers",
+     "color": "#D8C49A",
+     "color2": "#F4EAD2",
+     "size": 1.25
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "Nature",
+   "gait": "hop"
+  },
+  {
+   "id": "ChimeraCub",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#E8B04A",
+    "belly": "#FFE3A8",
+    "snout": "#FFE3A8",
+    "ear_col": "#C88A2A",
+    "mane": "#B8541A"
+   },
+   "options": {
+    "ears": "round",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     1.05,
+     1.05,
+     1.0
+    ],
+    "head": 1.08
+   },
+   "accessories": [
+    {
+     "kind": "horns",
+     "color": "#F2E6D0"
+    },
+    {
+     "kind": "snake_tail",
+     "color": "#5FBF4A",
+     "color2": "#FF4D6D"
+    },
+    {
+     "kind": "flame_crest",
+     "color": "#FF7A1A",
+     "color2": "#FFE14D"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Ember",
+   "gait": "trot"
+  },
+  {
+   "id": "Hippogriff",
+   "rarity": "Epic",
+   "plan": "griffin",
+   "colors": {
+    "col": "#A87A5A",
+    "head": "#F7F4F0",
+    "beak": "#FFB627",
+    "wing": "#C8B8A8",
+    "talon": "#F2B33D",
+    "glow": "#9FE4FF"
+   },
+   "options": {
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     0.9,
+     0.92,
+     0.92
+    ],
+    "head": 0.94
+   },
+   "accessories": [
+    {
+     "kind": "aura_sparks",
+     "color": "#9FE4FF",
+     "color2": "#FFF35C"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Storm",
+   "gait": "trot"
+  },
+  {
+   "id": "Cockatrice",
+   "rarity": "Epic",
+   "plan": "bird",
+   "colors": {
+    "col": "#F4EEE0",
+    "belly": "#FFFFFF",
+    "beak": "#FFB627",
+    "wing": "#3FA86A",
+    "crest": "#E8341A",
+    "feet": "#FFB627"
+   },
+   "accessories": [
+    {
+     "kind": "raptor_beak",
+     "color": "#FFB627",
+     "color2": "#C83A1A"
+    },
+    {
+     "kind": "wattles",
+     "color": "#E8341A"
+    },
+    {
+     "kind": "bat_wings",
+     "color": "#3FA86A",
+     "color2": "#1F6E3A",
+     "span": 3.2
+    },
+    {
+     "kind": "serpent_tail",
+     "color": "#3FA86A",
+     "color2": "#2A7A48",
+     "tip": "#E8341A"
+    },
+    {
+     "kind": "rooster_comb",
+     "color": "#E8341A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Ember",
+   "gait": "waddle"
+  },
+  {
+   "id": "DreamTapir",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#B8A3E8",
+    "belly": "#F0E8FF",
+    "snout": "#9A84D8",
+    "ear_col": "#9A84D8"
+   },
+   "options": {
+    "ears": "round",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     1.05,
+     1.15,
+     1.0
+    ],
+    "head": 0.95
+   },
+   "accessories": [
+    {
+     "kind": "tiny_ears",
+     "color": "#9A84D8"
+    },
+    {
+     "kind": "heavy_rump",
+     "color": "#B8A3E8"
+    },
+    {
+     "kind": "tapir_trunk",
+     "color": "#8E78CC",
+     "color2": "#E8A0B4"
+    },
+    {
+     "kind": "dream_stripes",
+     "color": "#F4EEFF"
+    },
+    {
+     "kind": "forehead_moon",
+     "color": "#FFF2A8"
+    },
+    {
+     "kind": "nightcap",
+     "color": "#5A4AB8",
+     "color2": "#FFF6C8"
+    },
+    {
+     "kind": "star_trail",
+     "color": "#FFF2A8",
+     "color2": "#C8E8FF"
+    },
+    {
+     "kind": "stars",
+     "color": "#FFF6C8"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ],
+   "element": "plain",
+   "gait": "trot"
+  },
+  {
+   "id": "ThunderBison",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#8A5E44",
+    "belly": "#4A3428",
+    "snout": "#3A2A20",
+    "ear_col": "#4A3428"
+   },
+   "options": {
+    "ears": "round",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     0.92,
+     0.95,
+     0.9
+    ],
+    "head": 0.85
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#8A5E44",
+     "amount": 0.3
+    },
+    {
+     "kind": "tiny_ears",
+     "color": "#3E2C22"
+    },
+    {
+     "kind": "bison_build",
+     "color": "#3E2C22"
+    },
+    {
+     "kind": "bison_face",
+     "color": "#6A4A36",
+     "color2": "#1A120C"
+    },
+    {
+     "kind": "bison_horns",
+     "color": "#E8DCC0",
+     "color2": "#3A2A20"
+    },
+    {
+     "kind": "cloud_hump",
+     "color": "#5A6478",
+     "color2": "#FFE84A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Storm",
+   "gait": "trot"
+  },
+  {
+   "id": "SpiritFox",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#CFF4FF",
+    "belly": "#FFFFFF",
+    "snout": "#FFFFFF",
+    "ear_col": "#7FE0FF",
+    "tail_col": "#CFF4FF"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "fox"
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#CFF4FF",
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FFFFFF",
+     "color2": "#2A4A5A",
+     "nose": "wolf"
+    },
+    {
+     "kind": "ghost",
+     "color": "#E0F8FF"
+    },
+    {
+     "kind": "twin_tails",
+     "color": "#5FE0FF",
+     "color2": "#9FF0FF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ],
+   "element": "plain",
+   "gait": "trot"
+  },
+  {
+   "id": "ShroomMoose",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#7A5A42",
+    "belly": "#B89A7A",
+    "snout": "#5A4232",
+    "ear_col": "#6A4A34"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     0.9,
+     0.92,
+     0.88
+    ],
+    "head": 0.84
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#7A5A42",
+     "amount": 0.7
+    },
+    {
+     "kind": "aura_hump",
+     "color": "#6A4A34"
+    },
+    {
+     "kind": "dewlap",
+     "color": "#6A4A34",
+     "color2": "#3A2A1E"
+    },
+    {
+     "kind": "moose_nose",
+     "color": "#5A4232",
+     "color2": "#1A100A"
+    },
+    {
+     "kind": "mushroom_antlers",
+     "color": "#B84AE8",
+     "color2": "#9FFFE0",
+     "size": 0.8
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Nature",
+   "gait": "trot"
+  },
+  {
+   "id": "ClockworkOwl",
+   "rarity": "Epic",
+   "plan": "bird",
+   "colors": {
+    "col": "#C8963A",
+    "belly": "#E8C27A",
+    "beak": "#7A5A2A",
+    "wing": "#A8782A",
+    "feet": "#7A5A2A"
+   },
+   "options": {
+    "big_eyes": true,
+    "tuft": true
+   },
+   "accessories": [
+    {
+     "kind": "clock_dial",
+     "color": "#FFD24A",
+     "color2": "#FFF6E0"
+    },
+    {
+     "kind": "gears",
+     "color": "#E8C04A",
+     "color2": "#7A5A2A"
+    },
+    {
+     "kind": "glow_eyes",
+     "color": "#FFD24A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "hop"
+  },
+  {
+   "id": "SphinxCub",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#E8C27A",
+    "belly": "#FFE8B8",
+    "snout": "#FFE8B8",
+    "ear_col": "#C89A4A"
+   },
+   "options": {
+    "ears": "cat",
+    "tail": "long"
+   },
+   "accessories": [
+    {
+     "kind": "headdress",
+     "color": "#FFC93C",
+     "color2": "#2F5BD6",
+     "from": 0.68
+    },
+    {
+     "kind": "feather_wings",
+     "color": "#E8D2A0",
+     "color2": "#FFC93C"
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 2,
+     "flick": true,
+     "lift": -0.6,
+     "flick_gap": 1,
+     "shine": "outer"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Ember",
+   "gait": "trot"
+  },
+  {
+   "id": "RainbowSnail",
+   "rarity": "Epic",
+   "plan": "blob",
+   "colors": {
+    "col": "#F4E8FF",
+    "accent": "#FF8AB8"
+   },
+   "options": {
+    "kind": "snail"
+   },
+   "accessories": [
+    {
+     "kind": "rainbow_shell",
+     "color": "#FFFFFF"
+    },
+    {
+     "kind": "stars",
+     "color": "#FFFFFF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "slither"
+  },
+  {
+   "id": "LanternMoth",
+   "rarity": "Epic",
+   "plan": "bug",
+   "colors": {
+    "col": "#6A4A3A",
+    "accent": "#3A2A20",
+    "wing": "#E8A86A"
+   },
+   "options": {
+    "kind": "butterfly"
+   },
+   "accessories": [
+    {
+     "kind": "lantern_belly",
+     "color": "#FFB23F",
+     "color2": "#C8541A"
+    },
+    {
+     "kind": "tipped_wings",
+     "color": "#FFD24A"
+    },
+    {
+     "kind": "glow_eyes",
+     "color": "#FFD24A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "Ember",
+   "gait": "hover"
+  },
+  {
+   "id": "BrambleBoar",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#86624E",
+    "belly": "#A07C66",
+    "snout": "#A07C66",
+    "ear_col": "#5E4234",
+    "tail_col": "#5E4234"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     0.95,
+     1.15,
+     0.92
+    ],
+    "head": 0.85
+   },
+   "accessories": [
+    {
+     "kind": "boar_snout",
+     "color": "#E3A3AE",
+     "color2": "#3A2420",
+     "length": 1.4
+    },
+    {
+     "kind": "aura_tusks",
+     "color": "#F2E6D0"
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 2,
+     "lift": 1.0,
+     "apart": 0.5
+    },
+    {
+     "kind": "bristle_ridge",
+     "color": "#3A2A20"
+    },
+    {
+     "kind": "bramble_back",
+     "color": "#52A238",
+     "color2": "#6A2AA8"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Nature",
+   "gait": "trot"
+  },
+  {
+   "id": "ShadowPanther",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#22202E",
+    "belly": "#2E2A3E",
+    "snout": "#3A364A",
+    "ear_col": "#22202E",
+    "tail_col": "#22202E"
+   },
+   "options": {
+    "ears": "cat",
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     1.0,
+     1.2,
+     0.95
+    ]
+   },
+   "patterns": [
+    {
+     "kind": "spots",
+     "color": "#9B5CFF",
+     "glow": true
+    }
+   ],
+   "accessories": [
+    {
+     "kind": "wisps",
+     "color": "#7A4AD8",
+     "color2": "#C89BFF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ],
+   "element": "plain",
+   "gait": "trot"
+  },
+  {
+   "id": "Thunderbird",
+   "rarity": "Epic",
+   "plan": "bird",
+   "colors": {
+    "col": "#3A5AA8",
+    "belly": "#BDD4FF",
+    "beak": "#FFD43B",
+    "wing": "#2A4488",
+    "tail": "#2A4488",
+    "feet": "#FFD43B",
+    "glow": "#FFE84A"
+   },
+   "shape": {
+    "body": [
+     0.9,
+     1.05,
+     1.0
+    ],
+    "head": 0.9
+   },
+   "accessories": [
+    {
+     "kind": "raptor_pose",
+     "color": "#1A2A58",
+     "lean": 0.35
+    },
+    {
+     "kind": "raptor_beak",
+     "color": "#FFD43B",
+     "color2": "#1A2A58"
+    },
+    {
+     "kind": "raised_wings",
+     "color": "#2A4488",
+     "color2": "#FFE84A",
+     "span": 5.2,
+     "angle": 28,
+     "drop": 1.2
+    },
+    {
+     "kind": "storm_crest",
+     "color": "#FFE84A",
+     "color2": "#FFFFFF"
+    },
+    {
+     "kind": "aura_sparks",
+     "color": "#FFE84A",
+     "color2": "#8FE3FF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Storm",
+   "gait": "hover"
+  },
+  {
+   "id": "MossbackTortoise",
+   "rarity": "Epic",
+   "plan": "blob",
+   "colors": {
+    "col": "#8A9A5A",
+    "accent": "#6A7A3A"
+   },
+   "options": {
+    "kind": "turtle"
+   },
+   "shape": {
+    "body": [
+     1.05,
+     1.0,
+     1.0
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "recolor",
+     "color": "#2F7A3A",
+     "color2": "#5A6A2A"
+    },
+    {
+     "kind": "moss",
+     "color": "#6DBE45",
+     "color2": "#FFE14D"
+    },
+    {
+     "kind": "aura_mushrooms",
+     "color": "#E8453C",
+     "color2": "#FFF6E0"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Nature",
+   "gait": "scuttle"
+  },
+  {
+   "id": "VoltLynx",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#5A6A9A",
+    "belly": "#C8D4F0",
+    "snout": "#E0E8FF",
+    "ear_col": "#3A4A7A",
+    "tail_col": "#3A4A7A"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     1.0,
+     1.15,
+     1.05
+    ]
+   },
+   "patterns": [
+    {
+     "kind": "stripes",
+     "color": "#5CF2FF",
+     "glow": true
+    }
+   ],
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#5A6A9A",
+     "amount": 0.4
+    },
+    {
+     "kind": "ear_bolts",
+     "color": "#1B1B2F",
+     "color2": "#FFE84A",
+     "tuft": true
+    },
+    {
+     "kind": "cheek_ruff",
+     "color": "#C8D4F0",
+     "color2": "#E8EEFF",
+     "big": true
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 3,
+     "lift": 0.5
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Storm",
+   "gait": "trot"
+  },
+  {
+   "id": "NekomataKitten",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#3A3A4E",
+    "belly": "#5A5A70",
+    "snout": "#E8E8F4",
+    "ear_col": "#3A3A4E",
+    "tail_col": "#3A3A4E"
+   },
+   "options": {
+    "ears": "cat",
+    "tail": "long"
+   },
+   "accessories": [
+    {
+     "kind": "twin_tails",
+     "color": "#3FB8FF",
+     "color2": "#7FE8FF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "trot"
+  },
+  {
+   "id": "SelkiePup",
+   "rarity": "Epic",
+   "plan": "shore",
+   "colors": {
+    "col": "#8A96A8",
+    "accent": "#5A6478",
+    "belly": "#D8E0EC"
+   },
+   "options": {
+    "kind": "seal"
+   },
+   "shape": {
+    "body": [
+     1.05,
+     1.1,
+     1.05
+    ]
+   },
+   "patterns": [
+    {
+     "kind": "spots",
+     "color": "#5CE6FF",
+     "glow": true
+    }
+   ],
+   "accessories": [
+    {
+     "kind": "cloak",
+     "color": "#7FE0FF",
+     "color2": "#E0FBFF"
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 2,
+     "lift": -1.0,
+     "apart": 0
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Glacial",
+   "gait": "hop"
+  },
+  {
+   "id": "KitsuneKit",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#FF9A3D",
+    "belly": "#FFF1DC",
+    "snout": "#FFF1DC",
+    "ear_col": "#3A2A2A",
+    "tail_col": "#FF9A3D"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "fox"
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#FF9A3D",
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#FFF1DC",
+     "color2": "#2A1A1A",
+     "nose": "wolf"
+    },
+    {
+     "kind": "triple_tails",
+     "color": "#FFFFFF",
+     "color2": "#FFB0E0"
+    },
+    {
+     "kind": "aura_stripe",
+     "color": "#E8341A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "trot"
+  },
+  {
+   "id": "Tanuki",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#9A7A5A",
+    "belly": "#E8D8C0",
+    "snout": "#E8D8C0",
+    "ear_col": "#3A2A2A",
+    "patches": "#3A2A2A",
+    "tail_col": "#7A5A3A"
+   },
+   "options": {
+    "ears": "round",
+    "tail": "striped",
+    "fluffy": true
+   },
+   "shape": {
+    "body": [
+     1.15,
+     1.0,
+     1.05
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "leaf_hat",
+     "color": "#5FBF4A",
+     "color2": "#2F7A2A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ],
+   "element": "Nature",
+   "gait": "trot"
+  },
+  {
+   "id": "FireSalamander",
+   "rarity": "Epic",
+   "plan": "lizard",
+   "colors": {
+    "col": "#FF5A1A",
+    "accent": "#C8341A",
+    "belly": "#FFD24A"
+   },
+   "options": {
+    "kind": "gecko"
+   },
+   "shape": {
+    "body": [
+     1.05,
+     1.15,
+     1.0
+    ]
+   },
+   "patterns": [
+    {
+     "kind": "spots",
+     "color": "#FFE14D",
+     "glow": true
+    }
+   ],
+   "accessories": [
+    {
+     "kind": "flames",
+     "color": "#FF7A1A",
+     "color2": "#FFE14D"
+    },
+    {
+     "kind": "glow_eyes",
+     "color": "#FFE14D"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Ember",
+   "gait": "trot"
+  },
+  {
+   "id": "BrassDragonfly",
+   "rarity": "Epic",
+   "plan": "critter",
+   "colors": {
+    "col": "#C8963A",
+    "accent": "#7A5A2A",
+    "wing": "#9FE4FF"
+   },
+   "options": {
+    "kind": "dragonfly"
+   },
+   "accessories": [
+    {
+     "kind": "blade_wings",
+     "color": "#FFE6A8",
+     "color2": "#B8862E"
+    },
+    {
+     "kind": "rivets",
+     "color": "#F0D08A"
+    },
+    {
+     "kind": "leg_pivots",
+     "color": "#000000"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "hover"
+  },
+  {
+   "id": "ClockworkPenguin",
+   "rarity": "Epic",
+   "plan": "bird",
+   "colors": {
+    "col": "#3E4656",
+    "belly": "#E8ECF2",
+    "beak": "#C8963A",
+    "wing": "#3E4656",
+    "feet": "#C8963A"
+   },
+   "accessories": [
+    {
+     "kind": "back_key",
+     "color": "#D8A84A",
+     "color2": "#7A5A2A"
+    },
+    {
+     "kind": "rivets",
+     "color": "#C8CCD8",
+     "color2": "#2A303C"
+    },
+    {
+     "kind": "glow_eyes",
+     "color": "#FFD24A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "waddle"
+  },
+  {
+   "id": "GalaxyOwl",
+   "rarity": "Epic",
+   "plan": "bird",
+   "colors": {
+    "col": "#2A2458",
+    "belly": "#4A3A8A",
+    "beak": "#FFD43B",
+    "wing": "#1E1A44",
+    "tail": "#1E1A44",
+    "feet": "#FFD43B",
+    "glow": "#B88AFF"
+   },
+   "options": {},
+   "accessories": [
+    {
+     "kind": "galaxy",
+     "color": "#9B5CFF",
+     "color2": "#5CC8FF"
+    },
+    {
+     "kind": "cone_beak",
+     "color": "#E8B83A",
+     "color2": "#B8862E",
+     "length": 0.8
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#14102E",
+     "size": 3,
+     "disc": "#B9A6F0",
+     "disc_r": 2.3
+    },
+    {
+     "kind": "owl_tufts",
+     "color": "#3A3270",
+     "color2": "#B88AFF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "hover"
+  },
+  {
+   "id": "StarDeer",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#1E2650",
+    "belly": "#2A3468",
+    "snout": "#2A3468",
+    "ear_col": "#1E2650",
+    "antlers": "#9FD6FF"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     0.95,
+     1.1,
+     1.05
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#1E2650",
+     "amount": 0.8
+    },
+    {
+     "kind": "horse_head",
+     "color": "#2A3468",
+     "color2": "#9FD6FF"
+    },
+    {
+     "kind": "constellation",
+     "color": "#FFF6C8",
+     "color2": "#9FD6FF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "trot"
+  },
+  {
+   "id": "RubyHound",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#D81E3C",
+    "belly": "#FFB0BC",
+    "snout": "#FFB0BC",
+    "ear_col": "#A8142C",
+    "tail_col": "#D81E3C"
+   },
+   "options": {
+    "ears": "floppy",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     0.95,
+     1.05,
+     0.95
+    ],
+    "head": 0.95
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#D81E3C",
+     "amount": 0.45
+    },
+    {
+     "kind": "fox_face",
+     "color": "#D81E3C",
+     "color2": "#5A0A18"
+    },
+    {
+     "kind": "quartz_shards",
+     "color": "#FF2A50",
+     "color2": "#FFD0D8"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Ember",
+   "gait": "trot"
+  },
+  {
+   "id": "DiamondBeetle",
+   "rarity": "Epic",
+   "plan": "bug",
+   "colors": {
+    "col": "#BDEBFF",
+    "accent": "#5A8AB8",
+    "wing": "#E8FBFF"
+   },
+   "options": {
+    "kind": "beetle"
+   },
+   "shape": {
+    "body": [
+     1.1,
+     1.1,
+     1.05
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "facets",
+     "color": "#E8FBFF",
+     "color2": "#8FC8F0"
+    },
+    {
+     "kind": "gems",
+     "color": "#FFFFFF",
+     "color2": "#9FE4FF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "Glacial",
+   "gait": "scuttle"
+  },
+  {
+   "id": "StormLionCub",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#E8C27A",
+    "belly": "#FFE8B8",
+    "snout": "#FFE8B8",
+    "ear_col": "#C89A4A",
+    "tail_col": "#E8C27A"
+   },
+   "options": {
+    "ears": "round",
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     0.92,
+     0.95,
+     0.95
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "cloud_mane",
+     "color": "#6A7488",
+     "color2": "#FFE84A"
+    },
+    {
+     "kind": "tail_flame",
+     "color": "#FFE84A",
+     "color2": "#FFFFFF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Storm",
+   "gait": "trot"
+  },
+  {
+   "id": "BlizzardBearCub",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#F4F8FC",
+    "belly": "#FFFFFF",
+    "snout": "#BFE4FF",
+    "ear_col": "#F4F8FC"
+   },
+   "options": {
+    "ears": "round",
+    "tail": "short"
+   },
+   "shape": {
+    "body": [
+     0.95,
+     0.95,
+     0.95
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 2,
+     "shine": "outer"
+    },
+    {
+     "kind": "ear_inner",
+     "color": "#A8DAFF"
+    },
+    {
+     "kind": "paws",
+     "color": "#8FD0FF",
+     "height": 0.6
+    },
+    {
+     "kind": "ice_crown",
+     "color": "#4FB8FF",
+     "color2": "#D8F4FF",
+     "icicles": 4
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "Glacial",
+   "gait": "trot"
+  },
+  {
+   "id": "ThornWolf",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#6A7A5A",
+    "belly": "#C8D4B0",
+    "snout": "#C8D4B0",
+    "ear_col": "#4A5A3A",
+    "tail_col": "#4A5A3A"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     0.92,
+     1.0,
+     0.95
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "long_legs",
+     "color": "#6A7A5A",
+     "amount": 0.5
+    },
+    {
+     "kind": "horse_head",
+     "color": "#C8D4B0",
+     "color2": "#22281A",
+     "nose": "wolf"
+    },
+    {
+     "kind": "thorn_mane",
+     "color": "#2F5A2A",
+     "color2": "#E8334A"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Nature",
+   "gait": "trot"
+  },
+  {
+   "id": "GargoylePup",
+   "rarity": "Epic",
+   "plan": "quadruped",
+   "colors": {
+    "col": "#8A8C94",
+    "belly": "#8A8C94",
+    "snout": "#8A8C94",
+    "ear_col": "#8A8C94",
+    "tail_col": "#8A8C94"
+   },
+   "options": {
+    "ears": "pointy",
+    "tail": "long"
+   },
+   "accessories": [
+    {
+     "kind": "tiny_ears",
+     "color": "#8A8C94"
+    },
+    {
+     "kind": "gargoyle_wings",
+     "color": "#5A5C66",
+     "color2": "#3E4048",
+     "height": 3.4,
+     "spread": 2.0
+    },
+    {
+     "kind": "curved_horns",
+     "color": "#C8BEA6",
+     "color2": "#8E8470",
+     "size": 1.2
+    },
+    {
+     "kind": "tail_spade",
+     "color": "#5A5C66"
+    },
+    {
+     "kind": "round_eyes",
+     "color": "#1B1B2F",
+     "size": 3
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "hover",
+   "shape": {
+    "body": [
+     0.95,
+     0.95,
+     0.88
+    ]
+   }
+  },
+  {
+   "id": "SnowGriffin",
+   "rarity": "Epic",
+   "plan": "griffin",
+   "colors": {
+    "col": "#E8EEF6",
+    "head": "#FFFFFF",
+    "beak": "#4F8FD0",
+    "wing": "#A9CBEB",
+    "talon": "#5F9FD8",
+    "glow": "#7FD4FF"
+   },
+   "options": {
+    "tail": "long"
+   },
+   "shape": {
+    "body": [
+     0.88,
+     0.9,
+     0.9
+    ],
+    "head": 0.92
+   },
+   "accessories": [
+    {
+     "kind": "ice_crest",
+     "color": "#9FE4FF",
+     "color2": "#E8FBFF"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ],
+   "element": "Glacial",
+   "gait": "trot"
+  },
+  {
+   "id": "MimicChest",
+   "rarity": "Epic",
+   "plan": "crab",
+   "colors": {
+    "col": "#8A5A3A",
+    "accent": "#6A4428"
+   },
+   "accessories": [
+    {
+     "kind": "mimic",
+     "color": "#8A5A3A",
+     "color2": "#FFC93C"
+    },
+    {
+     "kind": "mend",
+     "color": "#000000"
+    }
+   ],
+   "element": "plain",
+   "gait": "scuttle"
+  }
+ ]
+}

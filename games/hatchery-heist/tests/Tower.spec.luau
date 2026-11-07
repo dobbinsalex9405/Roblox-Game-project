@@ -89,6 +89,58 @@ describe("Tower floors", function()
 		expect(#d.floorUpgrades).toBe(2)
 	end)
 
+	it("upgrades every floor from 2 to 10, in any order, four times each", function()
+		-- The Studio gate on #91 could not upgrade floors 5 to 10: prove the
+		-- rules do (the cost is the only thing that grows: about 443M coins).
+		local d = fresh()
+		d.coins = 10 ^ 12
+		for _ = 2, 10 do
+			expect((Tower.buyFloor(d, ledger(d), economy))).toBe(true)
+		end
+		expect(Tower.owned(d)).toBe(10)
+		local spent = d.coins
+		for _, floor in { 10, 5, 7, 2, 9, 3, 6, 8, 4 } do
+			for _ = 1, 4 do
+				local ok, why = Tower.upgradeFloor(d, ledger(d), floor, economy)
+				expect(if ok then floor else `floor {floor}: {why}`).toBe(floor)
+			end
+			expect((Tower.upgradeFloor(d, ledger(d), floor, economy))).toBe(false)
+		end
+		for floor = 2, 10 do
+			expect(Tower.upgrades(d, floor)).toBe(4)
+		end
+		expect(#d.floorUpgrades).toBe(10)
+		-- 1.8 x the price of floors 2 to 10
+		local total = 0
+		for _, p in economy.tower.floorPrices do
+			total += p
+		end
+		expect(spent - d.coins).toBe(math.floor(total * 1.8 + 0.5))
+	end)
+
+	it("redraws the Tower menu only when a button changes, not on every coin", function()
+		-- Bug: the menu redrew whenever coins crossed a thousand, so with a big
+		-- income an Upgrade button was rebuilt between press and release and
+		-- the click was lost (Studio gate, floors 5 to 10).
+		local d = fresh()
+		d.coins = 10 ^ 9
+		for _ = 2, 10 do
+			Tower.buyFloor(d, ledger(d), economy)
+		end
+		d.coins = 1000
+		local before = Tower.menuKey(d, economy)
+		d.coins = 4999 -- still short of the cheapest upgrade (floor 2: 5,000)
+		expect(Tower.menuKey(d, economy)).toBe(before)
+		d.coins = 5000 -- floor 2's Upgrade turns green
+		expect(Tower.menuKey(d, economy) ~= before).toBe(true)
+		local green = Tower.menuKey(d, economy)
+		d.coins = 9000
+		expect(Tower.menuKey(d, economy)).toBe(green)
+		-- buying changes it too
+		Tower.upgradeFloor(d, ledger(d), 2, economy)
+		expect(Tower.menuKey(d, economy) ~= green).toBe(true)
+	end)
+
 	it("refuses a floor the player cannot afford and leaves coins alone", function()
 		local d = fresh()
 		d.coins = 24999
@@ -245,5 +297,37 @@ describe("Tower ladder", function()
 			local apart = x + 5 <= lo[1] or x - 5 >= hi[1] or z + 5 <= lo[2] or z - 5 >= hi[2]
 			expect(apart and "clear" or `spot {spot} overlaps the ladder opening`).toBe("clear")
 		end
+	end)
+end)
+
+describe("Next-floor label", function()
+	-- Studio gate (#84): "Floor 2: 25K coins" filled 166 px of its 168 px
+	-- box, so a longer price would cram against the edges. The box is sized
+	-- for the longest label with room to spare, so the text keeps its full
+	-- height on every floor.
+	it("fits every floor's price with slack at full text height", function()
+		local CHAR = 0.62 -- GothamBold's average character width, in text heights
+		local box = Geometry.FLOOR_LABEL
+		for floor = 2, Tower.FLOORS do
+			local label = Tower.floorLabel(floor, economy.tower.floorPrices[floor - 1])
+			local needed = #label * CHAR * box.height * 1.1
+			expect(needed <= box.width and "fits" or `"{label}" needs {needed} studs`).toBe("fits")
+		end
+		expect(Tower.floorLabel(10, 165e6)).toBe("Floor 10: 165M coins")
+		-- ... and still floats over its deck.
+		expect(box.width <= Geometry.TOWER_MAX[1] - Geometry.TOWER_MIN[1]).toBe(true)
+	end)
+
+	it("stays clear of the YOUR HATCHERY banner over the base sign", function()
+		-- Studio gate (Nov 5): from spawn the floor 2 label and the banner sat
+		-- at the same height, one behind the other, and read as one crowded
+		-- line. The banner (nearer the camera) floats above the label with a
+		-- clear gap. Heights in the base's own space.
+		local box = Geometry.FLOOR_LABEL
+		local deck = Geometry.FLOOR_TOP + Geometry.FLOOR_HEIGHT - 0.5 -- floor 2's deck centre
+		local labelTop = deck + box.above + box.height / 2
+		local banner = Geometry.YOUR_BASE_LABEL
+		local bannerBottom = Geometry.SIGN_TOP - 4 + banner.above - banner.height / 2 -- from the 8-stud post's centre
+		expect(bannerBottom - labelTop >= 1.5 and "clear" or `gap {bannerBottom - labelTop}`).toBe("clear")
 	end)
 end)

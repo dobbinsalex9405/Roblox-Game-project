@@ -19,6 +19,7 @@ local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local Tower = require(Shared.Tower)
+local TowerDecor = require(Shared.TowerDecor)
 
 local Context = require(script.Parent.Context)
 local Sfx = require(script.Parent.Sfx)
@@ -191,6 +192,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	local playerGui = player:WaitForChild("PlayerGui")
 	local economy = ctx.config.economy
 	local themes = economy.tower.themes
+	local decor: TowerDecor.Config = require(ReplicatedStorage.GameConfig.towerDecor) :: any
 
 	------------------------------------------------------------------ Tower
 	local towerGui, towerFrame, floorList, fitTower = window("TowerMenu", "Your Tower", 22)
@@ -201,8 +203,26 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	towerInfo.TextWrapped = true
 	towerInfo.TextYAlignment = Enum.TextYAlignment.Top
 	local elevatorMode = false
+	local menus = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).menus
+	-- A floor whose row shows a word in place of its button for a moment:
+	-- "Building..." after a tap, "Built!" once done, "Need ... more".
+	local held: { [number]: { text: string, color: Color3, untilAt: number } } = {}
+	local drawTower: () -> ()
+	local function hold(floor: number, words: string, color: Color3, seconds: number)
+		local entry = { text = words, color = color, untilAt = os.clock() + seconds }
+		held[floor] = entry
+		drawTower()
+		task.delay(seconds, function()
+			if held[floor] == entry then
+				held[floor] = nil
+				if towerGui.Enabled then
+					drawTower()
+				end
+			end
+		end)
+	end
 
-	local function drawTower()
+	drawTower = function()
 		local d = ctx.data()
 		if d == nil then
 			return
@@ -230,12 +250,14 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			local detail = ""
 			if built then
 				local m = Tower.multiplier(d, floor, economy)
+				local ups = Tower.upgrades(d, floor)
+				local nextName = TowerDecor.nextName(decor, floor, ups)
 				detail = if floor == 1
 					then "Ground floor  x1.00"
-					else `{times(m)} of {times(Tower.fullMultiplier(floor, economy))}  ·  upgrades {Tower.upgrades(
-						d,
-						floor
-					)}/{#economy.tower.upgradeShares}`
+					elseif
+						nextName
+					then `{times(m)} of {times(Tower.fullMultiplier(floor, economy))}  ·  Next: {nextName} ({ups}/{#economy.tower.upgradeShares})`
+					else `{times(m)}  ·  Fully furnished`
 			else
 				detail =
 					`{times(Tower.multiplier({ floorUpgrades = {} }, floor, economy))} when built, up to {times(
@@ -265,7 +287,12 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 					towerGui.Enabled = false
 				end)
 			end
-			if built then
+			local hasHold = held[floor]
+			if hasHold and os.clock() < hasHold.untilAt then
+				local word = text(buttons, "Held", hasHold.text, 17, hasHold.color)
+				word.Size = UDim2.fromOffset(168, 40)
+				word.TextXAlignment = Enum.TextXAlignment.Center
+			elseif built then
 				local price = Tower.nextUpgradePrice(d, floor, economy)
 				if price then
 					local up = button(
@@ -277,6 +304,17 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 					)
 					up.Activated:Connect(function()
 						Sfx.play("click")
+						local now = ctx.data()
+						if now and now.coins < price then
+							hold(
+								floor,
+								`Need {Layout.shortNumber(price - now.coins)} more`,
+								GREY:Lerp(Color3.new(1, 1, 1), 0.5),
+								menus.holdSeconds
+							)
+							return
+						end
+						hold(floor, "Upgrading...", GOLD, menus.waitSeconds)
 						ctx.fire(ctx.remotes["HH:UpgradeFloor"], floor)
 					end)
 				end
@@ -291,6 +329,17 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 				)
 				build.Activated:Connect(function()
 					Sfx.play("click")
+					local now = ctx.data()
+					if now and now.coins < price then
+						hold(
+							floor,
+							`Need {Layout.shortNumber(price - now.coins)} more`,
+							GREY:Lerp(Color3.new(1, 1, 1), 0.5),
+							menus.holdSeconds
+						)
+						return
+					end
+					hold(floor, "Building...", GOLD, menus.waitSeconds)
 					ctx.fire(ctx.remotes["HH:BuyFloor"])
 				end)
 			else
@@ -364,7 +413,7 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			end
 		end
 		herdInfo.Text = if #list == 0
-			then "No creatures yet. Buy an egg from the belt and hatch it!"
+			then "No creatures yet. Buy an egg at the Egg Market and hatch it!"
 			else `Earning: {usedCount}/{owned * Tower.SPOTS} slots used. In your inventory: {waiting}.`
 		for i, c in list do
 			local species = ctx.config.creatures.species[c.speciesId]
@@ -481,14 +530,35 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	end)
 
 	-- Redraw an open window when the save changes (a purchase, a move, a
-	-- new hatch, coins going up so a button turns green).
+	-- new hatch, a button turning green).
 	local lastTower, lastHerd = "", ""
+	local seenOwned: number? = nil
+	local seenUpgrades: { [number]: number } = {}
 	ctx.onData(function(d: { [string]: any })
+		-- A floor just built or upgraded: "Built!" in its row for a moment,
+		-- with a sound, before its next button shows.
+		local owned = Tower.owned(d)
+		local before = seenOwned
+		if before and owned > before then
+			Sfx.play("reward")
+			for floor = before + 1, owned do
+				hold(floor, "Built!", GOLD, menus.holdSeconds)
+			end
+		end
+		for floor = 2, owned do
+			local n = Tower.upgrades(d, floor)
+			local was = seenUpgrades[floor]
+			if before and floor <= before and was and n > was then
+				Sfx.play("reward")
+				hold(floor, "Upgraded!", GOLD, menus.holdSeconds)
+			end
+			seenUpgrades[floor] = n
+		end
+		seenOwned = owned
 		if towerGui.Enabled then
-			local key =
-				`{Tower.owned(d)}|{table.concat(d.floorUpgrades or {}, ",")}|{d.coins // 1000}|{tostring(
-					elevatorMode
-				)}`
+			-- only when a button changes, never on every coin (a rebuilt
+			-- button loses the click being made on it)
+			local key = `{Tower.menuKey(d, economy)}|{tostring(elevatorMode)}`
 			if key ~= lastTower then
 				lastTower = key
 				drawTower()

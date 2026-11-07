@@ -2,6 +2,280 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-05: The 18 new Godlies from the master sheet (Hatchery Heist)
+
+- **Hand-built, like the legends**, not roster data: tools/art/godlies.py
+  lists them (id, element) and creatures.py adds them to the ROSTER and to
+  FINER (1.6x, the Godly standard). godly_beasts.py draws the ones on legs,
+  godly_skies.py the fliers, floaters and swimmers; godly_common.py holds
+  the shared pieces (eyes proud of the face in a `blink` part, legs as leg
+  parts, wings, the orbit). The game picks one up when config/creatures.luau
+  lists it.
+- **One `orbit` part each, placed by `orbit_ring`**: every piece sits just
+  outside everything else at its height (plus room for the head and wings),
+  and the sweep stays at or under 0.8x the creature's height; a piece that
+  cannot fit is a build error, never a silent overlap. A round floater (the
+  Cosmic Whale) may carry its moons above its back; the added height counts.
+- **Long or wide bodies are drawn a little smaller** (Solar Lion, Omega
+  Chimera, Magma Behemoth, World Turtle, Crystal Hydra, the dragons) to stay
+  inside 100k triangles; long, low or round bodies a little bigger (Cosmic
+  Whale, Clockwork Leviathan, Crystal Swan, Hurricane Roc) so their voxels
+  match the rest once the game scales every Godly to 6 studs tall.
+- **The swimmers swim level** (the strict review: they must read as a whale):
+  the Clockwork Leviathan and the Cosmic Whale are long and low, their
+  orbits ride above the back, and they swim (tail sweeps, flippers paddle).
+  Scaled to 6 studs tall they are about 15 and 10.5 studs long: longer than
+  the 10-stud depth of the three-spot area, inside its 30-stud width; the
+  reviewer asked for the Leviathan at least 3x as long as tall.
+- **They hover** (rig: Legendary and Godly always hover); legs, tentacles
+  (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
+  so the hover pose tucks and paddles them.
+
+## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
+
+- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
+  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
+- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
+  draws a showpiece with smaller voxels in the Blender build (the serpent at
+  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
+  have changed the Goose Alex approved. **1.6x is the standard for every
+  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
+  keeps its approved build unless its size changes.
+- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
+  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
+  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
+  1 in 50,000 each) to pass that.
+- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
+  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
+  so the serpent stays within the Godly 800-box budget (794).
+- **Worlds never pass through the body.** Each orbiting world sits further
+  out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
+## 2026-11-07: New creatures fit the in-game box budget with `fit_boxes` (Hatchery Heist)
+
+- **What:** a roster creature over its tier's stand-in box budget (UR 80,
+  Epic 120) adds the `fit_boxes` accessory last (`tools/art/kit_aura.py`).
+  In the in-game boxes only, it redraws the heaviest parts on a 2-voxel
+  grid, then a 3-voxel grid (`kit_epicmyth._fit_budget`), never the face
+  or legs; `"head": true` also coarsens a big round head (NeonOctopus).
+  The Blender meshes players see once loaded are untouched, so uploaded
+  models stay valid.
+- **Why:** `to_config.py` holds back any creature over budget, and three
+  of the four URs in #128 were (87 to 117 boxes).
+
+## 2026-11-07: Live creatures keep their eyes until re-uploaded (Hatchery Heist)
+
+- **What:** the eye pass (`variants.eye_contrast`: a white shine, deeper
+  ink and, if needed, a faint ring on dark faces) skips the species in
+  `variants.EYE_CONTRAST_KEEP`. Those are 11 live creatures that landed
+  after the eye pass was built (BabyKraken, BearCub, CocoaBunny, Cricket,
+  Crow, GemDrake, Lemming, Skunk, StarWhaleCalf, StormHawk, TapirCalf) and
+  Binturong, whose shine would put it 84 tris over the Uncommon budget.
+- **Why:** turning the pass on for them would change their box art and
+  pictures at once, and their meshes would no longer match the uploaded
+  models. No live creature may change without a review and an upload.
+- **How a creature leaves the list:** re-review its art with the eye pass,
+  upload its mesh (and its picture), and remove its id in the same PR.
+
+## 2026-11-07: Uploads for live creatures go up only when the PR lands next (Hatchery Heist)
+- **What:** an upload run that republishes a live creature under its
+  existing asset id (a new model version, `tools/art/blender/upload.py`) is
+  dispatched only when its PR can merge right after. Otherwise the model
+  goes up as a new asset id.
+- **Why:** a new version of an asset id reaches Staging (and Production)
+  at once, but its new palette id only arrives with the PR's
+  `CreatureMeshes.luau`. In between, players get the new mesh with the old
+  palette, which can paint the wrong colours. This happened with #96's
+  eye-pass upload of Calf, Butterfly, Monarch, Platypus and BeaverKit, made
+  while #96 waited behind other merges.
+- **How:** the verifier schedules such uploads in the upload queue next to
+  the PR's merge slot. If the PR is held, upload later (or under a new id).
+
+## 2026-11-07: Fixed hatch order is worked out per place (Hatchery Heist)
+
+- Restricted players (PolicyService: no paid random items) get a fixed
+  order. It was a smooth weighted round robin built as a whole table, one
+  entry per egg of the cycle, which a 10,000,000 egg total would make a
+  10-million entry table per egg. Now outcome i (reduced weight w) takes
+  its k-th turn at (2k + 1) / (2w) of the way round, ties to the earlier
+  outcome, and any place or wait is computed from those turns in whole
+  numbers (`Hatchery.fixedOrderOutcome` / `fixedOrderWait`). Same promise:
+  exactly w per cycle, evenly spaced, shown before purchase. The order a
+  restricted player sees can differ from the old one after this ships;
+  nothing is owed, since the counts per cycle are unchanged.
+
+## 2026-11-07: Open Cloud saves wait out Roblox's "Server is busy" (409)
+
+- Roblox answers `409 Conflict: Save failed. Server is busy` to a place save
+  for a minute or two after any other save to the same place, whichever
+  workflow made it (a Staging publish, a real-engine check, or two checks
+  dispatched close together). On 2026-11-07 it failed one Staging publish
+  twice and one real-engine check, each fixed only by a hand re-run.
+- Both tools that save a place (`tools/publish/run.luau` and
+  `tools/cloud/run.luau`) now share `publish/lib.retryDelay`: a 409 waits
+  45 s, then 90 s, then 135 s before giving up (about 4.5 minutes, enough
+  for the earlier save to settle); 429 and 5xx keep their short doubling
+  waits; every other status is a real failure and still fails at once, so a
+  wrong key or a bad place never retries.
+- The verifier still dispatches one save at a time; the retry is the net
+  under that rule, not a licence to run checks in parallel.
+
+## 2026-11-07: The Hatchery Book shows rendered pictures, not live 3D
+
+- **What:** every creature gets a Blender-rendered Book picture
+  (`build.py --thumbs`, uploaded as an Image by the Upload creature meshes
+  workflow with `art = thumbs`, listed in `CreatureThumbs.luau`). The Book
+  shows the picture on an ImageLabel, tinted dark for creatures not yet
+  found, and keeps the live ViewportFrame only for a creature with no
+  current picture.
+- **Why:** Roblox draws a ViewportFrame only while it is on screen and
+  redraws it after it comes back, a few a frame. Three rounds of the Studio
+  gate on #119 showed empty cards on a fast flick, a reopen and a tab
+  switch however early the cards were built. An image has no such delay
+  once loaded, and the pictures are preloaded at join.
+- **Pictures follow the art:** each records a fingerprint of the meshes,
+  colours and picture style it came from. A creature whose art changed
+  drops out of the map until it is drawn again, so the Book never shows an
+  old look. Pictures are framed to the creature's outline, so a mouse and a
+  serpent fill their cards alike (the Book is a collection, not a size
+  chart), and Legendaries and Godlies are drawn level, without their hover.
+
+## 2026-11-07: Big Epics fit their 120-box stand-in by coarsening, not by losing detail
+
+- **The in-game box art (VoxelArt, drawn before the meshes load) of the
+  twelve Epics in `tools/art/kit_epicmyth.py` keeps to the Epic budget of
+  120 boxes by redrawing its heaviest parts on a 2-voxel grid (then a
+  3-voxel grid if needed)**, never the head, eyes, ears, legs or small
+  glowing features. The Blender meshes, which players see once loaded,
+  are built from the full-detail voxels and are untouched. The kit_myth
+  plans were sized for Legendaries (450 boxes); without this, serpents,
+  the kraken and the golem came to 130 to 200 boxes.
+- **The count is taken after `creatures.build_all`'s one-part-per-voxel
+  step**, because that step punches holes in the body where the head
+  overlaps it and adds boxes; counting earlier left creatures 5 to 30
+  boxes over.
+
+## 2026-11-05: Roblox's player list is off in Hatchery Heist
+
+- On desktop the player list (top right) covered the side menu's top
+  button, and clicks opened "Examine Avatar" instead of the Guide. The game
+  has no leaderboard stats, so the list only showed names; switching it off
+  (`config/atmosphere` `guide.playerList = false`) beats moving the menu,
+  whose top would still depend on how many players the list shows. Players
+  can still friend or report each other from their avatars and the Roblox
+  menu. If leaderboard stats are ever added, turn it back on and start the
+  side menu below it.
+
+## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
+
+- **Elevator cab, shaft, shaft top, ladder and floor plaque are built like
+  plain Roblox parts** (flat colours on a 0.2-stud grid, 0.5 for the
+  shaft), not sculpted 0.1-stud voxels. Alex found the old cab far too
+  heavy (631,740 triangles in the viewer). The cab is now 534 triangles
+  and 112 Parts boxes. The game's Parts version is the model exactly,
+  with nothing resampled away. Ids, `doorL`/`doorR` (slide) and the
+  shaft-top `wheel` (spin) are unchanged; the doors now sit in slots in
+  the side walls.
+- **`tools/art/world/build.py` makes flat greedy-quad meshes for every
+  world prop by default** (`vkit.flat`: speckle folded into its base
+  colour, patterns kept). The bevelled pillow mesh ran to 100k-2.4M
+  triangles for buildings and trees, too heavy for the viewer and over
+  Roblox's 20k MeshPart cap. `--full` still makes the pillow mesh.
+
+## 2026-11-05: Creature uploads retry a flaky network (tools)
+
+- **What:** `tools/art/blender/upload.py`'s `call()` retries connection
+  failures (refused, reset, timed out) the same way it already retried
+  429/5xx answers (now with 504 added): 5 tries, waiting 2, 4, 8 and 16 s
+  between them. Anything else still stops the run at once.
+  Covered by `tools/art/tests/test_upload_retry.py`.
+- **Why:** full upload run 42096155779 for #74 stopped on a single
+  "Connection refused" from Roblox after 11 creatures (Ant through BlueJay)
+  had already been rewritten in place. Staging then held a mix of old and
+  new meshes until a full run went through.
+- **Trade-off:** if a create times out after Roblox has already taken it,
+  the retry can leave one unused palette image. That is harmless.
+- **Rule:** a failed full run is re-run in full (no `only=`) so every live
+  creature ends up on the same mesh layout.
+
+## 2026-11-05: Moving creature parts are inset a hair (Hatchery Heist)
+
+- **What:** every creature part that moves against the body (legs, wings,
+  fins, tails, heads, ears, orbits) has its mesh skin moved 0.08 of a voxel
+  inward (`voxmesh.MeshData.inset`, `describe.INSET`). Faces resting on the
+  body (a leg's top) stay put, so no slit opens at the hip.
+- **Why:** a part turning about its hinge keeps the faces whose normal lies
+  along the hinge axis in one plane. Where such a face is flush with a body
+  face (a bunny's hind foot beside its flank), the two overlapped in one
+  plane mid-swing and flickered (Alex, Nov 5, Dutch Bunny hop). Clamping the
+  swing could not fix it: any swing of a flush leg overlaps. Inset, the
+  body's face always wins; 0.08 voxel (0.008 studs) is more than the pillow
+  lift (0.035), so even the raised face squares stay behind.
+- **Guard:** `tools/art/tests/test_overlap.py` (CI) fails if any moving part
+  of any creature shares a face plane with its body (1,055 parts did before).
+- **Box budget:** walking legs are their own parts in the in-game stand-in
+  boxes too (up to six one-voxel legs), so the Common budget is 36 boxes
+  (was 30) and Uncommon 44 (was 40), in `to_config.BOX_BUDGET` and
+  `VoxelArt.spec`. Dalmatian Pup went 28 -> 31 with its four legs split out.
+
+## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
+
+- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
+  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
+  finds the rest (quadrupeds, lizards) after the build and skips any creature
+  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
+  front to back, each its own anim, hinged at the hip.
+- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
+  never opens a hole in it; small birds' folded wings are only what shows
+  outside the body.
+- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
+  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
+- **Legendary and Godly always hover** (they float in CreatureLooks), so a
+  Phoenix does not waddle in mid-air.
+- **Sideways bug legs swing about the vertical axis**, lifting as they reach
+  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
+- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
+  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
+  Python and `Walk.spec` checks the game gives the same numbers; CI checks
+  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
+- **swim and finL/finR exist before any fish** so the pond batch can add fish
+  with data only.
+
+## 2026-11-05: Long Godlies lie along their row (Hatchery Heist)
+
+- A Godly takes three spots: an area 30 studs along the row and 10 deep.
+  A creature longer nose to tail than the depth allows (the Clockwork
+  Leviathan, the Cosmic Whale) is turned to lie along the row instead of
+  being shrunk (`Walk.lie`), so it keeps its tier's full height. Only a
+  creature longer than its row less `Layout.ROW_MARGIN` (2 studs, so 28 for
+  a Godly) is scaled down evenly (`ArtScale.drawScale`). One wider than the
+  depth faces the yard and sidesteps.
+- A creature lying lengthwise keeps that heading: it paces up and down its
+  row and never turns end for end or to face the yard, because turning on
+  the spot would sweep its length across the spots in front and behind.
+  Chosen over capping length at the 10-stud depth (it shrank the Leviathan
+  to well under a Godly's height) and over per-creature bounds (one more
+  number to set on every new creature). Ridden or carried, the cap scales
+  with the size.
+
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
 - **Each creature wanders only its own cell** (the 10-stud spots it takes),
@@ -22,6 +296,50 @@ Non-obvious choices, newest first, so a later session can trust them.
   only within `animateOtherStuds` (60). Four full neighbours at 180 studs
   took a phone from 59 to 37 fps; the far meshes past 30 studs keep the
   rest cheap.
+
+## 2026-11-05: Tower upgrades furnish the room, built on each client
+
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
+
+## 2026-11-05: Roster creatures reach the game through a generated config block
+
+- **What:** `tools/art/to_config.py` writes a marked block at the end of
+  `species` in Hatchery Heist's `config/creatures.luau`: every creature that
+  is on the master list, built by tools/art and uploaded (assets.json, Image
+  colours) and not written by hand. Income is a stable hash inside its
+  tier's band (Common 1-3, Uncommon 4-10, Rare 15-35, Ultra Rare 60-90, Epic
+  130-200, Legendary 400-500, Godly 800-1000), mount speed per tier, pools by
+  family (Barnyard: Farm, Pet, City, Garden; Moonlit: Spooky, Mutant,
+  Fantasy, Mythic, Spirit, Cosmic, Crystal, Mechanical, Elemental, Dino;
+  everything else Meadow), moved to the first egg that rolls the tier if
+  its family's egg does not. CI runs `--check`.
+- **Review gate:** only ids in `tools/art/roster/master/reviewed.txt` enter
+  the block. `to_config.py --promoted <PROMOTED.log>` adds every id the
+  strict reviewer promoted (ids are only added). Nothing ships unreviewed.
+- **Why:** builders ship roster JSON only; without this step reviewed
+  creatures reached the design viewer but never an egg. One block in the
+  same file (not a second module) keeps a single `require` and lets a hand
+  entry override any generated one by moving its line out.
+- **In-game art rules:** a built creature whose voxel boxes break a
+  VoxelArt.spec rule (box budget per tier, glow below Ultra Rare) is left
+  out and printed by the generator until its builder fixes it.
+- **Limit to fix before Rare+ batches:** an egg tier's weight must be at
+  least its member count (Schemas.crossCheck), and tiers are written out of
+  100,000. Basic egg Legendary is 2 and Epic 18, so Legendary/Epic batches
+  need either more-precise totals or fewer creatures per pool.
 
 ## 2026-11-05: Hatchery Heist farm hub: buildings and layout
 
@@ -55,45 +373,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   notice board carry a blank cream face; the game writes the text
   (SurfaceGui), at the prop's `anchor` (the face centre).
 
-## 2026-11-05: Every creature's legs, wings and fins are their own parts (Hatchery Heist)
-
-- **Body plans that know their legs draw them as parts** (`rig.leg_part`:
-  bugs, crabs, spiders, frogs, turtles, birds, bunnies, urchins); `rig.split_legs`
-  finds the rest (quadrupeds, lizards) after the build and skips any creature
-  that already has leg parts. Names: legFL/FR/BL/BR, legL/R, leg1L..leg6R
-  front to back, each its own anim, hinged at the hip.
-- **The body keeps voxels it shares with a leg or wing**, so a swinging limb
-  never opens a hole in it; small birds' folded wings are only what shows
-  outside the body.
-- **Birds stand on short legs in the finer build** (lifted 2+ voxels) so a
-  waddle visibly steps; the coarse VoxelArt stand-ins keep their feet.
-- **Legendary and Godly always hover** (they float in CreatureLooks), so a
-  Phoenix does not waddle in mid-air.
-- **Sideways bug legs swing about the vertical axis**, lifting as they reach
-  forward; four-leg sprawlers (turtle, axolotl) keep the pitch swing.
-- **One walk, two copies:** `Walk.pose` (game) and `tools/art/blender/walkpose.py`
-  (viewer walk clips). `luau.py` writes `tests/WalkMirror.luau` from the
-  Python and `Walk.spec` checks the game gives the same numbers; CI checks
-  the mirror is current. Walk clips are 2 s at the wander speed's cadence.
-- **swim and finL/finR exist before any fish** so the pond batch can add fish
-  with data only.
-
-## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
-
-- **Each creature wanders only its own cell** (the 10-stud spots it takes),
-  not the whole floor: no collision avoidance needed, the Steal prompt on
-  its pad stays beside it, and raids and income need no change.
-- **A schedule, not physics**: position and facing are a pure function of
-  the uid and `GetServerTimeNow()` (`Walk.at`), so all players agree and
-  nothing replicates. The client moves the server's invisible stand-in
-  locally; the server never sees it move.
-- **The step phase follows distance walked**, so feet do not slide; legged
-  bodies dip as the legs spread (feet stay planted), legless stand-ins
-  bounce. Gaits come from CreatureMeshes `gait` (set by the art tools from
-  each species' legs), falling back to the leg part names.
-- **Cull by floor, not distance**: decks hide other floors anyway, and a
-  full tower is 80 creatures.
-
 ## 2026-11-05: The Golden Egg Shop, a walk-in Robux shop (Hatchery Heist)
 
 - **Alex asked (11:24Z) for an interior area for Robux spending.** One
@@ -122,7 +401,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
 
-
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 
 - **The palette PNG is uploaded as an Image asset.** MeshPart.TextureID needs an
@@ -134,6 +412,53 @@ Non-obvious choices, newest first, so a later session can trust them.
 - `upload.py --textures-only` (workflow input `textures_only`) re-uploads just the
   palettes; models keep their ids.
 
+## 2026-11-05: Coin packs scale with income (Hatchery Heist)
+
+- **Minutes per pack rise faster than price** (5, 20, 45, 100 minutes for
+  25, 99, 199, 399 Robux), so a bigger pack is always better value per
+  Robux, at any income. The plan said "15 minutes"; one number for every
+  pack would make the 25 Robux pack worth as much as the 399 one to a top
+  player. Every pack stays at least 5 minutes of income (the studio rule).
+- **Shown amount is a floor**: the server remembers what each player's shop
+  last showed and grants at least that, so income dropping between looking
+  and buying never shortchanges anyone.
+- **Core shop gains `shop:personalize(key, describe)`** (a per-player name
+  and description for one item); other games are unaffected. The Roblox
+  product listings keep their fixed names ("80K Coins").
+
+
+## 2026-11-05: One shared Egg Market in the middle (Hatchery Heist)
+
+- **Two lanes as one schedule**: egg n rides lane n % 2 + 1, one every 0.5 s,
+  so purchases still name one egg number and the remotes did not change.
+  Lanes are two rings (r 22 and 27.5) turning opposite ways; the plan's
+  "two lanes" did not fit side by side on the art's 3.2-stud belt.
+- **First buyer wins, on the server**: a shared sold list in Actions; the
+  server tells every client (`HH:EggSold`) so the egg leaves its pedestal.
+  With the belt shared, the server also checks reach (`buyReach`, 20 studs
+  flat from where the clock has the egg), so nobody buys from across the map.
+- **No gaps in the belt**: the plan's eight gaps facing the bases became
+  belt parts that never collide, so players walk straight over it; the hub
+  thread's entrance arches mark the eight ways in.
+- **Eggs, pedestals and slats are client-only** and move together in one
+  `BulkMoveTo` each frame (about 1,900 small parts); the pedestal is three
+  boxes instead of the art's 48 to keep that number down. Eggs are pooled.
+- **Odds on a sign at each stop, not boards in the middle** (Studio gates,
+  Nov 5): boards big enough to read from the path hid the Golden Nest and
+  still failed on a phone, and a full tier table on a small sign was too
+  small too. Each stop gets a 10 x 3.3-stud sign beside its arch's left post,
+  face 3.6 to 6.9 studs up so the follow camera sees it over the character,
+  turned 20 degrees toward the path in. Three lines in about 1-stud type:
+  the egg and its price, then its two rarest tiers' exact "1 in N", the next
+  egg every 4 seconds. The odds card beside the Buy prompt keeps every tier.
+  To make room, the five hub pieces nearest the market (Book stand, Theme
+  stand, mailbox, notice board, flower stall) stand 2 to 4 studs further out.
+- **Buy only where you can pay**: the belt's nearest prompt was often a
+  dearer egg, so a player sees Buy only on eggs they can afford, unless they
+  can afford none (then pressing Buy says what eggs cost).
+- **One placer for WorldArt props** (`shared/VoxelProp`), with `register`
+  for other generated prop modules (the shop's), so every thread places
+  props the same way.
 
 ## 2026-11-05: The 10-floor tower (Hatchery Heist)
 
@@ -201,6 +526,10 @@ Non-obvious choices, newest first, so a later session can trust them.
   behind them. Now each piece keeps `farm.clearRadius` studs round itself
   clear, a small tree stands on each side of every gap's farm piece (a bush
   at the foot of one), and the wood fills in behind.
+- **The wood is spread by slices, not at random** (gate follow-up): each
+  tree first tries its own 1/count slice of the ring, so no wedge is left
+  bare behind a farm piece (random angles left 24 degree gaps behind the
+  Barn and two fields). A slice with no room gives its tree to anywhere.
 - **Star Pines only on the hills** (gate follow-up): on flat grass in the
   wood they read as random, on the hilltops as landmarks. Every other hill
   gets one, the medium model scaled up (the large one's detail is never
@@ -301,6 +630,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
   the repo: designs are for looking at before anything is decided, and big
   .glb files do not belong in git.
+
 ## 2026-11-05: Creature meshes v2 (Hatchery Heist)
 
 - **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
@@ -317,8 +647,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   Godlies, the look Alex had just approved.
 - **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
   gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
-
-
 
 ## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)
 
@@ -387,6 +715,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   arrow's "▼" are not in the game fonts and showed as boxes. The goal line
   has a drawn gold "GOAL" tag and the arrow is two frames. Emoji are fine:
   Roblox draws them with its emoji font.
+
 ## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
 
 - **Meshes are generated from the voxel art, not modelled separately.**
@@ -477,6 +806,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   about 8 for a Meadow Egg).
 - **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
   number on its own line); CI re-runs the exporter and fails if it differs.
+
 ## 2026-11-05: Games start without DataStores (Studio)
 
 - A built `.rbxl` opened in Studio is an unpublished place, where
@@ -533,7 +863,6 @@ Non-obvious choices, newest first, so a later session can trust them.
 - The gate is a commit status (`visual-playtest`, `.github/workflows/visual-gate.yml`)
   because GitHub Free cannot require checks on a private repo; the verifier
   merges only when it is green.
-
 
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
@@ -704,6 +1033,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
   test first, verified by the playtest thread, auto-merged, production by
   Alex's click.
+
 ## 2026-11-01: Boot check and key flows gate every merge and publish
 
 - **Why.** PR #5 merged with a start-up assert in Street Food Empire's

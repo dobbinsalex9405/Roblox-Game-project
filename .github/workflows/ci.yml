@@ -42,7 +42,7 @@ jobs:
       - name: Tests (Lune)
         run: lune run tools/test/run
 
-      # VoxelArt.luau, CreatureMeshes.luau and EnvArt.luau are generated from tools/art; a
+      # VoxelArt.luau, CreatureMeshes.luau, CreatureThumbs.luau and EnvArt.luau are generated from tools/art; a
       # hand edit or a stale export fails here.
       - uses: actions/setup-python@v5
         with:
@@ -52,7 +52,9 @@ jobs:
           python3 tools/art/export.py
           python3 tools/art/blender/luau.py
           python3 tools/art/env/luau.py
-          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau games/hatchery-heist/src/shared/CreatureMeshes.luau games/hatchery-heist/src/shared/EnvArt.luau games/hatchery-heist/tests/WalkMirror.luau
+          python3 tools/art/to_config.py --check
+          python3 -m unittest discover -s tools/art/tests
+          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau games/hatchery-heist/src/shared/CreatureMeshes.luau games/hatchery-heist/src/shared/CreatureThumbs.luau games/hatchery-heist/src/shared/EnvArt.luau games/hatchery-heist/tests/WalkMirror.luau
 
       - name: Build every game (Rojo)
         run: tools/build.sh all

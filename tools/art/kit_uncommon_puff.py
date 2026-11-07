@@ -129,8 +129,9 @@ def _tardigrade(c, H, k, body, head, cols, opts):
             a, b = (x0, x1) if sx > 0 else (-x1 - 1, -x0 - 1)
             leg = rig.leg_part(c, side, i, 4, ((a + b + 1) / 2 * 1.0, y + w / 2, lo + hgt))
             leg.box((a, y, 0), (b, y + w - 1, lo + hgt), col)
-            leg.put((a, y - 1, 0), claw)
-            leg.put((b, y - 1, 0), claw)
+            if getattr(c, 'fine', False):  # claws: the Blender build only (box budget)
+                leg.put((a, y - 1, 0), claw)
+                leg.put((b, y - 1, 0), claw)
     return {'big_eyes': False, 'face_z': 0.32, 'no_mouth': True}
 
 
