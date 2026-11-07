@@ -14,6 +14,18 @@ Non-obvious choices, newest first, so a later session can trust them.
   exactly w per cycle, evenly spaced, shown before purchase. The order a
   restricted player sees can differ from the old one after this ships;
   nothing is owed, since the counts per cycle are unchanged.
+
+## 2026-11-05: Roblox's player list is off in Hatchery Heist
+
+- On desktop the player list (top right) covered the side menu's top
+  button, and clicks opened "Examine Avatar" instead of the Guide. The game
+  has no leaderboard stats, so the list only showed names; switching it off
+  (`config/atmosphere` `guide.playerList = false`) beats moving the menu,
+  whose top would still depend on how many players the list shows. Players
+  can still friend or report each other from their avatars and the Roblox
+  menu. If leaderboard stats are ever added, turn it back on and start the
+  side menu below it.
+
 ## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
 
 - **Elevator cab, shaft, shaft top, ladder and floor plaque are built like
@@ -231,6 +243,29 @@ Non-obvious choices, newest first, so a later session can trust them.
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
 
+## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
+
+- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
+  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
+- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
+  draws a showpiece with smaller voxels in the Blender build (the serpent at
+  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
+  have changed the Goose Alex approved. **1.6x is the standard for every
+  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
+  keeps its approved build unless its size changes.
+- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
+  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
+  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
+  1 in 50,000 each) to pass that.
+- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
+  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
+  so the serpent stays within the Godly 800-box budget (794).
+- **Worlds never pass through the body.** Each orbiting world sits further
+  out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
 
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 

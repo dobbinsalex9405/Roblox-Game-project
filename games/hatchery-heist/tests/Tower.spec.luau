@@ -317,4 +317,17 @@ describe("Next-floor label", function()
 		-- ... and still floats over its deck.
 		expect(box.width <= Geometry.TOWER_MAX[1] - Geometry.TOWER_MIN[1]).toBe(true)
 	end)
+
+	it("stays clear of the YOUR HATCHERY banner over the base sign", function()
+		-- Studio gate (Nov 5): from spawn the floor 2 label and the banner sat
+		-- at the same height, one behind the other, and read as one crowded
+		-- line. The banner (nearer the camera) floats above the label with a
+		-- clear gap. Heights in the base's own space.
+		local box = Geometry.FLOOR_LABEL
+		local deck = Geometry.FLOOR_TOP + Geometry.FLOOR_HEIGHT - 0.5 -- floor 2's deck centre
+		local labelTop = deck + box.above + box.height / 2
+		local banner = Geometry.YOUR_BASE_LABEL
+		local bannerBottom = Geometry.SIGN_TOP - 4 + banner.above - banner.height / 2 -- from the 8-stud post's centre
+		expect(bannerBottom - labelTop >= 1.5 and "clear" or `gap {bannerBottom - labelTop}`).toBe("clear")
+	end)
 end)

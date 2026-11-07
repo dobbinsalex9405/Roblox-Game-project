@@ -61,6 +61,11 @@ function Geometry.distance(ax: number, az: number, bx: number, bz: number): numb
 	return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
 end
 
+-- Base-local heights: the floor's top surface, and the top of the 8-stud
+-- post that carries the base's sign (Layout.SIGN).
+Geometry.FLOOR_TOP = 1
+Geometry.SIGN_TOP = 9
+
 -- The tower: floor 1 is the base's ground, and each floor above stands
 -- FLOOR_HEIGHT studs higher, over the back half of the base.
 Geometry.FLOORS = 10
@@ -81,7 +86,14 @@ Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
 -- The label floating over the next floor to buy ("Floor 10: 165M coins"),
 -- in studs: wide enough for the longest one at full text height, with room
 -- to spare (Studio gate, #84: the text was filling its box edge to edge).
-Geometry.FLOOR_LABEL = { width = 32, height = 2.2 }
+-- `above`: its centre over the deck's centre.
+Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
+
+-- The "YOUR HATCHERY" banner over your own base sign (client/GuideView), in
+-- studs; `above` is its centre over the sign post's centre. It floats clear
+-- above the next-floor label behind it, so from spawn the two never read as
+-- one crowded line (Studio gate, Nov 5).
+Geometry.YOUR_BASE_LABEL = { width = 20, height = 4, above = 14.5 }
 
 -- Base-local positions of things raids care about. Layout uses the same
 -- numbers for the parts. Pad `index` counts across the whole tower: pads 1

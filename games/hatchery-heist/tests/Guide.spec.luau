@@ -7,6 +7,7 @@ local Util = require("@core/Util")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
+local atmosphere = require("../config/atmosphere")
 local economy = require("../config/economy")
 local NOW = 1_800_000_000
 
@@ -121,5 +122,12 @@ describe("Side menu", function()
 		local shop = table.clone(corner)
 		shop[2] = gui("CoreShop", 30, true, true)
 		expect(Guide.windowOpen(shop)).toBe(true)
+	end)
+
+	it("is not covered by Roblox's player list on desktop", function()
+		-- Studio gate (Nov 5): the player list sits over the menu's top
+		-- button, so a click opened "Examine Avatar" instead of the Guide.
+		-- The game has no leaderboard stats, so the list is switched off.
+		expect(atmosphere.guide.playerList).toBe(false)
 	end)
 end)

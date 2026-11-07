@@ -6,10 +6,12 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Guide = require(Shared.Guide)
+local Geometry = require(Shared.Geometry)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
@@ -298,8 +300,9 @@ local function markOwnBase(plot: Model)
 	if sign and sign:IsA("BasePart") then
 		local gui = Instance.new("BillboardGui")
 		gui.Name = "YourBaseLabel"
-		gui.Size = UDim2.fromScale(20, 4)
-		gui.StudsOffset = Vector3.new(0, 10, 0)
+		local banner = Geometry.YOUR_BASE_LABEL
+		gui.Size = UDim2.fromScale(banner.width, banner.height)
+		gui.StudsOffset = Vector3.new(0, banner.above, 0)
 		gui.MaxDistance = 400
 		gui.LightInfluence = 0
 		gui.Adornee = sign
@@ -337,6 +340,11 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 5
 	gui.Parent = player:WaitForChild("PlayerGui")
+
+	-- Roblox's desktop player list covers the side menu's top button
+	-- (config/atmosphere guide.playerList).
+	local guideConfig = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).guide
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, guideConfig.playerList == true)
 
 	-- The goal line, under the coin bar (Hud).
 	local goal = Instance.new("Frame")
