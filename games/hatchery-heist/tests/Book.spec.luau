@@ -10,6 +10,23 @@ local describe, it, expect = t.describe, t.it, t.expect
 local RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
 
 describe("Hatchery Book", function()
+	it("fits its window inside the screen below Roblox's top bar", function()
+		-- Studio gate (#131): on an 844x392 phone the Book was 352 px tall in
+		-- the 334 px below the 58 px top bar, its bottom 9 px off screen.
+		for _, case in { { 844, 392 }, { 1350, 672 }, { 390, 844 }, { 1920, 1080 } } do
+			local x, y = case[1], case[2]
+			local guiHeight = y - 58
+			local w, h = Book.windowSize(x, y, 58)
+			expect(w <= x - 24).toBe(true)
+			expect(w <= 760 and h <= 560).toBe(true)
+			-- Centred in the GUI area, at least 8 px clear of each edge.
+			expect((guiHeight - h) / 2 >= 8).toBe(true)
+		end
+		local w, h = Book.windowSize(1920, 1080, 58)
+		expect(w).toBe(760)
+		expect(h).toBe(560)
+	end)
+
 	it("lists every species once, by rarity then income", function()
 		local entries = Book.entries(creatures, eggs, RARITIES)
 		local seen: { [string]: boolean } = {}
