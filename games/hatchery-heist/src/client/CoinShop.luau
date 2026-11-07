@@ -1,7 +1,7 @@
 --!strict
 -- The shop's Coins tab (the shop opens on it; Robux items are the next tab):
 -- the next incubator, the free shield, traps and decoy eggs for the first
--- free spot on the player's base, and the coin eggs on the belt. Buttons only
+-- free spot on the player's base, and the coin eggs at the Egg Market. Buttons only
 -- ask; the server checks coins, spots and cooldowns.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -160,7 +160,7 @@ function CoinShop.start(ctx: Context.Context)
 					body,
 					order,
 					Layout.displayName(egg.id),
-					`Rides your conveyor belt. Walk up to it to see its odds and buy it. Hatches in {egg.hatchSeconds}s.`,
+					`Rides the Egg Market in the middle. Walk up to it to see its odds and buy it. Hatches in {egg.hatchSeconds}s.`,
 					`{Layout.shortNumber(egg.priceCoins)} coins`,
 					nil,
 					false,

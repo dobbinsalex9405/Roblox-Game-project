@@ -29,8 +29,8 @@ dict, its extra keys are the settings named below):
 - **ring_tail**: the tail replaced by a long ringed tail held up in a
   question mark, rings of color and color2 (a ringtail lemur's).
 - **poms**: pom-poms on the crown, ear tips, tail and ankles (a poodle's).
-- **beak**: the beak redrawn. `style`: pointed, cone (a finch's), hooked
-  (a parrot's), long (a wader's), dagger (a heron's), pouch (a pelican's,
+- **refit_beak**: the beak redrawn. `style`: pointed, cone (a finch's), hooked
+  (a parrot's), small_hook (a cockatiel's), long (a wader's), dagger (a heron's), pouch (a pelican's,
   color2 the pouch). `len` (in k) for long, dagger and pouch.
 - **cheeks**: a round patch on each cheek (a cockatiel's).
 - **face**: the face and throat painted color (a lovebird's).
@@ -42,10 +42,10 @@ dict, its extra keys are the settings named below):
   stay on the ground; `toes` keeps a bird's toes flat.
 - **fold_wings**: the wings folded shut over the back (a damselfly's), tip
   spot color2.
-- **leaf**: a big cut leaf held in the jaws, over the back (a leafcutter
+- **carry_leaf**: a big cut leaf held in the jaws, over the back (a leafcutter
   ant's), vein color2.
 - **mandibles**: big antler jaws (a stag beetle's), the little horn removed.
-- **feelers**: the head's ink antennae replaced by two short thin ones in
+- **short_feelers**: the head's ink antennae replaced by two short thin ones in
   color; color2 paints a stripe over the head.
 - **chameleon**: a tall casque, turret eyes on the sides and a tail rolled
   in a spiral (colour: casque; color2: eye turrets).
@@ -64,6 +64,7 @@ from collections import Counter
 from voxkit import hexc
 
 INK, WHITE = hexc('#1B1B2F'), hexc('#FFFFFF')
+BLUSH = hexc('#FF8FB1')
 
 
 def _rgb(col, default=None):
@@ -179,6 +180,9 @@ def ears(c, H, color, color2=None, a=None):
         cx = max(1.0, half - (0.1 if style == 'tiny' else 0.25) * k)
         cy = yb + (0.4 * k if style == 'tiny' else 0.1 * k)
         cz_e = top + (0.0 if style == 'tiny' else 0.15 * k)
+        if a.get('top'):  # set up on top of the head, not at its sides
+            cx = max(1.0, half * 0.55)
+            cz_e = top + 0.4 * k
         cells = {}
         for x in range(0, math.ceil(cx + r) + 1):
             for y in range(math.floor(cy - r), math.ceil(cy + r) + 1):
@@ -622,10 +626,25 @@ def poms(c, H, color, color2=None, a=None):
 def symmetry(c, H, color=None, color2=None, a=None):
     """Mirrors the right side onto the left where a plan's rounding left
     them a voxel apart: `parts` lists "wings" (wingL from wingR) and/or
-    "legs" (the body's low leg voxels, up to `z` in k, default 1.7)."""
+    "legs" (the body's low leg voxels, up to `z` in k, default 1.7), or "all"
+    (every part)."""
     k = H / 10.0
     a = a or {}
     which = a.get('parts', ['wings', 'legs'])
+    if 'all' in which:
+        # every part's left half from its right; a left part from its right twin
+        byname = {p.name: p for p in c.parts}
+        for p in c.parts:
+            if p.name.endswith('L') and p.name[:-1] + 'R' in byname:
+                r = byname[p.name[:-1] + 'R']
+                p.v = {(_mx(x), y, z): v for (x, y, z), v in r.v.items()}
+                p.pivot = (-r.pivot[0], r.pivot[1], r.pivot[2])
+            elif not p.name.endswith('R'):
+                right = {q: v for q, v in p.v.items() if q[0] >= 0}
+                p.v = dict(right)
+                for (x, y, z), v in right.items():
+                    p.v[(_mx(x), y, z)] = v
+        return
     if 'wings' in which:
         wl, wr = _find(c, 'wingL'), _find(c, 'wingR')
         if wl is not None and wr is not None and wr.v:
@@ -648,9 +667,11 @@ def symmetry(c, H, color=None, color2=None, a=None):
 BEAKS = {
     # per layer outward from the face: (half width, z low, z high) about
     # the beak's centre row
-    'pointed': [(1, -1, 0), (1, -1, 0), (1, -1, -1)],
-    'cone': [(1, -1, 1), (1, -1, 0), (1, 0, 0)],
+    'pointed': [(1, -1, 0), (1, 0, 0)],
+    'cone': [(1, -1, 0), (1, -1, 0), (1, 0, 0)],
     'hooked': [(1, -1, 1), (1, -1, 1), (1, -2, 0), (1, -2, -1)],
+    # a parrot's small hook: short, curling down at the tip
+    'small_hook': [(1, -1, 1), (1, -2, 0)],
 }
 
 
@@ -717,13 +738,14 @@ def beak(c, H, color, color2=None, a=None):
         pouch = _rgb(color2, _dark(col, 0.1))
         n = len(layers)
         for i in range(1, n - 1):
-            depth = max(1, round(min(i, n - 1 - i) * (0.55 if fine else 0.3)))
+            depth = max(1, round(min(i, n - 1 - i) * (0.9 if fine else 0.3)))
             for dz in range(1, depth + 1):
                 _sym(head, 0, fy - 1 - i, zc - dz, pouch)
 
 
 def cheeks(c, H, color, color2=None, a=None):
-    """A round patch on each cheek, below and behind the eye."""
+    """A round patch on each cheek: on the side of the head, just behind
+    and below the eye, clear of the beak (`size`, `down`, `back` in k)."""
     k = H / 10.0
     a = a or {}
     col = _rgb(color)
@@ -731,17 +753,28 @@ def cheeks(c, H, color, color2=None, a=None):
     le, re_, e = _eye_info(c)
     if head is None or not re_:
         return
-    ex = sum(p[0] for p in re_) / len(re_)
-    ez = min(p[2] for p in re_)
+    ex = max(p[0] for p in re_)
     ey = min(p[1] for p in re_)
-    cx, cz = ex + 0.35 * k, ez - float(a.get('down', 0.6)) * k
-    r = max(1.0, float(a.get('size', 0.6)) * k)
-    for p, (cc, g) in list(head.v.items()):
-        x = p[0] if p[0] >= 0 else _mx(p[0])
-        if p[1] > ey + 1.6 * k:
+    ez = min(p[2] for p in re_)
+    cy = ey + float(a.get('back', 0.9)) * k
+    cz = ez - float(a.get('down', 0.4)) * k
+    r = max(1.2, float(a.get('size', 0.65)) * k)
+    hc = _main(head)
+    # the side surface: the outermost voxel of each (y, z) row, and the
+    # one just inside it
+    side = {}
+    for (x, y, z) in head.v:
+        if x >= 0:
+            side[(y, z)] = max(side.get((y, z), x), x)
+    for (y, z), xo in side.items():
+        if ((y + .5 - cy) / r) ** 2 + ((z + .5 - cz) / r) ** 2 > 1:
             continue
-        if ((x + .5 - cx) / (r * 1.1)) ** 2 + ((p[2] + .5 - cz) / r) ** 2 <= 1 and cc == _main(head):
-            head.v[p] = (col, g)
+        for x in (xo, xo - 1):
+            if x <= ex:
+                continue
+            for q in ((x, y, z), (_mx(x), y, z)):
+                if q in head.v and head.v[q][0] in (hc, BLUSH):
+                    head.v[q] = (col, head.v[q][1])
 
 
 def face(c, H, color, color2=None, a=None):
@@ -790,20 +823,34 @@ def hood(c, H, color, color2=None, a=None):
 
 
 def throat_bars(c, H, color, color2=None, a=None):
-    """Thin bars across the throat: every other row of the throat in color."""
+    """Bars across the throat and upper breast: rows of color and color2
+    (default white), on the front below the beak."""
     k = H / 10.0
     col = _rgb(color)
+    pale = _rgb(color2, WHITE)
     head = _find(c, 'head')
+    body = _find(c, 'body')
     le, re_, e = _eye_info(c)
     if head is None or not re_:
         return
     ez = min(p[2] for p in re_)
-    yc = sum(p[1] for p in head.v) / len(head.v)
-    zlo = min(p[2] for p in head.v)
-    for p, (cc, g) in list(head.v.items()):
-        if p[1] < yc - 0.4 * k and zlo <= p[2] < ez - max(2, round(1.0 * k)) and abs(p[0] + .5) < 1.2 * k:
-            if (p[2] - zlo) % 2 == 0 and cc != INK:
-                head.v[p] = (col, g)
+    z1 = ez - max(3, round(1.9 * k))
+    z0 = z1 - max(3, round(1.6 * k))
+    for part in (head, body):
+        if part is None or not part.v:
+            continue
+        front = {}
+        ey = min(p[1] for p in re_)
+        for (x, y, z) in part.v:
+            if part is head and y < ey:
+                continue  # the beak, not the throat
+            if abs(x + .5) <= float((a or {}).get('w', 1.0)) * k and z0 <= z <= z1:
+                front[(x, z)] = min(front.get((x, z), y), y)
+        for (x, z), y in front.items():
+            for dy in (0, 1):
+                q = (x, y + dy, z)
+                if q in part.v and part.v[q][0] != INK:
+                    part.v[q] = (col if (z1 - z) % 2 == 1 else pale, False)
 
 
 def plume(c, H, color, color2=None, a=None):
@@ -956,21 +1003,20 @@ def mandibles(c, H, color, color2=None, a=None):
     fy = lo[1]
     z0 = cz + 0.2 * k
     cells = {}
-    base = (0.7 * k, fy + 0.6 * k, z0)
-    out = (1.5 * k, fy - 1.0 * k, z0 + 0.5 * k)
-    tip = (0.6 * k, fy - 2.3 * k, z0 + 1.0 * k)
+    # each jaw (drawn on the right, mirrored): out and forward, then curving
+    # in to a tip, with a tine pointing inward; the tips stay apart
+    base = (0.9 * k, fy + 0.8 * k, z0)
+    out = (1.8 * k, fy - 1.0 * k, z0 + 0.3 * k)
+    tip = (1.05 * k, fy - 2.4 * k, z0 + 0.6 * k)
     _rod(cells, base, out, col)
     _rod(cells, out, tip, col)
-    # a tine inward from the middle
-    mid = (1.2 * k, fy - 1.6 * k, z0 + 0.7 * k)
-    _rod(cells, mid, (0.5 * k, fy - 1.3 * k, z0 + 0.7 * k), col)
+    _rod(cells, (1.75 * k, fy - 0.7 * k, z0 + 0.3 * k), (1.15 * k, fy - 0.9 * k, z0 + 0.3 * k), col)
     mp = c.part('mandibles', 'static', head.pivot)
-    thick = _fine(c)
+    xmin = max(1, math.floor(0.95 * k))
     for (x, y, z), cc in cells.items():
-        if x < 0:
-            x = 0
+        x = max(x, xmin)
         _sym(mp, x, y, z, cc)
-        if thick:
+        if _fine(c):
             _sym(mp, x, y, z + 1, cc)
 
 
@@ -1098,6 +1144,7 @@ def sentinel(c, H, cols, opts):
     patch = cols.get('patches', _dark(col, 0.5))
     ear = cols.get('ear_col', patch)
     tcol = cols.get('tail_col', col)
+    tipc = _dark(ear, 0.45)  # ear tips and tail tip
     c.gait_hint = 'waddle'
     body = c.part('body')
     head = c.part('head', 'static', (0, -0.3 * k, 6.8 * k))
@@ -1129,28 +1176,58 @@ def sentinel(c, H, cols, opts):
                 _sym(body, x + max(0, round(0.15 * k)), y, z, col)
     # the head: small and round with a tapered snout
     hz = hip + 5.4 * k
-    head.ell((0, -0.3 * k, hz), (1.05 * k, 1.05 * k, 0.95 * k), col)
+    # (a little wider in the fine build, so each eye has fur all round it)
+    head.ell((0, -0.3 * k, hz), ((1.95 if _fine(c) else 1.6) * k, 1.15 * k, 1.05 * k), col)
     head.ell((0, -1.2 * k, hz - 0.35 * k), (0.55 * k, 0.75 * k, 0.5 * k), belly)
-    f = head.front(0, round(hz - 0.2 * k))
+    es = max(1, round(0.4 * k))
+    ez = round(hz + 0.05 * k)
+    # a small dark nose tip; in the fine build it sits on the muzzle two
+    # rows under the eyes, so it never joins them into a band
+    f = head.front(0, ez - 2 if _fine(c) else round(hz - 0.2 * k))
     if f:
         _sym(head, 0, f[1], f[2], INK)
-    es = max(1, round(0.4 * k))
-    eyes(c, head, max(1, round(0.35 * k)), round(hz + 0.05 * k), es)
-    # dark patches around the eyes
-    e = _find(c, 'eyes')
-    ring = {(p[0], p[2]) for p in e.v}
-    for p, (cc, g) in list(head.v.items()):
-        if any(abs(p[0] - x) <= 1 and abs(p[2] - z) <= 1 for (x, z) in ring) and p[1] < -0.8 * k and cc != INK:
-            head.v[p] = (patch, g)
+    # the eyes two columns out from the middle, so light fur shows between
+    # each eye patch and the muzzle, and wider between the two patches
+    xs = [p[0] for p in head.v if p[2] == ez and p[0] >= 0]
+    ex = max(0, min(2, max(xs) - es + 1))
+    if _fine(c):
+        # each eye a dark 2x2 block with one white shine in its top outer
+        # corner (#96), set in plain light fur with fur on every side; no
+        # patches (the pose, the ears and the tail tip say meerkat)
+        ex = 1
+        e = c.part('eyes', 'blink', head.pivot)
+        for side in (1, -1):
+            for dx, z in ((0, ez), (1, ez), (0, ez - 1), (1, ez - 1)):
+                xx = ex + dx if side > 0 else _mx(ex + dx)
+                f = head.front(xx, z)
+                if f:
+                    del head.v[f]
+                    e.put(f, WHITE if (dx, z) == (1, ez) else INK)
+                    if z == ez and head.front(xx, ez + 1) is None:
+                        head.put((xx, f[1] + 1, ez + 1), col)  # fur over the eye
+    else:
+        eyes(c, head, ex, ez, es)
+        e = _find(c, 'eyes')
+        for p in e.v:
+            f = head.front(p[0], p[2] - 1)
+            if f and head.v[f][0] != INK:
+                head.v[f] = (patch, False)
     # small dark ears low on the sides
     ep = c.part('ears', 'static', head.pivot)
     r = max(1.0, 0.35 * k)
-    for x in range(0, math.ceil(1.2 * k) + 1):
+    exr = (1.7 if _fine(c) else 1.3) * k
+    for x in range(0, math.ceil(exr + r) + 1):
         for y in range(math.floor(-0.3 * k - r), math.ceil(-0.3 * k + r) + 1):
             for z in range(math.floor(hz + 0.4 * k - r), math.ceil(hz + 0.4 * k + r) + 1):
-                if ((x + .5 - 1.0 * k) / r) ** 2 + ((y + .5 + 0.3 * k) / (r * 0.7)) ** 2 + ((z + .5 - hz - 0.4 * k) / r) ** 2 <= 1:
+                if ((x + .5 - exr) / r) ** 2 + ((y + .5 + 0.3 * k) / (r * 0.7)) ** 2 + ((z + .5 - hz - 0.4 * k) / r) ** 2 <= 1:
                     if (x, y, z) not in head.v:
                         _sym(ep, x, y, z, ear)
+    if _fine(c) and ep.v:
+        # dark brown ear tips
+        zt = max(p[2] for p in ep.v)
+        for p in list(ep.v):
+            if p[2] == zt:
+                ep.v[p] = (tipc, False)
     # the tail: from the rump down behind, along the ground, a dark tip
     tl = c.part('tail', 'static', (0, 1.2 * k, hip + 0.6 * k))
     path = [(1.1, hip / k + 0.7), (1.9, 0.8), (2.6, 0.35), (3.4, 0.35)]
@@ -1168,8 +1245,8 @@ def sentinel(c, H, cols, opts):
         prev = (y, z)
     tip = max(tl.v, key=lambda p: p[1])
     for p in list(tl.v):
-        if p[1] >= tip[1] - max(0, round(0.4 * k)):
-            tl.v[p] = (patch, False)
+        if p[1] >= tip[1] - (1 if _fine(c) else max(0, round(0.4 * k))):
+            tl.v[p] = (tipc if _fine(c) else patch, False)  # a dark brown tip
     return c
 
 
@@ -1223,7 +1300,9 @@ def fiddler(c, H, cols, opts):
         y = math.floor(cy - 1.0 * k) - i
         for x in range(math.floor(cx - 0.45 * k), math.ceil(cx + 0.35 * k)):
             for dz in range(th):
-                cp.put((x, y, math.floor(cz + 0.35 * k) + dz - (1 if i == fl - 1 else 0)), claw)
+                cp.put((x, y, math.floor(cz + 0.35 * k) + dz), claw)
+                if i == fl - 1:  # the tip hooks down, joined face to face
+                    cp.put((x, y, math.floor(cz + 0.35 * k) + dz - 1), claw)
                 if i < fl - 1:
                     cp.put((x, y, math.floor(cz - 0.75 * k) + dz), _dark(claw, 0.15))
     # three legs a side, out from under the shell and down
@@ -1251,7 +1330,7 @@ BUILDERS = {'sentinel': sentinel, 'fiddler': fiddler}
 ACCESSORIES = {
     'ears': ears, 'muzzle': muzzle, 'ruff': ruff, 'big_eyes': big_eyes, 'stripe': stripe,
     'membrane': membrane, 'tear_marks': tear_marks, 'claw_arms': claw_arms, 'ring_tail': ring_tail,
-    'poms': poms, 'beak': beak, 'cheeks': cheeks, 'face': face, 'hood': hood, 'throat_bars': throat_bars,
-    'plume': plume, 'lift_legs': lift_legs, 'fold_wings': fold_wings, 'leaf': leaf, 'mandibles': mandibles,
-    'feelers': feelers, 'chameleon': chameleon, 'symmetry': symmetry,
+    'poms': poms, 'refit_beak': beak, 'cheeks': cheeks, 'face': face, 'hood': hood, 'throat_bars': throat_bars,
+    'plume': plume, 'lift_legs': lift_legs, 'fold_wings': fold_wings, 'carry_leaf': leaf, 'mandibles': mandibles,
+    'short_feelers': feelers, 'chameleon': chameleon, 'symmetry': symmetry,
 }

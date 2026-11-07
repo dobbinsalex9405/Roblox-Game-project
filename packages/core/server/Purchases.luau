@@ -72,6 +72,9 @@ export type Shop = {
 	-- Sets what the shop sells. Every product must already be registered
 	-- with services.receipts and every pass listed in CoreServer's passes.
 	setCatalog: (self: Shop, items: { CatalogItem }) -> (),
+	-- Gives one item a per-player name and description (a coin pack that
+	-- scales with the player's income), in place of the catalog's.
+	personalize: (self: Shop, key: string, describe: (player: Player) -> (string, string)) -> (),
 	catalogFor: (self: Shop, player: Player) -> { CatalogEntry },
 	-- Called by CoreServer whenever odds are sent to a player.
 	oddsShown: (self: Shop, player: Player, tableId: string) -> (),
@@ -102,6 +105,8 @@ function Purchases.start(deps: Deps): Shop
 		end
 		return deps.receipts:productId(item.key) or 0
 	end
+
+	local personalized: { [string]: (player: Player) -> (string, string) } = {}
 
 	function shop.setCatalog(_self: Shop, list: { CatalogItem })
 		local seen: { [string]: boolean } = {}
@@ -138,16 +143,25 @@ function Purchases.start(deps: Deps): Shop
 		end
 	end
 
+	function shop.personalize(_self: Shop, key: string, describe: (player: Player) -> (string, string))
+		personalized[key] = describe
+	end
+
 	function shop.catalogFor(_self: Shop, player: Player): { CatalogEntry }
 		local out = {}
 		local restricted = not deps.policy:paidRandomAllowed(player)
 		for _, item in items do
 			local id = idOf(item)
+			local name, description = item.name, item.description
+			local describe = personalized[item.key]
+			if describe then
+				name, description = describe(player)
+			end
 			table.insert(out, {
 				key = item.key,
 				kind = item.kind,
-				name = item.name,
-				description = item.description,
+				name = name,
+				description = description,
 				id = id,
 				available = id > 0,
 				owned = item.kind == "pass" and deps.passes:owns(player, item.key),

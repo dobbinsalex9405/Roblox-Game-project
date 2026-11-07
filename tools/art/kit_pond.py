@@ -230,19 +230,46 @@ def critter(c, H, kind, col, accent=None, wing=None):
             import kit_refit
             kit_refit.lift(c, max(1, round(0.5 * k)))
     elif kind == 'pillbug':
-        # a domed back of overlapping plates
-        # (raised a little on short legs, so it can be seen to walk)
-        body.ell((0, 0.6 * k, 1.6 * k), (2.2 * k, 3.0 * k, 1.9 * k), col, cond=lambda x, y, z: z >= round(0.5 * k))
-        band = max(1, round(0.75 * k))
-        body.paint(lambda p, cc, g: (accent, False) if ((p[1] - round(-2.4 * k)) // band) % 2 == 1 and p[2] >= 1 else None)
-        head.ell((0, -2.4 * k, 1.5 * k), (1.5 * k, 1.0 * k, 1.2 * k), _dark(col, 0.15))
-        face(c, head, k, 1.6, x_off=0.4, size=0.5, cheek_z=1.0)
-        antennae(head, k, 0.6, -3.0, 2.0, 1.4, _dark(col, 0.4), back=-0.3, spread=0.5)
-        legs(body, k, [(1.1, -1.2), (1.3, 0.4), (1.1, 2.0)], _dark(col, 0.4), out=0.5, height=0.8, c=c)
-        if getattr(c, 'fine', False):
-            # taller legs, so each shows three voxels below the shell
-            import kit_refit
-            kit_refit.lift(c, max(1, round(1.0 * k)))
+        # a low armoured dome of seven plates, its rim close to the ground,
+        # on seven pairs of short legs mostly hidden under the rim
+        fine = getattr(c, 'fine', False)
+        zb = round(1.5 * k) if fine else max(1, round(0.6 * k))  # the underside
+        # the dome, and its rim curling in under the sides (a shell lip a
+        # voxel or two thick) so the legs only peek out below it
+        rx, ry, rz = 2.3 * k, 3.1 * k, 2.2 * k
+
+        def shell(x, y, z):
+            if z >= zb:
+                return True
+            if not fine or z < 2:
+                return False
+            d = ((x + .5) / rx) ** 2 + ((y + .5 - 0.5 * k) / ry) ** 2 + ((z + .5 - zb) / rz) ** 2
+            return d >= 0.62
+
+        body.ell((0, 0.5 * k, zb), (rx, ry, rz), col, cond=shell)
+        y0, y1 = round(-2.6 * k), round(3.6 * k) + 1
+        # seven plates: a dark seam between each, and every other plate a
+        # shade darker
+        def plate(y):
+            return int((y - y0) * 7 / (y1 - y0))
+        body.paint(lambda p, cc, g: (_dark(accent, 0.35), False) if plate(p[1]) != plate(p[1] + 1) and p[1] + 1 < y1
+                   else ((accent, False) if plate(p[1]) % 2 == 1 else None))
+        # a small dark head tucked under the front plate, no blush
+        head.ell((0, -2.8 * k, zb + 0.1 * k), (1.1 * k, 0.7 * k, 0.8 * k), _dark(col, 0.25))
+        face(c, head, k, (zb + 0.15 * k) / k, x_off=0.35, size=0.45, cheeks=False)
+        antennae(head, k, 0.5, -3.0, (zb + 0.6 * k) / k, 0.7, _dark(col, 0.45), back=-0.3, spread=0.5)
+        legc = _dark(col, 0.4)
+        n = 7 if fine else 3
+        for i in range(n):
+            y = round((-0.9 + i * 3.0 / (n - 1)) * k)
+            x = round(1.0 * k)
+            cells = {(x, y, z) for z in range(0, max(1, zb))}
+            if fine:
+                cells.add((x + 1, y, 0))  # a little foot peeking out
+            for sx in (-1, 1):
+                leg = _leg(c, sx, i, n, (sx * (x + .5), y + .5, zb))
+                for (cx, cy, cz) in cells:
+                    leg.put((cx if sx > 0 else _mx(cx), cy, cz), legc)
     elif kind in ('worm', 'slug'):
         if kind == 'worm':
             # segments along the ground, the front one rearing up as a head
