@@ -1157,3 +1157,14 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - Bottom medians are 0.74-0.75 on a 0.70 floor. Leg-swing corners dip to 0.54-0.55 on StormHawk and MoonUnicorn.
   - They move: FrostWolf 5.4 studs in 12 s, StormHawk 4.2 in 4 s, CrystalStag 12.5 in 12 s, MoonUnicorn 3.1 in 4 s.
   - **FrostWolf crest glow:** a Neon 0.8x0.8x0.6 part, colour (0.81, 0.93, 1), shows as a white glow on its head (`90-hh-frostwolf.jpg`).
+
+## #96 @ 9dffefa (eye shine + thumbs for five), merged onto main a84c672 locally
+
+**PASS.** The in-world numbers come from my build of e9fbaf6 merged onto main (3c20ff5). Against 9dffefa merged onto main, `games/` and `packages/` are byte-identical; only `ops/DECISIONS.md` differs. I rebuilt at 9dffefa for the Book check.
+- **Book:** CreatureThumbs lists all five (Calf …472494, Butterfly …770888, Monarch …164198, Platypus …364632, BeaverKit …239796). After a give, each card shows its coloured picture with a NEW badge, IsLoaded true (`96-hh-book-cards.jpg`).
+- **Eyes with the new shine:** each `_eyes` MeshPart carries the new texture. The Beaver Kit close-up shows white shine blocks on the black eyes (`96-hh-beaverkit-eyes.jpg`). The Calf's Book picture shows the same highlight.
+- **World** (all five side by side: `96-hh-five.jpg`):
+  - One texture each on 7-10 MeshParts, with nothing untextured. The largest gap is 0.000 on all five.
+  - Bottom medians are 0.73-0.76 on a 0.70 floor. Leg corners dip to as low as 0.53 (Platypus).
+  - Moved in 10 s: Calf 7.2, Butterfly 8.2, Monarch 5.6, Platypus 4.2, BeaverKit 2.7 studs.
+- The Book now reads Found x/168 (Epic 25) on main a84c672.
