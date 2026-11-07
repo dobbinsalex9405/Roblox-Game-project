@@ -788,3 +788,23 @@ The four patches from `art/hatchery-heist/roster-to-game/` applied cleanly with 
 - **Warning (not #79's fault):** on this branch Output logs `creature meshes did not load; drawing voxel boxes reason=mesh NebulaSerpent_head missing from asset 133734762072662`.
   - #71 re-uploaded the Serpent asset **in place** with new part names (head_1/head_2).
   - So any build without #71's CreatureMeshes now draws the Serpent as voxel boxes. That likely includes **main and Staging until #71 merges**.
+
+## #120 events @ ae7e48f
+
+**PASS, with three small findings.** Local build, desktop (1350x672) and phone (844x392).
+- **Banner and card:** the top-bar banner shows "Speedy Incubators · Next event in 8h 37m". Tapping it opens a card with the next event, its blurb, the start time, today's Giant Egg (Thunder Griffin, Legendary) and "One 30-minute event every day" (`120-hh-event-card.jpg`). On phone the banner (x 332-572) doesn't overlap the HUD, Shop, Test or Feedback (x 724+) (`120-hh-phone.jpg`).
+- **Egg Sale:** prompts show "SALE! Basic Egg: 25 coins", Meadow 1.25K, Moonlit 7.5K. Buying a Basic egg charged **25** (log `amount=25 reason=Shop:BasicEgg`). A toast "Egg Sale! Every market egg is half price! For 30:00." appears.
+  - *Finding:* 1 of 29 enabled Buy prompts still showed the old full price ("Moonlit Egg: 15K coins") 6 s after the start. Each egg refreshes its label only on its own update, so one stale label can sit on the belt briefly.
+- **Speedy Incubators:** a Meadow egg bought during it showed 0:29 on its incubator, against 0:58-1:00 normally, so halved.
+- **Money Rush:** income +141/s → **+282/s** during the event, back to 141 after.
+- **Lucky Hatch:** odds card boosted rows sum to 100.000% (Meadow 66.229/30.644/2.522/0.554/0.042/0.009; Basic 91.440/6.958/1.193/0.358/0.045/0.006).
+  - *Finding:* the card header reads **"Boosted: LuckyHatch"**, which is the internal id; it should say "Lucky Hatch".
+- **Giant Egg:**
+  - An 11-stud egg sits on the Golden Nest with Thunder Griffin (TodaysLegendary) standing on top.
+  - The sign reads "GIANT LEGENDARY EGG · Today: Thunder Griffin +500/s · Coming soon · one a day · new in 3h 13m".
+  - The shell rocks in occasional short wobbles (about ±3°).
+  - Market eggs are moved out: the nearest is on the 30-stud ring. The decorative Golden Egg is gone; the nest's small pink, blue and green decorative eggs remain.
+  - The Buy prompt reads "**Coming soon** / Giant Legendary Egg". There's no Giant Egg entry in the Core Shop.
+  - *Finding:* the sign faces one way, and from the main path it's partly behind the egg (`120-hh-giantegg-phone.jpg`).
+- **Test panel:** "event" buttons start each kind, and Stop works. "giantegg → Forget" replies "Today's Giant Egg can be bought again."
+- **Output:** nothing new from #120. The voxel NebulaSerpent line comes from the branch base, before #71.
