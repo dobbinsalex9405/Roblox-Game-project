@@ -12570,6 +12570,113 @@ local CreatureMeshes: { [string]: Creature } = {
 			},
 		},
 	},
+	Cuttlefish = {
+		assetId = 88046643540455,
+		textureId = 116948314889180,
+		rarity = "Uncommon",
+		gait = "swim",
+		height = 0.8,
+		size = { 1.6, 0.8, 2.7 },
+		tris = 14348,
+		trisLod1 = 1646,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, -0.2, 0.35 },
+				meshes = {
+					{
+						name = "Cuttlefish_body",
+						center = { 0, 0.4017, 0.6 },
+						size = { 1.007, 0.8035, 1.307 },
+					},
+				},
+				lod1 = { name = "Cuttlefish_body_lod1", center = { 0, 0.4, 0.6 }, size = { 1, 0.8, 1.3 } },
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.4325, -0.2 },
+				meshes = {
+					{
+						name = "Cuttlefish_head",
+						center = { 0, 0.4517, -0.296 },
+						size = { 0.807, 0.6875, 0.699 },
+					},
+				},
+				lod1 = {
+					name = "Cuttlefish_head_lod1",
+					center = { 0, 0.45, -0.3 },
+					size = { 0.8, 0.7, 0.7 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.4325, -0.2 },
+				meshes = {
+					{
+						name = "Cuttlefish_eyes",
+						center = { 0, 0.6018, -0.3 },
+						size = { 1.007, 0.2035, 0.307 },
+					},
+				},
+				lod1 = { name = "Cuttlefish_eyes_lod1", center = { 0, 0.6, -0.3 }, size = { 1, 0.2, 0.3 } },
+			},
+			{
+				name = "arms",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 0.35, -0.585 },
+				meshes = {
+					{
+						name = "Cuttlefish_arms",
+						center = { 0, 0.3017, -0.9 },
+						size = { 0.807, 0.4035, 0.907 },
+					},
+				},
+				lod1 = { name = "Cuttlefish_arms_lod1", center = { 0, 0.3, -0.9 }, size = { 0.8, 0.4, 0.9 } },
+			},
+			{
+				name = "finR",
+				anim = "finR",
+				parent = "body",
+				pivot = { 0.4675, 0.3775, 0.515 },
+				meshes = {
+					{
+						name = "Cuttlefish_finR",
+						center = { 0.4, 0.4057, 0.55 },
+						size = { 0.791, 0.3955, 1.591 },
+					},
+				},
+				lod1 = {
+					name = "Cuttlefish_finR_lod1",
+					center = { 0.4, 0.4, 0.55 },
+					size = { 0.8, 0.4, 1.6 },
+				},
+			},
+			{
+				name = "finL",
+				anim = "finL",
+				parent = "body",
+				pivot = { -0.4675, 0.3775, 0.515 },
+				meshes = {
+					{
+						name = "Cuttlefish_finL",
+						center = { -0.4, 0.4057, 0.55 },
+						size = { 0.791, 0.3955, 1.591 },
+					},
+				},
+				lod1 = {
+					name = "Cuttlefish_finL_lod1",
+					center = { -0.4, 0.4, 0.55 },
+					size = { 0.8, 0.4, 1.6 },
+				},
+			},
+		},
+	},
 	DandelionPuff = {
 		assetId = 136486940973510,
 		textureId = 139893937437206,
@@ -15441,6 +15548,155 @@ local CreatureMeshes: { [string]: Creature } = {
 					center = { 0.3, 0.25, -0.3 },
 					size = { 0.2, 0.5, 0.3 },
 				},
+			},
+		},
+	},
+	Squid = {
+		assetId = 112051874677531,
+		textureId = 128616687111175,
+		rarity = "Uncommon",
+		gait = "scuttle",
+		height = 2.2,
+		size = { 1.4, 2.2, 1.9 },
+		tris = 11492,
+		trisLod1 = 1528,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.15 },
+				meshes = {
+					{ name = "Squid_body", center = { 0, 0.5517, 0.25 }, size = { 0.807, 0.3035, 0.807 } },
+				},
+				lod1 = { name = "Squid_body_lod1", center = { 0, 0.55, 0.25 }, size = { 0.8, 0.3, 0.8 } },
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.792, 0.238 },
+				meshes = {
+					{ name = "Squid_head", center = { 0, 1.3978, 0.25 }, size = { 1.191, 1.5955, 0.991 } },
+				},
+				lod1 = { name = "Squid_head_lod1", center = { 0, 1.4, 0.25 }, size = { 1.2, 1.6, 1 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.792, 0.238 },
+				meshes = {
+					{ name = "Squid_eyes", center = { 0, 1.1518, 0 }, size = { 0.807, 0.3035, 0.307 } },
+				},
+				lod1 = { name = "Squid_eyes_lod1", center = { 0, 1.15, 0 }, size = { 0.8, 0.3, 0.3 } },
+			},
+			{
+				name = "leg1R",
+				anim = "leg1R",
+				parent = "body",
+				pivot = { 0.15, 0.6, 0 },
+				meshes = {
+					{
+						name = "Squid_leg1R",
+						center = { 0.3, 0.3018, -0.4978 },
+						size = { 0.391, 0.5875, 0.8955 },
+					},
+				},
+				lod1 = { name = "Squid_leg1R_lod1", center = { 0.3, 0.3, -0.5 }, size = { 0.4, 0.6, 0.9 } },
+			},
+			{
+				name = "leg1L",
+				anim = "leg1L",
+				parent = "body",
+				pivot = { -0.15, 0.6, 0 },
+				meshes = {
+					{
+						name = "Squid_leg1L",
+						center = { -0.3, 0.3018, -0.4978 },
+						size = { 0.391, 0.5875, 0.8955 },
+					},
+				},
+				lod1 = { name = "Squid_leg1L_lod1", center = { -0.3, 0.3, -0.5 }, size = { 0.4, 0.6, 0.9 } },
+			},
+			{
+				name = "leg2R",
+				anim = "leg2R",
+				parent = "body",
+				pivot = { 0.35, 0.6, 0.1 },
+				meshes = {
+					{
+						name = "Squid_leg2R",
+						center = { 0.4477, 0.3518, 0 },
+						size = { 0.4955, 0.4875, 0.291 },
+					},
+				},
+				lod1 = { name = "Squid_leg2R_lod1", center = { 0.45, 0.35, 0 }, size = { 0.5, 0.5, 0.3 } },
+			},
+			{
+				name = "leg2L",
+				anim = "leg2L",
+				parent = "body",
+				pivot = { -0.35, 0.6, 0.1 },
+				meshes = {
+					{
+						name = "Squid_leg2L",
+						center = { -0.4477, 0.3518, 0 },
+						size = { 0.4955, 0.4875, 0.291 },
+					},
+				},
+				lod1 = { name = "Squid_leg2L_lod1", center = { -0.45, 0.35, 0 }, size = { 0.5, 0.5, 0.3 } },
+			},
+			{
+				name = "leg3R",
+				anim = "leg3R",
+				parent = "body",
+				pivot = { 0.35, 0.6, 0.4 },
+				meshes = {
+					{
+						name = "Squid_leg3R",
+						center = { 0.4978, 0.3518, 0.4 },
+						size = { 0.3955, 0.4875, 0.291 },
+					},
+				},
+				lod1 = { name = "Squid_leg3R_lod1", center = { 0.5, 0.35, 0.4 }, size = { 0.4, 0.5, 0.3 } },
+			},
+			{
+				name = "leg3L",
+				anim = "leg3L",
+				parent = "body",
+				pivot = { -0.35, 0.6, 0.4 },
+				meshes = {
+					{
+						name = "Squid_leg3L",
+						center = { -0.4978, 0.3518, 0.4 },
+						size = { 0.3955, 0.4875, 0.291 },
+					},
+				},
+				lod1 = { name = "Squid_leg3L_lod1", center = { -0.5, 0.35, 0.4 }, size = { 0.4, 0.5, 0.3 } },
+			},
+			{
+				name = "leg4R",
+				anim = "leg4R",
+				parent = "body",
+				pivot = { 0.15, 0.6, 0.5 },
+				meshes = {
+					{ name = "Squid_leg4R", center = { 0.2, 0.4017, 0.65 }, size = { 0.391, 0.5875, 0.591 } },
+				},
+				lod1 = { name = "Squid_leg4R_lod1", center = { 0.2, 0.4, 0.65 }, size = { 0.4, 0.6, 0.6 } },
+			},
+			{
+				name = "leg4L",
+				anim = "leg4L",
+				parent = "body",
+				pivot = { -0.15, 0.6, 0.5 },
+				meshes = {
+					{
+						name = "Squid_leg4L",
+						center = { -0.2, 0.4017, 0.65 },
+						size = { 0.391, 0.5875, 0.591 },
+					},
+				},
+				lod1 = { name = "Squid_leg4L_lod1", center = { -0.2, 0.4, 0.65 }, size = { 0.4, 0.6, 0.6 } },
 			},
 		},
 	},

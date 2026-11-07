@@ -357,3 +357,5 @@ QuartzFox
 OpalFrog
 GhostOwl
 TripleGecko
+Squid
+Cuttlefish

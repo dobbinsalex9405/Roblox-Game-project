@@ -205,7 +205,7 @@ return {
 		TuxedoKitten = { rarity = "Common", coinsPerSecond = 1, mountSpeed = 18, pools = { "Barnyard" } },
 		WalrusPup = { rarity = "Common", coinsPerSecond = 3, mountSpeed = 18, pools = { "Meadow" } },
 		WaterVole = { rarity = "Common", coinsPerSecond = 2, mountSpeed = 18, pools = { "Meadow" } },
-		-- Uncommon: 32 from the roster
+		-- Uncommon: 34 from the roster
 		ArcticFoxKit = { rarity = "Uncommon", coinsPerSecond = 9, mountSpeed = 20, pools = { "Meadow" } },
 		Armadillo = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		Bobble = { rarity = "Uncommon", coinsPerSecond = 9, mountSpeed = 20, pools = { "Meadow" } },
@@ -214,6 +214,7 @@ return {
 		Cloudlet = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Meadow" } },
 		CocoaBunny = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		Cornling = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Barnyard" } },
+		Cuttlefish = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Meadow" } },
 		DandelionPuff = { rarity = "Uncommon", coinsPerSecond = 7, mountSpeed = 20, pools = { "Meadow" } },
 		Fluffernut = { rarity = "Uncommon", coinsPerSecond = 9, mountSpeed = 20, pools = { "Meadow" } },
 		FruitBat = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
@@ -231,6 +232,7 @@ return {
 		RhinoBeetle = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		ShroombackToad = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
 		SnowBunting = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
+		Squid = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
 		TapirCalf = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		Tardigrade = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		TeacupPiglet = { rarity = "Uncommon", coinsPerSecond = 9, mountSpeed = 20, pools = { "Meadow" } },
