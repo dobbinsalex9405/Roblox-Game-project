@@ -177,11 +177,13 @@ function CharmUi.card(parent: Instance, config: any, def: Charms.Def, order: num
 	count.Position = UDim2.new(1, -6, 0, 4)
 	count.Size = UDim2.fromOffset(40, 18)
 	count.TextXAlignment = Enum.TextXAlignment.Right
-	local ribbon = CharmUi.text(b, "Ribbon", "Equipped", 13, CharmUi.SHADOW)
+	-- A small "On" badge in the corner, clear of the icon even on the
+	-- narrowest card (108 px).
+	local ribbon = CharmUi.text(b, "Ribbon", "On", 13, CharmUi.SHADOW)
 	ribbon.BackgroundTransparency = 0
 	ribbon.BackgroundColor3 = CharmUi.GOLD
 	ribbon.Position = UDim2.fromOffset(4, 4)
-	ribbon.Size = UDim2.fromOffset(70, 18)
+	ribbon.Size = UDim2.fromOffset(30, 18)
 	ribbon.Visible = false
 	CharmUi.corner(ribbon, 6)
 	local ribbonStroke = ribbon:FindFirstChildOfClass("UIStroke")

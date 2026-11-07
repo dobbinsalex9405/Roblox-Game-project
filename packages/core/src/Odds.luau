@@ -137,8 +137,10 @@ end
 -- Rescales raw (possibly fractional) weights to whole numbers totalling
 -- `target` (10,000 when left out) with the largest-remainder method. Every
 -- outcome with raw weight > 0 keeps at least 1, so anything possible is still
--- shown and still rollable.
-function Odds.normalize(raw: { Outcome }, target: number?): { Outcome }
+-- shown and still rollable. With `takers`, only those outcomes (by index)
+-- get the rounding's leftover units, so the others never round up: a
+-- boosted outcome then never gets more than its exact boosted share.
+function Odds.normalize(raw: { Outcome }, target: number?, takers: { [number]: boolean }?): { Outcome }
 	local TOTAL = target or TOTAL
 	local total = 0
 	for _, o in raw do
@@ -170,9 +172,19 @@ function Odds.normalize(raw: { Outcome }, target: number?): { Outcome }
 			return a.index < b.index
 		end)
 		local i = 1
+		local function takes(index: number): boolean
+			return raw[index].weight > 0 and (takers == nil or takers[index] == true)
+		end
+		local any = false
+		for index in raw do
+			any = any or takes(index)
+		end
+		if not any then
+			takers = nil
+		end
 		while diff > 0 do
 			local entry = remainders[((i - 1) % #remainders) + 1]
-			if raw[entry.index].weight > 0 then
+			if takes(entry.index) then
 				result[entry.index].weight += 1
 				diff -= 1
 			end
@@ -314,7 +326,10 @@ function Odds.new(options: Options?): Odds
 			return def.outcomes
 		end
 		local raw: { Outcome } = {}
-		for _, o in def.outcomes do
+		-- Rounding's leftover goes to unboosted outcomes, so a boosted one
+		-- never ends up above its exact boosted share (or the cap).
+		local takers: { [number]: boolean } = {}
+		for index, o in def.outcomes do
 			local weight: number = o.weight
 			if playerExcluded and playerExcluded[o.id] then
 				weight = 0
@@ -327,10 +342,13 @@ function Odds.new(options: Options?): Odds
 					multiplier = math.min(multiplier, boostCap)
 				end
 				weight *= multiplier
+				if multiplier <= 1 then
+					takers[index] = true
+				end
 			end
 			table.insert(raw, { id = o.id, weight = weight })
 		end
-		return Odds.normalize(raw, Odds.totalOf(def))
+		return Odds.normalize(raw, Odds.totalOf(def), if #playerBoosts > 0 then takers else nil)
 	end
 
 	function odds.display(self: Odds, tableId: string, player: any): Display

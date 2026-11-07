@@ -617,11 +617,22 @@ function ClawView.start(ctx: Context.Context)
 	----------------------------------------------------------------------
 	-- The reveal.
 	----------------------------------------------------------------------
+	-- Two layers: the shade covers the whole screen, top bar included; the
+	-- reveal itself sits in Roblox's safe area, below the top bar and inside
+	-- phone notches, so nothing is drawn where the engine moves or hides it.
+	local shadeGui = Instance.new("ScreenGui")
+	shadeGui.Name = "ClawRevealShade"
+	shadeGui.ResetOnSpawn = false
+	shadeGui.ScreenInsets = Enum.ScreenInsets.None
+	shadeGui.DisplayOrder = 40
+	shadeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	shadeGui.Enabled = false
+	shadeGui.Parent = playerGui
 	local revealGui = Instance.new("ScreenGui")
 	revealGui.Name = "ClawReveal"
 	revealGui.ResetOnSpawn = false
-	revealGui.IgnoreGuiInset = true
-	revealGui.DisplayOrder = 40
+	revealGui.ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets
+	revealGui.DisplayOrder = 41
 	revealGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	revealGui.Enabled = false
 	revealGui.Parent = playerGui
@@ -632,7 +643,7 @@ function ClawView.start(ctx: Context.Context)
 	shade.BackgroundColor3 = Color3.fromRGB(8, 8, 16)
 	shade.BackgroundTransparency = 0.12
 	shade.Size = UDim2.fromScale(1, 1)
-	shade.Parent = revealGui
+	shade.Parent = shadeGui
 	local burst = Instance.new("Frame")
 	burst.Name = "Burst"
 	burst.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -641,11 +652,11 @@ function ClawView.start(ctx: Context.Context)
 	burst.BackgroundTransparency = 1
 	burst.Size = UDim2.fromOffset(10, 10)
 	CharmUi.corner(burst, 999)
-	burst.Parent = revealGui
+	burst.Parent = shadeGui
 	local stage = Instance.new("Frame")
 	stage.Name = "Stage"
 	stage.AnchorPoint = Vector2.new(0.5, 0.5)
-	stage.Position = UDim2.new(0.5, 0, 0.5, TOP_BAR / 2)
+	stage.Position = UDim2.fromScale(0.5, 0.5)
 	stage.BackgroundTransparency = 1
 	stage.Parent = revealGui
 	local heading = CharmUi.text(stage, "Heading", "", 28, CharmUi.GOLD)
@@ -680,14 +691,16 @@ function ClawView.start(ctx: Context.Context)
 	local skipNow: (() -> ())? = nil
 	local finish: (() -> ())? = nil
 
-	-- The room the reveal has: the screen below Roblox's top bar.
+	-- The room the reveal has: the safe area below Roblox's top bar, less a
+	-- 12 px margin on each side.
 	local function screenSize(): Vector2
 		local s = revealGui.AbsoluteSize
 		if s.X <= 0 or s.Y <= 0 then
 			local camera = Workspace.CurrentCamera
-			s = if camera then camera.ViewportSize else Vector2.new(1280, 720)
+			local view = if camera then camera.ViewportSize else Vector2.new(1280, 720)
+			s = Vector2.new(view.X, view.Y - TOP_BAR)
 		end
-		return Vector2.new(s.X, s.Y - TOP_BAR - 16)
+		return Vector2.new(s.X - 24, s.Y - 24)
 	end
 	-- Heading, gap, footer: what a stage needs besides its tray.
 	local CHROME = 44 + 12 + CharmUi.BUTTON
@@ -761,6 +774,7 @@ function ClawView.start(ctx: Context.Context)
 		token += 1
 		clear(tray)
 		revealGui.Enabled = false
+		shadeGui.Enabled = false
 		skipNow = nil
 		finish = nil
 		showing = false
@@ -965,9 +979,17 @@ function ClawView.start(ctx: Context.Context)
 		heading.Text = `{#ids} charms!`
 		local grid = scroller(tray, "Haul")
 		grid.Size = UDim2.fromScale(1, 1)
+		-- Room for the cards' 3 px borders, so the first row isn't clipped.
+		local pad = Instance.new("UIPadding")
+		pad.PaddingTop = UDim.new(0, 4)
+		pad.PaddingBottom = UDim.new(0, 4)
+		pad.PaddingLeft = UDim.new(0, 4)
+		pad.PaddingRight = UDim.new(0, 4)
+		pad.Parent = grid
 		local layout = Instance.new("UIGridLayout")
-		local cols = math.clamp(math.floor((w - 10 + GAP) / (104 + GAP)), 3, 6)
-		local cellW = math.floor((w - 10 - (cols - 1) * GAP) / cols)
+		local inner = w - 10 - 8
+		local cols = math.clamp(math.floor((inner + GAP) / (104 + GAP)), 3, 6)
+		local cellW = math.floor((inner - (cols - 1) * GAP) / cols)
 		layout.CellSize = UDim2.fromOffset(cellW, 112)
 		layout.CellPadding = UDim2.fromOffset(GAP, GAP)
 		layout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -991,6 +1013,7 @@ function ClawView.start(ctx: Context.Context)
 		end
 		showing = true
 		clear(tray)
+		shadeGui.Enabled = true
 		revealGui.Enabled = true
 		if #next_.ids == 1 then
 			showOne(next_.ids[1])

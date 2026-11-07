@@ -38,6 +38,12 @@ stays a draft until Alex approves the spec and the prices.
   is renamed or dropped (tested: an old save loads with them).
 - **Price follows `incomePeak`**, the best income ever, so pulling floors
   off the tower never makes pulls cheaper.
+- **Rounding never lifts a boosted creature** (core `Odds.normalize`
+  `takers`). Boosted tables are rescaled to whole numbers; plain largest
+  remainder could round a boosted Legendary from 2.4 up to 3 or more, above
+  base x boost and past the x3 cap. Now boosted outcomes only round down
+  and the leftover units go to unboosted ones. `LuckCap.spec` checks every
+  egg with the Luck Boost and every Clover: shown = rolled, never above.
 - **Kind icons are emoji** (🌽 🍀 🔥 🛡️ 🕸️ 👟) and card text avoids "·"
   and arrows, which FredokaOne may draw as boxes.
 - **The side menu fits seven buttons on a short phone** by closing its gaps

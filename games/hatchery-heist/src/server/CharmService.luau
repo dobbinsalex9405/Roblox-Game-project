@@ -18,6 +18,7 @@ local Actions = require(Shared.Actions)
 local CharmActions = require(Shared.CharmActions)
 local Charms = require(Shared.Charms)
 local ClawArt = require(Shared.ClawArt)
+local Eggs = require(Shared.Eggs)
 local VoxelProp = require(Shared.VoxelProp)
 
 export type Deps = {
@@ -28,6 +29,9 @@ export type Deps = {
 	species: { [string]: any },
 	productIds: { [string]: number },
 	groundY: number,
+	-- config/monetization.luau boosts.LuckBoost, for the Studio test panel's
+	-- "Luck Boost" switch (the product itself isn't sold yet).
+	luckBoost: any?,
 	notify: (player: Player, text: string) -> (),
 	remotes: { [string]: any },
 }
@@ -275,6 +279,31 @@ function CharmService.start(deps: Deps)
 			return text
 		end
 	)
+
+	-- Studio test panel: switch the Luck Boost's odds on or off, as its own
+	-- source, to check it with a Clover against the x3 cap on the odds card.
+	local luckBoost = deps.luckBoost
+	if luckBoost then
+		services.addTestAction(
+			"luckboost",
+			"Luck Boost odds (with any Clover, capped at x3)",
+			{ "On", "Off" },
+			function(player: Player, choice: string): string
+				local on = choice == "On"
+				for _, egg in deps.eggs do
+					local list = {}
+					if on and table.find(luckBoost.eggs, egg.id) then
+						local m = Eggs.boostMultipliers(egg, luckBoost, deps.species)
+						if next(m) then
+							list = { { id = "Luck Boost", multipliers = m } }
+						end
+					end
+					services.odds:setSourceBoosts(player, egg.id, "luckboost", list)
+				end
+				return if on then "Luck Boost odds on." else "Luck Boost odds off."
+			end
+		)
+	end
 
 	-- Joining, respawning and any data change (a pass, a fusion, rebirth)
 	-- re-check what the player wears and their luck; both only act on change.

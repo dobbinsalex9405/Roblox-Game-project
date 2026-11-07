@@ -428,6 +428,7 @@ CharmService.start({
 	species = config.creatures.species,
 	productIds = ids.products,
 	groundY = Config.get("shophouse").groundY,
+	luckBoost = Config.get("monetization").boosts.LuckBoost,
 	notify = notify,
 	remotes = Remotes,
 })

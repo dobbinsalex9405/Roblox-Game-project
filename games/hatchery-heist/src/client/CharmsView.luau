@@ -123,15 +123,18 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 		b.LayoutOrder = order
 		filterButtons[key] = b
 	end
-	addFilter("All", "All", 1, 64)
+	addFilter("All", "All", 1, 56)
 	for i, kindId in Charms.activeKinds(config) do
 		local kind = Charms.kind(config, kindId)
-		addFilter(kindId, `{kind.icon} {kindId}`, 1 + i, 112)
+		addFilter(kindId, `{kind.icon} {kindId}`, 1 + i, 92)
 	end
-	local mine = CharmUi.button(controls, "ShowMine", "", CharmUi.GREEN, 150)
+	-- The whole row fits a phone's window (about 650 px) without scrolling.
+	local mine = CharmUi.button(controls, "ShowMine", "", CharmUi.GREEN, 136)
 	mine.LayoutOrder = 50
-	local others = CharmUi.button(controls, "ShowOthers", "", CharmUi.GREEN, 150)
+	mine.TextSize = 16
+	local others = CharmUi.button(controls, "ShowOthers", "", CharmUi.GREEN, 136)
 	others.LayoutOrder = 51
+	others.TextSize = 16
 
 	-- The bag.
 	local grid = Instance.new("ScrollingFrame")
@@ -348,10 +351,10 @@ function CharmsView.start(ctx: Context.Context, menu: Menu)
 			b.TextColor3 = if on then CharmUi.SHADOW else Color3.new(1, 1, 1)
 		end
 		local shownAll = d.charmsShown ~= false
-		mine.Text = if shownAll then "My charms: On" else "My charms: Off"
+		mine.Text = if shownAll then "Show mine: On" else "Show mine: Off"
 		mine.BackgroundColor3 = if shownAll then CharmUi.GREEN else CharmUi.GREY
 		local seeOthers = CharmView.showOthers()
-		others.Text = if seeOthers then "Others': On" else "Others': Off"
+		others.Text = if seeOthers then "See others: On" else "See others: Off"
 		others.BackgroundColor3 = if seeOthers then CharmUi.GREEN else CharmUi.GREY
 
 		-- The grid, rebuilt only when what it shows changes.

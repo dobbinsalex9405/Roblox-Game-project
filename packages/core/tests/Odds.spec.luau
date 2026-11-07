@@ -143,6 +143,22 @@ describe("Odds", function()
 		expect(odds:effective("BasicEgg", p)[4].weight).toBe(388)
 	end)
 
+	it("rounding never lifts a boosted outcome above its exact boosted share", function()
+		local raw = {
+			{ id = "A", weight = 5000 },
+			{ id = "B", weight = 4999 },
+			{ id = "C", weight = 1.9 }, -- boosted: exact share under 2
+		}
+		-- Plain largest remainder rounds C up to 2.
+		expect(Odds.normalize(raw, 10000)[3].weight).toBe(2)
+		-- With only A and B taking the leftover, C keeps its floor of 1.
+		local held = Odds.normalize(raw, 10000, { [1] = true, [2] = true })
+		expect(held[3].weight).toBe(1)
+		expect(totalOf(held)).toBe(10000)
+		-- If nothing may take the leftover, it goes back to everyone.
+		expect(totalOf(Odds.normalize(raw, 10000, {}))).toBe(10000)
+	end)
+
 	it("outcomes a player can only get once drop out of their table", function()
 		local odds = Odds.new()
 		odds:define(BASIC)

@@ -23,6 +23,8 @@
   Counter instead: a chosen Common, Uncommon or Rare charm for coins.
 - The side menu closes its gaps (and only then shrinks a little) on short
   phone screens, so all seven buttons fit.
+- Boosted egg odds (Luck Boost, Clovers) no longer round a rare creature
+  above its exact boosted chance.
 
 - Fix: on desktop, Roblox's player list no longer sits on top of the Guide
   button (clicks opened "Examine Avatar"); the game has no leaderboard, so
