@@ -1644,7 +1644,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	CalicoKitten = {
 		assetId = 84406244306823,
-		textureId = 138554039450922,
+		textureId = 103389318722882,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.9,
@@ -9694,7 +9694,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	SiameseKitten = {
 		assetId = 83627084226521,
-		textureId = 103944678582096,
+		textureId = 83274873196990,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.9,
@@ -10602,7 +10602,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	TabbyKitten = {
 		assetId = 88582726471427,
-		textureId = 97669108548691,
+		textureId = 73150724200429,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.9,
@@ -10977,7 +10977,7 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	TuxedoKitten = {
 		assetId = 113273003113293,
-		textureId = 73013573129837,
+		textureId = 107836813950147,
 		rarity = "Common",
 		gait = "trot",
 		height = 1.9,
