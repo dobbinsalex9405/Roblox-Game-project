@@ -1445,3 +1445,12 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`145b-phone-meadow-list.jpg`).
   - **Basic:** Common 47 × "1.9574% · 1 in 51.1"; Uncommon 7 × 1 in 100; Rare 0.8022% · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
   - **Meadow:** Common 60 × "1.1167% · 1 in 89.5"; **Uncommon 31 × "1.0000% · 1 in 100"**; Rare 2 × 1 in 118; UR 13 × 1 in 4,673; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
+
+## #147 @ a4d678f (GummyBear glow_from 0.85), built directly (head contains main 237afe1)
+
+**PASS.**
+- **Placed Gummy Bear:** 16 MeshParts, texture 133704092338001, 0 plain Parts, 0.000 gap. It animates (2.0 studs in 6 s).
+  - Neon: 7 parts (body_glow ×3, head_glow ×2, ears_glow, tail_glow), box share **5%** (was 53% before #146 and 0% at #146).
+  - It reads as red gummy candy with a soft white glow across the top of the head and back, plus a gloss highlight on the belly. No all-over Neon (`147-gummy.jpg`).
+- **Book:** the Gummy Bear card loads its new thumb `rbxassetid://88046073935611` and reads "Gummy Bear / Meadow Egg 1 in 4,673" (`147-book.jpg`).
+- **Unchanged:** Jelly Slime still has 53 Neon parts at a 4% share, texture 137461933932625, thumb 71245448240637. Will-o'-Wisp draws its mesh (14 MeshParts, 8% share), with "Will-o'-Wisp" on its label and Book card.
