@@ -1141,3 +1141,19 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **Desktop 1350x672, unrestricted, fresh session:** 280x214 at y 258-472 at scale 1.0. Smallest text 14.4 px, nothing truncated, and the same six rows as main (92.000% · 1 in 1.1 … 0.002% · 1 in 50,000). Unchanged from main.
 - **Phone, restricted (glance):** 224x157 at y 225-383, smallest text 12.0 px, nothing truncated, and the rows scroll (267 in a 157 frame).
 - *Note, not a FAIL:* the card doesn't refit when the viewport grows mid-session. After a phone → desktop resize it stayed 224x157 at scale 0.8 on a 1350x672 screen. It's still readable and fits (`126f-desktop-after-resize-no-refit.jpg`). A fresh desktop session is correct. This matters for rotation; the Book got a refit in #131 and this card could use the same.
+
+## #90 @ 0ffc7ce (thumbs for the live four), merged onto main ad8133f as 6a9acf4
+
+**PASS.** Local build, desktop.
+- **CreatureThumbs:** 114 entries, and FrostWolf, StormHawk, CrystalStag and MoonUnicorn are all present.
+- **Book:** after a test-panel give, each of the four shows its coloured picture with a NEW badge.
+  - Frost Wolf `rbxassetid://117071203284379` and Storm Hawk `…71546280985932` are on the Ultra Rare tab.
+  - Crystal Stag `…84692928531479` and Moon Unicorn `…93137043299342` are on the Epic tab.
+  - All four images report IsLoaded (`90-hh-book-ultrarare.jpg`, `90-hh-book-epic.jpg`).
+  - *Note:* on the first open of the Epic tab, some of #129's live-draw silhouettes were briefly blank or partial while their meshes streamed in (`90-hh-book-epic-loading.jpg`). About 4 s later every card was fully drawn, and their ViewportFrames were fully populated (6-17 parts each).
+- **World:**
+  - All four have one texture on every colour MeshPart. The only untextured parts are the intended Neon `_glow` overlays: FrostWolf's legs and crest; StormHawk's tail and crest ×2; CrystalStag's body, legs, head, antlers and crystals; MoonUnicorn's body, legs and mane.
+  - The largest gap is 0.000 on all four.
+  - Bottom medians are 0.74-0.75 on a 0.70 floor. Leg-swing corners dip to 0.54-0.55 on StormHawk and MoonUnicorn.
+  - They move: FrostWolf 5.4 studs in 12 s, StormHawk 4.2 in 4 s, CrystalStag 12.5 in 12 s, MoonUnicorn 3.1 in 4 s.
+  - **FrostWolf crest glow:** a Neon 0.8x0.8x0.6 part, colour (0.81, 0.93, 1), shows as a white glow on its head (`90-hh-frostwolf.jpg`).
