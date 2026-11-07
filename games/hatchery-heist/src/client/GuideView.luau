@@ -130,6 +130,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	sub.LayoutOrder = 2
 	sub.ZIndex = 12
 
+	local rows: { { name: TextLabel, about: TextLabel, pad: UIPadding, title: string, body: string } } = {}
 	for index, step in STEPS do
 		local row = Instance.new("Frame")
 		row.Name = `Step{index}`
@@ -160,6 +161,7 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 		rowPad.PaddingBottom = UDim.new(0, 8)
 		rowPad.Parent = row
 		row.Parent = body
+		table.insert(rows, { name = name, about = about, pad = rowPad, title = step.title, body = step.body })
 	end
 
 	local go = Instance.new("TextButton")
@@ -177,14 +179,39 @@ local function welcomeWindow(gui: ScreenGui): (Frame, TextButton)
 	go.Parent = card
 
 	-- Fit the card to its content, the screen and a 460 px maximum width.
+	-- On a short screen (a phone held sideways) the card goes wide, drops
+	-- the subtitle and puts each step's name at the start of its text, so
+	-- all four steps show without scrolling (Studio gate, Nov 5).
+	local compact: boolean? = nil
 	local function fit()
 		local screen = shade.AbsoluteSize
 		if screen.X <= 0 or screen.Y <= 0 then
 			return
 		end
-		local width = math.min(460, math.floor(screen.X * 0.92))
-		local wanted = list.AbsoluteContentSize.Y + 20 + GO_AREA
-		local height = math.min(wanted, math.floor(screen.Y * 0.9))
+		local short = screen.Y < 500
+		if short ~= compact then
+			compact = short
+			sub.Visible = not short
+			title.TextSize = if short then 22 else 26
+			title.Size = UDim2.new(1, 0, 0, if short then 26 else 32)
+			list.Padding = UDim.new(0, if short then 6 else 8)
+			pad.PaddingTop = UDim.new(0, if short then 8 else 14)
+			-- A slimmer "Let's go!" strip.
+			body.Size = UDim2.new(1, 0, 1, -(if short then GO_AREA - 12 else GO_AREA))
+			go.Size = UDim2.fromOffset(200, if short then 38 else 46)
+			go.Position = UDim2.new(0.5, 0, 1, if short then -8 else -10)
+			for _, r in rows do
+				r.name.Visible = not short
+				r.about.RichText = short
+				r.about.Text = if short then `<b>{r.title}</b>   {r.body}` else r.body
+				r.about.Position = UDim2.fromOffset(56, if short then 8 else 28)
+				r.pad.PaddingBottom = UDim.new(0, if short then 6 else 8)
+				r.about.TextSize = if short then 13 else 14
+			end
+		end
+		local width = math.min(if short then 720 else 460, math.floor(screen.X * 0.92))
+		local wanted = list.AbsoluteContentSize.Y + 20 + (if short then GO_AREA - 12 else GO_AREA)
+		local height = math.min(wanted, math.floor(screen.Y * (if short then 0.94 else 0.9)))
 		card.Size = UDim2.fromOffset(width, height)
 	end
 	shade:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
@@ -353,6 +380,30 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	end)
 
 	local menu = sideMenu(gui)
+	-- An open window (Book, Daily, Tower, Pets, odds list, Core Shop: its
+	-- Window frame showing, DisplayOrder 20 to 49) hides the side menu, so its
+	-- buttons never poke out past the window's edge on a phone (Studio gate,
+	-- Nov 5). Each window has an X. Guide.windowOpen decides.
+	local column = gui:FindFirstChild("SideMenu") :: Frame
+	local playerGui = player:WaitForChild("PlayerGui")
+	task.spawn(function()
+		while true do
+			local screens: { Guide.Screen } = {}
+			for _, g in playerGui:GetChildren() do
+				if g:IsA("ScreenGui") then
+					local frame = g:FindFirstChild("Window") or g:FindFirstChild("Form")
+					table.insert(screens, {
+						name = g.Name,
+						enabled = g.Enabled,
+						displayOrder = g.DisplayOrder,
+						windowVisible = if frame and frame:IsA("GuiObject") then frame.Visible else nil,
+					})
+				end
+			end
+			column.Visible = not Guide.windowOpen(screens)
+			task.wait(0.1)
+		end
+	end)
 	menu.add("Guide", "📖 Guide", function()
 		welcome.Visible = not welcome.Visible
 	end)

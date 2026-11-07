@@ -172,6 +172,15 @@ return {
 			},
 		},
 	},
+	-- The Tower window's Build and Upgrade buttons (client/TowerView). After
+	-- a tap the row shows "Building..." until the server answers (at most
+	-- waitSeconds), then "Built!" for holdSeconds, so a double tap never
+	-- buys the next thing (Studio gate, Nov 5). A tap you can't afford shows
+	-- how many more coins you need for holdSeconds.
+	menus = {
+		holdSeconds = 1.5,
+		waitSeconds = 3,
+	},
 	-- The guide's gold arrow and beam hide once you are this close (studs,
 	-- flat) to where they point, so they never sit on top of the Buy prompt
 	-- you came for (Studio gate, Nov 5).
@@ -224,5 +233,14 @@ return {
 		newEntry = { id = 73774648241042, volume = 0.4 }, -- a new creature in the Hatchery Book (4.2 s, kept soft)
 		reward = { id = 100288208393628, volume = 0.6 }, -- a reward claimed (1.4 s sparkle)
 		click = { id = 73629124033518, volume = 0.4 }, -- a menu button (0.2 s)
+	},
+	-- The apartment shells (WorldArt Tower*, tools/art/world/tower.py) the
+	-- client draws over each tower's grey box: your own and the nearest
+	-- others, up to `towers` in all within `drawStuds` (a full tower is
+	-- about 4,700 boxes); the rest keep the grey box.
+	towerShells = {
+		drawStuds = 160,
+		towers = 4,
+		boxesPerFrame = 400, -- built a little each frame, so nothing hitches
 	},
 }

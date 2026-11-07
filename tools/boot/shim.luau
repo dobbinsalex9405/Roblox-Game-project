@@ -1024,7 +1024,14 @@ local SEEDS = {
 	{ "Camera", { ViewportSize = roblox.Vector2.new(1280, 720) } },
 	{
 		"Player",
-		{ AccountAge = 30, LocaleId = "en-us", MembershipType = Enum.MembershipType.None, FollowUserId = 0 },
+		{
+			AccountAge = 30,
+			LocaleId = "en-us",
+			MembershipType = Enum.MembershipType.None,
+			FollowUserId = 0,
+			CameraMaxZoomDistance = 128,
+			CameraMinZoomDistance = 0.5,
+		},
 	},
 	{
 		"BasePart",

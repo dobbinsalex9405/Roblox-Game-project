@@ -299,3 +299,22 @@ describe("Tower ladder", function()
 		end
 	end)
 end)
+
+describe("Next-floor label", function()
+	-- Studio gate (#84): "Floor 2: 25K coins" filled 166 px of its 168 px
+	-- box, so a longer price would cram against the edges. The box is sized
+	-- for the longest label with room to spare, so the text keeps its full
+	-- height on every floor.
+	it("fits every floor's price with slack at full text height", function()
+		local CHAR = 0.62 -- GothamBold's average character width, in text heights
+		local box = Geometry.FLOOR_LABEL
+		for floor = 2, Tower.FLOORS do
+			local label = Tower.floorLabel(floor, economy.tower.floorPrices[floor - 1])
+			local needed = #label * CHAR * box.height * 1.1
+			expect(needed <= box.width and "fits" or `"{label}" needs {needed} studs`).toBe("fits")
+		end
+		expect(Tower.floorLabel(10, 165e6)).toBe("Floor 10: 165M coins")
+		-- ... and still floats over its deck.
+		expect(box.width <= Geometry.TOWER_MAX[1] - Geometry.TOWER_MIN[1]).toBe(true)
+	end)
+end)

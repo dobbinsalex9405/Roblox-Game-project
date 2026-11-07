@@ -75,6 +75,13 @@ end
 -- Floors 2 to 10 over the back half of the base, an elevator stop on every
 -- floor and a ladder up the right side. Everything starts hidden; syncTower
 -- shows the floors the owner has built.
+-- The ladder reaches this far above the top built floor (a TrussPart's height
+-- is a whole number of 2-stud sections), and the stop round its top is this
+-- tall.
+local LADDER_ABOVE_TOP = 2
+local LADDER_STOP_HEIGHT = 8
+local LANDING_DEPTH = 1.6 -- of the top floor's 3-stud opening, from the tower side
+
 local function buildTower(model: Model, at: (Vector3) -> CFrame)
 	local tower = Instance.new("Folder")
 	tower.Name = "Tower"
@@ -184,6 +191,46 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 	ladder.Transparency = 1
 	ladder.CanCollide = false
 	ladder.Parent = tower
+	-- The ladder's top (Studio gate: holding W carried players past the top
+	-- floor and off onto the grass). Invisible walls on its three outer
+	-- sides, and a landing over the inner part of the top floor's opening so
+	-- the step back onto the floor is short; the climber, hugging the
+	-- ladder, rises past the landing's edge. Parked at floor 2's height
+	-- (the lowest top a ladder has); syncTower moves it to the top floor.
+	local stop = Instance.new("Model")
+	stop.Name = "LadderStop"
+	local lx, lz = Layout.LADDER.X, Layout.LADDER.Z
+	local holeLo, holeHi = Geometry.LADDER_HOLE_MIN, Geometry.LADDER_HOLE_MAX
+	local h = LADDER_STOP_HEIGHT
+	local parked = Layout.floorTop(2)
+	local edge = hi[1] -- the decks' right edge
+	local far = lx + 1.4
+	local pieces = {
+		{ name = "WallFar", x0 = far, x1 = far + 0.4, z0 = lz - 2.5, z1 = lz + 2.5, y0 = 0, y1 = h },
+		{ name = "WallFront", x0 = edge, x1 = far, z0 = lz - 2.9, z1 = lz - 2.5, y0 = 0, y1 = h },
+		{ name = "WallBack", x0 = edge, x1 = far, z0 = lz + 2.5, z1 = lz + 2.9, y0 = 0, y1 = h },
+		{
+			name = "Landing",
+			x0 = holeLo[1],
+			x1 = holeLo[1] + LANDING_DEPTH,
+			z0 = holeLo[2],
+			z1 = holeHi[2],
+			y0 = -1,
+			y1 = 0,
+		},
+	}
+	for _, w in pieces do
+		local piece = part({
+			Name = w.name,
+			Size = Vector3.new(w.x1 - w.x0, w.y1 - w.y0, w.z1 - w.z0),
+			CFrame = at(Vector3.new((w.x0 + w.x1) / 2, parked + (w.y0 + w.y1) / 2, (w.z0 + w.z1) / 2)),
+			Transparency = 1,
+			CanCollide = false,
+		})
+		piece.Parent = stop
+	end
+	stop.WorldPivot = at(Vector3.new(0, parked, 0))
+	stop.Parent = tower
 end
 
 local function buildPlot(index: number): Model
@@ -617,10 +664,6 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 	end
 end
 
-local function shortCoins(n: number): string
-	return `{Layout.shortNumber(n)} coins`
-end
-
 -- Shows the floors the owner has built, the next one as a ghost with its
 -- price, and the ladder up to the top floor; tells clients each floor's
 -- upgrades so they can furnish it.
@@ -664,9 +707,10 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		local label = deck:FindFirstChild("Label")
 		if floor == owned + 1 and claimed and nextPrice then
 			if label == nil then
-				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(16, 2.4), "")
+				local size = Geometry.FLOOR_LABEL
+				billboard(deck, Vector3.new(0, 2, 0), UDim2.fromScale(size.width, size.height), "")
 			end
-			setLabel(deck, `Floor {floor}: {shortCoins(nextPrice)}`)
+			setLabel(deck, Tower.floorLabel(floor, nextPrice))
 		elseif label then
 			label:Destroy()
 		end
@@ -700,19 +744,29 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		model:SetAttribute("TowerUpgrades", upgradesAttr)
 	end
 	local ladder = tower:FindFirstChild("Ladder") :: TrussPart
+	local stop = tower:FindFirstChild("LadderStop") :: Model
 	if claimed and owned > 1 then
-		local height = Layout.floorTop(owned) - Layout.FLOOR_TOP + 4
+		local height = Layout.floorTop(owned) - Layout.FLOOR_TOP + LADDER_ABOVE_TOP
 		local base = (model.PrimaryPart :: BasePart).CFrame * CFrame.new(0, Layout.FLOOR_THICKNESS / 2, 0)
 		if ladder.Size.Y ~= height or ladder.Transparency ~= 0 then
 			ladder.Size = Vector3.new(2, height, 2)
 			ladder.CFrame = base * CFrame.new(Layout.LADDER.X, height / 2, Layout.LADDER.Z)
 			ladder.Transparency = 0
 			ladder.CanCollide = true
+			-- The stop rides at the top floor, so a climber who keeps going
+			-- steps onto that floor, not off the ladder's far side.
+			stop:PivotTo(base * CFrame.new(0, Layout.floorTop(owned) - Layout.FLOOR_TOP, 0))
+			for _, wall in stop:GetChildren() do
+				(wall :: BasePart).CanCollide = true
+			end
 		end
 	else
 		if ladder.Transparency ~= 1 then
 			ladder.Transparency = 1
 			ladder.CanCollide = false
+			for _, wall in stop:GetChildren() do
+				(wall :: BasePart).CanCollide = false
+			end
 		end
 	end
 end

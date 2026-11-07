@@ -91,7 +91,7 @@ local function signs(parent: Instance)
 	local folder = Instance.new("Folder")
 	folder.Name = "Signs"
 	folder.Parent = parent
-	local wood = Color3.fromRGB(120, 85, 55)
+	local wood = Color3.fromRGB(150, 108, 68)
 	local sign = Geometry.MARKET_SIGN
 	local size = Vector2.new(sign.width, sign.height)
 	local rim = sign.frame
@@ -103,13 +103,37 @@ local function signs(parent: Instance)
 			CFrame = frame,
 			Color = Color3.fromRGB(30, 30, 40),
 		})
-		part(parent, {
+		local back = part(parent, {
 			Name = "SignFrame",
 			Size = Vector3.new(size.X + 2 * rim, size.Y + 2 * rim, 0.2),
 			CFrame = frame * CFrame.new(0, 0, 0.25),
 			Color = wood,
 			Material = Enum.Material.Wood,
 		})
+		-- Its back, seen from across the ring: a painted egg and the
+		-- market's name on the wood, not a blank slab (Studio gate).
+		local backGui = Instance.new("SurfaceGui")
+		backGui.Name = "Back"
+		backGui.Face = Enum.NormalId.Back
+		backGui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		backGui.PixelsPerStud = 30
+		backGui.LightInfluence = 0.5
+		local painted = Instance.new("TextLabel")
+		painted.Size = UDim2.fromScale(1, 1)
+		painted.BackgroundTransparency = 1
+		painted.Font = Enum.Font.FredokaOne
+		painted.TextScaled = true
+		painted.TextColor3 = Color3.fromRGB(255, 236, 190)
+		painted.TextStrokeTransparency = 0.5
+		painted.Text = "🥚 EGG MARKET"
+		local backPad = Instance.new("UIPadding")
+		backPad.PaddingTop = UDim.new(0.22, 0)
+		backPad.PaddingBottom = UDim.new(0.22, 0)
+		backPad.PaddingLeft = UDim.new(0.06, 0)
+		backPad.PaddingRight = UDim.new(0.06, 0)
+		backPad.Parent = painted
+		painted.Parent = backGui
+		backGui.Parent = back
 		local bottom = sign.bottom
 		for _, x in { -1, 1 } do
 			part(parent, {
