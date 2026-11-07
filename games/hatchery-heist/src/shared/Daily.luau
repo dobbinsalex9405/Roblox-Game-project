@@ -52,10 +52,20 @@ function Daily.status(d: Data, now: number, days: number): Status
 	}
 end
 
--- Coins for reward `day` at `perSecond` income.
+-- `n` to two significant figures (601 -> 600, 5,410 -> 5,400), so a reward
+-- reads as a designed number rather than a stray one (Studio gate, Nov 5).
+function Daily.round(n: number): number
+	if n < 100 then
+		return math.floor(n)
+	end
+	local step = 10 ^ (math.floor(math.log10(n)) - 1)
+	return math.floor(n / step + 0.5) * step
+end
+
+-- Coins for reward `day` at `perSecond` income, rounded.
 function Daily.amount(day: number, perSecond: number, config: any): number
 	local reward = config.rewards[day]
-	local earned = math.max(reward.minCoins, math.floor(perSecond * reward.incomeSeconds))
+	local earned = math.max(reward.minCoins, Daily.round(perSecond * reward.incomeSeconds))
 	return math.min(reward.maxCoins, earned)
 end
 
