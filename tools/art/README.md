@@ -6,7 +6,7 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | --- | --- |
 | `voxkit.py` | Parts, voxels and merging voxels into as few boxes as possible |
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
-| `legends.py` | The two Legendaries and two Godlies, built in far more detail |
+| `legends.py` | The two Legendaries and two Godlies, built in far more detail (`FINER` in `creatures.py` gives a showpiece smaller voxels in the Blender build) |
 | `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
 | `roster/master/master-list.json` | The master creature list: every creature planned, all seven tiers (`master_list.py` checks it) |
 | `master_list.py` | Checks the master list and lists what is left to build (`--todo [TIER]`, `--plans`) |
@@ -14,7 +14,7 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |
 | `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
 | `kit_puff.py` | The `puff` plan: small round invented critters that hop on two stubby feet (kinds pebble, seed, puddle, tadpole, fuzz, gum, mushroom, acorn, cone, pip, ball); other kits add kinds with `kit_puff.add_kind` |
-| `kit_extras.py` | More accessories for roster entries: `ridge` (back spikes), `third_eye`, `butter` (a pat on the head), `twin_tail`, `droopy_ears`, `fringe`, `shag`, `long_snout`, `streaks`, `cap`, `eye_ring`, `speckles`, `button_eye`, `knit_head`, `small_ears`, `stand_tall`, `rostrum`, `bristles`; plans `twig` (stick insect), `termite`, `wasp` and `strider` (water strider) |
+| `kit_extras.py` | More accessories for roster entries: `ridge` (back spikes), `third_eye`, `butter` (a pat on the head), `twin_tail`, `droopy_ears`, `fringe`, `shag`, `long_snout`, `streaks`, `cap`, `eye_ring`, `speckles`, `button_eye`, `knit_head`, `small_ears`, `stand_tall`, `rostrum`, `bristles`, `frog_eyes`; plans `twig` (stick insect), `termite`, `wasp`, `strider` (water strider), `shieldbug` and `shrimp` |
 | `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |

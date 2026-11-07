@@ -173,7 +173,7 @@ do
 	-- buy a Meadow egg at the far end of the belt (progress 0.95): allowed within tolerance
 	local idx
 	for _ = 1, 200 do
-		for _, e in Conveyor.onBelt(h.clock.now(), 1, economy.conveyor) do
+		for _, e in Conveyor.onBelt(h.clock.now(), economy.conveyor) do
 			if e.eggId == "BasicEgg" and e.progress > 0.93 and not h.taken[p][e.index] then
 				idx = e.index
 			end
@@ -720,47 +720,25 @@ do
 		"multiplayer",
 		"a 9th player gets no base (server kicks: 'This server is full'); Server Size must be 8 in Roblox settings"
 	)
-	-- belts differ per plot at the same moment
+	-- The Egg Market is shared: the first buyer gets an egg, the second is told
 	local now = h.clock.now()
-	local kinds = {}
-	for plot = 1, 8 do
-		local s = {}
-		for _, e in Conveyor.onBelt(now, plot, economy.conveyor) do
-			table.insert(s, string.sub(e.eggId, 1, 1))
-		end
-		kinds[plot] = table.concat(s)
-	end
-	local distinct = {}
-	for _, k in kinds do
-		distinct[k] = true
-	end
-	local n = 0
-	for _ in distinct do
-		n += 1
-	end
-	check(
-		n > 1,
-		"multiplayer",
-		`belts differ between bases ({n} distinct patterns of 8): {table.concat(kinds, " ")}`
-	)
-	-- same index bought on two different bases is fine; the same index twice on one base is not
 	local idx = nil
-	for _, e in Conveyor.onBelt(now, 1, economy.conveyor) do
-		if
-			e.progress < 0.5
-			and Conveyor.eggAt(e.index, 1, economy.conveyor) == "BasicEgg"
-			and Conveyor.eggAt(e.index, 2, economy.conveyor) == "BasicEgg"
-		then
+	for _, e in Conveyor.onBelt(now, economy.conveyor) do
+		if e.progress < 0.5 and e.eggId == "BasicEgg" and not h.sold[e.index] then
 			idx = e.index
 		end
 	end
 	if idx then
+		local first = h.actions:buyEgg(players[1], idx)
+		local second, why = h.actions:buyEgg(players[2], idx)
 		check(
-			h.actions:buyEgg(players[1], idx) and h.actions:buyEgg(players[2], idx),
+			first and not second,
 			"multiplayer",
-			`players 1 and 2 both bought egg #{idx} from their own belts`
+			`player 1 bought market egg #{idx}; player 2 was refused ("{why}")`
 		)
-		check(not h.actions:buyEgg(players[2], idx), "multiplayer", "player 2 cannot buy their egg twice")
+		local n = h.noticesOf(players[2])
+		check(n[#n] == "Someone else got that egg first.", "multiplayer", `player 2 is told why: "{n[#n]}"`)
+		h.sold[idx] = true
 	end
 	-- everyone plays 2 minutes; data stays isolated
 	for _ = 1, 120 do

@@ -25,14 +25,16 @@ kit.accessory:
 - **stand_tall**: an alert pose, the head lifted on a longer neck.
 - **rostrum**: a weevil's long snout curving down, with elbowed antennae.
 - **bristles**: stray bristles out of every segment, so the outline is fuzzy.
+- **frog_eyes**: big forward frog eyes on the bumps and a small gold third eye.
 
-And four plans: **twig**, a stick insect, thin everywhere (colours col,
+And six plans: **twig**, a stick insect, thin everywhere (colours col,
 accent); **termite**, a pale banded ant shape with a brown head, a pinched
 waist, thin dark legs and forward antennae (colours col, accent, leg);
 **wasp**, slim and narrow-waisted with a banded tapered abdomen, a stinger
 and narrow amber wings (colours col, accent, wing); **strider**, a water
 strider on four long splayed legs with ripple rings (colours col, accent,
-ripple).
+ripple); **shieldbug**, a flat shield back with a triangular plate;
+**shrimp**, an arched banded body with long feelers (both col, accent, leg).
 
 Each is fn(c, H, color, color2, a) (variants.py's kit hook): colours are RGB
 tuples, color2 may be None, `a` is the roster entry's accessory dict.
@@ -462,12 +464,11 @@ def stand_tall(c, H, color, color2=None, a=None):
     if not neck:
         return
     # the front face of the neck (the throat) in color2, the rest in color
-    fy = {}
-    for (x, y, z) in neck:
-        fy[(x, z)] = min(fy.get((x, z), y), y)
+    ys = [y for (x, y, z) in neck]
     xs = [x for (x, y, z) in neck]
+    ymid = (min(ys) + max(ys)) / 2
     for (x, y, z) in neck:
-        throat = y <= fy[(x, z)] + max(0, round(0.3 * k)) and min(xs) < x < max(xs)
+        throat = y < ymid and min(xs) < x < max(xs)
         body.put((x, y, z), front_col if throat else col)
 
 
@@ -548,6 +549,10 @@ def bristles(c, H, color=None, color2=None, a=None):
             h = _hash(x, y, z, 77) % 1000
             if h >= rate * 1000:
                 continue
+            near = sum((x + ax, y + ay, z + az) in part.v for ax, ay, az in
+                       ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)))
+            if near < 3:
+                continue  # not from thin features (antennae), so they stay clean
             dirs = [(0, 0, 1), (1, 0, 0), (-1, 0, 0)]
             dx, dy, dz = dirs[h % 3]
             q = (x + dx, y + dy, z + dz)
@@ -566,10 +571,55 @@ def bristles(c, H, color=None, color2=None, a=None):
                 part.v.setdefault(m, cg)
 
 
+def frog_eyes(c, H, color, color2=None, a=None):
+    """A frog's eyes made to read from the front, with a third eye: the two
+    usual eyes big and forward-facing on the top bumps (white, a dark pupil
+    and a highlight), and a smaller third eye on its own little bump between
+    and above them, its iris in color2 (default gold) so it is the odd one.
+    color is the skin (for the new bump)."""
+    k = H / 10.0
+    skin = _rgb(color)
+    iris = _rgb(color2, hexc('#FFC23A'))
+    head = _find(c, 'head')
+    eyes = _find(c, 'eyes')
+    if head is None or eyes is None:
+        return
+    main = _main_colour(head)
+    for p in list(eyes.v):
+        head.put(p, main)  # fill in the old small eyes
+    eyes.v = {}
+
+    def disc(cx, cz, R, ring, pupil, shine=True):
+        czi = round(cz)
+        for x in range(math.floor(cx - R) - 1, math.ceil(cx + R) + 1):
+            for z in range(czi - math.ceil(R) - 1, czi + math.ceil(R) + 1):
+                if math.hypot(x + .5 - cx, z - czi) > R:
+                    continue
+                f = head.front(x, z)
+                if not f:
+                    continue
+                del head.v[f]
+                inner = math.hypot(x + .5 - cx, z - czi) <= 1.0
+                if inner:
+                    top_out = z == czi and ((x + .5 - cx) < 0)
+                    eyes.put(f, WHITE if (shine and top_out) else pupil)
+                else:
+                    eyes.put(f, ring)
+
+    R = max(1.0, 1.3 * k)
+    for sx in (-1, 1):
+        # the bump centres of blob(frog): x 1.5k, z 5.9k
+        cx = sx * 1.5 * k
+        cx = round(cx) if sx > 0 else -round(-cx)
+        disc(cx, 5.9 * k, R, WHITE, INK)
+    head.ell((0, -1.5 * k, 6.6 * k), (0.75 * k, 0.6 * k, 0.65 * k), skin)
+    disc(0.0, 6.7 * k, max(1.0, 0.95 * k), iris, INK, shine=False)
+
+
 ACCESSORIES = {'button_eye': button_eye, 'knit_head': knit_head, 'droopy_ears': droopy_ears, 'ridge': ridge, 'third_eye': third_eye, 'butter': butter, 'twin_tail': twin_tail, 'fringe': fringe,
                'shag': shag, 'long_snout': long_snout, 'streaks': streaks, 'cap': cap, 'eye_ring': eye_ring,
                'speckles': speckles, 'small_ears': small_ears, 'stand_tall': stand_tall, 'rostrum': rostrum,
-               'bristles': bristles}
+               'bristles': bristles, 'frog_eyes': frog_eyes}
 
 
 # ------------------------------------------------------------------ plans
@@ -784,8 +834,21 @@ def wasp(c, H, cols, opts):
                 z += 1
                 head.put((x if sx > 0 else kit_pond._mx(x), y + 1, z), acc)
             head.put((x if sx > 0 else kit_pond._mx(x), y, z), acc)
-    # six thin dark legs from under the thorax, at least three voxels long
-    _insect_legs(c, k, (-1.6, -1.0, -0.4), acc, hip=(0.45, zc / k - 0.5), knee=(1.6, zc / k - 0.4), foot=2.4, splay=2.0)
+    # six short legs folded under the thorax and angled back, as a flying
+    # wasp holds them (it hovers, so they never reach the ground)
+    import rig
+    zb = round(zc - 0.6 * k)  # just under the thorax
+    for i, y in enumerate((-1.5, -1.0, -0.5)):
+        cells = {}
+        a0 = (0.5 * k, y * k, zb)
+        b0 = (0.9 * k, (y + 0.3) * k, zb - 0.8 * k)
+        f0 = (1.0 * k, (y + 0.9) * k, zb - 1.3 * k)
+        _rod(cells, a0, b0, acc)
+        _rod(cells, b0, f0, acc)
+        for sx in (-1, 1):
+            part = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 3, (sx * 0.5 * k, y * k, zb + 0.5))
+            for (x, yy, z), cc in cells.items():
+                part.put((x if sx > 0 else -x - 1, yy, z), cc)
     return c
 
 
@@ -849,7 +912,7 @@ def strider(c, H, cols, opts):
                     if R - 0.75 <= d <= R + 0.25:
                         cells[(x, y, 0)] = rip
         for sx in (-1, 1):
-            part = kit_pond._leg(c, sx, i, 3, (sx * 0.5, hip_y, zc + 0.5))
+            part = kit_pond._leg(c, sx, i, 3, (sx * 1.0, hip_y, zc + 0.5))
             for (x, y, z), cc in cells.items():
                 part.put((x if sx > 0 else -x - 1, y, z), cc)
     L = 5.2 * k  # how far out the long feet reach
@@ -859,10 +922,156 @@ def strider(c, H, cols, opts):
     return c
 
 
+def shieldbug(c, H, cols, opts):
+    """Plan "shieldbug": a flat-topped shield for a back, broad squared
+    shoulders tapering to a point at the rear, with a darker triangular
+    plate in the middle; a small head in front with eyes and thin antennae,
+    six short dark legs (each its own leg part). Colours col (the shield),
+    accent (the plate), leg."""
+    from creatures import eyes
+    k = H / 10.0
+    col = cols['col']
+    acc = cols.get('accent') or tuple(round(v * 0.6) for v in col)
+    leg = cols.get('leg') or tuple(round(v * 0.55) for v in col)
+    rim = tuple(min(255, round(v * 1.15)) for v in col)
+    body = c.part('body')
+    z0, z1 = round(1.4 * k), round(3.4 * k)  # underside, flat top: low on short legs
+    yf, ys, yb = -1.0 * k, 0.4 * k, 3.4 * k  # front, end of the shoulders, the point
+    W = 2.5 * k
+    for y in range(math.floor(yf), math.ceil(yb) + 1):
+        yc = y + 0.5
+        if yc < yf or yc > yb:
+            continue
+        half = W if yc <= ys else W * (yb - yc) / (yb - ys)
+        if yc < yf + 0.5 * k:  # squared shoulders, just the corners rounded
+            half = W - max(0.0, (yf + 0.5 * k - yc)) * 0.8
+        n = math.floor(half)
+        for x in range(0, n):
+            for z in range(z0, z1 + 1):
+                edge = x == n - 1
+                if edge and z >= z1 - 1 or x == n - 2 and z == z1:
+                    continue  # bevel the top edge down, two steps
+                cc = rim if (edge and z == z1 - 2) or (x == n - 2 and z == z1 - 1) else col
+                body.put((x, y, z), cc)
+                body.put((-x - 1, y, z), cc)
+    # the triangular plate in the middle of the back
+    py0, py1, pw = 0.0 * k, 2.4 * k, 1.3 * k
+    for (x, y, z), (cc, g) in list(body.v.items()):
+        if z == z1 and py0 <= y + 0.5 <= py1:
+            half = pw * (py1 - (y + 0.5)) / (py1 - py0)
+            if abs(x + 0.5) <= half:
+                body.v[(x, y, z)] = (acc, False)
+    # a dark underside
+    for x in range(-math.floor(W * 0.7), math.floor(W * 0.7)):
+        for y in range(math.floor(yf + 0.4 * k), math.floor(yb - 0.8 * k)):
+            body.put((x, y, z0 - 1), leg)
+    head = c.part('head', 'static', (0, yf, round(1.9 * k)))
+    for x in range(-round(0.8 * k), round(0.8 * k)):
+        for y in range(round(yf - 0.9 * k), round(yf)):
+            for z in range(round(1.4 * k), round(2.8 * k)):
+                head.put((x, y, z), col)
+    # eyes big enough for a white glint
+    eyes(c, head, max(1, round(0.3 * k)), round(1.8 * k), 2 if k >= 1.5 else 1)
+    ev = _find(c, 'eyes')
+    if ev is not None and ev.v:
+        # a white glint in the top inner corner of each eye
+        top = max(p[2] for p in ev.v)
+        for sx in (-1, 1):
+            side = [p for p in ev.v if (p[0] >= 0) == (sx > 0) and p[2] == top]
+            if side:
+                g = min(side, key=lambda p: abs(p[0] + .5))
+                ev.v[g] = (WHITE, False)
+    # antennae: one voxel thin, a step up then forward and out
+    hy = round(yf - 0.9 * k)
+    # from the top of the head, above and outside the eyes
+    zt = round(2.8 * k)
+    n = max(3, round(1.2 * k))
+    for sx in (-1, 1):
+        cells = []
+        x, y, z = max(1, round(0.7 * k)), hy + 1, zt
+        cells.append((x, y, z))
+        z += 1
+        cells.append((x, y, z))
+        for i in range(n):
+            y -= 1
+            cells.append((x, y, z))
+            if i % 2 == 1:
+                x += 1
+                cells.append((x, y, z))
+        for (x, y, z) in cells:
+            head.put((x if sx > 0 else -x - 1, y, z), leg)
+    # six thin legs: straight out from under the shield's edge, then down
+    import rig
+    xe = math.floor(W * 0.75)
+    for i, ly in enumerate((-0.4, 0.8, 2.0)):
+        y = round(ly * k)
+        out = max(2, round(0.6 * k))
+        for sx in (-1, 1):
+            part = rig.leg_part(c, 'L' if sx < 0 else 'R', i, 3, (sx * (xe + 0.5), y + 0.5, z0 - 0.5))
+            for j in range(out + 1):
+                xx = xe + j
+                part.put((xx if sx > 0 else -xx - 1, y, z0 - 1), leg)
+            xx = xe + out
+            for z in range(0, z0 - 1):
+                part.put((xx if sx > 0 else -xx - 1, y, z), leg)
+    return c
+
+
+def shrimp(c, H, cols, opts):
+    """Plan "shrimp": a body arched in a gentle curve from a small head to a
+    fan tail, in bands; two thin feelers sweeping back past the tail (about
+    one and a half body lengths), eyes on the head, six short legs (each its
+    own leg part). Colours col, accent (bands and fan), leg."""
+    from creatures import eyes
+    k = H / 10.0
+    col = cols['col']
+    acc = cols.get('accent') or tuple(round(v * 0.8) for v in col)
+    leg = cols.get('leg') or acc
+    body = c.part('body')
+    n = 7
+    y0, y1 = -0.6 * k, 4.0 * k
+    pts = []
+    for i in range(n):
+        t = i / (n - 1)
+        y = y0 + (y1 - y0) * t
+        z = 1.5 * k + 1.0 * k * math.sin(math.pi * min(1.0, t * 1.15)) - 0.4 * k * t
+        r = 1.15 * k * (1 - 0.55 * t)
+        pts.append((y, z, r))
+        body.ell((0, y, z), (r, 0.55 * k + .3, r * 0.95), col if i % 2 == 0 else acc)
+    # the fan tail
+    ty, tz, _ = pts[-1]
+    for sx in (-1, 1):
+        body.ell((sx * 0.55 * k, ty + 0.9 * k, tz - 0.3 * k), (0.6 * k, 0.8 * k, 0.25 * k + .3), acc)
+    head = c.part('head', 'static', (0, y0, 1.8 * k))
+    head.ell((0, -1.4 * k, 1.9 * k), (0.95 * k, 1.0 * k, 0.9 * k), col)
+    eyes(c, head, max(1, round(0.35 * k)), round(2.0 * k), max(1, round(0.4 * k)))
+    # a small spike over the face
+    for i in range(max(2, round(0.8 * k))):
+        for x in (-1, 0):
+            head.put((x, round(-2.2 * k) - i, round(2.6 * k)), acc)
+    # feelers: up from the head, then sweeping back past the tail
+    length = (y1 - y0) * 1.5
+    cells = {}
+    p0 = (0.4 * k, -2.0 * k, 2.6 * k)
+    p1 = (1.1 * k, -2.8 * k, 3.8 * k)
+    p2 = (1.8 * k, -1.0 * k, 4.4 * k)
+    p3 = (2.3 * k, -2.0 * k + length * 0.75, 2.8 * k)
+    p4 = (2.4 * k, -2.0 * k + length, 1.6 * k)
+    for a0, b0 in ((p0, p1), (p1, p2), (p2, p3), (p3, p4)):
+        _rod(cells, a0, b0, leg)
+    for sx in (-1, 1):
+        for (x, y, z), cc in cells.items():
+            head.put((x if sx > 0 else -x - 1, y, z), cc)
+    _insect_legs(c, k, (-0.4, 0.5, 1.4), leg, hip=(0.5, 1.2), knee=(1.3, 1.4), foot=1.6, splay=0.4)
+    return c
+
+
 def _mix(a, b, t):
     return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
 PLANS = {'twig': ({'col', 'accent'}, {}), 'termite': ({'col', 'accent', 'leg'}, {}),
-         'wasp': ({'col', 'accent', 'wing'}, {}), 'strider': ({'col', 'accent', 'ripple'}, {})}
-BUILDERS = {'twig': twig, 'termite': termite, 'wasp': wasp, 'strider': strider}
+         'wasp': ({'col', 'accent', 'wing'}, {}), 'strider': ({'col', 'accent', 'ripple'}, {}),
+         'shieldbug': ({'col', 'accent', 'leg'}, {}), 'shrimp': ({'col', 'accent', 'leg'}, {})}
+BUILDERS = {'twig': twig, 'termite': termite, 'wasp': wasp, 'strider': strider, 'shieldbug': shieldbug,
+            'shrimp': shrimp}
