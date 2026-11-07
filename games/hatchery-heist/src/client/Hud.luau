@@ -5,11 +5,13 @@
 -- odds board at the conveyor. Built from code; art comes after the gate.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local OddsCard = require(Shared.OddsCard)
 
 local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
@@ -183,30 +185,63 @@ function Hud.start(ctx: Context.Context)
 	end)
 
 	-- Odds card, shown while an egg's Buy prompt is up.
-	local card =
-		panel(gui, "OddsCard", UDim2.fromOffset(280, 0), UDim2.new(0, 16, 0.5, 0), Vector2.new(0, 0.5))
-	card.AutomaticSize = Enum.AutomaticSize.Y
+	local card = panel(
+		gui,
+		"OddsCard",
+		UDim2.fromOffset(OddsCard.WIDTH, 0),
+		UDim2.new(0, 16, 0.5, 0),
+		Vector2.new(0, 0.5)
+	)
 	card.Visible = false
-	listLayout(card, 8)
+	-- The rows scroll inside the card, which is never taller than the screen
+	-- (Studio gate, #126: a long card ran off a phone, 86 px below it).
+	local cardRows = Instance.new("ScrollingFrame")
+	cardRows.Name = "Rows"
+	cardRows.BackgroundTransparency = 1
+	cardRows.BorderSizePixel = 0
+	cardRows.Size = UDim2.fromScale(1, 1)
+	cardRows.CanvasSize = UDim2.new()
+	cardRows.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	cardRows.ScrollingDirection = Enum.ScrollingDirection.Y
+	cardRows.ScrollBarThickness = 4
+	cardRows.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+	cardRows.Parent = card
+	listLayout(cardRows, 8)
 	local cardEgg: string? = nil
 	-- Smaller on a phone held sideways, so the card leaves the egg and its
 	-- Buy prompt in view (Studio gate, Nov 5): 75% at 392 px tall.
 	local cardScale = Instance.new("UIScale")
 	cardScale.Parent = card
+	local cardLayout = cardRows:FindFirstChildOfClass("UIListLayout") :: UIListLayout
 	local function fitCard()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		cardScale.Scale = math.clamp(screen.Y / 520, 0.75, 1)
 		-- On a short screen the card starts below the notice line (124 +
 		-- 36 px), so a refusal is never half under it.
-		if screen.Y < 500 then
+		local short = screen.Y < 500
+		if short then
 			card.AnchorPoint = Vector2.new(0, 0)
 			card.Position = UDim2.fromOffset(16, 168)
 		else
 			card.AnchorPoint = Vector2.new(0, 0.5)
 			card.Position = UDim2.new(0, 16, 0.5, 0)
 		end
+		-- As tall as its rows (measured at the current scale) and its 8 px
+		-- padding, but never past the screen; the rows scroll beyond that.
+		-- The GUI starts below Roblox's top bar (Studio gate, #126: 4 px
+		-- off a 392 px phone, the 58 px bar not counted).
+		local rows = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 16
+		local guiHeight = screen.Y - GuiService:GetGuiInset().Y
+		local scale, height = OddsCard.fit(rows, screen.Y, guiHeight, if short then 168 else 8)
+		if math.abs(cardScale.Scale - scale) > 0.001 then
+			cardScale.Scale = scale
+		end
+		if math.abs(card.Size.Y.Offset - height) >= 1 then
+			card.Size = UDim2.fromOffset(OddsCard.WIDTH, height)
+		end
 	end
+	-- Refit whenever the rows change (another egg, a fixed order moving on).
+	cardLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitCard)
 
 	-- The Egg Market's odds signs, one beside each stop. Everyone sees their
 	-- title; this client draws its own odds (fixed order for a restricted
@@ -274,7 +309,7 @@ function Hud.start(ctx: Context.Context)
 
 	local function renderCard()
 		if cardEgg then
-			OddsView.render(card, cardEgg)
+			OddsView.render(cardRows, cardEgg)
 		end
 	end
 

@@ -325,92 +325,154 @@ local function gcd(a: number, b: number): number
 end
 
 -- The alternative for players who may not receive paid random items: a fixed
--- cycle with each outcome exactly as often as its odds say (smooth weighted
--- round robin), so a restricted player gets the expected mix, no more and no
--- less. The next results are shown before purchase, so nothing about them is
--- random. A cycle is the egg's total (10,000 or 100,000) / (the weights'
--- greatest common divisor) eggs at most, computed once per egg.
-local cycles: { [any]: { string } } = setmetatable({}, { __mode = "k" }) :: any
--- positions[egg][outcomeId] = sorted 0-based places of that outcome in the cycle.
-local positions: { [any]: { [string]: { number } } } = setmetatable({}, { __mode = "k" }) :: any
+-- order with each outcome exactly as often as its odds say, so a restricted
+-- player gets the expected mix, no more and no less. The next results are
+-- shown before purchase, so nothing about them is random.
+--
+-- A cycle is the egg's total / (the weights' greatest common divisor) eggs.
+-- Outcome i (reduced weight w) is due at the middle of each of its w equal
+-- shares of the cycle: its k-th turn (from 0) at (2k + 1) / (2w) of the way
+-- round. The cycle lists every turn in that order (ties: the earlier
+-- outcome first), so each outcome comes exactly w times a cycle, evenly
+-- spaced. Any place is worked out on its own from those turns, so a cycle
+-- of 10,000,000 eggs costs no memory (economy thread, Nov 7).
+type Order = { ids: { string }, weights: { number }, length: number }
+local orders: { [any]: Order } = setmetatable({}, { __mode = "k" }) :: any
 
-function Hatchery.fixedOrderCycle(egg: any): { string }
-	local cached = cycles[egg]
+local function orderOf(egg: any): Order
+	local cached = orders[egg]
 	if cached then
 		return cached
 	end
-	local outcomes = egg.outcomes
 	local divisor = 0
-	for _, o in outcomes do
+	for _, o in egg.outcomes do
 		divisor = gcd(divisor, o.weight)
 	end
-	local weights = {}
-	local total = 0
-	for i, o in outcomes do
+	local ids, weights, length = {}, {}, 0
+	for i, o in egg.outcomes do
+		ids[i] = o.id
 		weights[i] = o.weight // divisor
-		total += weights[i]
+		length += weights[i]
 	end
-	local current = table.create(#outcomes, 0)
-	local cycle = table.create(total)
-	for _ = 1, total do
-		local pick = 1
-		for i, w in weights do
-			current[i] += w
-			if current[i] > current[pick] then
-				pick = i
-			end
-		end
-		current[pick] -= total
-		table.insert(cycle, outcomes[pick].id)
-	end
-	cycles[egg] = cycle
-	return cycle
+	local order = { ids = ids, weights = weights, length = length }
+	orders[egg] = order
+	return order
 end
 
--- The outcome of a restricted player's next egg of this kind.
-function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
-	local cycle = Hatchery.fixedOrderCycle(egg)
-	return cycle[(boughtBefore % #cycle) + 1]
+-- The place in the cycle (from 0) of outcome i's k-th turn: how many turns
+-- of every outcome come before it. Exact in whole numbers: turn l of
+-- outcome j comes first when (2l + 1) * w_i < (2k + 1) * w_j, or on a tie
+-- when j is the earlier outcome. Products stay below 2^53 for weights up
+-- to 10,000,000.
+local function placeOf(order: Order, i: number, k: number): number
+	local weights = order.weights
+	local wi = weights[i]
+	local place = 0
+	for j, wj in weights do
+		local a = (2 * k + 1) * wj
+		local largest = if j < i then a // wi else (a - 1) // wi -- largest odd 2l+1 that comes first
+		place += (largest + 1) // 2
+	end
+	return place
 end
 
--- How many more eggs of this kind until `outcomeId` hatches (0 = the next one).
--- A binary search over the outcome's places in the cycle, so long cycles
--- (100,000 eggs for the rarest tables) stay cheap to show on every refresh.
-function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: string): number?
-	local cycle = Hatchery.fixedOrderCycle(egg)
-	local byOutcome = positions[egg]
-	if byOutcome == nil then
-		byOutcome = {}
-		for index, id in cycle do
-			local list = byOutcome[id]
-			if list == nil then
-				list = {}
-				byOutcome[id] = list
-			end
-			table.insert(list, index - 1)
-		end
-		positions[egg] = byOutcome
-	end
-	local list = byOutcome[outcomeId]
-	if list == nil then
-		return nil
-	end
-	local n = #cycle
-	local at = boughtBefore % n
-	-- First place >= at, or wrap around to the first place.
-	local lo, hi = 1, #list
-	if list[hi] < at then
-		return list[1] + n - at
-	end
+-- The first turn k of outcome i whose place is at least `at`, or the
+-- outcome's weight when every turn is earlier.
+local function firstTurnFrom(order: Order, i: number, at: number): number
+	local lo, hi = 0, order.weights[i]
 	while lo < hi do
 		local mid = (lo + hi) // 2
-		if list[mid] < at then
+		if placeOf(order, i, mid) < at then
 			lo = mid + 1
 		else
 			hi = mid
 		end
 	end
-	return list[lo] - at
+	return lo
+end
+
+-- How many eggs a fixed-order cycle of this kind is.
+function Hatchery.fixedOrderLength(egg: any): number
+	return orderOf(egg).length
+end
+
+-- The outcome of a restricted player's next egg of this kind.
+function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
+	local order = orderOf(egg)
+	local at = boughtBefore % order.length
+	for i in order.weights do
+		local k = firstTurnFrom(order, i, at)
+		if k < order.weights[i] and placeOf(order, i, k) == at then
+			return order.ids[i]
+		end
+	end
+	error(`no outcome at place {at} of {egg.id}`) -- every place holds exactly one turn
+end
+
+-- How many more eggs of this kind until `outcomeId` hatches (0 = the next one).
+function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: string): number?
+	local order = orderOf(egg)
+	local i = table.find(order.ids, outcomeId)
+	if i == nil or order.weights[i] <= 0 then
+		return nil
+	end
+	local at = boughtBefore % order.length
+	local k = firstTurnFrom(order, i, at)
+	if k < order.weights[i] then
+		return placeOf(order, i, k) - at
+	end
+	return placeOf(order, i, 0) + order.length - at -- round to the next cycle
+end
+
+export type FixedOrderTier = { rarity: string, count: number, wait: number }
+export type FixedOrderSummary = { upcoming: { string }, tiers: { FixedOrderTier }, length: number }
+
+-- What the odds card shows a restricted player, in a few lines however many
+-- creatures the egg holds: the next `upcoming` eggs in order, and for each
+-- tier (in `rarities` order) how many of a cycle's eggs it is and how many
+-- eggs until its first one (0 = the next). The full order is the odds list.
+function Hatchery.fixedOrderSummary(
+	egg: any,
+	boughtBefore: number,
+	rarityOf: (string) -> string,
+	upcoming: number,
+	rarities: { string }
+): FixedOrderSummary
+	local order = orderOf(egg)
+	local next = {}
+	for n = 0, math.min(upcoming, order.length) - 1 do
+		table.insert(next, Hatchery.fixedOrderOutcome(egg, boughtBefore + n))
+	end
+	local counts: { [string]: number } = {}
+	local waits: { [string]: number } = {}
+	for i, id in order.ids do
+		if order.weights[i] > 0 then
+			local rarity = rarityOf(id)
+			counts[rarity] = (counts[rarity] or 0) + order.weights[i]
+			local wait = Hatchery.fixedOrderWait(egg, boughtBefore, id) :: number
+			waits[rarity] = math.min(waits[rarity] or math.huge, wait)
+		end
+	end
+	local tiers = {}
+	for _, rarity in rarities do
+		if counts[rarity] then
+			table.insert(tiers, { rarity = rarity, count = counts[rarity], wait = waits[rarity] })
+		end
+	end
+	return { upcoming = next, tiers = tiers, length = order.length }
+end
+
+-- The whole cycle, in order. For tests and small eggs only: game code asks
+-- for single places, which cost nothing however long the cycle is.
+function Hatchery.fixedOrderCycle(egg: any): { string }
+	local order = orderOf(egg)
+	local cycle = table.create(order.length)
+	for i, w in order.weights do
+		for k = 0, w - 1 do
+			cycle[placeOf(order, i, k) + 1] = order.ids[i]
+		end
+	end
+	return cycle
 end
 
 -- Whether the tower has no room left for even a 1-slot creature.
