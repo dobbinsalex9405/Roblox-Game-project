@@ -2024,3 +2024,26 @@ Neon is only on the UR and Epic species. The remaining one-sided voxels are art 
 The relevant code is CreatureView.luau meshesArrived / watchMeshFolder. It should redraw every non-meshed visual of the species once `loaded[model] = true`, but creatures drawn while that species' preload was pending stay on boxes.
 
 Checks (3) sanity and (4) MeshPart count = 138 were not run (stopped at the first FAIL).
+
+### #167 at fa343a0, checks (3) and (4) after the verifier's ruling: PASS
+
+The verifier ruled check (2) pre-existing on main and out of scope. I continued on the same local vc167 build in a fresh play-solo session, and waited for ReplicatedStorage.CreatureMeshes to hold all 509 models before giving anything.
+
+**(3) Sanity, identical to the #166 gate.**
+
+| Egg | Rows | Sum | Rows by tier |
+|---|---|---|---|
+| Basic | 94 | 100.0000% | Common 71 × 1 in 77.2; Uncommon 19 × 1 in 271; Raccoon "0.7986% · 1 in 125"; UR, Epic, Legendary unchanged |
+| Meadow | 261 | 100.0000% | Common 128 × "0.5257% · 1 in 190"; Uncommon 73 × "0.4207% · 1 in 238"; Rare 40 × "0.0425% · 1 in 2,353"; UR 13 × 1 in 4,651; Epic 6 × 1 in 35,714; Legendary 1 in 33,333 |
+| Moonlit | 158 | 100.0000% | Uncommon 6 × "9.66675% · 1 in 10.3"; Rare 20 × "1.89999% · 1 in 52.6"; UR 58 × 1 in 1,568; Epic 54 × 1 in 18,622; Godly 19 × 1 in 1,000,000; Legendary 1 in 12,500 |
+
+- Phone 844x392: every label passes TextFits, smallest text 14.4 px.
+- Book: "Found 0/509". Tabs: Common 0/199, Uncommon 0/97, Rare 0/60, UR 0/71, Epic 0/60, Legendary 0/2, Godly 0/20.
+- Move and earn: Koi, MantaRay, Narwhal, MoonJelly, Hummingbird, LionCub, MagmaSnail and DivingBeetle moved 2.1 to 8.0 studs in 6 s, with median gaps above their pads of 0.02 to 0.06. Income was +978/s.
+- Respawn: before, 8 of 8 signs changing. I reset through Esc, R, Enter, and a new Character spawned. After, 8 of 8 changed in each of three 5 s windows. There are 0 OddsView or Hud lines and 0 errors, and the Feedback button is visible.
+
+**(4) MeshPart count.** The same scene as #166 (floors 2 and 3, all 17 batch-12 creatures given) gives 17 creatures, **138 MeshParts**, 0 voxel boxes and 0 stuck stand-ins. That is unchanged from #166.
+
+**Overall for #167.** Checks (1), (3) and (4) PASS. Check (2) is the pre-existing CreatureView swap bug, which is on main and out of scope per the verifier.
+
+Screens: pr167-phone-odds-moonlit.jpg.
