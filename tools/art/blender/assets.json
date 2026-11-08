@@ -3510,6 +3510,74 @@
   "HeronChick": {
    "imageId": 70562391962809,
    "source": "ba84bf2c4eb0581c"
+  },
+  "HighlandCalf": {
+   "imageId": 137757409412879,
+   "source": "26d74af3dd07b4d0"
+  },
+  "JumpingSpider": {
+   "imageId": 74286235045528,
+   "source": "2304aa8994113acc"
+  },
+  "LeafAnt": {
+   "imageId": 77445841586316,
+   "source": "2bc4f1ab1ad1dcd5"
+  },
+  "LionheadBunny": {
+   "imageId": 98329689747902,
+   "source": "226ab8147542ddcd"
+  },
+  "Llama": {
+   "imageId": 102505015833617,
+   "source": "42ccfee893315072"
+  },
+  "LongNeckDuckling": {
+   "imageId": 96898250631847,
+   "source": "99d09e3d8b1ac5fd"
+  },
+  "Lovebird": {
+   "imageId": 101392074121797,
+   "source": "63248daa76c943b6"
+  },
+  "LynxKit": {
+   "imageId": 132125999957269,
+   "source": "dfb77f05126ed700"
+  },
+  "Magpie": {
+   "imageId": 111051109412842,
+   "source": "ed2afe9626cacfdb"
+  },
+  "Mallard": {
+   "imageId": 96339990037446,
+   "source": "65f86aff210b0533"
+  },
+  "Marmot": {
+   "imageId": 125992169997028,
+   "source": "2b53e221855331f0"
+  },
+  "Mayfly": {
+   "imageId": 134120793223433,
+   "source": "f3fd7fc55217d80f"
+  },
+  "Meerkat": {
+   "imageId": 138936624313503,
+   "source": "fe0d847b8cad8db5"
+  },
+  "MuddyPiglet": {
+   "imageId": 139793345447837,
+   "source": "8938c7f6d1eb1c02"
+  },
+  "Mushling": {
+   "imageId": 123174216028736,
+   "source": "65f85133b927d3a1"
+  },
+  "Newt": {
+   "imageId": 109318446306550,
+   "source": "6bbf8be01693f7e0"
+  },
+  "Nuthatch": {
+   "imageId": 118813449154607,
+   "source": "393a7451dedf5a16"
   }
  }
 }
