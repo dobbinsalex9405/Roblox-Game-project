@@ -2693,6 +2693,54 @@
    "textureId": 117936525097023,
    "textureType": "Image",
    "version": "1"
+  },
+  "Eaglet": {
+   "assetId": 87173926907518,
+   "textureId": 72576627254181,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ElephantCalf": {
+   "assetId": 89227678518459,
+   "textureId": 94224289573704,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FlamingoChick": {
+   "assetId": 118949507513011,
+   "textureId": 117495322664508,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FlyingSquirrel": {
+   "assetId": 124804535100962,
+   "textureId": 134249582267824,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GiraffeCalf": {
+   "assetId": 133037403451455,
+   "textureId": 109608191967042,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ButtonBear": {
+   "assetId": 137665148606945,
+   "textureId": 115757568063873,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GilaMonster": {
+   "assetId": 123306780544328,
+   "textureId": 97728362085819,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Owlcat": {
+   "assetId": 73528019216970,
+   "textureId": 128648975934834,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",

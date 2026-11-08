@@ -418,8 +418,16 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Rare: 1 from the roster
+		-- Rare: 9 from the roster
+		ButtonBear = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "Meadow" } },
 		CinnamonSnail = { rarity = "Rare", coinsPerSecond = 34, mountSpeed = 22, pools = { "Meadow" } },
+		Eaglet = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "Meadow" } },
+		ElephantCalf = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Meadow" } },
+		FlamingoChick = { rarity = "Rare", coinsPerSecond = 16, mountSpeed = 22, pools = { "Meadow" } },
+		FlyingSquirrel = { rarity = "Rare", coinsPerSecond = 33, mountSpeed = 22, pools = { "Meadow" } },
+		GilaMonster = { rarity = "Rare", coinsPerSecond = 29, mountSpeed = 22, pools = { "Meadow" } },
+		GiraffeCalf = { rarity = "Rare", coinsPerSecond = 15, mountSpeed = 22, pools = { "Meadow" } },
+		Owlcat = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "Moonlit" } },
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {
 			rarity = "Ultra Rare",
