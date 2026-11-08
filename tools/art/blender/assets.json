@@ -3179,6 +3179,120 @@
    "textureId": 77944936487385,
    "textureType": "Image",
    "version": "1"
+  },
+  "SnowLeopardCub": {
+   "assetId": 89937439854451,
+   "textureId": 85063421574788,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Snowpuff": {
+   "assetId": 81975495663140,
+   "textureId": 71779471180776,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Socktopus": {
+   "assetId": 72377829803355,
+   "textureId": 107772956923644,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SparkFerret": {
+   "assetId": 91642100479096,
+   "textureId": 118315604851928,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Sparkplug": {
+   "assetId": 79357831751804,
+   "textureId": 131813066622270,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "StegoHatchling": {
+   "assetId": 116468291365606,
+   "textureId": 114922043463465,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Tarantula": {
+   "assetId": 121721344059699,
+   "textureId": 92129890237248,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "TeapotTurtle": {
+   "assetId": 78895824428465,
+   "textureId": 71126302788179,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "TigerCub": {
+   "assetId": 101177861835687,
+   "textureId": 79490497333138,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Toucan": {
+   "assetId": 83223195323726,
+   "textureId": 74388924783432,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ToxicToad": {
+   "assetId": 95780416696116,
+   "textureId": 137590123758565,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "TrikeHatchling": {
+   "assetId": 75049706596514,
+   "textureId": 119591762812436,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "TwoHeadedTurtle": {
+   "assetId": 76609443209113,
+   "textureId": 102826682140039,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "VampireBat": {
+   "assetId": 132588817150478,
+   "textureId": 118178002725970,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "WindupMouse": {
+   "assetId": 137248683159734,
+   "textureId": 120179646399499,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "WitchKitten": {
+   "assetId": 125162086944816,
+   "textureId": 101324586934384,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "YarnKitten": {
+   "assetId": 107140777114009,
+   "textureId": 114546967950672,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ZapMouse": {
+   "assetId": 88239731937101,
+   "textureId": 70821674858301,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ZebraFoal": {
+   "assetId": 127717577074709,
+   "textureId": 72765496525907,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",

@@ -52360,6 +52360,3028 @@ local CreatureMeshes: { [string]: Creature } = {
 			},
 		},
 	},
+	SnowLeopardCub = {
+		assetId = 89937439854451,
+		textureId = 85063421574788,
+		rarity = "Rare",
+		gait = "trot",
+		height = 1.1,
+		size = { 0.8, 1.1, 2.4 },
+		tris = 5840,
+		trisLod1 = 756,
+		parts = {
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.3, 0.5, -0.5 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_legFR",
+						center = { 0.2978, 0.254, -0.5 },
+						size = { 0.1955, 0.492, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_legFR_lod1",
+					center = { 0.3, 0.25, -0.5 },
+					size = { 0.2, 0.5, 0.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.3, 0.5, -0.5 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_legFL",
+						center = { -0.2978, 0.254, -0.5 },
+						size = { 0.1955, 0.492, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_legFL_lod1",
+					center = { -0.3, 0.25, -0.5 },
+					size = { 0.2, 0.5, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.3, 0.5, 0.2 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_legBR",
+						center = { 0.25, 0.2517, 0.2 },
+						size = { 0.291, 0.4875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_legBR_lod1",
+					center = { 0.25, 0.25, 0.2 },
+					size = { 0.3, 0.5, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.3, 0.5, 0.2 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_legBL",
+						center = { -0.25, 0.2517, 0.2 },
+						size = { 0.291, 0.4875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_legBL_lod1",
+					center = { -0.25, 0.25, 0.2 },
+					size = { 0.3, 0.5, 0.2 },
+				},
+			},
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.4 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_body",
+						center = { 0, 0.6018, -0.3 },
+						size = { 0.607, 0.6035, 0.807 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_body_lod1",
+					center = { 0, 0.6, -0.3 },
+					size = { 0.6, 0.6, 0.8 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.744, -0.712 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_head",
+						center = { 0, 0.8017, -0.896 },
+						size = { 0.591, 0.3875, 0.599 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_head_lod1",
+					center = { 0, 0.8, -0.9 },
+					size = { 0.6, 0.4, 0.6 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.744, -0.712 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_eyes",
+						center = { 0, 0.9518, -0.95 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_eyes_lod1",
+					center = { 0, 0.95, -0.95 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 1.032, -0.832 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_ears",
+						center = { 0, 1.0517, -0.85 },
+						size = { 0.391, 0.0875, 0.091 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_ears_lod1",
+					center = { 0, 1.05, -0.85 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.6, 0.2 },
+				meshes = {
+					{
+						name = "SnowLeopardCub_tail",
+						center = { 0, 0.4517, 0.646 },
+						size = { 0.191, 0.4875, 1.099 },
+					},
+				},
+				lod1 = {
+					name = "SnowLeopardCub_tail_lod1",
+					center = { 0, 0.45, 0.65 },
+					size = { 0.2, 0.5, 1.1 },
+				},
+			},
+		},
+	},
+	Snowpuff = {
+		assetId = 81975495663140,
+		textureId = 71779471180776,
+		rarity = "Rare",
+		gait = "hop",
+		height = 1.7,
+		size = { 1.4, 1.7, 1.6 },
+		tris = 12620,
+		trisLod1 = 1290,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{ name = "Snowpuff_body", center = { 0, 0.9517, 0.15 }, size = { 1.407, 1.5035, 1.307 } },
+				},
+				lod1 = { name = "Snowpuff_body_lod1", center = { 0, 0.95, 0.15 }, size = { 1.4, 1.5, 1.3 } },
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.936, -0.116 },
+				meshes = {
+					{
+						name = "Snowpuff_head",
+						center = { 0, 1.0978, -0.296 },
+						size = { 1.391, 0.9955, 0.599 },
+					},
+				},
+				lod1 = { name = "Snowpuff_head_lod1", center = { 0, 1.1, -0.3 }, size = { 1.4, 1, 0.6 } },
+			},
+			{
+				name = "nose",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{
+						name = "Snowpuff_nose",
+						center = { 0, 0.9517, -0.65 },
+						size = { 0.207, 0.3035, 0.307 },
+					},
+				},
+				lod1 = { name = "Snowpuff_nose_lod1", center = { 0, 0.95, -0.65 }, size = { 0.2, 0.3, 0.3 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.936, -0.116 },
+				meshes = {
+					{
+						name = "Snowpuff_eyes",
+						center = { 0, 1.2517, -0.45 },
+						size = { 0.607, 0.1035, 0.107 },
+					},
+				},
+				lod1 = { name = "Snowpuff_eyes_lod1", center = { 0, 1.25, -0.45 }, size = { 0.6, 0.1, 0.1 } },
+			},
+			{
+				name = "legL",
+				anim = "legL",
+				parent = "body",
+				pivot = { -0.4, 0.4, 0.1 },
+				meshes = {
+					{
+						name = "Snowpuff_legL",
+						center = { -0.4, 0.204, 0.05 },
+						size = { 0.191, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "Snowpuff_legL_lod1",
+					center = { -0.4, 0.2, 0.05 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "legR",
+				anim = "legR",
+				parent = "body",
+				pivot = { 0.4, 0.4, 0.1 },
+				meshes = {
+					{ name = "Snowpuff_legR", center = { 0.4, 0.204, 0.05 }, size = { 0.191, 0.392, 0.291 } },
+				},
+				lod1 = { name = "Snowpuff_legR_lod1", center = { 0.4, 0.2, 0.05 }, size = { 0.2, 0.4, 0.3 } },
+			},
+		},
+	},
+	Socktopus = {
+		assetId = 72377829803355,
+		textureId = 107772956923644,
+		rarity = "Rare",
+		gait = "scuttle",
+		height = 1.8,
+		size = { 2, 1.8, 1.8 },
+		tris = 14172,
+		trisLod1 = 2738,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, -0.1, -0.1 },
+				meshes = {
+					{ name = "Socktopus_body", center = { 0, 0.5517, 0 }, size = { 1.007, 0.5035, 1.007 } },
+				},
+				lod1 = { name = "Socktopus_body_lod1", center = { 0, 0.55, 0 }, size = { 1, 0.5, 1 } },
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.86, 0.044 },
+				meshes = {
+					{
+						name = "Socktopus_head",
+						center = { 0, 1.1478, 0.05 },
+						size = { 1.191, 1.2955, 1.091 },
+					},
+				},
+				lod1 = { name = "Socktopus_head_lod1", center = { 0, 1.15, 0.05 }, size = { 1.2, 1.3, 1.1 } },
+			},
+			{
+				name = "leg1R",
+				anim = "leg1R",
+				parent = "body",
+				pivot = { 0.15, 0.6, -0.25 },
+				meshes = {
+					{
+						name = "Socktopus_leg1R",
+						center = { 0.25, 0.4017, -0.55 },
+						size = { 0.491, 0.7875, 0.691 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg1R_lod1",
+					center = { 0.25, 0.4, -0.55 },
+					size = { 0.5, 0.8, 0.7 },
+				},
+			},
+			{
+				name = "leg1L",
+				anim = "leg1L",
+				parent = "body",
+				pivot = { -0.15, 0.6, -0.25 },
+				meshes = {
+					{
+						name = "Socktopus_leg1L",
+						center = { -0.25, 0.4017, -0.55 },
+						size = { 0.491, 0.7875, 0.691 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg1L_lod1",
+					center = { -0.25, 0.4, -0.55 },
+					size = { 0.5, 0.8, 0.7 },
+				},
+			},
+			{
+				name = "leg2R",
+				anim = "leg2R",
+				parent = "body",
+				pivot = { 0.35, 0.6, -0.05 },
+				meshes = {
+					{
+						name = "Socktopus_leg2R",
+						center = { 0.55, 0.4017, -0.25 },
+						size = { 0.691, 0.7875, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg2R_lod1",
+					center = { 0.55, 0.4, -0.25 },
+					size = { 0.7, 0.8, 0.5 },
+				},
+			},
+			{
+				name = "leg2L",
+				anim = "leg2L",
+				parent = "body",
+				pivot = { -0.35, 0.6, -0.05 },
+				meshes = {
+					{
+						name = "Socktopus_leg2L",
+						center = { -0.55, 0.4017, -0.25 },
+						size = { 0.691, 0.7875, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg2L_lod1",
+					center = { -0.55, 0.4, -0.25 },
+					size = { 0.7, 0.8, 0.5 },
+				},
+			},
+			{
+				name = "leg3R",
+				anim = "leg3R",
+				parent = "body",
+				pivot = { 0.35, 0.6, 0.15 },
+				meshes = {
+					{
+						name = "Socktopus_leg3R",
+						center = { 0.6, 0.4017, 0.2 },
+						size = { 0.791, 0.7875, 0.391 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg3R_lod1",
+					center = { 0.6, 0.4, 0.2 },
+					size = { 0.8, 0.8, 0.4 },
+				},
+			},
+			{
+				name = "leg3L",
+				anim = "leg3L",
+				parent = "body",
+				pivot = { -0.35, 0.6, 0.15 },
+				meshes = {
+					{
+						name = "Socktopus_leg3L",
+						center = { -0.6, 0.4017, 0.2 },
+						size = { 0.791, 0.7875, 0.391 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg3L_lod1",
+					center = { -0.6, 0.4, 0.2 },
+					size = { 0.8, 0.8, 0.4 },
+				},
+			},
+			{
+				name = "leg4R",
+				anim = "leg4R",
+				parent = "body",
+				pivot = { 0.25, 0.6, 0.35 },
+				meshes = {
+					{
+						name = "Socktopus_leg4R",
+						center = { 0.25, 0.4017, 0.5 },
+						size = { 0.491, 0.7875, 0.791 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg4R_lod1",
+					center = { 0.25, 0.4, 0.5 },
+					size = { 0.5, 0.8, 0.8 },
+				},
+			},
+			{
+				name = "leg4L",
+				anim = "leg4L",
+				parent = "body",
+				pivot = { -0.25, 0.6, 0.35 },
+				meshes = {
+					{
+						name = "Socktopus_leg4L",
+						center = { -0.25, 0.4017, 0.5 },
+						size = { 0.491, 0.7875, 0.791 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_leg4L_lod1",
+					center = { -0.25, 0.4, 0.5 },
+					size = { 0.5, 0.8, 0.8 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.86, 0.044 },
+				meshes = {
+					{
+						name = "Socktopus_eyes",
+						center = { 0, 1.0517, -0.35 },
+						size = { 0.607, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "Socktopus_eyes_lod1",
+					center = { 0, 1.05, -0.35 },
+					size = { 0.6, 0.1, 0.1 },
+				},
+			},
+		},
+	},
+	SparkFerret = {
+		assetId = 91642100479096,
+		textureId = 118315604851928,
+		rarity = "Rare",
+		gait = "trot",
+		height = 1.4,
+		size = { 0.8, 1.4, 3 },
+		tris = 8156,
+		trisLod1 = 730,
+		parts = {
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.2, 0.4, -0.6 },
+				meshes = {
+					{
+						name = "SparkFerret_legFR",
+						center = { 0.2, 0.2018, -0.6 },
+						size = { 0.191, 0.3875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_legFR_lod1",
+					center = { 0.2, 0.2, -0.6 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.2, 0.4, -0.6 },
+				meshes = {
+					{
+						name = "SparkFerret_legFL",
+						center = { -0.2, 0.2018, -0.6 },
+						size = { 0.191, 0.3875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_legFL_lod1",
+					center = { -0.2, 0.2, -0.6 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.2, 0.4, 0.7 },
+				meshes = {
+					{
+						name = "SparkFerret_legBR",
+						center = { 0.1977, 0.2018, 0.7 },
+						size = { 0.1955, 0.3875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_legBR_lod1",
+					center = { 0.2, 0.2, 0.7 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.2, 0.4, 0.7 },
+				meshes = {
+					{
+						name = "SparkFerret_legBL",
+						center = { -0.1977, 0.2018, 0.7 },
+						size = { 0.1955, 0.3875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_legBL_lod1",
+					center = { -0.2, 0.2, 0.7 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.2 },
+				meshes = {
+					{
+						name = "SparkFerret_body",
+						center = { 0, 0.5018, -0.1 },
+						size = { 0.407, 0.4035, 1.807 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_body_lod1",
+					center = { 0, 0.5, -0.1 },
+					size = { 0.4, 0.4, 1.8 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.548, -0.808 },
+				meshes = {
+					{
+						name = "SparkFerret_head",
+						center = { 0, 0.8978, -1.046 },
+						size = { 0.791, 0.9955, 0.899 },
+					},
+				},
+				lod1 = { name = "SparkFerret_head_lod1", center = { 0, 0.9, -1.05 }, size = { 0.8, 1, 0.9 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.548, -0.808 },
+				meshes = {
+					{
+						name = "SparkFerret_eyes",
+						center = { 0, 1.0517, -1.15 },
+						size = { 0.807, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_eyes_lod1",
+					center = { 0, 1.05, -1.15 },
+					size = { 0.8, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 1.1, -0.988 },
+				meshes = {
+					{
+						name = "SparkFerret_ears",
+						center = { 0, 1.3518, -0.95 },
+						size = { 0.591, 0.0875, 0.091 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_ears_lod1",
+					center = { 0, 1.35, -0.95 },
+					size = { 0.6, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.576, 0.816 },
+				meshes = {
+					{
+						name = "SparkFerret_tail",
+						center = { 0, 0.6517, 1.146 },
+						size = { 0.191, 0.4875, 0.699 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_tail_lod1",
+					center = { 0, 0.65, 1.15 },
+					size = { 0.2, 0.5, 0.7 },
+				},
+			},
+			{
+				name = "sparks",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, -0.2 },
+				meshes = {
+					{
+						name = "SparkFerret_sparks",
+						center = { 0, 0.8017, -0.15 },
+						size = { 0.407, 0.4035, 1.307 },
+					},
+				},
+				lod1 = {
+					name = "SparkFerret_sparks_lod1",
+					center = { 0, 0.8, -0.15 },
+					size = { 0.4, 0.4, 1.3 },
+				},
+			},
+		},
+	},
+	Sparkplug = {
+		assetId = 79357831751804,
+		textureId = 131813066622270,
+		rarity = "Rare",
+		gait = "hop",
+		height = 2.4,
+		size = { 1.4, 2.4, 1.4 },
+		tris = 12144,
+		trisLod1 = 1136,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0 },
+				meshes = {
+					{
+						name = "Sparkplug_body",
+						center = { 0, 0.9017, 0.05 },
+						size = { 1.407, 1.4035, 1.307 },
+					},
+				},
+				lod1 = { name = "Sparkplug_body_lod1", center = { 0, 0.9, 0.05 }, size = { 1.4, 1.4, 1.3 } },
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.888, -0.2016 },
+				meshes = {
+					{
+						name = "Sparkplug_head",
+						center = { 0, 1.0477, -0.396 },
+						size = { 1.391, 0.8955, 0.599 },
+					},
+				},
+				lod1 = { name = "Sparkplug_head_lod1", center = { 0, 1.05, -0.4 }, size = { 1.4, 0.9, 0.6 } },
+			},
+			{
+				name = "bolt",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0 },
+				meshes = {
+					{ name = "Sparkplug_bolt", center = { 0, 1.9518, 0 }, size = { 0.407, 0.9035, 0.207 } },
+				},
+				lod1 = { name = "Sparkplug_bolt_lod1", center = { 0, 1.95, 0 }, size = { 0.4, 0.9, 0.2 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.888, -0.2016 },
+				meshes = {
+					{
+						name = "Sparkplug_eyes",
+						center = { 0, 1.1518, -0.5 },
+						size = { 0.807, 0.3035, 0.207 },
+					},
+				},
+				lod1 = { name = "Sparkplug_eyes_lod1", center = { 0, 1.15, -0.5 }, size = { 0.8, 0.3, 0.2 } },
+			},
+			{
+				name = "legL",
+				anim = "legL",
+				parent = "body",
+				pivot = { -0.4, 0.4, 0 },
+				meshes = {
+					{
+						name = "Sparkplug_legL",
+						center = { -0.4, 0.204, -0.05 },
+						size = { 0.191, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "Sparkplug_legL_lod1",
+					center = { -0.4, 0.2, -0.05 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "legR",
+				anim = "legR",
+				parent = "body",
+				pivot = { 0.4, 0.4, 0 },
+				meshes = {
+					{
+						name = "Sparkplug_legR",
+						center = { 0.4, 0.204, -0.05 },
+						size = { 0.191, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "Sparkplug_legR_lod1",
+					center = { 0.4, 0.2, -0.05 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+		},
+	},
+	StegoHatchling = {
+		assetId = 116468291365606,
+		textureId = 114922043463465,
+		rarity = "Rare",
+		gait = "trot",
+		height = 1.7,
+		size = { 1.2, 1.7, 2.8 },
+		tris = 14412,
+		trisLod1 = 1574,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.1 },
+				meshes = {
+					{
+						name = "StegoHatchling_body",
+						center = { 0, 0.9018, 0 },
+						size = { 0.807, 0.8035, 1.207 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_body_lod1",
+					center = { 0, 0.9, 0 },
+					size = { 0.8, 0.8, 1.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.372, 0.7, -0.384 },
+				meshes = {
+					{
+						name = "StegoHatchling_legFL",
+						center = { -0.35, 0.354, -0.35 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_legFL_lod1",
+					center = { -0.35, 0.35, -0.35 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.372, 0.7, 0.376 },
+				meshes = {
+					{
+						name = "StegoHatchling_legBL",
+						center = { -0.35, 0.354, 0.35 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_legBL_lod1",
+					center = { -0.35, 0.35, 0.35 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.372, 0.7, -0.384 },
+				meshes = {
+					{
+						name = "StegoHatchling_legFR",
+						center = { 0.35, 0.354, -0.35 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_legFR_lod1",
+					center = { 0.35, 0.35, -0.35 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.372, 0.7, 0.376 },
+				meshes = {
+					{
+						name = "StegoHatchling_legBR",
+						center = { 0.35, 0.354, 0.35 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_legBR_lod1",
+					center = { 0.35, 0.35, 0.35 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.908, -0.624 },
+				meshes = {
+					{
+						name = "StegoHatchling_head",
+						center = { 0, 0.9518, -0.896 },
+						size = { 0.791, 0.6875, 0.999 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_head_lod1",
+					center = { 0, 0.95, -0.9 },
+					size = { 0.8, 0.7, 1 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.908, -0.624 },
+				meshes = {
+					{
+						name = "StegoHatchling_eyes",
+						center = { 0, 1.1018, -1 },
+						size = { 0.607, 0.2035, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_eyes_lod1",
+					center = { 0, 1.1, -1 },
+					size = { 0.6, 0.2, 0.2 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.912, 0.616 },
+				meshes = {
+					{
+						name = "StegoHatchling_tail",
+						center = { 0, 0.8057, 0.896 },
+						size = { 0.591, 0.5955, 0.999 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_tail_lod1",
+					center = { 0, 0.8, 0.9 },
+					size = { 0.6, 0.6, 1 },
+				},
+			},
+			{
+				name = "plates",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, -0.1, -0.1 },
+				meshes = {
+					{
+						name = "StegoHatchling_plates",
+						center = { 0, 1.1, 0.35 },
+						size = { 0.207, 0.8, 1.907 },
+					},
+					{
+						name = "StegoHatchling_plates_plain",
+						center = { 0, 1.25, 0.35 },
+						size = { 0.2, 0.9, 1.9 },
+					},
+				},
+				lod1 = {
+					name = "StegoHatchling_plates_lod1",
+					center = { 0, 1.2, 0.35 },
+					size = { 0.2, 1, 1.9 },
+				},
+			},
+		},
+	},
+	Tarantula = {
+		assetId = 121721344059699,
+		textureId = 92129890237248,
+		rarity = "Rare",
+		gait = "scuttle",
+		height = 1.1,
+		size = { 1.8, 1.1, 1.6 },
+		tris = 9144,
+		trisLod1 = 1276,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.2 },
+				meshes = {
+					{
+						name = "Tarantula_body",
+						center = { 0, 0.7017, 0.15 },
+						size = { 1.007, 0.8035, 1.307 },
+					},
+				},
+				lod1 = { name = "Tarantula_body_lod1", center = { 0, 0.7, 0.15 }, size = { 1, 0.8, 1.3 } },
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.624, -0.584 },
+				meshes = {
+					{
+						name = "Tarantula_head",
+						center = { 0, 0.6018, -0.646 },
+						size = { 0.391, 0.3875, 0.299 },
+					},
+				},
+				lod1 = { name = "Tarantula_head_lod1", center = { 0, 0.6, -0.65 }, size = { 0.4, 0.4, 0.3 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.624, -0.584 },
+				meshes = {
+					{
+						name = "Tarantula_eyes",
+						center = { 0, 0.7517, -0.65 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_eyes_lod1",
+					center = { 0, 0.75, -0.65 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "leg1R",
+				anim = "leg1R",
+				parent = "body",
+				pivot = { 0.25, 0.65, -0.5 },
+				meshes = {
+					{
+						name = "Tarantula_leg1R",
+						center = { 0.55, 0.3518, -0.6 },
+						size = { 0.691, 0.6875, 0.391 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg1R_lod1",
+					center = { 0.55, 0.35, -0.6 },
+					size = { 0.7, 0.7, 0.4 },
+				},
+			},
+			{
+				name = "leg1L",
+				anim = "leg1L",
+				parent = "body",
+				pivot = { -0.25, 0.65, -0.5 },
+				meshes = {
+					{
+						name = "Tarantula_leg1L",
+						center = { -0.55, 0.3518, -0.6 },
+						size = { 0.691, 0.6875, 0.391 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg1L_lod1",
+					center = { -0.55, 0.35, -0.6 },
+					size = { 0.7, 0.7, 0.4 },
+				},
+			},
+			{
+				name = "leg2R",
+				anim = "leg2R",
+				parent = "body",
+				pivot = { 0.35, 0.65, -0.35 },
+				meshes = {
+					{
+						name = "Tarantula_leg2R",
+						center = { 0.5978, 0.3518, -0.4 },
+						size = { 0.5955, 0.6875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg2R_lod1",
+					center = { 0.6, 0.35, -0.4 },
+					size = { 0.6, 0.7, 0.2 },
+				},
+			},
+			{
+				name = "leg2L",
+				anim = "leg2L",
+				parent = "body",
+				pivot = { -0.35, 0.65, -0.35 },
+				meshes = {
+					{
+						name = "Tarantula_leg2L",
+						center = { -0.5978, 0.3518, -0.4 },
+						size = { 0.5955, 0.6875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg2L_lod1",
+					center = { -0.6, 0.35, -0.4 },
+					size = { 0.6, 0.7, 0.2 },
+				},
+			},
+			{
+				name = "leg3R",
+				anim = "leg3R",
+				parent = "body",
+				pivot = { 0.35, 0.65, -0.2 },
+				meshes = {
+					{
+						name = "Tarantula_leg3R",
+						center = { 0.5978, 0.3518, -0.1977 },
+						size = { 0.5955, 0.6875, 0.1955 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg3R_lod1",
+					center = { 0.6, 0.35, -0.2 },
+					size = { 0.6, 0.7, 0.2 },
+				},
+			},
+			{
+				name = "leg3L",
+				anim = "leg3L",
+				parent = "body",
+				pivot = { -0.35, 0.65, -0.2 },
+				meshes = {
+					{
+						name = "Tarantula_leg3L",
+						center = { -0.5978, 0.3518, -0.1977 },
+						size = { 0.5955, 0.6875, 0.1955 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg3L_lod1",
+					center = { -0.6, 0.35, -0.2 },
+					size = { 0.6, 0.7, 0.2 },
+				},
+			},
+			{
+				name = "leg4R",
+				anim = "leg4R",
+				parent = "body",
+				pivot = { 0.45, 0.65, 0 },
+				meshes = {
+					{
+						name = "Tarantula_leg4R",
+						center = { 0.6478, 0.3518, 0.05 },
+						size = { 0.4955, 0.6875, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg4R_lod1",
+					center = { 0.65, 0.35, 0.05 },
+					size = { 0.5, 0.7, 0.3 },
+				},
+			},
+			{
+				name = "leg4L",
+				anim = "leg4L",
+				parent = "body",
+				pivot = { -0.45, 0.65, 0 },
+				meshes = {
+					{
+						name = "Tarantula_leg4L",
+						center = { -0.6478, 0.3518, 0.05 },
+						size = { 0.4955, 0.6875, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "Tarantula_leg4L_lod1",
+					center = { -0.65, 0.35, 0.05 },
+					size = { 0.5, 0.7, 0.3 },
+				},
+			},
+		},
+	},
+	TeapotTurtle = {
+		assetId = 78895824428465,
+		textureId = 71126302788179,
+		rarity = "Rare",
+		gait = "scuttle",
+		height = 1.5,
+		size = { 2.2, 1.5, 2 },
+		tris = 14432,
+		trisLod1 = 1528,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{
+						name = "TeapotTurtle_body",
+						center = { 0, 0.2518, 0.25 },
+						size = { 1.207, 0.3035, 1.507 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_body_lod1",
+					center = { 0, 0.25, 0.25 },
+					size = { 1.2, 0.3, 1.5 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.864, -0.38 },
+				meshes = {
+					{
+						name = "TeapotTurtle_head",
+						center = { 0, 0.6018, -0.746 },
+						size = { 0.591, 0.5875, 0.499 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_head_lod1",
+					center = { 0, 0.6, -0.75 },
+					size = { 0.6, 0.6, 0.5 },
+				},
+			},
+			{
+				name = "shell",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{
+						name = "TeapotTurtle_shell",
+						center = { 0, 0.7017, 0.25 },
+						size = { 1.407, 0.8035, 1.507 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_shell_lod1",
+					center = { 0, 0.7, 0.25 },
+					size = { 1.4, 0.8, 1.5 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.864, -0.38 },
+				meshes = {
+					{
+						name = "TeapotTurtle_eyes",
+						center = { 0, 0.7517, -0.85 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_eyes_lod1",
+					center = { 0, 0.75, -0.85 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.6, 0.3, -0.1 },
+				meshes = {
+					{
+						name = "TeapotTurtle_legFL",
+						center = { -0.5978, 0.154, -0.1 },
+						size = { 0.1955, 0.292, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_legFL_lod1",
+					center = { -0.6, 0.15, -0.1 },
+					size = { 0.2, 0.3, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.6, 0.3, 0.8 },
+				meshes = {
+					{
+						name = "TeapotTurtle_legBL",
+						center = { -0.5978, 0.2018, 0.7477 },
+						size = { 0.1955, 0.3875, 0.2955 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_legBL_lod1",
+					center = { -0.6, 0.2, 0.75 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.6, 0.3, -0.1 },
+				meshes = {
+					{
+						name = "TeapotTurtle_legFR",
+						center = { 0.5978, 0.154, -0.1 },
+						size = { 0.1955, 0.292, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_legFR_lod1",
+					center = { 0.6, 0.15, -0.1 },
+					size = { 0.2, 0.3, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.6, 0.3, 0.8 },
+				meshes = {
+					{
+						name = "TeapotTurtle_legBR",
+						center = { 0.5978, 0.2018, 0.7477 },
+						size = { 0.1955, 0.3875, 0.2955 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_legBR_lod1",
+					center = { 0.6, 0.2, 0.75 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "teapot",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{
+						name = "TeapotTurtle_teapot",
+						center = { 0, 0.9018, 0 },
+						size = { 2.207, 1.2035, 0.807 },
+					},
+				},
+				lod1 = {
+					name = "TeapotTurtle_teapot_lod1",
+					center = { 0, 0.9, 0 },
+					size = { 2.2, 1.2, 0.8 },
+				},
+			},
+		},
+	},
+	TigerCub = {
+		assetId = 101177861835687,
+		textureId = 79490497333138,
+		rarity = "Rare",
+		gait = "trot",
+		height = 2.1,
+		size = { 1.2, 2.1, 2.5 },
+		tris = 14040,
+		trisLod1 = 1684,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.15 },
+				meshes = {
+					{ name = "TigerCub_body", center = { 0, 0.7518, 0 }, size = { 1.207, 0.9035, 1.307 } },
+				},
+				lod1 = { name = "TigerCub_body_lod1", center = { 0, 0.75, 0 }, size = { 1.2, 0.9, 1.3 } },
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.4295, 0.4, -0.2923 },
+				meshes = {
+					{
+						name = "TigerCub_legFR",
+						center = { 0.3478, 0.204, -0.2477 },
+						size = { 0.4955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "TigerCub_legFR_lod1",
+					center = { 0.35, 0.2, -0.25 },
+					size = { 0.5, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.4295, 0.4, -0.2923 },
+				meshes = {
+					{
+						name = "TigerCub_legFL",
+						center = { -0.3478, 0.204, -0.2477 },
+						size = { 0.4955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "TigerCub_legFL_lod1",
+					center = { -0.35, 0.2, -0.25 },
+					size = { 0.5, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.45, 0.4, 0.5 },
+				meshes = {
+					{
+						name = "TigerCub_legBR",
+						center = { 0.45, 0.204, 0.5 },
+						size = { 0.291, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "TigerCub_legBR_lod1",
+					center = { 0.45, 0.2, 0.5 },
+					size = { 0.3, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.45, 0.4, 0.5 },
+				meshes = {
+					{
+						name = "TigerCub_legBL",
+						center = { -0.45, 0.204, 0.5 },
+						size = { 0.291, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "TigerCub_legBL_lod1",
+					center = { -0.45, 0.2, 0.5 },
+					size = { 0.3, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 1.104, -0.534 },
+				meshes = {
+					{
+						name = "TigerCub_head",
+						center = { 0, 1.4018, -0.75 },
+						size = { 1.191, 0.9875, 0.991 },
+					},
+				},
+				lod1 = { name = "TigerCub_head_lod1", center = { 0, 1.4, -0.75 }, size = { 1.2, 1, 1 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.104, -0.534 },
+				meshes = {
+					{ name = "TigerCub_eyes", center = { 0, 1.5517, -1.1 }, size = { 0.607, 0.1035, 0.107 } },
+				},
+				lod1 = { name = "TigerCub_eyes_lod1", center = { 0, 1.55, -1.1 }, size = { 0.6, 0.1, 0.1 } },
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 1.872, -0.726 },
+				meshes = {
+					{ name = "TigerCub_ears", center = { 0, 1.9017, -0.7 }, size = { 0.991, 0.3875, 0.291 } },
+				},
+				lod1 = { name = "TigerCub_ears_lod1", center = { 0, 1.9, -0.7 }, size = { 1, 0.4, 0.3 } },
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.816, 0.666 },
+				meshes = {
+					{
+						name = "TigerCub_tail",
+						center = { 0, 1.0017, 0.846 },
+						size = { 0.391, 0.3875, 0.799 },
+					},
+				},
+				lod1 = { name = "TigerCub_tail_lod1", center = { 0, 1, 0.85 }, size = { 0.4, 0.4, 0.8 } },
+			},
+		},
+	},
+	Toucan = {
+		assetId = 83223195323726,
+		textureId = 74388924783432,
+		rarity = "Rare",
+		gait = "hop",
+		height = 2.3,
+		size = { 1.4, 2.3, 2.6 },
+		tris = 14452,
+		trisLod1 = 1540,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0.2, 0.6 },
+				meshes = {
+					{ name = "Toucan_body", center = { 0, 1.0017, 0.75 }, size = { 1.207, 1.4035, 1.107 } },
+				},
+				lod1 = { name = "Toucan_body_lod1", center = { 0, 1, 0.75 }, size = { 1.2, 1.4, 1.1 } },
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 1.592, 0.504 },
+				meshes = {
+					{ name = "Toucan_head", center = { 0, 1.8478, 0.496 }, size = { 0.991, 0.8955, 0.999 } },
+				},
+				lod1 = { name = "Toucan_head_lod1", center = { 0, 1.85, 0.5 }, size = { 1, 0.9, 1 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.592, 0.504 },
+				meshes = {
+					{ name = "Toucan_eyes", center = { 0, 2.0017, 0.15 }, size = { 0.807, 0.2035, 0.307 } },
+				},
+				lod1 = { name = "Toucan_eyes_lod1", center = { 0, 2, 0.15 }, size = { 0.8, 0.2, 0.3 } },
+			},
+			{
+				name = "wingL",
+				anim = "wingL",
+				parent = "body",
+				pivot = { -0.384, 1.208, 0.792 },
+				meshes = {
+					{
+						name = "Toucan_wingL",
+						center = { -0.546, 1.4478, 0.9 },
+						size = { 0.299, 0.4955, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "Toucan_wingL_lod1",
+					center = { -0.55, 1.45, 0.9 },
+					size = { 0.3, 0.5, 0.2 },
+				},
+			},
+			{
+				name = "wingR",
+				anim = "wingR",
+				parent = "body",
+				pivot = { 0.384, 1.208, 0.792 },
+				meshes = {
+					{
+						name = "Toucan_wingR",
+						center = { 0.546, 1.4478, 0.9 },
+						size = { 0.299, 0.4955, 0.191 },
+					},
+				},
+				lod1 = { name = "Toucan_wingR_lod1", center = { 0.55, 1.45, 0.9 }, size = { 0.3, 0.5, 0.2 } },
+			},
+			{
+				name = "legL",
+				anim = "legL",
+				parent = "body",
+				pivot = { -0.25, 0.4, 0.55 },
+				meshes = {
+					{ name = "Toucan_legL", center = { -0.3, 0.204, 0.45 }, size = { 0.191, 0.392, 0.291 } },
+				},
+				lod1 = { name = "Toucan_legL_lod1", center = { -0.3, 0.2, 0.45 }, size = { 0.2, 0.4, 0.3 } },
+			},
+			{
+				name = "legR",
+				anim = "legR",
+				parent = "body",
+				pivot = { 0.25, 0.4, 0.55 },
+				meshes = {
+					{ name = "Toucan_legR", center = { 0.3, 0.204, 0.45 }, size = { 0.191, 0.392, 0.291 } },
+				},
+				lod1 = { name = "Toucan_legR_lod1", center = { 0.3, 0.2, 0.45 }, size = { 0.2, 0.4, 0.3 } },
+			},
+			{
+				name = "beak",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 0, 0.6 },
+				meshes = {
+					{ name = "Toucan_beak", center = { 0, 1.7517, -0.65 }, size = { 0.407, 0.5035, 1.307 } },
+				},
+				lod1 = { name = "Toucan_beak_lod1", center = { 0, 1.75, -0.65 }, size = { 0.4, 0.5, 1.3 } },
+			},
+		},
+	},
+	ToxicToad = {
+		assetId = 95780416696116,
+		textureId = 137590123758565,
+		rarity = "Rare",
+		gait = "hop",
+		height = 1.6,
+		size = { 1.8, 1.6, 1.4 },
+		tris = 13604,
+		trisLod1 = 1682,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0 },
+				meshes = {
+					{ name = "ToxicToad_body", center = { 0, 0.6018, 0.1 }, size = { 1.407, 1.0035, 1.207 } },
+				},
+				lod1 = { name = "ToxicToad_body_lod1", center = { 0, 0.6, 0.1 }, size = { 1.4, 1, 1.2 } },
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.864, -0.48 },
+				meshes = {
+					{
+						name = "ToxicToad_head",
+						center = { 0, 1.1477, -0.246 },
+						size = { 1.391, 0.8955, 0.899 },
+					},
+				},
+				lod1 = {
+					name = "ToxicToad_head_lod1",
+					center = { 0, 1.15, -0.25 },
+					size = { 1.4, 0.9, 0.9 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.552, 0.528, 0.288 },
+				meshes = {
+					{
+						name = "ToxicToad_legBL",
+						center = { -0.6478, 0.3018, 0.2 },
+						size = { 0.4955, 0.5875, 0.991 },
+					},
+				},
+				lod1 = {
+					name = "ToxicToad_legBL_lod1",
+					center = { -0.65, 0.3, 0.2 },
+					size = { 0.5, 0.6, 1 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.36, 0.336, -0.336 },
+				meshes = {
+					{
+						name = "ToxicToad_legFL",
+						center = { -0.5477, 0.204, -0.3978 },
+						size = { 0.2955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "ToxicToad_legFL_lod1",
+					center = { -0.55, 0.2, -0.4 },
+					size = { 0.3, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.552, 0.528, 0.288 },
+				meshes = {
+					{
+						name = "ToxicToad_legBR",
+						center = { 0.6478, 0.3018, 0.2 },
+						size = { 0.4955, 0.5875, 0.991 },
+					},
+				},
+				lod1 = { name = "ToxicToad_legBR_lod1", center = { 0.65, 0.3, 0.2 }, size = { 0.5, 0.6, 1 } },
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.36, 0.336, -0.336 },
+				meshes = {
+					{
+						name = "ToxicToad_legFR",
+						center = { 0.5477, 0.204, -0.3978 },
+						size = { 0.2955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "ToxicToad_legFR_lod1",
+					center = { 0.55, 0.2, -0.4 },
+					size = { 0.3, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.864, -0.48 },
+				meshes = {
+					{
+						name = "ToxicToad_eyes",
+						center = { 0, 1.4518, -0.45 },
+						size = { 0.607, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "ToxicToad_eyes_lod1",
+					center = { 0, 1.45, -0.45 },
+					size = { 0.6, 0.1, 0.1 },
+				},
+			},
+		},
+	},
+	TrikeHatchling = {
+		assetId = 75049706596514,
+		textureId = 119591762812436,
+		rarity = "Rare",
+		gait = "trot",
+		height = 1.5,
+		size = { 1.2, 1.5, 2.9 },
+		tris = 14480,
+		trisLod1 = 1526,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.05 },
+				meshes = {
+					{
+						name = "TrikeHatchling_body",
+						center = { 0, 0.8017, 0.05 },
+						size = { 0.807, 0.8035, 1.207 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_body_lod1",
+					center = { 0, 0.8, 0.05 },
+					size = { 0.8, 0.8, 1.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.272, 0.7, -0.334 },
+				meshes = {
+					{
+						name = "TrikeHatchling_legFL",
+						center = { -0.25, 0.354, -0.3 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_legFL_lod1",
+					center = { -0.25, 0.35, -0.3 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.272, 0.7, 0.426 },
+				meshes = {
+					{
+						name = "TrikeHatchling_legBL",
+						center = { -0.25, 0.354, 0.4 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_legBL_lod1",
+					center = { -0.25, 0.35, 0.4 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.272, 0.7, -0.334 },
+				meshes = {
+					{
+						name = "TrikeHatchling_legFR",
+						center = { 0.25, 0.354, -0.3 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_legFR_lod1",
+					center = { 0.25, 0.35, -0.3 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.272, 0.7, 0.426 },
+				meshes = {
+					{
+						name = "TrikeHatchling_legBR",
+						center = { 0.25, 0.354, 0.4 },
+						size = { 0.491, 0.692, 0.491 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_legBR_lod1",
+					center = { 0.25, 0.35, 0.4 },
+					size = { 0.5, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.808, -0.574 },
+				meshes = {
+					{
+						name = "TrikeHatchling_head",
+						center = { 0, 0.8518, -0.846 },
+						size = { 0.791, 0.6875, 0.999 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_head_lod1",
+					center = { 0, 0.85, -0.85 },
+					size = { 0.8, 0.7, 1 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.808, -0.574 },
+				meshes = {
+					{
+						name = "TrikeHatchling_eyes",
+						center = { 0, 1.0017, -0.95 },
+						size = { 0.607, 0.2035, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_eyes_lod1",
+					center = { 0, 1, -0.95 },
+					size = { 0.6, 0.2, 0.2 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.812, 0.666 },
+				meshes = {
+					{
+						name = "TrikeHatchling_tail",
+						center = { 0, 0.7057, 0.946 },
+						size = { 0.591, 0.5955, 0.999 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_tail_lod1",
+					center = { 0, 0.7, 0.95 },
+					size = { 0.6, 0.6, 1 },
+				},
+			},
+			{
+				name = "frill",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 1.048, -0.578 },
+				meshes = {
+					{
+						name = "TrikeHatchling_frill",
+						center = { 0, 1.2018, -0.4 },
+						size = { 1.207, 0.6035, 0.307 },
+					},
+					{
+						name = "TrikeHatchling_frill_plain",
+						center = { 0, 1.2, -0.4 },
+						size = { 1.2, 0.6, 0.1 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_frill_lod1",
+					center = { 0, 1.2, -0.4 },
+					size = { 1.2, 0.6, 0.3 },
+				},
+			},
+			{
+				name = "horns",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 1.096, -0.866 },
+				meshes = {
+					{
+						name = "TrikeHatchling_horns",
+						center = { 0, 1.0518, -1.1 },
+						size = { 0.607, 0.5035, 0.507 },
+					},
+					{
+						name = "TrikeHatchling_horns_plain",
+						center = { 0, 1.2, -1.35 },
+						size = { 0.6, 0.4, 0.2 },
+					},
+				},
+				lod1 = {
+					name = "TrikeHatchling_horns_lod1",
+					center = { 0, 1.1, -1.15 },
+					size = { 0.6, 0.6, 0.6 },
+				},
+			},
+		},
+	},
+	TwoHeadedTurtle = {
+		assetId = 76609443209113,
+		textureId = 102826682140039,
+		rarity = "Rare",
+		gait = "scuttle",
+		height = 1.1,
+		size = { 1.8, 1.1, 2 },
+		tris = 14096,
+		trisLod1 = 1754,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_body",
+						center = { 0, 0.3518, 0.25 },
+						size = { 1.207, 0.5035, 1.507 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_body_lod1",
+					center = { 0, 0.35, 0.25 },
+					size = { 1.2, 0.5, 1.5 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { -0.4, 0.864, -0.38 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_head",
+						center = { -0.5, 0.6018, -0.696 },
+						size = { 0.791, 0.5875, 0.599 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_head_lod1",
+					center = { -0.5, 0.6, -0.7 },
+					size = { 0.8, 0.6, 0.6 },
+				},
+			},
+			{
+				name = "shell",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0.1 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_shell",
+						center = { 0, 0.7017, 0.25 },
+						size = { 1.407, 0.8035, 1.507 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_shell_lod1",
+					center = { 0, 0.7, 0.25 },
+					size = { 1.4, 0.8, 1.5 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { -0.4, 0.864, -0.38 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_eyes",
+						center = { -0.6, 0.7517, -0.85 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_eyes_lod1",
+					center = { -0.6, 0.75, -0.85 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.6, 0.3, -0.1 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_legFL",
+						center = { -0.5978, 0.154, -0.1 },
+						size = { 0.1955, 0.292, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_legFL_lod1",
+					center = { -0.6, 0.15, -0.1 },
+					size = { 0.2, 0.3, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.6, 0.3, 0.8 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_legBL",
+						center = { -0.5978, 0.2018, 0.7477 },
+						size = { 0.1955, 0.3875, 0.2955 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_legBL_lod1",
+					center = { -0.6, 0.2, 0.75 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.6, 0.3, -0.1 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_legFR",
+						center = { 0.5978, 0.154, -0.1 },
+						size = { 0.1955, 0.292, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_legFR_lod1",
+					center = { 0.6, 0.15, -0.1 },
+					size = { 0.2, 0.3, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.6, 0.3, 0.8 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_legBR",
+						center = { 0.5978, 0.2018, 0.7477 },
+						size = { 0.1955, 0.3875, 0.2955 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_legBR_lod1",
+					center = { 0.6, 0.2, 0.75 },
+					size = { 0.2, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "head2",
+				anim = "head",
+				parent = "body",
+				pivot = { 0.4, 0.864, -0.38 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_head2",
+						center = { 0.5, 0.6018, -0.696 },
+						size = { 0.791, 0.5875, 0.599 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_head2_lod1",
+					center = { 0.5, 0.6, -0.7 },
+					size = { 0.8, 0.6, 0.6 },
+				},
+			},
+			{
+				name = "eyes2",
+				anim = "blink",
+				parent = "body",
+				pivot = { 0.4, 0.864, -0.38 },
+				meshes = {
+					{
+						name = "TwoHeadedTurtle_eyes2",
+						center = { 0.6, 0.7517, -0.85 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "TwoHeadedTurtle_eyes2_lod1",
+					center = { 0.6, 0.75, -0.85 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+		},
+	},
+	VampireBat = {
+		assetId = 132588817150478,
+		textureId = 118178002725970,
+		rarity = "Rare",
+		gait = "hover",
+		height = 1.7,
+		size = { 3.2, 1.7, 1.1 },
+		tris = 12516,
+		trisLod1 = 1392,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, -0.4, 0.05 },
+				meshes = {
+					{
+						name = "VampireBat_body",
+						center = { 0, 0.4017, 0.15 },
+						size = { 0.807, 0.8035, 0.607 },
+					},
+				},
+				lod1 = { name = "VampireBat_body_lod1", center = { 0, 0.4, 0.15 }, size = { 0.8, 0.8, 0.6 } },
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.656, -0.094 },
+				meshes = {
+					{
+						name = "VampireBat_head",
+						center = { 0, 0.8978, -0.196 },
+						size = { 0.791, 0.5955, 0.699 },
+					},
+				},
+				lod1 = { name = "VampireBat_head_lod1", center = { 0, 0.9, -0.2 }, size = { 0.8, 0.6, 0.7 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.656, -0.094 },
+				meshes = {
+					{
+						name = "VampireBat_eyes",
+						center = { 0, 1.0517, -0.35 },
+						size = { 0.607, 0.3035, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "VampireBat_eyes_lod1",
+					center = { 0, 1.05, -0.35 },
+					size = { 0.6, 0.3, 0.2 },
+				},
+			},
+			{
+				name = "ears",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 1.136, -0.094 },
+				meshes = {
+					{
+						name = "VampireBat_ears",
+						center = { 0, 1.3518, -0.0018 },
+						size = { 0.991, 0.6875, 0.3035 },
+					},
+				},
+				lod1 = { name = "VampireBat_ears_lod1", center = { 0, 1.35, 0 }, size = { 1, 0.7, 0.3 } },
+			},
+			{
+				name = "wingR",
+				anim = "wingR",
+				parent = "body",
+				pivot = { 0.264, 0.632, 0.122 },
+				meshes = {
+					{
+						name = "VampireBat_wingR",
+						center = { 0.946, 0.5978, 0.2 },
+						size = { 1.299, 0.7955, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "VampireBat_wingR_lod1",
+					center = { 0.95, 0.6, 0.2 },
+					size = { 1.3, 0.8, 0.3 },
+				},
+			},
+			{
+				name = "wingL",
+				anim = "wingL",
+				parent = "body",
+				pivot = { -0.264, 0.632, 0.122 },
+				meshes = {
+					{
+						name = "VampireBat_wingL",
+						center = { -0.946, 0.5978, 0.2 },
+						size = { 1.299, 0.7955, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "VampireBat_wingL_lod1",
+					center = { -0.95, 0.6, 0.2 },
+					size = { 1.3, 0.8, 0.3 },
+				},
+			},
+			{
+				name = "cape",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.752, 0.242 },
+				meshes = {
+					{
+						name = "VampireBat_cape",
+						center = { 0, 0.6018, 0.15 },
+						size = { 1.007, 1.2035, 0.807 },
+					},
+				},
+				lod1 = { name = "VampireBat_cape_lod1", center = { 0, 0.6, 0.15 }, size = { 1, 1.2, 0.8 } },
+			},
+		},
+	},
+	WindupMouse = {
+		assetId = 137248683159734,
+		textureId = 120179646399499,
+		rarity = "Rare",
+		gait = "trot",
+		height = 1.3,
+		size = { 0.8, 1.3, 2.1 },
+		tris = 6340,
+		trisLod1 = 656,
+		parts = {
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.2, 0.4, -0.35 },
+				meshes = {
+					{
+						name = "WindupMouse_legFR",
+						center = { 0.1977, 0.204, -0.3478 },
+						size = { 0.1955, 0.392, 0.1955 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_legFR_lod1",
+					center = { 0.2, 0.2, -0.35 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.2, 0.4, -0.35 },
+				meshes = {
+					{
+						name = "WindupMouse_legFL",
+						center = { -0.1977, 0.204, -0.3478 },
+						size = { 0.1955, 0.392, 0.1955 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_legFL_lod1",
+					center = { -0.2, 0.2, -0.35 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.2, 0.4, 0.25 },
+				meshes = {
+					{
+						name = "WindupMouse_legBR",
+						center = { 0.2, 0.204, 0.25 },
+						size = { 0.191, 0.392, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_legBR_lod1",
+					center = { 0.2, 0.2, 0.25 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.2, 0.4, 0.25 },
+				meshes = {
+					{
+						name = "WindupMouse_legBL",
+						center = { -0.2, 0.204, 0.25 },
+						size = { 0.191, 0.392, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_legBL_lod1",
+					center = { -0.2, 0.2, 0.25 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.25 },
+				meshes = {
+					{
+						name = "WindupMouse_body",
+						center = { 0, 0.5517, -0.1 },
+						size = { 0.607, 0.5035, 0.907 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_body_lod1",
+					center = { 0, 0.55, -0.1 },
+					size = { 0.6, 0.5, 0.9 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.696, -0.538 },
+				meshes = {
+					{
+						name = "WindupMouse_head",
+						center = { 0, 0.7518, -0.746 },
+						size = { 0.391, 0.4875, 0.599 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_head_lod1",
+					center = { 0, 0.75, -0.75 },
+					size = { 0.4, 0.5, 0.6 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.696, -0.538 },
+				meshes = {
+					{
+						name = "WindupMouse_eyes",
+						center = { 0, 0.8518, -0.8 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_eyes_lod1",
+					center = { 0, 0.85, -0.8 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 0.96, -0.634 },
+				meshes = {
+					{
+						name = "WindupMouse_ears",
+						center = { 0, 1.0517, -0.6 },
+						size = { 0.791, 0.2875, 0.091 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_ears_lod1",
+					center = { 0, 1.05, -0.6 },
+					size = { 0.8, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.456, 0.302 },
+				meshes = {
+					{
+						name = "WindupMouse_tail",
+						center = { 0, 0.3557, 0.646 },
+						size = { 0.191, 0.2955, 0.799 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_tail_lod1",
+					center = { 0, 0.35, 0.65 },
+					size = { 0.2, 0.3, 0.8 },
+				},
+			},
+			{
+				name = "key",
+				anim = "orbit",
+				parent = "body",
+				pivot = { 0, 0.8, 0 },
+				meshes = {
+					{
+						name = "WindupMouse_key",
+						center = { 0, 0.9478, 0.05 },
+						size = { 0.791, 0.6955, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "WindupMouse_key_lod1",
+					center = { 0, 0.95, 0.05 },
+					size = { 0.8, 0.7, 0.2 },
+				},
+			},
+		},
+	},
+	WitchKitten = {
+		assetId = 125162086944816,
+		textureId = 101324586934384,
+		rarity = "Rare",
+		gait = "trot",
+		height = 2.6,
+		size = { 1.2, 2.6, 2.4 },
+		tris = 14408,
+		trisLod1 = 1508,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.2 },
+				meshes = {
+					{
+						name = "WitchKitten_body",
+						center = { 0, 0.7017, -0.05 },
+						size = { 1.207, 0.8035, 1.107 },
+					},
+				},
+				lod1 = {
+					name = "WitchKitten_body_lod1",
+					center = { 0, 0.7, -0.05 },
+					size = { 1.2, 0.8, 1.1 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.4295, 0.4, -0.3423 },
+				meshes = {
+					{
+						name = "WitchKitten_legFR",
+						center = { 0.3478, 0.204, -0.2978 },
+						size = { 0.4955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "WitchKitten_legFR_lod1",
+					center = { 0.35, 0.2, -0.3 },
+					size = { 0.5, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.4295, 0.4, -0.3423 },
+				meshes = {
+					{
+						name = "WitchKitten_legFL",
+						center = { -0.3478, 0.204, -0.2978 },
+						size = { 0.4955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "WitchKitten_legFL_lod1",
+					center = { -0.35, 0.2, -0.3 },
+					size = { 0.5, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.45, 0.4, 0.4 },
+				meshes = {
+					{
+						name = "WitchKitten_legBR",
+						center = { 0.45, 0.204, 0.4 },
+						size = { 0.291, 0.392, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "WitchKitten_legBR_lod1",
+					center = { 0.45, 0.2, 0.4 },
+					size = { 0.3, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.45, 0.4, 0.4 },
+				meshes = {
+					{
+						name = "WitchKitten_legBL",
+						center = { -0.45, 0.204, 0.4 },
+						size = { 0.291, 0.392, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "WitchKitten_legBL_lod1",
+					center = { -0.45, 0.2, 0.4 },
+					size = { 0.3, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 1.004, -0.484 },
+				meshes = {
+					{
+						name = "WitchKitten_head",
+						center = { 0, 1.2058, -0.7 },
+						size = { 1.191, 0.7955, 0.991 },
+					},
+				},
+				lod1 = { name = "WitchKitten_head_lod1", center = { 0, 1.2, -0.7 }, size = { 1.2, 0.8, 1 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.004, -0.484 },
+				meshes = {
+					{
+						name = "WitchKitten_eyes",
+						center = { 0, 1.3518, -1 },
+						size = { 0.807, 0.3035, 0.207 },
+					},
+					{ name = "WitchKitten_eyes_plain", center = { 0, 1.35, -0.95 }, size = { 1, 0.3, 0.3 } },
+				},
+				lod1 = {
+					name = "WitchKitten_eyes_lod1",
+					center = { 0, 1.35, -0.95 },
+					size = { 1, 0.3, 0.3 },
+				},
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 1.772, -0.676 },
+				meshes = {
+					{
+						name = "WitchKitten_ears",
+						center = { 0, 1.7517, -0.6 },
+						size = { 1.191, 0.4875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "WitchKitten_ears_lod1",
+					center = { 0, 1.75, -0.6 },
+					size = { 1.2, 0.5, 0.2 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.816, 0.516 },
+				meshes = {
+					{
+						name = "WitchKitten_tail",
+						center = { -0.0023, 1.0017, 0.846 },
+						size = { 0.1955, 0.3875, 0.699 },
+					},
+				},
+				lod1 = { name = "WitchKitten_tail_lod1", center = { 0, 1, 0.85 }, size = { 0.2, 0.4, 0.7 } },
+			},
+			{
+				name = "hat",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 0, -0.2 },
+				meshes = {
+					{
+						name = "WitchKitten_hat",
+						center = { 0, 2.1018, -0.7 },
+						size = { 1.007, 1.0035, 1.007 },
+					},
+					{ name = "WitchKitten_hat_plain", center = { 0, 1.8, -0.75 }, size = { 0.6, 0.2, 0.7 } },
+				},
+				lod1 = { name = "WitchKitten_hat_lod1", center = { 0, 2.1, -0.7 }, size = { 1, 1, 1 } },
+			},
+		},
+	},
+	YarnKitten = {
+		assetId = 107140777114009,
+		textureId = 114546967950672,
+		rarity = "Rare",
+		gait = "trot",
+		height = 2.2,
+		size = { 1.2, 2.2, 2.9 },
+		tris = 14204,
+		trisLod1 = 2250,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.35 },
+				meshes = {
+					{
+						name = "YarnKitten_body",
+						center = { 0, 0.7518, -0.2 },
+						size = { 1.207, 0.9035, 1.307 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_body_lod1",
+					center = { 0, 0.75, -0.2 },
+					size = { 1.2, 0.9, 1.3 },
+				},
+			},
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.4295, 0.4, -0.4923 },
+				meshes = {
+					{
+						name = "YarnKitten_legFR",
+						center = { 0.3478, 0.204, -0.4477 },
+						size = { 0.4955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_legFR_lod1",
+					center = { 0.35, 0.2, -0.45 },
+					size = { 0.5, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.4295, 0.4, -0.4923 },
+				meshes = {
+					{
+						name = "YarnKitten_legFL",
+						center = { -0.3478, 0.204, -0.4477 },
+						size = { 0.4955, 0.392, 0.3955 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_legFL_lod1",
+					center = { -0.35, 0.2, -0.45 },
+					size = { 0.5, 0.4, 0.4 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.45, 0.4, 0.3 },
+				meshes = {
+					{
+						name = "YarnKitten_legBR",
+						center = { 0.45, 0.204, 0.3 },
+						size = { 0.291, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_legBR_lod1",
+					center = { 0.45, 0.2, 0.3 },
+					size = { 0.3, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.45, 0.4, 0.3 },
+				meshes = {
+					{
+						name = "YarnKitten_legBL",
+						center = { -0.45, 0.204, 0.3 },
+						size = { 0.291, 0.392, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_legBL_lod1",
+					center = { -0.45, 0.2, 0.3 },
+					size = { 0.3, 0.4, 0.3 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 1.104, -0.734 },
+				meshes = {
+					{
+						name = "YarnKitten_head",
+						center = { 0, 1.4018, -0.95 },
+						size = { 1.191, 0.9875, 0.991 },
+					},
+				},
+				lod1 = { name = "YarnKitten_head_lod1", center = { 0, 1.4, -0.95 }, size = { 1.2, 1, 1 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.104, -0.734 },
+				meshes = {
+					{
+						name = "YarnKitten_eyes",
+						center = { 0, 1.5517, -1.3 },
+						size = { 0.607, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_eyes_lod1",
+					center = { 0, 1.55, -1.3 },
+					size = { 0.6, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 1.872, -0.926 },
+				meshes = {
+					{
+						name = "YarnKitten_ears",
+						center = { 0, 1.9518, -0.9 },
+						size = { 1.191, 0.4875, 0.291 },
+					},
+				},
+				lod1 = {
+					name = "YarnKitten_ears_lod1",
+					center = { 0, 1.95, -0.9 },
+					size = { 1.2, 0.5, 0.3 },
+				},
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.816, 0.466 },
+				meshes = {
+					{
+						name = "YarnKitten_tail",
+						center = { 0, 0.9517, 0.946 },
+						size = { 0.391, 0.4875, 0.999 },
+					},
+				},
+				lod1 = { name = "YarnKitten_tail_lod1", center = { 0, 0.95, 0.95 }, size = { 0.4, 0.5, 1 } },
+			},
+		},
+	},
+	ZapMouse = {
+		assetId = 88239731937101,
+		textureId = 70821674858301,
+		rarity = "Rare",
+		gait = "trot",
+		height = 1.4,
+		size = { 1, 1.4, 2.1 },
+		tris = 7704,
+		trisLod1 = 736,
+		parts = {
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.2, 0.4, -0.25 },
+				meshes = {
+					{
+						name = "ZapMouse_legFR",
+						center = { 0.1977, 0.204, -0.2477 },
+						size = { 0.1955, 0.392, 0.1955 },
+					},
+				},
+				lod1 = {
+					name = "ZapMouse_legFR_lod1",
+					center = { 0.2, 0.2, -0.25 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.2, 0.4, -0.25 },
+				meshes = {
+					{
+						name = "ZapMouse_legFL",
+						center = { -0.1977, 0.204, -0.2477 },
+						size = { 0.1955, 0.392, 0.1955 },
+					},
+				},
+				lod1 = {
+					name = "ZapMouse_legFL_lod1",
+					center = { -0.2, 0.2, -0.25 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.2, 0.4, 0.35 },
+				meshes = {
+					{
+						name = "ZapMouse_legBR",
+						center = { 0.2, 0.204, 0.35 },
+						size = { 0.191, 0.392, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "ZapMouse_legBR_lod1",
+					center = { 0.2, 0.2, 0.35 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.2, 0.4, 0.35 },
+				meshes = {
+					{
+						name = "ZapMouse_legBL",
+						center = { -0.2, 0.204, 0.35 },
+						size = { 0.191, 0.392, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "ZapMouse_legBL_lod1",
+					center = { -0.2, 0.2, 0.35 },
+					size = { 0.2, 0.4, 0.2 },
+				},
+			},
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, -0.15 },
+				meshes = {
+					{ name = "ZapMouse_body", center = { 0, 0.5517, 0 }, size = { 0.607, 0.5035, 0.907 } },
+				},
+				lod1 = { name = "ZapMouse_body_lod1", center = { 0, 0.55, 0 }, size = { 0.6, 0.5, 0.9 } },
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 0.696, -0.438 },
+				meshes = {
+					{
+						name = "ZapMouse_head",
+						center = { 0, 0.7977, -0.646 },
+						size = { 0.591, 0.5955, 0.799 },
+					},
+				},
+				lod1 = { name = "ZapMouse_head_lod1", center = { 0, 0.8, -0.65 }, size = { 0.6, 0.6, 0.8 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.696, -0.438 },
+				meshes = {
+					{ name = "ZapMouse_eyes", center = { 0, 0.9018, -0.7 }, size = { 0.607, 0.2035, 0.107 } },
+				},
+				lod1 = { name = "ZapMouse_eyes_lod1", center = { 0, 0.9, -0.7 }, size = { 0.6, 0.2, 0.1 } },
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 0.96, -0.534 },
+				meshes = {
+					{
+						name = "ZapMouse_ears",
+						center = { 0, 1.2018, -0.45 },
+						size = { 0.991, 0.3875, 0.191 },
+					},
+				},
+				lod1 = { name = "ZapMouse_ears_lod1", center = { 0, 1.2, -0.45 }, size = { 1, 0.4, 0.2 } },
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 0.456, 0.402 },
+				meshes = {
+					{
+						name = "ZapMouse_tail",
+						center = { 0, 0.6018, 0.696 },
+						size = { 0.191, 0.5875, 0.699 },
+					},
+				},
+				lod1 = { name = "ZapMouse_tail_lod1", center = { 0, 0.6, 0.7 }, size = { 0.2, 0.6, 0.7 } },
+			},
+			{
+				name = "sparks",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 0, -0.15 },
+				meshes = {
+					{ name = "ZapMouse_sparks", center = { 0, 0.9517, 0 }, size = { 0.407, 0.3035, 0.507 } },
+				},
+				lod1 = { name = "ZapMouse_sparks_lod1", center = { 0, 0.95, 0 }, size = { 0.4, 0.3, 0.5 } },
+			},
+		},
+	},
+	ZebraFoal = {
+		assetId = 127717577074709,
+		textureId = 72765496525907,
+		rarity = "Rare",
+		gait = "trot",
+		height = 2.1,
+		size = { 0.8, 2.1, 1.7 },
+		tris = 7360,
+		trisLod1 = 916,
+		parts = {
+			{
+				name = "legFR",
+				anim = "legFR",
+				parent = "body",
+				pivot = { 0.3, 0.8, -0.05 },
+				meshes = {
+					{
+						name = "ZebraFoal_legFR",
+						center = { 0.2978, 0.454, -0.05 },
+						size = { 0.1955, 0.892, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "ZebraFoal_legFR_lod1",
+					center = { 0.3, 0.45, -0.05 },
+					size = { 0.2, 0.9, 0.2 },
+				},
+			},
+			{
+				name = "legFL",
+				anim = "legFL",
+				parent = "body",
+				pivot = { -0.3, 0.8, -0.05 },
+				meshes = {
+					{
+						name = "ZebraFoal_legFL",
+						center = { -0.2978, 0.454, -0.05 },
+						size = { 0.1955, 0.892, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "ZebraFoal_legFL_lod1",
+					center = { -0.3, 0.45, -0.05 },
+					size = { 0.2, 0.9, 0.2 },
+				},
+			},
+			{
+				name = "legBR",
+				anim = "legBR",
+				parent = "body",
+				pivot = { 0.3, 0.8, 0.65 },
+				meshes = {
+					{
+						name = "ZebraFoal_legBR",
+						center = { 0.2978, 0.5018, 0.65 },
+						size = { 0.1955, 0.9875, 0.191 },
+					},
+				},
+				lod1 = { name = "ZebraFoal_legBR_lod1", center = { 0.3, 0.5, 0.65 }, size = { 0.2, 1, 0.2 } },
+			},
+			{
+				name = "legBL",
+				anim = "legBL",
+				parent = "body",
+				pivot = { -0.3, 0.8, 0.65 },
+				meshes = {
+					{
+						name = "ZebraFoal_legBL",
+						center = { -0.2978, 0.5018, 0.65 },
+						size = { 0.1955, 0.9875, 0.191 },
+					},
+				},
+				lod1 = {
+					name = "ZebraFoal_legBL_lod1",
+					center = { -0.3, 0.5, 0.65 },
+					size = { 0.2, 1, 0.2 },
+				},
+			},
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.05 },
+				meshes = {
+					{
+						name = "ZebraFoal_body",
+						center = { 0, 0.9517, 0.15 },
+						size = { 0.607, 0.5035, 1.007 },
+					},
+				},
+				lod1 = { name = "ZebraFoal_body_lod1", center = { 0, 0.95, 0.15 }, size = { 0.6, 0.5, 1 } },
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 1.104, -0.214 },
+				meshes = {
+					{
+						name = "ZebraFoal_head",
+						center = { 0, 1.3478, -0.396 },
+						size = { 0.391, 0.8955, 0.899 },
+					},
+				},
+				lod1 = { name = "ZebraFoal_head_lod1", center = { 0, 1.35, -0.4 }, size = { 0.4, 0.9, 0.9 } },
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.104, -0.214 },
+				meshes = {
+					{
+						name = "ZebraFoal_eyes",
+						center = { 0, 1.8017, -0.55 },
+						size = { 0.407, 0.2035, 0.207 },
+					},
+				},
+				lod1 = { name = "ZebraFoal_eyes_lod1", center = { 0, 1.8, -0.55 }, size = { 0.4, 0.2, 0.2 } },
+			},
+			{
+				name = "ears",
+				anim = "ears",
+				parent = "head",
+				pivot = { 0, 1.824, -0.43 },
+				meshes = {
+					{
+						name = "ZebraFoal_ears",
+						center = { 0, 1.9518, -0.404 },
+						size = { 0.591, 0.2875, 0.099 },
+					},
+				},
+				lod1 = { name = "ZebraFoal_ears_lod1", center = { 0, 1.95, -0.4 }, size = { 0.6, 0.3, 0.1 } },
+			},
+			{
+				name = "tail",
+				anim = "tail",
+				parent = "body",
+				pivot = { 0, 1.056, 0.674 },
+				meshes = {
+					{
+						name = "ZebraFoal_tail",
+						center = { 0, 0.8017, 0.746 },
+						size = { 0.191, 0.5875, 0.199 },
+					},
+				},
+				lod1 = { name = "ZebraFoal_tail_lod1", center = { 0, 0.8, 0.75 }, size = { 0.2, 0.6, 0.2 } },
+			},
+		},
+	},
 	AmberAnt = {
 		assetId = 82440376720252,
 		textureId = 70788218051884,

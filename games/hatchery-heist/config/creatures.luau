@@ -424,7 +424,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Rare: 76 from the roster
+		-- Rare: 95 from the roster
 		AmethystMole = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Moonlit" } },
 		Angelfish = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Meadow" } },
 		AshBadger = {
@@ -585,6 +585,49 @@ return {
 			pools = { "Moonlit" },
 			element = "Glacial",
 		},
+		SnowLeopardCub = { rarity = "Rare", coinsPerSecond = 34, mountSpeed = 22, pools = { "Meadow" } },
+		Snowpuff = {
+			rarity = "Rare",
+			coinsPerSecond = 33,
+			mountSpeed = 22,
+			pools = { "Meadow" },
+			element = "Glacial",
+		},
+		Socktopus = { rarity = "Rare", coinsPerSecond = 26, mountSpeed = 22, pools = { "Meadow" } },
+		SparkFerret = {
+			rarity = "Rare",
+			coinsPerSecond = 19,
+			mountSpeed = 22,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
+		Sparkplug = {
+			rarity = "Rare",
+			coinsPerSecond = 34,
+			mountSpeed = 22,
+			pools = { "Meadow" },
+			element = "Storm",
+		},
+		StegoHatchling = { rarity = "Rare", coinsPerSecond = 26, mountSpeed = 22, pools = { "Moonlit" } },
+		Tarantula = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
+		TeapotTurtle = { rarity = "Rare", coinsPerSecond = 26, mountSpeed = 22, pools = { "Meadow" } },
+		TigerCub = { rarity = "Rare", coinsPerSecond = 29, mountSpeed = 22, pools = { "Meadow" } },
+		Toucan = { rarity = "Rare", coinsPerSecond = 33, mountSpeed = 22, pools = { "Meadow" } },
+		ToxicToad = { rarity = "Rare", coinsPerSecond = 25, mountSpeed = 22, pools = { "Moonlit" } },
+		TrikeHatchling = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Moonlit" } },
+		TwoHeadedTurtle = { rarity = "Rare", coinsPerSecond = 24, mountSpeed = 22, pools = { "Moonlit" } },
+		VampireBat = { rarity = "Rare", coinsPerSecond = 31, mountSpeed = 22, pools = { "Moonlit" } },
+		WindupMouse = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Moonlit" } },
+		WitchKitten = { rarity = "Rare", coinsPerSecond = 22, mountSpeed = 22, pools = { "Moonlit" } },
+		YarnKitten = { rarity = "Rare", coinsPerSecond = 18, mountSpeed = 22, pools = { "Meadow" } },
+		ZapMouse = {
+			rarity = "Rare",
+			coinsPerSecond = 33,
+			mountSpeed = 22,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
+		ZebraFoal = { rarity = "Rare", coinsPerSecond = 28, mountSpeed = 22, pools = { "Meadow" } },
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {
 			rarity = "Ultra Rare",
