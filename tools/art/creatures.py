@@ -1013,13 +1013,16 @@ ROSTER = legendaries.finish_existing(ROSTER) + legendaries.ROSTER
 ELEMENT.update(legendaries.ELEMENT)
 
 
-def build_all(detail=None):
-    """Every creature in the ROSTER. `detail` (rarity -> multiplier, default
-    1) builds a tier with more, smaller voxels at the same size in studs: the
-    Blender meshes use it (tools/art/blender), the in-game boxes do not.
-    Each creature's `voxel` is its studs per voxel."""
+def build_all(detail=None, only=None):
+    """Every creature in the ROSTER, or only the species named in `only`.
+    `detail` (rarity -> multiplier, default 1) builds a tier with more,
+    smaller voxels at the same size in studs: the Blender meshes use it
+    (tools/art/blender), the in-game boxes do not. Each creature's `voxel` is
+    its studs per voxel."""
     out = []
     for species, rarity, fn in ROSTER:
+        if only is not None and species not in only:
+            continue
         c = Creature(species, rarity)
         mult = (detail or {}).get(rarity, 1) * (FINER.get(species, 1) if detail is not None else 1)
         c.detail = mult

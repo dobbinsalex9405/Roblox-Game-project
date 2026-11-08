@@ -295,6 +295,26 @@
     {
      "kind": "nostrils",
      "color": "#2A2A34"
+    },
+    {
+     "kind": "draw",
+     "color": "#414150",
+     "part": "head",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -2,
+       12
+      ]
+     ],
+     "voxels": [
+      [
+       -1,
+       -2,
+       11
+      ]
+     ]
     }
    ]
   },
