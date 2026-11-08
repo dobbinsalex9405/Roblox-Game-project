@@ -2441,6 +2441,108 @@
    "textureId": 98002607560695,
    "textureType": "Image",
    "version": "1"
+  },
+  "GazelleFawn": {
+   "assetId": 88752312271878,
+   "textureId": 86621554591693,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GibbonBaby": {
+   "assetId": 80131008830851,
+   "textureId": 102028111787251,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GreyhoundPup": {
+   "assetId": 127473976983407,
+   "textureId": 110009185978409,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "HoneyBear": {
+   "assetId": 105047332331343,
+   "textureId": 113177092878310,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "HyenaPup": {
+   "assetId": 94699451696662,
+   "textureId": 97219125702474,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "KangarooJoey": {
+   "assetId": 106295627306225,
+   "textureId": 94714720346210,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Kookaburra": {
+   "assetId": 113002062673478,
+   "textureId": 111953978869510,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Lionfish": {
+   "assetId": 123404833213361,
+   "textureId": 130816191088780,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MaineCoonKitten": {
+   "assetId": 100266737537466,
+   "textureId": 101778535830866,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ManateeCalf": {
+   "assetId": 118704337430032,
+   "textureId": 92786322353831,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MuscovyDuckling": {
+   "assetId": 118487267938183,
+   "textureId": 76923428880010,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OrangutanBaby": {
+   "assetId": 133382380480453,
+   "textureId": 98450908270830,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OrigamiFrog": {
+   "assetId": 129764128309634,
+   "textureId": 118500356655037,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "PopcornHamster": {
+   "assetId": 138123752247147,
+   "textureId": 113096927871547,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "AngoraBunny": {
+   "assetId": 137342471959082,
+   "textureId": 91870302282196,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "AnteaterPup": {
+   "assetId": 75812533737915,
+   "textureId": 73426582237217,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "EmuChick": {
+   "assetId": 120806276662689,
+   "textureId": 71301494610468,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
