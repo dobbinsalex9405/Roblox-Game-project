@@ -2951,6 +2951,120 @@
    "textureId": 102816293634820,
    "textureType": "Image",
    "version": "1"
+  },
+  "DivingBeetle": {
+   "assetId": 111337741032116,
+   "textureId": 114418481687939,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Kiwi": {
+   "assetId": 107833455447743,
+   "textureId": 120319610406492,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OkapiCalf": {
+   "assetId": 128246281423809,
+   "textureId": 129403054343947,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Hornbill": {
+   "assetId": 80428713316866,
+   "textureId": 105740134426687,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Koi": {
+   "assetId": 92732656572927,
+   "textureId": 107523528231783,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "LunaMoth": {
+   "assetId": 74417544338697,
+   "textureId": 105597516855607,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MagmaSnail": {
+   "assetId": 94960786571624,
+   "textureId": 110237567032909,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MantaRay": {
+   "assetId": 128943788396013,
+   "textureId": 115890598782058,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MochiBunny": {
+   "assetId": 132019060129918,
+   "textureId": 79326242553314,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MoonJelly": {
+   "assetId": 118937107082607,
+   "textureId": 94659938157368,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MummyHamster": {
+   "assetId": 135729235625422,
+   "textureId": 109356874369246,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MuskOxCalf": {
+   "assetId": 106672162814837,
+   "textureId": 104629598633757,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Narwhal": {
+   "assetId": 87579084710270,
+   "textureId": 111442441887040,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OrchidMantis": {
+   "assetId": 100293360610374,
+   "textureId": 71687894634766,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Lampwick": {
+   "assetId": 119829475806701,
+   "textureId": 132154309392521,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "LionCub": {
+   "assetId": 123144566114957,
+   "textureId": 72191197768700,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MossPiglet": {
+   "assetId": 72999610571287,
+   "textureId": 114162743449236,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Mossling": {
+   "assetId": 115277868919588,
+   "textureId": 73922090628964,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Hummingbird": {
+   "assetId": 125158174105463,
+   "textureId": 95244090140921,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
