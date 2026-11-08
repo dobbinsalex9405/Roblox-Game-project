@@ -1054,7 +1054,9 @@
     {
      "kind": "longbeak",
      "color": "#F2E3C8"
-    }
+    },
+    {"kind": "draw", "color": "#1B1B2F", "part": "head", "build": "fine", "mirror": true, "voxels": [[-4, -4, 18], [-4, -3, 18], [-4, -3, 19], [-4, -4, 19, "#FFFFFF"]]},
+    {"kind": "draw", "color": "#F4F0EA", "part": "head", "mirror": true, "voxels": [[-3, -2, 8]]}
    ]
   },
   {

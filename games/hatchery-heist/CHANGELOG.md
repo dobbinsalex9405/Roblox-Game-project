@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the Orchid Mantis's petal legs match on both sides (the right
+  petals sat one voxel off the left ones), and the Kiwi has eyes.
 - Fix: the Egg Market odds signs keep their odds after you respawn (they went
   blank and the sign script errored after a death).
 - Creatures with a seventh pair of legs (the Pill Bug) walk with all of
