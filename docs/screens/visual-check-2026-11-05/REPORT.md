@@ -1454,3 +1454,17 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - It reads as red gummy candy with a soft white glow across the top of the head and back, plus a gloss highlight on the belly. No all-over Neon (`147-gummy.jpg`).
 - **Book:** the Gummy Bear card loads its new thumb `rbxassetid://88046073935611` and reads "Gummy Bear / Meadow Egg 1 in 4,673" (`147-book.jpg`).
 - **Unchanged:** Jelly Slime still has 53 Neon parts at a 4% share, texture 137461933932625, thumb 71245448240637. Will-o'-Wisp draws its mesh (14 MeshParts, 8% share), with "Will-o'-Wisp" on its label and Book card.
+
+## #148 @ 3c4a0a2 (go-live C2: 16 Commons, texture-id fix), built directly (head contains main 1b58711)
+
+**PASS.** The earlier head b192a78 was held by the verifier before any checks; nothing was recorded for it.
+- **Placed** (test panel): re-versioned **Cockatiel** and **HermitCrab**, new **Goldfish** and **Gumball**, plus **Firefly**.
+  - All are MeshPart creatures (5-11 MeshParts, 0 plain Parts). Each texture matches its config entry: Cockatiel 83681810766996, HermitCrab 106239098974597, Goldfish 85619388671207, Gumball 109876966772130, Firefly 136723435152263.
+  - **0 Neon on all five**, including Firefly (its lantern is solid yellow). 0.000 gap. They moved 1.0-5.6 studs in 6 s.
+  - Palettes match the Book thumbs: grey/yellow cockatiel, orange shell crab, gold goldfish, red gumball, black firefly with a yellow lantern (`148-five.jpg`). Gumball's card shows the same red ball (`148-book.jpg`).
+- **Book, Common tab:** 5/123. All **16** new cards have loaded pictures. Every image id equals its CreatureThumbs entry, and 0 labels are truncated. Twelve read "Meadow Egg 1 in 107", four "Basic Egg 1 in 55.4".
+- **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`148-phone-meadow.jpg`).
+  - **Basic:** Common 51 × "1.8039% · 1 in 55.4"; Uncommon 7 × 1 in 100; Rare "0.8011% · 1 in 125"; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
+  - **Meadow:** Common 72 × "0.9306% · **1 in 107**"; Uncommon 31 × "0.9999% · 1 in 100"; Rare 2 × "0.8503% · 1 in 118"; UR 13 × "0.0215% · 1 in 4,651"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
+  - The brief's "1 in 107.5" shows as "1 in 107". The game's formatter drops decimals from 100 up, as with 118 and 125, so this is consistent.
+- **Unchanged:** Gummy Bear (texture 133704092338001, 7 Neon, 5%) and Will-o'-Wisp (texture 87366348989616, 14 meshes, 8%) are as at #147.
