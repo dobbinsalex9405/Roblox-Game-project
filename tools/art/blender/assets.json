@@ -4834,6 +4834,74 @@
   "GlasswingButterfly": {
    "imageId": 96716805762958,
    "source": "fbf6e29dfd0f059d"
+  },
+  "AtlasMoth": {
+   "imageId": 104244740302005,
+   "source": "c5ce7066a0004b55"
+  },
+  "Bramblet": {
+   "imageId": 130432101226236,
+   "source": "c7712464f0fc24be"
+  },
+  "BreezeFinch": {
+   "imageId": 95238671812731,
+   "source": "9cdaca24cc2af672"
+  },
+  "CinderChick": {
+   "imageId": 70831097515513,
+   "source": "1e3f2536cd23715c"
+  },
+  "CobwebSpider": {
+   "imageId": 78585689873157,
+   "source": "24b47f403f966e31"
+  },
+  "CupcakeChick": {
+   "imageId": 111515946497769,
+   "source": "21db91f35f6689af"
+  },
+  "BubblePup": {
+   "imageId": 70722569989692,
+   "source": "bd8bd4abc648a73c"
+  },
+  "Bunnyfly": {
+   "imageId": 127217087284714,
+   "source": "15a2bf439f502747"
+  },
+  "CactusPup": {
+   "imageId": 123334066913368,
+   "source": "1f8d8fb11ffa1157"
+  },
+  "GorillaBaby": {
+   "imageId": 126173933966726,
+   "source": "9e64f046d30109dc"
+  },
+  "HippoCalf": {
+   "imageId": 89216867694301,
+   "source": "7a59c7fad7fc9829"
+  },
+  "HoneypotAnt": {
+   "imageId": 79203032372719,
+   "source": "1858c1f1dc4acad7"
+  },
+  "Glowworm": {
+   "imageId": 111566152365771,
+   "source": "6730343df6eacd7f"
+  },
+  "GumdropSlug": {
+   "imageId": 126042809562518,
+   "source": "6cb8dbe25f09bec5"
+  },
+  "Hoverfly": {
+   "imageId": 89754589113237,
+   "source": "06896df4a421cb9d"
+  },
+  "GhostMoth": {
+   "imageId": 83586584165174,
+   "source": "a8774a39a5c791d8"
+  },
+  "GlowMouse": {
+   "imageId": 86057919672475,
+   "source": "b7646c08e1c761a7"
   }
  }
 }
