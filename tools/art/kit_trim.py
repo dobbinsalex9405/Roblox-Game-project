@@ -429,5 +429,36 @@ def kitten_face(c, H, col=None, col2=None, a=None):
         ears.v = new
 
 
+def spot_coat(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a spotted coat drawn by hand where the coarse
+    build's pattern (an ocelot's rosettes) would cost too many boxes or run
+    into one dark block. "clear": the parts whose dark pattern is painted
+    over in their own colour first; "spots": [part, x, y, z] voxels painted
+    `color`. A spot on a voxel the part does not have is left out and
+    printed, so a kit change shows up instead of drawing in the air."""
+    if getattr(c, 'fine', False):
+        return
+    a = a or {}
+    parts = {p.name: p for p in c.parts}
+    for name in a.get('clear', []):
+        p = parts.get(name)
+        if not p or not p.v:
+            continue
+        count = {}
+        for val in p.v.values():
+            count[val] = count.get(val, 0) + 1
+        base = max(count, key=lambda k: (count[k], k))
+        for v, val in list(p.v.items()):
+            if not val[1] and _darkness(val[0]) < _darkness(base[0]) - 40:
+                p.v[v] = base
+    for name, x, y, z in a.get('spots', []):
+        p = parts.get(name)
+        if p and (x, y, z) in p.v:
+            p.v[(x, y, z)] = (col, False)
+        else:
+            print(f'spot_coat: {c.species}: no {name} voxel at {(x, y, z)}', file=sys.stderr)
+
+
 ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes,
-               'kitten_face': kitten_face}
+               'kitten_face': kitten_face,
+               'spot_coat': spot_coat}

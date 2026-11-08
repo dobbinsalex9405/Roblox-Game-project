@@ -1,8 +1,8 @@
 """kit_trim: a creature over its tier's box budget gets the
 smallest mirrored edits that bring its in-game boxes inside it (trim_boxes),
 or a plainer stand-in for a part that costs too many (pad_legs, jaw_band,
-plain_boxes),
-and its finer Blender build (the reviewed mesh) is never touched.
+plain_boxes, kitten_face, spot_coat), and its finer Blender build (the
+reviewed mesh) is never touched.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import contextlib
@@ -286,6 +286,33 @@ class Thin(unittest.TestCase):
         self.assertGreaterEqual(left, dark - dark // 2)
         self.assertLess(left, dark)
         self.assertLess(drawn(c)[0], start)
+
+
+class SpotCoat(unittest.TestCase):
+    def cat(self, fine=False):
+        c = Creature('SpotTest', 'Uncommon')
+        c.fine = fine
+        body = c.part('body', 'static')
+        for x in range(-2, 2):
+            for y in range(0, 4):
+                body.put((x, y, 2), SPOT if (x + y) % 2 else SAND)
+        return c, body
+
+    def test_the_pattern_is_cleared_and_only_the_listed_spots_are_dark(self):
+        c, body = self.cat()
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            kit_trim.spot_coat(c, 10, INK, a={'clear': ['body'],
+                                              'spots': [['body', -2, 0, 2], ['body', 1, 3, 2], ['body', 9, 9, 9]]})
+        dark = {v for v, val in body.v.items() if val[0] != SAND}
+        self.assertEqual(dark, {(-2, 0, 2), (1, 3, 2)})
+        self.assertTrue(all(body.v[v] == (INK, False) for v in dark))
+        self.assertIn('(9, 9, 9)', err.getvalue())  # a spot off the part is reported, not drawn
+
+    def test_the_fine_build_keeps_its_coat(self):
+        c, body = self.cat(fine=True)
+        before = dict(body.v)
+        kit_trim.spot_coat(c, 10, INK, a={'clear': ['body'], 'spots': [['body', -2, 0, 2]]})
+        self.assertEqual(before, body.v)
 
 
 if __name__ == '__main__':
