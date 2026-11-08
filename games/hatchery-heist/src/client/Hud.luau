@@ -274,9 +274,17 @@ function Hud.start(ctx: Context.Context)
 				title.Enabled = false
 			end
 			local sg: SurfaceGui? = signGuis[sign]
+			-- A sign GUI that has been destroyed (or lost its Holder) is
+			-- rebuilt rather than drawn into (respawn bug, Nov 8).
+			if sg and (sg.Parent == nil or sg:FindFirstChild("Holder") == nil) then
+				sg:Destroy()
+				sg = nil
+			end
 			if sg == nil then
 				local g = Instance.new("SurfaceGui")
 				g.Name = `Odds{sign.Name}`
+				-- Survive respawns: the client keeps this GUI and draws into it.
+				g.ResetOnSpawn = false
 				g.Face = Enum.NormalId.Front
 				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 				g.PixelsPerStud = pps
