@@ -418,8 +418,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Rare: 2 from the roster
-		AmethystMole = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Moonlit" } },
+		-- Rare: 1 from the roster
 		CinnamonSnail = { rarity = "Rare", coinsPerSecond = 34, mountSpeed = 22, pools = { "Meadow" } },
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {

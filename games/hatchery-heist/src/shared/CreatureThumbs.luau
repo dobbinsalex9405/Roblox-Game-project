@@ -13,7 +13,6 @@ local CreatureThumbs: { [string]: number } = {
 	Acornling = 71052356526210,
 	AlleyCat = 135008956948334,
 	AmberAnt = 78323878001596,
-	AmethystMole = 78160826005827,
 	AngoraBunny = 82923743940008,
 	Ant = 89349945839007,
 	AnteaterPup = 119975907884158,

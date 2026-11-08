@@ -477,5 +477,4 @@ SphynxKitten
 SprinkleMouse
 ThornyDevil
 SeaBunny
-AmethystMole
 CinnamonSnail
