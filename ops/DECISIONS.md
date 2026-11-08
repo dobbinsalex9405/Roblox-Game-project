@@ -17,6 +17,12 @@ Non-obvious choices, newest first, so a later session can trust them.
   screened before any upload is spent. It also holds a creature whose
   stand-in has a part with no way back to the body, where export.py would
   stop (HerculesBeetle and ClockworkBeetle name their body "shell").
+- A stand-in piece that touches nothing else, not even at an edge or corner,
+  holds a creature back too (GorillaBaby's head box floated one row above
+  its head; Scorpion's stinger and a PomPom fur voxel did the same). Parts
+  named orbit, bubble, motes, rain or cloud float on purpose and pass. A
+  creature already live is reported ("live, kept") and never dropped; its
+  fix is a roster patch.
 
 ## 2026-11-08: Legendary stand-ins fit their box budget in code
 

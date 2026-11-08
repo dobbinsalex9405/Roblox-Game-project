@@ -1,6 +1,8 @@
 """to_config.art_problems: every rule a creature breaks is reported, not only
 the first, and the Blender build (the reviewed mesh) may not glow below
-Ultra Rare either, since the game draws a mesh's glowing voxels as neon.
+Ultra Rare either, since the game draws a mesh's glowing voxels as neon. A
+stand-in piece that touches nothing (bar LOOSE_PARTS) holds a new creature
+back, and is only reported for a live one.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import os
@@ -18,12 +20,12 @@ BROWN, PINK = (150, 110, 80), (255, 227, 238)
 
 
 def stripes(rarity, n, glow=False):
-    """A creature whose in-game build is exactly n boxes: n one-voxel posts in
-    alternating colours, a voxel apart. With glow, the first post glows."""
+    """A creature whose in-game build is exactly n boxes: a row of n voxels in
+    alternating colours, all touching. With glow, the first voxel glows."""
     c = Creature('ConfigTest', rarity)
     body = c.part('body', 'static')
     for i in range(n):
-        body.put((2 * i, 0, 0), BROWN if i % 2 else (90, 60, 40), glow and i == 0)
+        body.put((i, 0, 0), BROWN if i % 2 else (90, 60, 40), glow and i == 0)
     return c
 
 
@@ -66,10 +68,32 @@ class Problems(unittest.TestCase):
         shell = c.part('shell', 'static')
         head = c.part('head', 'static')
         for i in range(30):
-            shell.put((2 * i, 0, 0), BROWN if i % 2 else (90, 60, 40))
+            shell.put((i, 0, 0), BROWN if i % 2 else (90, 60, 40))
         head.put((0, -1, 0), BROWN)
         why = to_config.art_problems(c)
         self.assertEqual(why, ['stand-in parts: part shell has a parent loop or a missing parent (body)'])
+
+    def test_a_detached_piece_is_held(self):
+        c = stripes('Rare', 30)
+        c.part('tail', 'static').put((40, 0, 0), BROWN)
+        why = to_config.art_problems(c)
+        self.assertEqual(why, ['detached stand-in piece (1): tail at (40, 0, 0)'])
+
+    def test_a_corner_touch_is_attached(self):
+        c = stripes('Rare', 30)
+        c.part('tail', 'static').put((30, 1, 1), BROWN)
+        self.assertEqual(to_config.art_problems(c), [])
+
+    def test_loose_parts_may_float(self):
+        c = stripes('Rare', 30)
+        for name in sorted(to_config.LOOSE_PARTS):
+            c.part(name, 'static').put((40 + 2 * len(c.parts), 0, 0), BROWN)
+        self.assertEqual(to_config.art_problems(c), [])
+
+    def test_a_live_creature_with_a_detached_piece_is_kept(self):
+        why = [to_config.DETACHED + ' (1): tail at (40, 0, 0)', '61 voxel boxes, Rare budget is 60']
+        self.assertEqual(to_config.hold_reasons('Llama', list(why), {'Llama'}), why[1:])
+        self.assertEqual(to_config.hold_reasons('NewOne', list(why), {'Llama'}), why)
 
     def test_ultra_rare_and_up_may_glow(self):
         self.assertEqual(to_config.art_problems(stripes('Ultra Rare', 60, glow=True), fine('Ultra Rare', 5)), [])
