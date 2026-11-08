@@ -46085,6 +46085,121 @@ local CreatureMeshes: { [string]: Creature } = {
 			},
 		},
 	},
+	GorillaBaby = {
+		assetId = 74404843604901,
+		textureId = 102816293634820,
+		rarity = "Rare",
+		gait = "waddle",
+		height = 2.1,
+		size = { 2, 2.1, 0.9 },
+		tris = 14420,
+		trisLod1 = 1534,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.05 },
+				meshes = {
+					{
+						name = "GorillaBaby_body",
+						center = { 0, 0.7518, 0.05 },
+						size = { 2.007, 1.5035, 0.807 },
+					},
+				},
+				lod1 = { name = "GorillaBaby_body_lod1", center = { 0, 0.75, 0.05 }, size = { 2, 1.5, 0.8 } },
+			},
+			{
+				name = "legL",
+				anim = "legL",
+				parent = "body",
+				pivot = { -0.264, 0.628, 0.146 },
+				meshes = {
+					{
+						name = "GorillaBaby_legL",
+						center = { -0.2522, 0.304, 0.15 },
+						size = { 0.4955, 0.592, 0.591 },
+					},
+				},
+				lod1 = {
+					name = "GorillaBaby_legL_lod1",
+					center = { -0.25, 0.3, 0.15 },
+					size = { 0.5, 0.6, 0.6 },
+				},
+			},
+			{
+				name = "legR",
+				anim = "legR",
+				parent = "body",
+				pivot = { 0.264, 0.628, 0.146 },
+				meshes = {
+					{
+						name = "GorillaBaby_legR",
+						center = { 0.2522, 0.304, 0.15 },
+						size = { 0.4955, 0.592, 0.591 },
+					},
+				},
+				lod1 = {
+					name = "GorillaBaby_legR_lod1",
+					center = { 0.25, 0.3, 0.15 },
+					size = { 0.5, 0.6, 0.6 },
+				},
+			},
+			{
+				name = "head",
+				anim = "head",
+				parent = "body",
+				pivot = { 0, 1.488, 0.05 },
+				meshes = {
+					{
+						name = "GorillaBaby_head",
+						center = { 0, 1.7477, -0.05 },
+						size = { 0.791, 0.6955, 0.791 },
+					},
+				},
+				lod1 = {
+					name = "GorillaBaby_head_lod1",
+					center = { 0, 1.75, -0.05 },
+					size = { 0.8, 0.7, 0.8 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 1.488, 0.05 },
+				meshes = {
+					{
+						name = "GorillaBaby_eyes",
+						center = { 0, 1.8518, -0.2 },
+						size = { 0.607, 0.3035, 0.307 },
+					},
+				},
+				lod1 = {
+					name = "GorillaBaby_eyes_lod1",
+					center = { 0, 1.85, -0.2 },
+					size = { 0.6, 0.3, 0.3 },
+				},
+			},
+			{
+				name = "banana",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0.05 },
+				meshes = {
+					{
+						name = "GorillaBaby_banana",
+						center = { 0.8, 0.5018, -0.35 },
+						size = { 0.407, 0.8035, 0.207 },
+					},
+				},
+				lod1 = {
+					name = "GorillaBaby_banana_lod1",
+					center = { 0.8, 0.5, -0.35 },
+					size = { 0.4, 0.8, 0.2 },
+				},
+			},
+		},
+	},
 	HerculesBeetle = {
 		assetId = 135391670472192,
 		textureId = 87743082157511,

@@ -2945,6 +2945,12 @@
    "textureId": 95181978600770,
    "textureType": "Image",
    "version": "1"
+  },
+  "GorillaBaby": {
+   "assetId": 74404843604901,
+   "textureId": 102816293634820,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
