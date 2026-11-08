@@ -1,6 +1,7 @@
 """kit_trim: a creature over its tier's box budget gets the
 smallest mirrored edits that bring its in-game boxes inside it (trim_boxes),
-or a plainer stand-in for a part that costs too many (pad_legs, jaw_band),
+or a plainer stand-in for a part that costs too many (pad_legs, jaw_band,
+plain_boxes),
 and its finer Blender build (the reviewed mesh) is never touched.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
@@ -153,6 +154,65 @@ class JawBand(unittest.TestCase):
         before = dict(h.v)
         kit_trim.jaw_band(c, 10)
         self.assertEqual(before, h.v)
+
+
+SHADE, FLUFF, SPOT = (239, 233, 224), (255, 255, 255), (90, 58, 36)
+
+
+def pup(fine=False):
+    """A four-legged body the game carves its legs out of (rig.split_legs):
+    a ragged two-shade coat, one dark spot on each flank, four 1x1 feet."""
+    c = Creature('PupTest', 'Uncommon')
+    c.fine = fine
+    body = c.part('body', 'static')
+    for x in range(-2, 2):
+        for y in range(0, 6):
+            for z in range(1, 4):
+                body.put((x, y, z), FLUFF if (x * 7 + y * 3 + z) % 4 == 0 else SHADE)
+    for x in (-3, 2):
+        for y in (1, 3):
+            body.put((x, y, 2), SHADE)  # tufts
+        body.put((x, 4, 3), SPOT)
+    for x, y in ((-2, 0), (1, 0), (-2, 5), (1, 5)):
+        body.put((x, y, 0), SHADE)
+    return c
+
+
+def drawn(c):
+    import copy
+
+    import rig
+    from voxkit import Part
+    d = copy.deepcopy(c)
+    rig.split_legs(d, Part)
+    return sum(kit_trim._boxes(p.v) for p in d.parts), sorted(p.name for p in d.parts if p.name.startswith('leg'))
+
+
+class PlainBoxes(unittest.TestCase):
+    def test_a_busy_coat_comes_inside_the_budget(self):
+        c = pup()
+        start, legs = drawn(c)
+        with contextlib.redirect_stderr(io.StringIO()):
+            kit_trim.plain_boxes(c, 10, a={'budget': start - 4, 'parts': ['body']})
+        after, legs_after = drawn(c)
+        self.assertLessEqual(after, start - 4)
+        self.assertEqual(legs, legs_after)  # four legs still walk
+        cols = {v[0] for v in c.parts[0].v.values()}
+        self.assertIn(SPOT, cols)  # a pattern more than a shade off is kept
+        self.assertNotIn(FLUFF, cols)  # a shade off the coat is merged
+
+    def test_no_edit_cuts_a_foot_off(self):
+        c = pup()
+        start, legs = drawn(c)
+        with contextlib.redirect_stderr(io.StringIO()):
+            kit_trim.trim_boxes(c, 10, a={'budget': 1, 'parts': ['body']})
+        self.assertEqual(legs, drawn(c)[1])
+
+    def test_the_fine_build_keeps_its_coat(self):
+        c = pup(fine=True)
+        before = dict(c.parts[0].v)
+        kit_trim.plain_boxes(c, 10, a={'budget': 1, 'parts': ['body']})
+        self.assertEqual(before, c.parts[0].v)
 
 
 if __name__ == '__main__':
