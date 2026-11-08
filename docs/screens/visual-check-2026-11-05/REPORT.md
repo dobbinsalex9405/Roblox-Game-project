@@ -1668,3 +1668,39 @@ Screens:
 - pr154-standins-strider-dragon.jpg, pr154-standin-dragon-close.jpg
 - pr154-desktop-book-uncommon.jpg
 - pr154-restricted-basic-card.jpg
+
+## #155 at 5259402 (market odds signs survive a respawn): PASS
+
+I built the head directly because it contains main 8b65854. The diff:
+- Hud sign SurfaceGuis get ResetOnSpawn = false.
+- A cached sign gui with no Parent or no Holder is rebuilt.
+- GuideView's YourBaseLabel and GuideArrow get ResetOnSpawn = false.
+
+I played solo in Studio at desktop 1350x672. I reset the character twice through the real menu (Esc, R, Enter), and both times a new Character spawned.
+
+**Market signs (8 Odds* SurfaceGuis, signSeconds = 4)**
+
+| When | Signs healthy (parent, Holder, adornee, enabled) | Text changed |
+|---|---|---|
+| Before resets | 8/8 | 8/8 in 9 s |
+| After reset 1 | 8/8 | 0/8 in that 9 s window |
+| After reset 2 | 8/8 | 8/8 in 9 s, then 8/8 in each of six 5 s windows |
+
+The 0 after reset 1 is the cycle period, not a stall. The signs rotate through 3 eggs, so a window holding 3 ticks lands on the same page; sign 3 showed Moonlit both times. Every 5 s window changes.
+
+Screens a and b were taken 4 s apart after reset 2: "Basic Egg · 50 / Epic 1 in 5,556 / Legendary 1 in 50,000", then "Moonlit Egg · 15K / Legendary 1 in 12,500 / Godly 1 in 52,632".
+
+**Output.** There are no OddsView or Hud errors:
+- The console after both resets showed only the usual DataStore and 203785492 lines.
+- LogService history has 0 lines containing OddsView, Hud or ClearAllChildren.
+
+Later in the session my own camera snippet pointed at a Folder and spammed "Position is not a valid member" from AssistantCommand. That is mine, not the game's.
+
+**After the resets**
+- The HUD updates (coins, rate, GOAL).
+- The Book opens with tabs and cards.
+- The Shop opens on the Coins tab; I closed it with X.
+- The Feedback form opens (Bug, Idea, Other, stars, text); I closed it with X without submitting.
+- GuideArrow (above Stop1) and YourBaseLabel (Plot1 Sign) are both Enabled and on screen. The yellow guide arrow is visible over the market.
+
+Screens: pr155-sign-after-2-resets-a.jpg, -b.jpg, pr155-book-after-resets.jpg, pr155-shop-after-resets.jpg, pr155-feedback-after-resets.jpg, pr155-guide-arrow-after-resets.jpg.
