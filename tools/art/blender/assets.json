@@ -2892,12 +2892,6 @@
    "textureType": "Image",
    "version": "1"
   },
-  "GorillaBaby": {
-   "assetId": 89121350501365,
-   "textureId": 111794018200745,
-   "textureType": "Image",
-   "version": "1"
-  },
   "HippoCalf": {
    "assetId": 139552768150629,
    "textureId": 95912819992570,
@@ -4870,10 +4864,6 @@
   "CactusPup": {
    "imageId": 123334066913368,
    "source": "1f8d8fb11ffa1157"
-  },
-  "GorillaBaby": {
-   "imageId": 126173933966726,
-   "source": "9e64f046d30109dc"
   },
   "HippoCalf": {
    "imageId": 89216867694301,

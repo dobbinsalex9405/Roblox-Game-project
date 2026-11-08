@@ -497,7 +497,6 @@ BreezeFinch
 CinderChick
 CobwebSpider
 CupcakeChick
-GorillaBaby
 HippoCalf
 GhostMoth
 GlowMouse
