@@ -407,3 +407,12 @@ RedPanda
 RingtailLemur
 Rooster
 Salamander
+Sandpiper
+SeaUrchin
+SheepdogPup
+ShetlandPony
+Shrew
+Silkworm
+Sloth
+StagBeetle
+SugarGlider
