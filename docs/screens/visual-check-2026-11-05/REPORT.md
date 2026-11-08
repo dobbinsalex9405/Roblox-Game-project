@@ -1610,3 +1610,61 @@ PillBug, untrimmed, has 13 boxes and 0 asymmetric voxels.
 **Output.** There are no game script errors. The one error is my own inspection snippet (AssistantCommand GetPivot on a Folder), which the client error reporter also logged.
 
 Screens: pr153-voxel-standins.jpg, pr153-desktop-pillbug.jpg, -pads.jpg, -stickinsect.jpg, -frog-aphid-wombat.jpg, -book-aphid.jpg, -book-stick-frog.jpg, pr153-phone-odds-basic.jpg, -meadow.jpg.
+
+## #154 at 2050c97 (batch 7: 13 Uncommons + WaterStrider, BeardedDragon): PASS
+
+I built the head directly because it contains base f77e904f. I also made a restricted build at the same sha with the PolicyService call patched to ArePaidRandomItemsRestricted = true. The patch was build-only, then reset, never committed. I played solo in Studio, phone 844x392 and desktop 1350x672.
+
+**Odds at phone size.** I read the HUD odds card and every row of the "See every creature" list. No label fails TextFits, and the smallest text is 13.6 px on the card and 14.4 px in the list.
+
+| Egg | Rows | Sum | Common | Uncommon | Other tiers |
+|---|---|---|---|---|---|
+| Basic | 85 | 100.0000% | 71 × "1.2958% · 1 in 77.2" | 10 × "0.7000% · 1 in 143" | Rare "0.7982% · 1 in 125" |
+| Meadow | 187 | 100.0000% | 124 × "0.5403% · 1 in 185" | 41 × "0.7561% · 1 in 132" | Rare 2 × 0.8517% |
+| Moonlit | 139 | 100.0000% | | | |
+
+The 3 new Basic Uncommons are BulldogPup, ChihuahuaPup and FrizzleChick. The other 10 new Uncommons and WaterStrider are in Meadow, and BeardedDragon is in Basic.
+
+**Hatching from both eggs, normal build.** I bought eggs with coins from the conveyor (E on the Buy prompt) and hatched them with E at each incubator. The reveals read:
+- Basic: Calf "1 in 77.2", Hamster "1 in 77.2", Lovebird "1 in 77.2".
+- Meadow: Banana Slug "1 in 185", Jerboa (UNCOMMON) "+7 coins/s · 1 in 132".
+
+All placed on pads and earn, and income rose with every placement. No new species came up from 5 random rolls, which is expected at these odds, so I gave all 15 from the test panel. They needed floors 2 and 3, which I built for 25K and 75K coins.
+
+**The 15 new creatures**
+- All 15 render as MeshParts with 0 visible boxes and 0 Neon.
+- Every TextureID equals assets.json (checked all 15 in a script), and every texture and mesh fetch is Success. First fetches logged "being generated", then loaded.
+- Every one walks: 1.4 to 6.3 studs in 6 s.
+- On the ground, the lowest mesh corner sits 0.00 to 0.05 above the pad surface under each creature (raycast).
+- BlueTang, Clownfish and BelugaCalf show a model bounding box 0.36 to 0.60 below the pad. Their lowest part corner is +0.03 to +0.05 above it, and the existing Cuttlefish reads the same (-0.53 box, +0.04 part). So this is the tilted model pivot, not sinking.
+- BelugaCalf has gait "hover" but rests on the pad (+0.05), unlike Butterfly (+0.45). This is cosmetic only.
+
+**Voxel stand-ins.** I drew the VoxelArt boxes as Parts, as the fallback would.
+- WaterStrider: 28 boxes. Pale-blue CFEFFF disc feet (3x1x3) on dark bar legs, one 26-connected solid, mirror-symmetric.
+- BeardedDragon: 29 boxes. A dark B07A3E band runs the full width of the jaw (row y2 at z=-2.5 reads "DDDDDD", with a cheek flare), plus dark spines. One solid, mirror-symmetric.
+
+**Book.** It reads "Found 23/407" with Common at 8/195 and Uncommon at 15/54. I scrolled the virtualized grids, and all 15 new cards are IsLoaded with ids equal to CreatureThumbs.
+- Uncommons: each reads "Meadow Egg 1 in 132" or "Basic Egg 1 in 143".
+- WaterStrider: "Meadow Egg 1 in 185".
+- BeardedDragon: "Basic Egg 1 in 77.2".
+
+**Restricted fixed order.**
+- The Basic card reads "Fixed order, no chance: Beagle Pup NEXT / Bearded Dragon in 2 eggs / Bunny in 3 eggs".
+- I bought 3 Basic eggs (into incubators 1, 2 and 3) and hatched them. The outcome follows purchase order: egg 1 is Beagle Pup, egg 2 is Bearded Dragon, egg 3 is Bunny.
+- Reveals show no odds text.
+
+**Feedback.** CoreFeedback.FeedbackButton is present and visible in every screenshot.
+
+**Output.** There are no errors from this PR. One pre-existing client error showed once on the normal build, after I reset my character (Health 0) to free it from the tower doorway:
+
+`OddsView:387: attempt to index nil with 'ClearAllChildren'` (Hud renderBoard)
+
+Hud caches the market-sign SurfaceGuis in signGuis. They are parented to PlayerGui with the default ResetOnSpawn = true, so a respawn destroys them and renderSign then gets a nil Holder. This has been on main since f37d1b0 (11-05), and the PR does not touch Hud.
+
+Screens:
+- pr154-phone-odds-basic.jpg, -meadow.jpg
+- pr154-phone-hatch-calf.jpg, -jerboa.jpg
+- pr154-desktop-bluetang.jpg
+- pr154-standins-strider-dragon.jpg, pr154-standin-dragon-close.jpg
+- pr154-desktop-book-uncommon.jpg
+- pr154-restricted-basic-card.jpg
