@@ -26,6 +26,9 @@ the ROSTER, so a new Common needs no code. One entry:
   hover, swim). Left out, rig.py guesses it from the plan, kind and legs.
 - **glow**: `"glow": true` on a pattern or accessory makes the voxels it
   painted or added glow (emissive in the meshes, lit in the game).
+  `"glow": false` on the creature itself turns every glow off (rule k: no
+  glow below Ultra Rare): the voxels keep their colour as a plain, solid
+  colour and a part that pulsed only to glow stands still.
 
 More plans and accessories live in kit modules: every `kit_*.py` next to
 this file is imported, and its `PLANS` ({plan: (colours, options)}),
@@ -109,13 +112,15 @@ def check(entry, where):
         raise RosterError(f'{where}: {msg}')
 
     allowed = {'id', 'rarity', 'plan', 'colors', 'options', 'shape', 'patterns', 'accessories', 'element', 'gait',
-               'note'}
+               'note', 'glow'}
     for key in entry:
         if key not in allowed:
             bad(f'unknown field "{key}" (fields: {", ".join(sorted(allowed))})')
     sid = entry.get('id')
     if not isinstance(sid, str) or not ID.match(sid):
         bad(f'id "{sid}" must be CamelCase letters and digits, like "GoatKid"')
+    if entry.get('glow', False) is not False:
+        bad(f'{sid}: glow on a creature can only be false (it turns every glow off)')
     if entry.get('rarity') not in RARITIES:
         bad(f'{sid}: rarity must be one of {RARITIES}')
     if 'gait' in entry and entry['gait'] not in GAITS:
@@ -416,9 +421,26 @@ def builder(entry):
             c.gait_hint = entry['gait']  # the sheet's gait wins over one a body plan set
         if entry.get('id') not in EYE_CONTRAST_KEEP:
             eye_contrast(c)
+        if entry.get('glow') is False:
+            _no_glow(c)
         return c
 
     return build
+
+
+def _no_glow(c):
+    """Every voxel keeps its colour but stops glowing, and a part that
+    pulsed only because it glowed stands still. The Blender meshes keep the
+    voxels that glowed flat and greedy-merged, as they were, so a creature's
+    triangles stay about where they were (voxmesh.part_meshes)."""
+    for p in c.parts:
+        was = {q for q, (_, g) in p.v.items() if g}
+        for q in was:
+            p.v[q] = (p.v[q][0], False)
+        if was:
+            p.unglowed = was  # the meshes keep these flat, as they were (voxmesh)
+        if p.anim == 'glow':
+            p.anim = 'static'
 
 
 class _glowing:

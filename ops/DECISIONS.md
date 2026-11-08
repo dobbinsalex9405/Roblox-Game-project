@@ -2,6 +2,16 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: Rule k is a roster switch and a test
+
+- No creature below Ultra Rare glows. A creature that does gets `"glow": false`
+  on its roster entry (variants.py): its colours stay, as plain solid colour,
+  and a part that pulsed only to glow stands still. The switch beats any
+  `"glow": true` on its patterns or accessories, so kit code stays shared.
+- tools/art/tests/test_no_glow.py builds every creature at mesh detail and as
+  the in-game stand-in and fails on any glow below Ultra Rare. Both builds are
+  checked because they can differ (MuskOxCalf glowed only in the stand-in).
+
 ## 2026-11-08: CI reuses a passed creature-art export check
 
 - The art-export step is skipped when a pass is cached under the hash of its

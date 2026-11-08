@@ -170,7 +170,7 @@ def _dot(a, b):
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 
 
-def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False, contact=()):
+def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False, contact=(), keep_at=None):
     """Flat faces (no pillow) for the visible skin of `vox` ({(x, y, z):
     (rgb, glow)}), with neighbouring faces of one colour on one plane merged
     into rectangles (greedy meshing). keep(rgb, glow) picks which voxels get
@@ -181,7 +181,17 @@ def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False
     kept, so the mesh is a closed shell. Glow meshes need it: Roblox's
     importer drops an open one-voxel slab (glowing paw soles at ground level
     vanished from four uploaded creatures). Those faces sit against the solid
-    mesh, which leaves its own face there out, so nothing new shows."""
+    mesh, which leaves its own face there out, so nothing new shows.
+
+    keep_at(voxel) picks voxels by position instead (step 1 only)."""
+    if keep_at is not None:
+        def kept(p):
+            return keep_at(p)
+    elif keep is not None:
+        def kept(p):
+            return keep(*grid[p])
+    else:
+        kept = None
     if step > 1:
         blocks = {}
         for p, col in vox.items():
@@ -198,9 +208,9 @@ def flat_mesh(vox, centre, voxel, cell_of, name, keep=None, step=1, closed=False
         planes = {}
         for p, col in grid.items():
             q = (p[0] + n[0], p[1] + n[1], p[2] + n[2])
-            if q in grid and not (closed and keep and not keep(*grid[q])):
+            if q in grid and not (closed and kept and not kept(q)):
                 continue
-            if keep and not keep(*col):
+            if kept and not kept(p):
                 continue
             # a face against the part's own solid voxels (closed) or what it
             # rests on (contact) stays put in an inset, so the glow still
@@ -268,10 +278,13 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=(), contact=(
     Glowing and solid voxels of one part close against each other (a glow
     voxel hides the solid face beside it), so the part reads as one solid
     piece; only the outer skin is made."""
+    plain = getattr(part, 'unglowed', ())  # see the end
     solid_faces = []
     glow_faces = {}
     for p, d, inner, rims in pillow_faces(part.v, flat):
         rgb, glow = part.v[p]
+        if p in plain:
+            continue  # meshed flat below
         t = tone_of(p, d)
         item = (p, d, inner, rims, rgb, glow, t)
         if glow:
@@ -304,6 +317,13 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=(), contact=(
 
     if solid_faces:
         chunked('solid', None, part.name, solid_faces)
+    # Voxels that glowed before rule k turned their glow off (variants
+    # "glow": false) keep the flat, greedy-merged faces they had as glow, as a
+    # plain solid mesh: the same shape and about the same triangles, no Neon.
+    if plain:
+        m = flat_mesh(part.v, centre, voxel, cell_of, f'{part.name}_plain',
+                      keep_at=lambda q: q in plain, closed=True, contact=contact)
+        out.append(('solid', None, m))
     # Glow meshes are drawn as Neon, which shows no shading, so their pillows
     # would be invisible: they are flat and greedy-merged instead.
     for k, rgb in enumerate(sorted(glow_faces)):

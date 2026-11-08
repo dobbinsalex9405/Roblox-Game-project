@@ -3,6 +3,7 @@
  "creatures": [
   {
    "id": "Mossling",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -25,6 +26,7 @@
   },
   {
    "id": "TeapotTurtle",
+   "glow": false,
    "rarity": "Rare",
    "plan": "blob",
    "gait": "scuttle",
@@ -45,6 +47,7 @@
   },
   {
    "id": "Lampwick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -62,6 +65,7 @@
   },
   {
    "id": "BubblePup",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hover",
@@ -93,6 +97,7 @@
   },
   {
    "id": "Snowpuff",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -110,6 +115,7 @@
   },
   {
    "id": "Sparkplug",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -127,6 +133,7 @@
   },
   {
    "id": "CactusPup",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -192,6 +199,7 @@
   },
   {
    "id": "YarnKitten",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -220,6 +228,7 @@
   },
   {
    "id": "Bramblet",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -242,6 +251,7 @@
   },
   {
    "id": "PomPom",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -269,6 +279,7 @@
   },
   {
    "id": "MochiBunny",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hop",
@@ -300,6 +311,7 @@
   },
   {
    "id": "PancakeFrog",
+   "glow": false,
    "rarity": "Rare",
    "plan": "blob",
    "gait": "hop",
@@ -348,6 +360,7 @@
   },
   {
    "id": "DonutSeal",
+   "glow": false,
    "rarity": "Rare",
    "plan": "shore",
    "gait": "hop",
@@ -376,6 +389,7 @@
   },
   {
    "id": "CupcakeChick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -453,6 +467,7 @@
   },
   {
    "id": "Bunnyfly",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hover",
@@ -478,6 +493,7 @@
   },
   {
    "id": "Ducktopus",
+   "glow": false,
    "rarity": "Rare",
    "plan": "octopus",
    "gait": "scuttle",
@@ -493,6 +509,7 @@
   },
   {
    "id": "ToxicToad",
+   "glow": false,
    "rarity": "Rare",
    "plan": "blob",
    "gait": "hop",
@@ -512,6 +529,7 @@
   },
   {
    "id": "TwoHeadedTurtle",
+   "glow": false,
    "rarity": "Rare",
    "plan": "blob",
    "gait": "scuttle",
@@ -535,6 +553,7 @@
   },
   {
    "id": "Rabbeetle",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hop",
@@ -565,6 +584,7 @@
   },
   {
    "id": "Crocoduck",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -597,6 +617,7 @@
   },
   {
    "id": "Slugcorn",
+   "glow": false,
    "rarity": "Rare",
    "plan": "critter",
    "gait": "slither",
@@ -621,6 +642,7 @@
   },
   {
    "id": "SparkFerret",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -651,6 +673,7 @@
   },
   {
    "id": "CinderChick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -680,6 +703,7 @@
   },
   {
    "id": "FrostKitten",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -708,6 +732,7 @@
   },
   {
    "id": "MossPiglet",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -745,6 +770,7 @@
   },
   {
    "id": "RainSnail",
+   "glow": false,
    "rarity": "Rare",
    "plan": "blob",
    "gait": "slither",
@@ -766,6 +792,7 @@
   },
   {
    "id": "MagmaSnail",
+   "glow": false,
    "rarity": "Rare",
    "plan": "blob",
    "gait": "slither",
@@ -786,6 +813,7 @@
   },
   {
    "id": "SnowLamb",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -814,6 +842,7 @@
   },
   {
    "id": "PetalBunny",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hop",
@@ -849,6 +878,7 @@
   },
   {
    "id": "ZapMouse",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -883,6 +913,7 @@
   },
   {
    "id": "AshBadger",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -911,6 +942,7 @@
   },
   {
    "id": "FrostHamster",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -931,6 +963,7 @@
   },
   {
    "id": "BreezeFinch",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "hover",
@@ -956,6 +989,7 @@
   },
   {
    "id": "Ghostling",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hover",
@@ -971,6 +1005,7 @@
   },
   {
    "id": "WitchKitten",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -1010,6 +1045,7 @@
   },
   {
    "id": "MummyHamster",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -1041,6 +1077,7 @@
   },
   {
    "id": "WindupMouse",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -1063,6 +1100,7 @@
   },
   {
    "id": "RoboPup",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -1099,6 +1137,7 @@
   },
   {
    "id": "VampireBat",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bat",
    "gait": "hover",
