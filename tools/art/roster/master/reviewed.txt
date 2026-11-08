@@ -437,7 +437,6 @@ DartFrog
 DingoPup
 FrizzleChick
 GazelleFawn
-GibbonBaby
 GreyhoundPup
 HoneyBear
 HyenaPup
@@ -447,7 +446,6 @@ Lionfish
 MaineCoonKitten
 ManateeCalf
 MuscovyDuckling
-OrangutanBaby
 OrigamiFrog
 PopcornHamster
 AngoraBunny

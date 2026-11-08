@@ -2448,12 +2448,6 @@
    "textureType": "Image",
    "version": "1"
   },
-  "GibbonBaby": {
-   "assetId": 80131008830851,
-   "textureId": 102028111787251,
-   "textureType": "Image",
-   "version": "1"
-  },
   "GreyhoundPup": {
    "assetId": 127473976983407,
    "textureId": 110009185978409,
@@ -2505,12 +2499,6 @@
   "MuscovyDuckling": {
    "assetId": 118487267938183,
    "textureId": 76923428880010,
-   "textureType": "Image",
-   "version": "1"
-  },
-  "OrangutanBaby": {
-   "assetId": 133382380480453,
-   "textureId": 98450908270830,
    "textureType": "Image",
    "version": "1"
   },
@@ -4179,10 +4167,6 @@
    "imageId": 120812719596643,
    "source": "f1347b03e81c7fda"
   },
-  "GibbonBaby": {
-   "imageId": 70615126181316,
-   "source": "1833d31d7cf0c055"
-  },
   "GreyhoundPup": {
    "imageId": 131578249465670,
    "source": "a4f10e9e94844a31"
@@ -4218,10 +4202,6 @@
   "MuscovyDuckling": {
    "imageId": 100755162881683,
    "source": "9528d62c64b46e3a"
-  },
-  "OrangutanBaby": {
-   "imageId": 109887713074960,
-   "source": "506bf9d3437499dd"
   },
   "OrigamiFrog": {
    "imageId": 93297507641097,
