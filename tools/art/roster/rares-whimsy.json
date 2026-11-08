@@ -1574,6 +1574,101 @@
      "kind": "wildsparks",
      "color": "#FFE01A",
      "color2": "#5CE8FF"
+    },
+    {
+     "kind": "draw",
+     "color": "#F4F4FA",
+     "part": "head",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -6,
+       5
+      ],
+      [
+       -1,
+       -6,
+       4
+      ]
+     ],
+     "voxels": [
+      [
+       -2,
+       -5,
+       4
+      ],
+      [
+       -2,
+       -5,
+       5
+      ],
+      [
+       -2,
+       -4,
+       4
+      ],
+      [
+       -2,
+       -4,
+       5
+      ],
+      [
+       -1,
+       -6,
+       5
+      ],
+      [
+       -1,
+       -6,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F4F4FA",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       3
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -5,
+       6
+      ]
+     ],
+     "voxels": [
+      [
+       -2,
+       -5,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "voxels": [
+      [
+       0,
+       -7,
+       3
+      ]
+     ]
     }
    ],
    "shape": {
