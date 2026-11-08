@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fix: 16 creatures no longer have bits floating off them in the blocky
+  look shown while their models load (Llama's and Meerkat's heads, Paper
+  Crane's head and tail, BabyKraken's arms, Star Deer's antlers, Ember
+  Imp's horns and ten tails); their models are unchanged.
 - Fix: the Egg Market odds signs keep their odds after you respawn (they went
   blank and the sign script errored after a death).
 - Creatures with a seventh pair of legs (the Pill Bug) walk with all of
