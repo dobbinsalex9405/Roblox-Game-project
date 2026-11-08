@@ -2,6 +2,16 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: CI's main job gets 45 minutes, not 20
+
+- **Main's CI on go-live batch 7 (#154) was cancelled by the 20-minute job
+  limit** in the player's-eye audit, with every earlier step green. C6 had
+  finished in 19.5 minutes; each batch adds creatures to the art export
+  (about 9 minutes now) and the audit, so every later batch would hit it.
+- **45 minutes leaves room for the remaining go-live batches.** A real hang
+  still ends the run. If a run nears 35 minutes, split the job rather than
+  raise the limit again.
+
 ## 2026-11-07: Commons go in game at 31 boxes or fewer (Hatchery Heist)
 
 - **`to_config.py` holds a Common back above 31 in-game boxes**, not the
