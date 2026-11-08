@@ -328,4 +328,65 @@ def plain_boxes(c, H, col=None, col2=None, a=None):
     trim_boxes(c, H, a={'budget': budget, 'parts': names})
 
 
-ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes}
+def kitten_face(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a small cat's face that reads at a glance.
+    At this size the coarse build's eye row can run into one dark band
+    (a spot or a dark voxel between the eyes, read as sunglasses), and its
+    ears into one ridge of 3-4 spikes (read as a flame). So:
+      - every head voxel between the two eyes, on the eyes' row, and any
+        darker one touching an eye, takes the head's own colour, so the eyes
+        stand apart and no stripe runs into one (an eye patch);
+      - the ears become two, one on each top corner of the head: a nub one
+        voxel high, or with "ears": "step" a two-wide base and a tip on its
+        outer column."""
+    if getattr(c, 'fine', False):
+        return
+    parts = {p.name: p for p in c.parts}
+    head, eyes, ears = parts.get('head'), parts.get('eyes'), parts.get('ears')
+    if not head or not head.v:
+        return
+    count = {}
+    for val in head.v.values():
+        count[val] = count.get(val, 0) + 1
+    base = max(count, key=lambda k: (count[k], k))
+    if eyes and len(eyes.v) >= 2:
+        z = min(v[2] for v in eyes.v)
+        ex = sorted({v[0] for v in eyes.v if v[2] == z})
+        lo, hi = ex[0], ex[-1]
+        for v in list(head.v):
+            if v[2] == z and lo < v[0] < hi and v not in eyes.v:
+                head.v[v] = base
+        # nothing darker than the head touches an eye, even corner to corner:
+        # a stripe or spot running into an eye reads as an eye patch
+        ring = {(x + dx, y + dy, zz + dz) for (x, y, zz) in eyes.v
+                for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1)}
+        for v in ring & set(head.v):
+            if head.v[v] != base and _darkness(head.v[v][0]) < _darkness(base[0]) and not head.v[v][1]:
+                head.v[v] = base
+    if ears and ears.v:
+        hx = [v[0] for v in head.v]
+        left, right = min(hx), max(hx)
+        ys = [v[1] for v in ears.v]
+        zs = [v[2] for v in ears.v]
+        y = max(set(ys), key=lambda k: (ys.count(k), -k))
+        tone = max(set(ears.v.values()), key=lambda k: (list(ears.v.values()).count(k), k))
+        top = max(v[2] for v in head.v if v[0] in (left, right))
+        z0 = max(min(zs), top + 1)
+        new = {}
+        if (a or {}).get('ears') == 'step':
+            # a two-wide base on each top corner and a tip on its outer column
+            for x, inner in ((left, left + 1), (right, right - 1)):
+                new[(x, y, z0)] = tone
+                new[(inner, y, z0)] = tone
+                new[(x, y, z0 + 1)] = tone
+        else:
+            # a nub on each top corner, one voxel high and two deep, so the
+            # top centre stays flat on a head only four voxels wide
+            for x in (left, right):
+                new[(x, y, z0)] = tone
+                new[(x, y + 1, z0)] = tone
+        ears.v = new
+
+
+ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes,
+               'kitten_face': kitten_face}

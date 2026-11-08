@@ -215,5 +215,59 @@ class PlainBoxes(unittest.TestCase):
         self.assertEqual(before, c.parts[0].v)
 
 
+class KittenFace(unittest.TestCase):
+    def kitten(self, fine=False):
+        c = Creature('KitTest', 'Uncommon')
+        c.fine = fine
+        h = c.part('head', 'static')
+        for x in range(-2, 2):
+            for y in range(-4, -1):
+                for z in range(4, 8):
+                    h.put((x, y, z), SAND)
+        h.put((-1, -4, 6), SPOT)  # a spot between the eyes
+        h.put((0, -4, 6), INK)  # a dark voxel between them
+        e = c.part('eyes', 'static')
+        e.put((-2, -4, 6), INK)
+        e.put((1, -4, 6), INK)
+        ears = c.part('ears', 'static')
+        for x in range(-2, 3):
+            ears.put((x, -2, 8), SAND)
+        ears.put((-1, -2, 9), SAND)
+        ears.put((1, -2, 9), SAND)
+        return c, h, ears
+
+    def test_two_eyes_with_the_head_colour_between(self):
+        c, h, _ = self.kitten()
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual(h.v[(-1, -4, 6)], (SAND, False))
+        self.assertEqual(h.v[(0, -4, 6)], (SAND, False))
+
+    def test_two_nub_ears_at_the_corners_and_a_flat_top(self):
+        c, _, ears = self.kitten()
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual({v[0] for v in ears.v}, {-2, 1})
+        self.assertEqual({v[2] for v in ears.v}, {8})  # one voxel above the head
+
+    def test_stepped_ears_tip_on_the_outer_column(self):
+        c, _, ears = self.kitten()
+        kit_trim.kitten_face(c, 10, a={'ears': 'step'})
+        self.assertEqual({v[0] for v in ears.v if v[2] == 9}, {-2, 1})
+        self.assertEqual({v[0] for v in ears.v if v[2] == 8}, {-2, -1, 0, 1})
+
+    def test_no_stripe_touches_an_eye(self):
+        c, h, _ = self.kitten()
+        h.put((-2, -4, 5), SPOT)  # a cheek stripe under the eye
+        h.put((-2, -4, 4), SPOT)
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual(h.v[(-2, -4, 5)], (SAND, False))
+        self.assertEqual(h.v[(-2, -4, 4)], (SPOT, False))  # the rest of it stays
+
+    def test_the_fine_build_keeps_its_face(self):
+        c, h, ears = self.kitten(fine=True)
+        before = (dict(h.v), dict(ears.v))
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual(before, (h.v, ears.v))
+
+
 if __name__ == '__main__':
     unittest.main()
