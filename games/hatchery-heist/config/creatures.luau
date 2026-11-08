@@ -423,7 +423,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Rare: 36 from the roster
+		-- Rare: 38 from the roster
 		AmethystMole = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Moonlit" } },
 		Angelfish = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Meadow" } },
 		AshBadger = {
@@ -469,6 +469,7 @@ return {
 			element = "Ember",
 		},
 		CinnamonSnail = { rarity = "Rare", coinsPerSecond = 34, mountSpeed = 22, pools = { "Meadow" } },
+		ClockworkBeetle = { rarity = "Rare", coinsPerSecond = 29, mountSpeed = 22, pools = { "Moonlit" } },
 		CobwebSpider = { rarity = "Rare", coinsPerSecond = 15, mountSpeed = 22, pools = { "Moonlit" } },
 		Crocoduck = { rarity = "Rare", coinsPerSecond = 31, mountSpeed = 22, pools = { "Moonlit" } },
 		CupcakeChick = { rarity = "Rare", coinsPerSecond = 29, mountSpeed = 22, pools = { "Meadow" } },
@@ -499,6 +500,7 @@ return {
 		GilaMonster = { rarity = "Rare", coinsPerSecond = 29, mountSpeed = 22, pools = { "Meadow" } },
 		GiraffeCalf = { rarity = "Rare", coinsPerSecond = 15, mountSpeed = 22, pools = { "Meadow" } },
 		GlasswingButterfly = { rarity = "Rare", coinsPerSecond = 31, mountSpeed = 22, pools = { "Meadow" } },
+		HerculesBeetle = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
 		HippoCalf = { rarity = "Rare", coinsPerSecond = 31, mountSpeed = 22, pools = { "Meadow" } },
 		HoneypotAnt = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
 		Owlcat = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "Moonlit" } },

@@ -2933,6 +2933,18 @@
    "textureId": 126628320005752,
    "textureType": "Image",
    "version": "1"
+  },
+  "HerculesBeetle": {
+   "assetId": 135391670472192,
+   "textureId": 87743082157511,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ClockworkBeetle": {
+   "assetId": 116445973151412,
+   "textureId": 95181978600770,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",

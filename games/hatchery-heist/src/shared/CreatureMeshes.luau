@@ -42822,6 +42822,211 @@ local CreatureMeshes: { [string]: Creature } = {
 			},
 		},
 	},
+	ClockworkBeetle = {
+		assetId = 116445973151412,
+		textureId = 95181978600770,
+		rarity = "Rare",
+		gait = "scuttle",
+		height = 1.9,
+		size = { 1.6, 1.9, 1.8 },
+		tris = 11420,
+		trisLod1 = 1288,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_body",
+						center = { 0, 0.1517, 0.2 },
+						size = { 0.807, 0.1035, 0.807 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_body_lod1",
+					center = { 0, 0.15, 0.2 },
+					size = { 0.8, 0.1, 0.8 },
+				},
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.816, -0.48 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_head",
+						center = { 0, 0.5517, -0.646 },
+						size = { 0.591, 0.6875, 0.499 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_head_lod1",
+					center = { 0, 0.55, -0.65 },
+					size = { 0.6, 0.7, 0.5 },
+				},
+			},
+			{
+				name = "shell",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_shell",
+						center = { 0, 0.6018, 0.2 },
+						size = { 1.207, 0.8035, 1.407 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_shell_lod1",
+					center = { 0, 0.6, 0.2 },
+					size = { 1.2, 0.8, 1.4 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.816, -0.48 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_eyes",
+						center = { 0, 0.5517, -0.75 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_eyes_lod1",
+					center = { 0, 0.55, -0.75 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "leg1L",
+				anim = "leg1L",
+				parent = "body",
+				pivot = { -0.35, 0.3, -0.15 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_leg1L",
+						center = { -0.446, 0.1557, -0.15 },
+						size = { 0.299, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_leg1L_lod1",
+					center = { -0.45, 0.15, -0.15 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg2L",
+				anim = "leg2L",
+				parent = "body",
+				pivot = { -0.45, 0.3, 0.25 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_leg2L",
+						center = { -0.596, 0.1557, 0.25 },
+						size = { 0.399, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_leg2L_lod1",
+					center = { -0.6, 0.15, 0.25 },
+					size = { 0.4, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg3L",
+				anim = "leg3L",
+				parent = "body",
+				pivot = { -0.35, 0.3, 0.65 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_leg3L",
+						center = { -0.446, 0.1557, 0.646 },
+						size = { 0.299, 0.2955, 0.099 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_leg3L_lod1",
+					center = { -0.45, 0.15, 0.65 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg1R",
+				anim = "leg1R",
+				parent = "body",
+				pivot = { 0.35, 0.3, -0.15 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_leg1R",
+						center = { 0.446, 0.1557, -0.15 },
+						size = { 0.299, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_leg1R_lod1",
+					center = { 0.45, 0.15, -0.15 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg2R",
+				anim = "leg2R",
+				parent = "body",
+				pivot = { 0.45, 0.3, 0.25 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_leg2R",
+						center = { 0.596, 0.1557, 0.25 },
+						size = { 0.399, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_leg2R_lod1",
+					center = { 0.6, 0.15, 0.25 },
+					size = { 0.4, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg3R",
+				anim = "leg3R",
+				parent = "body",
+				pivot = { 0.35, 0.3, 0.65 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_leg3R",
+						center = { 0.446, 0.1557, 0.646 },
+						size = { 0.299, 0.2955, 0.099 },
+					},
+				},
+				lod1 = {
+					name = "ClockworkBeetle_leg3R_lod1",
+					center = { 0.45, 0.15, 0.65 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "gear",
+				anim = "orbit",
+				parent = "head",
+				pivot = { 0, 1, 0.35 },
+				meshes = {
+					{
+						name = "ClockworkBeetle_gear",
+						center = { 0, 1.3978, 0.3 },
+						size = { 0.391, 0.9955, 0.991 },
+					},
+				},
+				lod1 = { name = "ClockworkBeetle_gear_lod1", center = { 0, 1.4, 0.3 }, size = { 0.4, 1, 1 } },
+			},
+		},
+	},
 	CobwebSpider = {
 		assetId = 111764318698825,
 		textureId = 137628229044228,
@@ -45876,6 +46081,215 @@ local CreatureMeshes: { [string]: Creature } = {
 					name = "GlasswingButterfly_legR_lod1",
 					center = { 0.15, 0.25, 0.05 },
 					size = { 0.1, 0.5, 0.1 },
+				},
+			},
+		},
+	},
+	HerculesBeetle = {
+		assetId = 135391670472192,
+		textureId = 87743082157511,
+		rarity = "Rare",
+		gait = "scuttle",
+		height = 1.3,
+		size = { 1.6, 1.3, 2.9 },
+		tris = 12064,
+		trisLod1 = 1172,
+		parts = {
+			{
+				name = "body",
+				anim = "body",
+				pivot = { 0, 0, 0.55 },
+				meshes = {
+					{
+						name = "HerculesBeetle_body",
+						center = { 0, 0.1517, 0.75 },
+						size = { 0.807, 0.1035, 0.807 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_body_lod1",
+					center = { 0, 0.15, 0.75 },
+					size = { 0.8, 0.1, 0.8 },
+				},
+			},
+			{
+				name = "head",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0.816, 0.07 },
+				meshes = {
+					{
+						name = "HerculesBeetle_head",
+						center = { 0, 0.6058, -0.096 },
+						size = { 0.591, 0.7955, 0.499 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_head_lod1",
+					center = { 0, 0.6, -0.1 },
+					size = { 0.6, 0.8, 0.5 },
+				},
+			},
+			{
+				name = "shell",
+				anim = "static",
+				parent = "body",
+				pivot = { 0, 0, 0.55 },
+				meshes = {
+					{
+						name = "HerculesBeetle_shell",
+						center = { 0, 0.5517, 0.75 },
+						size = { 1.207, 0.7035, 1.407 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_shell_lod1",
+					center = { 0, 0.55, 0.75 },
+					size = { 1.2, 0.7, 1.4 },
+				},
+			},
+			{
+				name = "eyes",
+				anim = "blink",
+				parent = "head",
+				pivot = { 0, 0.816, 0.07 },
+				meshes = {
+					{
+						name = "HerculesBeetle_eyes",
+						center = { 0, 0.5517, -0.2 },
+						size = { 0.407, 0.1035, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_eyes_lod1",
+					center = { 0, 0.55, -0.2 },
+					size = { 0.4, 0.1, 0.1 },
+				},
+			},
+			{
+				name = "leg1L",
+				anim = "leg1L",
+				parent = "body",
+				pivot = { -0.35, 0.3, 0.4 },
+				meshes = {
+					{
+						name = "HerculesBeetle_leg1L",
+						center = { -0.446, 0.1557, 0.4 },
+						size = { 0.299, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_leg1L_lod1",
+					center = { -0.45, 0.15, 0.4 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg2L",
+				anim = "leg2L",
+				parent = "body",
+				pivot = { -0.45, 0.3, 0.8 },
+				meshes = {
+					{
+						name = "HerculesBeetle_leg2L",
+						center = { -0.596, 0.1557, 0.8 },
+						size = { 0.399, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_leg2L_lod1",
+					center = { -0.6, 0.15, 0.8 },
+					size = { 0.4, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg3L",
+				anim = "leg3L",
+				parent = "body",
+				pivot = { -0.35, 0.3, 1.2 },
+				meshes = {
+					{
+						name = "HerculesBeetle_leg3L",
+						center = { -0.446, 0.1557, 1.196 },
+						size = { 0.299, 0.2955, 0.099 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_leg3L_lod1",
+					center = { -0.45, 0.15, 1.2 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg1R",
+				anim = "leg1R",
+				parent = "body",
+				pivot = { 0.35, 0.3, 0.4 },
+				meshes = {
+					{
+						name = "HerculesBeetle_leg1R",
+						center = { 0.446, 0.1557, 0.4 },
+						size = { 0.299, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_leg1R_lod1",
+					center = { 0.45, 0.15, 0.4 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg2R",
+				anim = "leg2R",
+				parent = "body",
+				pivot = { 0.45, 0.3, 0.8 },
+				meshes = {
+					{
+						name = "HerculesBeetle_leg2R",
+						center = { 0.596, 0.1557, 0.8 },
+						size = { 0.399, 0.2955, 0.107 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_leg2R_lod1",
+					center = { 0.6, 0.15, 0.8 },
+					size = { 0.4, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "leg3R",
+				anim = "leg3R",
+				parent = "body",
+				pivot = { 0.35, 0.3, 1.2 },
+				meshes = {
+					{
+						name = "HerculesBeetle_leg3R",
+						center = { 0.446, 0.1557, 1.196 },
+						size = { 0.299, 0.2955, 0.099 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_leg3R_lod1",
+					center = { 0.45, 0.15, 1.2 },
+					size = { 0.3, 0.3, 0.1 },
+				},
+			},
+			{
+				name = "horn",
+				anim = "static",
+				parent = "head",
+				pivot = { 0, 0, 0.55 },
+				meshes = {
+					{
+						name = "HerculesBeetle_horn",
+						center = { 0, 0.8018, -0.45 },
+						size = { 0.407, 1.0035, 2.007 },
+					},
+				},
+				lod1 = {
+					name = "HerculesBeetle_horn_lod1",
+					center = { 0, 0.8, -0.45 },
+					size = { 0.4, 1, 2 },
 				},
 			},
 		},
