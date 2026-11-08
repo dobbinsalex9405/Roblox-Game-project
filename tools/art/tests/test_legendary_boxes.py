@@ -30,9 +30,9 @@ class LegendaryStandInsFitTheBudget(unittest.TestCase):
         over = {}
         for c in creatures.build_all():
             if c.rarity == 'Legendary':
-                problem = to_config.art_problem(c)
-                if problem and 'voxel boxes' in problem:
-                    over[c.species] = problem
+                budget = [p for p in to_config.art_problems(c) if 'budget' in p]
+                if budget:
+                    over[c.species] = budget
         self.assertEqual(over, {}, f'Legendary stand-ins over {BUDGET} boxes')
 
     def test_fit_skips_the_fine_build(self):

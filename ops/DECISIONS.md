@@ -2,6 +2,28 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: to_config checks the mesh for glow and reports every problem
+
+- A creature below Ultra Rare is held back when its Blender build glows, not
+  only its stand-in: blender/luau.py writes a mesh's glowing voxels as
+  CreatureMeshes `glow` pieces and the game draws those as neon at any tier.
+  Go-live batch 10 uploaded 19 Rares and 17 of them glowed; two (AmethystMole,
+  BabyOctopus) glowed only in the mesh, which the old check missed.
+- Every reason a creature is held is printed (budget, detail floor, stand-in
+  glow, mesh glow), not just the first. The floor is 60% of the tier below's
+  budget (Uncommon 18, Rare 26), the rule VoxelArt.spec enforces.
+- `python3 tools/art/to_config.py --screen ID,ID,...` runs the same checks on
+  built creatures before their mesh run, uploaded or not, so a batch is
+  screened before any upload is spent. It also holds a creature whose
+  stand-in has a part with no way back to the body, where export.py would
+  stop (HerculesBeetle and ClockworkBeetle name their body "shell").
+- A stand-in piece that touches nothing else, not even at an edge or corner,
+  holds a creature back too (GorillaBaby's head box floated one row above
+  its head; Scorpion's stinger and a PomPom fur voxel did the same). Parts
+  named orbit, bubble, motes, rain or cloud float on purpose and pass. A
+  creature already live is reported ("live, kept") and never dropped; its
+  fix is a roster patch.
+
 ## 2026-11-08: Legendary stand-ins fit their box budget in code
 
 - 25 of the 48 Legendaries drew 453 to 1022 in-game boxes, over the 450
