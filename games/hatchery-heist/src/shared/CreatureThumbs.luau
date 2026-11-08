@@ -208,6 +208,7 @@ local CreatureThumbs: { [string]: number } = {
 	GoldenTamarin = 109995072052751,
 	Goldfinch = 116077886781143,
 	Goldfish = 88675003001130,
+	GorillaBaby = 71402226238889,
 	Gosling = 100975912672736,
 	Grasshopper = 113319585418136,
 	GreyhoundPup = 131578249465670,
