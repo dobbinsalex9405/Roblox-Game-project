@@ -356,9 +356,9 @@
   },
   "Cockatiel": {
    "assetId": 127502802002435,
-   "textureId": 72463376334332,
+   "textureId": 83681810766996,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Cockatoo": {
    "assetId": 108288296163566,
@@ -482,9 +482,9 @@
   },
   "Damselfly": {
    "assetId": 122865130295801,
-   "textureId": 94690615856578,
+   "textureId": 87298799050747,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "DandelionPuff": {
    "assetId": 136486940973510,
@@ -500,15 +500,15 @@
   },
   "Donkey": {
    "assetId": 96147156751148,
-   "textureId": 87794653224377,
+   "textureId": 122184272250580,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Dormouse": {
    "assetId": 92110049428322,
-   "textureId": 105103357310529,
+   "textureId": 114588280134710,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Dove": {
    "assetId": 72768668790844,
@@ -602,9 +602,9 @@
   },
   "FiddlerCrab": {
    "assetId": 97805200638979,
-   "textureId": 133738302975375,
+   "textureId": 101762196854483,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "FireAnt": {
    "assetId": 91597642726859,
@@ -620,9 +620,9 @@
   },
   "Firefly": {
    "assetId": 85008790844096,
-   "textureId": 76860581154774,
+   "textureId": 136723435152263,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "FlameMoth": {
    "assetId": 97926264861840,
@@ -698,9 +698,9 @@
   },
   "GardenSpider": {
    "assetId": 79445149531475,
-   "textureId": 94987149488775,
+   "textureId": 77437908090897,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "GargoylePup": {
    "assetId": 123258497212064,
@@ -770,9 +770,9 @@
   },
   "GoldenTamarin": {
    "assetId": 89453806297155,
-   "textureId": 97182528641626,
+   "textureId": 97732189978241,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Goldfinch": {
    "assetId": 84121940205400,
@@ -794,9 +794,9 @@
   },
   "GuineaFowl": {
    "assetId": 75193486152658,
-   "textureId": 129275092333208,
+   "textureId": 135352104258404,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "GuineaPig": {
    "assetId": 112552193065577,
@@ -842,15 +842,15 @@
   },
   "HermitCrab": {
    "assetId": 129013331559648,
-   "textureId": 114744626516197,
+   "textureId": 106239098974597,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "HeronChick": {
    "assetId": 73262618330015,
-   "textureId": 108713483575786,
+   "textureId": 111386656255881,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "HighlandCalf": {
    "assetId": 98510260764239,
@@ -2159,6 +2159,36 @@
    "textureId": 133704092338001,
    "textureType": "Image",
    "version": "1"
+  },
+  "Coneling": {
+   "assetId": 138947634006105,
+   "textureId": 70945202202058,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DoubleChick": {
+   "assetId": 110715464674910,
+   "textureId": 85307209294297,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Fuzzball": {
+   "assetId": 74100009593739,
+   "textureId": 119345090174932,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Goldfish": {
+   "assetId": 120269199245951,
+   "textureId": 85619388671207,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Gumball": {
+   "assetId": 101509239913326,
+   "textureId": 109876966772130,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -3386,6 +3416,70 @@
   "GummyBear": {
    "imageId": 88046073935611,
    "source": "deaeff0063dc90a7"
+  },
+  "Cockatiel": {
+   "imageId": 99399709717456,
+   "source": "859c3407bca65251"
+  },
+  "Coneling": {
+   "imageId": 129786659556591,
+   "source": "c9d9acf7ad808bf6"
+  },
+  "Damselfly": {
+   "imageId": 121829742360166,
+   "source": "b214497290f6351f"
+  },
+  "Donkey": {
+   "imageId": 79723029933995,
+   "source": "b27aa27b50e29afb"
+  },
+  "Dormouse": {
+   "imageId": 83529616657116,
+   "source": "f9c3a82fd6b9bb9c"
+  },
+  "DoubleChick": {
+   "imageId": 124493946239771,
+   "source": "f01193d08b1fe886"
+  },
+  "FiddlerCrab": {
+   "imageId": 133440305487152,
+   "source": "796af1c53475c011"
+  },
+  "Firefly": {
+   "imageId": 119551233920991,
+   "source": "8f35c9e3dec6262a"
+  },
+  "Fuzzball": {
+   "imageId": 84382537517411,
+   "source": "fe14829a2cffaef7"
+  },
+  "GardenSpider": {
+   "imageId": 77057946259789,
+   "source": "80d02bb94c82de74"
+  },
+  "GoldenTamarin": {
+   "imageId": 109995072052751,
+   "source": "d299fd0653738e23"
+  },
+  "Goldfish": {
+   "imageId": 88675003001130,
+   "source": "8a45e9b12d42891a"
+  },
+  "GuineaFowl": {
+   "imageId": 130315775422937,
+   "source": "d76d3b33b306714c"
+  },
+  "Gumball": {
+   "imageId": 121857968468344,
+   "source": "d4c9932f9db1cdf0"
+  },
+  "HermitCrab": {
+   "imageId": 77979553091193,
+   "source": "2fc9f8b0cfcb445b"
+  },
+  "HeronChick": {
+   "imageId": 70562391962809,
+   "source": "ba84bf2c4eb0581c"
   }
  }
 }

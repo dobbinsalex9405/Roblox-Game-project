@@ -369,3 +369,14 @@ Capybara
 Cardinal
 Chameleon
 Chickadee
+Cockatiel
+Damselfly
+Donkey
+Dormouse
+FiddlerCrab
+Firefly
+GardenSpider
+GoldenTamarin
+GuineaFowl
+HermitCrab
+HeronChick
