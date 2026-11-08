@@ -30,7 +30,18 @@
     "col": "#FF8FB1",
     "accent": "#FFE3EE",
     "belly": "#FFD0DF"
-   }
+   },
+   "accessories": [
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "head",
+      "body",
+      "leg3"
+     ]
+    }
+   ]
   },
   {
    "id": "MantaRay",
