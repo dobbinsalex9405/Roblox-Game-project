@@ -5226,6 +5226,82 @@
   "Hummingbird": {
    "imageId": 75358083128348,
    "source": "a5288cbf0a44667b"
+  },
+  "PancakeFrog": {
+   "imageId": 70451309271672,
+   "source": "0e35105e7f7b78d0"
+  },
+  "Peachick": {
+   "imageId": 129104709483176,
+   "source": "fb053b0976442c9d"
+  },
+  "PetalBunny": {
+   "imageId": 115468270002647,
+   "source": "c1d7254db35a9daf"
+  },
+  "PolarBearCub": {
+   "imageId": 107855392782730,
+   "source": "54e3413afd8f5a84"
+  },
+  "PomPom": {
+   "imageId": 92915512594115,
+   "source": "e93245860ffd88fe"
+  },
+  "PteroChick": {
+   "imageId": 86807841878895,
+   "source": "befaa81df5922624"
+  },
+  "Rabbeetle": {
+   "imageId": 101295152091647,
+   "source": "a54d3db9677c8fc1"
+  },
+  "RainSnail": {
+   "imageId": 111642974722595,
+   "source": "6c22a0c8afa80337"
+  },
+  "RaptorChick": {
+   "imageId": 112419954558137,
+   "source": "144d2220acdd7a79"
+  },
+  "ReindeerCalf": {
+   "imageId": 136882646067065,
+   "source": "fd8806a79982fb23"
+  },
+  "RexHatchling": {
+   "imageId": 74510014328440,
+   "source": "0594186807b6d84f"
+  },
+  "RhinoCalf": {
+   "imageId": 134006589807252,
+   "source": "df4e96b5ec4ac681"
+  },
+  "RoboPup": {
+   "imageId": 104006895398730,
+   "source": "ad9622f9fb0fc6d4"
+  },
+  "SandCat": {
+   "imageId": 119487048966243,
+   "source": "b4af96127d01dfdc"
+  },
+  "Scorpion": {
+   "imageId": 104091765457386,
+   "source": "7e5191bf8b9a62c9"
+  },
+  "SeaOtter": {
+   "imageId": 72716775143760,
+   "source": "0175f314629c2b56"
+  },
+  "SharkPup": {
+   "imageId": 80718814656734,
+   "source": "5df1bb0e3f6eb8bb"
+  },
+  "Slugcorn": {
+   "imageId": 138726830451790,
+   "source": "0df7a58233841dfb"
+  },
+  "SnowLamb": {
+   "imageId": 100033144186047,
+   "source": "4e28dbc81fcbda3d"
   }
  }
 }
