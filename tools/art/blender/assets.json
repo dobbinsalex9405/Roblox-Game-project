@@ -4342,6 +4342,86 @@
   "EmuChick": {
    "imageId": 117709827183100,
    "source": "72fa8d67f6851950"
+  },
+  "Puddlejumper": {
+   "imageId": 107373252466401,
+   "source": "e61dd723cb9b517c"
+  },
+  "Pufferfish": {
+   "imageId": 75598010914080,
+   "source": "295450025e3fe7d8"
+  },
+  "SamoyedPup": {
+   "imageId": 71861650896487,
+   "source": "3384f074d1f20af8"
+  },
+  "ScottishFoldKitten": {
+   "imageId": 78932468553248,
+   "source": "15e911c20a310000"
+  },
+  "Seahorse": {
+   "imageId": 132998412540984,
+   "source": "f3bb679181a24e42"
+  },
+  "SlowLoris": {
+   "imageId": 74900350959863,
+   "source": "3fabccc612465660"
+  },
+  "Tarsier": {
+   "imageId": 113564063927458,
+   "source": "b33fe392399c7da6"
+  },
+  "Thimblehog": {
+   "imageId": 134045433935535,
+   "source": "73b34648a83a9b07"
+  },
+  "TreeKangaroo": {
+   "imageId": 107571088569563,
+   "source": "14f29a1a0890defb"
+  },
+  "Wallaby": {
+   "imageId": 106496987395974,
+   "source": "d4c0a807c47fc18e"
+  },
+  "WarthogPiglet": {
+   "imageId": 139275095748004,
+   "source": "ce6e63206cfefce0"
+  },
+  "WaterBuffaloCalf": {
+   "imageId": 99301215421053,
+   "source": "545b7f2d84ad6694"
+  },
+  "BengalKitten": {
+   "imageId": 78377188786196,
+   "source": "41ac577b6c335515"
+  },
+  "CaramelKitten": {
+   "imageId": 123749861035059,
+   "source": "29255b7a6f201bba"
+  },
+  "MittenKitten": {
+   "imageId": 126209234022553,
+   "source": "bd2205e1bb0148f7"
+  },
+  "OcelotKit": {
+   "imageId": 134026638465602,
+   "source": "92707122a5650390"
+  },
+  "OstrichChick": {
+   "imageId": 120735302466959,
+   "source": "9ef5048bca84a28e"
+  },
+  "PinwheelBird": {
+   "imageId": 125149328579694,
+   "source": "76ae0a2d7c33e81b"
+  },
+  "GibbonBaby": {
+   "imageId": 99359948324082,
+   "source": "1833d31d7cf0c055"
+  },
+  "OrangutanBaby": {
+   "imageId": 105785245298959,
+   "source": "506bf9d3437499dd"
   }
  }
 }
