@@ -2837,6 +2837,108 @@
    "textureId": 91293536884410,
    "textureType": "Image",
    "version": "1"
+  },
+  "AtlasMoth": {
+   "assetId": 135171324929399,
+   "textureId": 122357118367350,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Bramblet": {
+   "assetId": 137511632634507,
+   "textureId": 101461544725903,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BreezeFinch": {
+   "assetId": 134591344944867,
+   "textureId": 114877259464930,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CinderChick": {
+   "assetId": 120383144634663,
+   "textureId": 125769245454469,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CobwebSpider": {
+   "assetId": 111764318698825,
+   "textureId": 137628229044228,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CupcakeChick": {
+   "assetId": 102744273094690,
+   "textureId": 108633180552095,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BubblePup": {
+   "assetId": 107048419467963,
+   "textureId": 103690326056362,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Bunnyfly": {
+   "assetId": 117118210943493,
+   "textureId": 101668704081712,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CactusPup": {
+   "assetId": 78816144497119,
+   "textureId": 112387365043312,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GorillaBaby": {
+   "assetId": 89121350501365,
+   "textureId": 111794018200745,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "HippoCalf": {
+   "assetId": 139552768150629,
+   "textureId": 95912819992570,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "HoneypotAnt": {
+   "assetId": 111011714421403,
+   "textureId": 113865816273656,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Glowworm": {
+   "assetId": 138253366997766,
+   "textureId": 104813175579261,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GumdropSlug": {
+   "assetId": 117286454778723,
+   "textureId": 95901414157279,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Hoverfly": {
+   "assetId": 127640163618429,
+   "textureId": 132129359807951,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GhostMoth": {
+   "assetId": 138185732491545,
+   "textureId": 122152170855244,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GlowMouse": {
+   "assetId": 73848772230061,
+   "textureId": 126628320005752,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
