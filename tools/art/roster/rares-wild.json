@@ -516,6 +516,97 @@
     {
      "kind": "mirrorbody",
      "color": "#2A2028"
+    },
+    {
+     "kind": "bands",
+     "color": "#FF8A3D",
+     "colors": [
+      "#FFB070"
+     ],
+     "parts": [
+      "head"
+     ],
+     "bands": [
+      [
+       0,
+       "#2A2028"
+      ]
+     ]
+    },
+    {
+     "kind": "bands",
+     "color": "#FFB070",
+     "parts": [
+      "body"
+     ],
+     "bands": [
+      [
+       0,
+       "#FFB070"
+      ],
+      [
+       2,
+       "#2A2028"
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF8A3D",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -4,
+       6
+      ],
+      [
+       -1,
+       -2,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF8A3D",
+     "part": "body",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       0,
+       4
+      ],
+      [
+       -2,
+       0,
+       3
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F4E4C0",
+     "part": "eyes",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -5,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "leg",
+      "body",
+      "tail"
+     ]
     }
    ]
   },
