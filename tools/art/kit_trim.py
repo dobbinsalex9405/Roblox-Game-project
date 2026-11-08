@@ -274,12 +274,51 @@ def _close(v, need, taken):
         v.update(add)
 
 
+def _thin(c, parts, budget, legs):
+    """Recolours a dark pattern's voxels (darker than the part's own colour)
+    to that colour, a mirrored pair at a time, the pair that saves most boxes
+    first, until the creature is inside its budget or half the pattern is
+    gone. True when it got inside."""
+    xs = [v[0] for p in c.parts for v in p.v]
+    s = min(xs) + max(xs)
+    for p in parts:
+        count = {}
+        for val in p.v.values():
+            count[val] = count.get(val, 0) + 1
+        base = max(count, key=lambda k: (count[k], k))
+        dark = [v for v, val in p.v.items() if not val[1] and _darkness(val[0]) < _darkness(base[0]) - 40]
+        while sum(1 for v in dark if p.v[v] == base) < len(dark) // 2:
+            total = _drawn(c)[0]
+            if total <= budget:
+                return True
+            best = None
+            for v in sorted(dark):
+                if p.v[v] == base:
+                    continue
+                new = dict(p.v)
+                new[v] = base
+                tw = (s - v[0], v[1], v[2])
+                if tw in new and tw in dark:
+                    new[tw] = base
+                after = _try(c, {p.name: new}, legs)
+                if after is not None and after < total and (best is None or after < best[0]):
+                    best = (after, v, new)
+            if not best:
+                break
+            p.v = best[2]
+            print(f'plain_boxes: {c.species}: thinned the pattern on {p.name} at {best[1]}, now {best[0]} boxes',
+                  file=sys.stderr)
+    return _drawn(c)[0] <= budget
+
+
 def plain_boxes(c, H, col=None, col2=None, a=None):
     """In-game stand-in only: brings a creature with a busy coat or a ragged
     outline inside its tier's box budget, a step at a time and only as far as
     it needs, on the named parts in order ("parts", e.g. ["body", "head"]):
       1. near-identical colours (a fluff a shade off its coat) become one,
       2. notches with four neighbours or more are filled,
+         (with "thin": true, a dense dark pattern, rosettes, loses up to half
+         its voxels, the ones that cost most boxes first, in mirrored pairs),
       3. trim_boxes' mirrored one-voxel edits on the same parts,
       4. notches with three neighbours are filled, then step 3 again.
     Patterns that differ more than a shade (spots, drips, a sash) are kept."""
@@ -320,6 +359,8 @@ def plain_boxes(c, H, col=None, col2=None, a=None):
         return
     if step('notches filled on', lambda p: _close(p.v, 4, others(p))):
         return
+    if a.get('thin') and _thin(c, parts, budget, legs):
+        return
     trim_boxes(c, H, a={'budget': budget, 'parts': names})
     if total() <= budget:
         return
@@ -328,4 +369,170 @@ def plain_boxes(c, H, col=None, col2=None, a=None):
     trim_boxes(c, H, a={'budget': budget, 'parts': names})
 
 
-ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes}
+def kitten_face(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a small cat's face that reads at a glance.
+    At this size the coarse build's eye row can run into one dark band
+    (a spot or a dark voxel between the eyes, read as sunglasses), and its
+    ears into one ridge of 3-4 spikes (read as a flame). So:
+      - every head voxel between the two eyes, on the eyes' row, and any
+        darker one touching an eye, takes the head's own colour, so the eyes
+        stand apart and no stripe runs into one (an eye patch);
+      - the ears become two, one on each top corner of the head: a nub one
+        voxel high, or with "ears": "step" a two-wide base and a tip on its
+        outer column."""
+    if getattr(c, 'fine', False):
+        return
+    parts = {p.name: p for p in c.parts}
+    head, eyes, ears = parts.get('head'), parts.get('eyes'), parts.get('ears')
+    if not head or not head.v:
+        return
+    count = {}
+    for val in head.v.values():
+        count[val] = count.get(val, 0) + 1
+    base = max(count, key=lambda k: (count[k], k))
+    if eyes and len(eyes.v) >= 2:
+        z = min(v[2] for v in eyes.v)
+        ex = sorted({v[0] for v in eyes.v if v[2] == z})
+        lo, hi = ex[0], ex[-1]
+        for v in list(head.v):
+            if v[2] == z and lo < v[0] < hi and v not in eyes.v:
+                head.v[v] = base
+        # nothing darker than the head touches an eye, even corner to corner:
+        # a stripe or spot running into an eye reads as an eye patch
+        ring = {(x + dx, y + dy, zz + dz) for (x, y, zz) in eyes.v
+                for dx in (-1, 0, 1) for dy in (-1, 0, 1) for dz in (-1, 0, 1)}
+        for v in ring & set(head.v):
+            if head.v[v] != base and _darkness(head.v[v][0]) < _darkness(base[0]) and not head.v[v][1]:
+                head.v[v] = base
+    if ears and ears.v:
+        hx = [v[0] for v in head.v]
+        left, right = min(hx), max(hx)
+        ys = [v[1] for v in ears.v]
+        zs = [v[2] for v in ears.v]
+        y = max(set(ys), key=lambda k: (ys.count(k), -k))
+        tone = max(set(ears.v.values()), key=lambda k: (list(ears.v.values()).count(k), k))
+        top = max(v[2] for v in head.v if v[0] in (left, right))
+        z0 = max(min(zs), top + 1)
+        new = {}
+        if (a or {}).get('ears') == 'step':
+            # a two-wide base on each top corner and a tip on its outer column
+            for x, inner in ((left, left + 1), (right, right - 1)):
+                new[(x, y, z0)] = tone
+                new[(inner, y, z0)] = tone
+                new[(x, y, z0 + 1)] = tone
+        else:
+            # a nub on each top corner, one voxel high and two deep, so the
+            # top centre stays flat on a head only four voxels wide
+            for x in (left, right):
+                new[(x, y, z0)] = tone
+                new[(x, y + 1, z0)] = tone
+        ears.v = new
+
+
+def spot_coat(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a spotted coat drawn by hand where the coarse
+    build's pattern (an ocelot's rosettes) would cost too many boxes or run
+    into one dark block. "clear": the parts whose dark pattern is painted
+    over in their own colour first; "spots": [part, x, y, z] voxels painted
+    `color`. A spot on a voxel the part does not have is left out and
+    printed, so a kit change shows up instead of drawing in the air."""
+    if getattr(c, 'fine', False):
+        return
+    a = a or {}
+    parts = {p.name: p for p in c.parts}
+    for name in a.get('clear', []):
+        p = parts.get(name)
+        if not p or not p.v:
+            continue
+        count = {}
+        for val in p.v.values():
+            count[val] = count.get(val, 0) + 1
+        base = max(count, key=lambda k: (count[k], k))
+        for v, val in list(p.v.items()):
+            if not val[1] and _darkness(val[0]) < _darkness(base[0]) - 40:
+                p.v[v] = base
+    for name, x, y, z in a.get('spots', []):
+        p = parts.get(name)
+        if p and (x, y, z) in p.v:
+            p.v[(x, y, z)] = (col, False)
+        else:
+            print(f'spot_coat: {c.species}: no {name} voxel at {(x, y, z)}', file=sys.stderr)
+
+
+def draw(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: voxels put by hand where the coarse build is too
+    small to carry a feature the mesh has (a baby ape's eyes, which the
+    coarse build has no room for). "part": the part they go in; "voxels":
+    [x, y, z] in `color`, or [x, y, z, "#RRGGBB"], each put or repainted. With "mirror": true each is
+    also put at its twin across the middle (x -> -1 - x), so list one side
+    and the middle. A part the creature does not have is printed and
+    skipped."""
+    if getattr(c, 'fine', False):
+        return
+    from voxkit import hexc
+    a = a or {}
+    part = next((p for p in c.parts if p.name == a.get('part')), None)
+    if part is None:
+        print(f'draw: {c.species}: no part {a.get("part")!r}', file=sys.stderr)
+        return
+    for x, y, z, *h in a.get('voxels', []):
+        val = (hexc(h[0]) if h else col, False)
+        part.v[(x, y, z)] = val
+        if a.get('mirror'):
+            part.v[(-1 - x, y, z)] = val
+
+
+def despeckle(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a fleck pattern (a roadrunner's pale flecks)
+    taken off the named parts. Each voxel of `color` (and "colors", more
+    "#RRGGBB") takes the colour most of its neighbours in the part have, so
+    a fleck on the belly turns belly and one on the back turns back."""
+    if getattr(c, 'fine', False):
+        return
+    from voxkit import hexc
+    a = a or {}
+    gone = {col} | {hexc(h) for h in a.get('colors', [])}
+    for p in c.parts:
+        if p.name not in a.get('parts', []):
+            continue
+        for v in sorted(v for v, val in p.v.items() if val[0] in gone):
+            count = {}
+            for d in STEPS:
+                n = p.v.get((v[0] + d[0], v[1] + d[1], v[2] + d[2]))
+                if n and n[0] not in gone:
+                    count[n] = count.get(n, 0) + 1
+            if count:
+                p.v[v] = max(count, key=lambda k: (count[k], k))
+
+
+def bands(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a swirled coat (a sherbet chick's) redrawn as
+    level bands, which cost a few boxes where a swirl costs dozens and stay
+    the same on both sides. Voxels of `color` and "colors" (more "#RRGGBB")
+    in the named parts are repainted by height: "bands" [[z, "#RRGGBB"], ...]
+    gives each band's lowest layer, lowest first. Other colours (a belly
+    patch, the eyes) are left as they are."""
+    if getattr(c, 'fine', False):
+        return
+    from voxkit import hexc
+    a = a or {}
+    old = {col} | {hexc(h) for h in a.get('colors', [])}
+    steps = sorted((z, hexc(h)) for z, h in a.get('bands', []))
+    if not steps:
+        return
+    for p in c.parts:
+        if p.name not in a.get('parts', []):
+            continue
+        for v, val in list(p.v.items()):
+            if val[0] in old and not val[1]:
+                new = steps[0][1]
+                for z, h in steps:
+                    if v[2] >= z:
+                        new = h
+                p.v[v] = (new, False)
+
+
+ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes,
+               'kitten_face': kitten_face,
+               'spot_coat': spot_coat, 'draw': draw, 'despeckle': despeckle,
+               'bands': bands}

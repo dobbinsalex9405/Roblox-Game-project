@@ -115,10 +115,35 @@ STILL_ROLES = ('body', 'static', 'blink', 'glow')
 INSET = 0.08
 
 
+# The triangle budget below Ultra Rare (tools/art/check.py BUDGET): the
+# tiers whose creatures can carry voxels that lost their glow (rule k).
+PLAIN_BUDGET = {'Common': 15000, 'Uncommon': 15000, 'Rare': 15000}
+
+
 def describe(c):
     """Returns (meta, palette, parts) where parts is [(part, joint_pivot,
     [(kind, rgb, MeshData, mesh_name)])]. All positions are in the game
-    frame, in studs, feet at the origin."""
+    frame, in studs, feet at the origin.
+
+    Voxels that lost their glow to rule k (part.unglowed, variants "glow":
+    false) are pillowed like every other voxel. Only when that puts the
+    creature over its triangle budget do they keep the flat, greedy-merged
+    faces they had as glow (voxmesh.part_meshes), which costs what the glow
+    cost."""
+    unglowed = {p.name: p.unglowed for p in c.parts if getattr(p, 'unglowed', None)}
+    if not unglowed:
+        return _describe(c)
+    for p in c.parts:
+        p.unglowed = ()
+    out = _describe(c)
+    if out[0]['tris'] <= PLAIN_BUDGET.get(c.rarity, 0):
+        return out
+    for p in c.parts:
+        p.unglowed = unglowed.get(p.name, ())
+    return _describe(c)
+
+
+def _describe(c):
     lo, hi = c.bounds()
     centre = ((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2])
     V = c.voxel

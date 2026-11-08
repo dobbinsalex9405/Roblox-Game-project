@@ -424,6 +424,12 @@ def banana(c, H, col, col2=None):
         r = (0.16 + 0.22 * math.sin(t * math.pi)) * k + .3
         tip = t < 0.06 or t > 0.94
         part.ell((x, y, z), (r, r, r), end if tip else col, False)
+    # held in to the body's own width: a banana sticking out past the flank
+    # widens the creature on one side only, and the export centres a model on
+    # its bounding box, which would set the legs off the mirror line
+    over = max(q[0] for q in part.v) - hi[0]
+    if over > 0:
+        part.v = {(q[0] - over, q[1], q[2]): v for q, v in part.v.items()}
     # a soft glowing shine along the outer curve
     for q in list(part.v):
         if part.v[q][0] == col and (q[0] + 1, q[1], q[2]) not in part.v and (q[0], q[1] - 1, q[2]) not in part.v:

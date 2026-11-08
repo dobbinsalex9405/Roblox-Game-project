@@ -1,8 +1,9 @@
 """kit_trim: a creature over its tier's box budget gets the
 smallest mirrored edits that bring its in-game boxes inside it (trim_boxes),
 or a plainer stand-in for a part that costs too many (pad_legs, jaw_band,
-plain_boxes),
-and its finer Blender build (the reviewed mesh) is never touched.
+plain_boxes, kitten_face, spot_coat, despeckle, bands), or detail drawn in
+where it has too few (draw), and its finer Blender build (the reviewed mesh)
+is never touched.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import contextlib
@@ -213,6 +214,184 @@ class PlainBoxes(unittest.TestCase):
         before = dict(c.parts[0].v)
         kit_trim.plain_boxes(c, 10, a={'budget': 1, 'parts': ['body']})
         self.assertEqual(before, c.parts[0].v)
+
+
+class KittenFace(unittest.TestCase):
+    def kitten(self, fine=False):
+        c = Creature('KitTest', 'Uncommon')
+        c.fine = fine
+        h = c.part('head', 'static')
+        for x in range(-2, 2):
+            for y in range(-4, -1):
+                for z in range(4, 8):
+                    h.put((x, y, z), SAND)
+        h.put((-1, -4, 6), SPOT)  # a spot between the eyes
+        h.put((0, -4, 6), INK)  # a dark voxel between them
+        e = c.part('eyes', 'static')
+        e.put((-2, -4, 6), INK)
+        e.put((1, -4, 6), INK)
+        ears = c.part('ears', 'static')
+        for x in range(-2, 3):
+            ears.put((x, -2, 8), SAND)
+        ears.put((-1, -2, 9), SAND)
+        ears.put((1, -2, 9), SAND)
+        return c, h, ears
+
+    def test_two_eyes_with_the_head_colour_between(self):
+        c, h, _ = self.kitten()
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual(h.v[(-1, -4, 6)], (SAND, False))
+        self.assertEqual(h.v[(0, -4, 6)], (SAND, False))
+
+    def test_two_nub_ears_at_the_corners_and_a_flat_top(self):
+        c, _, ears = self.kitten()
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual({v[0] for v in ears.v}, {-2, 1})
+        self.assertEqual({v[2] for v in ears.v}, {8})  # one voxel above the head
+
+    def test_stepped_ears_tip_on_the_outer_column(self):
+        c, _, ears = self.kitten()
+        kit_trim.kitten_face(c, 10, a={'ears': 'step'})
+        self.assertEqual({v[0] for v in ears.v if v[2] == 9}, {-2, 1})
+        self.assertEqual({v[0] for v in ears.v if v[2] == 8}, {-2, -1, 0, 1})
+
+    def test_no_stripe_touches_an_eye(self):
+        c, h, _ = self.kitten()
+        h.put((-2, -4, 5), SPOT)  # a cheek stripe under the eye
+        h.put((-2, -4, 4), SPOT)
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual(h.v[(-2, -4, 5)], (SAND, False))
+        self.assertEqual(h.v[(-2, -4, 4)], (SPOT, False))  # the rest of it stays
+
+    def test_the_fine_build_keeps_its_face(self):
+        c, h, ears = self.kitten(fine=True)
+        before = (dict(h.v), dict(ears.v))
+        kit_trim.kitten_face(c, 10)
+        self.assertEqual(before, (h.v, ears.v))
+
+
+class Thin(unittest.TestCase):
+    def test_a_dense_pattern_loses_at_most_half(self):
+        c = Creature('ThinTest', 'Uncommon')
+        body = c.part('body', 'static')
+        for x in range(-3, 3):
+            for y in range(0, 6):
+                for z in range(1, 4):
+                    body.put((x, y, z), SPOT if (x + y + z) % 3 == 0 else SAND)
+        dark = sum(1 for v in body.v.values() if v[0] == SPOT)
+        start, legs = drawn(c)
+        with contextlib.redirect_stderr(io.StringIO()):
+            inside = kit_trim._thin(c, [body], 1, tuple(legs))
+        self.assertFalse(inside)  # a budget of 1 is out of reach
+        left = sum(1 for v in body.v.values() if v[0] == SPOT)
+        self.assertGreaterEqual(left, dark - dark // 2)
+        self.assertLess(left, dark)
+        self.assertLess(drawn(c)[0], start)
+
+
+class SpotCoat(unittest.TestCase):
+    def cat(self, fine=False):
+        c = Creature('SpotTest', 'Uncommon')
+        c.fine = fine
+        body = c.part('body', 'static')
+        for x in range(-2, 2):
+            for y in range(0, 4):
+                body.put((x, y, 2), SPOT if (x + y) % 2 else SAND)
+        return c, body
+
+    def test_the_pattern_is_cleared_and_only_the_listed_spots_are_dark(self):
+        c, body = self.cat()
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            kit_trim.spot_coat(c, 10, INK, a={'clear': ['body'],
+                                              'spots': [['body', -2, 0, 2], ['body', 1, 3, 2], ['body', 9, 9, 9]]})
+        dark = {v for v, val in body.v.items() if val[0] != SAND}
+        self.assertEqual(dark, {(-2, 0, 2), (1, 3, 2)})
+        self.assertTrue(all(body.v[v] == (INK, False) for v in dark))
+        self.assertIn('(9, 9, 9)', err.getvalue())  # a spot off the part is reported, not drawn
+
+    def test_the_fine_build_keeps_its_coat(self):
+        c, body = self.cat(fine=True)
+        before = dict(body.v)
+        kit_trim.spot_coat(c, 10, INK, a={'clear': ['body'], 'spots': [['body', -2, 0, 2]]})
+        self.assertEqual(before, body.v)
+
+
+class Draw(unittest.TestCase):
+    def ape(self, fine=False):
+        c = Creature('DrawTest', 'Uncommon')
+        c.fine = fine
+        h = c.part('head', 'static')
+        for x in (-1, 0):
+            for z in (5, 6):
+                h.put((x, 0, z), SAND)
+        return c, h
+
+    def test_voxels_are_put_and_mirrored(self):
+        c, h = self.ape()
+        kit_trim.draw(c, 10, INK, a={'part': 'head', 'mirror': True,
+                                     'voxels': [[-2, -1, 6], [-1, -1, 5, '#FF8FB1']]})
+        self.assertEqual(h.v[(-2, -1, 6)], (INK, False))
+        self.assertEqual(h.v[(1, -1, 6)], (INK, False))
+        self.assertEqual(h.v[(-1, -1, 5)], ((255, 143, 177), False))
+        self.assertEqual(h.v[(0, -1, 5)], ((255, 143, 177), False))
+        self.assertEqual(len(h.v), 8)
+
+    def test_the_fine_build_keeps_its_head(self):
+        c, h = self.ape(fine=True)
+        before = dict(h.v)
+        kit_trim.draw(c, 10, INK, a={'part': 'head', 'voxels': [[-2, -1, 6]]})
+        self.assertEqual(before, h.v)
+
+
+class Despeckle(unittest.TestCase):
+    def test_a_fleck_takes_its_neighbours_colour(self):
+        c = Creature('FleckTest', 'Uncommon')
+        body = c.part('body', 'static')
+        for x in range(-2, 2):
+            for z in range(0, 4):
+                body.put((x, 0, z), SAND if z < 2 else BROWN)
+        body.put((-1, 0, 1), FLUFF)  # on the sand
+        body.put((0, 0, 3), FLUFF)  # on the brown
+        kit_trim.despeckle(c, 10, FLUFF, a={'parts': ['body']})
+        self.assertEqual(body.v[(-1, 0, 1)], (SAND, False))
+        self.assertEqual(body.v[(0, 0, 3)], (BROWN, False))
+
+    def test_the_fine_build_keeps_its_flecks(self):
+        c = Creature('FleckTest', 'Uncommon')
+        c.fine = True
+        body = c.part('body', 'static')
+        body.put((0, 0, 0), SAND)
+        body.put((0, 0, 1), FLUFF)
+        kit_trim.despeckle(c, 10, FLUFF, a={'parts': ['body']})
+        self.assertEqual(body.v[(0, 0, 1)], (FLUFF, False))
+
+
+class Bands(unittest.TestCase):
+    def chick(self, fine=False):
+        c = Creature('BandTest', 'Uncommon')
+        c.fine = fine
+        body = c.part('body', 'static')
+        for x in range(-2, 2):
+            for z in range(0, 6):
+                body.put((x, 0, z), SAND if (x * 3 + z) % 2 else SPOT)
+        body.put((-2, -1, 2), FLUFF)  # a belly patch
+        return c, body
+
+    def test_the_coat_is_level_bands_and_other_colours_stay(self):
+        c, body = self.chick()
+        kit_trim.bands(c, 10, SAND, a={'colors': ['#5A3A24'], 'parts': ['body'],
+                                       'bands': [[0, '#5A3A24'], [3, '#E2B677']]})
+        for (x, y, z), val in body.v.items():
+            if (x, y, z) == (-2, -1, 2):
+                self.assertEqual(val, (FLUFF, False))
+            else:
+                self.assertEqual(val, (SPOT if z < 3 else SAND, False))
+
+    def test_the_fine_build_keeps_its_swirl(self):
+        c, body = self.chick(fine=True)
+        before = dict(body.v)
+        kit_trim.bands(c, 10, SAND, a={'parts': ['body'], 'bands': [[0, '#5A3A24']]})
+        self.assertEqual(before, body.v)
 
 
 if __name__ == '__main__':
