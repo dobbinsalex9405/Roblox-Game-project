@@ -2,6 +2,13 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: CI gets 35 minutes and reuses a passed art-export check
+
+- The check job's timeout is 35 minutes (was 20): the art export grows each
+  batch, and a slow runner pushed #155 past 20 with nothing failing.
+- The art-export step is skipped when a pass is cached under the hash of its
+  inputs (tools/art, tools/economy, HH config, the generated files, ci.yml).
+
 ## 2026-11-07: Commons go in game at 31 boxes or fewer (Hatchery Heist)
 
 - **`to_config.py` holds a Common back above 31 in-game boxes**, not the
