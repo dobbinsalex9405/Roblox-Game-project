@@ -22,6 +22,7 @@
   },
   {
    "id": "AtlasMoth",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bug",
    "gait": "hover",
@@ -184,6 +185,7 @@
   },
   {
    "id": "ClockworkBeetle",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bug",
    "gait": "scuttle",
@@ -209,6 +211,7 @@
   },
   {
    "id": "CobwebSpider",
+   "glow": false,
    "rarity": "Rare",
    "plan": "critter",
    "gait": "scuttle",

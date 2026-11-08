@@ -60,6 +60,7 @@
   },
   {
    "id": "Angelfish",
+   "glow": false,
    "rarity": "Rare",
    "plan": "fish",
    "gait": "swim",

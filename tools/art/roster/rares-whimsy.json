@@ -62,6 +62,7 @@
   },
   {
    "id": "BubblePup",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hover",
@@ -127,6 +128,7 @@
   },
   {
    "id": "CactusPup",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -220,6 +222,7 @@
   },
   {
    "id": "Bramblet",
+   "glow": false,
    "rarity": "Rare",
    "plan": "puff",
    "gait": "hop",
@@ -376,6 +379,7 @@
   },
   {
    "id": "CupcakeChick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -453,6 +457,7 @@
   },
   {
    "id": "Bunnyfly",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "hover",
@@ -565,6 +570,7 @@
   },
   {
    "id": "Crocoduck",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -651,6 +657,7 @@
   },
   {
    "id": "CinderChick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -883,6 +890,7 @@
   },
   {
    "id": "AshBadger",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -931,6 +939,7 @@
   },
   {
    "id": "BreezeFinch",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "hover",
