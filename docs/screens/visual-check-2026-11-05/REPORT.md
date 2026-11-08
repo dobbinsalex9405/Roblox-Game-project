@@ -1468,3 +1468,15 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
   - **Meadow:** Common 72 × "0.9306% · **1 in 107**"; Uncommon 31 × "0.9999% · 1 in 100"; Rare 2 × "0.8503% · 1 in 118"; UR 13 × "0.0215% · 1 in 4,651"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
   - The brief's "1 in 107.5" shows as "1 in 107". The game's formatter drops decimals from 100 up, as with 118 and 125, so this is consistent.
 - **Unchanged:** Gummy Bear (texture 133704092338001, 7 Neon, 5%) and Will-o'-Wisp (texture 87366348989616, 14 meshes, 8%) are as at #147.
+
+## #149 @ fa1c21b (go-live C3: 17 Commons), built directly (head contains main 4dbeb67a)
+
+**PASS.**
+- **Placed** HighlandCalf, Lovebird, Mayfly, Mushling and Nuthatch.
+  - All are MeshPart creatures (6-12 MeshParts, 0 plain Parts) with **0 Neon** and a 0.000 gap. All animate (0.9-4.5 studs in 6 s).
+  - Each texture equals its assets.json entry: HighlandCalf 116261771910714, Lovebird 94766115091617, Mayfly 85967498458148, Mushling 123270367310314, Nuthatch 122197062140232.
+  - Palettes match the thumbs: orange shaggy calf, green and red lovebird, pale mayfly, red-capped Mushling, blue and white nuthatch (`149-five.jpg` against `149-book.jpg`).
+- **Book, Common tab:** 5/140. All **17** new cards have loaded pictures. Every image id equals its CreatureThumbs entry, and 0 labels are truncated. They read "Meadow Egg 1 in 125" (12) and "Basic Egg 1 in 60.9" (5).
+- **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`149-phone-meadow.jpg`).
+  - **Basic:** Common 56 × "1.6429% · **1 in 60.9**"; Uncommon 7 × 1 in 100; **Rare 0.7976%** · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
+  - **Meadow:** Common 84 × "0.7976% · **1 in 125**"; Uncommon 31 × "1.0001% · 1 in 100"; Rare 2 × 0.8496% (= **1.6992%**) · 1 in 118; UR 13 × "0.0215% · **1 in 4,651**"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
