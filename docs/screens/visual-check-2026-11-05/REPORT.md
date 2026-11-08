@@ -1744,3 +1744,56 @@ Drawn as Parts, they read as a white bunny with pink ears, a grey anteater pup, 
 **Feedback and Output.** CoreFeedback.FeedbackButton is present. Output has no game errors; the only 2 errors are my own snippet looking up OddsList before it opened.
 
 Screens: pr158-phone-odds-basic.jpg, -meadow.jpg, pr158-hatch-crayfish.jpg, pr158-kookaburra-pads.jpg, pr158-standins-bunny-anteater-emu.jpg, pr158-book-uncommon.jpg.
+
+## #163 at d78bf86 (batch 10: Cinnamon Snail + six returning Uncommon stand-ins): PASS
+
+I built the head directly because it contains main 152a5da. I played solo in Studio, phone 844x392 and desktop 1350x672.
+
+**1. Odds at phone size.** No label fails TextFits. The smallest text is 13.6 px on the HUD card and 14.4 px in the list, both at or above 11 px.
+
+| Egg | Rows | Sum | Common | Uncommon | Rare | Other tiers |
+|---|---|---|---|---|---|---|
+| Basic | 94 | 100.0000% | 71 × 1 in 77.2 (unchanged) | 19 × "0.3684% · 1 in 271", includes Sphynx Kitten | Raccoon "0.7986% · 1 in 125" | UR, Epic, Legendary unchanged |
+| Meadow | 220 | 100.0000% | 124 × 1 in 185 (unchanged) | 73 × "0.4247% · 1 in 235" | 3 × "0.5668% · 1 in 176": Penguin, Owlet and Cinnamon Snail | UR 13 × 1 in 4,651 |
+
+- Meadow's Uncommon rows include Thorny Devil, Sprinkle Mouse, Sea Bunny, Roadrunner Chick and Sherbet Chick.
+- Cinnamon Snail is in the Meadow list only; the Basic Rare row is Raccoon. This matches config: CinnamonSnail pools = {"Meadow"}, and SphynxKitten pools = {"Barnyard"} feeds Basic.
+- The Basic HUD card reads Uncommon 6.9996% · 1 in 14.3 and Rare 0.7986% · 1 in 125.
+
+**2. Book.** It reads "Found 0/449".
+- Tabs: Common 0/195, Uncommon 0/95, Rare 0/6, UR 0/71, Epic 0/60, Legendary 0/2, Godly 0/20.
+- Cinnamon Snail's card is IsLoaded with an id equal to CreatureThumbs, captioned "Meadow Egg 1 in 176".
+- All six Uncommon cards are IsLoaded and match: five read "Meadow Egg 1 in 235", and Sphynx Kitten reads "Basic Egg 1 in 271".
+
+**3. Stand-ins.** I gave the 7 from the test panel. Every mesh loaded straight away (Success, no stand-in seen live), so I drew each VoxelArt stand-in as Parts.
+
+| Species | Boxes | One 26-connected solid | Neon | Legs | One-sided voxels |
+|---|---|---|---|---|---|
+| CinnamonSnail | 35 | yes | 0 | none (snail) | 0 |
+| RoadrunnerChick | 44 | yes | 0 | 2 | 6, crest |
+| SeaBunny | 19 | yes | 0 | none | 0 |
+| SherbetChick | 44 | yes | 0 | 2 | 3, head |
+| SphynxKitten | 44 | yes | 0 | 4 | 6, tail |
+| SprinkleMouse | 44 | yes | 0 | 4 | 6, tail |
+| ThornyDevil | 44 | yes | 0 | 4 (2 boxes each) | 3, spikes |
+
+- Every stand-in has its feet at y = 0 and no floating boxes. The one-sided voxels are art details, not legs.
+- They read as the animal: a cream snail with a brown swirl shell, a streaky crested roadrunner, a small white sea bunny with ear tips and specks, a rainbow sherbet chick, a pale sphynx kitten with ears, a white sprinkle mouse, and a tan spiky thorny devil.
+
+**Meshes.** All 7 are MeshParts with 0 boxes and 0 Neon. Each uses one TextureID equal to assets.json, and every texture and mesh fetch is Success.
+
+**4. Walk and earn.**
+- All 7 walk, 2.2 to 7.6 studs in 6 s.
+- Legs swing: 2 of 2 for the chicks, 4 of 4 for SphynxKitten, SprinkleMouse and ThornyDevil.
+- The lowest mesh corner sits 0.01 to 0.07 above the pad. SherbetChick first read 0.4 from a sampling of mine; its legs measure 0.07 and the screenshot shows it standing.
+- Income rose from +0/s to +145/s (Cinnamon Snail 34/s).
+
+**5. Respawn.**
+- Before: 8 of 8 signs healthy and changing in 5 s.
+- I reset through Esc, R, Enter, and a new Character spawned.
+- After: 8 of 8 changed in each of three 5 s windows.
+- There are 0 OddsView or Hud lines in LogService.
+
+**Feedback.** The Feedback button is present.
+
+Screens: pr163-phone-odds-basic.jpg, -meadow.jpg, pr163-phone-book-rare.jpg, -uncommon.jpg, pr163-standins-7.jpg, pr163-sherbetchick-on-pad.jpg, pr163-placed-after-respawn.jpg.
