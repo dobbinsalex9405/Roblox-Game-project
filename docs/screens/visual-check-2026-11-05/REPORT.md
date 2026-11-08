@@ -1480,3 +1480,16 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`149-phone-meadow.jpg`).
   - **Basic:** Common 56 × "1.6429% · **1 in 60.9**"; Uncommon 7 × 1 in 100; **Rare 0.7976%** · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
   - **Meadow:** Common 84 × "0.7976% · **1 in 125**"; Uncommon 31 × "1.0001% · 1 in 100"; Rare 2 × 0.8496% (= **1.6992%**) · 1 in 118; UR 13 × "0.0215% · **1 in 4,651**"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
+
+## #150 @ 09a7199 (go-live C4: 18 Commons), built directly (head contains main 9ed07b49)
+
+**PASS.**
+- **Placed** Pebblet, PoodlePup, Quokka, RedPanda and Salamander.
+  - All are MeshPart creatures (6-11 MeshParts, 0 plain Parts) with **0 Neon**. All animate (0.3-4.4 studs in 6 s).
+  - Each texture equals its assets.json entry: Pebblet 105686401052455, PoodlePup 80062090413159, Quokka 134918390927097, RedPanda 84896704491065, Salamander 73840835508172.
+  - Gaps: 0.000, except RedPanda at 0.013 stud, far below anything visible.
+  - Palettes match the thumbs: grey mossy Pebblet, pink poodle, tan quokka, orange red panda, orange salamander (`150-five.jpg` against `150-book.jpg`).
+- **Book, Common tab:** 5/158. All **18** new cards are present with loaded pictures. Every image id equals its CreatureThumbs entry, and 0 labels are truncated. They read "Meadow Egg 1 in 140" (10) and "Basic Egg 1 in 69.6" (8). Pill Bug is held back, as the PR says.
+- **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`150-phone-meadow.jpg`).
+  - **Basic:** Common 64 × "1.4375% · **1 in 69.6**"; Uncommon 7 × 1 in 100; **Rare 0.8000%** · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
+  - **Meadow:** Common 94 × "0.7128% · **1 in 140**"; Uncommon 31 × "0.9999% · 1 in 100"; Rare 2 × 0.8503% (= **1.7006%**) · 1 in 118; UR 13 × "0.0215% · **1 in 4,651**"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
