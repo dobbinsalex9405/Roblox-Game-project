@@ -2741,6 +2741,102 @@
    "textureId": 128648975934834,
    "textureType": "Image",
    "version": "1"
+  },
+  "Angelfish": {
+   "assetId": 120524982455838,
+   "textureId": 91599828780627,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "AshBadger": {
+   "assetId": 135961552715594,
+   "textureId": 110004169600857,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CamelCalf": {
+   "assetId": 90607427568483,
+   "textureId": 123877059081860,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CheetahCub": {
+   "assetId": 133714612697365,
+   "textureId": 133187626372052,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "AmethystMole": {
+   "assetId": 129187014340843,
+   "textureId": 107254995431991,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BabyOctopus": {
+   "assetId": 94748253474402,
+   "textureId": 129127222274502,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Crocoduck": {
+   "assetId": 127258675355524,
+   "textureId": 87712097554433,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DolphinCalf": {
+   "assetId": 99752598557364,
+   "textureId": 106283529952496,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DonutSeal": {
+   "assetId": 109837231357197,
+   "textureId": 84278388228813,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Ducktopus": {
+   "assetId": 74522577747278,
+   "textureId": 80366034184196,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Ermine": {
+   "assetId": 129642542590978,
+   "textureId": 125791416313984,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FrostHamster": {
+   "assetId": 98097962042933,
+   "textureId": 100442761452554,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FrostKitten": {
+   "assetId": 80175009408895,
+   "textureId": 135178908839792,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GeodeCrab": {
+   "assetId": 73395478149008,
+   "textureId": 130050007269203,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Ghostling": {
+   "assetId": 105885152280856,
+   "textureId": 128575142225847,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GlasswingButterfly": {
+   "assetId": 137814173737830,
+   "textureId": 91293536884410,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
