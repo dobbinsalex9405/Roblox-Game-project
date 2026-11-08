@@ -21,7 +21,7 @@
    "options": {"kind": "frost"}},
   {"id": "EmberImp", "rarity": "Epic", "plan": "epicbiped", "gait": "waddle", "element": "Ember",
    "colors": {"col": "#E2453A", "belly": "#FF9A6A", "glow": "#FFB020"},
-   "options": {"kind": "imp"}},
+   "options": {"kind": "imp"}, "accessories": [{"kind": "draw", "color": "#612A33", "part": "horns", "voxels": [[-5, 0, 17], [4, 0, 17]]}]},
   {"id": "YetiCub", "rarity": "Epic", "plan": "epicbiped", "gait": "waddle", "element": "Glacial",
    "colors": {"col": "#F4F7FB", "skin": "#6FA8DC", "feet": "#5E8FC4", "glow": "#9EE7FF"},
    "options": {"kind": "yeti"}},

@@ -1176,7 +1176,9 @@
     {
      "kind": "mend",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#ACD9F4", "part": "tail", "voxels": [[-2, 4, 4], [1, 4, 4]]},
+    {"kind": "draw", "color": "#ACD9F4", "part": "head", "voxels": [[-1, -3, 4], [0, -3, 4]]}
    ],
    "element": "plain",
    "gait": "hover"
