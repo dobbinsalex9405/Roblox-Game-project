@@ -18,6 +18,7 @@ owns it).
 | Game passes | `Give` / `Remove` | Owns or stops owning a pass **for this session only**. Nothing is saved; the next join asks Roblox again. |
 | Products | `Buy` | Runs the product through the **real receipt path** with a new fake purchase id: the same code a Robux purchase runs, saved exactly once. |
 | Products | `Replay` | Sends the **same** purchase id again, as Roblox does when it retries. The panel should say "nothing was given twice. Exactly-once works." Any other answer is a bug. |
+| Game actions | a box and a button per choice | Each game can add its own (`services.addTestAction`). Hatchery Heist: **Give a creature**, any species by id, placed on a free pad like a hatch, so Ride and the guard walk can be checked at once. |
 | Save | `Reset my save` (tap twice) | Wipes your save back to a brand-new player and ends the test. Press Play again to start fresh. |
 
 What the panel cannot test: Roblox's own purchase window. That needs the
@@ -68,6 +69,11 @@ The server re-checks every Buy before opening Roblox's prompt. It refuses an
 item with id 0, a pass already owned, and a paid random item for restricted
 players. It also refuses a random item whose odds the player has not seen in
 the last 10 minutes; the shop's "Show odds" button counts.
+
+Hatchery Heist's **Golden Egg Shop** (a walk-in shop in the yard,
+`src/server/ShopHouse.luau`) puts every item of the catalog on a display
+with a Buy prompt that fires `Shop:Buy(kind, key, "GoldenEggShop")`. Items
+with an odds table are never put on a display (`src/shared/ShopPlan.luau`).
 
 A game's own Buy button (outside the shop screen) fires
 `Shop:Buy(kind, key, "<PlaceName>")` with a PascalCase name of at most 24

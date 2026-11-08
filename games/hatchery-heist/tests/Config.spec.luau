@@ -13,9 +13,11 @@ local function load()
 	return {
 		economy = require("../config/economy"),
 		creatures = require("../config/creatures"),
-		eggs = require("../config/eggs"),
+		eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 		raids = require("../config/raids"),
 		monetization = require("../config/monetization"),
+		atmosphere = require("../config/atmosphere"),
+		shophouse = require("../config/shophouse"),
 	}
 end
 
@@ -64,7 +66,7 @@ describe("Hatchery Heist config", function()
 				for _, row in odds:display(egg.id, player).rows do
 					total += row.weight
 				end
-				expect(total).toBe(10000)
+				expect(total).toBe(egg.total or 10000)
 			end
 		end
 	end)
@@ -84,6 +86,65 @@ describe("Hatchery Heist config", function()
 		expect(text).toContain("product id 77")
 		local schemaProblems = table.concat(Config.validate(Schemas.sections(bad)), "\n")
 		expect(schemaProblems).toContain("slotCosts must not decrease")
+	end)
+
+	it("keeps coin packs worth buying across the whole roster", function()
+		-- Income may grow with rarity but not run away from what coins buy:
+		-- the best creature earns at most 1,000 times the worst, each tier
+		-- earns more than the one below, and the 80K pack is at least five
+		-- minutes of any Epic's income (Nov 5 balance review).
+		local config = load()
+		local tiers = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
+		local low, high = {}, {}
+		local worst, best = math.huge, 0
+		for _, s in config.creatures.species do
+			local r = table.find(tiers, s.rarity) :: number
+			low[r] = math.min(low[r] or math.huge, s.coinsPerSecond)
+			high[r] = math.max(high[r] or 0, s.coinsPerSecond)
+			worst = math.min(worst, s.coinsPerSecond)
+			best = math.max(best, s.coinsPerSecond)
+		end
+		expect(best / worst).toBeAtMost(1000)
+		for r = 2, #tiers do
+			expect(low[r]).toBeAtLeast(high[r - 1] + 1)
+		end
+		expect(config.monetization.products.CoinPackBig.coins / high[5]).toBeAtLeast(5 * 60)
+	end)
+
+	it("keeps every daily reward at most a quarter of the 80K Coins pack", function()
+		local config = load()
+		local pack = config.monetization.products.CoinPackBig.coins
+		for day, reward in config.economy.daily.rewards do
+			expect(reward.maxCoins).toBeAtMost(pack * 0.25)
+			-- The floor sits below the cap, so income still counts in between.
+			expect(reward.minCoins).toBeAtMost(reward.maxCoins - 1)
+			if day > 1 then
+				expect(reward.maxCoins).toBeAtLeast(config.economy.daily.rewards[day - 1].maxCoins)
+			end
+		end
+	end)
+
+	-- A per-species book bonus grew with the roster (+1% each would be +150%
+	-- at 150 Commons); the capped bonus splits a fixed total between tiers.
+	it("caps the Hatchery Book bonus with a share for every tier that has creatures", function()
+		local config = load()
+		local book = config.economy.book
+		expect(book.maxBonus).toBeAtMost(0.25)
+		local sum = 0
+		for rarity, share in book.tierShare do
+			sum += share
+			local members = 0
+			for _, s in config.creatures.species do
+				if s.rarity == rarity then
+					members += 1
+				end
+			end
+			expect(members > 0 and rarity or `no {rarity} creatures for its book share`).toBe(rarity)
+		end
+		expect(sum).toBeCloseTo(1, 1e-9)
+		for id, s in config.creatures.species do
+			expect(book.tierShare[s.rarity] ~= nil and id or `{id}: no book share for {s.rarity}`).toBe(id)
+		end
 	end)
 
 	it("never sells raid immunity", function()

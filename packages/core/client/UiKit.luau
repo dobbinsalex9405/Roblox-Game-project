@@ -12,6 +12,10 @@ UiKit.ROW = Color3.fromRGB(40, 40, 55)
 UiKit.ACCENT = Color3.fromRGB(70, 160, 90)
 UiKit.MUTED = Color3.fromRGB(110, 110, 125)
 UiKit.WARN = Color3.fromRGB(200, 80, 70)
+-- Height of a button players tap, and of the row that holds it: big enough
+-- for a thumb on a phone.
+UiKit.TOUCH = 40
+UiKit.TOUCH_ROW = 44
 
 local function corner(parent: Instance, radius: number)
 	local c = Instance.new("UICorner")
@@ -96,6 +100,15 @@ function UiKit.card(parent: Instance): Frame
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Padding = UDim.new(0, 4)
 	layout.Parent = f
+	-- Children stack in the order they were added (equal LayoutOrders
+	-- would otherwise come out in no fixed order).
+	local added = 0
+	f.ChildAdded:Connect(function(child: Instance)
+		if child:IsA("GuiObject") and child.LayoutOrder == 0 then
+			added += 1
+			child.LayoutOrder = added
+		end
+	end)
 	f.Parent = parent
 	return f
 end
@@ -111,9 +124,15 @@ function UiKit.window(gui: ScreenGui, title: string, onClose: () -> ()): (Frame,
 	window.BackgroundTransparency = 0.05
 	window.Visible = false
 	corner(window, 12)
+	-- On a short screen (a phone held sideways) the window goes wider and
+	-- uses nearly the whole height, so a list shows more than one item.
 	local function fit()
 		local view = Workspace.CurrentCamera and Workspace.CurrentCamera.ViewportSize or Vector2.new(800, 600)
-		window.Size = UDim2.fromOffset(math.min(420, view.X - 32), math.min(520, view.Y - 80))
+		local short = view.Y < 500
+		window.Size = UDim2.fromOffset(
+			math.min(if short then 600 else 420, view.X - 32),
+			math.min(520, view.Y - (if short then 56 else 80))
+		)
 	end
 	fit()
 	if Workspace.CurrentCamera then
@@ -123,9 +142,11 @@ function UiKit.window(gui: ScreenGui, title: string, onClose: () -> ()): (Frame,
 	local heading = UiKit.label(window, title, 40, true)
 	heading.Position = UDim2.fromOffset(14, 4)
 	heading.Size = UDim2.new(1, -70, 0, 40)
-	local close = UiKit.button(window, "X", 36, 32, UiKit.WARN)
+	-- Thumb-sized (40 px), inside the top-right corner, clear of the title
+	-- (which ends 56 px from the right) and of the body (from y = 48).
+	local close = UiKit.button(window, "X", UiKit.TOUCH, UiKit.TOUCH, UiKit.WARN)
 	close.AnchorPoint = Vector2.new(1, 0)
-	close.Position = UDim2.new(1, -8, 0, 8)
+	close.Position = UDim2.new(1, -6, 0, 6)
 	close.Activated:Connect(onClose)
 
 	local body = Instance.new("ScrollingFrame")

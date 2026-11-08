@@ -42,6 +42,22 @@ jobs:
       - name: Tests (Lune)
         run: lune run tools/test/run
 
+      # VoxelArt.luau, CreatureMeshes.luau, CreatureThumbs.luau and EnvArt.luau are generated from tools/art; a
+      # hand edit or a stale export fails here.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Creature art is exported (tools/art)
+        run: |
+          python3 tools/art/export.py
+          python3 tools/art/blender/luau.py
+          python3 tools/art/env/luau.py
+          python3 tools/art/to_config.py --check
+          python3 tools/economy/even_eggs.py --check
+          python3 -m unittest discover -s tools/economy/tests
+          python3 -m unittest discover -s tools/art/tests
+          git diff --exit-code -- games/hatchery-heist/src/shared/VoxelArt.luau games/hatchery-heist/src/shared/CreatureMeshes.luau games/hatchery-heist/src/shared/CreatureThumbs.luau games/hatchery-heist/src/shared/EnvArt.luau games/hatchery-heist/tests/WalkMirror.luau
+
       - name: Build every game (Rojo)
         run: tools/build.sh all
 
@@ -50,8 +66,43 @@ jobs:
       - name: Boot every game (server start, player join, client UI)
         run: lune run tools/boot/run all --built
 
+      # The design viewer (tools/designs) exports every model the games build;
+      # a game change must not break that export.
+      - name: Design viewer builds (every game's models export)
+        run: |
+          lune run tools/designs/export all
+          node tools/designs/build.mjs --drops /nonexistent --out build/design-viewer
+
+      # The same file opened in Studio, where an unpublished place has no
+      # DataStores: every game must still start and let a player in.
+      - name: Boot every game as an unpublished place in Studio
+        run: lune run tools/boot/run all --built --studio --unpublished
+
       - name: Key flows (headless playtests)
         run: tools/keyflows.sh all
+
+      # What a joining player sees and taps, on Staging builds (real product
+      # ids, no secrets): world, spawn, HUD at phone/tablet/desktop, every
+      # first-screen button and what it opens. ops/VISUAL_PLAYTEST.md.
+      - name: Player's-eye audit (renders + checks)
+        run: lune run tools/audit/run all
+
+      - name: Audit summary
+        if: always()
+        run: |
+          for f in build/audit/*/report.md; do
+            [ -f "$f" ] && { cat "$f"; echo; } >> "$GITHUB_STEP_SUMMARY"
+          done
+          true
+
+      - name: Keep the audit images and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-${{ github.sha }}
+          path: build/audit
+          retention-days: 30
+          if-no-files-found: ignore
 
       - name: Strict type check (luau-lsp)
         run: tools/typecheck.sh

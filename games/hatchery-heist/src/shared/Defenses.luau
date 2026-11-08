@@ -119,13 +119,31 @@ function Defenses.toggleGuard(d: Data, uid: string): (boolean, string?)
 	end
 	local creature = Hatchery.creatureByUid(d, uid)
 	if creature == nil or creature.slot == nil then
-		return false, "Only a creature on a pad can guard."
+		return false, "Only a creature on a floor can guard."
 	end
 	if uid == d.mountUid then
 		return false, "Get off it first."
 	end
 	d.guardUid = uid
 	return true, nil
+end
+
+-- The base's guard and its species, or nil and nil when there is none: no
+-- guard set (`guardUid == ""`, every new player), a guard that is no longer
+-- owned, or a species the config no longer has. Never `false`.
+function Defenses.guardOf(d: Data?, species: { [string]: any }): (any?, any?)
+	if d == nil or d.guardUid == "" then
+		return nil, nil
+	end
+	local creature = Hatchery.creatureByUid(d, d.guardUid)
+	if creature == nil then
+		return nil, nil
+	end
+	local kind = species[creature.speciesId]
+	if kind == nil then
+		return nil, nil
+	end
+	return creature, kind
 end
 
 -- Walk speed while carrying a stolen creature.

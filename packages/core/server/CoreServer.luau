@@ -80,6 +80,14 @@ export type Services = {
 	net: ServerNet.ServerNet,
 	-- The shared shop: call shop:setCatalog after registering products.
 	shop: Purchases.Shop,
+	-- Adds a game action to the Studio test panel (TestPanel.addAction). It
+	-- only ever runs on a Studio server.
+	addTestAction: (
+		name: string,
+		title: string,
+		choices: { string },
+		run: (player: Player, choice: string) -> string
+	) -> (),
 }
 
 local log = Log.new("CoreServer")
@@ -597,6 +605,7 @@ function CoreServer.start(options: Options): Services
 		feedback = feedback,
 		net = net,
 		shop = theShop,
+		addTestAction = TestPanel.addAction,
 	}
 end
 

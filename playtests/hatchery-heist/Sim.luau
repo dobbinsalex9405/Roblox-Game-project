@@ -17,7 +17,10 @@ local Fakes = require("../../packages/core/tests/Fakes")
 local config = {
 	economy = require("../../games/hatchery-heist/config/economy"),
 	creatures = require("../../games/hatchery-heist/config/creatures"),
-	eggs = require("../../games/hatchery-heist/config/eggs"),
+	eggs = Eggs.expand(
+		require("../../games/hatchery-heist/config/eggs"),
+		require("../../games/hatchery-heist/config/creatures").species
+	),
 	monetization = require("../../games/hatchery-heist/config/monetization"),
 	raids = require("../../games/hatchery-heist/config/raids"),
 }
@@ -180,12 +183,17 @@ function Sim.new(options)
 		return h.data:get(player)
 	end
 
-	h.taken = {} -- [player] = { [index] = true }
-	function h.findOnBelt(player, eggId, maxProgress)
-		local plot = h.plots[player]
-		local taken = h.taken[player] or {}
-		h.taken[player] = taken
-		for _, egg in Conveyor.onBelt(h.clock.now(), plot, config.economy.conveyor) do
+	-- The Egg Market is shared: an egg anyone bought is gone for everyone.
+	-- h.taken[player] is that one shared list, whoever asks.
+	h.sold = {} -- [index] = true
+	h.taken = setmetatable({}, {
+		__index = function()
+			return h.sold
+		end,
+	})
+	function h.findOnBelt(_player, eggId, maxProgress)
+		local taken = h.sold
+		for _, egg in Conveyor.onBelt(h.clock.now(), config.economy.conveyor) do
 			if egg.eggId == eggId and egg.progress < (maxProgress or 0.9) and not taken[egg.index] then
 				return egg.index
 			end

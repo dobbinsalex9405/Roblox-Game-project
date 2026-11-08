@@ -28,6 +28,7 @@ games/hatchery-heist/
 tools/                    test runner, build, type check, boot check, key flows, publish, feedback reader,
                           metrics (scoreboard), loop (update plan)
 playtests/                headless playtests per game: system checks (CI) and bot sessions
+tools/designs/            the design viewer: every model in every game, in folders, in 3D
 ops/
   environments.json       universe and place ids per game (no keys, ever)
   SETUP.md                the steps only Alex can do (accounts, keys)
@@ -55,6 +56,7 @@ selene packages games tools   # lint
 tools/build.sh all         # build/<game>.rbxl for every game
 lune run tools/boot/run all --built   # boot every built game: server start, player join, client UI
 tools/keyflows.sh all      # play every game's main loop headless (playtests/<game>/checks.luau)
+lune run tools/audit/run all   # what a joining player sees and taps, as images + checks (build/audit/)
 tools/typecheck.sh         # strict type check with Roblox API types
 
 rojo serve games/hatchery-heist/default.project.json   # live-sync into Studio
@@ -65,10 +67,13 @@ CI runs the same checks on every pull request.
 ## How a change reaches players
 
 1. A pull request: CI must be green (format, lint, tests, build, boot check,
-   key flows, strict types).
-2. Merge to `main`: **Publish to Staging** re-runs tests, the boot check and
-   the key flows on the exact file, then publishes every game to its private
-   Staging experience.
+   key flows, player's-eye audit, strict types), and a PR that changes game
+   code needs a **visual playtest** report for its head commit
+   (`ops/VISUAL_PLAYTEST.md`: rendered audit, real-engine check in a Roblox
+   server, Studio play-solo through Studio's MCP server).
+2. Merge to `main`: **Publish to Staging** re-runs tests, the boot check, the
+   key flows and the audit on the exact file, then publishes every game to
+   its private Staging experience.
 3. Playtest on Staging: the live join and the error-queue sweep in
    `ops/PUBLISH_CHECKS.md`.
 4. Run **Publish to Production** for one game. It waits for Alex's approval in

@@ -17,6 +17,10 @@ lune run playtests/hatchery-heist/pacing.luau       # belt cap and first-three-m
 Each game gets its own folder with a `Sim.luau` (the server), a bot and the
 checks. Findings go into the playtest report doc for that game.
 
+These scripts test the rules, not what a player sees. Every game change also
+gets the player's-eye check in `ops/VISUAL_PLAYTEST.md` (rendered audit,
+real-engine check, Studio play-solo).
+
 ## Depthbound (PR #4 branch)
 
 These scripts require `games/depthbound`, so run them on a checkout that has

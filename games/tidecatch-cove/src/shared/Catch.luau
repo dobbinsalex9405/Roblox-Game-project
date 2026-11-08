@@ -11,6 +11,7 @@ export type OddsTable = {
 	id: string,
 	paid: boolean,
 	outcomes: { Outcome },
+	total: number?, -- left out: weights total 10,000 (core Odds)
 }
 
 -- Odds.normalize from the core, passed in because the core loads from

@@ -17,14 +17,29 @@ local Products = require(ReplicatedStorage.Shared.Products)
 
 local Shop = {}
 
-function Shop.register(services: CoreServer.Services, Config: any, ids: Monetization.Resolved)
+-- `incomeOf(player)`: the player's coins a second right now (nil before
+-- their data loads); coin packs scale with it.
+function Shop.register(
+	services: CoreServer.Services,
+	Config: any,
+	ids: Monetization.Resolved,
+	incomeOf: (player: Player) -> number?
+)
 	local monetization = Config.get("monetization")
 	local raids = Config.get("raids")
 	local products = monetization.products
 
+	-- The amount each player was last shown for each pack: a purchase never
+	-- gives less than what the shop showed, even if income dropped since.
+	local shown: { [Player]: { [string]: number } } = {}
+	local function amountFor(player: Player, key: string): number
+		return Products.packCoins(products[key], incomeOf(player) or 0)
+	end
+
 	for _, key in Products.COIN_PACKS do
-		local coins = products[key].coins
-		services.receipts:register(key, ids.products[key], function(_player, _data, ledger)
+		services.receipts:register(key, ids.products[key], function(player, _data, ledger)
+			local seen = shown[player]
+			local coins = math.max(amountFor(player, key), seen and seen[key] or 0)
 			ledger:add("coins", coins, `IAP:{key}`)
 		end)
 	end
@@ -37,6 +52,35 @@ function Shop.register(services: CoreServer.Services, Config: any, ids: Monetiza
 	-- Passes need no registration: the core checks ownership by id.
 	local catalog: { Purchases.CatalogItem } = Products.catalog(monetization, raids) :: any
 	services.shop:setCatalog(catalog)
+	for _, key in Products.COIN_PACKS do
+		local product = products[key]
+		services.shop:personalize(key, function(player: Player): (string, string)
+			local coins = amountFor(player, key)
+			local mine = shown[player] or {}
+			shown[player] = mine
+			mine[key] = coins
+			return `{Products.short(coins)} Coins`,
+				if coins > product.coins
+					then `{coins} coins right away: {product.incomeMinutes} minutes of what you earn now.`
+					else `{coins} coins right away.`
+		end)
+	end
+
+	-- Forget a player's shown amounts when they leave.
+	game:GetService("Players").PlayerRemoving:Connect(function(player)
+		shown[player] = nil
+	end)
+end
+
+-- The coin packs' amounts for a player right now, to tell when the shop
+-- should be refreshed (only when one changes, so not every tick).
+function Shop.packAmounts(Config: any, incomePerSecond: number): string
+	local products = Config.get("monetization").products
+	local parts = {}
+	for _, key in Products.COIN_PACKS do
+		table.insert(parts, tostring(Products.packCoins(products[key], incomePerSecond)))
+	end
+	return table.concat(parts, ",")
 end
 
 return Shop

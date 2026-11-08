@@ -14,7 +14,8 @@ local Movement = require(ReplicatedStorage.Core.Movement)
 local Util = require(ReplicatedStorage.Core.Util)
 local Shared = ReplicatedStorage.Shared
 local Geometry = require(Shared.Geometry)
-local Hatchery = require(Shared.Hatchery)
+local Tower = require(Shared.Tower)
+local Defenses = require(Shared.Defenses)
 local Layout = require(Shared.Layout)
 local Raids = require(Shared.Raids)
 
@@ -62,7 +63,7 @@ function RaidService.changed(raider: Player)
 	local root = rootOf(raider)
 	if carry and root and character then
 		local species = deps.config.creatures.species[carry.speciesId]
-		local size = Layout.raritySize(if species then species.rarity else "Common")
+		local size = Layout.carrySize(if species then species.rarity else "Common")
 		local body = Instance.new("Part")
 		body.Name = "Carried"
 		body.Shape = Enum.PartType.Ball
@@ -72,6 +73,8 @@ function RaidService.changed(raider: Player)
 		body.CanQuery = false
 		body.CanTouch = false
 		body.Massless = true
+		body.Transparency = 1 -- the client draws the creature (CreatureView)
+		body:SetAttribute("CreatureLook", carry.speciesId)
 		body.CFrame = root.CFrame * CFrame.new(0, 3 + size / 2, 0)
 		local weld = Instance.new("WeldConstraint")
 		weld.Part0 = root
@@ -179,11 +182,10 @@ local function moveGuards(dt: number)
 	local raidsConfig = deps.config.raids
 	for plot = 1, Layout.PLOTS do
 		local owner = World.ownerOfIndex(plot)
-		local d = owner and deps.data:get(owner)
-		local creature = d and d.guardUid ~= "" and Hatchery.creatureByUid(d, d.guardUid)
-		local species = creature and deps.config.creatures.species[creature.speciesId]
+		local d = if owner then deps.data:get(owner) else nil
+		local creature, species = Defenses.guardOf(d, deps.config.creatures.species)
 		local guard = guards[plot]
-		if species == nil or owner == nil then
+		if creature == nil or species == nil or owner == nil then
 			if guard then
 				guard:Destroy()
 				guards[plot] = nil
@@ -205,8 +207,10 @@ local function moveGuards(dt: number)
 			g.Material = Enum.Material.Neon
 			g.Anchored = true
 			g.CanCollide = false
-			g.Position = Vector3.new(px, Layout.FLOOR_TOP + size / 2, pz)
+			g.CFrame = CFrame.new(px, Layout.FLOOR_WORLD_TOP + size / 2, pz) * (model:GetPivot()).Rotation
 			g:SetAttribute("Uid", creature.uid)
+			g.Transparency = 1 -- the client draws the creature (CreatureView)
+			g:SetAttribute("CreatureLook", creature.speciesId)
 			g.Parent = model
 			guards[plot] = g
 			guard = g
@@ -237,7 +241,9 @@ local function moveGuards(dt: number)
 			local nx, nz = here.X + dx / distance * step, here.Z + dz / distance * step
 			-- Guards stay on their own base.
 			if Geometry.inside(plot, nx, nz, size / 2) then
-				g.Position = Vector3.new(nx, here.Y, nz)
+				-- Face where it is heading.
+				local at = Vector3.new(nx, here.Y, nz)
+				g.CFrame = CFrame.lookAt(at, at + Vector3.new(dx, 0, dz))
 			end
 		end
 	end
@@ -276,7 +282,26 @@ function RaidService.start(d: Deps)
 		if raid == nil or World.ownerOfIndex(plot) ~= raid.owner then
 			return
 		end
-		local px, pz = Geometry.pad(pad)
+		-- Reach is measured from the middle of the creature's pads (an Epic
+		-- takes 2, a Legendary or Godly 3), where it stands and its prompt is.
+		local span = 1
+		local owner = deps.data:get(raid.owner)
+		if owner then
+			for _, c in owner.creatures do
+				if c.slot == pad then
+					span = Tower.size(c, d.config.creatures, d.config.economy)
+					break
+				end
+			end
+		end
+		local px, pz = Geometry.padCentre(pad, span)
+		-- Pads on a floor above are reached by the ladder: the raider has to
+		-- stand on that floor, not under it.
+		local root = rootOf(player)
+		if root == nil or not Geometry.onFloorOfPad(pad, root.Position.Y - Layout.FLOOR_WORLD_TOP) then
+			d.notify(player, "Climb up to that floor first.")
+			return
+		end
 		local ok, why = d.raids:steal(player, pad, distanceTo(player, plot, { px, pz }))
 		if not ok and why then
 			d.notify(player, why)

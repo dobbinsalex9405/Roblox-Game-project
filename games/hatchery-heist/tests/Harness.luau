@@ -18,7 +18,7 @@ local Fakes = require("../../../packages/core/tests/Fakes")
 local config = {
 	economy = require("../config/economy"),
 	creatures = require("../config/creatures"),
-	eggs = require("../config/eggs"),
+	eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 	raids = require("../config/raids"),
 }
 
@@ -183,7 +183,7 @@ function Harness.new(options: Options?)
 	-- harness has not bought yet, if any.
 	h.taken = {} :: { [number]: boolean }
 	function h.findOnBelt(eggId: string): number?
-		for _, egg in Conveyor.onBelt(h.clock.now(), 1, config.economy.conveyor) do
+		for _, egg in Conveyor.onBelt(h.clock.now(), config.economy.conveyor) do
 			if egg.eggId == eggId and egg.progress < 0.9 and not h.taken[egg.index] then
 				return egg.index
 			end

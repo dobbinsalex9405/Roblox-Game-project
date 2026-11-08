@@ -13,9 +13,14 @@ return {
 		AutoCollect = 0,
 	},
 	products = {
-		CoinPackSmall = { id = 0, coins = 5000 },
-		CoinPackMedium = { id = 0, coins = 30000 },
-		CoinPackLarge = { id = 0, coins = 200000 },
+		-- A coin pack gives `coins`, or `incomeMinutes` of the buyer's income
+		-- right now, whichever is more (shared/Products.packCoins), so packs
+		-- stay worth buying as floors multiply income. Bigger packs give a
+		-- little more per Robux either way.
+		CoinPackSmall = { id = 0, coins = 5000, incomeMinutes = 5 },
+		CoinPackMedium = { id = 0, coins = 30000, incomeMinutes = 20 },
+		CoinPackBig = { id = 0, coins = 80000, incomeMinutes = 45 },
+		CoinPackLarge = { id = 0, coins = 200000, incomeMinutes = 100 },
 		ShieldRefill = { id = 0 },
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
@@ -35,6 +40,7 @@ return {
 				ShieldRefill = 3726413289,
 				CoinPackMedium = 3726413675,
 				CoinPackLarge = 3726413903,
+				CoinPackBig = 3728152137,
 			},
 		},
 		production = { passes = {}, products = {} },
@@ -49,12 +55,12 @@ return {
 		passes = {
 			DoubleCoins = {
 				name = "Double Coins",
-				robux = 199,
+				robux = 149,
 				description = "Every creature you own earns twice as many coins, forever.",
 			},
 			ExtraIncubators = {
 				name = "Extra Incubators",
-				robux = 149,
+				robux = 99,
 				description = "Two more incubators, so you can hatch more eggs at once.",
 			},
 			AutoCollect = {
@@ -69,6 +75,11 @@ return {
 				name = "30K Coins",
 				robux = 99,
 				description = "30,000 coins, added right away.",
+			},
+			CoinPackBig = {
+				name = "80K Coins",
+				robux = 199,
+				description = "80,000 coins, added right away.",
 			},
 			CoinPackLarge = {
 				name = "200K Coins",
@@ -88,12 +99,12 @@ return {
 			PremiumEgg = {
 				name = "Premium Egg",
 				robux = 49,
-				description = "One Premium Egg, with a chance at a Dragonling or Phoenix. Exact odds are shown before you buy.",
+				description = "One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy.",
 			},
 			LuckBoost = {
 				name = "Luck Boost",
 				robux = 49,
-				description = "Better odds of Rare, Epic and Legendary hatches for 15 minutes. The boosted odds are shown.",
+				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
 			},
 		},
 	},
@@ -101,8 +112,8 @@ return {
 		LuckBoost = {
 			durationSeconds = 900,
 			-- Multiplier per rarity on the eggs listed.
-			eggs = { "BasicEgg", "MeadowEgg", "PremiumEgg" },
-			rarityMultipliers = { Rare = 1.5, Epic = 2, Legendary = 2 },
+			eggs = { "BasicEgg", "MeadowEgg", "MoonlitEgg", "PremiumEgg" },
+			rarityMultipliers = { Rare = 1.5, ["Ultra Rare"] = 1.75, Epic = 2, Legendary = 2, Godly = 2 },
 		},
 	},
 }

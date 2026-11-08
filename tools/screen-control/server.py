@@ -42,7 +42,7 @@ from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa: E402
 from pywinauto.uia_defines import IUIA  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from guard import Focus, element_refusal, page_refusal, refusal  # noqa: E402
+from guard import Focus, covered_refusal, element_refusal, page_refusal, refusal  # noqa: E402
 import overlay  # noqa: E402
 
 PORT = int(os.environ.get("SCREEN_CONTROL_PORT", "8765"))
@@ -146,11 +146,26 @@ def _focus() -> Focus:
 
 
 def _check(text: str, window_title_contains: str) -> None:
+    """Make sure keys go to the named window and to no sensitive field.
+
+    The Claude app tends to take the foreground between tool calls, so when
+    the named window is not in front it is brought forward first; if that
+    fails, nothing is sent.
+    """
+    if not window_title_contains:
+        raise ValueError("window_title_contains is required")
+    needle = window_title_contains.lower()
     focus = _focus()
-    if not window_title_contains or window_title_contains.lower() not in focus.window_title.lower():
+    if needle not in focus.window_title.lower():
+        matches = [h for h, t in _windows() if needle in t.lower()]
+        if matches:
+            _bring_forward(matches[0])
+            time.sleep(0.4)  # let the window settle before keys arrive
+            focus = _focus()
+    if needle not in focus.window_title.lower():
         raise RuntimeError(
             f"Not sent: the foreground window is {focus.window_title!r}, not one whose title "
-            f"contains {window_title_contains!r}. Focus the right window first."
+            f"contains {window_title_contains!r}, and it could not be brought to the front."
         )
     reason = refusal(focus, text)
     if reason:
@@ -266,9 +281,24 @@ def _elements(text: str, window_title_contains: str) -> list[dict]:
                 "x": x,
                 "y": y,
                 "_screen": ((r.left + r.right) // 2, (r.top + r.bottom) // 2),
+                "_hwnd": hwnd,
             }
         )
     return out
+
+
+def _owner_chain(point: tuple[int, int]) -> list[int]:
+    """The top-level window at a point, then its owner, its owner's owner...
+
+    Menus and dropdowns are top-level windows owned by their app, so a click
+    on them belongs to the app's window too.
+    """
+    h = win32gui.GetAncestor(win32gui.WindowFromPoint(point), 2)  # GA_ROOT
+    chain = []
+    while h and h not in chain:
+        chain.append(h)
+        h = win32gui.GetWindow(h, 4)  # GW_OWNER
+    return chain or [0]
 
 
 @mcp.tool()
@@ -283,7 +313,7 @@ def find_elements(text: str, window_title_contains: str = "") -> list[dict]:
     """
     found = _elements(text, window_title_contains)
     log(f"find {text!r}: {len(found)}")
-    return [{k: v for k, v in e.items() if k != "_screen"} for e in found[:30]]
+    return [{k: v for k, v in e.items() if not k.startswith("_")} for e in found[:30]]
 
 
 @mcp.tool(structured_output=False)
@@ -292,6 +322,8 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
     first window whose title contains window_title_contains (required, so a
     click never lands in whatever window happens to be in front).
 
+    If another window covers the element, the target window is brought to
+    the front first; if it is still covered, nothing is sent.
     Refuses elements named like Buy Robux, Purchase, Checkout, Log in, and
     the same pages as click. then_screenshot returns a fresh screenshot too.
     """
@@ -305,10 +337,37 @@ def click_element(text: str, window_title_contains: str, index: int = 0, then_sc
     if reason:
         log(f"REFUSED: {reason}")
         raise PermissionError(f"Refused: {reason}. {REFUSAL_NOTE}")
+    chain = _owner_chain(el["_screen"])
+    if el["_hwnd"] not in chain:
+        _bring_forward(el["_hwnd"])
+        time.sleep(0.15)
+        chain = _owner_chain(el["_screen"])
+    reason = covered_refusal(chain, el["_hwnd"], win32gui.GetWindowText(chain[0]))
+    if reason:
+        log(f"NOT SENT: {reason}")
+        raise RuntimeError(f"Not sent: {reason}.")
     _check_click(el["_screen"])
     pyautogui.click(*el["_screen"])
     log(f"click element {el['name']!r} at {el['_screen']}")
     return _done(f"Clicked {el['type']} {el['name']!r}.", then_screenshot)
+
+
+@mcp.tool()
+def begin_control(task: str = "") -> str:
+    """Call when you start using the screen: the orange border stays on until
+    end_control (or 10 minutes with no action), so Alex can see Claude is at
+    work. task is a few words for the log."""
+    overlay.begin()
+    log(f"control started: {task}")
+    return "Control started; the orange border stays on until end_control."
+
+
+@mcp.tool()
+def end_control() -> str:
+    """Call when you are done with the screen: the orange border goes away."""
+    log("control ended")
+    overlay.end()
+    return "Control ended; the orange border is off."
 
 
 @mcp.tool()
@@ -399,17 +458,53 @@ def _type_char(ch: str) -> None:
     data = ch.encode("utf-16-le")
     for i in range(0, len(data), 2):
         unit = int.from_bytes(data[i : i + 2], "little")
-        for flags in (0x0004, 0x0004 | 0x0002):  # KEYEVENTF_UNICODE, then KEYUP
-            inp = _INPUT(type=1)  # INPUT_KEYBOARD
+        pair = (_INPUT * 2)()
+        for inp, flags in zip(pair, (0x0004, 0x0004 | 0x0002)):  # KEYEVENTF_UNICODE, then KEYUP
+            inp.type = 1  # INPUT_KEYBOARD
             inp.ki = _KEYBDINPUT(0, unit, flags, 0, 0)
-            ctypes.windll.user32.SendInput(1, ctypes.byref(inp), ctypes.sizeof(inp))
-    time.sleep(0.02)
+        # Down and up in one call, so nothing can come between them.
+        ctypes.windll.user32.SendInput(2, pair, ctypes.sizeof(_INPUT))
+    time.sleep(0.03)
 
 
-def _paste(text: str) -> None:
-    """Ctrl+V the text, then put back whatever text the clipboard held."""
-    win32clipboard.OpenClipboard()
+TEXT_FORMATS = {1, 13}  # CF_TEXT, CF_UNICODETEXT
+
+
+def _open_clipboard() -> None:
+    """OpenClipboard, retrying while another app briefly holds it."""
+    for _ in range(20):
+        try:
+            win32clipboard.OpenClipboard()
+            return
+        except Exception:  # noqa: BLE001 - pywintypes.error while held elsewhere
+            time.sleep(0.05)
+    raise RuntimeError("the clipboard is busy in another app; try again")
+
+
+def _clipboard_without_text() -> bool:
+    """True when the clipboard holds something (an image, files) but no
+    text: a paste would lose it. Text with extra formats (HTML, RTF from a
+    browser or Word) is fine: its plain text is restored."""
+    formats, f = set(), 0
+    while True:
+        f = win32clipboard.EnumClipboardFormats(f)
+        if not f:
+            break
+        formats.add(f)
+    return bool(formats) and not formats & TEXT_FORMATS
+
+
+def _paste(text: str) -> bool:
+    """Ctrl+V the text, then put back the text the clipboard held.
+
+    Returns False without touching anything when the clipboard holds no
+    text but something else (an image, copied files), so the caller types
+    keys instead.
+    """
+    _open_clipboard()
     try:
+        if _clipboard_without_text():
+            return False
         try:
             saved = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
         except TypeError:  # no text on the clipboard
@@ -420,13 +515,14 @@ def _paste(text: str) -> None:
         win32clipboard.CloseClipboard()
     pyautogui.hotkey("ctrl", "v")
     time.sleep(0.3)  # the app reads the clipboard after the key press
-    win32clipboard.OpenClipboard()
+    _open_clipboard()
     try:
         win32clipboard.EmptyClipboard()
         if saved is not None:
             win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, saved)
     finally:
         win32clipboard.CloseClipboard()
+    return True
 
 
 @mcp.tool(structured_output=False)
@@ -436,18 +532,18 @@ def type_text(
     """Type text into the focused field.
 
     method "paste" (default) puts the text on the clipboard, presses Ctrl+V
-    and restores the clipboard: exact and fast. "keys" sends it key by key
+    and restores the clipboard text: exact and fast (if the clipboard holds
+    only an image or files, it types keys instead so they aren't lost). "keys" sends it key by key
     (newlines press Enter), for places that ignore paste, such as games.
-    window_title_contains (required): only type if the foreground window's
-    title contains it, so text never lands in the wrong window.
+    window_title_contains (required): the window to type into; it is
+    brought to the front if needed, and nothing is sent if that fails.
     Refuses password, 2FA or one-time code, CAPTCHA and payment fields, and
     sign-in, verification and checkout pages. Never try to get around it.
     """
     if method not in ("paste", "keys"):
         raise ValueError('method must be "paste" or "keys"')
     _check(text, window_title_contains)
-    if method == "paste":
-        _paste(text)
+    if method == "paste" and _paste(text):
         log(f"pasted {len(text)} characters")
         return _done(f"Typed {len(text)} characters (paste).", then_screenshot)
     for ch in text.replace("\r", ""):
@@ -498,6 +594,19 @@ def list_windows() -> list[dict]:
     return [{"handle": h, "title": t, "foreground": h == fg} for h, t in wins]
 
 
+def _bring_forward(target: int) -> None:
+    try:
+        HwndWrapper(target).set_focus()
+    except Exception:  # noqa: BLE001 - Windows' foreground lock; try the Alt trick
+        if win32gui.IsIconic(target):
+            win32gui.ShowWindow(target, 9)  # SW_RESTORE
+        pyautogui.press("alt")
+        try:
+            win32gui.SetForegroundWindow(target)
+        except Exception:  # noqa: BLE001 - the caller checks the result
+            pass
+
+
 @mcp.tool()
 def focus_window(title_contains: str = "", handle: int = 0) -> str:
     """Bring a window to the front, by handle or by part of its title."""
@@ -509,16 +618,7 @@ def focus_window(title_contains: str = "", handle: int = 0) -> str:
         if not matches:
             raise ValueError(f"no visible window title contains {title_contains!r}")
         target = matches[0]
-    try:
-        HwndWrapper(target).set_focus()
-    except Exception:  # noqa: BLE001 - Windows' foreground lock; try the Alt trick
-        if win32gui.IsIconic(target):
-            win32gui.ShowWindow(target, 9)  # SW_RESTORE
-        pyautogui.press("alt")
-        try:
-            win32gui.SetForegroundWindow(target)
-        except Exception:  # noqa: BLE001 - checked below
-            pass
+    _bring_forward(target)
     title = win32gui.GetWindowText(target)
     if win32gui.GetForegroundWindow() != target:
         raise RuntimeError(f"Windows did not let {title!r} come to the front; click on it instead.")

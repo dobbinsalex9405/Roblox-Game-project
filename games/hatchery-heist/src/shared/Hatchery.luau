@@ -9,7 +9,10 @@
 -- ledger passed in. Nothing here yields, reads a clock or rolls dice: time and
 -- hatch outcomes are arguments, which keeps every rule unit-testable.
 
+local Book = require("./Book")
 local Creatures = require("./Creatures")
+local Numbers = require("./Numbers")
+local Tower = require("./Tower")
 
 export type Data = { [string]: any }
 
@@ -66,6 +69,26 @@ local function eggById(eggs: { any }, eggId: string): any?
 end
 Hatchery.eggById = eggById
 
+-- The eggs the Egg Market's belt sells (the keys of `weights`, its
+-- conveyor weights), cheapest first: the order of its odds signs and of
+-- the odds list's egg tabs.
+function Hatchery.marketEggs(eggs: { any }, weights: { [string]: number }): { string }
+	local ids = {}
+	for eggId in weights do
+		table.insert(ids, eggId)
+	end
+	table.sort(ids, function(a, b)
+		local ea, eb = eggById(eggs, a), eggById(eggs, b)
+		local pa = if ea then ea.priceCoins or 0 else 0
+		local pb = if eb then eb.priceCoins or 0 else 0
+		if pa ~= pb then
+			return pa < pb
+		end
+		return a < b
+	end)
+	return ids
+end
+
 -- Coins per second one creature earns before rebirth and pass multipliers.
 function Hatchery.creatureIncome(creature: any, creatureConfig: any): number
 	local species = creatureConfig.species[creature.speciesId]
@@ -89,10 +112,82 @@ function Hatchery.slotCount(d: Data, economy: any, perks: Perks): number
 	return d.slots + (if perks.extraIncubators then economy.incubators.passBonusSlots else 0)
 end
 
--- Coins per second from placed creatures, with rebirth and pass multipliers.
+-- Hatchery Book: notes that the player owns a species, at `at` (unix
+-- seconds). Returns true the first time.
+function Hatchery.noteFound(d: Data, speciesId: string, at: number): boolean
+	if d.found == nil then
+		d.found = {}
+	end
+	if d.found[speciesId] ~= nil then
+		return false
+	end
+	d.found[speciesId] = at
+	return true
+end
+
+-- Adds every species the player owns now to the book (for saves made before
+-- the book existed). Returns how many were new.
+function Hatchery.backfillFound(d: Data): number
+	local added = 0
+	for _, creature in d.creatures do
+		if Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt or 0) then
+			added += 1
+		end
+	end
+	return added
+end
+
+-- How many of the game's species are in the player's book.
+function Hatchery.foundCount(d: Data, creatureConfig: any): number
+	local n = 0
+	for speciesId in d.found or {} do
+		if creatureConfig.species[speciesId] ~= nil then
+			n += 1
+		end
+	end
+	return n
+end
+
+-- The book's income bonus: 0.07 means +7%, at most economy.book.maxBonus
+-- for a full book (shared/Book.luau).
+function Hatchery.bookBonus(d: Data, config: any): number
+	return Book.bonus(d.found, config.creatures.species, config.economy.book)
+end
+
+-- The player opened the Hatchery Book at `at`: cards found since stop
+-- being NEW.
+function Hatchery.seeBook(d: Data, at: number)
+	d.bookSeenAt = math.max(d.bookSeenAt or 0, at)
+end
+
+-- Coins per second from creatures placed on the tower, each times its
+-- floor's bonus, with rebirth, pass and book multipliers.
 function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
-	local base = Creatures.baseIncome(d.creatures, config.creatures)
-	return base * Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+	local base = 0
+	for _, c in d.creatures do
+		if c.slot then
+			base += Hatchery.creatureIncome(c, config.creatures) * Tower.multiplier(
+				d,
+				Tower.floorOf(c.slot),
+				config.economy
+			)
+		end
+	end
+	return base
+		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+		* (1 + Hatchery.bookBonus(d, config))
+end
+
+-- One placed creature's coins per second with every bonus, as the Creatures
+-- menu shows it; 0 in the inventory.
+function Hatchery.earning(d: Data, creature: any, config: any, perks: Perks): number
+	if creature.slot == nil then
+		return 0
+	end
+	return Hatchery.creatureIncome(creature, config.creatures)
+		* Tower.multiplier(d, Tower.floorOf(creature.slot), config.economy)
+		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+		* (1 + Hatchery.bookBonus(d, config))
 end
 
 -- Adds earnings since `lastIncomeAt` to the pending pile at full rate.
@@ -162,6 +257,21 @@ function Hatchery.freeSlot(d: Data, slotCount: number): number?
 	return nil
 end
 
+-- What a player short of coins for `egg` is told: which egg it was and its
+-- price (the belt keeps moving, so the nearest Buy is often a dearer egg),
+-- and the cheapest egg on sale when that is a different one.
+function Hatchery.shortOfCoins(egg: any, cheapest: any?): string
+	local function name(e: any): string
+		return (string.gsub(e.id, "(%l)(%u)", "%1 %2"))
+	end
+	local article = if string.find(egg.id, "^[AEIOU]") then "an" else "a"
+	local text = `Not enough coins: {article} {name(egg)} costs {Numbers.short(egg.priceCoins)}.`
+	if cheapest and cheapest.id ~= egg.id and cheapest.priceCoins then
+		text ..= ` {name(cheapest)}s cost {Numbers.short(cheapest.priceCoins)}.`
+	end
+	return text
+end
+
 -- Buys a coin egg into the first free incubator. `pick` decides the outcome
 -- at the moment of payment (a paid roll, or the fixed-order alternative).
 function Hatchery.buyEgg(
@@ -215,108 +325,159 @@ local function gcd(a: number, b: number): number
 end
 
 -- The alternative for players who may not receive paid random items: a fixed
--- cycle with each outcome exactly as often as its odds say (smooth weighted
--- round robin), so a restricted player gets the expected mix, no more and no
--- less. The next results are shown before purchase, so nothing about them is
--- random. A cycle is 10,000 / (the weights' greatest common divisor) eggs at
--- most, computed once per egg.
-local cycles: { [any]: { string } } = setmetatable({}, { __mode = "k" }) :: any
+-- order with each outcome exactly as often as its odds say, so a restricted
+-- player gets the expected mix, no more and no less. The next results are
+-- shown before purchase, so nothing about them is random.
+--
+-- A cycle is the egg's total / (the weights' greatest common divisor) eggs.
+-- Outcome i (reduced weight w) is due at the middle of each of its w equal
+-- shares of the cycle: its k-th turn (from 0) at (2k + 1) / (2w) of the way
+-- round. The cycle lists every turn in that order (ties: the earlier
+-- outcome first), so each outcome comes exactly w times a cycle, evenly
+-- spaced. Any place is worked out on its own from those turns, so a cycle
+-- of 10,000,000 eggs costs no memory (economy thread, Nov 7).
+type Order = { ids: { string }, weights: { number }, length: number }
+local orders: { [any]: Order } = setmetatable({}, { __mode = "k" }) :: any
 
-function Hatchery.fixedOrderCycle(egg: any): { string }
-	local cached = cycles[egg]
+local function orderOf(egg: any): Order
+	local cached = orders[egg]
 	if cached then
 		return cached
 	end
-	local outcomes = egg.outcomes
 	local divisor = 0
-	for _, o in outcomes do
+	for _, o in egg.outcomes do
 		divisor = gcd(divisor, o.weight)
 	end
-	local weights = {}
-	local total = 0
-	for i, o in outcomes do
+	local ids, weights, length = {}, {}, 0
+	for i, o in egg.outcomes do
+		ids[i] = o.id
 		weights[i] = o.weight // divisor
-		total += weights[i]
+		length += weights[i]
 	end
-	local current = table.create(#outcomes, 0)
-	local cycle = table.create(total)
-	for _ = 1, total do
-		local pick = 1
-		for i, w in weights do
-			current[i] += w
-			if current[i] > current[pick] then
-				pick = i
-			end
+	local order = { ids = ids, weights = weights, length = length }
+	orders[egg] = order
+	return order
+end
+
+-- The place in the cycle (from 0) of outcome i's k-th turn: how many turns
+-- of every outcome come before it. Exact in whole numbers: turn l of
+-- outcome j comes first when (2l + 1) * w_i < (2k + 1) * w_j, or on a tie
+-- when j is the earlier outcome. Products stay below 2^53 for weights up
+-- to 10,000,000.
+local function placeOf(order: Order, i: number, k: number): number
+	local weights = order.weights
+	local wi = weights[i]
+	local place = 0
+	for j, wj in weights do
+		local a = (2 * k + 1) * wj
+		local largest = if j < i then a // wi else (a - 1) // wi -- largest odd 2l+1 that comes first
+		place += (largest + 1) // 2
+	end
+	return place
+end
+
+-- The first turn k of outcome i whose place is at least `at`, or the
+-- outcome's weight when every turn is earlier.
+local function firstTurnFrom(order: Order, i: number, at: number): number
+	local lo, hi = 0, order.weights[i]
+	while lo < hi do
+		local mid = (lo + hi) // 2
+		if placeOf(order, i, mid) < at then
+			lo = mid + 1
+		else
+			hi = mid
 		end
-		current[pick] -= total
-		table.insert(cycle, outcomes[pick].id)
 	end
-	cycles[egg] = cycle
-	return cycle
+	return lo
+end
+
+-- How many eggs a fixed-order cycle of this kind is.
+function Hatchery.fixedOrderLength(egg: any): number
+	return orderOf(egg).length
 end
 
 -- The outcome of a restricted player's next egg of this kind.
 function Hatchery.fixedOrderOutcome(egg: any, boughtBefore: number): string
-	local cycle = Hatchery.fixedOrderCycle(egg)
-	return cycle[(boughtBefore % #cycle) + 1]
+	local order = orderOf(egg)
+	local at = boughtBefore % order.length
+	for i in order.weights do
+		local k = firstTurnFrom(order, i, at)
+		if k < order.weights[i] and placeOf(order, i, k) == at then
+			return order.ids[i]
+		end
+	end
+	error(`no outcome at place {at} of {egg.id}`) -- every place holds exactly one turn
 end
 
 -- How many more eggs of this kind until `outcomeId` hatches (0 = the next one).
 function Hatchery.fixedOrderWait(egg: any, boughtBefore: number, outcomeId: string): number?
-	local cycle = Hatchery.fixedOrderCycle(egg)
-	for ahead = 0, #cycle - 1 do
-		if cycle[((boughtBefore + ahead) % #cycle) + 1] == outcomeId then
-			return ahead
-		end
+	local order = orderOf(egg)
+	local i = table.find(order.ids, outcomeId)
+	if i == nil or order.weights[i] <= 0 then
+		return nil
 	end
-	return nil
+	local at = boughtBefore % order.length
+	local k = firstTurnFrom(order, i, at)
+	if k < order.weights[i] then
+		return placeOf(order, i, k) - at
+	end
+	return placeOf(order, i, 0) + order.length - at -- round to the next cycle
 end
 
--- Places a new creature: the first free pad, or, when every pad is full, the
--- pad of the weakest placed creature if the new one earns more (the weaker
--- one moves to storage). Otherwise the new creature goes to storage. The
--- creature being ridden and the guard keep their pads.
-local function place(d: Data, creature: any, creatureConfig: any, creaturePads: number)
-	local usedPads: { [number]: boolean } = {}
-	local weakest: any = nil
-	for _, other in d.creatures do
-		if other.slot then
-			usedPads[other.slot] = true
-			local income = Hatchery.creatureIncome(other, creatureConfig)
-			if
-				other.uid ~= d.mountUid
-				and other.uid ~= d.guardUid
-				and (weakest == nil or income < Hatchery.creatureIncome(weakest, creatureConfig))
-			then
-				weakest = other
-			end
+export type FixedOrderTier = { rarity: string, count: number, wait: number }
+export type FixedOrderSummary = { upcoming: { string }, tiers: { FixedOrderTier }, length: number }
+
+-- What the odds card shows a restricted player, in a few lines however many
+-- creatures the egg holds: the next `upcoming` eggs in order, and for each
+-- tier (in `rarities` order) how many of a cycle's eggs it is and how many
+-- eggs until its first one (0 = the next). The full order is the odds list.
+function Hatchery.fixedOrderSummary(
+	egg: any,
+	boughtBefore: number,
+	rarityOf: (string) -> string,
+	upcoming: number,
+	rarities: { string }
+): FixedOrderSummary
+	local order = orderOf(egg)
+	local next = {}
+	for n = 0, math.min(upcoming, order.length) - 1 do
+		table.insert(next, Hatchery.fixedOrderOutcome(egg, boughtBefore + n))
+	end
+	local counts: { [string]: number } = {}
+	local waits: { [string]: number } = {}
+	for i, id in order.ids do
+		if order.weights[i] > 0 then
+			local rarity = rarityOf(id)
+			counts[rarity] = (counts[rarity] or 0) + order.weights[i]
+			local wait = Hatchery.fixedOrderWait(egg, boughtBefore, id) :: number
+			waits[rarity] = math.min(waits[rarity] or math.huge, wait)
 		end
 	end
-	for pad = 1, creaturePads do
-		if not usedPads[pad] then
-			creature.slot = pad
-			return
+	local tiers = {}
+	for _, rarity in rarities do
+		if counts[rarity] then
+			table.insert(tiers, { rarity = rarity, count = counts[rarity], wait = waits[rarity] })
 		end
 	end
-	if
-		weakest
-		and Hatchery.creatureIncome(creature, creatureConfig)
-			> Hatchery.creatureIncome(weakest, creatureConfig)
-	then
-		creature.slot = weakest.slot
-		weakest.slot = nil
-	end
+	return { upcoming = next, tiers = tiers, length = order.length }
 end
 
--- Whether every creature pad holds a creature.
-function Hatchery.padsFull(d: Data, creaturePads: number): boolean
-	local used = 0
-	for _, c in d.creatures do
-		if c.slot then
-			used += 1
+-- The whole cycle, in order. For tests and small eggs only: game code asks
+-- for single places, which cost nothing however long the cycle is.
+function Hatchery.fixedOrderCycle(egg: any): { string }
+	local order = orderOf(egg)
+	local cycle = table.create(order.length)
+	for i, w in order.weights do
+		for k = 0, w - 1 do
+			cycle[placeOf(order, i, k) + 1] = order.ids[i]
 		end
 	end
-	return used >= creaturePads
+	return cycle
+end
+
+-- Whether the tower has no room left for even a 1-slot creature.
+function Hatchery.padsFull(d: Data, creatureConfig: any, economy: any): boolean
+	return Tower.full(d, creatureConfig, economy)
 end
 
 -- Coins a stored creature sells for when storage overflows.
@@ -390,8 +551,9 @@ function Hatchery.hatch(
 		hatchedAt = now,
 	}
 	d.nextUid += 1
-	place(d, creature, creatureConfig, economy.creaturePads)
+	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
+	Hatchery.noteFound(d, creature.speciesId, now)
 	local sold = trimStorage(d, ledger, creatureConfig, economy)
 	return creature, nil, sold
 end
@@ -429,8 +591,9 @@ function Hatchery.receive(
 		hatchedAt = from.hatchedAt,
 	}
 	d.nextUid += 1
-	place(d, creature, creatureConfig, economy.creaturePads)
+	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
+	Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt)
 	return creature, trimStorage(d, ledger, creatureConfig, economy)
 end
 
@@ -461,7 +624,7 @@ function Hatchery.ride(d: Data, uid: string, creatureConfig: any): (number?, str
 		return nil, "That creature is guarding your base."
 	end
 	if creature.slot == nil then
-		return nil, "Only a creature on a pad can be ridden."
+		return nil, "Only a creature on a floor can be ridden."
 	end
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then

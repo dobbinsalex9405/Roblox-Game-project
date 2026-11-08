@@ -84,6 +84,16 @@ jobs:
         if: steps.check.outputs.configured == 'true'
         run: tools/keyflows.sh ${{ matrix.game.name }}
 
+      - name: Player's-eye audit (world, spawn, HUD, clicks)
+        if: steps.check.outputs.configured == 'true'
+        run: lune run tools/audit/run --built --no-images ${{ matrix.game.name }}
+
+      # Off until the Staging keys carry Luau Execution access (ops/SETUP.md);
+      # then set the repository variable CLOUD_CHECK to "on".
+      - name: Real-engine check (Open Cloud Luau Execution)
+        if: steps.check.outputs.configured == 'true' && vars.CLOUD_CHECK == 'on'
+        run: lune run tools/cloud/run ${{ matrix.game.name }}
+
       - name: Publish to Staging
         id: publish
         if: steps.check.outputs.configured == 'true'

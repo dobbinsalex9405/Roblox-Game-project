@@ -3,16 +3,23 @@
 -- client) scripts under Lune with a thin Roblox shim (tools/boot/shim.luau).
 --
 --   lune run tools/boot/run [game|all] [--built] [--no-build] [--studio]
---                           [--no-client] [--no-join] [--settle 2] [--verbose]
+--                           [--unpublished] [--no-client] [--no-join]
+--                           [--settle 2] [--frames 30] [--verbose]
 --
 -- By default each game is built fresh into build/boot-<game>.rbxl. `--built`
 -- boots build/<game>.rbxl as tools/build.sh left it instead, so CI and the
 -- publish workflows check the exact file that gets uploaded (environment
 -- stamp included). `--no-build` reuses an earlier build/boot-<game>.rbxl.
+-- `--studio --unpublished` is a built file opened in Studio: RunService says
+-- Studio and every GetDataStore call throws, as it does in a place that was
+-- never published.
 --
 -- What it catches: a config assert that fails at start-up, a require that
 -- points nowhere, a nil index while the world is built or remotes are
--- registered, a start-up error on the client. It cannot judge how anything
+-- registered, a start-up error on the client, a part built inside the
+-- ground (the Baseplate), and an error in code that runs every frame (after
+-- the join it plays --frames frames, default 30, on the server and then on
+-- the client, with a brand-new player's save). It cannot judge how anything
 -- looks or plays; Studio still does that.
 --
 -- Exit code 1 when any game's server or client raised an error.
@@ -30,8 +37,8 @@ do
 	local i = 1
 	while i <= #args do
 		local a = args[i]
-		if a == "--settle" then
-			flags.settle = tonumber(args[i + 1])
+		if a == "--settle" or a == "--frames" then
+			flags[string.sub(a, 3)] = tonumber(args[i + 1])
 			i += 2
 		elseif string.sub(a, 1, 2) == "--" then
 			flags[string.sub(a, 3)] = true
@@ -44,6 +51,7 @@ do
 end
 
 local settle = flags.settle or 2
+local frames = flags.frames or 30
 local games: { string } = {}
 if #positional == 0 or positional[1] == "all" then
 	for _, name in fs.readDir("games") do
@@ -89,9 +97,20 @@ local function report(game: string, side: string, scripts: { string })
 	for _, name in scripts do
 		print(`   ran {name}`)
 	end
+	-- An error in per-frame code repeats every frame: show it once, counted.
+	local errorCounts: { [string]: number } = {}
+	local errorOrder: { string } = {}
 	for _, err in Shim.errors do
 		failed = true
-		print(`[BUG] {game} {side} ({err.where}): {err.message}`)
+		local line = `[BUG] {game} {side} ({err.where}): {err.message}`
+		if errorCounts[line] == nil then
+			table.insert(errorOrder, line)
+		end
+		errorCounts[line] = (errorCounts[line] or 0) + 1
+	end
+	for _, line in errorOrder do
+		local count = errorCounts[line]
+		print(if count > 1 then `{line} (x{count})` else line)
 	end
 	-- Identical lines (a warning from a loop) are shown once with a count;
 	-- tracebacks are cut to their first lines.
@@ -169,12 +188,64 @@ local function takeOutput(): { string }
 	return output
 end
 
+-- Nothing the server builds may sit inside the ground. Rojo silently drops a
+-- part's `Position` from a project file when it builds a place, which once
+-- left every Baseplate centred on Y = 0: its top at Y = 10, ten studs above
+-- the floors the games build at ground level, so in Roblox the whole map was
+-- buried. A part whose centre is inside a Baseplate is that bug.
+local GROUND_EPSILON = 0.05
+
+local function buriedParts(game: any): { string }
+	local workspace = game:GetService("Workspace")
+	local grounds = {}
+	for _, child in workspace:GetChildren() do
+		if child:IsA("BasePart") and child.Name == "Baseplate" then
+			table.insert(grounds, child)
+		end
+	end
+	local buried: { string } = {}
+	for _, ground in grounds do
+		local half = ground.Size / 2
+		for _, d in workspace:GetDescendants() do
+			if d ~= ground and d:IsA("BasePart") and not d:IsA("Terrain") then
+				local p = ground.CFrame:PointToObjectSpace(d.CFrame.Position)
+				local inside = math.abs(p.X) < half.X
+					and math.abs(p.Z) < half.Z
+					and p.Y < half.Y - GROUND_EPSILON
+					and p.Y > -half.Y
+				if inside then
+					table.insert(
+						buried,
+						`{d:GetFullName()} is {string.format("%.1f", half.Y - p.Y)} studs under the ground`
+					)
+				end
+			end
+		end
+	end
+	return buried
+end
+
+local function checkGround(game: any)
+	local buried = buriedParts(game)
+	if #buried > 0 then
+		local shown = table.move(buried, 1, math.min(#buried, 5), 1, {})
+		table.insert(Shim.errors, {
+			where = "world",
+			message = `{#buried} part(s) inside the Baseplate, for example:\n      {table.concat(
+				shown,
+				"\n      "
+			)}`,
+		})
+	end
+end
+
 -- One game: start the server, let a player join, start that player's client
 -- against the same tree (as a real client would see it), then let them leave.
 local function bootGame(gameName: string, placePath: string)
 	Shim.reset()
 	Shim.side = "server"
 	Shim.studio = flags.studio == true
+	Shim.unpublished = flags.unpublished == true
 	Shim.quiet = true
 	Shim.install()
 	local game = roblox.deserializePlace(fs.readFile(placePath))
@@ -192,7 +263,14 @@ local function bootGame(gameName: string, placePath: string)
 		players.PlayerAdded:Fire(player)
 		task.wait(settle * 2)
 		table.insert(ran, "join of one player")
+		-- A new player has the default save (no guard, no mount, empty pads),
+		-- the state most per-frame code forgets about.
+		Shim.stepFrames(frames)
+		task.wait(settle)
+		table.insert(ran, `{frames} frames with that player in`)
 	end
+	checkGround(game)
+	table.insert(ran, "ground check (nothing built inside the Baseplate)")
 
 	local clientRan, clientErrors, clientOutput = nil, nil, nil
 	local serverStarted = #Shim.errors == 0
@@ -217,6 +295,9 @@ local function bootGame(gameName: string, placePath: string)
 		end
 		clientRan = runAll(game, clientScripts, "client start-up")
 		task.wait(settle)
+		Shim.stepFrames(frames, true)
+		task.wait(settle)
+		table.insert(clientRan, `{frames} frames`)
 		clientErrors, clientOutput = takeErrors(), takeOutput()
 		-- Back to the server for the leave.
 		Shim.side = "server"

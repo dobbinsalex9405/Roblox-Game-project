@@ -16,9 +16,13 @@ The first run creates `.venv` here and installs `requirements.txt` (Python
 Claude takes. **Close the window or press Ctrl+C to stop.** Moving the mouse
 hard into a screen corner aborts the action in progress.
 
-While Claude is using the screen, an **orange border** runs around it; it
-goes away 6 seconds after the last action. It lets clicks through, never
-takes focus and is left out of screenshots (`overlay.py`).
+While Claude is using the screen, an **orange border** runs around it. A
+session calls `begin_control` when it starts a screen task and `end_control`
+when it is done; the border stays on in between and goes away at
+`end_control`. A single action without `begin_control` shows it for 6
+seconds, and a task left open with no action for 10 minutes ends by itself.
+It lets clicks through, never takes focus and is left out of screenshots
+(`overlay.py`).
 
 Without a console (started with `pythonw`, or with `--log`) the server
 writes the same lines to `%USERPROFILE%\.screen-control\server.log`.
@@ -52,7 +56,11 @@ powershell -ExecutionPolicy Bypass -File tools\screen-control\register.ps1
 ```
 
 This adds `screen-control` to Claude Code's user config, so every new
-session on the laptop, Remote Control threads included, gets the tools.
+session on the laptop, Remote Control threads included, gets the tools. It
+also installs `skill/SKILL.md` as the user skill `screen-control`
+(`%USERPROFILE%\.claude\skills\screen-control`), which tells a session when
+and how to use the tools and the hard rules. Edit the copy here and re-run
+`register.ps1` to update it.
 While the server is stopped, `claude mcp list` shows it as failed to connect
 and Claude cannot touch the screen. Sessions started before the server was
 up need a restart (or `/mcp` reconnect) to see the tools.
@@ -92,8 +100,9 @@ usually hides page contents from it: in Chrome, click by screenshot
 coordinates, or use the Chrome browser tools.
 
 `window_title_contains` is required on `type_text`, `press_keys` and
-`click_element`: the Claude app itself often takes the foreground, and
-without the check, text lands in whatever window is in front.
+`click_element`: the Claude app itself often takes the foreground between
+calls. The server brings the named window to the front first and sends
+nothing if it cannot, so text never lands in whatever window is in front.
 
 Uploading a file through a web page: click the page's upload button, wait
 for the Windows "Open" dialog, `type_text(path, "Open")` into "File name",

@@ -1,0 +1,247 @@
+{
+ "creatures": [
+  {
+   "id": "IcicleBat",
+   "rarity": "Ultra Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "element": "Glacial",
+   "options": {
+    "face": "fox"
+   },
+   "colors": {
+    "col": "#CFE6FA",
+    "belly": "#F2FAFF",
+    "wing": "#8FC3EC",
+    "ear": "#B3D6F2",
+    "accent": "#7FDBFF"
+   },
+   "accessories": [
+    {
+     "kind": "wing_icicles",
+     "color": "#BFE6FF",
+     "color2": "#E8FAFF"
+    },
+    {
+     "kind": "ear_icicles",
+     "color": "#BFE6FF",
+     "color2": "#E8FAFF"
+    },
+    {
+     "kind": "iris_eyes",
+     "color": "#7FDBFF",
+     "color2": "#14203A",
+     "iris_glow": true
+    }
+   ]
+  },
+  {
+   "id": "LeafBat",
+   "rarity": "Ultra Rare",
+   "plan": "bat",
+   "gait": "hover",
+   "element": "Nature",
+   "options": {
+    "face": "fox"
+   },
+   "colors": {
+    "col": "#6E8A3E",
+    "belly": "#D8E8B0",
+    "wing": "#5FBF45",
+    "ear": "#4E6A2A",
+    "accent": "#D8E8B0"
+   },
+   "accessories": [
+    {
+     "kind": "leaf_veins",
+     "color": "#2F7A2A"
+    },
+    {
+     "kind": "ear_leaves",
+     "color": "#5FAE45",
+     "color2": "#2F7A2A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ]
+  },
+  {
+   "id": "DustBunny",
+   "rarity": "Ultra Rare",
+   "plan": "puff",
+   "gait": "hop",
+   "element": "plain",
+   "options": {
+    "kind": "ball"
+   },
+   "colors": {
+    "col": "#B9B4AE",
+    "accent": "#D6D2CC",
+    "tuft": "#9C968F",
+    "feet": "#8C867F"
+   },
+   "accessories": [
+    {
+     "kind": "fuzz",
+     "color": "#A9A49E"
+    },
+    {
+     "kind": "ear_tufts",
+     "color": "#A9A49E",
+     "color2": "#C9C5BF"
+    },
+    {
+     "kind": "dust_motes",
+     "color": "#CFCAC4",
+     "color2": "#EDE6D8"
+    },
+    {
+     "kind": "shineeyes",
+     "color": "#1B1B2F"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ]
+  },
+  {
+   "id": "JellySlime",
+   "rarity": "Ultra Rare",
+   "plan": "puff",
+   "gait": "hop",
+   "element": "plain",
+   "options": {
+    "kind": "gum"
+   },
+   "colors": {
+    "col": "#6FE3A0",
+    "accent": "#B8FFD6",
+    "feet": "#4CC982"
+   },
+   "accessories": [
+    {
+     "kind": "jelly",
+     "color": "#3FBF7A",
+     "color2": "#4FD08A",
+     "glow_from": 1.1
+    },
+    {
+     "kind": "jelly_core",
+     "color": "#7CFFB4",
+     "color2": "#E8FFF2",
+     "band_glow": false
+    },
+    {
+     "kind": "coin_inside",
+     "color": "#FFD43B",
+     "color2": "#B07E10"
+    },
+    {
+     "kind": "smile_line",
+     "color": "#1E5A3A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ]
+  },
+  {
+   "id": "PebbleGolem",
+   "rarity": "Ultra Rare",
+   "plan": "upright",
+   "gait": "waddle",
+   "element": "Nature",
+   "options": {
+    "kind": "golem"
+   },
+   "colors": {
+    "col": "#9A9690",
+    "accent": "#6FAE4A",
+    "belly": "#B4B0A8"
+   },
+   "shape": {
+    "body": [
+     0.85,
+     0.85,
+     0.9
+    ]
+   },
+   "accessories": [
+    {
+     "kind": "river_stones",
+     "color": "#9A9690",
+     "color2": "#7E7A74"
+    },
+    {
+     "kind": "moss_top",
+     "color": "#5FA845",
+     "color2": "#8FD45E"
+    },
+    {
+     "kind": "eye_shine",
+     "color": "#14141E"
+    }
+   ]
+  },
+  {
+   "id": "NeonOctopus",
+   "rarity": "Ultra Rare",
+   "plan": "octopus",
+   "gait": "scuttle",
+   "element": "plain",
+   "options": {
+    "kind": "octopus"
+   },
+   "colors": {
+    "col": "#2E2650",
+    "accent": "#3DFFB8",
+    "belly": "#4A3F78"
+   },
+   "accessories": [
+    {
+     "kind": "neon_rings",
+     "color": "#3DFFB8"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000",
+     "head": true
+    }
+   ]
+  },
+  {
+   "id": "WillOWisp",
+   "rarity": "Ultra Rare",
+   "plan": "puff",
+   "gait": "hover",
+   "element": "plain",
+   "options": {
+    "kind": "ball"
+   },
+   "colors": {
+    "col": "#3A8CF0",
+    "accent": "#7FC4FF",
+    "feet": "#2F6FD0"
+   },
+   "accessories": [
+    {
+     "kind": "wisp_flame",
+     "color": "#3A9CFF",
+     "color2": "#5FE4FF"
+    },
+    {
+     "kind": "sleepy_eyes",
+     "color": "#14203A"
+    },
+    {
+     "kind": "fit_boxes",
+     "color": "#000000"
+    }
+   ]
+  }
+ ]
+}

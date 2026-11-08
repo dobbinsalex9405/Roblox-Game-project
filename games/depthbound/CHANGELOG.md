@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Phones (shared core): the close button (X) on the shop, test panel and
+  feedback windows is 40 by 40 px.
+- Fixed (shared core): the game now starts in Studio from a built place
+  file. The error queue, feedback and metrics stores no longer stop the
+  server when DataStores are unavailable (an unpublished place); they warn
+  once and save nothing. Live servers are unchanged.
 - Player analytics (shared core): the daily scoreboard now shows time played
   and session lengths, D7 and D30 returns, players who come with or bring
   friends, Robux by item and by where in the game it was bought, purchase

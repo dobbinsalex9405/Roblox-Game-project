@@ -45,13 +45,19 @@ cannot read it; only Claude runs can. How to trip it yourself is in
 ## How work flows
 
 1. Work on a branch, open a **draft PR**. CI must be green: format, lint,
-   tests, build, boot check, key flows, strict types (see "Commands"). Run
-   them locally before pushing.
+   tests, build, boot check, key flows, player's-eye audit, strict types (see
+   "Commands"). Run them locally before pushing.
 2. The **verifier** (the project thread "Playtest the games for bugs and
    gaps", Fable 5.1 at high effort) re-verifies the PR's final head with the
-   playtest harnesses in `playtests/`.
-3. Verifier OK + green CI → **merge without asking Alex** (Alex's standing
-   rule). Any push after the OK needs a fresh OK.
+   playtest harnesses in `playtests/` **and looks at it as a player**
+   (`ops/VISUAL_PLAYTEST.md`): the audit's images, the real-engine check in a
+   Roblox server, and for world, layout or UI changes a Studio play-solo
+   through Studio's MCP server. Headless checks alone are never enough.
+3. **Visual gate:** a PR that touches `games/` or `packages/` needs the
+   verifier's visual playtest report for its head commit as a PR comment
+   (`Verdict: OK`); the `visual-playtest` status stays pending until then.
+   Verifier OK + visual report + green CI → **merge without asking Alex**
+   (Alex's standing rule). Any push after the OK needs a fresh OK and report.
 4. A merge to `main` publishes every game to its private **Staging**
    experience. **Production** is a manual workflow run that waits for Alex.
 
@@ -70,6 +76,7 @@ selene packages games tools playtests          # lint
 tools/build.sh all                             # build every game
 lune run tools/boot/run all --built            # boot every built game: server, join, client UI, leave
 tools/keyflows.sh all                          # play every game's main loop headless (playtests/)
+lune run tools/audit/run all                   # player's-eye audit: renders + world/HUD/click checks (build/audit/)
 tools/typecheck.sh                             # strict types
 ```
 
@@ -100,6 +107,10 @@ tools/typecheck.sh                             # strict types
   the release flow and the rollback rule.
 - `ops/SHOP.md`: the shared shop and Studio test panel.
 - `ops/PUBLISH_CHECKS.md`: the gate before every publish and the checks after.
+- `ops/VISUAL_PLAYTEST.md`: the required player's-eye check on every game
+  change (audit, real-engine check, Studio play-solo) and its report.
+- `tools/designs/README.md`: the design viewer on Alex's desktop; where every
+  new model is dropped (`/mnt/project-files/designs/...`) so Alex can see it.
 - `games/<game>/SPEC.md`: what each game is.
 
 **Launch gate for the next wave of games:** 14 days after a launch, D1

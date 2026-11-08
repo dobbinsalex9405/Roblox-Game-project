@@ -33,14 +33,33 @@ Shim.gaps = {} :: { [string]: number }
 Shim.errors = {} :: { { where: string, message: string } }
 Shim.output = {} :: { string }
 Shim.studio = false
+Shim.unpublished = false -- DataStores throw, as in an unpublished place
 Shim.quiet = false
+-- Destroy() in game scripts detaches instead, so later reads work as in
+-- Roblox (the player's-eye audit turns this on; see Shim.runScript).
+Shim.detachOnDestroy = false
+-- What MarketplaceService:GetProductInfo answers for an id (a harness can
+-- fill it from the game's monetization listings); unknown ids cost 0.
+Shim.productInfo = {} :: { [number]: { [string]: any } }
 
 local function gap(name: string)
 	Shim.gaps[name] = (Shim.gaps[name] or 0) + 1
 end
 
+-- Lune's Instances cannot take nil for an Instance-valued property other than
+-- Parent ("Failed to convert from 'nil' into 'Ref'"), and the shim cannot
+-- override built-in properties. In Roblox `box.Adornee = nil` is always legal,
+-- so this is a gap in the shim, never a bug in the game: it is counted with
+-- the other gaps instead of failing the boot check.
+local LUNE_NIL_REF = "Failed to convert from 'nil' into 'Ref'"
+
 local function record(where: string, message: any)
-	table.insert(Shim.errors, { where = where, message = tostring(message) })
+	local text = tostring(message)
+	if string.find(text, LUNE_NIL_REF, 1, true) then
+		gap("setting an Instance property to nil (legal in Roblox; Lune cannot)")
+		return
+	end
+	table.insert(Shim.errors, { where = where, message = text })
 end
 
 local function say(prefix: string, ...: any)
@@ -107,6 +126,29 @@ function Signal:Fire(...)
 end
 
 Shim.Signal = Signal
+
+-- Plays `frames` frames of 1/60 s: the per-frame signals a server (or, with
+-- `client`, a client) gets each frame, so code that runs every frame (guard
+-- AI, conveyors, timers) runs at least once. Nothing fires them otherwise.
+function Shim.stepFrames(frames: number, client: boolean?)
+	local rs = Shim.runService
+	if rs == nil then
+		return
+	end
+	local dt = 1 / 60
+	for frame = 1, frames do
+		local now = frame * dt
+		if client then
+			rs.PreRender:Fire(dt)
+			rs.RenderStepped:Fire(dt)
+		end
+		rs.PreAnimation:Fire(dt)
+		rs.Stepped:Fire(now, dt)
+		rs.PreSimulation:Fire(dt)
+		rs.PostSimulation:Fire(dt)
+		rs.Heartbeat:Fire(dt)
+	end
+end
 
 -- Signals that belong to instances, by instance then member name.
 local instanceSignals = {}
@@ -982,7 +1024,14 @@ local SEEDS = {
 	{ "Camera", { ViewportSize = roblox.Vector2.new(1280, 720) } },
 	{
 		"Player",
-		{ AccountAge = 30, LocaleId = "en-us", MembershipType = Enum.MembershipType.None, FollowUserId = 0 },
+		{
+			AccountAge = 30,
+			LocaleId = "en-us",
+			MembershipType = Enum.MembershipType.None,
+			FollowUserId = 0,
+			CameraMaxZoomDistance = 128,
+			CameraMinZoomDistance = 0.5,
+		},
 	},
 	{
 		"BasePart",
@@ -1082,6 +1131,7 @@ local function defineServices()
 	rs.PreAnimation = Signal.new("RunService.PreAnimation")
 	rs.PreSimulation = Signal.new("RunService.PreSimulation")
 	rs.PostSimulation = Signal.new("RunService.PostSimulation")
+	Shim.runService = rs
 	rs.BindToRenderStep = function() end
 	rs.UnbindFromRenderStep = function() end
 
@@ -1132,6 +1182,11 @@ local function defineServices()
 
 	local ds = overridesFor("DataStoreService")
 	ds.GetDataStore = function(_, name, scope)
+		if Shim.unpublished then
+			-- What Roblox raises in a place that was never published (a built
+			-- .rbxl opened in Studio).
+			error("You must publish this place to the web to access DataStore.", 2)
+		end
 		local key = `{name}/{scope or "global"}`
 		dataStores[key] = dataStores[key] or newDataStore(name)
 		return dataStores[key]
@@ -1196,6 +1251,10 @@ local function defineServices()
 		return false
 	end
 	mp.GetProductInfo = function(_, id)
+		local known = Shim.productInfo[id]
+		if known then
+			return table.clone(known)
+		end
 		return { Name = `Product {id}`, PriceInRobux = 0, Description = "", IsForSale = true }
 	end
 	mp.GetDeveloperProductsAsync = function()
@@ -1503,7 +1562,13 @@ local function defineServices()
 	ws.FindPartsInRegion3WithWhiteList = function()
 		return {}
 	end
-	ws.BulkMoveTo = function() end
+	-- Moves each part like setting its CFrame, so what a game moves this way
+	-- (the Egg Market's eggs) is where the audit draws it.
+	ws.BulkMoveTo = function(_self, parts, cframes)
+		for i, part in parts do
+			part.CFrame = cframes[i]
+		end
+	end
 	ws.Terrain = true -- built lazily by applyOverrides
 	ws.CurrentCamera = NIL -- set by the client boot
 	ws.PersistentLoaded = Signal.new("Workspace.PersistentLoaded")
@@ -2078,6 +2143,26 @@ function Shim.baseEnvironment(game: any)
 end
 
 -- Runs a script-like instance's Source with its own `script` and `require`.
+-- What `x:Destroy()` becomes under Shim.detachOnDestroy: Destroying fires,
+-- then x and its descendants leave the tree.
+local function detach(inst: any)
+	if inst == nil then
+		return
+	end
+	signalOf(inst, "Destroying"):Fire()
+	inst.Parent = nil
+end
+
+-- `x:Destroy()` on a plain name or field becomes `__shimDetach(x)`. A
+-- rewrite that does not compile (an unusual expression) keeps the source.
+function Shim.detachSource(source: string): string
+	local rewritten = string.gsub(source, "([%w_][%w_%.%[%]\"']*):Destroy%(%)", "__shimDetach(%1)")
+	if rewritten ~= source and pcall(luau.compile, rewritten) then
+		return rewritten
+	end
+	return source
+end
+
 function Shim.runScript(game: any, inst: any, isModule: boolean): any
 	local base = Shim.baseEnvironment(game)
 	local env = setmetatable({ script = inst }, { __index = base })
@@ -2109,7 +2194,18 @@ function Shim.runScript(game: any, inst: any, isModule: boolean): any
 		modules[target] = { value = value }
 		return value
 	end
-	local chunk = luau.load(inst.Source, {
+	local source = inst.Source
+	if Shim.detachOnDestroy then
+		-- Lune refuses every read of a destroyed instance; Roblox allows it,
+		-- and UI code often reads a label it just cleared. `x:Destroy()` on a
+		-- plain name or field becomes a detach, which stays readable.
+		local rewritten = Shim.detachSource(source)
+		if rewritten ~= source then
+			source = rewritten
+			env.__shimDetach = detach
+		end
+	end
+	local chunk = luau.load(source, {
 		debugName = inst:GetFullName(),
 		environment = env,
 		injectGlobals = false,

@@ -46,11 +46,32 @@
             20,
             512
           ],
-          "Position": [
-            0,
-            -10,
-            0
-          ],
+          "CFrame": {
+            "CFrame": {
+              "position": [
+                0,
+                -10,
+                0
+              ],
+              "orientation": [
+                [
+                  1,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  1
+                ]
+              ]
+            }
+          },
           "Material": "Grass",
           "Color": [
             0.36,
@@ -65,14 +86,36 @@
           "Anchored": true,
           "Size": [
             12,
-            1,
+            0.4,
             12
           ],
-          "Position": [
-            0,
-            0.5,
-            0
-          ]
+          "CFrame": {
+            "CFrame": {
+              "position": [
+                52,
+                0.1,
+                0
+              ],
+              "orientation": [
+                [
+                  1,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  1
+                ]
+              ]
+            }
+          },
+          "Transparency": 1
         }
       }
     }
