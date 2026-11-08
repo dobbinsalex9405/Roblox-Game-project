@@ -1926,3 +1926,60 @@ So the left legs sit one voxel further out than the right. No other mirror axis 
 - Kiwi also has no eye part. Its head is 52 brown voxels plus 3 pink FF8FB1 voxels, and there are no dark eye voxels. Not in the brief; just noting it.
 
 Not run: odds (1), Book (2), meshes and Neon (3b), walk and earn (4), respawn (5).
+
+## #166 re-gate at c01cf30 (batch 12 trimmed: 17 creatures, OrchidMantis and Kiwi removed): PASS
+
+I built the head directly because it contains main 71c6c66. I played solo in Studio, phone 844x392 and desktop 1350x672.
+
+**1. Odds at phone size.** Every label passes TextFits; the smallest text is 13.6 px on the card and 14.4 px in the list. No OrchidMantis or Kiwi rows appear in any egg.
+
+| Egg | Rows | Sum | Rows by tier |
+|---|---|---|---|
+| Basic | 94 | 100.0000% | Unchanged. Common 71 × "1.2958% · 1 in 77.2"; Uncommon 19 × "0.3684% · 1 in 271"; Raccoon "0.7986% · 1 in 125"; Ember Fox 1 in 556; Dragonling 1 in 5,556; Phoenix 1 in 50,000 |
+| Meadow | 261 | 100.0000% | Common 128 × "0.5257% · 1 in 190"; Uncommon 73 × "0.4207% · 1 in 238"; Rare 40 × "0.0425% · 1 in 2,353"; UR 13 × 1 in 4,651; Epic 6 × 1 in 35,714; Thunder Griffin 1 in 33,333 |
+| Moonlit | 158 | 100.0000% | Uncommon 6 × "9.66675% · 1 in 10.3"; Rare 20 × "1.89999% · 1 in 52.6"; UR 58 × 1 in 1,568; Epic 54 × 1 in 18,622; Godly 19 × 1 in 1,000,000; Phoenix 1 in 12,500 |
+
+The Basic HUD card reads: Common "92.0018% · 1 in 1.1", Uncommon "6.9996% · 1 in 14.3", Rare "0.7986% · 1 in 125", UR "0.1800% · 1 in 556", Epic "0.0180% · 1 in 5,556", Legendary "0.0020% · 1 in 50,000".
+
+**2. Book.** It reads "Found 0/509". Tabs: Common 0/199, Uncommon 0/97, Rare 0/60, UR 0/71, Epic 0/60, Legendary 0/2, Godly 0/20.
+- All 16 new Rare cards are IsLoaded with ids equal to CreatureThumbs: 13 read "Meadow Egg 1 in 2,353" and 3 read "Moonlit Egg 1 in 52.6".
+- DivingBeetle's card reads "Meadow Egg 1 in 190".
+- OrchidMantis and Kiwi appear nowhere: no Book card, no odds row, no test-panel button, and absent from config, VoxelArt, CreatureMeshes and CreatureThumbs.
+
+**3. Stand-ins (all 17).**
+- Box counts: DivingBeetle 30, Rares 37 to 60 (OkapiCalf 32 is the lowest in the brief's range).
+- Each is one 26-connected piece with mirror-symmetric legs, feet at y = 0 and 0 Neon.
+- Hummingbird's eyes have 0 face contacts with the beak.
+- DivingBeetle has white eye voxels on its dark head.
+- Drawn as Parts: pr166b-standins-17.jpg.
+
+**3b. Meshes.** I built floors 2 and 3 and gave all 17.
+- All 17 render as meshes (138 MeshParts, 0 boxes).
+- Each uses one TextureID equal to assets.json, and every MeshId and TextureID fetch is Success.
+- 0 Neon and 0 lights, particles or highlights.
+
+**4. Move and earn (sample of 8).**
+
+| Creature | Path in 8 s | Parts animating | Median gap above pad |
+|---|---|---|---|
+| Koi | 3.5 | 5/6 | 0.04 |
+| MantaRay | 4.1 | 5/5 | 0.02 |
+| Narwhal | 5.2 | 5/6 | 0.02 |
+| MoonJelly | 5.1 | 3/3 | 0.05 |
+| Hummingbird | 5.8 | 4/6 | 0.05 |
+| LionCub | 3.4 | 8/8 | 0.03 |
+| MagmaSnail | 5.2 | 1/2 | 0.03 |
+| DivingBeetle | 8.4 | 9/9 | 0.04 |
+
+- All gaps were measured by ray hit on their own pad and range 0.00 to 0.11.
+- The swimmers and hoverers (Koi, MantaRay, Narwhal, MoonJelly) move and rest on their pads.
+- Income rose from +0/s to +978/s.
+
+**5. Respawn.**
+- Before: 8 of 8 signs healthy and changing.
+- I reset through Esc, R, Enter, and a new Character spawned.
+- After: 8 of 8 changed in each of three 5 s windows.
+- There are 0 OddsView or Hud lines and 0 errors in LogService.
+- The Feedback button is visible.
+
+Screens: pr166b-phone-odds-basic.jpg, -meadow.jpg, -moonlit.jpg, pr166b-book-rare.jpg, pr166b-standins-17.jpg.
