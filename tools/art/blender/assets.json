@@ -3860,6 +3860,74 @@
   "Termite": {
    "imageId": 136597425310618,
    "source": "f3772b7d86a8924c"
+  },
+  "ThreeEyedFrog": {
+   "imageId": 108876125183915,
+   "source": "9d8dc9ca60a728c4"
+  },
+  "Toastie": {
+   "imageId": 132889926534912,
+   "source": "1eb73b1e448d2bb0"
+  },
+  "Turkey": {
+   "imageId": 97179016089030,
+   "source": "1d4355614554685c"
+  },
+  "TwoTailMouse": {
+   "imageId": 132916821945992,
+   "source": "3a96df2dece2dbce"
+  },
+  "Wasp": {
+   "imageId": 94428608731248,
+   "source": "ab4c354e11b6f71f"
+  },
+  "Weasel": {
+   "imageId": 129974863151252,
+   "source": "0530c62118fa54aa"
+  },
+  "Weevil": {
+   "imageId": 140424913829578,
+   "source": "9c81a639ccbc6495"
+  },
+  "WolfPup": {
+   "imageId": 80937422513596,
+   "source": "ca87dc0d8c9d9c74"
+  },
+  "Wombat": {
+   "imageId": 108874060136830,
+   "source": "c0c74293b515a091"
+  },
+  "Woodpecker": {
+   "imageId": 94314390184371,
+   "source": "f812dcf710da03a5"
+  },
+  "WoollyBear": {
+   "imageId": 139363254671038,
+   "source": "fd86c778e59a6ccc"
+  },
+  "Wren": {
+   "imageId": 130537344442964,
+   "source": "7d753fe875a3fc73"
+  },
+  "ZebraFinch": {
+   "imageId": 105540950398262,
+   "source": "f685f8347d327290"
+  },
+  "PillBug": {
+   "imageId": 128232833059928,
+   "source": "2a17582aed7a42c4"
+  },
+  "Aphid": {
+   "imageId": 90162038921758,
+   "source": "cdce0dbd975c62bc"
+  },
+  "Centipede": {
+   "imageId": 134676824027668,
+   "source": "54fd3f962c55921d"
+  },
+  "StickInsect": {
+   "imageId": 134728496493808,
+   "source": "b4e833d148edbc03"
   }
  }
 }
