@@ -5036,6 +5036,82 @@
   "GorillaBaby": {
    "imageId": 71402226238889,
    "source": "a890f46467d70d61"
+  },
+  "DivingBeetle": {
+   "imageId": 129307216859838,
+   "source": "df82214dbf5b8055"
+  },
+  "Kiwi": {
+   "imageId": 83452825468057,
+   "source": "d57d701649b52967"
+  },
+  "OkapiCalf": {
+   "imageId": 135433913214163,
+   "source": "c16d5532c1603880"
+  },
+  "Hornbill": {
+   "imageId": 100579535766551,
+   "source": "211e4d82446896c0"
+  },
+  "Koi": {
+   "imageId": 70796987270413,
+   "source": "69a0fe680fca8d57"
+  },
+  "LunaMoth": {
+   "imageId": 134043504175441,
+   "source": "64248eeebfea0db3"
+  },
+  "MagmaSnail": {
+   "imageId": 119903081778628,
+   "source": "d03f444659c17853"
+  },
+  "MantaRay": {
+   "imageId": 71700264708358,
+   "source": "177efdee1f1e3834"
+  },
+  "MochiBunny": {
+   "imageId": 105444316996697,
+   "source": "ab745b18028c56ed"
+  },
+  "MoonJelly": {
+   "imageId": 121297795179691,
+   "source": "84d1608512ef5489"
+  },
+  "MummyHamster": {
+   "imageId": 87490669832375,
+   "source": "be92ee055e78b32f"
+  },
+  "MuskOxCalf": {
+   "imageId": 130184789466084,
+   "source": "40b6da339e6c9dce"
+  },
+  "Narwhal": {
+   "imageId": 74306601501421,
+   "source": "aa6102be7387d805"
+  },
+  "OrchidMantis": {
+   "imageId": 134765227746823,
+   "source": "e5140ca32545ab30"
+  },
+  "Lampwick": {
+   "imageId": 106657759072872,
+   "source": "f238213a2c8b3476"
+  },
+  "LionCub": {
+   "imageId": 129524376490712,
+   "source": "fd4a338ec7447d37"
+  },
+  "MossPiglet": {
+   "imageId": 100435171501339,
+   "source": "10fde48579ac42d7"
+  },
+  "Mossling": {
+   "imageId": 130320590652454,
+   "source": "3de3ae62c1259c61"
+  },
+  "Hummingbird": {
+   "imageId": 75358083128348,
+   "source": "a5288cbf0a44667b"
   }
  }
 }
