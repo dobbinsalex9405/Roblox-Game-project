@@ -1568,9 +1568,9 @@
   },
   "Sandpiper": {
    "assetId": 86866444257236,
-   "textureId": 106612305934468,
+   "textureId": 95814384606671,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "SaplingEnt": {
    "assetId": 95014234729412,
@@ -1592,7 +1592,7 @@
   },
   "SeaUrchin": {
    "assetId": 71412440251529,
-   "textureId": 75063875852641,
+   "textureId": 129310073089105,
    "textureType": "Image",
    "version": "3"
   },
@@ -1616,9 +1616,9 @@
   },
   "ShetlandPony": {
    "assetId": 128677251104588,
-   "textureId": 131378100778325,
+   "textureId": 130362527305553,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "ShibaPup": {
    "assetId": 138697435317653,
@@ -1658,9 +1658,9 @@
   },
   "Silkworm": {
    "assetId": 75734907789049,
-   "textureId": 86354754756798,
+   "textureId": 84300942340941,
    "textureType": "Image",
-   "version": "2"
+   "version": "3"
   },
   "Skunk": {
    "assetId": 130296658388897,
@@ -1670,9 +1670,9 @@
   },
   "Sloth": {
    "assetId": 73379811151623,
-   "textureId": 107769693144196,
+   "textureId": 132779358197526,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Snail": {
    "assetId": 134232233539311,
@@ -1748,9 +1748,9 @@
   },
   "StagBeetle": {
    "assetId": 114071360281132,
-   "textureId": 106918453104028,
+   "textureId": 75031478159900,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "StarDeer": {
    "assetId": 85022140739223,
@@ -1826,9 +1826,9 @@
   },
   "SugarGlider": {
    "assetId": 117770747714722,
-   "textureId": 136521682143494,
+   "textureId": 131478131235084,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "SunConure": {
    "assetId": 95120662295361,
@@ -2241,6 +2241,78 @@
   "Puffpip": {
    "assetId": 111232312037352,
    "textureId": 89742499348999,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SheepdogPup": {
+   "assetId": 132184516156051,
+   "textureId": 114786774473654,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ShieldBug": {
+   "assetId": 75069062317186,
+   "textureId": 97411550180645,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Shrew": {
+   "assetId": 76237856179200,
+   "textureId": 127788975731325,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Shrimp": {
+   "assetId": 85438009126545,
+   "textureId": 138708548206817,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SockWorm": {
+   "assetId": 119682933517971,
+   "textureId": 76470872623747,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Sparrow": {
+   "assetId": 118721011113354,
+   "textureId": 96549197826601,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SpikyDuckling": {
+   "assetId": 80705447425524,
+   "textureId": 79346390053935,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Sproutling": {
+   "assetId": 78296673577184,
+   "textureId": 124694622699392,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Starling": {
+   "assetId": 84094434671553,
+   "textureId": 79242163432919,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "StickInsect": {
+   "assetId": 120515934117951,
+   "textureId": 119903125455810,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Tadpole": {
+   "assetId": 119411978315941,
+   "textureId": 100388239335699,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Termite": {
+   "assetId": 124407600130525,
+   "textureId": 131139778865277,
    "textureType": "Image",
    "version": "1"
   }
