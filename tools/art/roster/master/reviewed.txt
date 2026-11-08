@@ -504,3 +504,13 @@ BubblePup
 Bunnyfly
 CactusPup
 GorillaBaby
+OkapiCalf
+Hornbill
+LunaMoth
+MagmaSnail
+MochiBunny
+MummyHamster
+OrchidMantis
+Lampwick
+MossPiglet
+Mossling
