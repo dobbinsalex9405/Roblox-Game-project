@@ -38,6 +38,44 @@ def _own(c):
                     del part.v[v]
 
 
+def _drawn(c):
+    """The boxes the game will draw for `c` as it stands: build_all next
+    gives each voxel to one part, then carves walking legs out of the body
+    (rig.split_legs), which can split a box in two."""
+    import copy
+
+    import rig
+    from voxkit import Part
+    d = copy.deepcopy(c)
+    _own(d)
+    d.parts = [p for p in d.parts if p.v]
+    rig.split_legs(d, Part)
+    return sum(_boxes(p.v) for p in d.parts), _legs(d)
+
+
+def _legs(c):
+    """The walking legs as the game rigs them, by name."""
+    import rig
+    return tuple(sorted(p.name for p in c.parts if p.name in rig.LEG_NAMES))
+
+
+def _try(c, new, legs):
+    """The boxes drawn with some parts' voxels swapped for `new` ({name:
+    voxels}); None when the walking legs would change (a foot cut off the
+    body they are carved from, two legs run together)."""
+    old = {p.name: p.v for p in c.parts if p.name in new}
+    for p in c.parts:
+        if p.name in new:
+            p.v = new[p.name]
+    try:
+        n, after = _drawn(c)
+        return n if after == legs else None
+    finally:
+        for p in c.parts:
+            if p.name in old:
+                p.v = old[p.name]
+
+
 def _twin_name(name):
     if name[-1:] in ('L', 'R') and len(name) > 1:
         return name[:-1] + ('R' if name[-1] == 'L' else 'L')
@@ -51,7 +89,7 @@ def _edits(c, part, mirror):
     twin = parts.get(_twin_name(part.name), part)
     out = []
     # fills: an empty cell with at least two neighbours in this part (an
-    # inside corner), in the colour most of them have; its twin the same way
+    # inside corner), all one colour, in that colour; its twin the same way
     seen = set()
     for (x, y, z) in sorted(part.v):
         for d in STEPS:
@@ -60,9 +98,10 @@ def _edits(c, part, mirror):
                 continue
             seen.add(w)
             near = [part.v[n] for n in ((w[0] + e[0], w[1] + e[1], w[2] + e[2]) for e in STEPS) if n in part.v]
-            if len(near) < 2 or any(g for _, g in near):
+            # every neighbour one colour, so a fill never covers a pattern
+            if len(near) < 2 or len(set(near)) > 1 or near[0][1]:
                 continue
-            col = max(set(near), key=near.count)
+            col = near[0]
             new = {part.name: dict(part.v), twin.name: dict(twin.v)}
             new[part.name][w] = col
             if mirror(w) not in taken:
@@ -102,7 +141,7 @@ def trim_boxes(c, H, col=None, col2=None, a=None):
     def mirror(v):
         return (s - v[0], v[1], v[2])
 
-    total = sum(_boxes(p.v) for p in c.parts)
+    total, legs = _drawn(c)
     names = a.get('parts') or [p.name for p in c.parts]
     while total > budget:
         best = None
@@ -111,9 +150,13 @@ def trim_boxes(c, H, col=None, col2=None, a=None):
                 if part.name in FACE or not part.v:
                     continue
                 for kind, v, new in _edits(c, part, mirror):
+                    # a quick look at the parts it changes, then the whole
+                    # creature as the game draws it
                     parts = {p.name: p for p in c.parts}
-                    after = total - sum(_boxes(parts[n].v) for n in new) + sum(_boxes(nv) for nv in new.values())
-                    if after < total:
+                    if sum(_boxes(nv) for nv in new.values()) >= sum(_boxes(parts[n].v) for n in new):
+                        continue
+                    after = _try(c, new, legs)
+                    if after is not None and after < total:
                         best = (kind, part.name, v, new, after)
                         break
                 if best:
@@ -197,4 +240,92 @@ def jaw_band(c, H, col=None, col2=None, a=None):
         head.v[v] = (dark, False)
 
 
-ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band}
+def _unify(v, near=32):
+    """Colours within `near` on every channel of a commoner one take it."""
+    count = {}
+    for val in v.values():
+        count[val] = count.get(val, 0) + 1
+    keep, to = [], {}
+    for val in sorted(count, key=lambda k: (-count[k], k)):
+        same = next((k for k in keep if k[1] == val[1] and max(abs(a - b) for a, b in zip(k[0], val[0])) <= near), None)
+        if same:
+            to[val] = same
+        else:
+            keep.append(val)
+            to[val] = val
+    return {k: to[val] for k, val in v.items()}
+
+
+def _close(v, need, taken):
+    """Fills every empty cell with at least `need` neighbours in the part (an
+    inside corner or a notch), in the colour most of them have, until none is
+    left. Only where every neighbour is one colour (a fill never covers a
+    spot or a stripe), never a cell another part has, nor next to a glow."""
+    v = dict(v)
+    while True:
+        add = {}
+        cells = {(x + d[0], y + d[1], z + d[2]) for (x, y, z) in v for d in STEPS} - set(v) - taken
+        for w in sorted(cells):
+            near = [v[n] for n in ((w[0] + d[0], w[1] + d[1], w[2] + d[2]) for d in STEPS) if n in v]
+            if len(near) >= need and len(set(near)) == 1 and not near[0][1]:
+                add[w] = near[0]
+        if not add:
+            return v
+        v.update(add)
+
+
+def plain_boxes(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: brings a creature with a busy coat or a ragged
+    outline inside its tier's box budget, a step at a time and only as far as
+    it needs, on the named parts in order ("parts", e.g. ["body", "head"]):
+      1. near-identical colours (a fluff a shade off its coat) become one,
+      2. notches with four neighbours or more are filled,
+      3. trim_boxes' mirrored one-voxel edits on the same parts,
+      4. notches with three neighbours are filled, then step 3 again.
+    Patterns that differ more than a shade (spots, drips, a sash) are kept."""
+    if getattr(c, 'fine', False):
+        return
+    a = a or {}
+    budget = a.get('budget')
+    if not budget:
+        sys.path.insert(0, __import__('os').path.dirname(__file__))
+        from to_config import BOX_BUDGET
+        budget = BOX_BUDGET.get(c.rarity)
+    if not budget:
+        return
+    _own(c)
+    names = a.get('parts') or ['body']
+    parts = [p for n in names for p in c.parts if p.name in (n, n + 'L', n + 'R') and p.v]
+
+    legs = _drawn(c)[1]
+
+    def total():
+        return _drawn(c)[0]
+
+    def step(name, fn):
+        for p in parts:
+            if total() <= budget:
+                return True
+            new = fn(p)
+            after = _try(c, {p.name: new}, legs)
+            if after is not None and after < total():
+                p.v = new
+                print(f'plain_boxes: {c.species}: {name} {p.name}, now {total()} boxes', file=sys.stderr)
+        return total() <= budget
+
+    def others(p):
+        return {v for q in c.parts if q is not p for v in q.v}
+
+    if step('one colour for near shades on', lambda p: _unify(p.v)):
+        return
+    if step('notches filled on', lambda p: _close(p.v, 4, others(p))):
+        return
+    trim_boxes(c, H, a={'budget': budget, 'parts': names})
+    if total() <= budget:
+        return
+    if step('corners filled on', lambda p: _close(p.v, 3, others(p))):
+        return
+    trim_boxes(c, H, a={'budget': budget, 'parts': names})
+
+
+ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes}
