@@ -980,6 +980,18 @@
     {
      "kind": "shineeyes",
      "color": "#1B1B2F"
+    },
+    {
+     "kind": "draw",
+     "color": "#FF9F40",
+     "part": "fur",
+     "voxels": [
+      [
+       -4,
+       0,
+       6
+      ]
+     ]
     }
    ]
   },
