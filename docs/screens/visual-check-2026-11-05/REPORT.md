@@ -1493,3 +1493,25 @@ Stopped at this FAIL. The luckboost cap, small phone, badge, controls row and x1
 - **Odds on phone 844x392:** both lists 420x244, sum 100.0000%, smallest text 14.4 px, nothing truncated (`150-phone-meadow.jpg`).
   - **Basic:** Common 64 × "1.4375% · **1 in 69.6**"; Uncommon 7 × 1 in 100; **Rare 0.8000%** · 1 in 125; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000.
   - **Meadow:** Common 94 × "0.7128% · **1 in 140**"; Uncommon 31 × "0.9999% · 1 in 100"; Rare 2 × 0.8503% (= **1.7006%**) · 1 in 118; UR 13 × "0.0215% · **1 in 4,651**"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333.
+
+## #151 at d3a5448 (Walk: leg7L/leg7R, for the Pill Bug): PASS
+
+I built the head directly because it already contains main 9ed07b49. The diff is Walk.luau LEG_SETS gaining `leg7L = 1, leg7R = -1` plus comments, specs and walkpose.py. I played solo in Studio, gave six multi-legged Commons from the test panel and sampled every leg MeshPart over 6 s (60 ticks):
+
+| Pad | Species | Leg parts | Legs animating | Max swing (look-vector delta) | Path in 6 s | Moving ticks |
+|---|---|---|---|---|---|---|
+| 1 | GardenSpider | 8 | 8 | 0.75 | 4.33 studs | 30/60 |
+| 2 | AmberAnt | 6 | 6 | 0.68 | 2.86 | 38/60 |
+| 3 | ClickBeetle | 6 | 6 | 0.72 | 3.93 | 29/60 |
+| 4 | JumpingSpider | 8 | 8 | 0.86 | 3.05 | 28/60 |
+| 5 | Lobster | 6 | 6 | 0.60 | 1.70 | 25/60 |
+| 6 | Mantis (legFL..legBR) | 4 | 4 | 0.78 | 7.18 | 40/60 |
+
+- Every leg on every creature swings and every creature wanders its pad. Box bottoms sit at 0.68 to 0.76 against the pad top at 0.70, so nothing floats or sinks.
+- All six render as MeshParts. Their textures (the C2 ids) logged "being generated" on first fetch, then GetAssetFetchStatus showed Success for all six. That is upload lag from #148, not this PR.
+- Output has no script errors. The only noise is the usual DataStore-unpublished lines, the old 203785492 type mismatch and the texture lag above.
+- The HUD is unchanged: coins card, GOAL banner, side menu and Feedback, at desktop 1350x672 and phone 844x392.
+- The Book is unchanged: "Found 6/339", seven tabs (Common 5/140, Uncommon 0/41, Rare 0/5, Ultra Rare 1/71, Epic 0/60, Legendary 0/2, Godly 0/20) and silhouettes with egg and odds lines.
+- No creature uses leg7 yet, so nothing on screen differs from main.
+
+Screens: pr151-desktop-walkers.jpg, pr151-desktop-gardenspider-lobster.jpg, pr151-desktop-book.jpg, pr151-phone-walkers.jpg.
