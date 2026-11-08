@@ -424,7 +424,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Rare: 57 from the roster
+		-- Rare: 55 from the roster
 		AmethystMole = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Moonlit" } },
 		Angelfish = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Meadow" } },
 		AshBadger = {
@@ -507,7 +507,6 @@ return {
 		HoneypotAnt = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
 		Hornbill = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
 		Hummingbird = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "Meadow" } },
-		Kiwi = { rarity = "Rare", coinsPerSecond = 18, mountSpeed = 22, pools = { "Meadow" } },
 		Koi = { rarity = "Rare", coinsPerSecond = 24, mountSpeed = 22, pools = { "Meadow" } },
 		Lampwick = {
 			rarity = "Rare",
@@ -546,7 +545,6 @@ return {
 		MuskOxCalf = { rarity = "Rare", coinsPerSecond = 28, mountSpeed = 22, pools = { "Meadow" } },
 		Narwhal = { rarity = "Rare", coinsPerSecond = 25, mountSpeed = 22, pools = { "Meadow" } },
 		OkapiCalf = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "Meadow" } },
-		OrchidMantis = { rarity = "Rare", coinsPerSecond = 16, mountSpeed = 22, pools = { "Meadow" } },
 		Owlcat = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "Moonlit" } },
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {

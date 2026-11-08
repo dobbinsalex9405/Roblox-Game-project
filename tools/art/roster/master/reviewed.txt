@@ -132,7 +132,6 @@ Kappa
 Kingfisher
 Kinkajou
 KitsuneKit
-Kiwi
 Koala
 Koi
 LanternMoth
@@ -510,7 +509,6 @@ LunaMoth
 MagmaSnail
 MochiBunny
 MummyHamster
-OrchidMantis
 Lampwick
 MossPiglet
 Mossling
