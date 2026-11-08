@@ -22,12 +22,9 @@ import describe  # noqa: E402
 
 TOLERANCE = 0.13  # studs, as games/hatchery-heist/tests/CreatureMeshes.spec.luau
 
-# Not live yet and owned by another kit: fix them before their go-live batch,
-# then take them off this list. A new name here needs a reason.
-KNOWN = {
-    'MirrorCat': 'Legendary, not live: off-centre by its mirror (go-live batches 15-17)',
-    'ArcaneTortoise': 'Legendary, not live: off-centre (go-live batches 15-17)',
-}
+# Creatures allowed off-centre for now, each with a reason. A new name here
+# needs one; a fixed creature comes off (test_known_list_is_current).
+KNOWN = {}
 
 
 def leg_offsets(c):
