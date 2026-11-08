@@ -1388,9 +1388,9 @@
   },
   "PillBug": {
    "assetId": 94663479296202,
-   "textureId": 129167345847099,
+   "textureId": 132150902372433,
    "textureType": "Image",
-   "version": "4"
+   "version": "3"
   },
   "PineMarten": {
    "assetId": 132074492823019,
@@ -3618,10 +3618,6 @@
   "Pigeon": {
    "imageId": 129989674287582,
    "source": "ea3f6cd05a46e803"
-  },
-  "PillBug": {
-   "imageId": 120764488470992,
-   "source": "2a17582aed7a42c4"
   },
   "PineMarten": {
    "imageId": 131817468975810,

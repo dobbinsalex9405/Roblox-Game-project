@@ -395,7 +395,6 @@ Meerkat
 Newt
 PelicanChick
 Pheasant
-PillBug
 PineMarten
 PoodlePup
 Porcupine

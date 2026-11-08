@@ -259,7 +259,6 @@ local CreatureThumbs: { [string]: number } = {
 	Pigeon = 129989674287582,
 	Piglet = 137230204867207,
 	Pika = 94369801024104,
-	PillBug = 120764488470992,
 	PineMarten = 131817468975810,
 	Platypus = 130564997364632,
 	Pomeranian = 74472660646975,
