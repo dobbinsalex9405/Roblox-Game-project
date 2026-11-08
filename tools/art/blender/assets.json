@@ -2531,6 +2531,126 @@
    "textureId": 71301494610468,
    "textureType": "Image",
    "version": "1"
+  },
+  "Puddlejumper": {
+   "assetId": 96248397267142,
+   "textureId": 122068116023243,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Pufferfish": {
+   "assetId": 132873420249926,
+   "textureId": 140145162236380,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SamoyedPup": {
+   "assetId": 115402965831293,
+   "textureId": 99309670785044,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ScottishFoldKitten": {
+   "assetId": 85669677304999,
+   "textureId": 134433930959289,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Seahorse": {
+   "assetId": 115061270469207,
+   "textureId": 75379535998400,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SlowLoris": {
+   "assetId": 131116903491581,
+   "textureId": 134255146718910,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Tarsier": {
+   "assetId": 101039623216203,
+   "textureId": 76160267906974,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Thimblehog": {
+   "assetId": 100784367826626,
+   "textureId": 73486656574963,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "TreeKangaroo": {
+   "assetId": 105006103937910,
+   "textureId": 96311482809584,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Wallaby": {
+   "assetId": 132568256808546,
+   "textureId": 96955211696189,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "WarthogPiglet": {
+   "assetId": 82174501362300,
+   "textureId": 137389216012395,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "WaterBuffaloCalf": {
+   "assetId": 100475845005698,
+   "textureId": 132663524518299,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BengalKitten": {
+   "assetId": 98347648333082,
+   "textureId": 132599612903924,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CaramelKitten": {
+   "assetId": 73743357819783,
+   "textureId": 71029570352116,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MittenKitten": {
+   "assetId": 109213530790817,
+   "textureId": 137085868429465,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OcelotKit": {
+   "assetId": 81617970516765,
+   "textureId": 93916056881231,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OstrichChick": {
+   "assetId": 136927257921763,
+   "textureId": 92235907814606,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "PinwheelBird": {
+   "assetId": 87712971072575,
+   "textureId": 122037636661820,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "GibbonBaby": {
+   "assetId": 92080299313445,
+   "textureId": 134185858576788,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "OrangutanBaby": {
+   "assetId": 116788876817333,
+   "textureId": 136493377349408,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -4222,6 +4342,86 @@
   "EmuChick": {
    "imageId": 117709827183100,
    "source": "72fa8d67f6851950"
+  },
+  "Puddlejumper": {
+   "imageId": 107373252466401,
+   "source": "e61dd723cb9b517c"
+  },
+  "Pufferfish": {
+   "imageId": 75598010914080,
+   "source": "295450025e3fe7d8"
+  },
+  "SamoyedPup": {
+   "imageId": 71861650896487,
+   "source": "3384f074d1f20af8"
+  },
+  "ScottishFoldKitten": {
+   "imageId": 78932468553248,
+   "source": "15e911c20a310000"
+  },
+  "Seahorse": {
+   "imageId": 132998412540984,
+   "source": "f3bb679181a24e42"
+  },
+  "SlowLoris": {
+   "imageId": 74900350959863,
+   "source": "3fabccc612465660"
+  },
+  "Tarsier": {
+   "imageId": 113564063927458,
+   "source": "b33fe392399c7da6"
+  },
+  "Thimblehog": {
+   "imageId": 134045433935535,
+   "source": "73b34648a83a9b07"
+  },
+  "TreeKangaroo": {
+   "imageId": 107571088569563,
+   "source": "14f29a1a0890defb"
+  },
+  "Wallaby": {
+   "imageId": 106496987395974,
+   "source": "d4c0a807c47fc18e"
+  },
+  "WarthogPiglet": {
+   "imageId": 139275095748004,
+   "source": "ce6e63206cfefce0"
+  },
+  "WaterBuffaloCalf": {
+   "imageId": 99301215421053,
+   "source": "545b7f2d84ad6694"
+  },
+  "BengalKitten": {
+   "imageId": 78377188786196,
+   "source": "41ac577b6c335515"
+  },
+  "CaramelKitten": {
+   "imageId": 123749861035059,
+   "source": "29255b7a6f201bba"
+  },
+  "MittenKitten": {
+   "imageId": 126209234022553,
+   "source": "bd2205e1bb0148f7"
+  },
+  "OcelotKit": {
+   "imageId": 134026638465602,
+   "source": "92707122a5650390"
+  },
+  "OstrichChick": {
+   "imageId": 120735302466959,
+   "source": "9ef5048bca84a28e"
+  },
+  "PinwheelBird": {
+   "imageId": 125149328579694,
+   "source": "76ae0a2d7c33e81b"
+  },
+  "GibbonBaby": {
+   "imageId": 99359948324082,
+   "source": "1833d31d7cf0c055"
+  },
+  "OrangutanBaby": {
+   "imageId": 105785245298959,
+   "source": "506bf9d3437499dd"
   }
  }
 }
