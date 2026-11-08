@@ -475,3 +475,5 @@ MittenKitten
 OcelotKit
 OstrichChick
 PinwheelBird
+GibbonBaby
+OrangutanBaby
