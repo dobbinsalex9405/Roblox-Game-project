@@ -525,3 +525,16 @@ RhinoCalf
 RoboPup
 Slugcorn
 SnowLamb
+SnowLeopardCub
+Snowpuff
+SparkFerret
+Sparkplug
+TeapotTurtle
+Toucan
+ToxicToad
+TwoHeadedTurtle
+WindupMouse
+WitchKitten
+YarnKitten
+ZapMouse
+ZebraFoal
