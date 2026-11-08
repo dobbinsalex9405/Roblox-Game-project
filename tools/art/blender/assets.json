@@ -4540,6 +4540,38 @@
   "SeaBunny": {
    "imageId": 134828293507954,
    "source": "38d21719035ca40b"
+  },
+  "Eaglet": {
+   "imageId": 76475745791404,
+   "source": "cca3faed71755662"
+  },
+  "ElephantCalf": {
+   "imageId": 112401536968008,
+   "source": "e5f8ea7aa0de54d3"
+  },
+  "FlamingoChick": {
+   "imageId": 97414800687227,
+   "source": "e0d88e8def2a346a"
+  },
+  "FlyingSquirrel": {
+   "imageId": 140294198973619,
+   "source": "05029babc8f56e61"
+  },
+  "GiraffeCalf": {
+   "imageId": 89890251211020,
+   "source": "b2fe069abd7cf05e"
+  },
+  "ButtonBear": {
+   "imageId": 75400205862192,
+   "source": "90c53ac91e8092ad"
+  },
+  "GilaMonster": {
+   "imageId": 106493127996853,
+   "source": "757646ad06ca42f5"
+  },
+  "Owlcat": {
+   "imageId": 109979361565585,
+   "source": "e3559edd4ee1b4cc"
   }
  }
 }
