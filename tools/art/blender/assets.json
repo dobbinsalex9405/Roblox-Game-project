@@ -4012,6 +4012,66 @@
   "StickInsect": {
    "imageId": 134728496493808,
    "source": "b4e833d148edbc03"
+  },
+  "Aardvark": {
+   "imageId": 118773049941926,
+   "source": "ddfa283beb0894e5"
+  },
+  "BelugaCalf": {
+   "imageId": 90386326932454,
+   "source": "90b3a31f93b837aa"
+  },
+  "Binturong": {
+   "imageId": 128121273497031,
+   "source": "ba183ca0fef25ec9"
+  },
+  "BlueTang": {
+   "imageId": 74238659570785,
+   "source": "0e3a8935f398971b"
+  },
+  "BubblegumPig": {
+   "imageId": 83418592494102,
+   "source": "26742eee5337157a"
+  },
+  "BulldogPup": {
+   "imageId": 88953354249345,
+   "source": "dcdc56e92749baf3"
+  },
+  "CaracalKit": {
+   "imageId": 136366718549723,
+   "source": "c0d0c8e2daaf4ce2"
+  },
+  "ChihuahuaPup": {
+   "imageId": 140141823836576,
+   "source": "c6422d63e50ea1cd"
+  },
+  "Clownfish": {
+   "imageId": 120826588437170,
+   "source": "f4eb2b0edb0c804e"
+  },
+  "Coati": {
+   "imageId": 82811683125109,
+   "source": "088ef360ffb042dc"
+  },
+  "DartFrog": {
+   "imageId": 89044380256762,
+   "source": "baea6e6d1610c879"
+  },
+  "DingoPup": {
+   "imageId": 77418383954165,
+   "source": "876e5d26d580e19a"
+  },
+  "FrizzleChick": {
+   "imageId": 93704648601281,
+   "source": "8f66b12940a99ff3"
+  },
+  "WaterStrider": {
+   "imageId": 97063443869404,
+   "source": "8759bec20ae44176"
+  },
+  "BeardedDragon": {
+   "imageId": 81540080564718,
+   "source": "077ba5593f10ffb6"
   }
  }
 }
