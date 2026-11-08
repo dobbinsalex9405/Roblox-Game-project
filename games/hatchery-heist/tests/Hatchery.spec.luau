@@ -214,9 +214,9 @@ describe("Hatchery", function()
 		for i = 0, 3 do
 			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
 		end
-		expect(first).toEqual({ "BeaglePup", "Bunny", "Canary", "Chick" })
+		expect(first).toEqual({ "BeaglePup", "BeardedDragon", "Bunny", "Canary" })
 		expect(Hatchery.fixedOrderWait(basic, 0, "BeaglePup")).toBe(0)
-		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(1)
+		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(2)
 		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
 	end)
 
