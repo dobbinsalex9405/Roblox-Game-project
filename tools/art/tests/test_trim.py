@@ -1,6 +1,7 @@
-"""kit_trim.trim_boxes: a creature over its tier's box budget gets the
-smallest mirrored edits that bring its in-game boxes inside it, and its
-finer Blender build (the reviewed mesh) is never touched.
+"""kit_trim: a creature over its tier's box budget gets the
+smallest mirrored edits that bring its in-game boxes inside it (trim_boxes),
+or a plainer stand-in for a part that costs too many (pad_legs, jaw_band),
+and its finer Blender build (the reviewed mesh) is never touched.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import contextlib
@@ -80,6 +81,78 @@ class Trim(unittest.TestCase):
         before = {p.name: dict(p.v) for p in c.parts}
         run(c, budget=1)
         self.assertEqual(before, {p.name: dict(p.v) for p in c.parts})
+
+
+RIPPLE, SAND, BEARD, INK = (207, 239, 255), (226, 182, 119), (176, 122, 62), (27, 27, 47)
+
+
+def strider(fine=False):
+    """A body and one stepped leg a side that stands on a 3x3 ripple ring."""
+    c = Creature('PadTest', 'Common')
+    c.fine = fine
+    body = c.part('body', 'static')
+    for x in range(-1, 1):
+        for y in range(0, 4):
+            body.put((x, y, 2), BROWN)
+    for side, sx in (('L', -1), ('R', 1)):
+        leg = c.part('leg2' + side, 'leg', pivot=(-1.0 if sx < 0 else 0.0, 1, 2.1))
+        x0 = -2 if sx < 0 else 1
+        for dx, z in ((0, 2), (1, 2), (1, 1), (2, 1)):
+            leg.put((x0 + sx * dx, 1, z), DARK)
+        cx = x0 + sx * 3
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                leg.put((cx + dx, 1 + dy, 0), DARK if dx == dy == 0 else RIPPLE)
+    return c
+
+
+class PadLegs(unittest.TestCase):
+    def test_a_ringed_leg_is_a_disc_and_a_bar(self):
+        c = strider()
+        before = boxes(c)
+        kit_trim.pad_legs(c, 10, a={'parts': ['leg2']})
+        self.assertLess(boxes(c), before)
+        for p in c.parts:
+            if p.name.startswith('leg2'):
+                pad = [v for v in p.v if v[2] == 0]
+                self.assertEqual(len(pad), 9, p.name)
+                self.assertTrue(all(p.v[v][0] == RIPPLE for v in pad), p.name)
+                self.assertLessEqual(kit_trim._boxes(p.v), 3, p.name)
+                # the knee stays at the hip's height
+                self.assertEqual(max(v[2] for v in p.v), 2, p.name)
+
+    def test_the_fine_build_keeps_its_legs(self):
+        c = strider(fine=True)
+        before = {p.name: dict(p.v) for p in c.parts}
+        kit_trim.pad_legs(c, 10, a={'parts': ['leg2']})
+        self.assertEqual(before, {p.name: dict(p.v) for p in c.parts})
+
+
+class JawBand(unittest.TestCase):
+    def head(self, fine=False):
+        c = Creature('JawTest', 'Common')
+        c.fine = fine
+        h = c.part('head', 'static')
+        for x in range(-2, 2):
+            for y in range(-2, 0):
+                h.put((x, y, 2), SAND if (x + y) % 2 else BEARD)
+                h.put((x, y, 3), SAND)
+        h.put((-2, -2, 2), INK, True)
+        return c, h
+
+    def test_the_lowest_layer_takes_its_darkest_colour(self):
+        c, h = self.head()
+        kit_trim.jaw_band(c, 10)
+        jaw = {v: h.v[v] for v in h.v if v[2] == 2}
+        self.assertEqual(jaw.pop((-2, -2, 2)), (INK, True))  # a glowing voxel is kept
+        self.assertEqual(set(jaw.values()), {(BEARD, False)})
+        self.assertTrue(all(h.v[v] == (SAND, False) for v in h.v if v[2] == 3))
+
+    def test_the_fine_build_keeps_its_head(self):
+        c, h = self.head(fine=True)
+        before = dict(h.v)
+        kit_trim.jaw_band(c, 10)
+        self.assertEqual(before, h.v)
 
 
 if __name__ == '__main__':
