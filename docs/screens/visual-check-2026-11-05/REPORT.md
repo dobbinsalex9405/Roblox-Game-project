@@ -1704,3 +1704,43 @@ Later in the session my own camera snippet pointed at a Folder and spammed "Posi
 - GuideArrow (above Stop1) and YourBaseLabel (Plot1 Sign) are both Enabled and on screen. The yellow guide arrow is visible over the market.
 
 Screens: pr155-sign-after-2-resets-a.jpg, -b.jpg, pr155-book-after-resets.jpg, pr155-shop-after-resets.jpg, pr155-feedback-after-resets.jpg, pr155-guide-arrow-after-resets.jpg.
+
+## #158 at ba73877 (batch 8: 15 Uncommons): PASS
+
+I built the head directly. Its base is 8b65854; main 4f62ade differs only in .github/workflows/ci.yml and ops/DECISIONS.md, so the game build is identical to a merge. #155 is not in this base, so I avoided character resets. I played solo in Studio, phone 844x392 and desktop 1350x672.
+
+**Odds at phone size.** No label fails TextFits, and the smallest text is 13.6 px on the card and 14.4 px in the list.
+
+| Egg | Rows | Sum | Common | Uncommon | Other tiers |
+|---|---|---|---|---|---|
+| Basic | 89 | 100.0000% | 71 × "1.2958% · 1 in 77.2" (unchanged) | 14 × "0.5000% · 1 in 200" | Rare 0.7982%, UR 1 in 556 (unchanged) |
+| Meadow | 198 | 100.0000% | 124 × "0.5403% · 1 in 185" (unchanged) | 52 × "0.5962% · 1 in 168" | Rare 2 × 0.8499% (was 0.8517%); UR 13 × "0.0216% · 1 in 4,630" (was 1 in 4,651, from the even_eggs regen) |
+| Moonlit | 139 | 100.0000% | | | |
+
+The Basic egg card tier totals are unchanged: Common 92.0018%, Uncommon 7.0000%.
+
+**Hatching.** I bought 2 Basic and 2 Meadow eggs with coins and hatched them with E.
+- Basic: Bunny "1 in 77.2", Quail "1 in 77.2".
+- Meadow: Crayfish "1 in 185", Bookworm "1 in 185".
+
+All four placed and earn.
+
+**The 15 new Uncommons, given from the test panel.** Floors 2 and 3 were built first.
+- All render as MeshParts with 0 visible boxes and 0 Neon.
+- Each uses one TextureID across its parts, equal to assets.json for all 15. Texture and mesh fetches are Success.
+- All walk, 2.2 to 6.4 studs in 6 s.
+- The lowest mesh corner sits 0.01 to 0.07 above the pad (raycast). The exception is AngoraBunny at a 0.41 median, which is its hop gait in the air. A 30-sample recheck of Kookaburra (waddle) gave 0.01, 0.05 and 0.10 (min, median, max).
+- Income went from +0/s to +240/s with the creatures placed.
+
+**Stand-ins (plain_boxes).** All three are 44 boxes, the Uncommon budget, with 0 Neon. Each is one 26-connected solid with feet at y = 0, and the legs are present and mirror-symmetric:
+- AngoraBunny: 4 legs of 1 voxel. Palette is 4 colours, mostly EFE9E0 (245 of 269 voxels). The only one-sided voxels are in the ears and body (23), which is art.
+- AnteaterPup: 4 legs of 1 voxel. 6 colours. 3 one-sided snout voxels.
+- EmuChick: 2 legs of 4 voxels. 4 colours. 1 one-sided body voxel.
+
+Drawn as Parts, they read as a white bunny with pink ears, a grey anteater pup, and a cream emu chick with a dark head.
+
+**Book.** It reads "Found 19/422" with Uncommon at 15/69. All 15 new cards are IsLoaded with ids equal to CreatureThumbs, and their captions read "Basic Egg 1 in 200" (AngoraBunny, GreyhoundPup, MaineCoonKitten, MuscovyDuckling) or "Meadow Egg 1 in 168" (the other 11).
+
+**Feedback and Output.** CoreFeedback.FeedbackButton is present. Output has no game errors; the only 2 errors are my own snippet looking up OddsList before it opened.
+
+Screens: pr158-phone-odds-basic.jpg, -meadow.jpg, pr158-hatch-crayfish.jpg, pr158-kookaburra-pads.jpg, pr158-standins-bunny-anteater-emu.jpg, pr158-book-uncommon.jpg.
