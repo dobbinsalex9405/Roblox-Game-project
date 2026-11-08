@@ -1983,3 +1983,44 @@ The Basic HUD card reads: Common "92.0018% · 1 in 1.1", Uncommon "6.9996% · 1 
 - The Feedback button is visible.
 
 Screens: pr166b-phone-odds-basic.jpg, -meadow.jpg, -moonlit.jpg, pr166b-book-rare.jpg, pr166b-standins-17.jpg.
+
+## #167 at fa343a0 (16 live stand-ins redrawn as one piece): FAIL on check (2) mesh swap, pre-existing on main; stopped there
+
+I fetched the sha itself and built it; it contains main f7d00e3. In games/, the diff from main is VoxelArt.luau (19 hunks) plus CHANGELOG only.
+
+**Check (1): PASS.** All 16 stand-ins are one 26-connected piece, have feet at y = 0, and have mirror-symmetric legs (0 one-sided leg voxels on the best axis).
+
+| Species | Rarity | Boxes | Neon palette entries |
+|---|---|---|---|
+| AbyssJelly | Epic | 101 | 1 |
+| BabyKraken | Epic | 116 | 1 |
+| BeaverKit | Common | 24 | 0 |
+| Crayfish | Common | 23 | 0 |
+| Dachshund | Common | 23 | 0 |
+| EmberImp | Epic | 119 | 2 |
+| GargoylePup | Epic | 118 | 0 |
+| Hippogriff | Epic | 117 | 2 |
+| Llama | Common | 29 | 0 |
+| Lobster | Common | 23 | 0 |
+| Meerkat | Common | 21 | 0 |
+| PaperCrane | UR | 63 | 1 |
+| PegasusFoal | Epic | 89 | 0 |
+| SphinxCub | Epic | 119 | 0 |
+| StarDeer | Epic | 117 | 2 |
+| StormLionCub | Epic | 115 | 5 |
+
+Neon is only on the UR and Epic species. The remaining one-sided voxels are art details (jelly frills, horns, tails), not legs.
+
+**Check (2): FAIL.** The stand-in shows, but the mesh never replaces it for the first creatures placed in a session.
+- Play-solo; I gave Llama, Meerkat, Lobster, Crayfish, PaperCrane and Dachshund from the test panel, about 5 to 12 s after spawn.
+- Lobster, Crayfish, PaperCrane and Dachshund rendered as meshes at once (0.00 s, no stand-in frame).
+- Llama (Pad1) and Meerkat (Pad2) showed their new one-piece stand-ins (29 and 21 boxes, as drawn above) and never swapped. After 30+ s they had 0 MeshParts.
+- ReplicatedStorage.CreatureMeshes has Llama (9) and Meerkat (7), and CreatureMeshes has entries for both.
+- A second Llama and Meerkat given afterwards rendered as meshes instantly. So the meshes do load; the already-drawn stand-ins are just never redrawn.
+- No asset errors for Llama or Meerkat in Output.
+
+**Same on main f7d00e3 (local build, same steps).** I gave Llama, Meerkat, Lobster and Crayfish. Llama (28 boxes, the old stand-in), Meerkat (13) and Lobster (23) stayed as stand-ins after 35 s, and only Crayfish meshed. So this is pre-existing CreatureView behaviour, not caused by #167, which does not touch src/client.
+
+The relevant code is CreatureView.luau meshesArrived / watchMeshFolder. It should redraw every non-meshed visual of the species once `loaded[model] = true`, but creatures drawn while that species' preload was pending stay on boxes.
+
+Checks (3) sanity and (4) MeshPart count = 138 were not run (stopped at the first FAIL).
