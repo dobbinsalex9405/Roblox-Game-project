@@ -92,6 +92,445 @@
      "kind": "wildbubble",
      "color": "#4AD8FF",
      "color2": "#FF6AD5"
+    },
+    {
+     "kind": "draw",
+     "color": "#DDF3FF",
+     "part": "bubble",
+     "remove": [
+      [
+       0,
+       1,
+       13
+      ],
+      [
+       1,
+       0,
+       13
+      ],
+      [
+       1,
+       1,
+       13
+      ],
+      [
+       2,
+       -2,
+       13
+      ],
+      [
+       2,
+       -1,
+       13
+      ],
+      [
+       -4,
+       2,
+       11
+      ],
+      [
+       -3,
+       2,
+       11
+      ],
+      [
+       -2,
+       2,
+       12
+      ],
+      [
+       -1,
+       1,
+       13
+      ],
+      [
+       -1,
+       2,
+       12
+      ],
+      [
+       -1,
+       2,
+       13
+      ],
+      [
+       -6,
+       1,
+       8
+      ],
+      [
+       -6,
+       1,
+       9
+      ],
+      [
+       -5,
+       2,
+       9
+      ],
+      [
+       -5,
+       2,
+       10
+      ],
+      [
+       -4,
+       2,
+       10
+      ],
+      [
+       -7,
+       -2,
+       6
+      ],
+      [
+       -7,
+       -1,
+       6
+      ],
+      [
+       -7,
+       -1,
+       7
+      ],
+      [
+       -7,
+       0,
+       7
+      ],
+      [
+       -6,
+       -3,
+       5
+      ],
+      [
+       -6,
+       0,
+       7
+      ],
+      [
+       -6,
+       -5,
+       5
+      ],
+      [
+       -6,
+       -4,
+       5
+      ],
+      [
+       -5,
+       -6,
+       5
+      ],
+      [
+       -5,
+       -5,
+       5
+      ],
+      [
+       -4,
+       -7,
+       5
+      ],
+      [
+       -4,
+       -6,
+       5
+      ],
+      [
+       -3,
+       -4,
+       11
+      ],
+      [
+       -3,
+       -4,
+       12
+      ],
+      [
+       -2,
+       -4,
+       11
+      ],
+      [
+       -2,
+       -4,
+       12
+      ],
+      [
+       -6,
+       -3,
+       6
+      ],
+      [
+       -6,
+       -2,
+       2
+      ],
+      [
+       -6,
+       -1,
+       8
+      ],
+      [
+       -5,
+       -5,
+       4
+      ],
+      [
+       -5,
+       -4,
+       10
+      ],
+      [
+       -5,
+       1,
+       10
+      ],
+      [
+       -5,
+       3,
+       7
+      ],
+      [
+       -4,
+       -6,
+       7
+      ],
+      [
+       -4,
+       -2,
+       12
+      ],
+      [
+       -4,
+       4,
+       3
+      ],
+      [
+       -2,
+       -6,
+       1
+      ],
+      [
+       -2,
+       -6,
+       11
+      ],
+      [
+       -2,
+       6,
+       5
+      ],
+      [
+       -1,
+       4,
+       11
+      ],
+      [
+       -1,
+       5,
+       2
+      ],
+      [
+       0,
+       -8,
+       9
+      ],
+      [
+       1,
+       -7,
+       3
+      ],
+      [
+       1,
+       -4,
+       12
+      ],
+      [
+       2,
+       -5,
+       0
+      ],
+      [
+       2,
+       3,
+       0
+      ],
+      [
+       2,
+       5,
+       10
+      ],
+      [
+       2,
+       6,
+       4
+      ],
+      [
+       3,
+       -6,
+       10
+      ],
+      [
+       3,
+       2,
+       12
+      ],
+      [
+       4,
+       -7,
+       4
+      ],
+      [
+       4,
+       -3,
+       12
+      ],
+      [
+       5,
+       -6,
+       8
+      ],
+      [
+       5,
+       0,
+       1
+      ],
+      [
+       5,
+       4,
+       2
+      ],
+      [
+       6,
+       3,
+       8
+      ],
+      [
+       7,
+       -4,
+       6
+      ],
+      [
+       8,
+       0,
+       7
+      ]
+     ],
+     "voxels": [
+      [
+       -7,
+       -3,
+       4,
+       "#FFF38A"
+      ],
+      [
+       -7,
+       -3,
+       5,
+       "#FFF38A"
+      ],
+      [
+       -7,
+       -3,
+       6,
+       "#FFF38A"
+      ],
+      [
+       -6,
+       -3,
+       7,
+       "#8AFFD8"
+      ],
+      [
+       -6,
+       -3,
+       8,
+       "#8AFFD8"
+      ],
+      [
+       -6,
+       -3,
+       9,
+       "#8AFFD8"
+      ],
+      [
+       -5,
+       -3,
+       10,
+       "#4AD8FF"
+      ],
+      [
+       -5,
+       -3,
+       11,
+       "#4AD8FF"
+      ],
+      [
+       -4,
+       -3,
+       12,
+       "#B98AFF"
+      ],
+      [
+       -3,
+       -3,
+       12,
+       "#B98AFF"
+      ],
+      [
+       -2,
+       -3,
+       12,
+       "#B98AFF"
+      ],
+      [
+       -1,
+       -3,
+       13,
+       "#FF6AD5"
+      ],
+      [
+       0,
+       -3,
+       13,
+       "#FF6AD5"
+      ],
+      [
+       1,
+       -3,
+       13,
+       "#FF6AD5"
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FFF4E3",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       5
+      ]
+     ]
     }
    ]
   },
@@ -158,6 +597,74 @@
      "color": "#FF7AB8",
      "color2": "#FFE27A",
      "glow": true
+    },
+    {
+     "kind": "draw",
+     "color": "#55A555",
+     "part": "head",
+     "mirror": true,
+     "remove": [
+      [
+       -2,
+       -6,
+       8
+      ]
+     ],
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -2,
+       -5,
+       8
+      ]
+     ],
+     "voxels": [
+      [
+       -2,
+       -6,
+       8
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "head"
+     ],
+     "budget": 85
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body"
+     ]
     }
    ]
   },
@@ -194,6 +701,125 @@
      "kind": "bow",
      "color": "#FF5E7A",
      "color2": "#FFD43B"
+    },
+    {
+     "kind": "despeckle",
+     "color": "#7A4E2A",
+     "colors": [
+      "#70492A",
+      "#FF7AA8",
+      "#FF8FB1"
+     ],
+     "parts": [
+      "head"
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F2D6B0",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       7,
+       "#C8925A"
+      ],
+      [
+       -1,
+       -7,
+       7
+      ],
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#3AA39A",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -3,
+       -6,
+       7
+      ]
+     ],
+     "voxels": [
+      [
+       -3,
+       -5,
+       8
+      ],
+      [
+       -3,
+       -5,
+       7
+      ],
+      [
+       -2,
+       -5,
+       8
+      ],
+      [
+       -2,
+       -5,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF5E7A",
+     "part": "bow",
+     "remove": [
+      [
+       0,
+       -4,
+       9
+      ],
+      [
+       1,
+       -4,
+       9
+      ],
+      [
+       2,
+       -4,
+       9
+      ]
+     ],
+     "voxels": [
+      [
+       0,
+       -4,
+       10
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body"
+     ]
     }
    ]
   },
@@ -246,6 +872,15 @@
     {
      "kind": "berryeyes",
      "color": "#C21E56"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head",
+      "thorns"
+     ]
     }
    ]
   },
@@ -412,6 +1047,15 @@
     {
      "kind": "cherry",
      "color": "#E8233E"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "wrapper",
+      "head"
+     ]
     }
    ],
    "shape": {
@@ -454,6 +1098,76 @@
     {
      "kind": "hookbeak",
      "color": "#FFB627"
+    },
+    {
+     "kind": "draw",
+     "color": "#F2E6CC",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -5,
+       9
+      ],
+      [
+       -2,
+       -5,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FFB627",
+     "part": "beak",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -8,
+       6
+      ],
+      [
+       -1,
+       -8,
+       7
+      ],
+      [
+       -1,
+       -8,
+       8
+      ],
+      [
+       -1,
+       -7,
+       7
+      ],
+      [
+       -1,
+       -6,
+       7
+      ]
+     ],
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ],
+      [
+       -1,
+       -6,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body"
+     ]
     }
    ],
    "shape": {
@@ -488,6 +1202,41 @@
      "kind": "bflywings",
      "color": "#B98CFF",
      "color2": "#FFB3F0"
+    },
+    {
+     "kind": "draw",
+     "color": "#FFFFFF",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "wing",
+      "body",
+      "head"
+     ]
     }
    ]
   },
@@ -505,7 +1254,16 @@
     "accent": "#7FFFE8",
     "belly": "#FFE27A"
    },
-   "accessories": []
+   "accessories": [
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "head",
+      "body"
+     ]
+    }
+   ]
   },
   {
    "id": "ToxicToad",
@@ -698,6 +1456,26 @@
      "kind": "flamehair",
      "color": "#FF7A1A",
      "color2": "#FFE27A"
+    },
+    {
+     "kind": "draw",
+     "color": "#3A3438",
+     "part": "body",
+     "voxels": [
+      [
+       0,
+       2,
+       1
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head"
+     ]
     }
    ]
   },
@@ -934,6 +1712,121 @@
     {
      "kind": "glowstripe",
      "color": "#FF5A1A"
+    },
+    {
+     "kind": "draw",
+     "color": "#6A6268",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -3,
+       2
+      ],
+      [
+       -2,
+       -3,
+       3
+      ],
+      [
+       -2,
+       -3,
+       4
+      ],
+      [
+       -1,
+       -3,
+       3
+      ],
+      [
+       -1,
+       -4,
+       2
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F2EEE8",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -4,
+       2
+      ],
+      [
+       -2,
+       -4,
+       3
+      ],
+      [
+       -1,
+       -4,
+       3
+      ],
+      [
+       -1,
+       -4,
+       4
+      ],
+      [
+       -1,
+       -4,
+       5
+      ],
+      [
+       -1,
+       -3,
+       5
+      ],
+      [
+       -1,
+       -5,
+       3
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -4,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF5A1A",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -5,
+       2
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F2EEE8",
+     "part": "ears",
+     "mirror": true,
+     "remove": [
+      [
+       -3,
+       -3,
+       5
+      ]
+     ]
     }
    ],
    "shape": {
@@ -958,6 +1851,75 @@
     {
      "kind": "cheekglow",
      "color": "#9FE8FF"
+    },
+    {
+     "kind": "draw",
+     "color": "#CFE8FF",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -3,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF8FA8",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -2,
+       6
+      ],
+      [
+       -1,
+       -4,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F4FAFF",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -4,
+       3
+      ],
+      [
+       -2,
+       -3,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -3,
+       5
+      ]
+     ],
+     "voxels": [
+      [
+       -2,
+       -3,
+       5
+      ]
+     ]
     }
    ]
   },
@@ -984,6 +1946,15 @@
      "kind": "finchbeak",
      "color": "#F2B33D",
      "color2": "#9A6A2A"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "gust",
+      "body",
+      "head"
+     ]
     }
    ]
   },

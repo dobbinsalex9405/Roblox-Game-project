@@ -463,7 +463,8 @@ def draw(c, H, col=None, col2=None, a=None):
     """In-game stand-in only: voxels put by hand where the coarse build is too
     small to carry a feature the mesh has (a baby ape's eyes, which the
     coarse build has no room for). "part": the part they go in; "voxels":
-    [x, y, z] in `color`, or [x, y, z, "#RRGGBB"], each put or repainted. With "mirror": true each is
+    [x, y, z] in `color`, or [x, y, z, "#RRGGBB"], each put or repainted;
+    "remove": [x, y, z] voxels taken out first (a bow moved elsewhere). With "mirror": true each is
     also put at its twin across the middle (x -> -1 - x), so list one side
     and the middle. A part the creature does not have is printed and
     skipped."""
@@ -475,6 +476,10 @@ def draw(c, H, col=None, col2=None, a=None):
     if part is None:
         print(f'draw: {c.species}: no part {a.get("part")!r}', file=sys.stderr)
         return
+    for x, y, z in a.get('remove', []):
+        part.v.pop((x, y, z), None)
+        if a.get('mirror'):
+            part.v.pop((-1 - x, y, z), None)
     for x, y, z, *h in a.get('voxels', []):
         val = (hexc(h[0]) if h else col, False)
         part.v[(x, y, z)] = val

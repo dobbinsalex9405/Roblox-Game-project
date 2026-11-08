@@ -336,6 +336,12 @@ class Draw(unittest.TestCase):
         self.assertEqual(h.v[(0, -1, 5)], ((255, 143, 177), False))
         self.assertEqual(len(h.v), 8)
 
+    def test_removed_voxels_go_first(self):
+        c, h = self.ape()
+        kit_trim.draw(c, 10, INK, a={'part': 'head', 'remove': [[-1, 0, 6]], 'voxels': [[0, 0, 7]]})
+        self.assertNotIn((-1, 0, 6), h.v)
+        self.assertEqual(h.v[(0, 0, 7)], (INK, False))
+
     def test_the_fine_build_keeps_its_head(self):
         c, h = self.ape(fine=True)
         before = dict(h.v)

@@ -53,6 +53,14 @@
     {
      "kind": "eyering",
      "color": "#FFFFFF"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "wing",
+      "head"
+     ]
     }
    ]
   },
@@ -108,6 +116,29 @@
     {
      "kind": "eyering",
      "color": "#FFFFFF"
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "body",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       0,
+       0
+      ],
+      [
+       -1,
+       1,
+       0
+      ],
+      [
+       -1,
+       2,
+       0
+      ]
+     ]
     }
    ]
   },
@@ -212,6 +243,36 @@
      "kind": "gear",
      "color": "#E8C050",
      "color2": "#5CF2FF"
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "body",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       0,
+       0
+      ],
+      [
+       -1,
+       1,
+       0
+      ],
+      [
+       -1,
+       2,
+       0
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "shell"
+     ]
     }
    ]
   },
@@ -236,6 +297,16 @@
     {
      "kind": "glinteyes",
      "color": "#E8E8F4"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "leg1",
+      "leg2",
+      "web"
+     ]
     }
    ]
   },
