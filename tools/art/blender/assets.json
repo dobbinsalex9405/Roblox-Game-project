@@ -3065,6 +3065,120 @@
    "textureId": 95244090140921,
    "textureType": "Image",
    "version": "1"
+  },
+  "PancakeFrog": {
+   "assetId": 127593888930737,
+   "textureId": 117485629526094,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Peachick": {
+   "assetId": 120132111314483,
+   "textureId": 109595481108214,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "PetalBunny": {
+   "assetId": 116978569376553,
+   "textureId": 81385908302964,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "PolarBearCub": {
+   "assetId": 81109670158788,
+   "textureId": 126906038516690,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "PomPom": {
+   "assetId": 74252565025407,
+   "textureId": 88926098106347,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "PteroChick": {
+   "assetId": 82351644555117,
+   "textureId": 124800399452050,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Rabbeetle": {
+   "assetId": 71354571287859,
+   "textureId": 104711033118002,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "RainSnail": {
+   "assetId": 109446842827554,
+   "textureId": 74959544671474,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "RaptorChick": {
+   "assetId": 113028016639588,
+   "textureId": 83058896902230,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ReindeerCalf": {
+   "assetId": 97195314369819,
+   "textureId": 88057640485974,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "RexHatchling": {
+   "assetId": 104021808135148,
+   "textureId": 79872530026507,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "RhinoCalf": {
+   "assetId": 87810471453243,
+   "textureId": 93764848852384,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "RoboPup": {
+   "assetId": 82124353620504,
+   "textureId": 122665287415390,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SandCat": {
+   "assetId": 107727996830107,
+   "textureId": 105223299678165,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Scorpion": {
+   "assetId": 122557260605094,
+   "textureId": 78140372905302,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SeaOtter": {
+   "assetId": 88773542035888,
+   "textureId": 104937661808207,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SharkPup": {
+   "assetId": 95242987048641,
+   "textureId": 75518195048433,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Slugcorn": {
+   "assetId": 121578070434633,
+   "textureId": 136818309458041,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SnowLamb": {
+   "assetId": 115609170655297,
+   "textureId": 77944936487385,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
