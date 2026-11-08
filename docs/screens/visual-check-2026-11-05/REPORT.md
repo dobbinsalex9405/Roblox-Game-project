@@ -1829,3 +1829,68 @@ The rest of GorillaBaby passes: 49 boxes, legs centred and mirror-symmetric abou
 Not run: odds (1), Book (2), meshes and Neon (3b), walk and earn (4), respawn (5).
 
 Screens: pr164-FAIL-gorillababy-floating-head-box.jpg, pr164-standins-row1.jpg (left to right: GorillaBaby, BubblePup, Bunnyfly, CactusPup, ButtonBear).
+
+## #164 re-gate at 70bca33 (batch 11, GorillaBaby crest fix): PASS
+
+I built the head directly because it contains main 1b0ae72. The diff from 918c893 is VoxelArt.luau (2 lines) and the roster JSON; assets.json is unchanged. I played solo in Studio, phone 844x392 and desktop 1350x672.
+
+**1. Odds at phone size.** Every label passes TextFits. The smallest text is 13.6 px on the HUD card and 14.4 px in the list.
+
+| Egg | Rows | Sum | Rows by tier |
+|---|---|---|---|
+| Basic | 94 | 100.0000% | Unchanged. Common 71 × "1.2958% · 1 in 77.2"; Uncommon 19 × "0.3684% · 1 in 271"; Rare Raccoon "0.7986% · 1 in 125"; UR Ember Fox "0.1800% · 1 in 556"; Epic Dragonling "0.0180% · 1 in 5,556"; Legendary Phoenix "0.0020% · 1 in 50,000" |
+| Meadow | 247 | 100.0000% | Common 127 × "0.5269% · 1 in 190"; Uncommon 73 × "0.4258% · 1 in 235"; Rare 27 × "0.0630% · 1 in 1,587"; UR 13 × 1 in 4,651; Epic 6 × 1 in 35,714; Legendary Thunder Griffin 1 in 33,333 |
+| Moonlit | 155 | 100.0000% | Uncommon 6 × "9.66670% · 1 in 10.3"; Rare 17 × "2.23530% · 1 in 44.7"; UR 58 × 1 in 1,568; Epic 54 × 1 in 18,622; Godly 19 × 1 in 1,000,000; Legendary Phoenix 1 in 12,500 |
+
+- Meadow's 27 Rares are the 24 new ones plus Penguin, Owlet and Cinnamon Snail.
+- Moonlit's 6 Uncommons are Shroomback Toad, Zebra Piglet, Glow Mouse, Puppy, Ghost Moth and Kitten.
+- Moonlit's 17 Rares are the 14 new ones plus Owlet, Fennec and Panda Cub, all at equal weight.
+- Raccoon is not in the Moonlit list. Config at both 1b0ae72 and this head gives it pools = {"Barnyard"} only, so the brief's "Raccoon at half weight" line doesn't apply to Moonlit.
+- The Basic HUD card reads: Common "92.0018% · 1 in 1.1", Uncommon "6.9996% · 1 in 14.3", Rare "0.7986% · 1 in 125", UR "0.1800% · 1 in 556", Epic "0.0180% · 1 in 5,556", Legendary "0.0020% · 1 in 50,000".
+- I couldn't capture the Meadow and Moonlit HUD cards because no Meadow or Moonlit egg passed my spot in 60 s. Their full lists above are what the card's "See every creature" opens.
+
+**2. Book.** It reads "Found 0/492". Tabs: Common 0/198, Uncommon 0/97, Rare 0/44, UR 0/71, Epic 0/60, Legendary 0/2, Godly 0/20.
+- All 38 new Rare cards are IsLoaded with ids equal to CreatureThumbs: 24 read "Meadow Egg 1 in 1,587" and 14 read "Moonlit Egg 1 in 44.7". That includes GorillaBaby, HerculesBeetle, ClockworkBeetle, ButtonBear, BubblePup, AmethystMole and BabyOctopus.
+- The 3 Commons (Glowworm, GumdropSlug, Hoverfly) read "Meadow Egg 1 in 190".
+- The 2 Uncommons (GhostMoth, GlowMouse) read "Moonlit Egg 1 in 10.3".
+
+**3. Stand-ins (all 43).**
+- Box counts: Rares 27 to 60, Uncommons 28 and 35, Commons 6 to 29.
+- All have feet at y = 0 and 0 Neon.
+- All are one 26-connected solid except BubblePup (its bubbles, accepted).
+- Legs are mirror-symmetric on all except Hoverfly's 2 voxels (accepted).
+- GorillaBaby is now 49 boxes and one piece, with the crest seated on the head. Its legs are centred and the banana sits at the flank.
+- BubblePup, Bunnyfly and CactusPup each show 2 separate eyes. ButtonBear's bow is present. Both beetles have a body and 6 legs.
+- All 43 drawn as Parts: pr164b-standins-all-43.jpg.
+
+**3b. Meshes.** I built floors 2 to 6 and gave all 43 from the test panel.
+- All 43 render as meshes, 392 MeshParts in total, with 0 voxel boxes.
+- Each uses one TextureID equal to assets.json, and every MeshId and TextureID fetch is Success.
+- 0 Neon, and 0 lights, particles or highlights.
+- An earlier forced PreloadAsync showed "Failure" only because of my own call: it requested mesh ids as the wrong asset type ("Asset type does not match requested type").
+
+**4. Walk and earn (sample of 10).**
+
+| Creature | Path in 8 s | Legs swinging | Median gap above pad |
+|---|---|---|---|
+| ClockworkBeetle | 7.7 | 6/6 | 0.04 |
+| HerculesBeetle | 3.6 | 6/6 | 0.03 |
+| GorillaBaby | 6.3 | 2/2 | 0.06 |
+| GlowMouse | 10.8 | 4/4 | 0.01 |
+| BubblePup | 13.6 | 4/4 | -0.04 |
+| ButtonBear | 16.4 | 4/4 | 0.02 |
+| BabyOctopus | 4.3 | 8/8 | 0.00 to 0.11 |
+| AmethystMole | 6.7 | 4/4 | 0.02 |
+| CobwebSpider | 4.7 | 8/8 | 0.03 |
+| ElephantCalf | 5.7 | 4/4 | 0.03 |
+
+BabyOctopus first read 0.45 because my ray hit a deck part; re-sampled on Pad45 it reads 0.00 to 0.11. Income rose from +0/s to +3.28K/s.
+
+**5. Respawn.**
+- Before: 8 of 8 signs healthy and changing in 5 s.
+- I reset through Esc, R, Enter, and a new Character spawned.
+- After: 8 of 8 changed in each of three 5 s windows.
+- There are 0 OddsView or Hud lines and 0 game errors in LogService.
+- CoreFeedback.FeedbackButton is visible.
+
+Screens: pr164b-phone-odds-basic.jpg, -meadow.jpg, -moonlit.jpg, pr164b-book-rare.jpg, pr164b-standins-all-43.jpg, pr164b-gorillababy-crest-fixed.jpg, pr164b-placed-babyoctopus.jpg.
