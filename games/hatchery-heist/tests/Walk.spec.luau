@@ -185,6 +185,24 @@ describe("Walk gaits", function()
 		).toBe(true)
 	end)
 
+	it("walks a pill bug's fourteen legs, the seventh pair too", function()
+		-- PillBug has leg1..leg7 pairs; only leg1..leg6 moved, so it was held
+		-- back from go-live batch C4 (#150). leg7 joins the alternation:
+		-- left 7 in the set of the odd lefts and even rights, right 7 in the
+		-- other set.
+		expect(Walk.isLeg("leg7L") and Walk.isLeg("leg7R")).toBe(true)
+		local l7 = Walk.pose("scuttle", "leg7L", 0.25, 1, 1, true).ry
+		local r7 = Walk.pose("scuttle", "leg7R", 0.25, 1, 1, true).ry
+		expect(math.abs(l7) > 0.3 and near(l7, -Walk.pose("scuttle", "leg6R", 0.25, 1, 1, true).ry)).toBe(
+			true
+		)
+		expect(math.abs(r7) > 0.3 and near(r7, -Walk.pose("scuttle", "leg6L", 0.25, 1, 1, true).ry)).toBe(
+			true
+		)
+		expect(near(l7, Walk.pose("scuttle", "leg5L", 0.25, 1, 1, true).ry)).toBe(true)
+		expect(near(r7, Walk.pose("scuttle", "leg5R", 0.25, 1, 1, true).ry)).toBe(true)
+	end)
+
 	it("flicks a waddling bird's wings out only while it walks", function()
 		local l = Walk.pose("waddle", "wingL", 0.25, 1, 2, true).rz
 		local r = Walk.pose("waddle", "wingR", 0.25, 1, 2, true).rz

@@ -39,6 +39,8 @@ local ANIMS = {
 	"leg5R",
 	"leg6L",
 	"leg6R",
+	"leg7L", -- a pill bug's seventh pair
+	"leg7R",
 	"finL", -- fins paddle when a fish swims (Walk "swim")
 	"finR",
 }

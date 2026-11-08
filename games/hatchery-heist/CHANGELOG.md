@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Creatures with a seventh pair of legs (the Pill Bug) walk with all of
+  them, so the Pill Bug can join the eggs.
 - The Gummy Bear glows softly along its back and the top of its head again,
   so it reads as candy lit from inside rather than a solid red bear.
 - Fix: the Will-o'-Wisp is named "Will-o'-Wisp" in the Book, hatch
