@@ -1515,3 +1515,40 @@ I built the head directly because it already contains main 9ed07b49. The diff is
 - No creature uses leg7 yet, so nothing on screen differs from main.
 
 Screens: pr151-desktop-walkers.jpg, pr151-desktop-gardenspider-lobster.jpg, pr151-desktop-book.jpg, pr151-phone-walkers.jpg.
+
+## #152 at 15d484e (Go-live C5: 18 Commons): PASS
+
+I built the head directly because it contains base 6980054b. I played solo in Studio, desktop 1350x672 and phone 844x392.
+
+**Five creatures, given from the test panel**
+
+| Species | MeshParts | Visible boxes | Neon | TextureID | Matches assets.json | Fetch |
+|---|---|---|---|---|---|---|
+| SeaUrchin | 4 | 0 | 0 | 129310073089105 | yes | Success |
+| ShetlandPony | 10 | 0 | 0 | 130362527305553 | yes | Success |
+| Sloth | 9 | 0 | 0 | 132779358197526 | yes | Success |
+| SpikyDuckling | 8 | 0 | 0 | 79346390053935 | yes | Success |
+| Termite | 9 | 0 | 0 | 131139778865277 | yes | Success |
+
+- Each creature uses one texture id across all its MeshParts, and every MeshId has fetch status Success.
+- The palettes match the Book thumbs:
+  - SeaUrchin: purple.
+  - ShetlandPony: cream with a white mane.
+  - Sloth: tan with a green leaf.
+  - SpikyDuckling: yellow, brown spikes, orange beak.
+  - Termite: brown and cream.
+- The five textures logged "being generated" on first fetch, then Success. That is fresh-upload lag.
+
+**Book.** The Book reads "Found 5/375" with Common at 176. The grid is virtualized, so I scrolled the whole Common page and checked each card while it was on screen. All 18 C5 cards are IsLoaded and their image ids equal CreatureThumbs: Sandpiper, SeaUrchin, ShetlandPony, Silkworm, Sloth, StagBeetle, SugarGlider, SheepdogPup, ShieldBug, Shrew, Shrimp, SockWorm, Sparrow, SpikyDuckling, Sproutling, Starling, Tadpole, Termite.
+
+**Phone odds list.** No label fails TextFits, and the smallest text is 14.4 px.
+
+| Egg | Rows | Sum | Tiers |
+|---|---|---|---|
+| Basic | 78 | 100.0000% | Common 67 × "1.3731% · 1 in 72.8"; Uncommon 7 × 1 in 100; Rare 1 × "0.8023% · 1 in 125"; UR 1 in 556; Epic 1 in 5,556; Legendary 1 in 50,000 |
+| Meadow | 162 | 100.0000% | Common 109 × "0.6147% · 1 in 163"; Uncommon 31 × "1.0000% · 1 in 100"; Rare 2 × 0.8492% (1.6984%); UR 13 × "0.0215% · 1 in 4,651"; Epic 6 × 1 in 35,714; Legendary 1 in 33,333 |
+| Moonlit | 139 | 100.0000% | Unchanged |
+
+**Output.** There are no game script errors. The one "require" error and its client-error report come from my own inspection snippet (AssistantCommand), not the game.
+
+Screens: pr152-desktop-urchin-termite-pony.jpg, -sloth.jpg, -spikyduckling.jpg, -book-seaurchin.jpg, -book-pony-sloth.jpg, -book-duckling-termite.jpg, pr152-phone-odds-basic.jpg, -meadow.jpg.
