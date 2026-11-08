@@ -5416,6 +5416,82 @@
   "SnowLamb": {
    "imageId": 100033144186047,
    "source": "4e28dbc81fcbda3d"
+  },
+  "SnowLeopardCub": {
+   "imageId": 84091697787467,
+   "source": "3f8d9eeefcc1479f"
+  },
+  "Snowpuff": {
+   "imageId": 119860845199234,
+   "source": "c4fd4ec29e2264a5"
+  },
+  "Socktopus": {
+   "imageId": 83628006003970,
+   "source": "2f97f7d880bb0709"
+  },
+  "SparkFerret": {
+   "imageId": 92266955275670,
+   "source": "a9335305e5c773ff"
+  },
+  "Sparkplug": {
+   "imageId": 88496282062120,
+   "source": "f76aba3fd22d4fa3"
+  },
+  "StegoHatchling": {
+   "imageId": 136733915499590,
+   "source": "621934d1ec547808"
+  },
+  "Tarantula": {
+   "imageId": 99620143418722,
+   "source": "594b3fb66e17051a"
+  },
+  "TeapotTurtle": {
+   "imageId": 80152975594509,
+   "source": "d635eaf53696ec41"
+  },
+  "TigerCub": {
+   "imageId": 80848555061246,
+   "source": "58b61213cdeafeac"
+  },
+  "Toucan": {
+   "imageId": 72621108639256,
+   "source": "217d145f8eb15d11"
+  },
+  "ToxicToad": {
+   "imageId": 108985626975448,
+   "source": "2b8307799b6ffa1d"
+  },
+  "TrikeHatchling": {
+   "imageId": 130679260518851,
+   "source": "54ac5ac5ab6755f9"
+  },
+  "TwoHeadedTurtle": {
+   "imageId": 115084936637860,
+   "source": "2bcb17c41801af17"
+  },
+  "VampireBat": {
+   "imageId": 83741567940506,
+   "source": "dd9ece2c91bdec42"
+  },
+  "WindupMouse": {
+   "imageId": 128090809635562,
+   "source": "dbed79fa7ada00e9"
+  },
+  "WitchKitten": {
+   "imageId": 77323482982881,
+   "source": "1b6b77bb32c12d23"
+  },
+  "YarnKitten": {
+   "imageId": 73780869647378,
+   "source": "f072d5cc39dc9231"
+  },
+  "ZapMouse": {
+   "imageId": 106402657282632,
+   "source": "d242265d919f6e37"
+  },
+  "ZebraFoal": {
+   "imageId": 102415996033855,
+   "source": "2f6a384949bdf5de"
   }
  }
 }
