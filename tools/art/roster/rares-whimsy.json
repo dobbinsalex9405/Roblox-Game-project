@@ -569,7 +569,16 @@
     "tuft": "#FF8A1A",
     "feet": "#D8E8F4"
    },
-   "accessories": []
+   "accessories": [
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head"
+     ]
+    }
+   ]
   },
   {
    "id": "Sparkplug",
@@ -868,6 +877,49 @@
     {
      "kind": "eartips",
      "color": "#FFB3BA"
+    },
+    {
+     "kind": "despeckle",
+     "color": "#B82A36",
+     "parts": [
+      "head"
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F26A72",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head",
+      "tail",
+      "ears"
+     ]
     }
    ]
   },
@@ -1342,6 +1394,15 @@
     {
      "kind": "glowspots",
      "color": "#E8FF3A"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head",
+      "legB"
+     ]
     }
    ]
   },
@@ -1846,6 +1907,52 @@
      "kind": "zigzagtail",
      "color": "#E8B8C8",
      "color2": "#5CE8FF"
+    },
+    {
+     "kind": "draw",
+     "color": "#7F95B8",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -3,
+       3
+      ],
+      [
+       -2,
+       -3,
+       4
+      ],
+      [
+       -2,
+       -2,
+       3
+      ],
+      [
+       -2,
+       -2,
+       4
+      ],
+      [
+       -2,
+       -2,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -3,
+       5
+      ]
+     ]
     }
    ],
    "shape": {
@@ -2229,6 +2336,62 @@
      "kind": "windkey",
      "color": "#E8C060",
      "color2": "#FFE27A"
+    },
+    {
+     "kind": "draw",
+     "color": "#B8C0CC",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -3,
+       4
+      ],
+      [
+       -2,
+       -2,
+       3
+      ],
+      [
+       -2,
+       -2,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FFB3C7",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -3,
+       3
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -3,
+       4
+      ]
+     ],
+     "voxels": [
+      [
+       -2,
+       -3,
+       4
+      ]
+     ]
     }
    ]
   },

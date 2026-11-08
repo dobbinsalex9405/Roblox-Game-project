@@ -186,6 +186,17 @@
     {
      "kind": "eyering",
      "color": "#FFFFFF"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "head",
+      "body",
+      "leg3",
+      "leg1",
+      "leg2"
+     ]
     }
    ]
   },
