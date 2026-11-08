@@ -482,6 +482,57 @@ def draw(c, H, col=None, col2=None, a=None):
             part.v[(-1 - x, y, z)] = val
 
 
+def despeckle(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a fleck pattern (a roadrunner's pale flecks)
+    taken off the named parts. Each voxel of `color` (and "colors", more
+    "#RRGGBB") takes the colour most of its neighbours in the part have, so
+    a fleck on the belly turns belly and one on the back turns back."""
+    if getattr(c, 'fine', False):
+        return
+    from voxkit import hexc
+    a = a or {}
+    gone = {col} | {hexc(h) for h in a.get('colors', [])}
+    for p in c.parts:
+        if p.name not in a.get('parts', []):
+            continue
+        for v in sorted(v for v, val in p.v.items() if val[0] in gone):
+            count = {}
+            for d in STEPS:
+                n = p.v.get((v[0] + d[0], v[1] + d[1], v[2] + d[2]))
+                if n and n[0] not in gone:
+                    count[n] = count.get(n, 0) + 1
+            if count:
+                p.v[v] = max(count, key=lambda k: (count[k], k))
+
+
+def bands(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: a swirled coat (a sherbet chick's) redrawn as
+    level bands, which cost a few boxes where a swirl costs dozens and stay
+    the same on both sides. Voxels of `color` and "colors" (more "#RRGGBB")
+    in the named parts are repainted by height: "bands" [[z, "#RRGGBB"], ...]
+    gives each band's lowest layer, lowest first. Other colours (a belly
+    patch, the eyes) are left as they are."""
+    if getattr(c, 'fine', False):
+        return
+    from voxkit import hexc
+    a = a or {}
+    old = {col} | {hexc(h) for h in a.get('colors', [])}
+    steps = sorted((z, hexc(h)) for z, h in a.get('bands', []))
+    if not steps:
+        return
+    for p in c.parts:
+        if p.name not in a.get('parts', []):
+            continue
+        for v, val in list(p.v.items()):
+            if val[0] in old and not val[1]:
+                new = steps[0][1]
+                for z, h in steps:
+                    if v[2] >= z:
+                        new = h
+                p.v[v] = (new, False)
+
+
 ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes,
                'kitten_face': kitten_face,
-               'spot_coat': spot_coat, 'draw': draw}
+               'spot_coat': spot_coat, 'draw': draw, 'despeckle': despeckle,
+               'bands': bands}

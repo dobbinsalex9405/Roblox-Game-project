@@ -309,7 +309,7 @@ return {
 		WoollyBear = { rarity = "Common", coinsPerSecond = 3, mountSpeed = 18, pools = { "Meadow" } },
 		Wren = { rarity = "Common", coinsPerSecond = 2, mountSpeed = 18, pools = { "Meadow" } },
 		ZebraFinch = { rarity = "Common", coinsPerSecond = 1, mountSpeed = 18, pools = { "Barnyard" } },
-		-- Uncommon: 82 from the roster
+		-- Uncommon: 88 from the roster
 		Aardvark = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Meadow" } },
 		AngoraBunny = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Barnyard" } },
 		AnteaterPup = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Meadow" } },
@@ -382,6 +382,7 @@ return {
 		PuffinChick = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Meadow" } },
 		Radishling = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Barnyard" } },
 		RhinoBeetle = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
+		RoadrunnerChick = { rarity = "Uncommon", coinsPerSecond = 7, mountSpeed = 20, pools = { "Meadow" } },
 		SamoyedPup = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Barnyard" } },
 		ScottishFoldKitten = {
 			rarity = "Uncommon",
@@ -389,16 +390,21 @@ return {
 			mountSpeed = 20,
 			pools = { "Barnyard" },
 		},
+		SeaBunny = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		Seahorse = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
+		SherbetChick = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Meadow" } },
 		ShroombackToad = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
 		SlowLoris = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
 		SnowBunting = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
+		SphynxKitten = { rarity = "Uncommon", coinsPerSecond = 8, mountSpeed = 20, pools = { "Barnyard" } },
+		SprinkleMouse = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
 		Squid = { rarity = "Uncommon", coinsPerSecond = 5, mountSpeed = 20, pools = { "Meadow" } },
 		TapirCalf = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		Tardigrade = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		Tarsier = { rarity = "Uncommon", coinsPerSecond = 9, mountSpeed = 20, pools = { "Meadow" } },
 		TeacupPiglet = { rarity = "Uncommon", coinsPerSecond = 9, mountSpeed = 20, pools = { "Meadow" } },
 		Thimblehog = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Meadow" } },
+		ThornyDevil = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Meadow" } },
 		TreeKangaroo = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		Turnipling = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Barnyard" } },
 		Wallaby = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
@@ -412,6 +418,8 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
+		-- Rare: 1 from the roster
+		CinnamonSnail = { rarity = "Rare", coinsPerSecond = 34, mountSpeed = 22, pools = { "Meadow" } },
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {
 			rarity = "Ultra Rare",

@@ -471,3 +471,10 @@ OstrichChick
 PinwheelBird
 GibbonBaby
 OrangutanBaby
+RoadrunnerChick
+SherbetChick
+SphynxKitten
+SprinkleMouse
+ThornyDevil
+SeaBunny
+CinnamonSnail
