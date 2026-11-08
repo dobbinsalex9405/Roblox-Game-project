@@ -514,3 +514,14 @@ OrchidMantis
 Lampwick
 MossPiglet
 Mossling
+PancakeFrog
+PetalBunny
+PolarBearCub
+PomPom
+Rabbeetle
+RainSnail
+ReindeerCalf
+RhinoCalf
+RoboPup
+Slugcorn
+SnowLamb
