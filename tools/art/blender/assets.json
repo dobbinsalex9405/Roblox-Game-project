@@ -3740,6 +3740,78 @@
   "Salamander": {
    "imageId": 96210362274773,
    "source": "fcb4ac91e570381e"
+  },
+  "Sandpiper": {
+   "imageId": 80769704732074,
+   "source": "f9090a9c120bacf7"
+  },
+  "SeaUrchin": {
+   "imageId": 132279172346718,
+   "source": "8c6c25913c182282"
+  },
+  "SheepdogPup": {
+   "imageId": 116307873024160,
+   "source": "45f89019fb7fc4c3"
+  },
+  "ShetlandPony": {
+   "imageId": 130221113874979,
+   "source": "2f6f506fb1c8a89f"
+  },
+  "ShieldBug": {
+   "imageId": 99711565097605,
+   "source": "32a3d4a0ce180e88"
+  },
+  "Shrew": {
+   "imageId": 86656149112440,
+   "source": "4b14ef9b82cfe3e0"
+  },
+  "Shrimp": {
+   "imageId": 122410709537158,
+   "source": "d36c4a86199a32b0"
+  },
+  "Silkworm": {
+   "imageId": 89850450421089,
+   "source": "aa2debfa79a24d75"
+  },
+  "Sloth": {
+   "imageId": 124087928169330,
+   "source": "d9451d4198a4bf3e"
+  },
+  "SockWorm": {
+   "imageId": 83423173877116,
+   "source": "c1f6bb14ca6ca44c"
+  },
+  "Sparrow": {
+   "imageId": 117670837329154,
+   "source": "da983befc68a879f"
+  },
+  "SpikyDuckling": {
+   "imageId": 123921151811428,
+   "source": "cd67c23a1164c53b"
+  },
+  "Sproutling": {
+   "imageId": 77186009607882,
+   "source": "0724a6dccaf127e9"
+  },
+  "StagBeetle": {
+   "imageId": 86992604694364,
+   "source": "d0012896af93380c"
+  },
+  "Starling": {
+   "imageId": 122761040258576,
+   "source": "fce7508c54e64a4a"
+  },
+  "SugarGlider": {
+   "imageId": 116995835836749,
+   "source": "d16dcb93a6d50568"
+  },
+  "Tadpole": {
+   "imageId": 79170728087666,
+   "source": "55d17d8cac291ec8"
+  },
+  "Termite": {
+   "imageId": 136597425310618,
+   "source": "f3772b7d86a8924c"
   }
  }
 }
