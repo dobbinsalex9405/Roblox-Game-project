@@ -288,6 +288,73 @@
     {
      "kind": "colorglow",
      "color": "#FF7A59"
+    },
+    {
+     "kind": "draw",
+     "color": "#8E6BD8",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -2,
+       5
+      ],
+      [
+       -2,
+       -1,
+       5
+      ],
+      [
+       -2,
+       -1,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -2,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF7A59",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       0,
+       7
+      ],
+      [
+       -1,
+       0,
+       8
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#E8962E",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -4,
+       6
+      ]
+     ]
     }
    ]
   }

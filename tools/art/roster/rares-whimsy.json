@@ -981,6 +981,47 @@
      "kind": "pancakes",
      "color": "#B8783A",
      "color2": "#FFE27A"
+    },
+    {
+     "kind": "draw",
+     "color": "#E8B86A",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -4,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -4,
+       6
+      ],
+      [
+       -1,
+       -4,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head",
+      "legB",
+      "syrup"
+     ]
     }
    ],
    "shape": {
@@ -1356,6 +1397,41 @@
      "kind": "antenna",
      "color": "#1A4A3A",
      "color2": "#7FFFC8"
+    },
+    {
+     "kind": "draw",
+     "color": "#FFFFFF",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "shell",
+      "body",
+      "head"
+     ]
     }
    ]
   },
@@ -1704,6 +1780,40 @@
     {
      "kind": "petalears",
      "color": "#E0609A"
+    },
+    {
+     "kind": "draw",
+     "color": "#FFF0F6",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head"
+     ]
     }
    ]
   },
