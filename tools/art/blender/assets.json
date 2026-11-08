@@ -4174,6 +4174,74 @@
   "BeardedDragon": {
    "imageId": 81540080564718,
    "source": "077ba5593f10ffb6"
+  },
+  "GazelleFawn": {
+   "imageId": 120812719596643,
+   "source": "f1347b03e81c7fda"
+  },
+  "GibbonBaby": {
+   "imageId": 70615126181316,
+   "source": "1833d31d7cf0c055"
+  },
+  "GreyhoundPup": {
+   "imageId": 131578249465670,
+   "source": "a4f10e9e94844a31"
+  },
+  "HoneyBear": {
+   "imageId": 114152614206603,
+   "source": "b8c486d858cef995"
+  },
+  "HyenaPup": {
+   "imageId": 103528202140437,
+   "source": "2762f085c559afa9"
+  },
+  "KangarooJoey": {
+   "imageId": 77162540226520,
+   "source": "d0b38e805e30eba7"
+  },
+  "Kookaburra": {
+   "imageId": 117529170813626,
+   "source": "1778ce45d54b393b"
+  },
+  "Lionfish": {
+   "imageId": 107898880007746,
+   "source": "70455dfa804d54fb"
+  },
+  "MaineCoonKitten": {
+   "imageId": 137957335135628,
+   "source": "678e32c4a29267dd"
+  },
+  "ManateeCalf": {
+   "imageId": 108986827112770,
+   "source": "30d462eaa4b80816"
+  },
+  "MuscovyDuckling": {
+   "imageId": 100755162881683,
+   "source": "9528d62c64b46e3a"
+  },
+  "OrangutanBaby": {
+   "imageId": 109887713074960,
+   "source": "506bf9d3437499dd"
+  },
+  "OrigamiFrog": {
+   "imageId": 93297507641097,
+   "source": "17cb56ade6301372"
+  },
+  "PopcornHamster": {
+   "imageId": 139292630731210,
+   "source": "c9205f891701f3b5"
+  },
+  "AngoraBunny": {
+   "imageId": 82923743940008,
+   "source": "1aba154b3bcf132a"
+  },
+  "AnteaterPup": {
+   "imageId": 119975907884158,
+   "source": "c1fc6d068d6b2396"
+  },
+  "EmuChick": {
+   "imageId": 117709827183100,
+   "source": "72fa8d67f6851950"
   }
  }
 }
