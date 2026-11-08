@@ -14,7 +14,11 @@ Non-obvious choices, newest first, so a later session can trust them.
   coarser-grid redraw (`kit_epicmyth._fit_budget`, as the Epics use) is only
   the last resort, and none of today's 25 needs it: a first try that used it
   turned a peacock's tail eyes into blobs and wiped shell and coat patterns.
-  The eyes are never touched.
+  The eyes are never touched. A Legendary whose name is its marking (the
+  peacock's tail eyes, the snowy owl's speckles, the treant's blossoms, the
+  dragon's coin pile) gets a `FIT` entry that keeps the marking and takes
+  the boxes elsewhere: a part's hidden back filled, a ring made chunkier,
+  colours in patches, coins lifted onto the pile.
 - The meshes and thumbnails are untouched (fine-build hashes identical).
   tools/art/tests/test_legendary_boxes.py fails on any Legendary over budget
   and on any change to the fine build.

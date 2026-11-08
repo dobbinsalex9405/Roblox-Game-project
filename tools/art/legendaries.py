@@ -2778,6 +2778,67 @@ def _drawn(c):
     return sum(kit_trim._boxes(p.v) for p in d.parts)
 
 
+# The markings that name a Legendary, which fit_stand_in must keep (the
+# strict reviewer's verdict on PR #162), and how each finds its boxes
+# elsewhere instead. "keep": (part or '*', colour or '*', smallest run kept,
+# and optionally `every`: a smaller run still stays one time in `every`);
+# "tops": parts whose plain voxels under another voxel (any part's) take the
+# part's main colour, as only their top faces show;
+# "patches": {part: n}, the part's plain colours in n-voxel patches (each
+# patch takes its most common colour; glowing voxels stay as they are);
+# "fill": {part: share}, the inside corners filled (kit_trim._close, three
+# neighbours of one colour) only behind that share of the part's depth,
+# where the creature's back hides them; "chunky": {part: share}, redrawn on a
+# 2-voxel grid (kit_epicmyth._coarsen_part, a cell kept when at least that
+# share of it is filled).
+FIT = {
+    # every tail eye at full colour and size: the gems, their white glints
+    # and their gold rings
+    'PrismPeacock': {
+        'keep': [('tail', col, 1) for col in ('#FF2D5A', '#8A3AFF', '#1E90FF', '#2ED83A', '#FFD400', '#FF8A00',
+                                             '#FFFFFF', '#D98A10')],
+        'fill': {'body': 0.66},
+    },
+    # the snowy owl's speckles: every one of two voxels or more and one
+    # single in five, mirrored; the blizzard ring round it goes chunkier and
+    # the wings' and tufts' colours go in 2-voxel patches
+    'BlizzardOwl': {
+        'keep': [('*', '#7A8AA8', 2, 5)],
+        'chunky': {'blizzard': 0.375},
+        'patches': {'wingL': 2, 'wingR': 2, 'tufts': 2},
+    },
+    # every pink blossom on the canopy and the arm branches
+    'ElderTreant': {'keep': [('*', '#FFB3D1', 1)]},
+    # the coin pile keeps every glowing gem and one dark and one light coin
+    # in four, spread evenly, on the top faces that show (the coins under
+    # other coins take the gold); the body's scales go in 2-voxel patches
+    'TreasureDragon': {
+        'tops': ['hoard'],
+        'raise': {'hoard': {'#D98A10': 6, '#FFE27A': 2}},
+        'keep': [('hoard', '*', 1)],
+        'patches': {'body': 2},
+    },
+}
+
+
+def _patches(v, n):
+    """The part's plain voxels in n-voxel patches, each its most common
+    colour; glowing voxels keep theirs."""
+    cells = {}
+    for (x, y, z), val in v.items():
+        if not val[1]:
+            cells.setdefault((x // n, y // n, z // n), []).append((x, y, z))
+    out = dict(v)
+    for qs in cells.values():
+        count = {}
+        for q in qs:
+            count[v[q]] = count.get(v[q], 0) + 1
+        top = max(sorted(count), key=count.get)
+        for q in qs:
+            out[q] = top
+    return out
+
+
 def fit_stand_in(c):
     """The in-game boxes only (the stand-in drawn before the mesh loads; the
     Blender meshes, and so the reviewed models and thumbnails, are never
@@ -2792,7 +2853,8 @@ def fit_stand_in(c):
          that repeats as a pattern, so the nose, mouth and cheeks stay,
       3. only if that is not enough, the heaviest parts other than the face
          and legs are redrawn on a coarser grid (kit_epicmyth._fit_budget).
-    The eyes are never touched."""
+    The eyes are never touched, nor the markings FIT keeps for a creature;
+    FIT's own steps for it run between 1 and 2."""
     if getattr(c, 'fine', False):
         return c
     import kit_epicmyth
@@ -2808,6 +2870,53 @@ def fit_stand_in(c):
     parts = [p for p in c.parts if p.name != 'eyes']
     for p in parts:
         p.v = kit_trim._unify(p.v)
+    fit = FIT.get(c.species, {})
+    filled = {q for o in c.parts for q in o.v}
+    for p in parts:
+        if p.name in fit.get('tops', ()) and p.v:
+            count = {}
+            for val in p.v.values():
+                count[val] = count.get(val, 0) + 1
+            main = max(sorted(count), key=count.get)
+            p.v = {(x, y, z): val if val[1] or (x, y, z + 1) not in filled else main
+                   for (x, y, z), val in p.v.items()}
+        if p.name in fit.get('raise', {}) and p.v:
+            # coins lying on the pile: a coin colour on a top face moves up a
+            # voxel onto the main colour, so the pile below stays whole boxes;
+            # one in n of each colour, picked the same on both sides
+            every = {hexc(col): n for col, n in fit['raise'][p.name].items()}
+            count = {}
+            for val in p.v.values():
+                count[val] = count.get(val, 0) + 1
+            main = max(sorted(count), key=count.get)
+            for (x, y, z), val in list(p.v.items()):
+                if val[0] in every and not val[1] and (x, y, z + 1) not in filled:
+                    p.v[(x, y, z)] = main
+                    if (min(x, -1 - x) + y) % every[val[0]] == 0:
+                        p.v[(x, y, z + 1)] = val
+                        filled.add((x, y, z + 1))
+        if p.name in fit.get('patches', {}):
+            p.v = _patches(p.v, fit['patches'][p.name])
+        if p.name in fit.get('fill', {}) and p.v:
+            (x0, y0, z0), (x1, y1, z1) = bounds_of(p)
+            cut = y0 + (y1 - y0) * fit['fill'][p.name]
+            front = {(x, y, z) for x in range(x0 - 1, x1 + 2) for y in range(y0 - 1, math.ceil(cut))
+                     for z in range(z0 - 1, z1 + 2)}
+            p.v = kit_trim._close(p.v, 3, front | {q for o in c.parts if o is not p for q in o.v})
+        if p.name in fit.get('chunky', {}):
+            kit_epicmyth._coarsen_part(p, frac=fit['chunky'][p.name])
+    keep = [(k[0], k[1] if k[1] == '*' else hexc(k[1]), k[2], k[3] if len(k) > 3 else 0) for k in fit.get('keep', ())]
+
+    def kept(p, run):
+        col = p.v[run[0]][0]
+        x, y, z = min(run)
+        # a run below the size kept still stays one time in `every`, picked
+        # the same on both sides (x and its mirror -1 - x)
+        spot = min(x, -1 - x) + y + z
+        return any(part in ('*', p.name) and want in ('*', col)
+                   and (len(run) >= least or (every and spot % every == 0))
+                   for part, want, least, every in keep)
+
     if not over():
         return c
     face = [p for p in parts if p.name in kit_trim.FACE or p.name == 'head2']
@@ -2823,7 +2932,7 @@ def fit_stand_in(c):
             for _, run, _ in found:
                 seen[p.v[run[0]]] = seen.get(p.v[run[0]], 0) + 1
             found = [f for f in found if seen[p.v[f[1][0]]] >= 4]
-        return [(run, to) for n, run, to in found if n <= size and p.v[run[0]][1] == glow]
+        return [(run, to) for n, run, to in found if n <= size and p.v[run[0]][1] == glow and not kept(p, run)]
 
     for size in range(1, 17):
         for group, pattern_only in ((coat, False), (face, True)):
