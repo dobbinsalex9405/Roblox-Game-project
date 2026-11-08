@@ -187,6 +187,15 @@ def orbit_part(c, name, centre):
     return c.part(name, 'orbit', centre)
 
 
+def rest_behind(part):
+    """Turns an orbiting prop a quarter turn about the vertical axis, from
+    resting beside the creature (+x) to resting behind it (+y). It circles
+    the creature in the game anyway; at rest on one side it widened the
+    model on that side only, and the export centres a model on its bounding
+    box, which set the legs off the mirror line (CreatureMeshes.spec)."""
+    part.v = {(-y - 1, x, z): v for (x, y, z), v in part.v.items()}
+
+
 def body_top(c, y, x=0):
     b = part_or_none(c, 'body')
     return top_of(b, x, y) if b else None
@@ -1830,6 +1839,7 @@ def mirror_cat(c, H):
                     streak = abs((x - z * 0.6) - 0.3 * k) < 0.35 * k
                     col, g = (WHITE, True) if streak else (glass if (x + z) % 4 else glass_d, False)
                 mir.put((round(mx0) + dx, round(my0 + x), round(mz0 + z)), col, g)
+    rest_behind(mir)
     # a gem on the cat's brow
     head = c.part('head')
     (x0, y0, z0), (x1, y1, z1) = bounds_of(head)
@@ -2162,6 +2172,7 @@ def arcane_tortoise(c, H):
     for i in range(1, 5):
         bk.put((X + (i // 2) % 2, round(by), z + i), P('#2EE8FF') if i % 2 else P('#C96AFF'), True)
         bk.put((X + (i // 2) % 2 - 1 + 1, round(by), z + i - 1 if i > 1 else z + i), P('#2EE8FF'), True)
+    rest_behind(bk)
     # a wizard's star on its head
     head = part_or_none(c, 'head')
     if head:
