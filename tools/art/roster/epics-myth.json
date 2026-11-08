@@ -11,5 +11,5 @@
   {"id": "Hippocampus", "rarity": "Epic", "plan": "upright", "element": "Storm", "gait": "hover", "colors": {"col": "#3FA0C8", "belly": "#CFF3FF", "accent": "#2E7DB0", "wing": "#7FE0F0", "glow": "#22C8E8", "horn": "#E9FBFF"}, "options": {"kind": "em_hippocampus"}},
   {"id": "CloudSerpent", "rarity": "Epic", "plan": "serpent", "element": "Storm", "gait": "slither", "colors": {"col": "#EEF4FF", "belly": "#AFC0E4", "accent": "#5B78C8", "horn": "#FFC94A", "glow": "#FFE14D"}, "options": {"kind": "em_cloud"}},
   {"id": "HydraHatchling", "rarity": "Epic", "plan": "serpent", "element": "plain", "gait": "slither", "colors": {"col": "#4CAF50", "belly": "#D4F0A0", "accent": "#8ED67A", "horn": "#FFF6E0", "wing": "#E2D3A8", "snout": "#FFE27A"}, "options": {"kind": "em_hydra"}},
-  {"id": "AbyssJelly", "rarity": "Epic", "plan": "em_jelly", "element": "Storm", "gait": "hover", "colors": {"col": "#1C2A6E", "belly": "#3A55B8", "accent": "#2E4AA8", "glow": "#3FE0FF", "eye": "#7FF0FF"}, "options": {"kind": "abyss"}}
+  {"id": "AbyssJelly", "rarity": "Epic", "plan": "em_jelly", "element": "Storm", "gait": "hover", "colors": {"col": "#1C2A6E", "belly": "#3A55B8", "accent": "#2E4AA8", "glow": "#3FE0FF", "eye": "#7FF0FF"}, "options": {"kind": "abyss"}, "accessories": [{"kind": "draw", "color": "#3FE0FF", "part": "tail", "voxels": [[2, -4, 6], [2, -4, 7], [2, -4, 10]]}]}
 ]}

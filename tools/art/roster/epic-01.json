@@ -51,7 +51,8 @@
      "kind": "fit_boxes",
      "color": "#000000",
      "head": true
-    }
+    },
+    {"kind": "draw", "color": "#9FD6FF", "part": "tail", "voxels": [[-1, 6, 7]]}
    ],
    "element": "Storm",
    "gait": "hover"
@@ -172,7 +173,8 @@
     {
      "kind": "fit_boxes",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#A87A5A", "part": "tail", "voxels": [[-1, 6, 6]]}
    ],
    "element": "Storm",
    "gait": "trot"
@@ -550,7 +552,8 @@
     {
      "kind": "fit_boxes",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#E8C27A", "part": "tail", "voxels": [[-1, 6, 6]]}
    ],
    "element": "Ember",
    "gait": "trot"
@@ -1282,7 +1285,8 @@
     {
      "kind": "fit_boxes",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#FFF6C8", "part": "antlers", "voxels": [[-8, -6, 21], [-7, -6, 20], [6, -6, 20], [7, -6, 21]]}
    ],
    "element": "plain",
    "gait": "trot"
@@ -1416,7 +1420,8 @@
     {
      "kind": "fit_boxes",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#E8C27A", "part": "tail", "voxels": [[-1, 6, 6]]}
    ],
    "element": "Storm",
    "gait": "trot"
@@ -1572,7 +1577,8 @@
     {
      "kind": "fit_boxes",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#8A8C94", "part": "tail", "voxels": [[-1, 6, 6]]}
    ],
    "element": "plain",
    "gait": "hover",
