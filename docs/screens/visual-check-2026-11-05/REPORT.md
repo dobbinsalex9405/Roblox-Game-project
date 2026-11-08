@@ -1552,3 +1552,61 @@ I built the head directly because it contains base 6980054b. I played solo in St
 **Output.** There are no game script errors. The one "require" error and its client-error report come from my own inspection snippet (AssistantCommand), not the game.
 
 Screens: pr152-desktop-urchin-termite-pony.jpg, -sloth.jpg, -spikyduckling.jpg, -book-seaurchin.jpg, -book-pony-sloth.jpg, -book-duckling-termite.jpg, pr152-phone-odds-basic.jpg, -meadow.jpg.
+
+## #153 at 77e52f6 (Go-live C6: 17 Commons incl. PillBug): PASS
+
+I built the head directly because it contains base a2c752c7. I played solo in Studio, desktop 1350x672 and phone 844x392.
+
+**PillBug, 14 legs.** The mesh has leg1L through leg7R, 14 leg MeshParts. I sampled each leg's rotation relative to the creature pivot every 0.05 s.
+- All 14 swing, with 51 to 55° peak-to-peak.
+- The odd and even legs move as two sets of seven:
+  - leg1L, 3L, 5L, 7L with 1R, 3R, 5R, 7R;
+  - against 2L, 2R, 4L, 4R, 6L, 6R.
+- leg7L and leg7R follow the leg1/3/5 set as Walk.LEG_SETS intends.
+- It walked 2.90 studs in 6 s (moving 30 of 60 ticks), and the box bottom sits at a median 0.72 against the pad top at 0.70.
+
+**Six textured creatures**
+
+| Species | MeshParts | Visible boxes | Neon | TextureID = assets.json | Fetch | Leg swing |
+|---|---|---|---|---|---|---|
+| PillBug | 17 | 0 | 0 | 78529494312727 yes | Success | 14 of 14 |
+| Aphid | 9 | 0 | 0 | 90004749995814 yes | Success | 6 of 6, 20° from start |
+| Centipede | 15 | 0 | 0 | 99322092633045 yes | Success | 12 of 12 |
+| StickInsect | 9 | 0 | 0 | 85859037593044 yes | Success | 6 of 6 |
+| ThreeEyedFrog | 7 | 0 | 0 | 76455875658040 yes | Success | 4 of 4 |
+| Wombat | 9 | 0 | 0 | 81831863219729 yes | Success | 4 of 4 |
+
+- Every MeshId has fetch status Success, and each creature uses one texture id across all its parts.
+- Bottoms rest at medians of 0.70 to 0.75 on the 0.70 pad.
+- Palettes match the Book thumbs:
+  - Aphid: green.
+  - StickInsect: brown.
+  - ThreeEyedFrog: green with white eyes.
+  - PillBug: blue-grey.
+  - Centipede: orange-red.
+  - Wombat: grey-brown.
+- First fetches logged "being generated", then Success. That is upload lag.
+
+**Voxel stand-ins (trimmed).** I drew the VoxelArt boxes for Aphid, Centipede and StickInsect as Parts, exactly as the fallback would draw them. All three look whole: one 26-connected solid each, no floating pieces, feet at y = 0 (screenshot pr153-voxel-standins.jpg).
+
+| Species | Boxes | Voxels | Face-connected pieces | Mirror check (x to -1-x) |
+|---|---|---|---|---|
+| Aphid | 30 | 80 | 1 | Legs symmetric; leg3L/leg3R are 2 boxes each against 3 for legs 1 and 2, which is the trimmed pair. 6 one-sided dark-green spots on body and head are art detail, not trim. |
+| Centipede | 31 | 202 | 1 | 0 asymmetric voxels |
+| StickInsect | 30 | 82 | 5 | 0 asymmetric voxels. The extra pieces are head and antenna voxels joined only at edges, so it is one solid under 26-connectivity. |
+
+PillBug, untrimmed, has 13 boxes and 0 asymmetric voxels.
+
+**Book.** It reads "Found 6/392" with Common at 193. I scrolled the virtualized grid, and all 17 C6 cards are IsLoaded with ids equal to CreatureThumbs: PillBug, Turkey, WolfPup, Wombat, Woodpecker, Wren, ZebraFinch, Aphid, Centipede, ThreeEyedFrog, Toastie, TwoTailMouse, Wasp, Weasel, Weevil, WoollyBear, StickInsect. WoollyBear sits in the last row and loaded when I scrolled to the bottom.
+
+**Phone odds list.** No label fails TextFits, and the smallest text is 14.4 px.
+
+| Egg | Rows | Sum | Tiers |
+|---|---|---|---|
+| Basic | 81 | 100.0000% | Common 70 × "1.3143% · 1 in 76.1"; Rare "0.7990% · 1 in 125"; Uncommon 7 × 1 in 100 |
+| Meadow | 176 | 100.0000% | Common 123 × "0.5447% · 1 in 184"; Uncommon 31 × "1.0000% · 1 in 100"; Rare 2 × 0.8513% (1.7026%); UR 13 × "0.0215% · 1 in 4,651" |
+| Moonlit | 139 | 100.0000% | |
+
+**Output.** There are no game script errors. The one error is my own inspection snippet (AssistantCommand GetPivot on a Folder), which the client error reporter also logged.
+
+Screens: pr153-voxel-standins.jpg, pr153-desktop-pillbug.jpg, -pads.jpg, -stickinsect.jpg, -frog-aphid-wombat.jpg, -book-aphid.jpg, -book-stick-frog.jpg, pr153-phone-odds-basic.jpg, -meadow.jpg.
