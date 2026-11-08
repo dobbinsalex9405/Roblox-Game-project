@@ -430,15 +430,16 @@ def builder(entry):
 
 def _no_glow(c):
     """Every voxel keeps its colour but stops glowing, and a part that
-    pulsed only because it glowed stands still. The Blender meshes keep the
-    voxels that glowed flat and greedy-merged, as they were, so a creature's
-    triangles stay about where they were (voxmesh.part_meshes)."""
+    pulsed only because it glowed stands still. The voxels that glowed are
+    recorded (part.unglowed): the Blender meshes pillow them like the rest,
+    and fall back to the flat faces they had as glow only when pillowing
+    would pass the tier's triangle budget (describe.describe)."""
     for p in c.parts:
         was = {q for q, (_, g) in p.v.items() if g}
         for q in was:
             p.v[q] = (p.v[q][0], False)
         if was:
-            p.unglowed = was  # the meshes keep these flat, as they were (voxmesh)
+            p.unglowed = was  # flat only if pillowed would pass the budget (describe)
         if p.anim == 'glow':
             p.anim = 'static'
 

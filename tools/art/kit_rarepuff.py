@@ -225,5 +225,5 @@ kit_puff.SHAPES.update({
     'spark': (2.9, 2.8, 2.8),
     'bramble': (3.1, 3.0, 2.9),
     'pompom': (3.1, 3.0, 3.1),
-    'ghost': (2.7, 2.6, 3.4),
+    'ghost': (2.6, 2.5, 3.2),  # rule k: pillowed without its glow, it fits the 15k Rare budget
 })
