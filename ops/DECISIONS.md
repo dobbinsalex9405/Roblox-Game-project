@@ -8,11 +8,13 @@ Non-obvious choices, newest first, so a later session can trust them.
   budget, so to_config.py would have kept them out of the game. Legendaries
   are built in tools/art/legendaries.py, not roster JSON, so the fit is code:
   `fit_stand_in` runs last, on the coarse build only, and only when a
-  creature is over budget. It first merges near-identical shades on each
-  part (never the eyes), which keeps the outline, then if needed redraws the
-  heaviest non-face, non-leg parts on a coarser grid (the Epics'
-  `kit_epicmyth._fit_budget`), aiming 10 under because walking legs are
-  carved out afterwards.
+  creature is over budget. It merges near-identical shades on each part,
+  then gives the smallest flecks of pattern (one voxel, then two, and so on,
+  heaviest part first) the colour around them, so big markings stay. A
+  coarser-grid redraw (`kit_epicmyth._fit_budget`, as the Epics use) is only
+  the last resort, and none of today's 25 needs it: a first try that used it
+  turned a peacock's tail eyes into blobs and wiped shell and coat patterns.
+  The eyes are never touched.
 - The meshes and thumbnails are untouched (fine-build hashes identical).
   tools/art/tests/test_legendary_boxes.py fails on any Legendary over budget
   and on any change to the fine build.

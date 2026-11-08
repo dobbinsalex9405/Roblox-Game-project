@@ -2724,27 +2724,118 @@ def _orbit_gives_way(c):
     return c
 
 
+def _flecks(v):
+    """The part's flecks: face-connected runs of one colour other than its
+    main colour, each as (size, voxels, the colour most around it)."""
+    count = {}
+    for val in v.values():
+        count[val] = count.get(val, 0) + 1
+    main = max(count, key=count.get)
+    seen, out = set(), []
+    steps = ((1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1))
+    for q, val in v.items():
+        if q in seen or val == main:
+            continue
+        run, i = [q], 0
+        seen.add(q)
+        while i < len(run):
+            x, y, z = run[i]
+            i += 1
+            for dx, dy, dz in steps:
+                r = (x + dx, y + dy, z + dz)
+                if r not in seen and v.get(r) == val:
+                    seen.add(r)
+                    run.append(r)
+        around = {}
+        for (x, y, z) in run:
+            for dx, dy, dz in steps:
+                r = (x + dx, y + dy, z + dz)
+                if r in v and v[r] != val:
+                    around[v[r]] = around.get(v[r], 0) + 1
+        if around:
+            out.append((len(run), run, max(around, key=around.get)))
+    return out
+
+
+def _drawn(c):
+    """kit_trim._drawn's count (the boxes the game draws, after build_all
+    gives each voxel to one part and carves the walking legs), on a light
+    copy: the parts and their voxel maps, not a deep copy of everything."""
+    import copy
+
+    import kit_trim
+    import rig
+    from voxkit import Part
+    d = copy.copy(c)
+    d.parts = []
+    for p in c.parts:
+        q = copy.copy(p)
+        q.v = dict(p.v)
+        d.parts.append(q)
+    kit_trim._own(d)
+    d.parts = [p for p in d.parts if p.v]
+    rig.split_legs(d, Part)
+    return sum(kit_trim._boxes(p.v) for p in d.parts)
+
+
 def fit_stand_in(c):
     """The in-game boxes only (the stand-in drawn before the mesh loads; the
     Blender meshes, and so the reviewed models and thumbnails, are never
-    changed): a Legendary over its box budget (to_config.BOX_BUDGET) first
-    has near-identical shades on each part made one colour (kit_trim._unify,
-    never the eyes), which keeps its outline, and if it is still over, its
-    heaviest parts other than the face and legs are redrawn on a coarser grid
-    (kit_epicmyth._fit_budget), aiming 10 boxes under the budget because the
-    walking legs are carved out of the body afterwards."""
+    changed). A Legendary over its box budget (to_config.BOX_BUDGET), a step
+    at a time and only as far as it needs:
+      1. near-identical shades on each part become one colour
+         (kit_trim._unify), which keeps every outline and pattern,
+      2. the smallest flecks of pattern take the colour around them, one
+         voxel first, then two, and so on, heaviest part first, so the big
+         markings (stripes, eye spots, cracks) stay; on the face (head,
+         ears and the other kit_trim.FACE parts) only flecks of a colour
+         that repeats as a pattern, so the nose, mouth and cheeks stay,
+      3. only if that is not enough, the heaviest parts other than the face
+         and legs are redrawn on a coarser grid (kit_epicmyth._fit_budget).
+    The eyes are never touched."""
     if getattr(c, 'fine', False):
         return c
     import kit_epicmyth
     import kit_trim
     from to_config import BOX_BUDGET
     budget = BOX_BUDGET[c.rarity]
-    if kit_trim._drawn(c)[0] <= budget:
+
+    def over():
+        return _drawn(c) > budget
+
+    if not over():
         return c
-    for p in c.parts:
-        if p.name != 'eyes':
-            p.v = kit_trim._unify(p.v)
-    if kit_trim._drawn(c)[0] > budget:
+    parts = [p for p in c.parts if p.name != 'eyes']
+    for p in parts:
+        p.v = kit_trim._unify(p.v)
+    if not over():
+        return c
+    face = [p for p in parts if p.name in kit_trim.FACE or p.name == 'head2']
+    coat = [p for p in parts if p not in face]
+
+    def runs_in(p, size, glow, pattern_only):
+        found = _flecks(p.v) if p.v else []
+        if pattern_only:
+            # on a face, only a colour that repeats as a pattern (four runs or
+            # more: freckles, scales, sparks); the one or two runs of a colour
+            # that are the nose, mouth or cheeks stay
+            seen = {}
+            for _, run, _ in found:
+                seen[p.v[run[0]]] = seen.get(p.v[run[0]], 0) + 1
+            found = [f for f in found if seen[p.v[f[1][0]]] >= 4]
+        return [(run, to) for n, run, to in found if n <= size and p.v[run[0]][1] == glow]
+
+    for size in range(1, 17):
+        for group, pattern_only in ((coat, False), (face, True)):
+            for glow in (False, True):
+                for p in sorted(group, key=lambda p: -kit_trim._boxes(p.v)):
+                    runs = runs_in(p, size, glow, pattern_only)
+                    for run, to in runs:
+                        for q in run:
+                            p.v[q] = to
+                    if runs and not over():
+                        return c
+    if over():
         kit_epicmyth._fit_budget(c, budget - 10)
     return c
 
