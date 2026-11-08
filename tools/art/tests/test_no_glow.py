@@ -5,7 +5,8 @@ game, and glow is kept for Ultra Rare and up. This builds every creature in
 the roster twice, at the detail the Blender meshes use and as the coarse
 in-game stand-in, and fails on any Common, Uncommon or Rare that still has
 a glowing voxel. The fix for a creature that glows is `"glow": false` in its
-roster entry (variants.py), which keeps the colours and drops the glow.
+roster entry (variants.py), which keeps the colours and drops the glow. It
+also keeps every one of them inside its tier's triangle budget.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import os
@@ -49,6 +50,18 @@ class NoGlowBelowUltraRare(unittest.TestCase):
 
     def test_stand_ins(self):
         self.check(creatures.build_all(), 'in-game stand-ins')
+
+    def test_meshes_in_triangle_budget(self):
+        """Every creature below Ultra Rare meshes inside its tier's triangle
+        budget. Voxels that lost their glow are pillowed like the rest and
+        fall back to flat faces only when pillowing would pass the budget
+        (describe.describe), so a de-glowed creature can't pass it either."""
+        over = {}
+        for c in describe.creatures(BELOW_ULTRA_RARE):
+            tris = describe.describe(c)[0]['tris']
+            if tris > describe.PLAIN_BUDGET[c.rarity]:
+                over[f'{c.species} ({c.rarity})'] = tris
+        self.assertEqual(over, {}, 'over the triangle budget')
 
     def test_switch_keeps_colours(self):
         """`"glow": false` turns every glow off but keeps every colour and

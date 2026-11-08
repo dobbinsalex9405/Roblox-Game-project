@@ -318,8 +318,9 @@ def part_meshes(part, centre, voxel, cell_of, max_tris=18000, flat=(), contact=(
     if solid_faces:
         chunked('solid', None, part.name, solid_faces)
     # Voxels that glowed before rule k turned their glow off (variants
-    # "glow": false) keep the flat, greedy-merged faces they had as glow, as a
-    # plain solid mesh: the same shape and about the same triangles, no Neon.
+    # "glow": false), when describe.describe asks for it (pillowed, the
+    # creature would pass its triangle budget): the flat, greedy-merged faces
+    # they had as glow, as a plain solid mesh, about the same triangles.
     if plain:
         m = flat_mesh(part.v, centre, voxel, cell_of, f'{part.name}_plain',
                       keep_at=lambda q: q in plain, closed=True, contact=contact)
