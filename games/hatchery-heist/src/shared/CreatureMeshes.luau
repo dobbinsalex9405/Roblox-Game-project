@@ -47237,13 +47237,13 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	Kiwi = {
 		assetId = 107833455447743,
-		textureId = 120319610406492,
+		textureId = 88796176687724,
 		rarity = "Rare",
 		gait = "waddle",
 		height = 2.2,
 		size = { 1.4, 2.2, 2.4 },
 		tris = 12016,
-		trisLod1 = 1150,
+		trisLod1 = 1176,
 		parts = {
 			{
 				name = "body",
@@ -49050,46 +49050,42 @@ local CreatureMeshes: { [string]: Creature } = {
 	},
 	OrchidMantis = {
 		assetId = 100293360610374,
-		textureId = 71687894634766,
+		textureId = 123154978734104,
 		rarity = "Rare",
 		gait = "scuttle",
 		height = 2,
-		size = { 1.3, 2, 2 },
-		tris = 9800,
-		trisLod1 = 1192,
+		size = { 1.4, 2, 2 },
+		tris = 9952,
+		trisLod1 = 1198,
 		parts = {
 			{
 				name = "body",
 				anim = "body",
-				pivot = { 0.05, 0, -0.1 },
+				pivot = { 0, 0, -0.1 },
 				meshes = {
 					{
 						name = "OrchidMantis_body",
-						center = { 0.05, 0.8018, 0.1 },
+						center = { 0, 0.8018, 0.1 },
 						size = { 0.607, 1.0035, 1.807 },
 					},
 				},
-				lod1 = {
-					name = "OrchidMantis_body_lod1",
-					center = { 0.05, 0.8, 0.1 },
-					size = { 0.6, 1, 1.8 },
-				},
+				lod1 = { name = "OrchidMantis_body_lod1", center = { 0, 0.8, 0.1 }, size = { 0.6, 1, 1.8 } },
 			},
 			{
 				name = "head",
 				anim = "static",
 				parent = "body",
-				pivot = { 0.05, 0.72, -0.58 },
+				pivot = { 0, 0.72, -0.58 },
 				meshes = {
 					{
 						name = "OrchidMantis_head",
-						center = { 0.05, 1.5478, -0.6 },
+						center = { 0, 1.5478, -0.6 },
 						size = { 1.191, 0.8955, 0.791 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_head_lod1",
-					center = { 0.05, 1.55, -0.6 },
+					center = { 0, 1.55, -0.6 },
 					size = { 1.2, 0.9, 0.8 },
 				},
 			},
@@ -49097,17 +49093,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "eyes",
 				anim = "blink",
 				parent = "head",
-				pivot = { 0.05, 0.72, -0.58 },
+				pivot = { 0, 0.72, -0.58 },
 				meshes = {
 					{
 						name = "OrchidMantis_eyes",
-						center = { 0.05, 1.5517, -0.65 },
+						center = { 0, 1.5517, -0.65 },
 						size = { 0.607, 0.1035, 0.107 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_eyes_lod1",
-					center = { 0.05, 1.55, -0.65 },
+					center = { 0, 1.55, -0.65 },
 					size = { 0.6, 0.1, 0.1 },
 				},
 			},
@@ -49115,17 +49111,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "legFL",
 				anim = "legFL",
 				parent = "body",
-				pivot = { -0.094, 0.48, 0.044 },
+				pivot = { -0.144, 0.48, 0.044 },
 				meshes = {
 					{
 						name = "OrchidMantis_legFL",
-						center = { -0.3977, 0.2517, 0.0523 },
+						center = { -0.4477, 0.2517, 0.0523 },
 						size = { 0.4955, 0.4875, 0.0955 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_legFL_lod1",
-					center = { -0.4, 0.25, 0.05 },
+					center = { -0.45, 0.25, 0.05 },
 					size = { 0.5, 0.5, 0.1 },
 				},
 			},
@@ -49133,17 +49129,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "legFR",
 				anim = "legFR",
 				parent = "body",
-				pivot = { 0.194, 0.48, 0.044 },
+				pivot = { 0.144, 0.48, 0.044 },
 				meshes = {
 					{
 						name = "OrchidMantis_legFR",
-						center = { 0.3977, 0.2517, 0.0523 },
+						center = { 0.4477, 0.2517, 0.0523 },
 						size = { 0.4955, 0.4875, 0.0955 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_legFR_lod1",
-					center = { 0.4, 0.25, 0.05 },
+					center = { 0.45, 0.25, 0.05 },
 					size = { 0.5, 0.5, 0.1 },
 				},
 			},
@@ -49151,17 +49147,17 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "legBL",
 				anim = "legBL",
 				parent = "body",
-				pivot = { -0.094, 0.48, 0.332 },
+				pivot = { -0.144, 0.48, 0.332 },
 				meshes = {
 					{
 						name = "OrchidMantis_legBL",
-						center = { -0.3977, 0.2517, 0.35 },
+						center = { -0.4477, 0.2517, 0.35 },
 						size = { 0.4955, 0.4875, 0.091 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_legBL_lod1",
-					center = { -0.4, 0.25, 0.35 },
+					center = { -0.45, 0.25, 0.35 },
 					size = { 0.5, 0.5, 0.1 },
 				},
 			},
@@ -49169,35 +49165,35 @@ local CreatureMeshes: { [string]: Creature } = {
 				name = "legBR",
 				anim = "legBR",
 				parent = "body",
-				pivot = { 0.194, 0.48, 0.332 },
+				pivot = { 0.144, 0.48, 0.332 },
 				meshes = {
 					{
 						name = "OrchidMantis_legBR",
 						center = { 0.4477, 0.2517, 0.35 },
-						size = { 0.3955, 0.4875, 0.091 },
+						size = { 0.4955, 0.4875, 0.091 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_legBR_lod1",
 					center = { 0.45, 0.25, 0.35 },
-					size = { 0.4, 0.5, 0.1 },
+					size = { 0.5, 0.5, 0.1 },
 				},
 			},
 			{
 				name = "arms",
 				anim = "static",
 				parent = "body",
-				pivot = { 0.05, 0, -0.1 },
+				pivot = { 0, 0, -0.1 },
 				meshes = {
 					{
 						name = "OrchidMantis_arms",
-						center = { 0.05, 0.8518, -0.5 },
+						center = { 0, 0.8518, -0.5 },
 						size = { 0.807, 0.7035, 0.807 },
 					},
 				},
 				lod1 = {
 					name = "OrchidMantis_arms_lod1",
-					center = { 0.05, 0.85, -0.5 },
+					center = { 0, 0.85, -0.5 },
 					size = { 0.8, 0.7, 0.8 },
 				},
 			},
