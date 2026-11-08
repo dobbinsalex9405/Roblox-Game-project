@@ -269,5 +269,24 @@ class KittenFace(unittest.TestCase):
         self.assertEqual(before, (h.v, ears.v))
 
 
+class Thin(unittest.TestCase):
+    def test_a_dense_pattern_loses_at_most_half(self):
+        c = Creature('ThinTest', 'Uncommon')
+        body = c.part('body', 'static')
+        for x in range(-3, 3):
+            for y in range(0, 6):
+                for z in range(1, 4):
+                    body.put((x, y, z), SPOT if (x + y + z) % 3 == 0 else SAND)
+        dark = sum(1 for v in body.v.values() if v[0] == SPOT)
+        start, legs = drawn(c)
+        with contextlib.redirect_stderr(io.StringIO()):
+            inside = kit_trim._thin(c, [body], 1, tuple(legs))
+        self.assertFalse(inside)  # a budget of 1 is out of reach
+        left = sum(1 for v in body.v.values() if v[0] == SPOT)
+        self.assertGreaterEqual(left, dark - dark // 2)
+        self.assertLess(left, dark)
+        self.assertLess(drawn(c)[0], start)
+
+
 if __name__ == '__main__':
     unittest.main()

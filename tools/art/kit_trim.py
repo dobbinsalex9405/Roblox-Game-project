@@ -274,12 +274,51 @@ def _close(v, need, taken):
         v.update(add)
 
 
+def _thin(c, parts, budget, legs):
+    """Recolours a dark pattern's voxels (darker than the part's own colour)
+    to that colour, a mirrored pair at a time, the pair that saves most boxes
+    first, until the creature is inside its budget or half the pattern is
+    gone. True when it got inside."""
+    xs = [v[0] for p in c.parts for v in p.v]
+    s = min(xs) + max(xs)
+    for p in parts:
+        count = {}
+        for val in p.v.values():
+            count[val] = count.get(val, 0) + 1
+        base = max(count, key=lambda k: (count[k], k))
+        dark = [v for v, val in p.v.items() if not val[1] and _darkness(val[0]) < _darkness(base[0]) - 40]
+        while sum(1 for v in dark if p.v[v] == base) < len(dark) // 2:
+            total = _drawn(c)[0]
+            if total <= budget:
+                return True
+            best = None
+            for v in sorted(dark):
+                if p.v[v] == base:
+                    continue
+                new = dict(p.v)
+                new[v] = base
+                tw = (s - v[0], v[1], v[2])
+                if tw in new and tw in dark:
+                    new[tw] = base
+                after = _try(c, {p.name: new}, legs)
+                if after is not None and after < total and (best is None or after < best[0]):
+                    best = (after, v, new)
+            if not best:
+                break
+            p.v = best[2]
+            print(f'plain_boxes: {c.species}: thinned the pattern on {p.name} at {best[1]}, now {best[0]} boxes',
+                  file=sys.stderr)
+    return _drawn(c)[0] <= budget
+
+
 def plain_boxes(c, H, col=None, col2=None, a=None):
     """In-game stand-in only: brings a creature with a busy coat or a ragged
     outline inside its tier's box budget, a step at a time and only as far as
     it needs, on the named parts in order ("parts", e.g. ["body", "head"]):
       1. near-identical colours (a fluff a shade off its coat) become one,
       2. notches with four neighbours or more are filled,
+         (with "thin": true, a dense dark pattern, rosettes, loses up to half
+         its voxels, the ones that cost most boxes first, in mirrored pairs),
       3. trim_boxes' mirrored one-voxel edits on the same parts,
       4. notches with three neighbours are filled, then step 3 again.
     Patterns that differ more than a shade (spots, drips, a sash) are kept."""
@@ -319,6 +358,8 @@ def plain_boxes(c, H, col=None, col2=None, a=None):
     if step('one colour for near shades on', lambda p: _unify(p.v)):
         return
     if step('notches filled on', lambda p: _close(p.v, 4, others(p))):
+        return
+    if a.get('thin') and _thin(c, parts, budget, legs):
         return
     trim_boxes(c, H, a={'budget': budget, 'parts': names})
     if total() <= budget:
