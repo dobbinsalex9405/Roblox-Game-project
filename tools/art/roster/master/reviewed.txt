@@ -393,3 +393,17 @@ Marmot
 Mayfly
 Meerkat
 Newt
+PelicanChick
+Pheasant
+PineMarten
+PoodlePup
+Porcupine
+PugPup
+PygmyGoat
+Quail
+Quokka
+Ram
+RedPanda
+RingtailLemur
+Rooster
+Salamander
