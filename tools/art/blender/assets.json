@@ -854,9 +854,9 @@
   },
   "HighlandCalf": {
    "assetId": 98510260764239,
-   "textureId": 135408970465825,
+   "textureId": 116261771910714,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Hippocampus": {
    "assetId": 89777391844653,
@@ -956,9 +956,9 @@
   },
   "JumpingSpider": {
    "assetId": 116324456728142,
-   "textureId": 81596563678001,
+   "textureId": 135098850075235,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Kappa": {
    "assetId": 101157855838001,
@@ -1028,9 +1028,9 @@
   },
   "LeafAnt": {
    "assetId": 104811792725794,
-   "textureId": 95531773224890,
+   "textureId": 138350107831678,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "LeafBat": {
    "assetId": 86294075717895,
@@ -1058,15 +1058,15 @@
   },
   "LionheadBunny": {
    "assetId": 72406368732430,
-   "textureId": 96645230751021,
+   "textureId": 106210085218491,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Llama": {
    "assetId": 126396009144878,
-   "textureId": 101782132317867,
+   "textureId": 76466562022799,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Lobster": {
    "assetId": 125293766522145,
@@ -1088,15 +1088,15 @@
   },
   "Lovebird": {
    "assetId": 117261378581801,
-   "textureId": 135051836185085,
+   "textureId": 94766115091617,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "LynxKit": {
    "assetId": 86648312139426,
-   "textureId": 139470787865215,
+   "textureId": 75036770589627,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "MacawChick": {
    "assetId": 78803197888441,
@@ -1124,15 +1124,15 @@
   },
   "Magpie": {
    "assetId": 124989844309184,
-   "textureId": 137046478492036,
+   "textureId": 74645144333495,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Mallard": {
    "assetId": 82755172676476,
-   "textureId": 76993450219401,
+   "textureId": 123072077978715,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "Mantis": {
    "assetId": 104304647516396,
@@ -1148,9 +1148,9 @@
   },
   "Marmot": {
    "assetId": 88923083950436,
-   "textureId": 73724719087150,
+   "textureId": 96633324262439,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "MarshmallowLamb": {
    "assetId": 107732046703022,
@@ -1166,9 +1166,9 @@
   },
   "Meerkat": {
    "assetId": 119928418930288,
-   "textureId": 127040213693637,
+   "textureId": 120333880098069,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "MimicChest": {
    "assetId": 86386679709861,
@@ -1250,9 +1250,9 @@
   },
   "Newt": {
    "assetId": 137451594093883,
-   "textureId": 87041340350332,
+   "textureId": 107740847193594,
    "textureType": "Image",
-   "version": "3"
+   "version": "4"
   },
   "OmegaChimera": {
    "assetId": 81830307992524,
@@ -2187,6 +2187,36 @@
   "Gumball": {
    "assetId": 101509239913326,
    "textureId": 109876966772130,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "LongNeckDuckling": {
+   "assetId": 92286854255234,
+   "textureId": 87931502935936,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Mayfly": {
+   "assetId": 98762670407667,
+   "textureId": 85967498458148,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "MuddyPiglet": {
+   "assetId": 122661795889931,
+   "textureId": 116076061836767,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Mushling": {
+   "assetId": 123568128941986,
+   "textureId": 123270367310314,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Nuthatch": {
+   "assetId": 76359561001468,
+   "textureId": 122197062140232,
    "textureType": "Image",
    "version": "1"
   }
@@ -3480,6 +3510,74 @@
   "HeronChick": {
    "imageId": 70562391962809,
    "source": "ba84bf2c4eb0581c"
+  },
+  "HighlandCalf": {
+   "imageId": 137757409412879,
+   "source": "26d74af3dd07b4d0"
+  },
+  "JumpingSpider": {
+   "imageId": 74286235045528,
+   "source": "2304aa8994113acc"
+  },
+  "LeafAnt": {
+   "imageId": 77445841586316,
+   "source": "2bc4f1ab1ad1dcd5"
+  },
+  "LionheadBunny": {
+   "imageId": 98329689747902,
+   "source": "226ab8147542ddcd"
+  },
+  "Llama": {
+   "imageId": 102505015833617,
+   "source": "42ccfee893315072"
+  },
+  "LongNeckDuckling": {
+   "imageId": 96898250631847,
+   "source": "99d09e3d8b1ac5fd"
+  },
+  "Lovebird": {
+   "imageId": 101392074121797,
+   "source": "63248daa76c943b6"
+  },
+  "LynxKit": {
+   "imageId": 132125999957269,
+   "source": "dfb77f05126ed700"
+  },
+  "Magpie": {
+   "imageId": 111051109412842,
+   "source": "ed2afe9626cacfdb"
+  },
+  "Mallard": {
+   "imageId": 96339990037446,
+   "source": "65f86aff210b0533"
+  },
+  "Marmot": {
+   "imageId": 125992169997028,
+   "source": "2b53e221855331f0"
+  },
+  "Mayfly": {
+   "imageId": 134120793223433,
+   "source": "f3fd7fc55217d80f"
+  },
+  "Meerkat": {
+   "imageId": 138936624313503,
+   "source": "fe0d847b8cad8db5"
+  },
+  "MuddyPiglet": {
+   "imageId": 139793345447837,
+   "source": "8938c7f6d1eb1c02"
+  },
+  "Mushling": {
+   "imageId": 123174216028736,
+   "source": "65f85133b927d3a1"
+  },
+  "Newt": {
+   "imageId": 109318446306550,
+   "source": "6bbf8be01693f7e0"
+  },
+  "Nuthatch": {
+   "imageId": 118813449154607,
+   "source": "393a7451dedf5a16"
   }
  }
 }

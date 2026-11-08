@@ -380,3 +380,16 @@ GoldenTamarin
 GuineaFowl
 HermitCrab
 HeronChick
+HighlandCalf
+JumpingSpider
+LeafAnt
+LionheadBunny
+Llama
+Lovebird
+LynxKit
+Magpie
+Mallard
+Marmot
+Mayfly
+Meerkat
+Newt
