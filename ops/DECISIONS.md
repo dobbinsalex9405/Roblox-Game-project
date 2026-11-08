@@ -2,6 +2,12 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: CI reuses a passed creature-art export check
+
+- The art-export step is skipped when a pass is cached under the hash of its
+  inputs (tools/art, tools/economy, HH config, the generated files, ci.yml),
+  so a PR that leaves the art alone saves about 9 minutes.
+
 ## 2026-11-08: CI's main job gets 45 minutes, not 20
 
 - **Main's CI on go-live batch 7 (#154) was cancelled by the 20-minute job
