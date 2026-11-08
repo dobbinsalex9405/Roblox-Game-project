@@ -416,3 +416,10 @@ Silkworm
 Sloth
 StagBeetle
 SugarGlider
+Turkey
+WolfPup
+Wombat
+Woodpecker
+Wren
+ZebraFinch
+PillBug
