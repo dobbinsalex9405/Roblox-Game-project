@@ -459,6 +459,29 @@ def spot_coat(c, H, col=None, col2=None, a=None):
             print(f'spot_coat: {c.species}: no {name} voxel at {(x, y, z)}', file=sys.stderr)
 
 
+def draw(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: voxels put by hand where the coarse build is too
+    small to carry a feature the mesh has (a baby ape's eyes, which the
+    coarse build has no room for). "part": the part they go in; "voxels":
+    [x, y, z] in `color`, or [x, y, z, "#RRGGBB"], each put or repainted. With "mirror": true each is
+    also put at its twin across the middle (x -> -1 - x), so list one side
+    and the middle. A part the creature does not have is printed and
+    skipped."""
+    if getattr(c, 'fine', False):
+        return
+    from voxkit import hexc
+    a = a or {}
+    part = next((p for p in c.parts if p.name == a.get('part')), None)
+    if part is None:
+        print(f'draw: {c.species}: no part {a.get("part")!r}', file=sys.stderr)
+        return
+    for x, y, z, *h in a.get('voxels', []):
+        val = (hexc(h[0]) if h else col, False)
+        part.v[(x, y, z)] = val
+        if a.get('mirror'):
+            part.v[(-1 - x, y, z)] = val
+
+
 ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band, 'plain_boxes': plain_boxes,
                'kitten_face': kitten_face,
-               'spot_coat': spot_coat}
+               'spot_coat': spot_coat, 'draw': draw}

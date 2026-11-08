@@ -1,8 +1,9 @@
 """kit_trim: a creature over its tier's box budget gets the
 smallest mirrored edits that bring its in-game boxes inside it (trim_boxes),
 or a plainer stand-in for a part that costs too many (pad_legs, jaw_band,
-plain_boxes, kitten_face, spot_coat), and its finer Blender build (the
-reviewed mesh) is never touched.
+plain_boxes, kitten_face, spot_coat), or detail drawn in where it has too
+few (draw), and its finer Blender build (the reviewed mesh) is never
+touched.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import contextlib
@@ -313,6 +314,33 @@ class SpotCoat(unittest.TestCase):
         before = dict(body.v)
         kit_trim.spot_coat(c, 10, INK, a={'clear': ['body'], 'spots': [['body', -2, 0, 2]]})
         self.assertEqual(before, body.v)
+
+
+class Draw(unittest.TestCase):
+    def ape(self, fine=False):
+        c = Creature('DrawTest', 'Uncommon')
+        c.fine = fine
+        h = c.part('head', 'static')
+        for x in (-1, 0):
+            for z in (5, 6):
+                h.put((x, 0, z), SAND)
+        return c, h
+
+    def test_voxels_are_put_and_mirrored(self):
+        c, h = self.ape()
+        kit_trim.draw(c, 10, INK, a={'part': 'head', 'mirror': True,
+                                     'voxels': [[-2, -1, 6], [-1, -1, 5, '#FF8FB1']]})
+        self.assertEqual(h.v[(-2, -1, 6)], (INK, False))
+        self.assertEqual(h.v[(1, -1, 6)], (INK, False))
+        self.assertEqual(h.v[(-1, -1, 5)], ((255, 143, 177), False))
+        self.assertEqual(h.v[(0, -1, 5)], ((255, 143, 177), False))
+        self.assertEqual(len(h.v), 8)
+
+    def test_the_fine_build_keeps_its_head(self):
+        c, h = self.ape(fine=True)
+        before = dict(h.v)
+        kit_trim.draw(c, 10, INK, a={'part': 'head', 'voxels': [[-2, -1, 6]]})
+        self.assertEqual(before, h.v)
 
 
 if __name__ == '__main__':
