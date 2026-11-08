@@ -478,3 +478,8 @@ SprinkleMouse
 ThornyDevil
 SeaBunny
 CinnamonSnail
+Eaglet
+FlyingSquirrel
+GiraffeCalf
+ButtonBear
+Owlcat
