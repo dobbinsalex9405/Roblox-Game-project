@@ -1797,3 +1797,35 @@ I built the head directly because it contains main 152a5da. I played solo in Stu
 **Feedback.** The Feedback button is present.
 
 Screens: pr163-phone-odds-basic.jpg, -meadow.jpg, pr163-phone-book-rare.jpg, -uncommon.jpg, pr163-standins-7.jpg, pr163-sherbetchick-on-pad.jpg, pr163-placed-after-respawn.jpg.
+
+## #164 at 918c893 (batch 11: 43 creatures): FAIL (stand-in floating box), stopped at first FAIL
+
+I built the head directly because it contains main 1b0ae72. I ran the stand-in check (step 3) first, statically on all 43 VoxelArt entries and then drawn as Parts. The other steps were not run, because the gate stops at the first FAIL.
+
+**FAIL: GorillaBaby stand-in has a floating box.** The `head` part carries a 2x1x1 box at (-0.5, 12, -1.5). Row y = 11 is empty at every x and z, so the box hovers one voxel above the top of the head with nothing touching it, not even on an edge or corner. It shows clearly in pr164-FAIL-gorillababy-floating-head-box.jpg.
+
+Head boxes as listed: -0.5,8,-1.5:2x2x1 · -1.5,8,-0.5:4x1x1 · -0.5,8,0.5:2x3x1 · -1.5,9,-0.5:4x1x1 · -1.5,9,0.5 · 1.5,9,0.5 · -0.5,10,-1.5:2x1x2 · **-0.5,12,-1.5:2x1x1** (detached).
+
+Head cross-section at z = -1.5, x from -5.5 to 4.5:
+
+    y12 .....hh....
+    y11 ...........
+    y10 .....hh....
+
+The rest of GorillaBaby passes: 49 boxes, legs centred and mirror-symmetric about x = 0, banana held at the left flank, feet at y = 0, 0 Neon.
+
+**Other stand-in results, all 43**
+- No Neon on any of them.
+- Every one has its feet at y = 0.
+- Box counts are within budget: Commons 6 to 29, Uncommons 28 and 35, Rares 27 to 60.
+- 40 of 43 are a single 26-connected solid. The three exceptions:
+  - GorillaBaby: 2 pieces (the FAIL above).
+  - BubblePup: 12 pieces. Its `bubble` part is 11 single voxels plus a 14-voxel bubble floating around the pup. This looks like intended decoration; the verifier should decide whether it counts as floating boxes.
+  - Hoverfly: a single solid, but leg1L and leg3R each have one extra top voxel with no mirror twin (2 voxels). Minor, and the legs are intact.
+- Legs are mirror-symmetric on every other creature. For BubblePup, FrostKitten and Owlcat the mirror axis is x → -2-x because they are odd-width.
+- BubblePup, Bunnyfly and CactusPup each have exactly 2 separate eye blobs. ButtonBear has its bow, a 1-voxel asymmetry that is part of the art.
+- HerculesBeetle (49 boxes) and ClockworkBeetle (60) each have a body and 6 legs.
+
+Not run: odds (1), Book (2), meshes and Neon (3b), walk and earn (4), respawn (5).
+
+Screens: pr164-FAIL-gorillababy-floating-head-box.jpg, pr164-standins-row1.jpg (left to right: GorillaBaby, BubblePup, Bunnyfly, CactusPup, ButtonBear).
