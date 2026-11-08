@@ -130,4 +130,71 @@ def trim_boxes(c, H, col=None, col2=None, a=None):
         print(f'trim_boxes: {c.species}: {kind} {name} {v} and its twin, now {total} boxes', file=sys.stderr)
 
 
-ACCESSORIES = {'trim_boxes': trim_boxes}
+def _darkness(col):
+    r, g, b = col
+    return 0.299 * r + 0.587 * g + 0.114 * b
+
+
+def pad_legs(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: legs that end in a ripple ring on the water (a
+    water strider's) are drawn as one flat disc in the ripple colour with the
+    leg a straight bar to it (out from the hip at its height, then down onto
+    the disc's middle), where the fine build's stepped strut and ring cost eight
+    boxes a leg. "parts": the legs, e.g. ["leg2", "leg3"]."""
+    if getattr(c, 'fine', False):
+        return
+    names = (a or {}).get('parts') or []
+    for p in c.parts:
+        if not p.v or not any(p.name in (n, n + 'L', n + 'R') for n in names):
+            continue
+        floor = min(v[2] for v in p.v)
+        low = [v for v in p.v if v[2] == floor]
+        count = {}
+        for v in low:
+            count[p.v[v]] = count.get(p.v[v], 0) + 1
+        ring = max(count, key=count.get)
+        rest = [p.v[v] for v in p.v if p.v[v] != ring]
+        if count[ring] < 6 or not rest:
+            continue
+        leg = max(set(rest), key=rest.count)
+        xs, ys = [v[0] for v in low], [v[1] for v in low]
+        cx, cy = (min(xs) + max(xs)) // 2, (min(ys) + max(ys)) // 2
+        strut = [v for v in p.v if v[2] > floor]
+        px, py, pz = p.pivot
+        # the hip: the strut voxel nearest the joint, the higher one on a tie
+        hip = min(strut or low, key=lambda v: (abs(v[0] - px) + abs(v[1] - py) + abs(v[2] - pz), -v[2]))
+        new = {(x, y, floor): ring for x in range(min(xs), max(xs) + 1) for y in range(min(ys), max(ys) + 1)}
+        # out from the hip at its height, then down onto the disc: the knee
+        # stays high, as a strider's does
+        top = max(hip[2], floor + 1)
+        x, y = hip[0], hip[1]
+        while x != cx:
+            new[(x, y, top)] = leg
+            x += 1 if cx > x else -1
+        while y != cy:
+            new[(x, y, top)] = leg
+            y += 1 if cy > y else -1
+        for z in range(floor + 1, top + 1):
+            new[(x, y, z)] = leg
+        p.v = new
+
+
+def jaw_band(c, H, col=None, col2=None, a=None):
+    """In-game stand-in only: the head's lowest layer, a checkered jaw and
+    beard in the fine build, drawn as one band in its darkest colour (eyes and
+    glowing voxels kept), so the head is a few boxes, not a dozen."""
+    if getattr(c, 'fine', False):
+        return
+    head = next((p for p in c.parts if p.name == (a or {}).get('part', 'head')), None)
+    if not head or not head.v:
+        return
+    floor = min(v[2] for v in head.v)
+    band = [v for v in head.v if v[2] == floor and not head.v[v][1]]
+    if not band:
+        return
+    dark = min({head.v[v][0] for v in band}, key=_darkness)
+    for v in band:
+        head.v[v] = (dark, False)
+
+
+ACCESSORIES = {'trim_boxes': trim_boxes, 'pad_legs': pad_legs, 'jaw_band': jaw_band}

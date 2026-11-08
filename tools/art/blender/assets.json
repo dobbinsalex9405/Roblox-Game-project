@@ -74,7 +74,7 @@
   },
   "BeardedDragon": {
    "assetId": 79292759962077,
-   "textureId": 73577068469347,
+   "textureId": 73864206298695,
    "textureType": "Image",
    "version": "4"
   },
@@ -2357,6 +2357,90 @@
    "textureId": 85859037593044,
    "textureType": "Image",
    "version": "1"
+  },
+  "Aardvark": {
+   "assetId": 110458094242317,
+   "textureId": 71809280169986,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BelugaCalf": {
+   "assetId": 105355018050788,
+   "textureId": 73992974037076,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Binturong": {
+   "assetId": 126201047499646,
+   "textureId": 82050558894597,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BlueTang": {
+   "assetId": 92023726630987,
+   "textureId": 127278306701696,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BubblegumPig": {
+   "assetId": 103455935509324,
+   "textureId": 128648062024349,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BulldogPup": {
+   "assetId": 133134818363241,
+   "textureId": 136211379444806,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CaracalKit": {
+   "assetId": 140029976127557,
+   "textureId": 83495890711306,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ChihuahuaPup": {
+   "assetId": 116709694478133,
+   "textureId": 134237181607272,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Clownfish": {
+   "assetId": 102719591030622,
+   "textureId": 72571598538145,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Coati": {
+   "assetId": 123961166866242,
+   "textureId": 104761405678008,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DartFrog": {
+   "assetId": 131889820160825,
+   "textureId": 134364665718158,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DingoPup": {
+   "assetId": 79342171615198,
+   "textureId": 79832046702695,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FrizzleChick": {
+   "assetId": 81014861617441,
+   "textureId": 127117078141001,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "WaterStrider": {
+   "assetId": 87337404418397,
+   "textureId": 98002607560695,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
@@ -3928,6 +4012,66 @@
   "StickInsect": {
    "imageId": 134728496493808,
    "source": "b4e833d148edbc03"
+  },
+  "Aardvark": {
+   "imageId": 118773049941926,
+   "source": "ddfa283beb0894e5"
+  },
+  "BelugaCalf": {
+   "imageId": 90386326932454,
+   "source": "90b3a31f93b837aa"
+  },
+  "Binturong": {
+   "imageId": 128121273497031,
+   "source": "ba183ca0fef25ec9"
+  },
+  "BlueTang": {
+   "imageId": 74238659570785,
+   "source": "0e3a8935f398971b"
+  },
+  "BubblegumPig": {
+   "imageId": 83418592494102,
+   "source": "26742eee5337157a"
+  },
+  "BulldogPup": {
+   "imageId": 88953354249345,
+   "source": "dcdc56e92749baf3"
+  },
+  "CaracalKit": {
+   "imageId": 136366718549723,
+   "source": "c0d0c8e2daaf4ce2"
+  },
+  "ChihuahuaPup": {
+   "imageId": 140141823836576,
+   "source": "c6422d63e50ea1cd"
+  },
+  "Clownfish": {
+   "imageId": 120826588437170,
+   "source": "f4eb2b0edb0c804e"
+  },
+  "Coati": {
+   "imageId": 82811683125109,
+   "source": "088ef360ffb042dc"
+  },
+  "DartFrog": {
+   "imageId": 89044380256762,
+   "source": "baea6e6d1610c879"
+  },
+  "DingoPup": {
+   "imageId": 77418383954165,
+   "source": "876e5d26d580e19a"
+  },
+  "FrizzleChick": {
+   "imageId": 93704648601281,
+   "source": "8f66b12940a99ff3"
+  },
+  "WaterStrider": {
+   "imageId": 97063443869404,
+   "source": "8759bec20ae44176"
+  },
+  "BeardedDragon": {
+   "imageId": 81540080564718,
+   "source": "077ba5593f10ffb6"
   }
  }
 }

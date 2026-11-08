@@ -19,7 +19,7 @@
     {"id": "Gerbil", "rarity": "Common", "plan": "quadruped", "colors": {"col": "#D9A066", "belly": "#FFF6EA", "snout": "#FFF6EA", "ear_col": "#E8B888", "tail_col": "#C4884E"}, "options": {"ears": "round", "tail": "long"}, "shape": {"body": [0.85, 1.0, 1.05], "head": 1.15}},
     {"id": "Gecko", "rarity": "Common", "plan": "lizard", "colors": {"col": "#FFD166", "accent": "#5A4636", "belly": "#FFF2C8"}, "options": {"kind": "gecko"}},
     {"id": "Chameleon", "rarity": "Common", "plan": "lizard", "colors": {"col": "#5FD068", "accent": "#2FA8A0", "belly": "#D8F57A"}, "options": {"kind": "chameleon"}, "accessories": [{"kind": "chameleon", "color": "#2FA8A0", "color2": "#5FD068"}, {"kind": "symmetry", "color": "#000000", "parts": ["legs"]}]},
-    {"id": "BeardedDragon", "rarity": "Common", "plan": "lizard", "colors": {"col": "#E2B677", "accent": "#B07A3E", "belly": "#F5DEB0"}, "options": {"kind": "bearded"}},
+    {"id": "BeardedDragon", "rarity": "Common", "plan": "lizard", "colors": {"col": "#E2B677", "accent": "#B07A3E", "belly": "#F5DEB0"}, "options": {"kind": "bearded"}, "accessories": [{"kind": "jaw_band", "color": "#000000"}]},
     {"id": "Iguana", "rarity": "Common", "plan": "lizard", "colors": {"col": "#7ED957", "accent": "#3E9A4A", "belly": "#C8F2A8"}, "options": {"kind": "iguana"}}
   ]
 }

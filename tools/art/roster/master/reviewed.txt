@@ -423,3 +423,16 @@ Woodpecker
 Wren
 ZebraFinch
 PillBug
+Aardvark
+BelugaCalf
+Binturong
+BlueTang
+BubblegumPig
+BulldogPup
+CaracalKit
+ChihuahuaPup
+Clownfish
+Coati
+DartFrog
+DingoPup
+FrizzleChick
