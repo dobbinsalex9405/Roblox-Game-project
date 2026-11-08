@@ -4470,6 +4470,38 @@
   "OrangutanBaby": {
    "imageId": 105785245298959,
    "source": "506bf9d3437499dd"
+  },
+  "AmethystMole": {
+   "imageId": 78160826005827,
+   "source": "cf217d63a3c75acc"
+  },
+  "CinnamonSnail": {
+   "imageId": 99936750198471,
+   "source": "3a404cda57a08725"
+  },
+  "RoadrunnerChick": {
+   "imageId": 133523366832155,
+   "source": "e61955086b2e1358"
+  },
+  "SherbetChick": {
+   "imageId": 82071365797408,
+   "source": "e8c3dbffcc283d65"
+  },
+  "SphynxKitten": {
+   "imageId": 119095947061098,
+   "source": "bee3e9debb26d544"
+  },
+  "ThornyDevil": {
+   "imageId": 93237900508401,
+   "source": "8773ac692cf3ccda"
+  },
+  "SprinkleMouse": {
+   "imageId": 97719337077769,
+   "source": "beb6dcd1579c5bc8"
+  },
+  "SeaBunny": {
+   "imageId": 134828293507954,
+   "source": "38d21719035ca40b"
   }
  }
 }
