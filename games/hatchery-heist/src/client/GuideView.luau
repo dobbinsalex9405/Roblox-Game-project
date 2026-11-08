@@ -300,6 +300,7 @@ local function markOwnBase(plot: Model)
 	if sign and sign:IsA("BasePart") then
 		local gui = Instance.new("BillboardGui")
 		gui.Name = "YourBaseLabel"
+		gui.ResetOnSpawn = false -- no effect in the world; the client GUI rule
 		local banner = Geometry.YOUR_BASE_LABEL
 		gui.Size = UDim2.fromScale(banner.width, banner.height)
 		gui.StudsOffset = Vector3.new(0, banner.above, 0)
@@ -445,6 +446,7 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	beam.Enabled = false
 	local arrow = Instance.new("BillboardGui")
 	arrow.Name = "GuideArrow"
+	arrow.ResetOnSpawn = false -- no effect in the world; the client GUI rule
 	arrow.Size = UDim2.fromOffset(60, 60)
 	arrow.AlwaysOnTop = true
 	arrow.LightInfluence = 0

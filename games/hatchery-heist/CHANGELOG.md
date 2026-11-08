@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the Egg Market odds signs keep their odds after you respawn (they went
+  blank and the sign script errored after a death).
 - Creatures with a seventh pair of legs (the Pill Bug) walk with all of
   them, so the Pill Bug can join the eggs.
 - The Gummy Bear glows softly along its back and the top of its head again,
