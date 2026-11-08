@@ -920,7 +920,8 @@
       "tail",
       "ears"
      ]
-    }
+    },
+    {"kind": "draw", "color": "#E8434E", "part": "tail", "voxels": [[0, 4, 4], [0, 5, 4], [0, 5, 5]]}
    ]
   },
   {
