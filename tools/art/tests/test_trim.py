@@ -1,9 +1,9 @@
 """kit_trim: a creature over its tier's box budget gets the
 smallest mirrored edits that bring its in-game boxes inside it (trim_boxes),
 or a plainer stand-in for a part that costs too many (pad_legs, jaw_band,
-plain_boxes, kitten_face, spot_coat), or detail drawn in where it has too
-few (draw), and its finer Blender build (the reviewed mesh) is never
-touched.
+plain_boxes, kitten_face, spot_coat, despeckle, bands), or detail drawn in
+where it has too few (draw), and its finer Blender build (the reviewed mesh)
+is never touched.
 
 Run: python3 -m unittest discover -s tools/art/tests"""
 import contextlib
@@ -341,6 +341,57 @@ class Draw(unittest.TestCase):
         before = dict(h.v)
         kit_trim.draw(c, 10, INK, a={'part': 'head', 'voxels': [[-2, -1, 6]]})
         self.assertEqual(before, h.v)
+
+
+class Despeckle(unittest.TestCase):
+    def test_a_fleck_takes_its_neighbours_colour(self):
+        c = Creature('FleckTest', 'Uncommon')
+        body = c.part('body', 'static')
+        for x in range(-2, 2):
+            for z in range(0, 4):
+                body.put((x, 0, z), SAND if z < 2 else BROWN)
+        body.put((-1, 0, 1), FLUFF)  # on the sand
+        body.put((0, 0, 3), FLUFF)  # on the brown
+        kit_trim.despeckle(c, 10, FLUFF, a={'parts': ['body']})
+        self.assertEqual(body.v[(-1, 0, 1)], (SAND, False))
+        self.assertEqual(body.v[(0, 0, 3)], (BROWN, False))
+
+    def test_the_fine_build_keeps_its_flecks(self):
+        c = Creature('FleckTest', 'Uncommon')
+        c.fine = True
+        body = c.part('body', 'static')
+        body.put((0, 0, 0), SAND)
+        body.put((0, 0, 1), FLUFF)
+        kit_trim.despeckle(c, 10, FLUFF, a={'parts': ['body']})
+        self.assertEqual(body.v[(0, 0, 1)], (FLUFF, False))
+
+
+class Bands(unittest.TestCase):
+    def chick(self, fine=False):
+        c = Creature('BandTest', 'Uncommon')
+        c.fine = fine
+        body = c.part('body', 'static')
+        for x in range(-2, 2):
+            for z in range(0, 6):
+                body.put((x, 0, z), SAND if (x * 3 + z) % 2 else SPOT)
+        body.put((-2, -1, 2), FLUFF)  # a belly patch
+        return c, body
+
+    def test_the_coat_is_level_bands_and_other_colours_stay(self):
+        c, body = self.chick()
+        kit_trim.bands(c, 10, SAND, a={'colors': ['#5A3A24'], 'parts': ['body'],
+                                       'bands': [[0, '#5A3A24'], [3, '#E2B677']]})
+        for (x, y, z), val in body.v.items():
+            if (x, y, z) == (-2, -1, 2):
+                self.assertEqual(val, (FLUFF, False))
+            else:
+                self.assertEqual(val, (SPOT if z < 3 else SAND, False))
+
+    def test_the_fine_build_keeps_its_swirl(self):
+        c, body = self.chick(fine=True)
+        before = dict(body.v)
+        kit_trim.bands(c, 10, SAND, a={'parts': ['body'], 'bands': [[0, '#5A3A24']]})
+        self.assertEqual(before, body.v)
 
 
 if __name__ == '__main__':
