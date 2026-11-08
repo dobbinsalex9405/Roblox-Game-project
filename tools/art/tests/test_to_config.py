@@ -61,6 +61,16 @@ class Problems(unittest.TestCase):
         why = to_config.art_problems(stripes('Uncommon', 30), fine('Uncommon', lit=4))
         self.assertEqual(why, ['its mesh glows (4 voxels), but only Ultra Rare and up may'])
 
+    def test_a_stand_in_without_a_body_is_held(self):
+        c = Creature('ConfigTest', 'Rare')
+        shell = c.part('shell', 'static')
+        head = c.part('head', 'static')
+        for i in range(30):
+            shell.put((2 * i, 0, 0), BROWN if i % 2 else (90, 60, 40))
+        head.put((0, -1, 0), BROWN)
+        why = to_config.art_problems(c)
+        self.assertEqual(why, ['stand-in parts: part shell has a parent loop or a missing parent (body)'])
+
     def test_ultra_rare_and_up_may_glow(self):
         self.assertEqual(to_config.art_problems(stripes('Ultra Rare', 60, glow=True), fine('Ultra Rare', 5)), [])
 

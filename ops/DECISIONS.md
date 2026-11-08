@@ -14,7 +14,9 @@ Non-obvious choices, newest first, so a later session can trust them.
   budget (Uncommon 18, Rare 26), the rule VoxelArt.spec enforces.
 - `python3 tools/art/to_config.py --screen ID,ID,...` runs the same checks on
   built creatures before their mesh run, uploaded or not, so a batch is
-  screened before any upload is spent.
+  screened before any upload is spent. It also holds a creature whose
+  stand-in has a part with no way back to the body, where export.py would
+  stop (HerculesBeetle and ClockworkBeetle name their body "shell").
 
 ## 2026-11-08: CI reuses a passed creature-art export check
 

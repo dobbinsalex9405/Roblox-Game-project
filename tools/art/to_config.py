@@ -181,18 +181,25 @@ def floor_of(rarity):
 
 def art_problems(c, fine=None):
     """Every rule a built creature breaks, as a list of reasons (empty when it
-    passes). `c` is its in-game build (the voxel boxes of the stand-in drawn
+    passes): every part rides the body (export.py's check), the box budget and
+    detail floor, and glow. `c` is its in-game build (the voxel boxes of the stand-in drawn
     before meshes load). `fine` is its Blender build, the reviewed mesh: the
     game draws that mesh's glowing voxels as neon pieces at any tier
     (CreatureMeshes glow), so it may only glow from GLOW_FROM up as well."""
     from voxkit import greedy_boxes, merged_boxes
+    from describe import check_parents
+    from export import parent_of
+    out = []
+    try:  # export.py stops on a part with no way back to the body
+        check_parents(c.species, {p.name: parent_of(p, c.parts) for p in c.parts})
+    except ValueError as e:
+        out.append(f'stand-in parts: {str(e).split(": ", 1)[1]}')
     n, glow = 0, False
     for p in c.parts:
         a, b = greedy_boxes(p.v), merged_boxes(p.v)
         boxes = b if len(b) <= len(a) else a
         n += len(boxes)
         glow = glow or any(key[1] for *_, key in boxes)
-    out = []
     if n > BOX_BUDGET[c.rarity]:
         out.append(f'{n} voxel boxes, {c.rarity} budget is {BOX_BUDGET[c.rarity]}')
     if n < floor_of(c.rarity):
