@@ -102,8 +102,24 @@ describe("Egg tiers", function()
 				rare = egg.tiers.Rare
 			end
 		end
-		-- Fennec, Owlet and Panda Cub at 1, the Raccoon at 0.5: 1 part in 7.
-		expect(math.abs(moonlit.Raccoon - rare / 7)).toBeAtMost(1)
-		expect(moonlit.Fennec + moonlit.Owlet + moonlit.PandaCub + moonlit.Raccoon).toBe(rare)
+		-- Every other Moonlit Rare at its own weight (1 unless set), the
+		-- Raccoon at 0.5: it gets 0.5 parts of the tier, and the tier's total
+		-- stays exactly the same. Counted from the config, so new Rares in the
+		-- pool don't break it.
+		local parts = 0
+		for id, c in more do
+			if id ~= "Raccoon" and c.rarity == "Rare" and table.find(c.pools, "Moonlit") then
+				parts += (c :: any).weight or 1
+			end
+		end
+		expect(parts).toBeAtLeast(1)
+		expect(math.abs(moonlit.Raccoon - rare * 0.5 / (parts + 0.5))).toBeAtMost(1)
+		local tier = 0
+		for id, w in moonlit do
+			if more[id].rarity == "Rare" then
+				tier += w
+			end
+		end
+		expect(tier).toBe(rare)
 	end)
 end)
