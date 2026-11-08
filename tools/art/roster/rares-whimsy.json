@@ -365,6 +365,15 @@
     {
      "kind": "berryeyes",
      "color": "#C21E56"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head",
+      "thorns"
+     ]
     }
    ]
   },
@@ -531,6 +540,15 @@
     {
      "kind": "cherry",
      "color": "#E8233E"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "wrapper",
+      "head"
+     ]
     }
    ],
    "shape": {
@@ -896,6 +914,26 @@
      "kind": "flamehair",
      "color": "#FF7A1A",
      "color2": "#FFE27A"
+    },
+    {
+     "kind": "draw",
+     "color": "#3A3438",
+     "part": "body",
+     "voxels": [
+      [
+       0,
+       2,
+       1
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head"
+     ]
     }
    ]
   },
@@ -1366,6 +1404,15 @@
      "kind": "finchbeak",
      "color": "#F2B33D",
      "color2": "#9A6A2A"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "gust",
+      "body",
+      "head"
+     ]
     }
    ]
   },

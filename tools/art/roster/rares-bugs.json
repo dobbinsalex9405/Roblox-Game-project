@@ -53,6 +53,14 @@
     {
      "kind": "eyering",
      "color": "#FFFFFF"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "wing",
+      "head"
+     ]
     }
    ]
   },
@@ -212,6 +220,13 @@
      "kind": "gear",
      "color": "#E8C050",
      "color2": "#5CF2FF"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "shell"
+     ]
     }
    ]
   },
@@ -236,6 +251,16 @@
     {
      "kind": "glinteyes",
      "color": "#E8E8F4"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "leg1",
+      "leg2",
+      "web"
+     ]
     }
    ]
   },
