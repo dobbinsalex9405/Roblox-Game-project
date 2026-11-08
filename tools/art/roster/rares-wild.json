@@ -3,6 +3,7 @@
  "creatures": [
   {
    "id": "LionCub",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -42,6 +43,7 @@
   },
   {
    "id": "TigerCub",
+   "glow": false,
    "rarity": "Rare",
    "plan": "quadruped",
    "gait": "trot",
@@ -152,6 +154,7 @@
   },
   {
    "id": "HippoCalf",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -230,6 +233,7 @@
   },
   {
    "id": "GorillaBaby",
+   "glow": false,
    "rarity": "Rare",
    "plan": "upright",
    "gait": "waddle",
@@ -316,6 +320,7 @@
   },
   {
    "id": "PolarBearCub",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -335,6 +340,7 @@
   },
   {
    "id": "SnowLeopardCub",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -355,6 +361,7 @@
   },
   {
    "id": "ReindeerCalf",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -384,6 +391,7 @@
   },
   {
    "id": "Ermine",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -404,6 +412,7 @@
   },
   {
    "id": "MuskOxCalf",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -420,6 +429,7 @@
   },
   {
    "id": "SeaOtter",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "swim",
@@ -456,6 +466,7 @@
   },
   {
    "id": "SandCat",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",
@@ -510,6 +521,7 @@
   },
   {
    "id": "Peachick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "waddle",
@@ -531,6 +543,7 @@
   },
   {
    "id": "Hummingbird",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "hover",
@@ -602,6 +615,7 @@
   },
   {
    "id": "Hornbill",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bird",
    "gait": "hop",
@@ -688,6 +702,7 @@
   },
   {
    "id": "GeodeCrab",
+   "glow": false,
    "rarity": "Rare",
    "plan": "crab",
    "gait": "scuttle",
@@ -705,6 +720,7 @@
   },
   {
    "id": "AmethystMole",
+   "glow": false,
    "rarity": "Rare",
    "plan": "mammal",
    "gait": "trot",

@@ -3,6 +3,7 @@
  "creatures": [
   {
    "id": "DolphinCalf",
+   "glow": false,
    "rarity": "Rare",
    "plan": "whale",
    "gait": "swim",
@@ -18,6 +19,7 @@
   },
   {
    "id": "BabyOctopus",
+   "glow": false,
    "rarity": "Rare",
    "plan": "octopus",
    "gait": "scuttle",
@@ -32,6 +34,7 @@
   },
   {
    "id": "MantaRay",
+   "glow": false,
    "rarity": "Rare",
    "plan": "ray",
    "gait": "swim",
@@ -47,6 +50,7 @@
   },
   {
    "id": "MoonJelly",
+   "glow": false,
    "rarity": "Rare",
    "plan": "jelly",
    "gait": "swim",
@@ -82,6 +86,7 @@
   },
   {
    "id": "SharkPup",
+   "glow": false,
    "rarity": "Rare",
    "plan": "fish",
    "gait": "swim",
@@ -102,6 +107,7 @@
   },
   {
    "id": "Narwhal",
+   "glow": false,
    "rarity": "Rare",
    "plan": "whale",
    "gait": "swim",
@@ -128,6 +134,7 @@
   },
   {
    "id": "Koi",
+   "glow": false,
    "rarity": "Rare",
    "plan": "fish",
    "gait": "swim",
@@ -152,6 +159,7 @@
   },
   {
    "id": "Socktopus",
+   "glow": false,
    "rarity": "Rare",
    "plan": "octopus",
    "gait": "scuttle",
@@ -187,6 +195,7 @@
   },
   {
    "id": "TrikeHatchling",
+   "glow": false,
    "rarity": "Rare",
    "plan": "dino",
    "gait": "trot",
@@ -211,6 +220,7 @@
   },
   {
    "id": "StegoHatchling",
+   "glow": false,
    "rarity": "Rare",
    "plan": "dino",
    "gait": "trot",
@@ -249,6 +259,7 @@
   },
   {
    "id": "PteroChick",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bat",
    "gait": "hover",

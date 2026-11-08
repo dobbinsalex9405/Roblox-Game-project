@@ -3,6 +3,7 @@
  "creatures": [
   {
    "id": "Tarantula",
+   "glow": false,
    "rarity": "Rare",
    "plan": "critter",
    "gait": "scuttle",
@@ -57,6 +58,7 @@
   },
   {
    "id": "OrchidMantis",
+   "glow": false,
    "rarity": "Rare",
    "plan": "critter",
    "gait": "scuttle",
@@ -86,6 +88,7 @@
   },
   {
    "id": "HerculesBeetle",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bug",
    "gait": "scuttle",
@@ -110,6 +113,7 @@
   },
   {
    "id": "LunaMoth",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bug",
    "gait": "hover",
@@ -140,6 +144,7 @@
   },
   {
    "id": "GlasswingButterfly",
+   "glow": false,
    "rarity": "Rare",
    "plan": "bug",
    "gait": "hover",
@@ -165,6 +170,7 @@
   },
   {
    "id": "HoneypotAnt",
+   "glow": false,
    "rarity": "Rare",
    "plan": "critter",
    "gait": "scuttle",
@@ -235,6 +241,7 @@
   },
   {
    "id": "Scorpion",
+   "glow": false,
    "rarity": "Rare",
    "plan": "critter",
    "gait": "scuttle",
