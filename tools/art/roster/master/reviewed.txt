@@ -456,6 +456,4 @@ PinwheelBird
 PopcornHamster
 AngoraBunny
 AnteaterPup
-BengalKitten
-CaramelKitten
 EmuChick
