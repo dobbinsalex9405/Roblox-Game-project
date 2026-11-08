@@ -478,17 +478,4 @@ SprinkleMouse
 ThornyDevil
 SeaBunny
 AmethystMole
-AshBadger
-Bramblet
-BreezeFinch
-BubblePup
-Bunnyfly
-ButtonBear
-CactusPup
-CamelCalf
-CheetahCub
-CinderChick
 CinnamonSnail
-CobwebSpider
-Crocoduck
-CupcakeChick

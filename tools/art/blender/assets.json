@@ -2651,6 +2651,54 @@
    "textureId": 136493377349408,
    "textureType": "Image",
    "version": "1"
+  },
+  "AmethystMole": {
+   "assetId": 98248153572045,
+   "textureId": 119806249697744,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CinnamonSnail": {
+   "assetId": 85671637814483,
+   "textureId": 129735157433714,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "RoadrunnerChick": {
+   "assetId": 88614844344230,
+   "textureId": 120050913043274,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SherbetChick": {
+   "assetId": 70948832805331,
+   "textureId": 104634938177799,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SphynxKitten": {
+   "assetId": 124412960127714,
+   "textureId": 113424547096843,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ThornyDevil": {
+   "assetId": 94903197934066,
+   "textureId": 137243516943946,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SprinkleMouse": {
+   "assetId": 89261357659829,
+   "textureId": 104685632415164,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "SeaBunny": {
+   "assetId": 86607410786991,
+   "textureId": 117936525097023,
+   "textureType": "Image",
+   "version": "1"
   }
  },
  "note": "Roblox Model asset ids for each creature's meshes (tools/art/blender/upload.py).",
