@@ -2724,10 +2724,35 @@ def _orbit_gives_way(c):
     return c
 
 
+def fit_stand_in(c):
+    """The in-game boxes only (the stand-in drawn before the mesh loads; the
+    Blender meshes, and so the reviewed models and thumbnails, are never
+    changed): a Legendary over its box budget (to_config.BOX_BUDGET) first
+    has near-identical shades on each part made one colour (kit_trim._unify,
+    never the eyes), which keeps its outline, and if it is still over, its
+    heaviest parts other than the face and legs are redrawn on a coarser grid
+    (kit_epicmyth._fit_budget), aiming 10 boxes under the budget because the
+    walking legs are carved out of the body afterwards."""
+    if getattr(c, 'fine', False):
+        return c
+    import kit_epicmyth
+    import kit_trim
+    from to_config import BOX_BUDGET
+    budget = BOX_BUDGET[c.rarity]
+    if kit_trim._drawn(c)[0] <= budget:
+        return c
+    for p in c.parts:
+        if p.name != 'eyes':
+            p.v = kit_trim._unify(p.v)
+    if kit_trim._drawn(c)[0] > budget:
+        kit_epicmyth._fit_budget(c, budget - 10)
+    return c
+
+
 def _finished(fn):
     def build(c, H):
         fn(c, H)
-        return calm_pale_glow(tidy(join_pieces(_orbit_gives_way(c))))
+        return fit_stand_in(calm_pale_glow(tidy(join_pieces(_orbit_gives_way(c)))))
     return build
 
 

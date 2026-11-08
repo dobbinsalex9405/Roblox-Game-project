@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: Legendary stand-ins fit their box budget in code
+
+- 25 of the 48 Legendaries drew 453 to 1022 in-game boxes, over the 450
+  budget, so to_config.py would have kept them out of the game. Legendaries
+  are built in tools/art/legendaries.py, not roster JSON, so the fit is code:
+  `fit_stand_in` runs last, on the coarse build only, and only when a
+  creature is over budget. It first merges near-identical shades on each
+  part (never the eyes), which keeps the outline, then if needed redraws the
+  heaviest non-face, non-leg parts on a coarser grid (the Epics'
+  `kit_epicmyth._fit_budget`), aiming 10 under because walking legs are
+  carved out afterwards.
+- The meshes and thumbnails are untouched (fine-build hashes identical).
+  tools/art/tests/test_legendary_boxes.py fails on any Legendary over budget
+  and on any change to the fine build.
+
 ## 2026-11-08: Rule k is a roster switch and a test
 
 - No creature below Ultra Rare glows. A creature that does gets `"glow": false`
