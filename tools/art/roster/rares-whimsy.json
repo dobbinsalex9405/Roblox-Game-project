@@ -21,6 +21,14 @@
     {
      "kind": "tailglow",
      "color": "#7BE36A"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head"
+     ]
     }
    ]
   },
@@ -61,7 +69,18 @@
     "tuft": "#FF4A10",
     "feet": "#E8D2A8"
    },
-   "accessories": []
+   "accessories": [
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "drips",
+      "flame",
+      "body",
+      "head"
+     ]
+    }
+   ]
   },
   {
    "id": "BubblePup",
@@ -1535,6 +1554,40 @@
      "kind": "wildclover",
      "color": "#4FC84A",
      "color2": "#DFFFE8"
+    },
+    {
+     "kind": "draw",
+     "color": "#B8E8A0",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "head"
+     ]
     }
    ],
    "shape": {
