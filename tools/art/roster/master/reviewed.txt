@@ -483,3 +483,12 @@ FlyingSquirrel
 GiraffeCalf
 ButtonBear
 Owlcat
+AshBadger
+CamelCalf
+CheetahCub
+AmethystMole
+Crocoduck
+DonutSeal
+FrostHamster
+FrostKitten
+Ghostling
