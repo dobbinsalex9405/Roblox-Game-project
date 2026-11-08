@@ -132,7 +132,6 @@ Kappa
 Kingfisher
 Kinkajou
 KitsuneKit
-Kiwi
 Koala
 Koi
 LanternMoth
@@ -504,3 +503,12 @@ BubblePup
 Bunnyfly
 CactusPup
 GorillaBaby
+OkapiCalf
+Hornbill
+LunaMoth
+MagmaSnail
+MochiBunny
+MummyHamster
+Lampwick
+MossPiglet
+Mossling

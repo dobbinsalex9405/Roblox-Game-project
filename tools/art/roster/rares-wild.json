@@ -38,6 +38,41 @@
     {
      "kind": "tailglow",
      "color": "#FFD873"
+    },
+    {
+     "kind": "draw",
+     "color": "#FFE7B0",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       6
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -7,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "mane",
+      "body",
+      "head"
+     ]
     }
    ]
   },
@@ -758,6 +793,123 @@
     {
      "kind": "hoverwings",
      "color": "#7FE0B0"
+    },
+    {
+     "kind": "draw",
+     "color": "#2A2A35",
+     "part": "beak",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -8,
+       8
+      ],
+      [
+       -1,
+       -7,
+       8
+      ],
+      [
+       -1,
+       -6,
+       9
+      ],
+      [
+       -1,
+       -6,
+       10
+      ],
+      [
+       -1,
+       -5,
+       9
+      ],
+      [
+       -1,
+       -5,
+       10
+      ],
+      [
+       -1,
+       -4,
+       9
+      ],
+      [
+       -1,
+       -4,
+       10
+      ]
+     ],
+     "voxels": [
+      [
+       -1,
+       -4,
+       8
+      ],
+      [
+       -1,
+       -5,
+       8
+      ],
+      [
+       -1,
+       -6,
+       8
+      ],
+      [
+       -1,
+       -7,
+       7
+      ],
+      [
+       -1,
+       -8,
+       7
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#2EC27A",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -3,
+       10
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -2,
+       -3,
+       10
+      ]
+     ],
+     "voxels": [
+      [
+       -3,
+       -3,
+       10
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "wing",
+      "body",
+      "head"
+     ]
     }
    ]
   },
