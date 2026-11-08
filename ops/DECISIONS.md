@@ -2,6 +2,20 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-08: to_config checks the mesh for glow and reports every problem
+
+- A creature below Ultra Rare is held back when its Blender build glows, not
+  only its stand-in: blender/luau.py writes a mesh's glowing voxels as
+  CreatureMeshes `glow` pieces and the game draws those as neon at any tier.
+  Go-live batch 10 uploaded 19 Rares and 17 of them glowed; two (AmethystMole,
+  BabyOctopus) glowed only in the mesh, which the old check missed.
+- Every reason a creature is held is printed (budget, detail floor, stand-in
+  glow, mesh glow), not just the first. The floor is 60% of the tier below's
+  budget (Uncommon 18, Rare 26), the rule VoxelArt.spec enforces.
+- `python3 tools/art/to_config.py --screen ID,ID,...` runs the same checks on
+  built creatures before their mesh run, uploaded or not, so a batch is
+  screened before any upload is spent.
+
 ## 2026-11-08: CI reuses a passed creature-art export check
 
 - The art-export step is skipped when a pass is cached under the hash of its

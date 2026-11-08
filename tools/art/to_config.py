@@ -3,6 +3,9 @@ config/creatures.luau, so every creature that is built and uploaded can hatch.
 
     python3 tools/art/to_config.py           rewrite the generated block
     python3 tools/art/to_config.py --check   exit 1 if the block is out of date
+    python3 tools/art/to_config.py --screen ID,ID,...
+        check built creatures against the in-game rules before their mesh
+        run (uploaded or not); exit 1 if any fails
     python3 tools/art/to_config.py --promoted PATH
         first add every master-list id named in the reviewer's PROMOTED.log
         (PATH) to REVIEWED, then rewrite the block
@@ -15,7 +18,10 @@ A creature joins the game when all of these hold:
     one id a line, synced from the reviewer's PROMOTED.log; nothing ships
     unreviewed, Alex Nov 5),
   - it is not already written by hand above the generated block,
-  - its voxel boxes meet the in-game rules (BOX_BUDGET, GLOW_FROM).
+  - it meets the in-game rules: its stand-in's voxel boxes within its tier's
+    BOX_BUDGET and not under its detail floor (floor_of), and neither the
+    stand-in nor the Blender mesh glowing below GLOW_FROM. A creature that
+    misses any is held back, with every reason printed.
 Hand-written entries always win: to tune one creature, move its line out of
 the generated block and edit it there.
 
@@ -165,8 +171,20 @@ def sync_promoted(path):
     print(f'reviewed.txt: {len(new)} added, {len(have)} in all')
 
 
-def art_problem(c):
-    """Why a built creature's in-game voxel boxes break a rule, or None."""
+def floor_of(rarity):
+    """The fewest boxes a stand-in of this tier may have: VoxelArt.spec wants
+    each tier's plainest at least 60% of the tier below's busiest, and the
+    tier below may fill its budget. Common has no floor."""
+    i = TIERS.index(rarity)
+    return BOX_BUDGET[TIERS[i - 1]] * 6 // 10 if i else 0
+
+
+def art_problems(c, fine=None):
+    """Every rule a built creature breaks, as a list of reasons (empty when it
+    passes). `c` is its in-game build (the voxel boxes of the stand-in drawn
+    before meshes load). `fine` is its Blender build, the reviewed mesh: the
+    game draws that mesh's glowing voxels as neon pieces at any tier
+    (CreatureMeshes glow), so it may only glow from GLOW_FROM up as well."""
     from voxkit import greedy_boxes, merged_boxes
     n, glow = 0, False
     for p in c.parts:
@@ -174,11 +192,30 @@ def art_problem(c):
         boxes = b if len(b) <= len(a) else a
         n += len(boxes)
         glow = glow or any(key[1] for *_, key in boxes)
+    out = []
     if n > BOX_BUDGET[c.rarity]:
-        return f'{n} voxel boxes, {c.rarity} budget is {BOX_BUDGET[c.rarity]}'
-    if glow and TIERS.index(c.rarity) < TIERS.index(GLOW_FROM):
-        return f'glows, but only {GLOW_FROM} and up may'
-    return None
+        out.append(f'{n} voxel boxes, {c.rarity} budget is {BOX_BUDGET[c.rarity]}')
+    if n < floor_of(c.rarity):
+        out.append(f'{n} voxel boxes, {c.rarity} detail floor is {floor_of(c.rarity)}')
+    below = TIERS.index(c.rarity) < TIERS.index(GLOW_FROM)
+    if glow and below:
+        out.append(f'glows, but only {GLOW_FROM} and up may')
+    if fine is not None and below:
+        lit = sum(1 for p in fine.parts for _, g in p.v.values() if g)
+        if lit:
+            out.append(f'its mesh glows ({lit} voxels), but only {GLOW_FROM} and up may')
+    return out
+
+
+def problems_of(ids):
+    """{id: [reasons]} for these built creatures, both builds checked."""
+    from creatures import build_all
+    from describe import DETAIL
+    ids = set(ids)
+    art = {a.species: a for a in build_all(only=ids)}
+    below = {i for i, a in art.items() if TIERS.index(a.rarity) < TIERS.index(GLOW_FROM)}
+    fine = {a.species: a for a in build_all(DETAIL, only=below)} if below else {}
+    return {i: art_problems(art[i], fine.get(i)) for i in ids if i in art}
 
 
 def generate(src):
@@ -198,12 +235,10 @@ def generate(src):
     rows = [c for c in master if c['id'] in built and c['id'] in uploaded and c['id'] not in hand
             and c['id'] in passed]
     if rows:
-        from creatures import build_all
-        art = {a.species: a for a in build_all()}
-        held = {c['id']: art_problem(art[c['id']]) for c in rows}
+        held = problems_of(c['id'] for c in rows)
         for cid, why in sorted(held.items()):
             if why:
-                print(f'held back: {cid}: {why}', file=sys.stderr)
+                print(f'held back: {cid}: {"; ".join(why)}', file=sys.stderr)
         rows = [c for c in rows if not held[c['id']]]
     for c in rows:
         if built[c['id']] != c['tier']:
@@ -219,7 +254,26 @@ def generate(src):
     return head + BEGIN + body + END + tail, rows
 
 
+def screen(ids):
+    """Checks built creatures against the in-game rules whether or not they
+    are uploaded or reviewed, so a batch is screened before its mesh run."""
+    from creatures import ROSTER
+    built = {sid for sid, _, _ in ROSTER}
+    missing = [i for i in ids if i not in built]
+    found = problems_of(i for i in ids if i in built)
+    bad = 0
+    for i in ids:
+        why = ['not built (no roster entry)'] if i in missing else found[i]
+        bad += bool(why)
+        print(f'{i}: {"; ".join(why) if why else "ok"}')
+    print(f'{len(ids) - bad} of {len(ids)} pass')
+    return bad
+
+
 def main():
+    if '--screen' in sys.argv:
+        ids = [i for i in re.split(r'[\s,]+', sys.argv[sys.argv.index('--screen') + 1]) if i]
+        sys.exit(1 if screen(ids) else 0)
     if '--promoted' in sys.argv:
         sync_promoted(sys.argv[sys.argv.index('--promoted') + 1])
     with open(CONFIG) as f:
