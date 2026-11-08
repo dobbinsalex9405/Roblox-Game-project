@@ -2,12 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
-## 2026-11-08: CI gets 35 minutes and reuses a passed art-export check
+## 2026-11-08: CI reuses a passed creature-art export check
 
-- The check job's timeout is 35 minutes (was 20): the art export grows each
-  batch, and a slow runner pushed #155 past 20 with nothing failing.
 - The art-export step is skipped when a pass is cached under the hash of its
-  inputs (tools/art, tools/economy, HH config, the generated files, ci.yml).
+  inputs (tools/art, tools/economy, HH config, the generated files, ci.yml),
+  so a PR that leaves the art alone saves about 9 minutes.
+
+## 2026-11-08: CI's main job gets 45 minutes, not 20
+
+- **Main's CI on go-live batch 7 (#154) was cancelled by the 20-minute job
+  limit** in the player's-eye audit, with every earlier step green. C6 had
+  finished in 19.5 minutes; each batch adds creatures to the art export
+  (about 9 minutes now) and the audit, so every later batch would hit it.
+- **45 minutes leaves room for the remaining go-live batches.** A real hang
+  still ends the run. If a run nears 35 minutes, split the job rather than
+  raise the limit again.
 
 ## 2026-11-07: Commons go in game at 31 boxes or fewer (Hatchery Heist)
 

@@ -19,10 +19,7 @@ jobs:
   check:
     name: Format, lint, test, build, type check
     runs-on: ubuntu-latest
-    # The creature-art export grows with every go-live batch (about 9 min on a
-    # slow runner at 407 creatures, #155), so 20 minutes no longer covers a
-    # slow day.
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
