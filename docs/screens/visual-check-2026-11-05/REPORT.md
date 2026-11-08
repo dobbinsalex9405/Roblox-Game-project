@@ -1894,3 +1894,35 @@ BabyOctopus first read 0.45 because my ray hit a deck part; re-sampled on Pad45 
 - CoreFeedback.FeedbackButton is visible.
 
 Screens: pr164b-phone-odds-basic.jpg, -meadow.jpg, -moonlit.jpg, pr164b-book-rare.jpg, pr164b-standins-all-43.jpg, pr164b-gorillababy-crest-fixed.jpg, pr164b-placed-babyoctopus.jpg.
+
+## #166 at 0836dc3 (batch 12: 19 creatures): FAIL (OrchidMantis stand-in legs not mirrored), stopped at first FAIL
+
+I built the head directly because it contains main 71c6c66. I ran the stand-in check (step 3) first, statically on all 19 VoxelArt entries, then drew OrchidMantis as Parts. The other steps were not run, because the gate stops at the first FAIL.
+
+**FAIL: OrchidMantis stand-in legs are not mirror-symmetric.** The model spans x from -4 to 3, so its centre is -0.5 and the mirror is x → -1-x. Under that mirror, all 6 one-sided voxels in the whole model are leg voxels:
+
+- Left legs (legFL, legBL): voxels at (-4, 1) and (-4, 2) have no twin at x = 3.
+- Right legs (legFR, legBR): the voxel at (1, 2) has no twin at x = -2.
+
+Front-leg cross-section at z = -0.5, x from -5 to 4 (L = leg, b = body):
+
+    y2 .LL.bbLL..
+    y1 .LLL..LL..
+    y0 ..LL..LL..
+
+- The left legs are 3 voxels wide with an outer knee at x = -4.
+- The right legs are 2 wide (x = 1 and 2).
+- The back pair (z = 1.5) is identical.
+- The leg pivots are ±1, which is centred on x = 0, not on the body centre at -0.5.
+
+So the left legs sit one voxel further out than the right. No other mirror axis is clean (x → -x gives 16 one-sided leg voxels; x → -2-x gives 6 leg plus 54 others). In the drawn front view (pr166-FAIL-orchidmantis-legs-front.jpg) the inner leg edges sit 52 px and 18 px from the centre line.
+
+**Other stand-in results (all 19)**
+- Box counts: DivingBeetle 30, Rares 32 to 60.
+- Every one is a single 26-connected piece with feet at y = 0 and 0 Neon.
+- Legs are mirror-symmetric on all 18 others.
+- Hummingbird: its 2 eye voxels at (2, 8, -1) and (-3, 8, -1) have 0 face contacts with the 10 beak voxels (y = 5 to 6, z = -6 to -2), so the eyes are clear of the beak.
+- DivingBeetle has no part named "eyes". Its head is 2 voxels of 1B1B2F (dark) plus 2 of FFFFFF (white), which look like eyes on a dark head. Please confirm against the brief's "DivingBeetle has eyes".
+- Kiwi also has no eye part. Its head is 52 brown voxels plus 3 pink FF8FB1 voxels, and there are no dark eye voxels. Not in the brief; just noting it.
+
+Not run: odds (1), Book (2), meshes and Neon (3b), walk and earn (4), respawn (5).
