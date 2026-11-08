@@ -4668,6 +4668,70 @@
   "Owlcat": {
    "imageId": 109979361565585,
    "source": "e3559edd4ee1b4cc"
+  },
+  "Angelfish": {
+   "imageId": 76490079299816,
+   "source": "1c27c748d6dca772"
+  },
+  "AshBadger": {
+   "imageId": 122031687493376,
+   "source": "17c2380e7e5a5fc5"
+  },
+  "CamelCalf": {
+   "imageId": 81126347457861,
+   "source": "2c962d361b540e2e"
+  },
+  "CheetahCub": {
+   "imageId": 112515300262369,
+   "source": "c7f23d09998aa046"
+  },
+  "AmethystMole": {
+   "imageId": 132796535021740,
+   "source": "42fb76566273f39e"
+  },
+  "BabyOctopus": {
+   "imageId": 74736608545256,
+   "source": "727abe41727b066f"
+  },
+  "Crocoduck": {
+   "imageId": 124541902410702,
+   "source": "c91e201c1934017d"
+  },
+  "DolphinCalf": {
+   "imageId": 139326992672568,
+   "source": "0bfe30e811de8021"
+  },
+  "DonutSeal": {
+   "imageId": 132377940419778,
+   "source": "321509a1fbf4a010"
+  },
+  "Ducktopus": {
+   "imageId": 71641855427475,
+   "source": "53a3a51abe730357"
+  },
+  "Ermine": {
+   "imageId": 87016088469925,
+   "source": "6145c90155803610"
+  },
+  "FrostHamster": {
+   "imageId": 132720960504713,
+   "source": "69144853faad5a66"
+  },
+  "FrostKitten": {
+   "imageId": 106064349888332,
+   "source": "c3118ea35daa4b31"
+  },
+  "GeodeCrab": {
+   "imageId": 102156620415992,
+   "source": "e6769a35d932e804"
+  },
+  "Ghostling": {
+   "imageId": 125866335786808,
+   "source": "69cc42dbffdf72dd"
+  },
+  "GlasswingButterfly": {
+   "imageId": 96716805762958,
+   "source": "fbf6e29dfd0f059d"
   }
  }
 }
