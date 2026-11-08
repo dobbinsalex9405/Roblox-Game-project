@@ -74,7 +74,7 @@
   },
   "BeardedDragon": {
    "assetId": 79292759962077,
-   "textureId": 73577068469347,
+   "textureId": 73864206298695,
    "textureType": "Image",
    "version": "4"
   },
@@ -2355,6 +2355,90 @@
   "StickInsect": {
    "assetId": 92828174992312,
    "textureId": 85859037593044,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Aardvark": {
+   "assetId": 110458094242317,
+   "textureId": 71809280169986,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BelugaCalf": {
+   "assetId": 105355018050788,
+   "textureId": 73992974037076,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Binturong": {
+   "assetId": 126201047499646,
+   "textureId": 82050558894597,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BlueTang": {
+   "assetId": 92023726630987,
+   "textureId": 127278306701696,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BubblegumPig": {
+   "assetId": 103455935509324,
+   "textureId": 128648062024349,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "BulldogPup": {
+   "assetId": 133134818363241,
+   "textureId": 136211379444806,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "CaracalKit": {
+   "assetId": 140029976127557,
+   "textureId": 83495890711306,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "ChihuahuaPup": {
+   "assetId": 116709694478133,
+   "textureId": 134237181607272,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Clownfish": {
+   "assetId": 102719591030622,
+   "textureId": 72571598538145,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "Coati": {
+   "assetId": 123961166866242,
+   "textureId": 104761405678008,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DartFrog": {
+   "assetId": 131889820160825,
+   "textureId": 134364665718158,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "DingoPup": {
+   "assetId": 79342171615198,
+   "textureId": 79832046702695,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FrizzleChick": {
+   "assetId": 81014861617441,
+   "textureId": 127117078141001,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "WaterStrider": {
+   "assetId": 87337404418397,
+   "textureId": 98002607560695,
    "textureType": "Image",
    "version": "1"
   }
