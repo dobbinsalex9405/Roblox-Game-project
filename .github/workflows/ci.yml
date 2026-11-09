@@ -16,10 +16,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Format, lint, test, build, type check
+  # The checks run as three jobs side by side, so none nears its time limit
+  # as each go-live batch adds creatures (#168's single job took 30.5 min:
+  # art export 14, setup + tests 9, audit 4). The job named "Format, lint,
+  # test, build, type check" is the one branch protection requires; it now
+  # waits for all three and passes only if every one passed.
+  build:
+    name: Lint, test, build, boot, key flows
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -42,8 +47,48 @@ jobs:
       - name: Tests (Lune)
         run: lune run tools/test/run
 
-      # VoxelArt.luau, CreatureMeshes.luau, CreatureThumbs.luau and EnvArt.luau are generated from tools/art; a
-      # hand edit or a stale export fails here.
+      - name: Build every game (Rojo)
+        run: tools/build.sh all
+
+      # A game that fails to start, or breaks its main loop, must not reach main.
+      # ops/PUBLISH_CHECKS.md explains both checks.
+      - name: Boot every game (server start, player join, client UI)
+        run: lune run tools/boot/run all --built
+
+      # The design viewer (tools/designs) exports every model the games build;
+      # a game change must not break that export.
+      - name: Design viewer builds (every game's models export)
+        run: |
+          lune run tools/designs/export all
+          node tools/designs/build.mjs --drops /nonexistent --out build/design-viewer
+
+      # The same file opened in Studio, where an unpublished place has no
+      # DataStores: every game must still start and let a player in.
+      - name: Boot every game as an unpublished place in Studio
+        run: lune run tools/boot/run all --built --studio --unpublished
+
+      - name: Key flows (headless playtests)
+        run: tools/keyflows.sh all
+
+      - name: Strict type check (luau-lsp)
+        run: tools/typecheck.sh
+
+      - name: Keep the built places
+        uses: actions/upload-artifact@v4
+        with:
+          name: places-${{ github.sha }}
+          path: build/*.rbxl
+          retention-days: 14
+
+  # VoxelArt.luau, CreatureMeshes.luau, CreatureThumbs.luau, EnvArt.luau and
+  # WalkMirror.luau are generated from tools/art; a hand edit or a stale
+  # export fails here. Plain Python, no Roblox tools.
+  art:
+    name: Creature art is exported
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -76,32 +121,27 @@ jobs:
           path: .ci/art-export-ok
           key: ${{ steps.art-cache.outputs.cache-primary-key }}
 
-      - name: Build every game (Rojo)
-        run: tools/build.sh all
+  # What a joining player sees and taps, on Staging builds (real product
+  # ids, no secrets): world, spawn, HUD at phone/tablet/desktop, every
+  # first-screen button and what it opens. ops/VISUAL_PLAYTEST.md. It builds
+  # its own places (build/audit-places).
+  audit:
+    name: Player's-eye audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
 
-      # A game that fails to start, or breaks its main loop, must not reach main.
-      # ops/PUBLISH_CHECKS.md explains both checks.
-      - name: Boot every game (server start, player join, client UI)
-        run: lune run tools/boot/run all --built
+      - name: Install pinned tools (rokit.toml)
+        uses: CompeyDev/setup-rokit@v0.2.1
+        with:
+          version: v1.2.0
+          cache: true
 
-      # The design viewer (tools/designs) exports every model the games build;
-      # a game change must not break that export.
-      - name: Design viewer builds (every game's models export)
-        run: |
-          lune run tools/designs/export all
-          node tools/designs/build.mjs --drops /nonexistent --out build/design-viewer
+      - name: Install packages (wally.toml)
+        run: wally install
+        working-directory: deps
 
-      # The same file opened in Studio, where an unpublished place has no
-      # DataStores: every game must still start and let a player in.
-      - name: Boot every game as an unpublished place in Studio
-        run: lune run tools/boot/run all --built --studio --unpublished
-
-      - name: Key flows (headless playtests)
-        run: tools/keyflows.sh all
-
-      # What a joining player sees and taps, on Staging builds (real product
-      # ids, no secrets): world, spawn, HUD at phone/tablet/desktop, every
-      # first-screen button and what it opens. ops/VISUAL_PLAYTEST.md.
       - name: Player's-eye audit (renders + checks)
         run: lune run tools/audit/run all
 
@@ -122,15 +162,24 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-      - name: Strict type check (luau-lsp)
-        run: tools/typecheck.sh
-
-      - name: Keep the built places
-        uses: actions/upload-artifact@v4
-        with:
-          name: places-${{ github.sha }}
-          path: build/*.rbxl
-          retention-days: 14
+  # The required check (ops/SETUP.md): green only when all three jobs are.
+  check:
+    name: Format, lint, test, build, type check
+    needs: [build, art, audit]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Every check job passed
+        env:
+          BUILD: ${{ needs.build.result }}
+          ART: ${{ needs.art.result }}
+          AUDIT: ${{ needs.audit.result }}
+        run: |
+          echo "Lint, test, build, boot, key flows: $BUILD"
+          echo "Creature art is exported: $ART"
+          echo "Player's-eye audit: $AUDIT"
+          [ "$BUILD" = success ] && [ "$ART" = success ] && [ "$AUDIT" = success ]
 
   screen-control:
     name: Screen-control guard tests

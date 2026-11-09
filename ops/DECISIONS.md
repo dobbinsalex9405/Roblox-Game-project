@@ -2,6 +2,14 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-09: CI runs as three parallel jobs behind the required check
+
+- #168's single check job took 30.5 min: art export 14 min, setup and tests
+  9 min, audit 4 min. Legendaries would push it past 35.
+- Build/tests/boot/key flows, the art export and the audit now run side by
+  side. The required "Format, lint, test, build, type check" job waits for all
+  three and passes only if each did, so branch protection is unchanged.
+
 ## 2026-11-08: to_config checks the mesh for glow and reports every problem
 
 - A creature below Ultra Rare is held back when its Blender build glows, not
