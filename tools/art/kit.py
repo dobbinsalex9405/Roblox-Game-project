@@ -230,6 +230,8 @@ def lizard(c, H, kind, col, accent, belly=None):
         for sx in (-1, 1):
             head.ell((sx * 1.2 * k, -3.2 * k, 4.4 * k), (0.8 * k, 0.7 * k, 0.8 * k), col)
     es = max(1, round(0.8 * k))
+    if kind == 'bearded' and fine:
+        es = 1  # small eyes set straight in the skin, no dark surround
     ze = min(round(3.6 * k), max(p[2] for p in head.v) - es)  # on the face in the small build too
     eyes(c, head, max(1, round(1.0 * k)), ze, es)
     blush(head, round(1.7 * k), round(2.9 * k))
@@ -273,11 +275,33 @@ def lizard(c, H, kind, col, accent, belly=None):
             head.paint(lambda p, cc, g: (ac, False) if not g and p[2] < 2.7 * k and (p[0] + p[1] + p[2]) % 2 == 0 else None)
             bd = c.part('beard', 'static')
             zj = round(2.4 * k)
-            for (x, y, z) in list(head.v):
-                if z == zj and (y % 2 == 0) and abs(x + .5) > 1.0 * k:
-                    nx = x + (1 if x >= 0 else -1)
-                    if (nx, y, z) not in head.v:
-                        bd.put((nx, y, z), ac)
+            if fine:
+                # the beard: 1x1 spikes along the jaw line and under the
+                # chin, each pointing down and out, darker than the skin
+                spike = tuple(round(ac[i] + (b - ac[i]) * 0.35) for i, b in enumerate((60, 40, 25)))
+                ze_ = zj + 1
+                bottom = {}
+                for (x, y, z) in head.v:
+                    if y < -2.2 * k and z <= ze_:
+                        bottom[(x, y)] = min(bottom.get((x, y), 99), z)
+                for (x, y), z in bottom.items():
+                    if (x + y) % 2:
+                        continue
+                    inner = all((x + dx, y + dy) in bottom for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                    if inner or x < 0:
+                        continue  # the rim only (right side; mirrored below)
+                    front = (x, y - 1) not in bottom
+                    bd.put((x, y, z - 1), spike)
+                    bd.put((x + (0 if front else 1), y - (1 if front else 0), z - 2), spike)
+                # mirror so both sides match
+                for (x, y, z), v in list(bd.v.items()):
+                    bd.v[(-x - 1, y, z)] = v
+            else:
+                for (x, y, z) in list(head.v):
+                    if z == zj and (y % 2 == 0) and abs(x + .5) > 1.0 * k:
+                        nx = x + (1 if x >= 0 else -1)
+                        if (nx, y, z) not in head.v:
+                            bd.put((nx, y, z), ac)
     else:
         raise ValueError(f'lizard: unknown kind {kind}')
     return c
