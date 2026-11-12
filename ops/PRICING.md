@@ -111,11 +111,14 @@ Why these numbers:
 | Hatchery Heist | AutoCollect | Game Pass | Auto-Collect | 99 | Medium | Yes | Your earnings flow into your coins by themselves. No more trips to the collect pad. |
 | Hatchery Heist | ExtraIncubators | Game Pass | Extra Incubators | 99 | Medium | Yes | Two more incubators, so you can hatch more eggs at once. |
 | Hatchery Heist | DoubleCoins | Game Pass | Double Coins | 149 | Capacity | Yes | Every creature you own earns twice as many coins, forever. |
+| Hatchery Heist | VIP | Game Pass | VIP | 399 | Large | Yes | 10% more coins from every creature, a gold VIP tag over your head, and a free Moonlit Egg every day. The Moonlit Egg's exact odds are shown before you buy. |
 | Hatchery Heist | CoinPackSmall | Developer Product | 5K Coins | 25 | Impulse | Yes | 5,000 coins, added right away. |
-| Hatchery Heist | InstantHatch | Developer Product | Instant Hatch | 25 | Impulse | Not yet | Finishes hatching an egg right now. |
+| Hatchery Heist | DoubleOffline | Developer Product | Double Offline Earnings | 25 | Impulse | Yes | Doubles the coins your creatures earned while you were away. Offered when you come back. |
+| Hatchery Heist | InstantHatch | Developer Product | Instant Hatch | 25 | Impulse | Yes | Finishes hatching an egg right now. |
+| Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 25 | Impulse | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
+| Hatchery Heist | StreakSaver | Developer Product | Streak Saver | 25 | Impulse | Yes | Missed a day? Keeps your daily reward streak going instead of starting again at Day 1. |
 | Hatchery Heist | LuckBoost | Developer Product | Luck Boost | 49 | Boost | Not yet | Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown. |
 | Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy. |
-| Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
 | Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |
 | Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |

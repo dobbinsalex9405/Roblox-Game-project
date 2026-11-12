@@ -17,6 +17,7 @@ local Viewport = require(Shared.Viewport)
 local Context = require(script.Parent.Context)
 local HatchReveal = require(script.Parent.HatchReveal)
 local OddsView = require(script.Parent.OddsView)
+local WelcomeView = require(script.Parent.WelcomeView)
 
 -- The odds boards are 26 x 7 studs: 520 x 140 pixels, two columns of five
 -- 24-pixel lines.
@@ -174,7 +175,13 @@ function Hud.start(ctx: Context.Context)
 		local rarity = if species then species.rarity else "Common"
 		show(`You hatched a {rarity} {Layout.displayName(speciesId)}!`, 4)
 	end)
+	local welcome = WelcomeView.start(ctx)
 	ctx.on(ctx.remotes["HH:WelcomeBack"], function(earned: number, readyEggs: number)
+		-- With Double Offline Earnings on sale, a card offers it; otherwise
+		-- the welcome back is a notice line.
+		if welcome.show(earned, readyEggs) then
+			return
+		end
 		local parts = {}
 		if earned > 0 then
 			table.insert(parts, `you earned {Layout.shortNumber(earned)} coins`)

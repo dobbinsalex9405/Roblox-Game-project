@@ -11,6 +11,7 @@ return {
 		DoubleCoins = 0,
 		ExtraIncubators = 0,
 		AutoCollect = 0,
+		VIP = 0,
 	},
 	products = {
 		-- A coin pack gives `coins`, or `incomeMinutes` of the buyer's income
@@ -25,6 +26,8 @@ return {
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
 		LuckBoost = { id = 0 },
+		DoubleOffline = { id = 0 },
+		StreakSaver = { id = 0 },
 	},
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
@@ -68,6 +71,11 @@ return {
 				robux = 99,
 				description = "Your earnings flow into your coins by themselves. No more trips to the collect pad.",
 			},
+			VIP = {
+				name = "VIP",
+				robux = 399,
+				description = "10% more coins from every creature, a gold VIP tag over your head, and a free Moonlit Egg every day. The Moonlit Egg's exact odds are shown before you buy.",
+			},
 		},
 		products = {
 			CoinPackSmall = { name = "5K Coins", robux = 25, description = "5,000 coins, added right away." },
@@ -88,7 +96,7 @@ return {
 			},
 			ShieldRefill = {
 				name = "Shield Refill",
-				robux = 49,
+				robux = 25,
 				description = "Shields your base for 10 more minutes. Raiders can't get in while it's up.",
 			},
 			InstantHatch = {
@@ -106,7 +114,28 @@ return {
 				robux = 49,
 				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
 			},
+			DoubleOffline = {
+				name = "Double Offline Earnings",
+				robux = 25,
+				description = "Doubles the coins your creatures earned while you were away. Offered when you come back.",
+			},
+			StreakSaver = {
+				name = "Streak Saver",
+				robux = 25,
+				description = "Missed a day? Keeps your daily reward streak going instead of starting again at Day 1.",
+			},
 		},
+	},
+	-- What the passes and products above give (read by src/shared/Perks and
+	-- src/server/Shop).
+	perks = {
+		-- VIP's coin bonus is economy.vipCoinsMultiplier, beside Double Coins.
+		vip = {
+			dailyEgg = "MoonlitEgg", -- one free egg of this kind each UTC day
+		},
+		-- Double Offline Earnings can be bought for this long after the
+		-- welcome back (the coins it doubles are the ones just shown).
+		doubleOfflineSeconds = 600,
 	},
 	boosts = {
 		LuckBoost = {

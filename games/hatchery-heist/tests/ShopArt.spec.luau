@@ -98,7 +98,15 @@ describe("Golden Egg Shop displays", function()
 	it("has exactly one display for every item in the Shop window", function()
 		local displays, problems = ShopPlan.displays(ShopArt.layout, catalog :: any)
 		expect(table.concat(problems, "\n")).toBe("")
-		expect(#displays).toBe(#catalog)
+		-- Random items stay in the Shop window (with odds); hidden ones are
+		-- sold from their own buttons.
+		local onDisplay = 0
+		for _, item in catalog :: { any } do
+			if item.oddsTable == nil and not item.paidRandom and not item.hidden then
+				onDisplay += 1
+			end
+		end
+		expect(#displays).toBe(onDisplay)
 	end)
 
 	it("never puts an item with random results on a display", function()

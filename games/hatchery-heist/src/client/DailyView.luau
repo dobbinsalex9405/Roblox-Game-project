@@ -17,6 +17,7 @@ local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
+local Offers = require(script.Parent.Offers)
 local Sfx = require(script.Parent.Sfx)
 
 local DailyView = {}
@@ -102,8 +103,8 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	-- Fixed text sizes, wrapped rather than scaled: scaled text shrank to 10 or
 	-- 11 px on phones (audit, Nov 5); nothing here goes under 13 px.
-	local about =
-		text(window, "About", "Come back every day for a bigger reward. Miss a day and it starts over.", 15)
+	local ABOUT = "Come back every day for a bigger reward. Miss a day and it starts over."
+	local about = text(window, "About", ABOUT, 15)
 	about.Position = UDim2.fromOffset(16, 44)
 	about.Size = UDim2.new(1, -76, 0, 38)
 	about.TextXAlignment = Enum.TextXAlignment.Left
@@ -164,6 +165,28 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 		end
 		tiles[day] = { frame = f, stroke = s, amount = amount, state = state }
 	end
+
+	-- Streak Saver (Robux): only on the day a streak breaks, beside the
+	-- line that says so. Its price comes from Roblox's own prompt.
+	local save = Instance.new("TextButton")
+	save.Name = "SaveStreak"
+	save.AnchorPoint = Vector2.new(1, 0)
+	-- Under the close button (which ends at y 50), above the day tiles (94).
+	save.Position = UDim2.fromOffset(520 - 16, 52)
+	save.Size = UDim2.fromOffset(150, 38)
+	save.BackgroundColor3 = Color3.fromRGB(240, 150, 40)
+	save.Font = FONT
+	save.TextSize = 20
+	save.TextColor3 = Color3.new(1, 1, 1)
+	save.Text = "Save streak"
+	save.Visible = false
+	corner(save, 10)
+	stroke(save, SHADOW, 2)
+	save.Parent = window
+	save.Activated:Connect(function()
+		Sfx.play("click")
+		Offers.buy("StreakSaver", "DailyWindow")
+	end)
 
 	local claim = Instance.new("TextButton")
 	claim.Name = "Claim"
@@ -275,6 +298,15 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 				else `Next reward in {clock(status.secondsLeft)}.`
 		end
 		badge.Visible = status.ready
+		-- A broken streak: say so, and offer the Streak Saver when it's sold.
+		local offer = status.broken and Offers.sold("StreakSaver")
+		save.Visible = offer
+		about.Size = if offer then UDim2.new(1, -32 - 160, 0, 38) else UDim2.new(1, -76, 0, 38)
+		about.Text = if status.broken
+			then `You missed a day, so your streak starts over. Keep your Day {status.lost} streak going?`
+			elseif status.saving then `Streak Saver ready: claim to carry on from Day {status.lost}.`
+			else ABOUT
+		about.TextColor3 = if status.broken or status.saving then GOLD else Color3.new(1, 1, 1)
 	end
 
 	claim.Activated:Connect(function()

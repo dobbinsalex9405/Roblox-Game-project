@@ -6,7 +6,8 @@
 -- A display opens Roblox's purchase prompt from the world, with no odds
 -- screen in between, so an item with random results (an odds table, or
 -- paidRandom) is never put on a display: it stays in the Shop window, which
--- shows its exact odds before Buy.
+-- shows its exact odds before Buy. Hidden items (Instant Hatch, Double
+-- Offline Earnings, Streak Saver) are sold from their own buttons only.
 
 local ShopPlan = {}
 
@@ -20,6 +21,7 @@ export type CatalogItem = {
 	description: string,
 	oddsTable: string?,
 	paidRandom: boolean?,
+	hidden: boolean?, -- sold from its own button in the game, not the shop
 }
 
 export type Display = {
@@ -65,7 +67,7 @@ function ShopPlan.displays(layout: { any }, catalog: { CatalogItem }): ({ Displa
 		end
 	end
 	for id, item in byKey do
-		if not shown[id] and item.oddsTable == nil and not item.paidRandom then
+		if not shown[id] and item.oddsTable == nil and not item.paidRandom and not item.hidden then
 			table.insert(problems, `{id} ({item.name}) has no display in the shop`)
 		end
 	end

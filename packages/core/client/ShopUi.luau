@@ -31,6 +31,7 @@ type Entry = {
 	blocked: boolean,
 	oddsTable: string?,
 	oddsLabels: { [string]: string }?,
+	hidden: boolean?, -- bought from the game's own button, never a card here
 }
 
 export type Hooks = {
@@ -291,15 +292,16 @@ function ShopUi.start(hooks: Hooks)
 	ClientNet.on(ShopRemotes["Shop:Catalog"], function(entries: { Entry })
 		-- Items not created on Roblox yet only show in Studio (for the test
 		-- panel); players never see a card they can't buy.
-		if not RunService:IsStudio() then
-			local live = {}
-			for _, entry in entries do
-				if entry.available then
-					table.insert(live, entry)
-				end
+		-- Hidden items are sold from the game's own buttons (the welcome-back
+		-- card, the daily window), never as cards here.
+		local studio = RunService:IsStudio()
+		local shown = {}
+		for _, entry in entries do
+			if (entry.available or studio) and not entry.hidden then
+				table.insert(shown, entry)
 			end
-			entries = live
 		end
+		entries = shown
 		catalog = entries
 		button.Visible = #entries > 0 or #tabs > 0
 		render()

@@ -13,21 +13,33 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local CoreServer = require(ServerScriptService.CoreServer.CoreServer)
 local Purchases = require(ServerScriptService.CoreServer.Purchases)
 local Monetization = require(ReplicatedStorage.Core.Monetization)
+local Daily = require(ReplicatedStorage.Shared.Daily)
+local Hatchery = require(ReplicatedStorage.Shared.Hatchery)
 local Products = require(ReplicatedStorage.Shared.Products)
 
 local Shop = {}
 
+-- Which incubator each player last asked Instant Hatch for: the receipt
+-- finishes that egg (or, if it hatched meanwhile, the longest wait left).
+local hatchTarget: { [Player]: number } = {}
+
 -- `incomeOf(player)`: the player's coins a second right now (nil before
--- their data loads); coin packs scale with it.
+-- their data loads); coin packs scale with it. `notify` shows the player a
+-- notice line once a purchase has landed.
 function Shop.register(
 	services: CoreServer.Services,
 	Config: any,
 	ids: Monetization.Resolved,
-	incomeOf: (player: Player) -> number?
+	incomeOf: (player: Player) -> number?,
+	notify: (player: Player, text: string) -> ()
 )
 	local monetization = Config.get("monetization")
 	local raids = Config.get("raids")
+	local economy = Config.get("economy")
 	local products = monetization.products
+	local function later(player: Player, text: string)
+		task.defer(notify, player, text)
+	end
 
 	-- The amount each player was last shown for each pack: a purchase never
 	-- gives less than what the shop showed, even if income dropped since.
@@ -47,6 +59,60 @@ function Shop.register(
 	services.receipts:register("ShieldRefill", ids.products.ShieldRefill, function(_player, data)
 		local now = os.time()
 		data.shieldUntil = math.max(now, data.shieldUntil or 0) + raids.shieldSeconds
+	end)
+
+	-- Instant Hatch: the egg the player asked for is ready now. Paid for while
+	-- no egg is hatching (it hatched between prompt and payment), it is kept
+	-- in `instantHatches` and used on the next egg they finish.
+	services.receipts:register("InstantHatch", ids.products.InstantHatch, function(player, data)
+		if Hatchery.finishEgg(data, hatchTarget[player], os.time()) then
+			later(player, "Instant Hatch: your egg is ready!")
+		else
+			data.instantHatches = (data.instantHatches or 0) + 1
+			later(player, "No egg was hatching, so your Instant Hatch is saved for the next one.")
+		end
+		hatchTarget[player] = nil
+	end)
+	services.shop:guard("InstantHatch", function(player: Player): string?
+		local d = services.data:get(player)
+		if d == nil or Hatchery.hatchingEgg(d, nil, os.time()) == nil then
+			return "No egg is hatching right now."
+		end
+		return nil
+	end)
+
+	-- Double Offline Earnings: the coins the welcome back just added, again.
+	-- Paid for after its window (the prompt was opened in time), it still
+	-- gives what was offered, or the small coin pack's amount if nothing is.
+	services.receipts:register("DoubleOffline", ids.products.DoubleOffline, function(player, data, ledger)
+		local bonus = data.offlineBonus
+		local coins = if bonus and bonus.coins > 0
+			then bonus.coins
+			else Products.packCoins(products.CoinPackSmall, incomeOf(player) or 0)
+		ledger:add("coins", coins, "IAP:DoubleOffline")
+		data.offlineBonus = { coins = 0, untilAt = 0 }
+		later(player, `Offline earnings doubled: +{coins} coins!`)
+	end)
+	services.shop:guard("DoubleOffline", function(player: Player): string?
+		local d = services.data:get(player)
+		local bonus = d and d.offlineBonus
+		if bonus == nil or bonus.coins <= 0 or os.time() > bonus.untilAt then
+			return "Double Offline Earnings is offered when you come back after a while away."
+		end
+		return nil
+	end)
+
+	-- Streak Saver: held until the broken streak's reward is claimed.
+	services.receipts:register("StreakSaver", ids.products.StreakSaver, function(player, data)
+		Daily.addSaver(data)
+		later(player, "Streak saved! Claim today's reward to keep it going.")
+	end)
+	services.shop:guard("StreakSaver", function(player: Player): string?
+		local d = services.data:get(player)
+		if d == nil then
+			return "Your save is still loading."
+		end
+		return Daily.saverRefusal(d, os.time(), #economy.daily.rewards)
 	end)
 
 	-- Passes need no registration: the core checks ownership by id.
@@ -69,7 +135,15 @@ function Shop.register(
 	-- Forget a player's shown amounts when they leave.
 	game:GetService("Players").PlayerRemoving:Connect(function(player)
 		shown[player] = nil
+		hatchTarget[player] = nil
 	end)
+end
+
+-- Instant Hatch on incubator `slot`: remembers it for the receipt and opens
+-- Roblox's prompt (with every check the shop makes).
+function Shop.promptInstantHatch(services: CoreServer.Services, player: Player, slot: number)
+	hatchTarget[player] = slot
+	services.shop:prompt(player, "product", "InstantHatch", "Incubator")
 end
 
 -- The coin packs' amounts for a player right now, to tell when the shop

@@ -76,6 +76,7 @@ return function(Schema: any, Odds: any)
 		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
 		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
+		vipCoinsMultiplier = Schema.number({ min = 1, max = 2 }),
 		daily = Schema.record({
 			rewards = Schema.array(
 				Schema.record({
@@ -436,6 +437,7 @@ return function(Schema: any, Odds: any)
 			DoubleCoins = productId,
 			ExtraIncubators = productId,
 			AutoCollect = productId,
+			VIP = productId,
 		}),
 		products = Schema.map(
 			id,
@@ -455,6 +457,12 @@ return function(Schema: any, Odds: any)
 				})
 			)
 		),
+		perks = Schema.record({
+			vip = Schema.record({
+				dailyEgg = id,
+			}),
+			doubleOfflineSeconds = Schema.integer({ min = 60, max = 3600 }),
+		}),
 		boosts = Schema.map(
 			id,
 			Schema.record({
@@ -543,6 +551,17 @@ return function(Schema: any, Odds: any)
 		end
 		if onBelt == 0 then
 			table.insert(problems, "economy.conveyor.weights: at least one egg must ride the belt")
+		end
+
+		local vipEgg = config.monetization.perks.vip.dailyEgg
+		if not eggIds[vipEgg] then
+			table.insert(problems, `monetization.perks.vip.dailyEgg: unknown egg {vipEgg}`)
+		else
+			for _, egg in config.eggs do
+				if egg.id == vipEgg and egg.priceCoins == nil then
+					table.insert(problems, `monetization.perks.vip.dailyEgg: {vipEgg} is not a coin egg`)
+				end
+			end
 		end
 
 		for boostId, boost in config.monetization.boosts do

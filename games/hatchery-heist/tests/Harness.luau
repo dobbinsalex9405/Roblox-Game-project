@@ -20,6 +20,7 @@ local config = {
 	creatures = require("../config/creatures"),
 	eggs = Eggs.expand(require("../config/eggs"), require("../config/creatures").species),
 	raids = require("../config/raids"),
+	perks = require("../config/monetization").perks,
 }
 
 local Harness = {}

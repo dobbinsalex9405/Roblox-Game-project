@@ -141,3 +141,26 @@ Passes and products stay off until their ids are set (M5).
 
 Have a friend (not you) buy a 5 Robux pass in a group game, then check
 whether Group → Finances → Payouts unlocks.
+
+## 8. Create the Robux list's first items (laptop, after its PR merges)
+
+Alex approved these on Nov 12, 2026. A Remote Control session on the laptop
+may do this in the already signed-in browser. If Roblox asks for a sign-in,
+a 2FA code, a CAPTCHA or a payment, stop and ask Alex.
+
+1. Open the Creator Dashboard, then the **Hatchery Heist Staging**
+   experience, then **Monetization**.
+2. Under **Passes**, create **VIP** (399 Robux). Under **Developer
+   Products**, create **Instant Hatch**, **Double Offline Earnings** and
+   **Streak Saver** (25 Robux each). Names, prices and descriptions exactly
+   as their rows in `ops/PRICING.md`. For the image, use
+   `store/hatchery-heist/icon.png` in the project files until item art
+   exists.
+3. Change the existing **Shield Refill** product's price from 49 to 25
+   Robux (its name, description and id stay the same).
+4. Copy each new id into `games/hatchery-heist/config/monetization.luau`
+   under `environments.staging`: `VIP = <id>` in `passes`, and
+   `InstantHatch`, `DoubleOffline`, `StreakSaver` in `products`. Open a
+   data-only PR. Once it merges, Staging shows the items.
+5. Do the same in the **Production** experience at launch prep, putting the
+   ids under `environments.production`.

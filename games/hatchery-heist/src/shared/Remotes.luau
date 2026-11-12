@@ -18,6 +18,9 @@ return function(Net: any, Schema: any)
 			{ count = 4, window = 1 }
 		),
 		["HH:Hatch"] = Net.toServer("HH:Hatch", { slot }, { count = 6, window = 1 }),
+		-- Instant Hatch on one incubator: a held one is used, otherwise
+		-- Roblox's purchase prompt opens.
+		["HH:InstantHatch"] = Net.toServer("HH:InstantHatch", { slot }, { count = 2, window = 1 }),
 		["HH:BuySlot"] = Net.toServer("HH:BuySlot", {}, { count = 2, window = 1 }),
 		["HH:Collect"] = Net.toServer("HH:Collect", {}, { count = 2, window = 1 }),
 		-- The tower: buy the next floor, upgrade one, move a creature to a

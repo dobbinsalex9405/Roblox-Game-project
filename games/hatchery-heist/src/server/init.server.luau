@@ -38,6 +38,7 @@ local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
 local ShopHouse = require(script.ShopHouse)
 local Speed = require(script.Speed)
+local VipTag = require(script.VipTag)
 local World = require(script.World)
 local Market = require(script.Market)
 
@@ -69,6 +70,7 @@ local config = {
 	creatures = Config.get("creatures"),
 	eggs = Config.get("eggs"),
 	raids = Config.get("raids"),
+	perks = monetization.perks,
 }
 assert(
 	economy.incubators.maxSlots + economy.incubators.passBonusSlots <= Layout.INCUBATOR_POSITIONS,
@@ -133,6 +135,7 @@ local function perks(player: Player): Actions.Perks
 		doubleCoins = services.passes:owns(player, "DoubleCoins"),
 		extraIncubators = services.passes:owns(player, "ExtraIncubators"),
 		autoCollect = services.passes:owns(player, "AutoCollect"),
+		vip = services.passes:owns(player, "VIP"),
 	}
 end
 
@@ -191,6 +194,8 @@ local function onPlayerReady(player: Player)
 	player:SetAttribute("PaidRandomRestricted", not services.policy:paidRandomAllowed(player))
 	player.CharacterAdded:Connect(function(character: Model)
 		World.sendHomeOnSpawn(player, character)
+		character:WaitForChild("Head", 10)
+		VipTag.apply(player, services.passes:owns(player, "VIP"))
 	end)
 	World.sendHome(player)
 	local loop = actions :: Actions.Actions
@@ -412,7 +417,12 @@ local function incomeOf(player: Player): number?
 	local d = services.data:get(player)
 	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
 end
-Shop.register(services, Config, ids, incomeOf)
+Shop.register(services, Config, ids, incomeOf, notify)
+net:on(Remotes["HH:InstantHatch"], function(player: Player, slot: number)
+	if not ready:useInstantHatch(player, slot) then
+		Shop.promptInstantHatch(services, player, slot)
+	end
+end)
 -- The shop's coin packs scale with income: resend a player's catalog when
 -- one of their pack amounts changes.
 local packsShown: { [Player]: string } = {}
@@ -442,6 +452,7 @@ task.spawn(function()
 				ready:tick(player)
 				syncBase(player)
 				refreshPacks(player)
+				VipTag.apply(player, services.passes:owns(player, "VIP"))
 			end
 		end
 	end
