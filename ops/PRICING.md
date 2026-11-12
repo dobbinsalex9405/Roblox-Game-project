@@ -131,10 +131,10 @@ Alex can set a price himself; it passes the ladder check once it is in
 | Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy. |
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
-| Hatchery Heist | ClawPull10 | Developer Product | 10 Claw Pulls | 100 | Alex's price | Waiting for Alex | Ten claw machine pulls, with at least one Rare or better charm. Exact odds are shown before you buy. |
+| Hatchery Heist | ClawPull10 | Developer Product | 10 Claw Pulls | 100 | Alex's price | Yes | Ten claw machine pulls, with at least one Rare or better charm. Exact odds are shown before you buy. |
 | Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |
 | Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |
-| Hatchery Heist | ClawPull100 | Developer Product | 100 Claw Pulls | 700 | Alex's price | Waiting for Alex | A hundred claw machine pulls, with at least one Epic or better charm. Exact odds are shown before you buy. |
+| Hatchery Heist | ClawPull100 | Developer Product | 100 Claw Pulls | 700 | Alex's price | Yes | A hundred claw machine pulls, with at least one Epic or better charm. Exact odds are shown before you buy. |
 | Tidecatch Cove | AutoReel | Game Pass | Auto-reel | 149 | Capacity | Yes | Bites reel themselves in at an average player's success rate. Skill still pays. |
 | Tidecatch Cove | ExtraPools | Game Pass | Extra Pools | 149 | Capacity | Yes | More tide pools, so you can raise more creatures at once. |
 | Tidecatch Cove | SellMultiplier | Game Pass | Sell Multiplier | 199 | Power | Yes | Every creature you sell pays double, forever. |

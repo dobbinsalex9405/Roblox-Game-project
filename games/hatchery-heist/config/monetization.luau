@@ -27,14 +27,15 @@ return {
 		LuckBoost = { id = 0 },
 		-- Claw machine pulls bought with Robux (config/charms.luau claw.pulls
 		-- says how many each gives). Single pulls are coins only (Alex, Nov 7).
-		-- Id 0 until Alex approves the prices: the machine shows "Coming soon".
+		-- Prices approved by Alex (Nov 12). Id 0 until the laptop creates them
+		-- on Roblox: until then the machine shows "Coming soon".
 		ClawPull10 = { id = 0 },
 		ClawPull100 = { id = 0 },
 	},
 	-- Built, but waiting for Alex to approve the price: ops/PRICING.md marks
 	-- them "Waiting for Alex" so the laptop doesn't create them on Roblox.
 	-- Take a key out once Alex says yes.
-	awaitingApproval = { "ClawPull10", "ClawPull100" },
+	awaitingApproval = {},
 	-- Ids in the Staging and Production experiences. A key left out keeps the
 	-- id above (0 = not created there yet).
 	environments = {

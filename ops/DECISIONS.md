@@ -14,7 +14,9 @@ stays a draft until Alex approves the spec and the prices.
   claw window says "coming soon". 100 and 700 are off the price ladder, so
   `tools/pricing` lists them as "Alex's price" (`ALEX_PRICES`), not a rule
   change for other items. Coordinator suggested 99 for the 10-pull; Alex
-  wrote 100, so 100 stands until Alex says otherwise.
+  wrote 100, so 100 stands until Alex says otherwise. **Approved by Alex on
+  Nov 12** (spec and 100/700): both keys are out of `awaitingApproval`, so
+  the laptop may create them; they stay "coming soon" until their ids land.
 - **Luck boosts stack by source in core Odds** (`setSourceBoosts`, with a
   global `setBoostCap`). The spec had one combined boost list, but the
   events thread's Lucky Hatch and the Luck Boost product each called
