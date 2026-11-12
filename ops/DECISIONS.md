@@ -2,18 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
-## 2026-11-12: Creatures are never auto-sold; a hatch with no room waits
+## 2026-11-12: Never auto-sell (verifier ruling Nov 12 09:40Z, Alex silent)
 
 - Alex (Staging playtest): "if a creature is hatched with no open slots, they
   disappear". A hatch into a full tower went to the inventory silently, and
   when the inventory (150) was full the weakest stored creature was sold,
   usually the one just hatched. The first fix (protect only the new hatch)
   failed the verifier's gate: ten hatches at 150/150 lost six of the ten.
-- Ruling (verifier, after asking Alex): no auto-sell at all. `trimStorage` is
+- Ruling (verifier, 09:40Z; Alex did not answer the auto-sell question within the hour, so the safer default stands): no auto-sell at all. `trimStorage` is
   gone; the inventory holds `economy.storage.slots` = 300; when no pad fits a
   hatch and the inventory is full, Hatchery.hatch refuses with "Your tower and
   inventory are full (300). Make room in your inventory, then hatch" and the
-  egg stays ready in its incubator. Raided and granted creatures always
+  egg stays ready in its incubator. A coin egg is refused at purchase when
+  every pad is full and the inventory plus eggs already incubating reach the
+  cap ("Unlock a new floor to make room"); Robux eggs cannot be refused, so
+  they wait in the incubator the same way. Raided and granted creatures always
   arrive (the inventory may go past 300), since refusing would drop a
   creature already taken from its owner. A hatch that lands in the inventory
   says so.

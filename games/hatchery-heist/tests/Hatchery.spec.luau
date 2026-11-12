@@ -230,6 +230,18 @@ describe("Hatchery", function()
 		expect(stored ~= nil and stored.slot == nil).toBe(true)
 	end)
 
+	it("says a coin egg has no room only when nothing could hatch it", function()
+		local cap = economy.storage.slots
+		local d = fullTower(cap - 2)
+		expect(Hatchery.noRoomForEgg(d, config.creatures, economy)).toBeNil()
+		readyEggs(d, 2) -- two eggs already waiting fill the last two places
+		expect(Hatchery.noRoomForEgg(d, config.creatures, economy)).toBe(
+			`Your tower and inventory are full ({cap}). Unlock a new floor to make room.`
+		)
+		table.remove(d.creatures, 1) -- a free pad
+		expect(Hatchery.noRoomForEgg(d, config.creatures, economy)).toBeNil()
+	end)
+
 	it("stolen and given creatures always arrive, even past the cap", function()
 		local cap = economy.storage.slots
 		local d = fullTower(cap)

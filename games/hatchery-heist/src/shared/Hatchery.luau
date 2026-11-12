@@ -499,6 +499,19 @@ function Hatchery.storedCount(d: Data): number
 	return stored
 end
 
+-- Why a coin egg cannot be bought now for lack of room, or nil: with every
+-- pad full, the inventory plus the eggs already incubating would fill
+-- `economy.storage.slots`, so the new egg could not hatch.
+function Hatchery.noRoomForEgg(d: Data, creatureConfig: any, economy: any): string?
+	if
+		Hatchery.padsFull(d, creatureConfig, economy)
+		and Hatchery.storedCount(d) + #d.incubators >= economy.storage.slots
+	then
+		return `Your tower and inventory are full ({economy.storage.slots}). Unlock a new floor to make room.`
+	end
+	return nil
+end
+
 -- Hatches the ready egg in `slot` into the creature chosen when it was bought.
 -- Returns the new creature, or nil and a refusal. Nothing is ever sold to
 -- make room (Staging playtest, Nov 12: hatches "disappeared"): when no pad

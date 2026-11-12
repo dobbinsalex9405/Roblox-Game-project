@@ -222,6 +222,68 @@ describe("Hatchery Heist sessions", function()
 		end
 	end)
 
+	it("refuses a coin egg that could never hatch, and keeps coins", function()
+		local h = Harness.new()
+		local player = Fakes.player(12)
+		h.join(player)
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, Tower.SPOTS + economy.storage.slots do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = if i <= Tower.SPOTS then i else nil,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 1000
+			d.incubators = {}
+			d.coins = 10000
+		end)
+		local index = h.findOnBelt("BasicEgg") :: number
+		expect(h.actions:buyEgg(player, index)).toBeFalsy()
+		expect(h.get(player).coins).toBe(10000)
+		expect(#h.get(player).incubators).toBe(0)
+		expect(h.notices[#h.notices]).toBe(
+			`Your tower and inventory are full ({economy.storage.slots}). Unlock a new floor to make room.`
+		)
+		-- One creature fewer in the inventory: the egg fits again.
+		h.data:update(player, function(d: Hatchery.Data)
+			table.remove(d.creatures)
+		end)
+		expect(h.actions:buyEgg(player, index)).toBe(true)
+	end)
+
+	it("a save from before the fix loads and keeps every creature", function()
+		local h = Harness.new()
+		local player = Fakes.player(13)
+		h.join(player)
+		local stored = 180 -- over the old 150: possible only for raids before
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, Tower.SPOTS + stored do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = if i <= Tower.SPOTS then i else nil,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 1000
+			d.incubators = { { slot = 1, eggId = "BasicEgg", readyAt = 0, outcome = "Duckling" } }
+		end)
+		h.leave(player)
+		local h2 = Harness.new({ store = h.store, start = h.clock.now() + 60 })
+		h2.join(player)
+		expect(#h2.get(player).creatures).toBe(Tower.SPOTS + stored)
+		assert(h2.actions:hatch(player, 1))
+		expect(#h2.get(player).creatures).toBe(Tower.SPOTS + stored + 1)
+	end)
+
 	it("reports the onboarding steps once ever, in order", function()
 		local h = Harness.new()
 		local player = Fakes.player(3)

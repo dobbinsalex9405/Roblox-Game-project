@@ -305,6 +305,10 @@ function Actions.new(options: Options): Actions
 				doubleCoins = perks.doubleCoins,
 				extraIncubators = perks.extraIncubators,
 			})
+			local full = Hatchery.noRoomForEgg(d, config.creatures, economyConfig)
+			if full then
+				return full
+			end
 			local incubator, refusal = Hatchery.buyEgg(d, ledger, egg, slots, options.now(), pick)
 			if refusal == "Not enough coins." then
 				refusal = Hatchery.shortOfCoins(egg, cheapestEgg())

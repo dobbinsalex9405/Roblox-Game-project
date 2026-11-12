@@ -7,7 +7,8 @@
   place it").
 - Fix: creatures are never auto-sold any more, so hatching many eggs at once
   keeps every one. The inventory holds 300 (was 150); when it and the tower
-  are both full, a ready egg waits in its incubator until you make room.
+  are both full, a ready egg waits in its incubator until you make room, and
+  coin eggs that could not hatch are not sold to you.
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails
