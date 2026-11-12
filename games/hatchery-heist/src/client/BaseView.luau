@@ -16,6 +16,7 @@ local Layout = require(Shared.Layout)
 local PromptKeys = require(Shared.PromptKeys)
 
 local Context = require(script.Parent.Context)
+local Offers = require(script.Parent.Offers)
 local TowerView = require(script.Parent.TowerView)
 
 local BaseView = {}
@@ -130,6 +131,16 @@ function BaseView.start(ctx: Context.Context)
 			}).Triggered:Connect(function()
 				ctx.fire(remotes["HH:Hatch"], slot)
 			end)
+			-- Instant Hatch on an egg still hatching: a held one is used,
+			-- otherwise the server opens Roblox's purchase prompt.
+			prompt(incubator, "InstantHatch", "Finish now", {
+				hold = 0.3,
+				key = keyOf(PromptKeys.InstantHatch.keyboard),
+				gamepad = keyOf(PromptKeys.InstantHatch.gamepad),
+				offset = SECOND_PROMPT,
+			}).Triggered:Connect(function()
+				ctx.fire(remotes["HH:InstantHatch"], slot)
+			end)
 			prompt(incubator, "Unlock", "Unlock", { hold = 0.5 }).Triggered:Connect(function()
 				ctx.fire(remotes["HH:BuySlot"])
 			end)
@@ -242,6 +253,17 @@ function BaseView.start(ctx: Context.Context)
 		end
 	end
 
+	-- Instant Hatch shows on a hatching egg when it is on sale here, or when
+	-- the player holds one they already paid for.
+	local function heldInstantHatches(): number
+		local d = ctx.data()
+		local held = d and d.instantHatches
+		return if type(held) == "number" then held else 0
+	end
+	local function instantHatchSold(): boolean
+		return heldInstantHatches() > 0 or Offers.sold("InstantHatch")
+	end
+
 	local function updateIncubators(model: Model, isOwn: boolean, now: number)
 		for _, incubator in (model:FindFirstChild("Incubators") :: Folder):GetChildren() do
 			local state = incubator:GetAttribute("State")
@@ -260,6 +282,14 @@ function BaseView.start(ctx: Context.Context)
 			)
 			setText(incubator, label)
 			setPrompt(incubator, "Hatch", isOwn and ready)
+			setPrompt(
+				incubator,
+				"InstantHatch",
+				isOwn and state == "Busy" and not ready and instantHatchSold(),
+				if heldInstantHatches() > 0
+					then `Instant Hatch ({heldInstantHatches()} saved)`
+					else "Instant Hatch"
+			)
 			setPrompt(
 				incubator,
 				"Unlock",

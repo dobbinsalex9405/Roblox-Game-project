@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- New in the shop: the **VIP** pass (10% more coins, a gold VIP tag and a
+  free Moonlit Egg every day). New Robux extras where they help: **Finish
+  now** on a hatching egg (Instant Hatch), **Double it!** on the welcome back
+  card (Double Offline Earnings) and **Save streak** in the daily window on
+  the day a streak breaks (Streak Saver). Shield Refill is now 25 Robux.
+
 - Every egg can hatch every creature: the eggs differ only by their odds
   (Basic is mostly Commons, Meadow Uncommons, Moonlit Rares and up; Premium
   is Rare and up). From Rare up, each rarer creature is always less likely

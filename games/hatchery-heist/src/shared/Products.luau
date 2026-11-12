@@ -3,16 +3,24 @@
 -- the pricing tool (tools/pricing) read the exact names the server shows.
 -- The grants live in src/server/Shop.luau.
 --
--- Instant Hatch, Premium Egg and Luck Boost come with the M5 shop, so nothing
--- is listed that the game cannot deliver yet.
+-- Premium Egg and Luck Boost come later, so nothing is listed that the game
+-- cannot deliver yet.
 
 export type CatalogItem = {
 	key: string,
 	kind: "product" | "pass",
 	name: string,
 	description: string,
+	-- A random item (packages/core server/Purchases): the odds table shown
+	-- before Roblox's prompt opens, and the PolicyService check.
+	oddsTable: string?,
+	paidRandom: boolean?,
+	-- Sold from its own button (an incubator, the welcome back, the daily
+	-- window), never as a card in the Shop window.
+	hidden: boolean?,
 }
 
+local DisplayName = require("./DisplayName")
 local Numbers = require("./Numbers")
 
 local Products = {}
@@ -89,6 +97,38 @@ function Products.catalog(monetization: any, raids: any): { CatalogItem }
 		kind = "pass",
 		name = "Auto-Collect",
 		description = "Your earnings move into your coins every 30 seconds, no trip to the collect pad.",
+	})
+	-- VIP gives a free egg every day, so it is a paid random item: the shop
+	-- shows that egg's odds before Buy, and restricted players can't buy it.
+	local vipEgg = monetization.perks.vip.dailyEgg
+	table.insert(catalog, {
+		key = "VIP",
+		kind = "pass",
+		name = "VIP",
+		description = `10% more coins from every creature, a gold VIP tag, and a free {DisplayName(vipEgg)} every day.`,
+		oddsTable = vipEgg,
+		paidRandom = true,
+	})
+	table.insert(catalog, {
+		key = "InstantHatch",
+		kind = "product",
+		name = "Instant Hatch",
+		description = "Finishes hatching an egg right now.",
+		hidden = true,
+	})
+	table.insert(catalog, {
+		key = "DoubleOffline",
+		kind = "product",
+		name = "Double Offline Earnings",
+		description = "Doubles the coins your creatures earned while you were away.",
+		hidden = true,
+	})
+	table.insert(catalog, {
+		key = "StreakSaver",
+		kind = "product",
+		name = "Streak Saver",
+		description = "Keeps your daily reward streak going after a missed day.",
+		hidden = true,
 	})
 	return catalog
 end

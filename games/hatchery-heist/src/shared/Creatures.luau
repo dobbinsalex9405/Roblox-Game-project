@@ -6,11 +6,19 @@ export type Creature = { uid: string, speciesId: string, mutation: string, slot:
 
 local Creatures = {}
 
--- Income multiplier from rebirths and the Double Coins pass.
-function Creatures.multiplier(rebirths: number, hasDoubleCoins: boolean, economy: any): number
+-- Income multiplier from rebirths, the Double Coins pass and the VIP pass.
+function Creatures.multiplier(
+	rebirths: number,
+	hasDoubleCoins: boolean,
+	economy: any,
+	isVip: boolean?
+): number
 	local m = 1 + rebirths * economy.rebirth.incomeBonusPerRebirth
 	if hasDoubleCoins then
 		m *= economy.doubleCoinsMultiplier
+	end
+	if isVip then
+		m *= economy.vipCoinsMultiplier
 	end
 	return m
 end

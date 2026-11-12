@@ -259,14 +259,40 @@ All prices need Alex's approval (M5). Product and pass ids stay 0 in
   Shop window (source `GoldenEggShop`), so the server re-checks everything.
   An item with random results never goes on a display (`ShopPlan`): it stays
   in the Shop window behind its odds screen.
-- Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect.
+- Passes: Double Coins, Extra Incubators (+2 slots), Auto-Collect, and
+  **VIP** (399, approved Nov 12): `economy.vipCoinsMultiplier` (x1.1) more
+  coins from every creature, a gold "VIP" tag over the player's head
+  (`src/server/VipTag.luau`), and one free `perks.vip.dailyEgg` (Moonlit) a
+  UTC day, put in a free incubator as soon as there is one (`vipEggDay`).
+  The free egg rolls as a paid egg (restricted players get its fixed order),
+  so VIP is sold as a paid random item: the Shop window shows the Moonlit
+  Egg's odds before Buy, and PolicyService-restricted players can't buy it.
+  The VIP lounge in the hub comes with the Robux list's second part.
 - Products: four coin packs, each giving its fixed coins or
   `incomeMinutes` of the buyer's income right now, whichever is more (5, 20,
   45 and 100 minutes; `Products.packCoins`). The shop shows each player
   their own exact amount and a purchase never gives less than was shown.
-  Shield Refill (adds `shieldSeconds`), Instant
-  Hatch, Premium Egg, Luck Boost (15 minutes, multiplies Rare and better
-  weights on the listed eggs; the boosted table still totals exactly 100%).
+  Shield Refill (25, adds `shieldSeconds`).
+- **Sold only from their own buttons** (`hidden` in the catalog, never a
+  Shop window card; each server-checked by a shop guard before Roblox's
+  prompt opens), all 25 Robux:
+  - **Instant Hatch**: a "Finish now" prompt (T, gamepad D-pad up, a short
+    hold) on the player's own hatching eggs. The egg asked for is ready at
+    once; if it hatched before the payment landed, the longest wait left is
+    finished instead, and if none is hatching the purchase is kept in
+    `instantHatches` and the prompt uses it, free, on the next egg.
+  - **Double Offline Earnings**: the welcome back card (`WelcomeView`)
+    offers it for `perks.doubleOfflineSeconds` (10 minutes) after a return
+    with coins earned away; it adds exactly the coins shown again
+    (`offlineBonus`). With the item not on sale the welcome back stays a
+    notice line.
+  - **Streak Saver**: the daily window offers it only on the day a streak
+    broke by one missed day. Held in `streakSavers` (one at a time); the
+    next claim then carries on from the lost day instead of Day 1, and uses
+    it up. Bought late (after claiming), it waits for the next missed day.
+- Coming with the Robux list's second part, after the charms (#127) and
+  Giant Egg (#120) PRs: Premium Egg and Premium Egg x3, Luck Boost, Lucky
+  Hatcher, Server Luck, Starter Pack, the VIP lounge.
 - Private servers.
 
 **Every egg is a paid random item** (coins can be bought with Robux): odds
@@ -286,7 +312,8 @@ nothing is ever removed. `found` (Hatchery Book) was added to version 1
 without a migration: the core's reconcile fills it in as `{}`, and join
 back-fills it from the creatures the player owns. `bookSeenAt` was added the
 same way (reconcile fills in 0, so a returning player's first look marks
-their whole book NEW once).
+their whole book NEW once). The Robux extras' fields (`streakSavers`,
+`instantHatches`, `vipEggDay`, `offlineBonus`) were added the same way.
 
 ## Status
 

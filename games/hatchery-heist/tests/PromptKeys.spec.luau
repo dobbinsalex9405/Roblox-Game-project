@@ -17,6 +17,13 @@ describe("Prompt keys at the base", function()
 		expect(PromptKeys.Snare.gamepad ~= PromptKeys.Slime.gamepad).toBe(true)
 	end)
 
+	it("keeps Instant Hatch (a Robux prompt) off every other base key", function()
+		for _, other in { "Hatch", "Snare", "Slime" } do
+			expect(PromptKeys.InstantHatch.keyboard ~= PromptKeys[other].keyboard).toBe(true)
+			expect(PromptKeys.InstantHatch.gamepad ~= PromptKeys[other].gamepad).toBe(true)
+		end
+	end)
+
 	it("makes buying a trap a short hold within a short reach", function()
 		expect(raids.trapPrompt.holdSeconds > 0).toBe(true)
 		expect(raids.trapPrompt.reach <= 6).toBe(true)

@@ -20,6 +20,7 @@ export type Perks = {
 	doubleCoins: boolean,
 	extraIncubators: boolean,
 	autoCollect: boolean,
+	vip: boolean?,
 }
 
 export type Options = {
@@ -29,7 +30,9 @@ export type Options = {
 	odds: any,
 	policy: any,
 	analytics: any,
-	config: { economy: any, creatures: any, eggs: { any } },
+	-- `perks`: config/monetization.luau `perks` (the VIP pass's daily egg,
+	-- Double Offline Earnings' window); nil in tests that don't need them.
+	config: { economy: any, creatures: any, eggs: { any }, perks: any? },
 	sellsCurrency: boolean, -- coins are sold for Robux, so coin eggs are paid random items
 	perks: (player: any) -> Perks,
 	now: () -> number, -- unix seconds (os.time)
@@ -56,6 +59,10 @@ export type Actions = {
 	buySlot: (self: Actions, player: any) -> (boolean, string?),
 	collect: (self: Actions, player: any) -> (boolean, string?),
 	claimDaily: (self: Actions, player: any) -> (boolean, string?),
+	-- Instant Hatch: finishes the egg in `slot` with one the player already
+	-- paid for (bought while no egg was hatching). False when they hold none
+	-- or no egg is hatching, so the server opens the purchase prompt instead.
+	useInstantHatch: (self: Actions, player: any, slot: number) -> boolean,
 	seeBook: (self: Actions, player: any) -> (),
 	-- The tower (shared/Tower.luau).
 	buyFloor: (self: Actions, player: any) -> (boolean, string?),
@@ -118,7 +125,7 @@ function Actions.new(options: Options): Actions
 		return Hatchery.incomePerSecond(
 			d,
 			config,
-			{ doubleCoins = perks.doubleCoins, extraIncubators = perks.extraIncubators }
+			{ doubleCoins = perks.doubleCoins, extraIncubators = perks.extraIncubators, vip = perks.vip }
 		)
 	end
 
@@ -152,6 +159,59 @@ function Actions.new(options: Options): Actions
 			return false, refusal
 		end
 		return true, nil
+	end
+
+	-- How a player's egg outcome is chosen. Restricted players always get the
+	-- shown fixed order (the client shows it whenever PaidRandomRestricted is
+	-- set), whether or not the egg counts as paid; everyone else rolls from
+	-- the odds table they saw.
+	local function picker(player: any, paid: boolean): Hatchery.PickOutcome
+		return function(e: any, boughtBefore: number): string?
+			if not options.policy:paidRandomAllowed(player) then
+				return Hatchery.fixedOrderOutcome(e, boughtBefore)
+			end
+			if paid then
+				return (options.odds:rollPaid(e.id, player, options.policy))
+			end
+			return options.odds:roll(e.id, player)
+		end
+	end
+
+	-- The VIP pass's free egg: once each UTC day, into a free incubator as
+	-- soon as there is one (and room for what it hatches). It comes with a
+	-- paid pass, so it rolls as a paid egg; the pass shows its odds.
+	local function giveVipEgg(player: any, now: number)
+		local perkConfig = config.perks
+		if perkConfig == nil or not options.perks(player).vip then
+			return
+		end
+		local egg = Hatchery.eggById(config.eggs, perkConfig.vip.dailyEgg)
+		if egg == nil then
+			return
+		end
+		local today = Daily.dayNumber(now)
+		local given = false
+		change(player, function(d)
+			if (d.vipEggDay or 0) >= today or Hatchery.noRoomForEgg(d, config.creatures, economyConfig) then
+				return nil
+			end
+			local perks = options.perks(player)
+			local slots = Hatchery.slotCount(d, economyConfig, {
+				doubleCoins = perks.doubleCoins,
+				extraIncubators = perks.extraIncubators,
+			})
+			if Hatchery.freeSlot(d, slots) == nil then
+				return nil
+			end
+			if Hatchery.giftEgg(d, egg, slots, now, picker(player, true)) then
+				d.vipEggDay = today
+				given = true
+			end
+			return nil
+		end)
+		if given then
+			options.notify(player, `VIP gift: today's free {DisplayName(egg.id)} is in your incubator!`)
+		end
 	end
 
 	local actions = {}
@@ -193,6 +253,12 @@ function Actions.new(options: Options): Actions
 			end
 			Tower.tidy(d, config.creatures, economyConfig)
 			earned = Hatchery.welcomeBack(d, now, perSecond(d, player), economyConfig)
+			-- Double Offline Earnings doubles exactly these coins, if bought
+			-- soon (config/monetization.luau perks.doubleOfflineSeconds).
+			if earned >= 1 and config.perks then
+				d.offlineBonus =
+					{ coins = math.floor(earned), untilAt = now + config.perks.doubleOfflineSeconds }
+			end
 			for _, incubator in d.incubators do
 				if incubator.readyAt <= now then
 					ready += 1
@@ -237,6 +303,7 @@ function Actions.new(options: Options): Actions
 		end
 		onboarding(player, step)
 		flushSold(player, now, false)
+		giveVipEgg(player, now)
 	end
 
 	-- Call when the player leaves, before their data is released.
@@ -284,19 +351,7 @@ function Actions.new(options: Options): Actions
 			return false, "unknown egg"
 		end
 
-		-- Restricted players always get the shown fixed order (the client shows
-		-- it whenever PaidRandomRestricted is set), whether or not this egg
-		-- counts as paid; everyone else rolls from the odds table they saw.
-		local paid = Eggs.isPaid(egg, options.sellsCurrency)
-		local function pick(e: any, boughtBefore: number): string?
-			if not options.policy:paidRandomAllowed(player) then
-				return Hatchery.fixedOrderOutcome(e, boughtBefore)
-			end
-			if paid then
-				return (options.odds:rollPaid(e.id, player, options.policy))
-			end
-			return options.odds:roll(e.id, player)
-		end
+		local pick = picker(player, Eggs.isPaid(egg, options.sellsCurrency))
 
 		local step: number? = nil
 		local ok, err = change(player, function(d, ledger)
@@ -495,6 +550,21 @@ function Actions.new(options: Options): Actions
 			options.notify(player, `Day {day} reward: +{coins} coins!`)
 		end
 		return ok, err
+	end
+
+	function actions.useInstantHatch(_self: Actions, player: any, slot: number): boolean
+		local used = false
+		change(player, function(d)
+			if (d.instantHatches or 0) > 0 and Hatchery.finishEgg(d, slot, options.now()) then
+				d.instantHatches -= 1
+				used = true
+			end
+			return nil
+		end)
+		if used then
+			options.notify(player, "Instant Hatch used: your egg is ready!")
+		end
+		return used
 	end
 
 	function actions.rebirth(_self: Actions, player: any): (boolean, string?)

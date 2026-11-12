@@ -131,6 +131,7 @@ return {
 
 	-- Multiplier for the Double Coins pass.
 	doubleCoinsMultiplier = 2,
+	vipCoinsMultiplier = 1.1, -- the VIP pass: +10% coins from every creature
 
 	-- Offline earnings: a fraction of normal income, for at most this long.
 	offline = {

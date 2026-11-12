@@ -39,6 +39,13 @@ DataTemplate.template = {
 	floorUpgrades = {},
 	towerVersion = 0,
 	daily = { lastDay = 0, streak = 0 }, -- Daily Rewards: UTC day last claimed, reward claimed then
+	-- Robux extras, added after launch of version 1 (reconcile fills them):
+	streakSavers = 0, -- Streak Savers held (shared/Daily)
+	instantHatches = 0, -- Instant Hatches paid for while no egg was hatching
+	vipEggDay = 0, -- UTC day the VIP pass's free egg was last given
+	-- The coins the last welcome back added, which Double Offline Earnings
+	-- doubles if bought before `untilAt` (unix seconds).
+	offlineBonus = { coins = 0, untilAt = 0 },
 	stats = { raidsWon = 0, raidsLost = 0, playSeconds = 0 },
 	meta = { firstJoinAt = 0, lastJoinAt = 0, sessions = 0 }, -- written by the core on join
 }

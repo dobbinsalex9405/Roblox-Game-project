@@ -9,6 +9,9 @@ export type Keys = { keyboard: string, gamepad: string }
 
 local PromptKeys: { [string]: Keys } = {
 	Hatch = { keyboard = "E", gamepad = "ButtonX" },
+	-- Instant Hatch opens a Robux prompt: never on Hatch's key, so pressing
+	-- E at a ready egg can't reach the hatching one beside it.
+	InstantHatch = { keyboard = "T", gamepad = "DPadUp" },
 	Snare = { keyboard = "F", gamepad = "DPadLeft" },
 	Slime = { keyboard = "R", gamepad = "ButtonY" },
 }

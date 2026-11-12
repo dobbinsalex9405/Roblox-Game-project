@@ -26,6 +26,7 @@ export type Ledger = {
 export type Perks = {
 	doubleCoins: boolean,
 	extraIncubators: boolean,
+	vip: boolean?, -- the VIP pass: economy.vipCoinsMultiplier more coins
 }
 
 export type Incubator = {
@@ -174,7 +175,7 @@ function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
 		end
 	end
 	return base
-		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy, perks.vip)
 		* (1 + Hatchery.bookBonus(d, config))
 end
 
@@ -186,7 +187,7 @@ function Hatchery.earning(d: Data, creature: any, config: any, perks: Perks): nu
 	end
 	return Hatchery.creatureIncome(creature, config.creatures)
 		* Tower.multiplier(d, Tower.floorOf(creature.slot), config.economy)
-		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
+		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy, perks.vip)
 		* (1 + Hatchery.bookBonus(d, config))
 end
 
@@ -272,6 +273,38 @@ function Hatchery.shortOfCoins(egg: any, cheapest: any?): string
 	return text
 end
 
+-- Starts `egg` in incubator `slot`, with its outcome from `pick`.
+local function incubate(
+	d: Data,
+	egg: any,
+	slot: number,
+	now: number,
+	pick: PickOutcome
+): (Incubator?, string?)
+	local boughtBefore = d.eggsBought[egg.id] or 0
+	local outcome = pick(egg, boughtBefore)
+	if outcome == nil then
+		return nil, "This egg is not available to you."
+	end
+	local known = false
+	for _, o in egg.outcomes do
+		if o.id == outcome then
+			known = true
+		end
+	end
+	assert(known, `egg {egg.id} cannot hatch {outcome}`)
+	d.eggsBought[egg.id] = boughtBefore + 1
+	local incubator: Incubator = {
+		slot = slot,
+		eggId = egg.id,
+		startedAt = now,
+		readyAt = now + egg.hatchSeconds,
+		outcome = outcome,
+	}
+	table.insert(d.incubators, incubator)
+	return incubator, nil
+end
+
 -- Buys a coin egg into the first free incubator. `pick` decides the outcome
 -- at the moment of payment (a paid roll, or the fixed-order alternative).
 function Hatchery.buyEgg(
@@ -292,29 +325,55 @@ function Hatchery.buyEgg(
 	if ledger:balance("coins") < egg.priceCoins then
 		return nil, "Not enough coins."
 	end
-	local boughtBefore = d.eggsBought[egg.id] or 0
-	local outcome = pick(egg, boughtBefore)
-	if outcome == nil then
-		return nil, "This egg is not available to you."
+	local incubator, refusal = incubate(d, egg, slot, now, pick)
+	if incubator then
+		ledger:spend("coins", egg.priceCoins, `Shop:{egg.id}`)
 	end
-	local known = false
-	for _, o in egg.outcomes do
-		if o.id == outcome then
-			known = true
+	return incubator, refusal
+end
+
+-- Puts a free `egg` in the first free incubator: the VIP pass's daily egg.
+-- Its outcome comes from `pick` like a bought egg's (a paid roll, or the
+-- fixed order), and it counts towards the egg's fixed order.
+function Hatchery.giftEgg(
+	d: Data,
+	egg: any,
+	slotCount: number,
+	now: number,
+	pick: PickOutcome
+): (Incubator?, string?)
+	local slot = Hatchery.freeSlot(d, slotCount)
+	if slot == nil then
+		return nil, "Your incubators are full. Hatch an egg first."
+	end
+	return incubate(d, egg, slot, now, pick)
+end
+
+-- The incubator that `slot` names if its egg is still hatching, otherwise
+-- the one with the longest wait left; nil when no egg is hatching.
+function Hatchery.hatchingEgg(d: Data, slot: number?, now: number): Incubator?
+	local best: Incubator? = nil
+	for _, incubator in d.incubators do
+		if incubator.readyAt > now then
+			if incubator.slot == slot then
+				return incubator
+			end
+			if best == nil or incubator.readyAt > best.readyAt then
+				best = incubator
+			end
 		end
 	end
-	assert(known, `egg {egg.id} cannot hatch {outcome}`)
-	ledger:spend("coins", egg.priceCoins, `Shop:{egg.id}`)
-	d.eggsBought[egg.id] = boughtBefore + 1
-	local incubator: Incubator = {
-		slot = slot,
-		eggId = egg.id,
-		startedAt = now,
-		readyAt = now + egg.hatchSeconds,
-		outcome = outcome,
-	}
-	table.insert(d.incubators, incubator)
-	return incubator, nil
+	return best
+end
+
+-- Instant Hatch: the egg in `slot` (or the one with the longest wait left)
+-- is ready now. Returns the incubator, or nil when no egg is hatching.
+function Hatchery.finishEgg(d: Data, slot: number?, now: number): Incubator?
+	local incubator = Hatchery.hatchingEgg(d, slot, now)
+	if incubator then
+		incubator.readyAt = now
+	end
+	return incubator
 end
 
 local function gcd(a: number, b: number): number

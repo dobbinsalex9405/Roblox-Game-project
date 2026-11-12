@@ -2,6 +2,42 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: the Robux list, part 1 (VIP and three 25-Robux extras)
+
+- **Asked:** Alex approved the Robux list on Nov 12 ("yes to the robux
+  changes too"; the list is in the economy and pricing proposal).
+- **Split in two.** Part 1 needs nothing from the open PRs: VIP (399),
+  Instant Hatch, Double Offline Earnings and Streak Saver (25 each), and
+  Shield Refill down from 49 to 25. Part 2 (Premium Egg and x3, Luck Boost,
+  Lucky Hatcher, Server Luck, Starter Pack, the VIP lounge) needs the
+  per-source luck boosts and luck cap of #127 and the Robux-creature grant
+  of #120, so it is built on them once they merge rather than copied.
+- **Core shop:** `guard` and `prompt` are #120's code, taken byte for byte so
+  the two PRs merge cleanly. New: `hidden` catalog items, sold only from the
+  game's own buttons (an incubator, the welcome back, the daily window): a
+  Streak Saver card in the Shop window on a day nothing is broken would only
+  be refused.
+- **VIP is a paid random item.** Its daily Moonlit Egg rolls like a bought
+  one, so the Shop shows the Moonlit Egg's odds before Buy and
+  PolicyService-restricted players cannot buy it (a pass that hands out
+  random eggs is still a paid random item). Any restricted owner gets the
+  egg's fixed order. The egg waits for a free incubator (and room for what
+  it hatches) instead of being lost, and counts towards the fixed order.
+- **A paid extra is never lost.** Roblox can deliver a payment after the
+  moment passed. Instant Hatch then finishes the longest wait left, or is
+  kept for the next egg (`instantHatches`); Double Offline gives the coins
+  it showed, or the small coin pack's amount if those were already doubled;
+  a Streak Saver is kept until the next one-day miss. Guards refuse the
+  prompt when the extra does not apply, so these are rare.
+- **The VIP coin bonus sits with Double Coins** (`economy.vipCoinsMultiplier`)
+  so every income readout, the shop's coin packs and the daily reward
+  include it.
+- **Instant Hatch is on T / D-pad up with a short hold**, never Hatch's E:
+  a ready egg and a hatching one sit side by side, and E must never open a
+  Robux prompt.
+- **Prices are never typed into the UI.** The buttons say what they do;
+  Roblox's own prompt shows the price (regional pricing).
+
 ## 2026-11-12: every egg hatches every creature; rarer is rarer
 
 - **Asked:** Alex, Nov 12: "every egg should be able to pull every single

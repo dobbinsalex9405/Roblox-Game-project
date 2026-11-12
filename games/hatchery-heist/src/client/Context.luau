@@ -75,6 +75,7 @@ function Context.new(): Context
 			return {
 				doubleCoins = CoreClient.ownsPass("DoubleCoins"),
 				extraIncubators = CoreClient.ownsPass("ExtraIncubators"),
+				vip = CoreClient.ownsPass("VIP"),
 			}
 		end,
 		autoCollect = function()

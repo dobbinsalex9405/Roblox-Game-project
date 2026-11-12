@@ -6,6 +6,10 @@
 -- player) and never more than a cap (so it never undercuts the coin packs)
 -- (config/economy.luau `daily`).
 --
+-- A Streak Saver (25 Robux, sold on the daily window only on the day a
+-- streak breaks) is kept in `d.streakSavers`. While the player holds one, a
+-- streak that missed exactly one day carries on, and claiming uses it up.
+--
 -- Pure: time and income are arguments, so every rule is unit-tested.
 
 export type Data = { [string]: any }
@@ -15,6 +19,11 @@ export type Status = {
 	ready: boolean, -- it can be claimed now
 	secondsLeft: number, -- until it can be claimed (0 when ready)
 	claimedToday: boolean,
+	-- The streak missed exactly one day and starts over at Day 1 unless a
+	-- Streak Saver keeps it (false while one is held: it carries on).
+	broken: boolean,
+	saving: boolean, -- a held Streak Saver keeps this claim's streak going
+	lost: number, -- the streak day a Streak Saver would carry on from
 }
 
 local DAY = 86400
@@ -41,14 +50,22 @@ function Daily.status(d: Data, now: number, days: number): Status
 			ready = false,
 			secondsLeft = (today + 1) * DAY - now,
 			claimedToday = true,
+			broken = false,
+			saving = false,
+			lost = 0,
 		}
 	end
 	local continues = s.lastDay == today - 1 and s.streak > 0
+	local missedOne = s.lastDay == today - 2 and s.streak > 0
+	local saving = missedOne and (d.streakSavers or 0) > 0
 	return {
-		day = if continues then s.streak % days + 1 else 1,
+		day = if continues or saving then s.streak % days + 1 else 1,
 		ready = true,
 		secondsLeft = 0,
 		claimedToday = false,
+		broken = missedOne and not saving,
+		saving = saving,
+		lost = if missedOne then s.streak else 0,
 	}
 end
 
@@ -89,7 +106,27 @@ function Daily.claim(
 	local s = state(d)
 	s.lastDay = Daily.dayNumber(now)
 	s.streak = status.day
+	if status.saving then
+		d.streakSavers -= 1
+	end
 	return coins, status.day
+end
+
+-- A Streak Saver bought: held until a streak that missed one day is claimed.
+function Daily.addSaver(d: Data)
+	d.streakSavers = (d.streakSavers or 0) + 1
+end
+
+-- Why a Streak Saver cannot be bought right now, or nil when it can: only
+-- on the day a streak breaks, and only one held at a time.
+function Daily.saverRefusal(d: Data, now: number, days: number): string?
+	if (d.streakSavers or 0) > 0 then
+		return "You already have a Streak Saver. It keeps your streak when you claim."
+	end
+	if not Daily.status(d, now, days).broken then
+		return "Your streak isn't broken, so there's nothing to save."
+	end
+	return nil
 end
 
 return Daily
