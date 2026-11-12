@@ -33,6 +33,11 @@ on:
         type: boolean
         required: false
         default: false
+      fresh:
+        description: "Upload each creature as a new Model asset, even one that has one (live creatures: Staging keeps the old one until the PR merges)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -106,6 +111,7 @@ jobs:
       ROBLOX_GROUP_ID: ${{ vars.ROBLOX_GROUP_ID }} # optional; otherwise looked up from the Staging universe
       ONLY: ${{ inputs.only }} # used as "$ONLY", never pasted into a script
       TEXTURES_ONLY: ${{ inputs.textures_only }}
+      FRESH: ${{ inputs.fresh }}
       ART: ${{ inputs.art }}
     steps:
       - uses: actions/checkout@v4
@@ -129,6 +135,7 @@ jobs:
           args=()
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
           if [ "$TEXTURES_ONLY" = "true" ]; then args+=(--textures-only); fi
+          if [ "$FRESH" = "true" ]; then args+=(--fresh); fi
           if [ "$ART" = "thumbs" ]; then args+=(--thumbs); fi
           python3 tools/art/blender/upload.py "$RUNNER_TEMP/meshes" "${args[@]}"
 
