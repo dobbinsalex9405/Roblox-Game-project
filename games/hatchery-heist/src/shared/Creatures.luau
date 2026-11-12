@@ -2,7 +2,7 @@
 -- Income math for hatched creatures. Pure, so it is unit-tested and the
 -- server and client agree on the numbers shown.
 
-export type Creature = { uid: string, speciesId: string, mutation: string, slot: number? }
+export type Creature = { uid: string, speciesId: string, mutation: string, slot: number?, stars: number? }
 
 local Creatures = {}
 
@@ -15,15 +15,17 @@ function Creatures.multiplier(rebirths: number, hasDoubleCoins: boolean, economy
 	return m
 end
 
--- Coins per second from creatures placed on the base (slot ~= nil), before multipliers.
-function Creatures.baseIncome(creatures: { Creature }, creatureConfig: any): number
+-- Coins per second from creatures placed on the base (slot ~= nil), before
+-- floor, rebirth and pass multipliers (merge stars included, economy.merge).
+function Creatures.baseIncome(creatures: { Creature }, creatureConfig: any, economy: any): number
 	local total = 0
 	for _, creature in creatures do
 		if creature.slot ~= nil then
 			local species = creatureConfig.species[creature.speciesId]
 			local mutation = creatureConfig.mutations[creature.mutation] or 1
+			local stars = math.max(1, math.floor(creature.stars or 1))
 			if species then
-				total += species.coinsPerSecond * mutation
+				total += species.coinsPerSecond * mutation * (1 + economy.merge.bonusPerStar * (stars - 1))
 			end
 		end
 	end

@@ -13,7 +13,7 @@ describe("Creatures", function()
 	}
 
 	it("sums income from placed creatures with mutations", function()
-		expect(Creatures.baseIncome(placed, creatures)).toBe(
+		expect(Creatures.baseIncome(placed, creatures, economy)).toBe(
 			creatures.species.Chick.coinsPerSecond + creatures.species.Penguin.coinsPerSecond * 2
 		)
 	end)

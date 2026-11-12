@@ -119,6 +119,9 @@ function Harness.new(options: Options?)
 		mount = function(_player: any, speed: number?)
 			table.insert(h.mounts, speed or false)
 		end,
+		carried = function(player: any): { [string]: boolean }
+			return h.raids:carriedFrom(player)
+		end,
 	})
 
 	h.raids = Raids.new({

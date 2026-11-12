@@ -11,6 +11,7 @@
 
 local Book = require("./Book")
 local Creatures = require("./Creatures")
+local Merge = require("./Merge")
 local Numbers = require("./Numbers")
 local Tower = require("./Tower")
 
@@ -89,13 +90,16 @@ function Hatchery.marketEggs(eggs: { any }, weights: { [string]: number }): { st
 	return ids
 end
 
--- Coins per second one creature earns before rebirth and pass multipliers.
-function Hatchery.creatureIncome(creature: any, creatureConfig: any): number
+-- Coins per second one creature earns before floor, rebirth and pass
+-- multipliers: its species, its mutation and its merge stars.
+function Hatchery.creatureIncome(creature: any, creatureConfig: any, economy: any): number
 	local species = creatureConfig.species[creature.speciesId]
 	if species == nil then
 		return 0
 	end
-	return species.coinsPerSecond * (creatureConfig.mutations[creature.mutation] or 1)
+	return species.coinsPerSecond
+		* (creatureConfig.mutations[creature.mutation] or 1)
+		* Merge.multiplier(creature, economy)
 end
 
 function Hatchery.creatureByUid(d: Data, uid: string): any?
@@ -166,7 +170,7 @@ function Hatchery.incomePerSecond(d: Data, config: any, perks: Perks): number
 	local base = 0
 	for _, c in d.creatures do
 		if c.slot then
-			base += Hatchery.creatureIncome(c, config.creatures) * Tower.multiplier(
+			base += Hatchery.creatureIncome(c, config.creatures, config.economy) * Tower.multiplier(
 				d,
 				Tower.floorOf(c.slot),
 				config.economy
@@ -184,7 +188,7 @@ function Hatchery.earning(d: Data, creature: any, config: any, perks: Perks): nu
 	if creature.slot == nil then
 		return 0
 	end
-	return Hatchery.creatureIncome(creature, config.creatures)
+	return Hatchery.creatureIncome(creature, config.creatures, config.economy)
 		* Tower.multiplier(d, Tower.floorOf(creature.slot), config.economy)
 		* Creatures.multiplier(d.rebirths, perks.doubleCoins, config.economy)
 		* (1 + Hatchery.bookBonus(d, config))
@@ -484,12 +488,22 @@ end
 function Hatchery.sellValue(creature: any, creatureConfig: any, economy: any): number
 	return math.max(
 		1,
-		math.floor(Hatchery.creatureIncome(creature, creatureConfig) * economy.storage.sellSeconds)
+		math.floor(Hatchery.creatureIncome(creature, creatureConfig, economy) * economy.storage.sellSeconds)
 	)
 end
 
 -- Keeps storage within its size: while it is over, the weakest stored creature
--- is sold for coins. Returns the creatures sold.
+-- is sold for coins (fewest stars first, so a merged creature goes last).
+-- Returns the creatures sold.
+local function weaker(a: any, b: any, creatureConfig: any, economy: any): boolean
+	local sa, sb = Merge.stars(a), Merge.stars(b)
+	if sa ~= sb then
+		return sa < sb
+	end
+	return Hatchery.creatureIncome(a, creatureConfig, economy)
+		< Hatchery.creatureIncome(b, creatureConfig, economy)
+end
+
 local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy: any): { any }
 	local sold = {}
 	while true do
@@ -503,8 +517,7 @@ local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy
 					and c.uid ~= d.guardUid
 					and (
 						weakestIndex == nil
-						or Hatchery.creatureIncome(c, creatureConfig)
-							< Hatchery.creatureIncome(d.creatures[weakestIndex], creatureConfig)
+						or weaker(c, d.creatures[weakestIndex :: number], creatureConfig, economy)
 					)
 				then
 					weakestIndex = index
@@ -586,6 +599,7 @@ function Hatchery.receive(
 		uid = tostring(d.nextUid),
 		speciesId = from.speciesId,
 		mutation = from.mutation,
+		stars = from.stars,
 		slot = nil :: number?,
 		eggId = from.eggId,
 		hatchedAt = from.hatchedAt,

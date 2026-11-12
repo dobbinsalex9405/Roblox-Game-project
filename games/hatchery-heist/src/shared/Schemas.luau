@@ -71,8 +71,13 @@ return function(Schema: any, Odds: any)
 			themes = Schema.array(Schema.string({ maxLength = 40 }), { minLength = 10, maxLength = 10 }),
 		}),
 		storage = Schema.record({
-			slots = Schema.integer({ min = 0, max = 200 }),
+			slots = Schema.integer({ min = 0, max = 1000 }),
 			sellSeconds = Schema.number({ min = 0, max = 3600 }),
+		}),
+		merge = Schema.record({
+			copies = Schema.integer({ min = 2, max = 10 }),
+			maxStars = Schema.integer({ min = 1, max = 10 }),
+			bonusPerStar = Schema.number({ min = 0, max = 5 }),
 		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
 		doubleCoinsMultiplier = Schema.number({ min = 1, max = 10 }),
@@ -160,6 +165,7 @@ return function(Schema: any, Odds: any)
 		newPlayerProtectionSeconds = count,
 		perOwnerCooldownSeconds = count,
 		pickupReach = Schema.number({ min = 1, max = 50 }),
+		maxStealStars = Schema.integer({ min = 1, max = 10 }),
 		carryWalkSpeed = Schema.number({ min = 1, max = 32 }),
 		carryMountFactor = Schema.number({ min = 0.1, max = 1 }),
 		carrySpeedTolerance = Schema.number({ min = 1, max = 3 }),
@@ -384,6 +390,22 @@ return function(Schema: any, Odds: any)
 			warmDelaySeconds = Schema.number({ min = 0, max = 2 }),
 			preloadStreams = Schema.integer({ min = 1, max = 8 }),
 			preloadBatch = Schema.integer({ min = 1, max = 30 }),
+		}),
+		-- The egg chances screen's tier tabs and rows (client/OddsView,
+		-- client/RarityTabs). Tabs and rows stay tappable on a phone (40 px+).
+		oddsScreen = Schema.record({
+			faces = Schema.map(
+				Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }),
+				id,
+				{ maxEntries = 7 }
+			),
+			tileMin = Schema.integer({ min = 64, max = 160 }),
+			tileMax = Schema.integer({ min = 64, max = 200 }),
+			tileGap = Schema.integer({ min = 2, max = 16 }),
+			rowHeight = Schema.integer({ min = 40, max = 64 }),
+			rowPicture = Schema.integer({ min = 20, max = 60 }),
+			maxWidth = Schema.integer({ min = 400, max = 1200 }),
+			maxHeight = Schema.integer({ min = 300, max = 900 }),
 		}),
 		guide = Schema.record({
 			arrivedStuds = Schema.number({ min = 2, max = 30 }),

@@ -28,6 +28,12 @@ return function(Net: any, Schema: any)
 		["HH:Place"] = Net.toServer("HH:Place", { uid, floor }, { count = 6, window = 1 }),
 		["HH:TakeBack"] = Net.toServer("HH:TakeBack", { uid }, { count = 6, window = 1 }),
 		["HH:PlaceBest"] = Net.toServer("HH:PlaceBest", {}, { count = 1, window = 1 }),
+		-- Place a stashed creature on the highest floor with room (the hatch
+		-- reveal's Place button).
+		["HH:PlaceAuto"] = Net.toServer("HH:PlaceAuto", { uid }, { count = 4, window = 1 }),
+		-- The merger: merge `uid` with 2 copies, or every group there is.
+		["HH:Merge"] = Net.toServer("HH:Merge", { uid }, { count = 4, window = 1 }),
+		["HH:MergeAll"] = Net.toServer("HH:MergeAll", {}, { count = 1, window = 2 }),
 		["HH:GoFloor"] = Net.toServer("HH:GoFloor", { floor }, { count = 2, window = 1 }),
 		-- The player opened the Hatchery Book (clears its NEW badges).
 		["HH:BookSeen"] = Net.toServer("HH:BookSeen", {}, { count = 1, window = 2 }),
@@ -59,12 +65,15 @@ return function(Net: any, Schema: any)
 		["HH:EggSold"] = Net.toClient("HH:EggSold", { Schema.integer({ min = 0, max = 2 ^ 40 }) }),
 		-- A short message for the player (a refusal, a reward).
 		["HH:Notice"] = Net.toClient("HH:Notice", { text }),
-		-- An egg hatched: species id, the egg it came from, and whether it is
-		-- new to the player's Hatchery Book (for the reveal).
-		["HH:Hatched"] = Net.toClient(
-			"HH:Hatched",
-			{ Schema.string({ maxLength = 50 }), Schema.string({ maxLength = 50 }), Schema.boolean() }
-		),
+		-- An egg hatched: species id, the egg it came from, whether it is new
+		-- to the player's Hatchery Book, and the new creature's uid (for the
+		-- reveal and its Place / Stash buttons).
+		["HH:Hatched"] = Net.toClient("HH:Hatched", {
+			Schema.string({ maxLength = 50 }),
+			Schema.string({ maxLength = 50 }),
+			Schema.boolean(),
+			Schema.string({ maxLength = 12, pattern = "^%d+$" }),
+		}),
 		-- Coins earned while away, and eggs that finished hatching meanwhile.
 		["HH:WelcomeBack"] = Net.toClient(
 			"HH:WelcomeBack",

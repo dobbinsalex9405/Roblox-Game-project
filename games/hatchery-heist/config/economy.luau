@@ -79,8 +79,19 @@ return {
 	-- Creatures not placed on a floor wait in the inventory. When it is full,
 	-- the weakest one there sells for `sellSeconds` of its income.
 	storage = {
-		slots = 150,
+		slots = 300,
 		sellSeconds = 20,
+	},
+
+	-- The merger (shared/Merge.luau): `copies` of one creature with the same
+	-- stars make one with a star more, up to `maxStars`. Income is multiplied
+	-- by 1 + bonusPerStar * (stars - 1): x1.5, x2, x2.5, x3 with 0.5 and 5
+	-- stars, so a maxed creature (81 copies) earns about one tier up per slot
+	-- and rarity still matters (economy thread, Nov 12).
+	merge = {
+		copies = 3,
+		maxStars = 5,
+		bonusPerStar = 0.5,
 	},
 
 	-- With the Auto-Collect pass, earnings move into coins this often (seconds).

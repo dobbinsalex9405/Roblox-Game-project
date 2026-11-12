@@ -30,8 +30,8 @@ local function bestCreature(d)
 			c.slot
 			and (
 				best == nil
-				or Hatchery.creatureIncome(c, config.creatures)
-					> Hatchery.creatureIncome(best, config.creatures)
+				or Hatchery.creatureIncome(c, config.creatures, economy)
+					> Hatchery.creatureIncome(best, config.creatures, economy)
 			)
 		then
 			best = c
