@@ -141,3 +141,25 @@ Passes and products stay off until their ids are set (M5).
 
 Have a friend (not you) buy a 5 Robux pass in a group game, then check
 whether Group → Finances → Payouts unlocks.
+
+## 7. Create the claw machine's Robux pulls (laptop, after PR #127 merges)
+
+Alex approved these prices on Nov 12, 2026. A Remote Control session on the
+laptop may do this in the already signed-in browser. If Roblox asks for a
+sign-in, a 2FA code, a CAPTCHA or a payment, stop and ask Alex.
+
+1. Open the Creator Dashboard, then the **Hatchery Heist Staging**
+   experience, then **Monetization → Developer Products → Create a
+   Developer Product**.
+2. Create two products, with names, prices and descriptions exactly as the
+   `ClawPull10` and `ClawPull100` rows in `ops/PRICING.md` give them:
+   - **10 Claw Pulls**, 100 Robux.
+   - **100 Claw Pulls**, 700 Robux.
+   For the image, use `store/hatchery-heist/icon.png` in the project files
+   until claw art exists.
+3. Copy each product's id into `games/hatchery-heist/config/monetization.luau`
+   under `environments.staging.products`, as `ClawPull10 = <id>` and
+   `ClawPull100 = <id>`. Open a data-only PR. Once it merges, Staging's claw
+   window shows the prices instead of "coming soon".
+4. Do the same in the **Production** experience at launch prep, putting the
+   ids under `environments.production.products`.
