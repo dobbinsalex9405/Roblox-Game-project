@@ -41,16 +41,29 @@ end
 
 -- The quarter turn about Y (0, pi/2, pi or 3pi/2) that carries the listed
 -- centres onto where the MeshParts landed, and the worst miss in studs
--- after it. The importer keeps the feet at the origin, so no shift is
--- fitted: a model that also moved shows as a miss.
+-- after it. The importer also moves the model as a whole (it centres it on
+-- its own box: real-engine probe, Nov 12: 198 of 509 species moved along
+-- Z), which the client never uses, so the best shift is taken out first:
+-- only pieces that moved against each other count as a miss.
 function MeshImport.fit(pairs: { Pair }): (number, number)
 	local bestYaw, bestMiss = 0, math.huge
+	local n = math.max(1, #pairs)
 	for quarter = 0, 3 do
 		local yaw = quarter * math.pi / 2
-		local miss = 0
-		for _, p in pairs do
+		local turned = {}
+		local sx, sy, sz = 0, 0, 0
+		for i, p in pairs do
 			local x, y, z = MeshImport.turn(yaw, p.listed[1], p.listed[2], p.listed[3])
-			local dx, dy, dz = x - p.landed[1], y - p.landed[2], z - p.landed[3]
+			turned[i] = { x, y, z }
+			sx += p.landed[1] - x
+			sy += p.landed[2] - y
+			sz += p.landed[3] - z
+		end
+		sx, sy, sz = sx / n, sy / n, sz / n
+		local miss = 0
+		for i, p in pairs do
+			local t = turned[i]
+			local dx, dy, dz = t[1] + sx - p.landed[1], t[2] + sy - p.landed[2], t[3] + sz - p.landed[3]
 			miss = math.max(miss, math.sqrt(dx * dx + dy * dy + dz * dz))
 		end
 		if miss < bestMiss - 1e-9 then

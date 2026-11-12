@@ -15,8 +15,11 @@ Non-obvious choices, newest first, so a later session can trust them.
   turns each piece back. Measured, not hard-coded, so a future importer that
   keeps the frame needs no change. Not fixed in the FBX export instead: that
   would need every one of 500+ creatures re-uploaded with new asset ids.
+- The importer also shifts 198 of 509 models as a whole (it centres each on
+  its own box); the fit takes the best shift out, since the client places
+  pieces by the listed centres and never uses the import position.
 - The real-engine probe fails any species whose meshes miss their listed
-  centres by over 0.01 studs after the turn.
+  centres by over 0.01 studs after the turn and shift.
 
 ## 2026-11-12: the viewer's blink closes the eyes about their own middle
 

@@ -58,6 +58,16 @@ describe("Imported creature meshes", function()
 		expect(miss).toBe(0)
 	end)
 
+	it("ignore the importer moving the whole model (it centres it on its box)", function()
+		local landed: { [string]: { number } } = {}
+		for name, at in ALLEY_CAT_LANDED do
+			landed[name] = { at[1] + 0.3, at[2], at[3] - 0.45 }
+		end
+		local yaw, miss = MeshImport.fit(pairsFor("AlleyCat", landed))
+		expect(near(yaw, math.pi)).toBe(true)
+		expect(miss <= MeshImport.TOLERANCE).toBe(true)
+	end)
+
 	it("report a miss when the upload does not match the listed centres", function()
 		local landed = table.clone(ALLEY_CAT_LANDED)
 		landed.AlleyCat_legFR = { -0.4, 0.154, 0.6 } -- a leg somewhere else
