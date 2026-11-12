@@ -572,7 +572,135 @@
    "options": {
     "kind": "otter"
    },
-   "accessories": []
+   "accessories": [
+    {
+     "kind": "draw",
+     "color": "#E8D2B8",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -5,
+       3
+      ],
+      [
+       -2,
+       -4,
+       3
+      ],
+      [
+       -2,
+       -3,
+       3
+      ],
+      [
+       -1,
+       -5,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#8A5A3A",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -4,
+       4
+      ],
+      [
+       -2,
+       -3,
+       4
+      ],
+      [
+       -1,
+       -4,
+       4
+      ],
+      [
+       -1,
+       -3,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F1E4D4",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -6,
+       3
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "eyes",
+     "mirror": true,
+     "remove": [
+      [
+       -1,
+       -5,
+       4
+      ]
+     ],
+     "voxels": [
+      [
+       -2,
+       -5,
+       4
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#FF8FA0",
+     "part": "head",
+     "mirror": true,
+     "voxels": [
+      [
+       -2,
+       -4,
+       3
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#F4F0EA",
+     "part": "shell",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       -1,
+       5
+      ]
+     ]
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "head",
+     "voxels": [
+      [
+       0,
+       -7,
+       3
+      ]
+     ]
+    }
+   ]
   },
   {
    "id": "CamelCalf",
@@ -946,7 +1074,9 @@
     {
      "kind": "longbeak",
      "color": "#F2E3C8"
-    }
+    },
+    {"kind": "draw", "color": "#1B1B2F", "part": "head", "build": "fine", "mirror": true, "voxels": [[-4, -4, 18], [-4, -3, 18], [-4, -3, 19], [-4, -4, 19, "#FFFFFF"]]},
+    {"kind": "draw", "color": "#F4F0EA", "part": "head", "mirror": true, "voxels": [[-3, -2, 8]]}
    ]
   },
   {

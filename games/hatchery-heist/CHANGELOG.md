@@ -8,6 +8,16 @@
   hangs in front of the tower's roof instead of hidden inside it.
 - Fix: the rebirth stand stands a little further from the tower, so its sign
   ("Rebirth: 50M coins") is no longer cut off by the wall from the side.
+- Fix: a creature no longer stays as blocks long after its 3D model has
+  loaded (seen with Quails 20 minutes into a session). A slow model load is
+  waited on for at most 20 seconds; if the model is all there it is drawn
+  anyway, otherwise the load is tried again.
+- Fix: the Orchid Mantis's petal legs match on both sides (the right
+  petals sat one voxel off the left ones), and the Kiwi has eyes.
+- Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
+  to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
+  with better odds, the Moonlit Egg costs 20,000 with rarer Epics and
+  Legendaries, Epics and Legendaries earn more, and rebirth starts at 50M.
 - Fix: the hatch reveal can be passed with a gamepad's B button, and opening
   the Roblox menu (Escape) skips it, like every other window.
 - Fix: each tower floor's name sign hangs well in front of the new front
