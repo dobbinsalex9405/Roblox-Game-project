@@ -155,15 +155,17 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 				})
 			end
 			-- The floor's name, hung in front of the storey's front wall,
-			-- above its windows (Geometry.FLOOR_PLAQUE).
+			-- above its windows (Geometry.FLOOR_PLAQUE). The part only holds
+			-- the label: a board out there would float in mid-air.
 			local sign = Geometry.FLOOR_PLAQUE
 			local plaque = towerPart(folder, floor, {
 				Name = "Plaque",
-				Size = Vector3.new(8, 1.6, 0.3),
+				Size = Vector3.new(1, 1, 0.3),
 				CFrame = at(Vector3.new(0, top + sign.above, Geometry.plaqueZ())),
-				Color = look.trim,
-				Material = Enum.Material.Wood,
+				Transparency = 1,
 				CanCollide = false,
+				CanQuery = false,
+				CanTouch = false,
 			})
 			local plaqueLabel = billboard(plaque, Vector3.zero, UDim2.fromScale(sign.width, sign.height), "")
 			local plaqueGui = plaqueLabel.Parent :: BillboardGui

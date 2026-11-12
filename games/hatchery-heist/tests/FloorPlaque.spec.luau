@@ -4,7 +4,11 @@
 -- sat inside that wall's thickness, at window height, and the wall hid it
 -- from outside (Studio gate on #175). It now hangs in front of the wall's
 -- outermost sills and flower boxes, in the band above the windows and
--- under the next deck.
+-- under the next deck. The label turns to face the camera, so seen from
+-- off to the side its near half swings back toward the wall: at 1.5 studs
+-- out the wall still cut it to "...ok Nook x1.05" at 30 degrees and
+-- ": Nook x1.05" at 55 (Studio gate on #179). It must read whole from at
+-- least 60 degrees off the front.
 local Geometry = require("../src/shared/Geometry")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
@@ -15,6 +19,9 @@ local describe, it, expect = t.describe, t.it, t.expect
 -- 9.6 studs above the floor (z1 8.6 + 1).
 local FRONT_REACH = 0.5
 local WINDOW_TOP = 9.6
+-- The widest angle off straight-on (degrees, either side) the whole label
+-- must stay clear of the wall from.
+local VIEW_ANGLE = 60
 
 describe("Floor name plaque", function()
 	local p = Geometry.FLOOR_PLAQUE
@@ -22,6 +29,21 @@ describe("Floor name plaque", function()
 		local frontFace = Geometry.TOWER_MIN[2]
 		local z = Geometry.plaqueZ()
 		expect(z < frontFace - FRONT_REACH - 0.5).toBe(true)
+	end)
+
+	it("reads whole from up to 60 degrees off the front", function()
+		-- Seen from `a` degrees off the front, the camera-facing label's near
+		-- edge is half its width times sin(a) closer to the wall than its
+		-- centre. It must stay in front of the sills and flower boxes.
+		local clear = Geometry.TOWER_MIN[2] - FRONT_REACH
+		for a = 0, VIEW_ANGLE, 5 do
+			local nearEdge = Geometry.plaqueZ() + p.width / 2 * math.sin(math.rad(a))
+			if nearEdge >= clear then
+				error(
+					`at {a} degrees the label's near edge (z {nearEdge}) is behind the wall's front (z {clear})`
+				)
+			end
+		end
 	end)
 
 	it("sits above the windows and under the next floor's deck", function()

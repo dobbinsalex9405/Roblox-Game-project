@@ -91,11 +91,14 @@ Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
 
 -- Each built floor's name ("2. Book nook  x1.25"), a label in front of its
 -- storey, in studs: `above` its centre over the floor's walking height,
--- `out` in front of the tower's front edge (TOWER_MIN z). It hangs clear of
--- the front wall's sills and flower boxes, in the band above the windows
--- and under the next deck, so the wall never hides it from outside (Studio
--- gate on #175: inside the wall's thickness, at window height, it did).
-Geometry.FLOOR_PLAQUE = { width = 12, height = 1.8, above = 10.5, out = 1.5 }
+-- `out` in front of the tower's front edge (TOWER_MIN z). It sits in the
+-- band above the windows and under the next deck. The label turns to face
+-- the camera, so seen from off to the side its near half swings back toward
+-- the wall by half its width times the sine of the angle: `out` keeps it in
+-- front of the wall's sills and flower boxes up to about 75 degrees off the
+-- front (Studio gates on #175 and #179: inside the wall, and then 1.5 studs
+-- out, the wall cut the name off from the side).
+Geometry.FLOOR_PLAQUE = { width = 12, height = 1.8, above = 10.5, out = 6.5 }
 
 function Geometry.plaqueZ(): number
 	return Geometry.TOWER_MIN[2] - Geometry.FLOOR_PLAQUE.out
