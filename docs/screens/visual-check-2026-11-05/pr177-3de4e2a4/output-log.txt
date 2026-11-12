@@ -1,0 +1,20 @@
+PR #177 @ 3de4e2a442b9 (merge of main 4c4198f; contains #172 9de8f84, #175 cc9ec59, #174 c54e6ce, #179, #123),
+local Staging build (Output: "core started build=3de4e2a442b9"), one Studio play-solo session.
+
+Row 1 (given at play start; CreatureMeshes 493/530 at the check):
+Kiwi Pad1 meshed 19.0 s meshes=5 tex=5/5 boxes=0 pieces=1 glow=0
+RexHatchling Pad3 meshed 27.3 s meshes=6 tex=6/6 boxes=0 pieces=1 glow=0
+SeaOtter Pad4 meshed 28.6 s meshes=7 tex=7/7 boxes=0 pieces=1 glow=0
+SnowLamb Pad2 meshed 31.0 s meshes=9 tex=9/9 boxes=0 pieces=1 glow=0   (from the give; S loads late alphabetically - #168 ruling: 30 s counts from species arrival)
+Row 2: cards: Basic 100.0000% (91.9947/7.2048/0.7005/0.0900/0.0080/0.0020 = main after #123),
+ Meadow 100.0000% (57.9328/37.0694/4.4980/0.4498/0.0450/0.0050), Moonlit 100.0000% (66.60048/29.99963/3.19986/0.19008/0.00900/0.00095).
+ Meadow list 273 rows 100.0000%, Rare rows 52, all "0.0865% · 1 in 1,156".
+ Moonlit list 167 rows 100.0000%, Rare rows 29, all "1.03447% · 1 in 96.7".
+Row 3: Book "Found 21/530" (23 later after 2 Commons hatched/given), Rare 21/81, 21 named cards, all 21 pictures loaded
+ (Peachick and Polar Bear Cub load once scrolled into view, as at e46f6021).
+Row 4: #123 Tower window "Build 20K coins, 100K ... 475M coins"; belt prompts "Meadow Egg: 1.5K coins", "Moonlit Egg: 20K coins", "Basic Egg: 50 coins".
+ #179 signs at ±60 deg, 20 studs: "2. Book Nook x1.05" and "3. Plant Sunroom x1.30" whole (+60 shot has the "Floor 3 built" toast over sign 3; -60 clean).
+ #174 Basic egg on incubator: Model, height 2.60.
+ #172 pads full (24/24), Basic egg hatched -> inventory (Quail) with "Your tower is full: Quail went to your inventory. Open Creatures to place it."
+ #175 door: walked (100,y,0)->(121,y,0) and back, both reached; corner shot clean (rebirth sign cut from the side - pre-existing, reported in #123).
+Row 5: client 159 lines all MessageWarning, 0 errors, 0 CreatureView/CreatureAssets; server Warning 146, Output 13, Info 17, 0 errors, 0 CreatureView/CreatureAssets. Feedback visible.
