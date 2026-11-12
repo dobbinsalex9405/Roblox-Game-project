@@ -1,4 +1,4 @@
-"""The Giant Legendary Egg: Hatchery Heist's daily Robux egg, standing on the
+"""The Giant Golden Egg: Hatchery Heist's daily Robux egg, standing on the
 Golden Nest in the middle of the map (config/events.luau `giantEgg`).
 
 A big storybook egg in the Legendary colours (warm gold to amber, a band of
@@ -57,7 +57,7 @@ def _angle(X, Y):
 
 @prop('GiantLegendaryEgg', 'event', (-R_PLINTH - 0.1, -R_PLINTH - 0.1, 0), (R_PLINTH + 0.1, R_PLINTH + 0.1, TOP + 0.1),
       budget=600, factors=(3, 4, 5, 6, 8),
-      note='the Giant Legendary Egg on the Golden Nest: gold egg, flame band, gem ring, bronze claw cradle')
+      note='the Giant Golden Egg on the Golden Nest: gold egg, flame band, gem ring, bronze claw cradle')
 def _giant(p):
     # --- the plinth: a round gold drum with a darker lip and a bronze rim
     g = p.part('body')

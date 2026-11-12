@@ -2,11 +2,12 @@
 -- Timed events and the Giant Egg through the real Actions and core services
 -- (tests/Harness): an Egg Sale halves what a market egg costs, Speedy
 -- Incubators halve its hatch, a Money Rush pays double exactly while it
--- runs, and the Giant Egg gives today's Legendary once a cycle.
+-- runs, and the Giant Egg rolls an Epic or better once a cycle.
 local Events = require("../src/shared/Events")
 local Fakes = require("../../../packages/core/tests/Fakes")
 local GiantEgg = require("../src/shared/GiantEgg")
 local Harness = require("./Harness")
+local Hatchery = require("../src/shared/Hatchery")
 local eventsConfig = require("../config/events")
 local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
@@ -107,39 +108,106 @@ describe("Timed events in play", function()
 	end)
 end)
 
+-- What the server's purchase does (src/server/GiantEgg.luau `picker`): a
+-- policy-checked roll on the Giant Egg's odds table, or the fixed order.
+local function picker(h: any, player: any): GiantEgg.Pick
+	local egg = Hatchery.eggById(config.eggs, GiantEgg.EGG_ID)
+	return function(boughtBefore: number): string?
+		if not h.policy:paidRandomAllowed(player) then
+			return Hatchery.fixedOrderOutcome(egg, boughtBefore)
+		end
+		return (h.odds:rollPaid(GiantEgg.EGG_ID, player, h.policy))
+	end
+end
+
+local ABOVE_EPIC = { Epic = true, Legendary = true, Godly = true }
+
 describe("Giant Egg", function()
-	it("gives today's Legendary once a cycle and says when the next arrives", function()
+	it("has far better odds than any other egg and nothing below Epic, exactly 100%", function()
+		local egg = Hatchery.eggById(config.eggs, GiantEgg.EGG_ID)
+		local byTier: { [string]: number } = {}
+		local sum = 0
+		for _, o in egg.outcomes do
+			local rarity = config.creatures.species[o.id].rarity
+			expect(ABOVE_EPIC[rarity]).toBe(true)
+			byTier[rarity] = (byTier[rarity] or 0) + o.weight
+			sum += o.weight
+		end
+		expect(sum).toBe(egg.total)
+		-- The economy thread's odds (Nov 12): Epic 79.5%, Legendary 20%, Godly 0.5%.
+		expect(byTier.Epic / egg.total).toBe(0.795)
+		expect(byTier.Legendary / egg.total).toBe(0.2)
+		expect(byTier.Godly / egg.total).toBe(0.005)
+		-- Every Epic, Legendary and Godly that any egg hatches is in it.
+		for _, other in config.eggs do
+			for _, o in other.outcomes do
+				if ABOVE_EPIC[config.creatures.species[o.id].rarity] then
+					local found = false
+					for _, mine in egg.outcomes do
+						found = found or mine.id == o.id
+					end
+					expect(found).toBe(true)
+				end
+			end
+		end
+		-- Better than the Premium Egg at every tier it shares.
+		local premium = Hatchery.eggById(config.eggs, "PremiumEgg")
+		local premiumTier: { [string]: number } = {}
+		for _, o in premium.outcomes do
+			local rarity = config.creatures.species[o.id].rarity
+			premiumTier[rarity] = (premiumTier[rarity] or 0) + o.weight / premium.total
+		end
+		for _, rarity in { "Legendary", "Godly" } do
+			expect(byTier[rarity] / egg.total > premiumTier[rarity]).toBe(true)
+		end
+	end)
+
+	it("rolls an Epic or better once a cycle and says when the next is ready", function()
 		local h = Harness.new()
 		local player = Fakes.player(46)
 		h.join(player)
 		local now = h.clock.now()
 		local d = h.get(player)
-		local status = GiantEgg.status(d, now, eventsConfig, config.creatures.species)
+		local status = GiantEgg.status(d, now, eventsConfig)
 		expect(status.bought).toBe(false)
-		expect(config.creatures.species[status.species :: string].rarity).toBe("Legendary")
-		expect(GiantEgg.refusal(d, now, eventsConfig, config.creatures.species)).toBeNil()
+		expect(GiantEgg.refusal(d, now, eventsConfig)).toBeNil()
 		local creature: any, isNew = nil, false
 		h.data:update(player, function(data)
-			GiantEgg.record(data, status.cycle)
+			local speciesId = GiantEgg.open(data, status.cycle, picker(h, player)) :: string
 			local ledger = h.economy:ledger(player, data)
-			creature, isNew = h.actions:giftInside(player, data, ledger, status.species, GiantEgg.EGG_ID)
+			creature, isNew = h.actions:giftInside(player, data, ledger, speciesId, GiantEgg.EGG_ID)
 		end)
 		d = h.get(player)
-		expect(creature.speciesId).toBe(status.species)
+		expect(ABOVE_EPIC[config.creatures.species[creature.speciesId].rarity]).toBe(true)
 		expect(creature.eggId).toBe("GiantEgg")
 		expect(creature.slot ~= nil).toBe(true) -- placed on a floor like a hatch
 		expect(isNew).toBe(true)
-		expect(d.found[status.species]).toBe(now)
+		expect(d.found[creature.speciesId]).toBe(now)
 		expect(d.giantEgg.bought).toBe(1)
-		local refusal = GiantEgg.refusal(d, now, eventsConfig, config.creatures.species) :: string
+		expect(d.eggsBought.GiantEgg).toBe(1)
+		local refusal = GiantEgg.refusal(d, now, eventsConfig) :: string
 		expect(refusal).toContain("You have today's Giant Egg")
 		expect(refusal).toContain(Events.countdown(status.endsAt - now))
-		-- The next cycle it can be bought again, and holds a different Legendary.
+		-- The next cycle it can be bought again.
 		local tomorrow = status.endsAt + 1
-		expect(GiantEgg.refusal(d, tomorrow, eventsConfig, config.creatures.species)).toBeNil()
-		local next = GiantEgg.status(d, tomorrow, eventsConfig, config.creatures.species)
-		expect(next.cycle).toBe(status.cycle + 1)
-		expect(next.species ~= status.species).toBe(true)
+		expect(GiantEgg.refusal(d, tomorrow, eventsConfig)).toBeNil()
+		expect(GiantEgg.status(d, tomorrow, eventsConfig).cycle).toBe(status.cycle + 1)
+	end)
+
+	it("follows the fixed order for a player who may not buy paid random items", function()
+		local h = Harness.new({ restricted = true })
+		local player = Fakes.player(48)
+		h.join(player)
+		local egg = Hatchery.eggById(config.eggs, GiantEgg.EGG_ID)
+		local got: { string } = {}
+		for cycle = 1, 3 do
+			h.data:update(player, function(data)
+				table.insert(got, GiantEgg.open(data, cycle, picker(h, player)) :: string)
+			end)
+		end
+		for i, speciesId in got do
+			expect(speciesId).toBe(Hatchery.fixedOrderOutcome(egg, i - 1))
+		end
 	end)
 
 	it("prices it in coins for the event: the floor, or hours of income when that is more", function()
@@ -149,7 +217,7 @@ describe("Giant Egg", function()
 		expect(GiantEgg.coinPrice(eventsConfig, rich)).toBe(rich * egg.coinPriceIncomeHours * 3600)
 	end)
 
-	it("sells today's Legendary for coins during the event, once a cycle", function()
+	it("sells it for coins during the event, once a cycle", function()
 		local h = Harness.new()
 		local player = Fakes.player(47)
 		h.join(player)
@@ -159,8 +227,7 @@ describe("Giant Egg", function()
 			local got: string?, why: string? = nil, nil
 			h.data:update(player, function(data)
 				local ledger = h.economy:ledger(player, data)
-				got, why =
-					GiantEgg.buyWithCoins(data, ledger, now, eventsConfig, config.creatures.species, price)
+				got, why = GiantEgg.buyWithCoins(data, ledger, now, eventsConfig, price, picker(h, player))
 				h.economy:commit(ledger)
 			end)
 			return got, why
@@ -172,17 +239,16 @@ describe("Giant Egg", function()
 		expect(why :: string).toContain("coins during the event")
 		expect(h.get(player).coins).toBe(poor)
 		expect(h.get(player).giantEgg.bought).toBe(0)
-		-- With enough: today's Legendary, the price taken, the cycle recorded.
+		-- With enough: an Epic or better, the price taken, the cycle recorded.
 		h.data:update(player, function(data)
 			data.coins += price
 		end)
 		local before = h.get(player).coins
 		got, why = buy()
-		local status = GiantEgg.status(h.get(player), now, eventsConfig, config.creatures.species)
 		expect(why).toBeNil()
-		expect(got).toBe(status.species)
+		expect(ABOVE_EPIC[config.creatures.species[got :: string].rarity]).toBe(true)
 		expect(before - h.get(player).coins).toBe(price)
-		expect(status.bought).toBe(true)
+		expect(GiantEgg.status(h.get(player), now, eventsConfig).bought).toBe(true)
 		-- A second one the same cycle is refused and costs nothing.
 		h.data:update(player, function(data)
 			data.coins += price
@@ -196,12 +262,22 @@ describe("Giant Egg", function()
 
 	it("refuses while the save is loading and keeps old saves working", function()
 		local now = 1_800_000_000
-		expect(GiantEgg.refusal(nil, now, eventsConfig, config.creatures.species)).toContain("loading")
+		expect(GiantEgg.refusal(nil, now, eventsConfig)).toContain("loading")
 		local old: { [string]: any } = {} -- a save from before the Giant Egg
-		expect(GiantEgg.status(old, now, eventsConfig, config.creatures.species).bought).toBe(false)
-		GiantEgg.record(old, 5)
-		GiantEgg.record(old, 4) -- a late receipt never moves the cycle back
+		expect(GiantEgg.status(old, now, eventsConfig).bought).toBe(false)
+		local function any(): string?
+			return "Phoenix"
+		end
+		GiantEgg.open(old, 5, any)
+		GiantEgg.open(old, 4, any) -- a late receipt never moves the cycle back
 		expect(old.giantEgg.lastCycle).toBe(5)
 		expect(old.giantEgg.bought).toBe(2)
+		expect(old.eggsBought.GiantEgg).toBe(2)
+		-- Nothing to hatch: nothing recorded.
+		local empty: { [string]: any } = {}
+		expect(GiantEgg.open(empty, 6, function(): string?
+			return nil
+		end)).toBeNil()
+		expect(empty.giantEgg).toBeNil()
 	end)
 end)

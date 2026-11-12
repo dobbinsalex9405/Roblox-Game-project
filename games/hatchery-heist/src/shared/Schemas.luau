@@ -6,6 +6,8 @@
 -- Roblox (server start-up) and in Lune (CI tests), which load the core from
 -- different places.
 
+local Eggs = require("./Eggs")
+
 export type Section = { schema: (value: any, path: string) -> (boolean, string?), value: any }
 
 return function(Schema: any, Odds: any)
@@ -488,7 +490,7 @@ return function(Schema: any, Odds: any)
 				tierSum += weight
 				local members = 0
 				for _, s in species do
-					if s.rarity == rarity and table.find(s.pools, egg.pool) then
+					if s.rarity == rarity and Eggs.inPool(s, egg.pool) then
 						members += 1
 					end
 				end
@@ -574,14 +576,28 @@ return function(Schema: any, Odds: any)
 			if products.GiantEgg == nil then
 				table.insert(problems, "events.giantEgg needs monetization.products.GiantEgg")
 			end
-			local legendary = false
-			for _, s in species do
-				if s.rarity == "Legendary" then
-					legendary = true
+			local giant = false
+			for _, egg in config.eggs do
+				if egg.id == "GiantEgg" then
+					giant = true
+					if egg.productKey ~= "GiantEgg" or egg.hatchSeconds ~= 0 then
+						table.insert(
+							problems,
+							"eggs.GiantEgg: sold as product GiantEgg and hatched on the spot"
+						)
+					end
+					for rarity in egg.tiers do
+						if table.find({ "Epic", "Legendary", "Godly" }, rarity) == nil then
+							table.insert(problems, `eggs.GiantEgg: nothing below Epic (has {rarity})`)
+						end
+					end
 				end
 			end
-			if not legendary then
-				table.insert(problems, "events.giantEgg needs at least one Legendary creature")
+			if not giant then
+				table.insert(problems, "events.giantEgg needs egg GiantEgg in config/eggs.luau")
+			end
+			if config.economy.conveyor.weights.GiantEgg then
+				table.insert(problems, "economy.conveyor.weights: the Giant Egg never rides the belt")
 			end
 		end
 		return problems
@@ -604,7 +620,7 @@ return function(Schema: any, Odds: any)
 		indoorZoom = Schema.number({ min = 4, max = 30 }),
 	})
 
-	-- Timed events and the Giant Legendary Egg (config/events.luau,
+	-- Timed events and the Giant Golden Egg (config/events.luau,
 	-- shared/Events.luau).
 	local rarity = Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" })
 	local rgb = Schema.array(Schema.integer({ min = 0, max = 255 }), { minLength = 3, maxLength = 3 })

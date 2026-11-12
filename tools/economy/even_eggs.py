@@ -42,6 +42,9 @@ TARGETS = {
     'MoonlitEgg': ('Moonlit', 10_000_000, {
         'Uncommon': 0.58, 'Rare': 0.38, 'Ultra Rare': 0.037, 'Epic': 0.0029,
         'Legendary': 0.00008, 'Godly': ('each', 0.000001)}),
+    # Alex, Nov 12: far better odds, nothing below Epic (economy thread).
+    # Pool 'All' is every creature in any egg pool (src/shared/Eggs.ALL).
+    'GiantEgg': ('All', 1_000_000, {'Epic': 0.795, 'Legendary': 0.20, 'Godly': 0.005}),
 }
 CHECK_ONLY = {'PremiumEgg': 'Premium'}
 TIERS = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
@@ -55,8 +58,11 @@ def members():
         raise SystemExit('a creature has an in-tier weight: even_eggs.py assumes every weight is 1')
     out = {}
     for m in re.finditer(r'\b(\w+) = \{\s*rarity = "([^"]+)",(.*?)pools = \{([^}]*)\}', src, re.S):
-        for pool in re.findall(r'"(\w+)"', m.group(4)):
+        pools = re.findall(r'"(\w+)"', m.group(4))
+        for pool in pools:
             out[(pool, m.group(2))] = out.get((pool, m.group(2)), 0) + 1
+        if pools:
+            out[('All', m.group(2))] = out.get(('All', m.group(2)), 0) + 1
     return out
 
 

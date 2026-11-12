@@ -245,21 +245,27 @@ Rules in `src/shared/Events.luau` and `src/shared/GiantEgg.luau`, numbers in
   Legendary and Godly x3; odds still total exactly 100% and show live).
 - **Banner** in the middle of the top bar: the next event and when it
   starts (a live countdown in its last hour), or the running event and the
-  time left. Tapping opens a card with what it does and today's Giant Egg.
+  time left. Tapping opens a card with what it does and the Giant Golden Egg.
   Notices go to everyone shortly before it starts, at the start and at the
   end. The HUD's income line turns gold and shows x2 during a Money Rush;
   egg prompts and the coin shop show sale prices and faster hatch times.
-- **Giant Legendary Egg** (`src/server/GiantEgg.luau`, art from
+- **Giant Golden Egg** (`src/server/GiantEgg.luau`, art from
   `tools/art/world/giantegg.py`): a big gold egg on a plinth in the middle
-  of the map with today's Legendary standing on top. A sign shows the
-  Legendary, its income, the price and the time to the next one. It is an
-  event special: while the day's event runs its Buy prompt (G / DPadUp)
-  sells it for coins (the larger of `coinPriceMin` and
-  `coinPriceIncomeHours` of the buyer's income), the rest of the day for
-  product `GiantEgg` (299 Robux). Once per player per day either way;
-  the buyer gets that Legendary, placed like a hatch, with the hatch
-  reveal. After buying, the sign says "Yours today" and the prompt turns
-  off until the next day. Saves keep `giantEgg = { lastCycle, bought }`.
+  of the map. It hatches Epic or better on its own odds (egg `GiantEgg` in
+  `config/eggs.luau`, Alex Nov 12): Epic 79.5%, Legendary 20%, Godly 1 in
+  200, out of every Epic, Legendary and Godly creature (pool `All`). Its
+  prompt opens the same odds card as every egg before it can be bought,
+  and a running Lucky Hatch never changes these odds. A sign shows the
+  odds, the price and the time to the next one. It is an event special:
+  while the day's event runs its Buy prompt (G / DPadUp) sells it for
+  coins (the larger of `coinPriceMin` and `coinPriceIncomeHours` of the
+  buyer's income), the rest of the day for product `GiantEgg` (299 Robux,
+  approved Nov 12). Once per player per day either way; the creature is
+  placed like a hatch, with the hatch reveal. Players PolicyService keeps
+  from paid random items get the egg's fixed order (shown on the card)
+  for coins and cannot buy it with Robux. After buying, the sign says
+  "Yours today" and the prompt turns off until the next day. Saves keep
+  `giantEgg = { lastCycle, bought }` and count it in `eggsBought`.
 - **Studio:** the Test panel's `event` action starts any event now, the
   next one in 2 minutes, or stops it; `giantegg` forgets today's purchase.
 

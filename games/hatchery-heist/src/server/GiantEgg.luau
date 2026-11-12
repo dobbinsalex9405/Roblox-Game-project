@@ -1,28 +1,31 @@
 --!strict
--- The Giant Legendary Egg on the Golden Nest (Alex, Nov 7 2026): builds it
--- (shared/GiantEggArt, made by tools/art/world/giantegg.py), shows today's
--- Legendary standing on top of it, and sells it.
+-- The Giant Golden Egg in the middle of the map (Alex, Nov 7 2026): builds
+-- it (shared/GiantEggArt, made by tools/art/world/giantegg.py) and sells it,
+-- once per player per event cycle.
+--
+-- What it hatches (Alex, Nov 12): a roll on egg "GiantEgg" in
+-- config/eggs.luau (Epic or better, far better odds than any other egg),
+-- shown on the odds card before purchase and policy-checked like every egg.
 --
 -- Buying (an event special, Alex Nov 7): while the day's event runs, the
 -- egg's ProximityPrompt buys it for coins (shared/GiantEgg.coinPrice) in one
 -- data update. The rest of the day it goes through the core shop's normal
 -- checks plus this module's guard (once a cycle per player, never during
--- the event), then Roblox's purchase prompt; the receipt grants the
--- Legendary that was on the egg when the prompt opened. Either way the
--- Legendary is placed like a hatch and plays the hatch reveal. Each client draws the sign over
--- the egg itself (client/EventView), because "bought today" is per player.
+-- the event), then Roblox's purchase prompt, and the receipt rolls it.
+-- Either way the creature is placed like a hatch and plays the hatch
+-- reveal. Each client draws the sign beside the egg itself
+-- (client/EventView), because "bought today" is per player.
 --
--- Model attributes for the clients: Species (today's Legendary) and
--- CycleEndsAt (unix seconds a new one arrives).
+-- Model attributes for the clients: CycleEndsAt (unix seconds the next egg
+-- can be bought) and SignY (the sign's height).
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local GiantEggArt = require(Shared.GiantEggArt)
 local GiantEggRules = require(Shared.GiantEgg)
-local Layout = require(Shared.Layout)
+local Hatchery = require(Shared.Hatchery)
 local PromptKeys = require(Shared.PromptKeys)
 local VoxelProp = require(Shared.VoxelProp)
 
@@ -31,7 +34,7 @@ export type Deps = {
 	productId: number,
 	actions: any, -- Actions.Actions (giftInside)
 	events: any, -- config/events.luau
-	species: { [string]: any },
+	egg: any, -- its expanded egg in config.eggs (the fixed order)
 	eventActive: () -> boolean, -- one of the day's events is running
 	incomeOf: (player: Player) -> number?, -- coins a second, nil before the save loads
 	notify: (player: Player, text: string) -> (),
@@ -44,7 +47,6 @@ GiantEgg.MODEL_NAME = "GiantEgg"
 GiantEgg.SOURCE = "GiantEgg" -- where its purchases are counted (ops/METRICS.md)
 local PROP = "GiantLegendaryEgg"
 local SIGN_DROP = 0.45 -- the sign's centre, this share of the egg's height below its top
-local SHOWCASE_SCALE = 1.5 -- today's Legendary on top, this many times its pad size
 local LIGHT_BRIGHTNESS = 0.35 -- warm, soft (studio lighting rule: 0.3 to 0.4, no Neon)
 
 local function vec(t: { number }): Vector3
@@ -67,7 +69,7 @@ end
 
 -- The egg's model: plinth and cradle, the shell (in its own Model so each
 -- client can rock it), colliders, a soft light and the Buy prompt. Returns
--- the model, its prompt and where today's Legendary stands.
+-- the model, its prompt and the egg's top (where the sign hangs from).
 function GiantEgg.build(config: any): (Model, ProximityPrompt, CFrame)
 	VoxelProp.register(GiantEggArt)
 	local art = GiantEggArt[PROP]
@@ -130,8 +132,10 @@ function GiantEgg.build(config: any): (Model, ProximityPrompt, CFrame)
 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "BuyPrompt"
+	-- The odds card shows while it is up, like every egg's (client/ConveyorView).
+	prompt:SetAttribute("HHEggId", GiantEggRules.EGG_ID)
 	prompt.ActionText = "Buy"
-	prompt.ObjectText = "Giant Legendary Egg"
+	prompt.ObjectText = "Giant Golden Egg"
 	prompt.HoldDuration = 0
 	prompt.MaxActivationDistance = config.promptDistance
 	prompt.RequiresLineOfSight = false
@@ -149,38 +153,12 @@ function GiantEgg.start(deps: Deps)
 	local model, prompt, top = GiantEgg.build(events.giantEgg)
 	model.Parent = Workspace
 
-	-- Today's Legendary on top of the egg: an invisible ball the clients
-	-- draw as the creature (client/CreatureView), swapped each cycle.
-	local showcase: Part? = nil
-	local shownSpecies: string? = nil
+	-- When the next egg can be bought (the clients' sign counts down to it).
 	local function refresh()
-		local status = GiantEggRules.status(nil, os.time(), events, deps.species)
-		model:SetAttribute("Species", status.species)
-		model:SetAttribute("CycleEndsAt", status.endsAt)
-		if status.species == shownSpecies then
-			return
-		end
-		shownSpecies = status.species
-		if showcase then
-			showcase:Destroy()
-			showcase = nil
-		end
-		if status.species then
-			local size = Layout.raritySize("Legendary") * SHOWCASE_SCALE
-			local ball = invisible(
-				"TodaysLegendary",
-				Vector3.new(size, size, size),
-				top * CFrame.new(0, size / 2, 0),
-				model
-			)
-			ball.Shape = Enum.PartType.Ball
-			ball:SetAttribute("CreatureLook", status.species)
-			showcase = ball
-		end
+		model:SetAttribute("CycleEndsAt", GiantEggRules.status(nil, os.time(), events).endsAt)
 	end
 	-- Where the client's sign goes: beside the egg at about its middle
-	-- (Studio gate, Nov 7). Above the egg, the Legendary on top hid it, and
-	-- higher still a phone's follow camera put it under the coin bar.
+	-- (Studio gate, Nov 7), clear of the coin bar on a phone's follow camera.
 	model:SetAttribute("SignY", top.Position.Y - events.giantEgg.height * SIGN_DROP)
 	refresh()
 	task.spawn(function()
@@ -190,33 +168,38 @@ function GiantEgg.start(deps: Deps)
 		end
 	end)
 
-	-- The Legendary each player's open prompt was for, so a purchase that
-	-- completes just after midnight still gets the one they saw.
-	local promptedFor: { [Player]: { cycle: number, species: string } } = {}
-	Players.PlayerRemoving:Connect(function(player: Player)
-		promptedFor[player] = nil
-	end)
+	-- What a purchase hatches: a roll on the egg's odds table, which runs the
+	-- policy check first; a player under the fixed-order rule gets the next
+	-- creature in the fixed order the odds card shows them. A Lucky Hatch
+	-- never touches this egg (EventService leaves it out).
+	local function picker(player: Player): GiantEggRules.Pick
+		return function(boughtBefore: number): string?
+			if not services.policy:paidRandomAllowed(player) then
+				return Hatchery.fixedOrderOutcome(deps.egg, boughtBefore)
+			end
+			return (services.odds:rollPaid(GiantEggRules.EGG_ID, player, services.policy))
+		end
+	end
 
+	-- After the save: the reveal, and the count for the uptake numbers.
+	local function hatched(player: Player, speciesId: string, isNew: boolean, event: string)
+		task.defer(function()
+			services.analytics:custom(player, event, 1, { speciesId })
+			deps.hatched(player, speciesId, GiantEggRules.EGG_ID, isNew)
+		end)
+	end
+
+	-- Outside the event: Robux. The receipt always grants (money taken is
+	-- never refused), even if the cycle turned over while the prompt was up.
 	services.receipts:register(
 		GiantEggRules.EGG_ID,
 		deps.productId,
 		function(player: Player, d: { [string]: any }, ledger)
-			local status = GiantEggRules.status(d, os.time(), events, deps.species)
-			local cycle, speciesId = status.cycle, status.species
-			local seen = promptedFor[player]
-			if seen and status.cycle - seen.cycle <= 1 then
-				cycle, speciesId = seen.cycle, seen.species
-			end
-			assert(speciesId, "no Legendary for the Giant Egg")
-			GiantEggRules.record(d, cycle)
+			local status = GiantEggRules.status(d, os.time(), events)
+			local speciesId = GiantEggRules.open(d, status.cycle, picker(player))
+			assert(speciesId, "the Giant Egg has nothing to hatch")
 			local _, isNew = deps.actions:giftInside(player, d, ledger, speciesId, GiantEggRules.EGG_ID)
-			promptedFor[player] = nil
-			local granted = speciesId :: string
-			-- After the save: the reveal, and the count for the uptake numbers.
-			task.defer(function()
-				services.analytics:custom(player, "GiantEgg:Bought", 1, { granted })
-				deps.hatched(player, granted, GiantEggRules.EGG_ID, isNew)
-			end)
+			hatched(player, speciesId, isNew, "GiantEgg:Bought")
 		end
 	)
 
@@ -224,12 +207,9 @@ function GiantEgg.start(deps: Deps)
 		if deps.eventActive() then
 			return "During the event the Giant Egg costs coins: walk up to it in the middle of the map."
 		end
-		local d = services.data:get(player)
-		local refusal = GiantEggRules.refusal(d, os.time(), events, deps.species)
+		local refusal = GiantEggRules.refusal(services.data:get(player), os.time(), events)
 		if refusal == nil then
-			local status = GiantEggRules.status(d, os.time(), events, deps.species)
-			promptedFor[player] = { cycle = status.cycle, species = status.species :: string }
-			services.analytics:custom(player, "GiantEgg:Prompted", 1, { status.species :: string })
+			services.analytics:custom(player, "GiantEgg:Prompted", 1, {})
 		end
 		return refusal
 	end)
@@ -247,7 +227,7 @@ function GiantEgg.start(deps: Deps)
 		local isNew = false
 		local ok = deps.actions:change(player, function(d, ledger): string?
 			local speciesId, refusal =
-				GiantEggRules.buyWithCoins(d, ledger, os.time(), events, deps.species, price)
+				GiantEggRules.buyWithCoins(d, ledger, os.time(), events, price, picker(player))
 			if speciesId == nil then
 				return refusal
 			end
@@ -256,9 +236,7 @@ function GiantEgg.start(deps: Deps)
 			return nil
 		end)
 		if ok and granted then
-			local speciesId = granted :: string
-			services.analytics:custom(player, "GiantEgg:BoughtCoins", 1, { speciesId })
-			deps.hatched(player, speciesId, GiantEggRules.EGG_ID, isNew)
+			hatched(player, granted :: string, isNew, "GiantEgg:BoughtCoins")
 		end
 	end
 

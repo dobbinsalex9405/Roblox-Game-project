@@ -3,7 +3,7 @@
 -- Do not edit: change the art there and run
 -- `python3 tools/art/world/giantexport.py` (needs numpy).
 --
--- The Giant Legendary Egg (timed events, config/events.luau) in WorldArt's
+-- The Giant Golden Egg (timed events, config/events.luau) in WorldArt's
 -- format: voxel boxes, seven numbers a box, Y up, front -Z, base at Y = 0.
 -- Register it with shared/VoxelProp to build it.
 
@@ -15,7 +15,7 @@ local GiantEggArt: { [string]: WorldArt.Prop } = {
 		voxel = 0.3,
 		size = { 30, 39, 30 },
 		anchor = { 0, 0, 0 },
-		note = "the Giant Legendary Egg on the Golden Nest: gold egg, flame band, gem ring, bronze claw cradle",
+		note = "the Giant Golden Egg on the Golden Nest: gold egg, flame band, gem ring, bronze claw cradle",
 		palette = {
 			"8C5A2B",
 			"9C7424",

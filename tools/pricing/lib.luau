@@ -14,8 +14,8 @@ lib.LADDER = table.freeze({
 	{ robux = 99, tier = "Medium", what = "medium currency pack, convenience pass, cosmetic bundle" },
 	{ robux = 149, tier = "Capacity", what = "pass that adds room or plays the core action for you" },
 	{ robux = 199, tier = "Power", what = "pass that multiplies earnings" },
-	-- Alex, Nov 7 2026: the Giant Legendary Egg outside its event.
-	{ robux = 299, tier = "Premium", what = "a named top-rarity creature, once a day" },
+	-- Alex, Nov 7 2026 (approved Nov 12): the Giant Golden Egg outside its event.
+	{ robux = 299, tier = "Premium", what = "a top-rarity egg (Epic or better), once a day" },
 	{ robux = 399, tier = "Large", what = "large currency pack (best value per Robux); the ceiling" },
 })
 

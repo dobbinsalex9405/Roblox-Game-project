@@ -1,14 +1,15 @@
 --!strict
--- Timed events and the Giant Legendary Egg on screen (Alex, Nov 7 2026):
+-- Timed events and the Giant Golden Egg on screen (Alex, Nov 7 2026):
 --
 -- * The event banner, in the middle of the top bar: the running event and
 --   the time left, or the next one and when it starts (a live countdown in
 --   its last hour). Tap it for a card saying what the event does and what
---   today's Giant Egg holds. Phone first: the banner and the card's button
+--   the Giant Egg costs. Phone first: the banner and the card's button
 --   are at least 40 px tall, and nothing else on the HUD sits under them.
--- * The Giant Egg's sign: today's Legendary, its price, and "Yours today"
---   with the time to the next one once this player has bought it (the
---   Buy prompt turns off for them until then).
+-- * The Giant Egg's sign: its best odds (Epic or better, Alex Nov 12), its
+--   price, and "Yours today" with the time to the next one once this player
+--   has bought it (the Buy prompt turns off for them until then). The full
+--   odds card (client/Hud) shows while its Buy prompt is up, like every egg.
 -- * The egg's shell rocks now and then, as if about to hatch.
 --
 -- The schedule comes from client/EventClock (the servers' own schedule on
@@ -16,11 +17,14 @@
 
 local GuiService = game:GetService("GuiService")
 local MarketplaceService = game:GetService("MarketplaceService")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local ClientNet = require(ReplicatedStorage.CoreClient.ClientNet)
+local CoreClient = require(ReplicatedStorage.CoreClient.CoreClient)
+local Odds = require(ReplicatedStorage.Core.Odds)
 local ShopRemotes = require(ReplicatedStorage.Core.ShopRemotes)
 local Shared = ReplicatedStorage.Shared
 local Events = require(Shared.Events)
@@ -31,6 +35,7 @@ local ShopPlan = require(Shared.ShopPlan)
 
 local Context = require(script.Parent.Context)
 local EventClock = require(script.Parent.EventClock)
+local OddsView = require(script.Parent.OddsView)
 
 local EventView = {}
 
@@ -83,7 +88,6 @@ end
 
 function EventView.start(ctx: Context.Context)
 	local config = EventClock.config
-	local species = ctx.config.creatures.species
 	local listings = (require(ReplicatedStorage.GameConfig.monetization) :: any).listings
 	local listed = listings.products.GiantEgg and listings.products.GiantEgg.robux
 
@@ -228,7 +232,7 @@ function EventView.start(ctx: Context.Context)
 	-- The Giant Egg: its sign (per player), its prompt and its rocking shell.
 	local model: Model? = nil
 	local signTitle: TextLabel? = nil
-	local signSpecies: TextLabel? = nil
+	local signOdds: TextLabel? = nil
 	local signPrice: TextLabel? = nil
 	local shellParts: { { part: BasePart, base: CFrame } } = {}
 	local pivot = Vector3.zero
@@ -270,8 +274,7 @@ function EventView.start(ctx: Context.Context)
 		g.Adornee = hitbox
 		g.Size = UDim2.fromScale(SIGN_SIZE.X, SIGN_SIZE.Y) -- studs
 		-- Beside the egg at about its middle (the server's SignY), shifted
-		-- to the camera's right so neither the egg nor the Legendary on top
-		-- hides it, and low enough that a phone's follow camera never puts
+		-- to the camera's right so the egg never hides it, and low enough that a phone's follow camera never puts
 		-- it under the coin bar (Studio gate, Nov 7).
 		local y = m:GetAttribute("SignY")
 		g.StudsOffsetWorldSpace = Vector3.new(0, if type(y) == "number" then y - hitbox.Position.Y else 0, 0)
@@ -293,13 +296,13 @@ function EventView.start(ctx: Context.Context)
 		local t = text(back, "Title", UDim2.new(1, -16, 0.34, 0), UDim2.new(0, 8, 0.04, 0))
 		t.TextXAlignment = Enum.TextXAlignment.Center
 		t.TextColor3 = GOLD
-		t.Text = "GIANT LEGENDARY EGG"
-		local s = text(back, "Species", UDim2.new(1, -16, 0.28, 0), UDim2.new(0, 8, 0.38, 0))
+		t.Text = "GIANT GOLDEN EGG"
+		local s = text(back, "Odds", UDim2.new(1, -16, 0.28, 0), UDim2.new(0, 8, 0.38, 0))
 		s.TextXAlignment = Enum.TextXAlignment.Center
 		local p = text(back, "Price", UDim2.new(1, -16, 0.26, 0), UDim2.new(0, 8, 0.69, 0), false)
 		p.TextXAlignment = Enum.TextXAlignment.Center
 		g.Parent = ctx.player:WaitForChild("PlayerGui")
-		signTitle, signSpecies, signPrice = t, s, p
+		signTitle, signOdds, signPrice = t, s, p
 	end
 
 	local function attach(m: Model)
@@ -324,20 +327,43 @@ function EventView.start(ctx: Context.Context)
 		end
 	end)
 
+	-- Its best odds in a line: "Legendary 1 in 5, Godly 1 in 200" (the
+	-- egg's own tiers, which events never change), or the fixed order's
+	-- note for a player under it.
+	local giant = Hatchery.eggById(ctx.config.eggs, GiantEggRules.EGG_ID)
+	local function oddsLine(): string
+		if ctx.restricted() then
+			return "in a set order (see its card)"
+		end
+		local parts = {}
+		for _, rarity in { "Legendary", "Godly" } do
+			local weight = giant and giant.tiers[rarity]
+			if weight then
+				table.insert(parts, `{rarity} {Odds.formatOneIn(weight, giant.total)}`)
+			end
+		end
+		return table.concat(parts, ", ")
+	end
+
+	-- The shop sells a random item only to a player shown its odds in the
+	-- last ten minutes (packages/core Purchases), so each time the Buy
+	-- prompt comes up (and the Hud's odds card with it) the odds are asked
+	-- for again, which marks them as shown on the server.
+	ProximityPromptService.PromptShown:Connect(function(prompt: ProximityPrompt)
+		if prompt:GetAttribute("HHEggId") == GiantEggRules.EGG_ID then
+			CoreClient.requestOdds(GiantEggRules.EGG_ID)
+		end
+	end)
+
 	local function updateEgg(now: number)
 		local m = model
 		if m == nil then
 			return
 		end
-		local speciesId = m:GetAttribute("Species")
 		local endsAt = m:GetAttribute("CycleEndsAt")
-		local status = GiantEggRules.status(ctx.data(), now, config, species)
-		local today = if type(speciesId) == "string" then speciesId else status.species
-		local info = today and species[today]
-		if signSpecies then
-			signSpecies.Text = if today and info
-				then `Today: {Layout.displayName(today)}  +{Layout.shortNumber(info.coinsPerSecond)}/s`
-				else "Empty today"
+		local status = GiantEggRules.status(ctx.data(), now, config)
+		if signOdds then
+			signOdds.Text = oddsLine()
 		end
 		-- An event special (Alex, Nov 7): coins while the day's event runs,
 		-- Robux the rest of the day.
@@ -346,7 +372,10 @@ function EventView.start(ctx: Context.Context)
 		local coinPrice = if d
 			then GiantEggRules.coinPrice(config, Hatchery.incomePerSecond(d, ctx.config, ctx.perks()))
 			else nil
-		local robuxReady = catalogEntry ~= nil and catalogEntry.available == true
+		-- A player PolicyService keeps from paid random items gets the fixed
+		-- order for coins, but its Robux price is refused (catalog `blocked`).
+		local blocked = catalogEntry ~= nil and catalogEntry.blocked == true
+		local robuxReady = catalogEntry ~= nil and catalogEntry.available == true and not blocked
 		local available = if duringEvent then coinPrice ~= nil else robuxReady
 		local priceText = if duringEvent
 			then `{Layout.shortNumber(coinPrice or 0)} coins`
@@ -354,9 +383,10 @@ function EventView.start(ctx: Context.Context)
 		local left = if type(endsAt) == "number" then endsAt - now else status.endsAt - now
 		if signPrice then
 			signPrice.Text = if status.bought
-				then `Yours today! New Legendary in {Events.countdown(left)}`
+				then `Yours today! Next one in {Events.countdown(left)}`
 				elseif duringEvent then `EVENT SPECIAL: {priceText}  ·  one a day`
-				else `{priceText}  ·  one a day  ·  new in {Events.countdown(left)}`
+				elseif blocked then "For coins during the daily event"
+				else `{priceText}  ·  one a day`
 		end
 		if signTitle then
 			signTitle.TextColor3 = if status.bought then Color3.fromRGB(120, 230, 120) else GOLD
@@ -367,19 +397,20 @@ function EventView.start(ctx: Context.Context)
 			prompt.ActionText = if status.bought
 				then "Yours today"
 				elseif available then `Buy for {priceText}`
+				elseif blocked then "Coins during the event"
 				else "Coming soon"
 			-- Studio keeps an unfinished product pressable, so the server's
 			-- "Use the Test panel" notice can be checked there.
-			prompt.Enabled = not status.bought and (available or RunService:IsStudio())
-			prompt.ObjectText = if duringEvent
-				then "Event special: costs coins now"
-				else "Giant Legendary Egg"
+			-- Never before its odds have arrived, like every egg.
+			prompt.Enabled = not status.bought
+				and OddsView.ready(GiantEggRules.EGG_ID)
+				and (available or (RunService:IsStudio() and not blocked))
+			prompt.ObjectText = if duringEvent then "Event special: costs coins now" else "Giant Golden Egg"
 		end
-		cardEgg.Text = if today
-			then `Today's Giant Egg, in the middle of the map: a {Layout.displayName(today)} (Legendary). {if status.bought
-				then "You have it!"
-				else "One per player each day. During the event it costs coins instead of Robux!"}`
-			else ""
+		cardEgg.Text =
+			`The Giant Golden Egg in the middle of the map: Epic or better, {oddsLine()}. {if status.bought
+				then "You have today's!"
+				else "One per player each day, and during the event it costs coins instead of Robux!"}`
 	end
 
 	local function update()

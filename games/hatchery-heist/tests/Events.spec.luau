@@ -1,5 +1,5 @@
 --!strict
--- Timed events and the Giant Egg's daily pick (shared/Events.luau): one
+-- Timed events (shared/Events.luau): one
 -- window a cycle, the same on every server, inside the allowed hours, each
 -- event once per round and never twice running, and the effects exact at the
 -- window's edges.
@@ -11,17 +11,6 @@ local describe, it, expect = t.describe, t.it, t.expect
 
 local DAY = 86400
 local NOV_7_2026 = 1794009600 -- 2026-11-07 00:00 UTC
-
-local function legendaries(): { string }
-	local ids = {}
-	for id, s in creatures.species do
-		if s.rarity == "Legendary" then
-			table.insert(ids, id)
-		end
-	end
-	table.sort(ids)
-	return ids
-end
 
 describe("Events schedule", function()
 	it("hashes deterministically and spreads the bits", function()
@@ -205,7 +194,7 @@ describe("Events effects", function()
 	end)
 end)
 
-describe("Events banner and Giant Egg", function()
+describe("Events banner", function()
 	it("names a Lucky Hatch boost the way players read it on the odds card", function()
 		expect(Events.boostName("LuckyHatch", config)).toBe("Lucky Hatch")
 		expect(Events.boostName("Unknown", config)).toBe("Unknown")
@@ -235,27 +224,6 @@ describe("Events banner and Giant Egg", function()
 		expect(live.seconds).toBe(29 * 60)
 		expect(soon.seconds).toBe(125)
 		expect(live.blurb).toBe(def.blurb)
-	end)
-
-	it("puts every Legendary on the Giant Egg in turn, never twice running", function()
-		local ids = legendaries()
-		expect(#ids >= 1).toBe(true)
-		local first = Events.cycleOf(NOV_7_2026, config)
-		local seen: { [string]: number } = {}
-		local last: string? = nil
-		for cycle = first, first + 10 * #ids - 1 do
-			local id = Events.giantSpecies(cycle, config, creatures.species) :: string
-			expect(creatures.species[id].rarity).toBe("Legendary")
-			if #ids > 1 then
-				expect(id ~= last).toBe(true)
-			end
-			last = id
-			seen[id] = (seen[id] or 0) + 1
-		end
-		for _, id in ids do
-			expect(seen[id] ~= nil).toBe(true)
-		end
-		expect(Events.giantSpecies(first, config, {})).toBeNil()
 	end)
 end)
 
@@ -307,6 +275,10 @@ describe("Events config", function()
 		local boost = { rarityMultipliers = config.kinds.LuckyHatch.rarityMultipliers }
 		local player = {}
 		for _, egg in eggs do
+			-- The Giant Egg is all Epic or better, and events leave its odds alone.
+			if egg.id == "GiantEgg" then
+				continue
+			end
 			local multipliers = Eggs.boostMultipliers(egg, boost, creatures.species)
 			odds:setBoosts(player, egg.id, { { id = "LuckyHatch", multipliers = multipliers } })
 			local total, before, after = 0, 0, 0

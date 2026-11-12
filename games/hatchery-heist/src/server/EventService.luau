@@ -90,6 +90,11 @@ function EventService.new(config: any): EventService
 			end
 			boosted[player] = key
 			for _, egg in deps.eggs do
+				-- The Giant Egg's odds are fixed (economy thread, Nov 12): no
+				-- event luck on top.
+				if egg.id == "GiantEgg" then
+					continue
+				end
 				local list = {}
 				if effects.rarityMultipliers then
 					local multipliers = Eggs.boostMultipliers(

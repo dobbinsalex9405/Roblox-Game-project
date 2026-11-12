@@ -2,6 +2,30 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: The Giant Golden Egg is an odds egg, Epic or better (Hatchery Heist)
+
+- Alex, Nov 12: the giant egg "shouldn't hold a specific legendary, just
+  far better odds, and no lower pull than epic", and yes to its prices
+  (299 Robux outside the event, max(250M, 6 h of income) coins during it).
+- It is egg `GiantEgg` in `config/eggs.luau`: Epic 79.5%, Legendary 20%,
+  Godly 0.5% out of 1,000,000 (the economy thread's numbers). Its pool is
+  `All` (`Eggs.ALL`): every creature in any pool, kept to its tiers, so
+  each new Epic, Legendary or Godly joins it with no per-creature edit and
+  `tools/economy/even_eggs.py` keeps its weights even like every egg.
+- It is a paid random item: the server rolls it with `odds:rollPaid` (the
+  PolicyService check), its prompt carries `HHEggId` so the odds card shows
+  like every belt egg, and the client asks for its odds again each time the
+  prompt shows so the shop's ten-minute "odds seen" rule holds. The Robux
+  product is `paidRandom` + `oddsTable = "GiantEgg"`, so a restricted
+  player is refused its Robux price; for coins they get the egg's fixed
+  order, the same rule every other egg follows (2026-11-07 fixed order).
+- A Lucky Hatch never boosts it (EventService skips it): its odds are
+  already the best in the game and stay exactly what the card promised.
+- Renamed from "Giant Legendary Egg" to "Giant Golden Egg" (Alex's words,
+  and it no longer promises a Legendary). Saves are unchanged:
+  `giantEgg = { lastCycle, bought }` and now `eggsBought.GiantEgg`, the
+  fixed order's counter. `Events.giantSpecies` is gone.
+
 ## 2026-11-09: CI runs as three parallel jobs behind the required check
 
 - #168's single check job took 30.5 min: art export 14 min, setup and tests

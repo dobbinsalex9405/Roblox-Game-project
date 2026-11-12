@@ -1,5 +1,5 @@
 """Writes games/hatchery-heist/src/shared/GiantEggArt.luau from giantegg.py:
-the Giant Legendary Egg as a prop in WorldArt's format, so shared/VoxelProp
+the Giant Golden Egg as a prop in WorldArt's format, so shared/VoxelProp
 builds it (kind "event" props only; WorldArt.luau is never touched).
 
     python3 tools/art/world/giantexport.py
@@ -40,7 +40,7 @@ def export_all():
         '-- Do not edit: change the art there and run',
         '-- `python3 tools/art/world/giantexport.py` (needs numpy).',
         '--',
-        '-- The Giant Legendary Egg (timed events, config/events.luau) in WorldArt\'s',
+        '-- The Giant Golden Egg (timed events, config/events.luau) in WorldArt\'s',
         '-- format: voxel boxes, seven numbers a box, Y up, front -Z, base at Y = 0.',
         '-- Register it with shared/VoxelProp to build it.',
         '',

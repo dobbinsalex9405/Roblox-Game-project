@@ -297,7 +297,7 @@ local function yard(parent: Instance)
 		})
 	end
 	disc(nest, "NestBed", Vector3.new(0, 0.4, 0), 15, 1, Color3.fromRGB(170, 132, 70), Enum.Material.Fabric)
-	-- The middle of the nest holds the Giant Legendary Egg (server/GiantEgg,
+	-- The middle of the nest holds the Giant Golden Egg (server/GiantEgg,
 	-- timed events); three small eggs keep it company round the edge.
 	egg(nest, "BlueEgg", Vector3.new(5.1, 1.4, 3.2), 3.2, 4.2, Color3.fromRGB(120, 190, 255))
 	egg(nest, "PinkEgg", Vector3.new(-4.75, 1.4, 3.7), 3, 4, Color3.fromRGB(255, 150, 190))

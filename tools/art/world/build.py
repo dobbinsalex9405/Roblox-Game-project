@@ -38,7 +38,7 @@ import apartment  # noqa: E402,F401
 import tower  # noqa: E402,F401
 import rooms  # noqa: E402,F401
 import hub  # noqa: E402,F401
-import giantegg  # noqa: E402,F401  (kind "event": the Giant Legendary Egg)
+import giantegg  # noqa: E402,F401  (kind "event": the Giant Golden Egg)
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))
 

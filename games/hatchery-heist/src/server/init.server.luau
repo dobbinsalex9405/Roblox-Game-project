@@ -420,7 +420,7 @@ local function incomeOf(player: Player): number?
 	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
 end
 
--- Timed events and the Giant Legendary Egg. The egg's product must be
+-- Timed events and the Giant Golden Egg. The egg's product must be
 -- registered before the shop lists it (Shop.register).
 events.start({
 	odds = services.odds,
@@ -435,7 +435,7 @@ GiantEgg.start({
 	productId = ids.products.GiantEgg or 0,
 	actions = ready,
 	events = Config.get("events"),
-	species = config.creatures.species,
+	egg = Hatchery.eggById(config.eggs, "GiantEgg"),
 	eventActive = events.active,
 	incomeOf = incomeOf,
 	notify = notify,

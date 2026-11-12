@@ -20,7 +20,7 @@ in.
 | 99 | Medium | Medium currency pack, a convenience pass, a cosmetic bundle |
 | 149 | Capacity | A pass that adds room, or that plays the core action for you |
 | 199 | Power | A pass that multiplies earnings |
-| 299 | Premium | A named top-rarity creature, once a day (Alex, Nov 7 2026: the Giant Legendary Egg outside its event) |
+| 299 | Premium | A top-rarity egg (Epic or better), once a day (Alex, Nov 7 2026, approved Nov 12: the Giant Golden Egg outside its event) |
 | 399 | Large | Large currency pack, the best value per Robux. **The ceiling.** |
 
 Why these numbers:
@@ -119,7 +119,7 @@ Why these numbers:
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
 | Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |
-| Hatchery Heist | GiantEgg | Developer Product | Giant Legendary Egg | 299 | Premium | Yes | Hatches the Legendary shown on today's Giant Egg in the middle of the map. One per player each day, and a new Legendary every day. During the daily event it costs coins instead. |
+| Hatchery Heist | GiantEgg | Developer Product | Giant Golden Egg | 299 | Premium | Yes | Hatches an Epic, Legendary or Godly creature from the Giant Golden Egg in the middle of the map, with the odds shown in game before you buy. One per player each day. During the daily event it costs coins instead. |
 | Hatchery Heist | CoinPackLarge | Developer Product | 200K Coins | 399 | Large | Yes | 200,000 coins, added right away. The best value per Robux. |
 | Tidecatch Cove | AutoReel | Game Pass | Auto-reel | 149 | Capacity | Yes | Bites reel themselves in at an average player's success rate. Skill still pays. |
 | Tidecatch Cove | ExtraPools | Game Pass | Extra Pools | 149 | Capacity | Yes | More tide pools, so you can raise more creatures at once. |

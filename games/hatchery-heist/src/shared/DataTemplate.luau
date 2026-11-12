@@ -39,7 +39,7 @@ DataTemplate.template = {
 	floorUpgrades = {},
 	towerVersion = 0,
 	daily = { lastDay = 0, streak = 0 }, -- Daily Rewards: UTC day last claimed, reward claimed then
-	-- The Giant Legendary Egg (shared/Events.luau): the event cycle it was
+	-- The Giant Golden Egg (shared/Events.luau): the event cycle it was
 	-- last bought in (one a cycle) and how many this player has bought. Added
 	-- after launch of version 1 like `found` (reconcile fills it in).
 	giantEgg = { lastCycle = 0, bought = 0 },

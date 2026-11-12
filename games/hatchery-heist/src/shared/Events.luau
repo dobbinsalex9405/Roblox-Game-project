@@ -1,5 +1,5 @@
 --!strict
--- Timed events and the Giant Legendary Egg's daily pick, as pure functions of
+-- Timed events and the Giant Golden Egg's daily cycle, as pure functions of
 -- the clock and config/events.luau (Alex, Nov 7 2026).
 --
 -- Time is cut into 24-hour cycles starting at `cycleStartHourUtc`. Each cycle
@@ -228,22 +228,6 @@ function Events.incomeSeconds(from: number, to: number, config: any, override: O
 		seconds += overlap(from, to, o0, o1) * (factor - 1)
 	end
 	return seconds
-end
-
--- The Legendary on the Giant Egg in cycle `cycle`: every Legendary in turn,
--- in a shuffled order, never the same two days running. Nil if none exist.
-function Events.giantSpecies(cycle: number, config: any, species: { [string]: any }): string?
-	local ids = {}
-	for id, s in species do
-		if s.rarity == "Legendary" then
-			table.insert(ids, id)
-		end
-	end
-	if #ids == 0 then
-		return nil
-	end
-	table.sort(ids)
-	return Events.rotationPick(ids, cycle, config.seed, 3)
 end
 
 -- "2h 05m", "45:09" (under an hour), "0:07".

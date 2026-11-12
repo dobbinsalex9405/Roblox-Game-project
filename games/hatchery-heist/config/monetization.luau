@@ -25,8 +25,9 @@ return {
 		InstantHatch = { id = 0 },
 		PremiumEgg = { id = 0 },
 		LuckBoost = { id = 0 },
-		-- The Giant Legendary Egg in the middle of the map: today's named
-		-- Legendary, once per player per day (config/events.luau giantEgg).
+		-- The Giant Golden Egg in the middle of the map: Epic or better on
+		-- its own odds (config/eggs.luau GiantEgg), once per player per day
+		-- (config/events.luau giantEgg).
 		GiantEgg = { id = 0 },
 	},
 	-- Ids in the Staging and Production experiences. A key left out keeps the
@@ -109,12 +110,12 @@ return {
 				robux = 49,
 				description = "Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown.",
 			},
-			-- Alex, Nov 7: 299 Robux outside the daily event; during the event
+			-- Alex, Nov 7 (approved Nov 12): 299 Robux outside the daily event; during the event
 			-- it costs coins instead (config/events.luau giantEgg.coinPrice).
 			GiantEgg = {
-				name = "Giant Legendary Egg",
+				name = "Giant Golden Egg",
 				robux = 299,
-				description = "Hatches the Legendary shown on today's Giant Egg in the middle of the map. One per player each day, and a new Legendary every day. During the daily event it costs coins instead.",
+				description = "Hatches an Epic, Legendary or Godly creature from the Giant Golden Egg in the middle of the map, with the odds shown in game before you buy. One per player each day. During the daily event it costs coins instead.",
 			},
 		},
 	},

@@ -1,5 +1,5 @@
 --!strict
--- Timed events and the Giant Legendary Egg (Alex, Nov 7 2026).
+-- Timed events and the Giant Golden Egg (Alex, Nov 7 2026).
 --
 -- Every 24-hour cycle has one event window of `windowMinutes`, at a random
 -- time between `earliestHour` and `latestHour` hours into the cycle, running
@@ -12,11 +12,12 @@
 -- The rotation goes through every event once before any repeats, in an
 -- order shuffled per round, and never runs the same event two days in a row.
 --
--- The Giant Legendary Egg sits on the Golden Nest in the middle of the map
--- all day, every day. Each cycle it holds one Legendary, picked by the same
--- hash from every Legendary in config/creatures, and shown on the egg before
--- anyone buys: nothing about it is random. Each player can buy it once a
--- cycle, for Robux (monetization.products.GiantEgg).
+-- The Giant Golden Egg sits on the Golden Nest in the middle of the map
+-- all day, every day. It hatches Epic or better on its own odds table
+-- (config/eggs.luau GiantEgg, Alex Nov 12), shown on its odds card before
+-- anyone buys. Each player can buy it once a cycle: for coins while the
+-- day's event runs (giantEgg below), for Robux the rest of the day
+-- (monetization.products.GiantEgg).
 return {
 	seed = 20261107,
 	-- 12:00 UTC: 7 am in New York, 4 am in Los Angeles. Cycles, and the Giant
