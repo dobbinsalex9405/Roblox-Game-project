@@ -1231,10 +1231,10 @@
    "version": "1"
   },
   "NebulaSerpent": {
-   "assetId": 133734762072662,
-   "textureId": 86054197578838,
+   "assetId": 108698232744222,
+   "textureId": 118740954544619,
    "textureType": "Image",
-   "version": "5"
+   "version": "1"
   },
   "NekomataKitten": {
    "assetId": 102804477761926,
@@ -1243,8 +1243,8 @@
    "version": "1"
   },
   "NeonOctopus": {
-   "assetId": 103256171711386,
-   "textureId": 93824815863729,
+   "assetId": 120870785332261,
+   "textureId": 125402970378421,
    "textureType": "Image",
    "version": "1"
   },
@@ -1255,14 +1255,14 @@
    "version": "4"
   },
   "OmegaChimera": {
-   "assetId": 81830307992524,
-   "textureId": 77593441411662,
+   "assetId": 102444083964080,
+   "textureId": 115982203536669,
    "textureType": "Image",
-   "version": "2"
+   "version": "1"
   },
   "OpalFrog": {
-   "assetId": 112372019943411,
-   "textureId": 115634981576362,
+   "assetId": 133100992879084,
+   "textureId": 81905753337250,
    "textureType": "Image",
    "version": "1"
   },
@@ -1285,10 +1285,10 @@
    "version": "6"
   },
   "PacmanFrog": {
-   "assetId": 109396017995532,
-   "textureId": 86608598990647,
+   "assetId": 118229905716835,
+   "textureId": 137499830434430,
    "textureType": "Image",
-   "version": "2"
+   "version": "1"
   },
   "PandaCub": {
    "assetId": 133358910111184,
@@ -1303,8 +1303,8 @@
    "version": "1"
   },
   "PaperCrane": {
-   "assetId": 86852738827837,
-   "textureId": 125939873643176,
+   "assetId": 119417219751820,
+   "textureId": 103844367273735,
    "textureType": "Image",
    "version": "1"
   },
@@ -1315,8 +1315,8 @@
    "version": "1"
   },
   "Peapod": {
-   "assetId": 126082620867128,
-   "textureId": 71519985736583,
+   "assetId": 123706776663593,
+   "textureId": 81472931239955,
    "textureType": "Image",
    "version": "1"
   },
@@ -1327,8 +1327,8 @@
    "version": "1"
   },
   "PegasusFoal": {
-   "assetId": 112734641716930,
-   "textureId": 86718810267555,
+   "assetId": 84248932556311,
+   "textureId": 117740206823526,
    "textureType": "Image",
    "version": "1"
   },
@@ -1351,8 +1351,8 @@
    "version": "3"
   },
   "PetalSprite": {
-   "assetId": 140691040768394,
-   "textureId": 138511276897023,
+   "assetId": 78957477725674,
+   "textureId": 125026709567958,
    "textureType": "Image",
    "version": "1"
   },
@@ -1363,14 +1363,14 @@
    "version": "4"
   },
   "Phoenix": {
-   "assetId": 71414247546855,
-   "textureId": 138196067913676,
+   "assetId": 109198145950883,
+   "textureId": 114454974711215,
    "textureType": "Image",
-   "version": "7"
+   "version": "1"
   },
   "PhoenixChick": {
-   "assetId": 116048325985544,
-   "textureId": 114400089694345,
+   "assetId": 99292797461101,
+   "textureId": 101828430378576,
    "textureType": "Image",
    "version": "1"
   },
@@ -1387,10 +1387,10 @@
    "version": "1"
   },
   "PillBug": {
-   "assetId": 94663479296202,
-   "textureId": 78529494312727,
+   "assetId": 94750031632405,
+   "textureId": 138801668702958,
    "textureType": "Image",
-   "version": "5"
+   "version": "1"
   },
   "PineMarten": {
    "assetId": 132074492823019,
@@ -1423,10 +1423,10 @@
    "version": "4"
   },
   "PrismAlicorn": {
-   "assetId": 77449082286511,
-   "textureId": 91949691460544,
+   "assetId": 92757019801115,
+   "textureId": 85695690644726,
    "textureType": "Image",
-   "version": "3"
+   "version": "1"
   },
   "Ptarmigan": {
    "assetId": 111939696950226,
@@ -1489,14 +1489,14 @@
    "version": "4"
   },
   "Radishling": {
-   "assetId": 77456215353494,
-   "textureId": 76979338099660,
+   "assetId": 99501468916736,
+   "textureId": 123635669639973,
    "textureType": "Image",
    "version": "1"
   },
   "RainFrog": {
-   "assetId": 71225241268317,
-   "textureId": 111793163565624,
+   "assetId": 139691566777686,
+   "textureId": 96064215750705,
    "textureType": "Image",
    "version": "1"
   },
@@ -1519,8 +1519,8 @@
    "version": "4"
   },
   "RhinoBeetle": {
-   "assetId": 124051359693333,
-   "textureId": 103334272912179,
+   "assetId": 73109431223846,
+   "textureId": 92947850534436,
    "textureType": "Image",
    "version": "1"
   },
@@ -1561,8 +1561,8 @@
    "version": "4"
   },
   "SandSerpent": {
-   "assetId": 128592002448474,
-   "textureId": 117970807067193,
+   "assetId": 139324756137789,
+   "textureId": 118264656299704,
    "textureType": "Image",
    "version": "1"
   },
@@ -1579,8 +1579,8 @@
    "version": "1"
   },
   "SeaSerpent": {
-   "assetId": 134797330126351,
-   "textureId": 117667820691813,
+   "assetId": 129652318315627,
+   "textureId": 133979875131962,
    "textureType": "Image",
    "version": "1"
   },
@@ -1603,8 +1603,8 @@
    "version": "3"
   },
   "SelkiePup": {
-   "assetId": 121707276811984,
-   "textureId": 94720344634163,
+   "assetId": 123070546859820,
+   "textureId": 128575410436086,
    "textureType": "Image",
    "version": "1"
   },
@@ -1639,8 +1639,8 @@
    "version": "1"
   },
   "ShroombackToad": {
-   "assetId": 114272027261946,
-   "textureId": 127734539050467,
+   "assetId": 139422301720115,
+   "textureId": 93291706721557,
    "textureType": "Image",
    "version": "1"
   },
@@ -1693,26 +1693,26 @@
    "version": "1"
   },
   "SnowHare": {
-   "assetId": 88279082005577,
-   "textureId": 125523150934774,
+   "assetId": 131875030215063,
+   "textureId": 107319602563132,
    "textureType": "Image",
    "version": "1"
   },
   "SnowflakeMoth": {
-   "assetId": 120635904038342,
-   "textureId": 110915704910072,
+   "assetId": 139464201351701,
+   "textureId": 139404396810547,
    "textureType": "Image",
    "version": "1"
   },
   "SolarLion": {
-   "assetId": 91121798372653,
-   "textureId": 75039170903688,
+   "assetId": 134102666805208,
+   "textureId": 87557383893856,
    "textureType": "Image",
-   "version": "3"
+   "version": "1"
   },
   "SparkBeetle": {
-   "assetId": 80099861896317,
-   "textureId": 95587917395991,
+   "assetId": 139901576669838,
+   "textureId": 74081508069488,
    "textureType": "Image",
    "version": "1"
   },
@@ -1735,8 +1735,8 @@
    "version": "3"
   },
   "Squid": {
-   "assetId": 112051874677531,
-   "textureId": 128616687111175,
+   "assetId": 123608324308861,
+   "textureId": 71576363076842,
    "textureType": "Image",
    "version": "1"
   },
@@ -1747,10 +1747,10 @@
    "version": "4"
   },
   "StagBeetle": {
-   "assetId": 114071360281132,
-   "textureId": 75031478159900,
+   "assetId": 133446404054064,
+   "textureId": 73652425707543,
    "textureType": "Image",
-   "version": "4"
+   "version": "1"
   },
   "StarDeer": {
    "assetId": 85022140739223,
@@ -1759,20 +1759,20 @@
    "version": "1"
   },
   "StarFinch": {
-   "assetId": 108835187141812,
-   "textureId": 71863318462257,
+   "assetId": 98156530500853,
+   "textureId": 106514317530853,
    "textureType": "Image",
    "version": "1"
   },
   "StarJelly": {
-   "assetId": 73075550270457,
-   "textureId": 85881082859337,
+   "assetId": 74805209168390,
+   "textureId": 117583000057418,
    "textureType": "Image",
    "version": "1"
   },
   "StarWhaleCalf": {
-   "assetId": 110472497256519,
-   "textureId": 132749415739711,
+   "assetId": 109064333257160,
+   "textureId": 73844248024667,
    "textureType": "Image",
    "version": "1"
   },
@@ -1801,8 +1801,8 @@
    "version": "3"
   },
   "StormCrow": {
-   "assetId": 117973203613780,
-   "textureId": 138971522822972,
+   "assetId": 109766020609054,
+   "textureId": 110887897486856,
    "textureType": "Image",
    "version": "1"
   },
@@ -1837,8 +1837,8 @@
    "version": "3"
   },
   "SunParrot": {
-   "assetId": 107519481513113,
-   "textureId": 112675655433769,
+   "assetId": 123140787999456,
+   "textureId": 131454888471219,
    "textureType": "Image",
    "version": "1"
   },
@@ -1861,8 +1861,8 @@
    "version": "1"
   },
   "Tardigrade": {
-   "assetId": 92698007045713,
-   "textureId": 94293837618967,
+   "assetId": 95850813386858,
+   "textureId": 123506267158523,
    "textureType": "Image",
    "version": "1"
   },
@@ -1891,22 +1891,22 @@
    "version": "1"
   },
   "ThunderBunny": {
-   "assetId": 97143792440610,
-   "textureId": 82622843607612,
+   "assetId": 126997386030399,
+   "textureId": 106232870932400,
    "textureType": "Image",
    "version": "1"
   },
   "ThunderGriffin": {
-   "assetId": 97687610747222,
-   "textureId": 134531882891689,
+   "assetId": 110292853016936,
+   "textureId": 127796384154323,
    "textureType": "Image",
-   "version": "7"
+   "version": "1"
   },
   "ThunderKraken": {
-   "assetId": 103247499913706,
-   "textureId": 139560857180915,
+   "assetId": 110893810328512,
+   "textureId": 100454578928353,
    "textureType": "Image",
-   "version": "2"
+   "version": "1"
   },
   "ThunderPup": {
    "assetId": 98122699179006,
@@ -1915,14 +1915,14 @@
    "version": "1"
   },
   "Thunderbird": {
-   "assetId": 99677454688345,
-   "textureId": 86173548512197,
+   "assetId": 79409232927280,
+   "textureId": 106390053691487,
    "textureType": "Image",
    "version": "1"
   },
   "TidalOtter": {
-   "assetId": 132749785595306,
-   "textureId": 79565360730803,
+   "assetId": 100332751561231,
+   "textureId": 131790192950433,
    "textureType": "Image",
    "version": "1"
   },
@@ -1933,22 +1933,22 @@
    "version": "1"
   },
   "Toad": {
-   "assetId": 135837297701031,
-   "textureId": 138945489382527,
+   "assetId": 96456709216744,
+   "textureId": 88686295840110,
    "textureType": "Image",
-   "version": "3"
+   "version": "1"
   },
   "TreasureCrab": {
-   "assetId": 138354168533812,
-   "textureId": 122932505162699,
+   "assetId": 96564356387989,
+   "textureId": 126883397830621,
    "textureType": "Image",
    "version": "1"
   },
   "TreeFrog": {
-   "assetId": 111303223337081,
-   "textureId": 77549889707709,
+   "assetId": 134925934749841,
+   "textureId": 137156081571708,
    "textureType": "Image",
-   "version": "2"
+   "version": "1"
   },
   "TripleGecko": {
    "assetId": 137597435439207,
@@ -1969,8 +1969,8 @@
    "version": "4"
   },
   "Turnipling": {
-   "assetId": 104983566503725,
-   "textureId": 102348211563050,
+   "assetId": 116635264661136,
+   "textureId": 117817209860880,
    "textureType": "Image",
    "version": "1"
   },
@@ -1993,10 +1993,10 @@
    "version": "1"
   },
   "VoidKitsune": {
-   "assetId": 134240204764051,
-   "textureId": 83967155132372,
+   "assetId": 75150262936536,
+   "textureId": 116314404820545,
    "textureType": "Image",
-   "version": "3"
+   "version": "1"
   },
   "VoltLynx": {
    "assetId": 72306943190176,
@@ -2023,8 +2023,8 @@
    "version": "3"
   },
   "WillOWisp": {
-   "assetId": 116715321510581,
-   "textureId": 87366348989616,
+   "assetId": 121601820623688,
+   "textureId": 94192852864748,
    "textureType": "Image",
    "version": "1"
   },
@@ -2053,10 +2053,10 @@
    "version": "4"
   },
   "WorldTurtle": {
-   "assetId": 118590995416486,
-   "textureId": 101611328059438,
+   "assetId": 105658332253516,
+   "textureId": 105305114780209,
    "textureType": "Image",
-   "version": "3"
+   "version": "1"
   },
   "Wren": {
    "assetId": 120557581808302,
@@ -2209,8 +2209,8 @@
    "version": "1"
   },
   "Mushling": {
-   "assetId": 123568128941986,
-   "textureId": 123270367310314,
+   "assetId": 77893862059640,
+   "textureId": 84446432456686,
    "textureType": "Image",
    "version": "1"
   },
@@ -2221,8 +2221,8 @@
    "version": "1"
   },
   "Pebblet": {
-   "assetId": 82385595564616,
-   "textureId": 105686401052455,
+   "assetId": 83090235446238,
+   "textureId": 102772970232908,
    "textureType": "Image",
    "version": "1"
   },
@@ -2233,8 +2233,8 @@
    "version": "1"
   },
   "Puddle": {
-   "assetId": 134282446805784,
-   "textureId": 118688533468062,
+   "assetId": 97256788053646,
+   "textureId": 124382232568084,
    "textureType": "Image",
    "version": "1"
   },
@@ -2251,8 +2251,8 @@
    "version": "1"
   },
   "ShieldBug": {
-   "assetId": 75069062317186,
-   "textureId": 97411550180645,
+   "assetId": 135855481085821,
+   "textureId": 100680590131028,
    "textureType": "Image",
    "version": "1"
   },
@@ -2263,8 +2263,8 @@
    "version": "1"
   },
   "Shrimp": {
-   "assetId": 85438009126545,
-   "textureId": 138708548206817,
+   "assetId": 107755443021019,
+   "textureId": 136718757418089,
    "textureType": "Image",
    "version": "1"
   },
@@ -2287,8 +2287,8 @@
    "version": "1"
   },
   "Sproutling": {
-   "assetId": 78296673577184,
-   "textureId": 124694622699392,
+   "assetId": 94766502768753,
+   "textureId": 79602025100646,
    "textureType": "Image",
    "version": "1"
   },
@@ -2299,20 +2299,20 @@
    "version": "1"
   },
   "Tadpole": {
-   "assetId": 119411978315941,
-   "textureId": 100388239335699,
+   "assetId": 134276894031406,
+   "textureId": 95342465832506,
    "textureType": "Image",
    "version": "1"
   },
   "Termite": {
-   "assetId": 124407600130525,
-   "textureId": 131139778865277,
+   "assetId": 111456920976666,
+   "textureId": 130536184922660,
    "textureType": "Image",
    "version": "1"
   },
   "ThreeEyedFrog": {
-   "assetId": 128438672584034,
-   "textureId": 76455875658040,
+   "assetId": 110116793655602,
+   "textureId": 73114081947388,
    "textureType": "Image",
    "version": "1"
   },
@@ -2329,8 +2329,8 @@
    "version": "1"
   },
   "Wasp": {
-   "assetId": 139600989051788,
-   "textureId": 110388360258024,
+   "assetId": 94052142627765,
+   "textureId": 130892315180014,
    "textureType": "Image",
    "version": "1"
   },
@@ -2341,8 +2341,8 @@
    "version": "1"
   },
   "Weevil": {
-   "assetId": 72279371001134,
-   "textureId": 84379605631865,
+   "assetId": 88735850737748,
+   "textureId": 109002184756737,
    "textureType": "Image",
    "version": "1"
   },
@@ -2353,8 +2353,8 @@
    "version": "1"
   },
   "StickInsect": {
-   "assetId": 92828174992312,
-   "textureId": 85859037593044,
+   "assetId": 79318703281544,
+   "textureId": 101419338054184,
    "textureType": "Image",
    "version": "1"
   },
@@ -2437,8 +2437,8 @@
    "version": "1"
   },
   "WaterStrider": {
-   "assetId": 87337404418397,
-   "textureId": 98002607560695,
+   "assetId": 86167400130268,
+   "textureId": 97149231317429,
    "textureType": "Image",
    "version": "1"
   },
@@ -2503,8 +2503,8 @@
    "version": "1"
   },
   "OrigamiFrog": {
-   "assetId": 129764128309634,
-   "textureId": 118500356655037,
+   "assetId": 88661356276192,
+   "textureId": 116858955980372,
    "textureType": "Image",
    "version": "1"
   },
@@ -2533,14 +2533,14 @@
    "version": "1"
   },
   "Puddlejumper": {
-   "assetId": 96248397267142,
-   "textureId": 122068116023243,
+   "assetId": 89751652869697,
+   "textureId": 112513390888576,
    "textureType": "Image",
    "version": "1"
   },
   "Pufferfish": {
-   "assetId": 132873420249926,
-   "textureId": 140145162236380,
+   "assetId": 80281288696867,
+   "textureId": 71047042506242,
    "textureType": "Image",
    "version": "1"
   },
@@ -2557,8 +2557,8 @@
    "version": "1"
   },
   "Seahorse": {
-   "assetId": 115061270469207,
-   "textureId": 75379535998400,
+   "assetId": 131780847624909,
+   "textureId": 140057197243522,
    "textureType": "Image",
    "version": "1"
   },
@@ -2569,8 +2569,8 @@
    "version": "1"
   },
   "Tarsier": {
-   "assetId": 101039623216203,
-   "textureId": 76160267906974,
+   "assetId": 80282622008180,
+   "textureId": 93563932892385,
    "textureType": "Image",
    "version": "1"
   },
@@ -2581,14 +2581,14 @@
    "version": "1"
   },
   "TreeKangaroo": {
-   "assetId": 105006103937910,
-   "textureId": 96311482809584,
+   "assetId": 139231566401007,
+   "textureId": 98841242299203,
    "textureType": "Image",
    "version": "1"
   },
   "Wallaby": {
-   "assetId": 132568256808546,
-   "textureId": 96955211696189,
+   "assetId": 108269172246611,
+   "textureId": 123179489856463,
    "textureType": "Image",
    "version": "1"
   },
@@ -3025,8 +3025,8 @@
    "version": "1"
   },
   "Narwhal": {
-   "assetId": 87579084710270,
-   "textureId": 111442441887040,
+   "assetId": 129017963855772,
+   "textureId": 90056327260786,
    "textureType": "Image",
    "version": "1"
   },
