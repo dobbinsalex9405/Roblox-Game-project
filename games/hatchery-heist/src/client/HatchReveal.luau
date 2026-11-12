@@ -17,6 +17,8 @@
 -- same numbers as the odds card, boosts included), falling back to the egg's
 -- base odds only if those have not arrived.
 
+local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -27,6 +29,7 @@ local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local CreatureLooks = require(Shared.CreatureLooks)
 local Layout = require(Shared.Layout)
+local RevealInput = require(Shared.RevealInput)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
@@ -42,6 +45,7 @@ local MIN_FRAME = 3.4 -- studs: the least the creature view shows, so Commons lo
 local HOLD_TO_SKIP = 0.6 -- seconds the screen is held to skip every reveal
 local GROUP_RANK = 2 -- waiting hatches up to Uncommon share one reveal
 local TAP_GRACE = 0.35 -- seconds after the creature appears before a tap closes it
+local BACK_ACTION = "HatchRevealBack" -- the gamepad B binding while a reveal shows
 local FONT = Enum.Font.FredokaOne
 
 export type Reveal = {
@@ -173,6 +177,9 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	dim.Size = UDim2.fromScale(1, 1)
 	dim.BackgroundColor3 = Color3.fromRGB(10, 8, 20)
 	dim.BackgroundTransparency = 1
+	-- Frees the mouse in first person while the reveal shows, so the tap
+	-- lands wherever the player clicks.
+	dim.Modal = true
 	dim.Parent = gui
 
 	local root = Instance.new("Frame")
@@ -655,13 +662,47 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	watchCamera()
 	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
 
-	dim.Activated:Connect(function()
+	-- A tap, a gamepad's B or the Roblox menu (shared/RevealInput): like
+	-- every other window, the reveal can be left without a pointer.
+	local function respond(source: RevealInput.Source)
 		local now = os.clock()
-		if phase == "wobble" and now - startedAt > 0.15 then
+		local action = RevealInput.action(source, phase, now, startedAt, shownAt, TAP_GRACE)
+		if action == "crack" then
 			crack(now)
-		elseif phase == "shown" and now - shownAt > TAP_GRACE then
+		elseif action == "close" then
 			close()
+		elseif action == "skipAll" then
+			skipAll()
 		end
+	end
+	dim.Activated:Connect(function()
+		respond("tap")
+	end)
+	GuiService.MenuOpened:Connect(function()
+		respond("menu")
+	end)
+	-- B is bound only while the reveal shows, so it never swallows B
+	-- elsewhere.
+	local backBound = false
+	local function bindBack(on: boolean)
+		if on == backBound then
+			return
+		end
+		backBound = on
+		if on then
+			ContextActionService:BindActionAtPriority(BACK_ACTION, function(_, state: Enum.UserInputState)
+				if state == Enum.UserInputState.Begin then
+					respond("back")
+					return Enum.ContextActionResult.Sink
+				end
+				return Enum.ContextActionResult.Pass
+			end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.ButtonB)
+		else
+			ContextActionService:UnbindAction(BACK_ACTION)
+		end
+	end
+	gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+		bindBack(gui.Enabled)
 	end)
 
 	RunService.RenderStepped:Connect(function(dt: number)

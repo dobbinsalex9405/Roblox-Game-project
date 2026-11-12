@@ -302,9 +302,18 @@ return {
 	-- client draws over each tower's grey box: your own and the nearest
 	-- others, up to `towers` in all within `drawStuds` (a full tower is
 	-- about 4,700 boxes); the rest keep the grey box.
+	-- The egg in an incubator, drawn from its egg art (server/World).
+	incubatorEggs = {
+		height = 2.6, -- studs, as tall as the plain ball it replaced
+	},
+
 	towerShells = {
 		drawStuds = 160,
 		towers = 4,
 		boxesPerFrame = 400, -- built a little each frame, so nothing hitches
+		-- The front wall's window glass (WorldArt part "pane"), and how far a
+		-- front wall fades while it stands between the camera and you inside.
+		paneTransparency = 0.55,
+		frontFade = 0.8,
 	},
 }

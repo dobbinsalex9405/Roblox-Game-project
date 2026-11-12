@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 
 local CoreClient = require(ReplicatedStorage.CoreClient.CoreClient)
+local Modal = require(ReplicatedStorage.CoreClient.Modal)
 local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local Eggs = require(Shared.Eggs)
@@ -531,6 +532,13 @@ local function buildList(): ScreenGui
 	close.Size = UDim2.fromOffset(CLOSE_WIDTH, HEADER)
 	close.TextSize = 22
 	close.Activated:Connect(function()
+		listEgg = nil
+		listTier = nil
+		gui.Enabled = false
+	end)
+	-- Reachable in first person too: frees the mouse, closes on a tap
+	-- outside, gamepad B or Escape (CoreClient/Modal).
+	Modal.attach(gui, window, function()
 		listEgg = nil
 		listTier = nil
 		gui.Enabled = false

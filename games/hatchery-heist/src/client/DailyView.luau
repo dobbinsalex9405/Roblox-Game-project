@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Modal = require(ReplicatedStorage.CoreClient.Modal)
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -298,6 +299,11 @@ function DailyView.start(ctx: Context.Context, menu: Menu)
 	end)
 	close.Activated:Connect(function()
 		Sfx.play("click")
+		gui.Enabled = false
+	end)
+	-- Reachable in first person too: frees the mouse, closes on a tap
+	-- outside, gamepad B or Escape (CoreClient/Modal).
+	Modal.attach(gui, window, function()
 		gui.Enabled = false
 	end)
 
