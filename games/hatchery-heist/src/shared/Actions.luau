@@ -11,8 +11,10 @@
 
 local Conveyor = require("./Conveyor")
 local Daily = require("./Daily")
+local DisplayName = require("./DisplayName")
 local Eggs = require("./Eggs")
 local Hatchery = require("./Hatchery")
+local Merge = require("./Merge")
 local Tower = require("./Tower")
 
 export type Perks = {
@@ -41,9 +43,13 @@ export type Options = {
 	eggSold: ((index: number) -> ())?,
 	-- Effects on the player.
 	notify: (player: any, text: string) -> (),
-	hatched: (player: any, speciesId: string, eggId: string, isNew: boolean) -> (),
+	-- An egg hatched into creature `uid` (the reveal offers Place or Stash).
+	hatched: (player: any, speciesId: string, eggId: string, isNew: boolean, uid: string) -> (),
 	welcome: (player: any, coins: number, readyEggs: number) -> (),
 	mount: (player: any, speed: number?) -> (), -- speed nil = dismount
+	-- Uids of the player's creatures a raider is carrying right now (they
+	-- cannot be moved, stashed or merged); nil in tests = none.
+	carried: ((player: any) -> { [string]: boolean })?,
 }
 
 export type Actions = {
@@ -61,7 +67,14 @@ export type Actions = {
 	upgradeFloor: (self: Actions, player: any, floor: number) -> (boolean, string?),
 	place: (self: Actions, player: any, uid: string, floor: number) -> (boolean, string?),
 	takeBack: (self: Actions, player: any, uid: string) -> (boolean, string?),
+	-- Puts a stashed creature on the highest floor with room (the reveal's Place).
+	placeAuto: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	placeBest: (self: Actions, player: any) -> (boolean, string?),
+	-- The merger (shared/Merge.luau).
+	merge: (self: Actions, player: any, uid: string) -> (boolean, string?),
+	mergeAll: (self: Actions, player: any) -> (boolean, string?),
+	-- Sells a stashed creature (the player's choice; nothing is ever sold for them).
+	sell: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
@@ -91,27 +104,6 @@ function Actions.new(options: Options): Actions
 	-- Market eggs already sold to someone, by egg number (shared by all).
 	local soldOnMarket: { [number]: boolean } = {}
 	local lastAutoCollect: { [any]: number } = {}
-	-- Storage auto-sales are reported at most once per SOLD_NOTICE_SECONDS,
-	-- summed, so they never drown out other notices.
-	local SOLD_NOTICE_SECONDS = 20
-	type SoldNotice = { at: number, count: number, coins: number, what: string }
-	local soldNotice: { [any]: SoldNotice } = {}
-
-	local function flushSold(player: any, now: number, force: boolean)
-		local pending = soldNotice[player]
-		if pending == nil or pending.count == 0 then
-			return
-		end
-		if not force and now - pending.at < SOLD_NOTICE_SECONDS then
-			return
-		end
-		local what = if pending.count == 1 then pending.what else `{pending.count} creatures`
-		options.notify(player, `Inventory is full: sold {what} for {pending.coins} coins.`)
-		pending.at = now
-		pending.count = 0
-		pending.coins = 0
-	end
-
 	local function perSecond(d: Hatchery.Data, player: any): number
 		local perks = options.perks(player)
 		return Hatchery.incomePerSecond(
@@ -186,7 +178,7 @@ function Actions.new(options: Options): Actions
 				d.mountUid = ""
 				d.guardUid = ""
 				Tower.placeBest(d, config.creatures, economyConfig, function(c)
-					return Hatchery.creatureIncome(c, config.creatures)
+					return Hatchery.creatureIncome(c, config.creatures, economyConfig)
 				end)
 				d.towerVersion = 1
 			end
@@ -235,7 +227,6 @@ function Actions.new(options: Options): Actions
 			lastAutoCollect[player] = now
 		end
 		onboarding(player, step)
-		flushSold(player, now, false)
 	end
 
 	-- Call when the player leaves, before their data is released.
@@ -244,7 +235,6 @@ function Actions.new(options: Options): Actions
 			return nil
 		end)
 		lastAutoCollect[player] = nil
-		soldNotice[player] = nil
 	end
 
 	-- The cheapest coin egg the market sells.
@@ -331,7 +321,6 @@ function Actions.new(options: Options): Actions
 
 	function actions.hatch(_self: Actions, player: any, slot: number): (boolean, string?)
 		local creature: any = nil
-		local sold: { any } = {}
 		local step: number? = nil
 		local fullStep: number? = nil
 		local isNew = false
@@ -339,7 +328,7 @@ function Actions.new(options: Options): Actions
 		local ok, err = change(player, function(d, ledger)
 			local refusal: string?
 			local foundBefore = Hatchery.foundCount(d, config.creatures)
-			creature, refusal, sold = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
+			creature, refusal = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
 			isNew = Hatchery.foundCount(d, config.creatures) > foundBefore
 			if creature then
 				step = Hatchery.markFirst(d, "FirstHatch", now)
@@ -353,17 +342,14 @@ function Actions.new(options: Options): Actions
 			onboarding(player, step)
 			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
-			options.hatched(player, creature.speciesId, creature.eggId, isNew)
-			if #sold > 0 then
-				local pending: SoldNotice = soldNotice[player]
-					or { at = -math.huge, count = 0, coins = 0, what = "" }
-				soldNotice[player] = pending
-				for _, c in sold do
-					pending.coins += Hatchery.sellValue(c, config.creatures, economyConfig)
-				end
-				pending.count += #sold
-				pending.what = sold[1].speciesId
-				flushSold(player, now, false)
+			options.hatched(player, creature.speciesId, creature.eggId, isNew, creature.uid)
+			if creature.slot == nil then
+				-- No pad free: it waits in the inventory. Say so, or it looks
+				-- as if it disappeared (Staging playtest, Nov 12).
+				options.notify(
+					player,
+					`Your tower is full: {DisplayName(creature.speciesId)} went to your inventory. Open Creatures to place it.`
+				)
 			end
 		end
 		return ok, err
@@ -429,7 +415,15 @@ function Actions.new(options: Options): Actions
 		end, `Floor {floor} upgraded!`)
 	end
 
+	local function carried(player: any): { [string]: boolean }
+		return if options.carried then options.carried(player) else {}
+	end
+
 	function actions.place(_self: Actions, player: any, uid: string, floor: number): (boolean, string?)
+		if carried(player)[uid] then
+			options.notify(player, "A raider is carrying it! Catch them first.")
+			return false, "carried"
+		end
 		return towerChange(player, function(d)
 			local done, refusal = Tower.place(d, uid, floor, config.creatures, economyConfig)
 			return if done then nil else refusal
@@ -437,17 +431,99 @@ function Actions.new(options: Options): Actions
 	end
 
 	function actions.takeBack(_self: Actions, player: any, uid: string): (boolean, string?)
-		return towerChange(player, function(d)
-			local done, refusal = Tower.takeBack(d, uid)
+		if carried(player)[uid] then
+			options.notify(player, "A raider is carrying it! Catch them first.")
+			return false, "carried"
+		end
+		local name = ""
+		local ok, err = change(player, function(d)
+			local done, refusal = Tower.takeBack(d, uid, economyConfig)
+			local c = Hatchery.creatureByUid(d, uid)
+			name = if c then DisplayName(c.speciesId) else ""
 			return if done then nil else refusal
 		end)
+		if ok then
+			options.notify(player, `{name} is in your inventory.`)
+		end
+		return ok, err
+	end
+
+	function actions.placeAuto(_self: Actions, player: any, uid: string): (boolean, string?)
+		local floor: number? = nil
+		local ok, err = change(player, function(d)
+			local c = Hatchery.creatureByUid(d, uid)
+			if c == nil then
+				return "You do not own that creature."
+			end
+			if c.slot then
+				floor = Tower.floorOf(c.slot)
+				return nil
+			end
+			if not Tower.autoPlace(d, c, config.creatures, economyConfig) then
+				return "Your tower is full. Stash or merge a creature to make room."
+			end
+			floor = Tower.floorOf(c.slot)
+			return nil
+		end)
+		if ok and floor then
+			options.notify(player, `Placed on floor {floor}.`)
+		end
+		return ok, err
+	end
+
+	function actions.merge(_self: Actions, player: any, uid: string): (boolean, string?)
+		local kept: any = nil
+		local used: { any } = {}
+		local ok, err = change(player, function(d)
+			local refusal: string?
+			kept, refusal, used = Merge.merge(d, uid, economyConfig, options.now(), carried(player))
+			return refusal
+		end)
+		if ok and kept then
+			local stars = Merge.stars(kept)
+			analytics:custom(player, "Gameplay:Merge", stars, { kept.speciesId })
+			options.notify(player, `Merged {#used + 1} into one {stars}-star {DisplayName(kept.speciesId)}!`)
+		end
+		return ok, err
+	end
+
+	function actions.sell(_self: Actions, player: any, uid: string): (boolean, string?)
+		local coins: number? = nil
+		local name = ""
+		local ok, err = change(player, function(d, ledger)
+			local c = Hatchery.creatureByUid(d, uid)
+			name = if c then DisplayName(c.speciesId) else ""
+			local refusal: string?
+			coins, refusal = Hatchery.sell(d, ledger, uid, options.now(), config.creatures, economyConfig)
+			return refusal
+		end)
+		if ok and coins then
+			analytics:custom(player, "Gameplay:Sell", coins, { name })
+			options.notify(player, `Sold {name} for {coins} coins.`)
+		end
+		return ok, err
+	end
+
+	function actions.mergeAll(_self: Actions, player: any): (boolean, string?)
+		local merges = 0
+		local ok, err = change(player, function(d)
+			merges = Merge.mergeAll(d, economyConfig, options.now(), carried(player))
+			return if merges > 0
+				then nil
+				else "Nothing to merge yet: you need 3 of the same creature with the same stars."
+		end)
+		if ok then
+			analytics:custom(player, "Gameplay:MergeAll", merges)
+			options.notify(player, `Made {merges} merge{if merges == 1 then "" else "s"}!`)
+		end
+		return ok, err
 	end
 
 	function actions.placeBest(_self: Actions, player: any): (boolean, string?)
 		local placed = 0
 		local ok, err = change(player, function(d)
 			placed = Tower.placeBest(d, config.creatures, economyConfig, function(c)
-				return Hatchery.creatureIncome(c, config.creatures)
+				return Hatchery.creatureIncome(c, config.creatures, economyConfig)
 			end)
 			return nil
 		end)

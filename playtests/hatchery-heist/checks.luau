@@ -611,15 +611,18 @@ do
 	)
 end
 
----------------------------------------------------------------- 9. Storage overflow economics (exploit check)
+---------------------------------------------------------------- 9. Hatch-and-sell economics (exploit check)
+-- Nothing is sold for the player any more (Nov 12): they sell stashed
+-- creatures themselves. The loop: floor 1 full, every hatch lands in the
+-- inventory and is sold straight away. It must not beat the egg's price.
 do
 	local h = Sim.new({ seed = 4242 })
 	local p = Fakes.player(901)
 	h.join(p)
-	-- fill floor 1 (8 slots) and the inventory with Chicks, 12 slots, lots of coins
+	-- fill floor 1 (8 slots) with Chicks, 12 incubator slots, lots of coins
 	h.data:update(p, function(d)
 		local list = {}
-		for i = 1, 8 + economy.storage.slots do
+		for i = 1, 8 do
 			table.insert(list, {
 				uid = tostring(i),
 				speciesId = "Chick",
@@ -639,7 +642,10 @@ do
 		local d = h.get(p)
 		for _, inc in table.clone(d.incubators) do
 			if inc.readyAt <= h.clock.now() then
-				h.actions:hatch(p, inc.slot)
+				local uid = tostring(h.get(p).nextUid)
+				if h.actions:hatch(p, inc.slot) then
+					h.actions:sell(p, uid)
+				end
 			end
 		end
 		d = h.get(p)
@@ -670,16 +676,16 @@ do
 	check(
 		netFromEggs <= 0,
 		"economy/exploit",
-		`storage-overflow loop over 10 min: bought {bought} Basic eggs for {spent}, auto-sold {sold} creatures for {soldCoins} => net {netFromEggs} coins ({string.format(
+		`hatch-and-sell loop over 10 min: bought {bought} Basic eggs for {spent}, sold {sold} creatures for {soldCoins} => net {netFromEggs} coins ({string.format(
 			"%.1f",
 			netFromEggs / 600
 		)}/s) ON TOP of pad income; pads now earn {padIncome}/s`,
-		`storage-overflow loop is PROFITABLE: bought {bought} Basic eggs for {spent}, auto-sold {sold} creatures for {soldCoins} => net +{netFromEggs} coins ({string.format(
+		`hatch-and-sell loop is PROFITABLE: bought {bought} Basic eggs for {spent}, sold {sold} creatures for {soldCoins} => net +{netFromEggs} coins ({string.format(
 			"%.1f",
 			netFromEggs / 600
 		)}/s) on top of pad income ({padIncome}/s). Basic egg costs 50 but its hatch sells for 60/120/300/480 (60s of income): expected value 105.6 coins per egg.`
 	)
-	-- What each coin egg's hatch is worth if storage sells it, on average.
+	-- What each coin egg's hatch is worth if it is sold, on average.
 	local worth = {}
 	for _, egg in config.eggs do
 		if egg.priceCoins then
@@ -694,10 +700,7 @@ do
 			)
 		end
 	end
-	note(
-		"economy/exploit",
-		`{table.concat(worth, "; ")}. Overflow sells the weakest stored creature, so the loop above is the real test.`
-	)
+	note("economy/exploit", `{table.concat(worth, "; ")}. The loop above is the real test.`)
 end
 
 ---------------------------------------------------------------- 10. Multiplayer: 8 players, 9th, isolation, same belt index

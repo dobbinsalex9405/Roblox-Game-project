@@ -13,6 +13,12 @@
 -- in the book share one reveal ("+3 more: Chick x2, Bunny"), so a player with
 -- a dozen incubators is not held up by a dozen Chick reveals.
 --
+-- Under the creature, Place and Stash (Alex, Nov 12): a new creature is
+-- already placed when the tower has room, so Place shows where it went and
+-- Stash puts it in the inventory instead; with the tower full it waits in
+-- the inventory and Place says so. Either button closes the reveal. The
+-- reveal lingers a little longer while they show, so there is time to tap.
+--
 -- The "1 in N" shown is the player's own odds from the server (OddsView, the
 -- same numbers as the odds card, boosts included), falling back to the egg's
 -- base odds only if those have not arrived.
@@ -27,6 +33,7 @@ local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local CreatureLooks = require(Shared.CreatureLooks)
 local Layout = require(Shared.Layout)
+local Tower = require(Shared.Tower)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
@@ -43,10 +50,13 @@ local HOLD_TO_SKIP = 0.6 -- seconds the screen is held to skip every reveal
 local GROUP_RANK = 2 -- waiting hatches up to Uncommon share one reveal
 local TAP_GRACE = 0.35 -- seconds after the creature appears before a tap closes it
 local FONT = Enum.Font.FredokaOne
+local CHOICE_HOLD = 4 -- seconds the reveal stays at least, while Place / Stash show
+local CHOICE_HEIGHT = 44 -- px on screen (phone floor 40)
 
 export type Reveal = {
 	-- Queues a reveal; false when the queue is full (the caller says it instead).
-	show: (speciesId: string, eggId: string, isNew: boolean?) -> boolean,
+	-- `uid` is the new creature (for Place / Stash); nil shows no buttons.
+	show: (speciesId: string, eggId: string, isNew: boolean?, uid: string?) -> boolean,
 	-- True while a reveal is on screen.
 	busy: () -> boolean,
 }
@@ -259,10 +269,48 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	local moreText = textLabel(words, "More", 20, Color3.fromRGB(225, 225, 240))
 	moreText.LayoutOrder = 4
 
+	-- Place / Stash for the new creature.
+	local choices = Instance.new("Frame")
+	choices.Name = "Choices"
+	choices.BackgroundTransparency = 1
+	choices.LayoutOrder = 5
+	choices.Visible = false
+	choices.Parent = words
+	local choiceList = Instance.new("UIListLayout")
+	choiceList.FillDirection = Enum.FillDirection.Horizontal
+	choiceList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	choiceList.VerticalAlignment = Enum.VerticalAlignment.Bottom
+	choiceList.Padding = UDim.new(0, 14)
+	choiceList.SortOrder = Enum.SortOrder.LayoutOrder
+	choiceList.Parent = choices
+	local function choiceButton(name: string, order: number): TextButton
+		local b = Instance.new("TextButton")
+		b.Name = name
+		b.LayoutOrder = order
+		b.Font = FONT
+		b.TextScaled = false
+		b.TextColor3 = Color3.new(1, 1, 1)
+		b.AutoButtonColor = true
+		b.BorderSizePixel = 0
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 10)
+		corner.Parent = b
+		local stroke = Instance.new("UIStroke")
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Thickness = 2
+		stroke.Color = Color3.fromRGB(20, 16, 30)
+		stroke.Parent = b
+		b.Parent = choices
+		return b
+	end
+	local placeButton = choiceButton("Place", 1)
+	local stashButton = choiceButton("Stash", 2)
+	stashButton.Text = "Stash"
+
 	-- The hint is the last line of the words, so nothing above can ever
 	-- run into it; its text sits at the bottom of a taller line (a gap).
 	local hint = textLabel(words, "Hint", 18, Color3.fromRGB(230, 230, 240))
-	hint.LayoutOrder = 5
+	hint.LayoutOrder = 6
 	hint.TextYAlignment = Enum.TextYAlignment.Bottom
 	hint.Text = "Tap to continue"
 	hint.TextTransparency = 1
@@ -287,15 +335,25 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 		hint.TextSize = math.floor(hintText)
 		stage.Size = UDim2.fromOffset(side, side)
 		local wordsWidth = math.min(screen.X - 32, 520)
-		-- Every line at its tallest: new, rarity, name, info, more, hint.
-		local tallest = 24 + 44 + 30 + 22 + 20 + hintText + 10 / textScale
+		-- Place / Stash stay CHOICE_HEIGHT px tall on screen whatever the
+		-- words' scale, with a gap above, and text of at least 14 px.
+		local choiceHeight = CHOICE_HEIGHT / textScale
+		local choiceText = math.floor(math.max(20 * textScale, 14) / textScale)
+		choices.Size = UDim2.new(1, 0, 0, choiceHeight + 8 / textScale)
+		for _, b in { placeButton, stashButton } do
+			b.Size = UDim2.fromOffset(math.floor(168 / math.max(textScale, 0.8)), choiceHeight)
+			b.TextSize = choiceText
+		end
+		local choiceRow = if choices.Visible then choiceHeight + 8 / textScale else 0
+		-- Every line at its tallest: new, rarity, name, info, more, choices, hint.
+		local tallest = 24 + 44 + 30 + 22 + 20 + choiceRow + hintText + 10 / textScale
 		words.Size = UDim2.fromOffset(wordsWidth / textScale, tallest)
 		-- Under the stage, but pulled up if it would run off the bottom.
 		local top = math.min(screen.Y * 0.42 + side / 2 - side * 0.02, screen.Y - 6 - tallest * textScale)
 		words.Position = UDim2.fromOffset(screen.X / 2, top)
 	end
 
-	type Hatch = { speciesId: string, eggId: string, isNew: boolean, more: { string }? }
+	type Hatch = { speciesId: string, eggId: string, isNew: boolean, uid: string?, more: { string }? }
 	local queue: { Hatch } = {}
 	local running = false
 
@@ -317,6 +375,7 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	local nextShakeSound = 0
 	local current: Hatch? = nil
 	local playNext: () -> ()
+	local refreshChoices: () -> ()
 
 	local function aim(target: Vector3, size: number, yaw: number, pitch: number)
 		local distance = (size / 2) / math.tan(math.rad(camera.FieldOfView / 2)) * 1.35
@@ -456,6 +515,7 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 		shakeUntil = now + (if look.shake > 0 then 0.7 else 0)
 
 		words.Visible = true
+		refreshChoices()
 		wordsScale.Scale = 0.35 * textScale
 		TweenService:Create(
 			wordsScale,
@@ -566,6 +626,7 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 		look = CreatureLooks[rarity] or CreatureLooks.Common
 		rank = Layout.rarityRank(rarity)
 
+		choices.Visible = nextOne.uid ~= nil
 		layout()
 		clearScene()
 		local model, parts = buildEgg(Layout.eggColor(nextOne.eggId))
@@ -655,6 +716,76 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	watchCamera()
 	Workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
 
+	-- Where the creature on show is now: its floor, or nil in the inventory
+	-- (or gone, e.g. merged meanwhile).
+	local function whereNow(): (boolean, number?)
+		local d = ctx.data()
+		local uid = current and current.uid
+		if d == nil or uid == nil then
+			return false, nil
+		end
+		for _, c in d.creatures do
+			if c.uid == uid then
+				return true, if c.slot then Tower.floorOf(c.slot) else nil
+			end
+		end
+		return false, nil
+	end
+
+	local PLACE = Color3.fromRGB(70, 170, 90)
+	local STASH = Color3.fromRGB(70, 130, 220)
+	local OFF = Color3.fromRGB(95, 95, 110)
+	function refreshChoices()
+		if not choices.Visible then
+			return
+		end
+		local owned, floor = whereNow()
+		if floor then
+			placeButton.Text = `Placed: floor {floor}`
+			placeButton.BackgroundColor3 = PLACE:Lerp(OFF, 0.35)
+			stashButton.Text = "Stash"
+			stashButton.BackgroundColor3 = STASH
+		elseif owned then
+			local d = ctx.data()
+			local full = d ~= nil and Tower.full(d, ctx.config.creatures, ctx.config.economy)
+			placeButton.Text = if full then "Tower full" else "Place"
+			placeButton.BackgroundColor3 = if full then OFF else PLACE
+			stashButton.Text = "Stashed"
+			stashButton.BackgroundColor3 = STASH:Lerp(OFF, 0.35)
+		else
+			placeButton.Text = "Place"
+			placeButton.BackgroundColor3 = OFF
+			stashButton.Text = "Stash"
+			stashButton.BackgroundColor3 = OFF
+		end
+	end
+	ctx.onData(function()
+		refreshChoices()
+	end)
+
+	placeButton.Activated:Connect(function()
+		local owned, floor = whereNow()
+		if phase ~= "shown" or not owned then
+			return
+		end
+		Sfx.play("click")
+		if floor == nil and current and current.uid then
+			ctx.fire(ctx.remotes["HH:PlaceAuto"], current.uid)
+		end
+		close()
+	end)
+	stashButton.Activated:Connect(function()
+		local owned, floor = whereNow()
+		if phase ~= "shown" or not owned then
+			return
+		end
+		Sfx.play("click")
+		if floor ~= nil and current and current.uid then
+			ctx.fire(ctx.remotes["HH:TakeBack"], current.uid)
+		end
+		close()
+	end)
+
 	dim.Activated:Connect(function()
 		local now = os.clock()
 		if phase == "wobble" and now - startedAt > 0.15 then
@@ -739,17 +870,20 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 		elseif root.Position ~= UDim2.new() then
 			root.Position = UDim2.fromScale(0, 0)
 		end
-		if phase == "shown" and t >= look.hold then
+		if
+			phase == "shown"
+			and t >= (if choices.Visible then math.max(look.hold, CHOICE_HOLD) else look.hold)
+		then
 			close()
 		end
 	end)
 
 	return {
-		show = function(speciesId: string, eggId: string, isNew: boolean?): boolean
+		show = function(speciesId: string, eggId: string, isNew: boolean?, uid: string?): boolean
 			if #queue >= QUEUE_MAX then
 				return false
 			end
-			table.insert(queue, { speciesId = speciesId, eggId = eggId, isNew = isNew == true })
+			table.insert(queue, { speciesId = speciesId, eggId = eggId, isNew = isNew == true, uid = uid })
 			if not running then
 				playNext()
 			end

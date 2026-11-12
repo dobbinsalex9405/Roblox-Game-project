@@ -13,12 +13,15 @@ DataTemplate.template = {
 	slots = 3, -- incubator slots unlocked
 	incubators = {}, -- { { slot, eggId, startedAt, readyAt, outcome } }
 	eggsBought = {}, -- { [eggId] = count }, drives the fixed-order alternative
-	creatures = {}, -- { { uid, speciesId, mutation, slot?, eggId, hatchedAt } }; slot = first tower pad, nil = inventory
+	creatures = {}, -- { { uid, speciesId, mutation, stars?, slot?, eggId, hatchedAt } }; slot = first tower pad, nil = inventory; stars nil = 1 (shared/Merge)
 	nextUid = 1, -- next creature uid
 	mountUid = "", -- creature being ridden ("" = on foot)
 	decoys = {}, -- { { spot } } decoy eggs on the decoy spots
 	guardUid = "", -- creature guarding the base ("" = none)
 	rebirthArchive = {}, -- creatures from the last 5 rebirths, kept for support
+	-- Copies used up by the merger, { { creature, into, at } }, the last 100
+	-- kept for support (shared/Merge). Added after launch of version 1.
+	mergeArchive = {},
 	shieldUntil = 0, -- unix seconds the shield lasts until
 	shieldReadyAt = 0, -- unix seconds the free shield can be raised again
 	traps = {}, -- { { spot, kind } } traps on the trap spots

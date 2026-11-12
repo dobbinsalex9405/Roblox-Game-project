@@ -40,7 +40,7 @@ local function add(d: any, uid: string, speciesId: string, slot: number?): any
 end
 
 local function income(c: any): number
-	return Hatchery.creatureIncome(c, creatures)
+	return Hatchery.creatureIncome(c, creatures, economy)
 end
 
 describe("Tower floors", function()
@@ -190,7 +190,7 @@ describe("Tower slots", function()
 		expect((Tower.place(d, "1", 2, creatures, economy))).toBe(true)
 		expect(d.creatures[1].slot).toBe(9)
 		expect((Tower.place(d, "1", 3, creatures, economy))).toBe(false) -- not built
-		expect((Tower.takeBack(d, "1"))).toBe(true)
+		expect((Tower.takeBack(d, "1", economy))).toBe(true)
 		expect(d.creatures[1].slot).toBeNil()
 		d.mountUid = "1"
 		expect((Tower.place(d, "1", 1, creatures, economy))).toBe(false)

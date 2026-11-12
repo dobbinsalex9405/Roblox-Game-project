@@ -17,6 +17,17 @@ describe("Prompt keys at the base", function()
 		expect(PromptKeys.Snare.gamepad ~= PromptKeys.Slime.gamepad).toBe(true)
 	end)
 
+	it("gives a placed creature's Ride, Make guard and Stash prompts their own keys", function()
+		local seen: { [string]: boolean } = {}
+		local pads: { [string]: boolean } = {}
+		for _, name in { "Ride", "Guard", "Stash" } do
+			expect(seen[PromptKeys[name].keyboard]).toBeNil()
+			expect(pads[PromptKeys[name].gamepad]).toBeNil()
+			seen[PromptKeys[name].keyboard] = true
+			pads[PromptKeys[name].gamepad] = true
+		end
+	end)
+
 	it("makes buying a trap a short hold within a short reach", function()
 		expect(raids.trapPrompt.holdSeconds > 0).toBe(true)
 		expect(raids.trapPrompt.reach <= 6).toBe(true)

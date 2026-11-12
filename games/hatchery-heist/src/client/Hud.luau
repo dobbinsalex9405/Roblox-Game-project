@@ -166,8 +166,8 @@ function Hud.start(ctx: Context.Context)
 	local reveal = HatchReveal.start(ctx, function(text: string)
 		show(text, 6)
 	end)
-	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string, eggId: string, isNew: boolean)
-		if reveal.show(speciesId, eggId, isNew) then
+	ctx.on(ctx.remotes["HH:Hatched"], function(speciesId: string, eggId: string, isNew: boolean, uid: string)
+		if reveal.show(speciesId, eggId, isNew, uid) then
 			return
 		end
 		local species = ctx.config.creatures.species[speciesId]

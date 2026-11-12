@@ -11,6 +11,11 @@ local PromptKeys: { [string]: Keys } = {
 	Hatch = { keyboard = "E", gamepad = "ButtonX" },
 	Snare = { keyboard = "F", gamepad = "DPadLeft" },
 	Slime = { keyboard = "R", gamepad = "ButtonY" },
+	-- On a placed creature: Ride is E, Make guard is R; Stash (pick it up
+	-- into the inventory, Alex Nov 12) gets its own key.
+	Ride = { keyboard = "E", gamepad = "ButtonX" },
+	Guard = { keyboard = "R", gamepad = "ButtonY" },
+	Stash = { keyboard = "Q", gamepad = "DPadRight" },
 }
 
 return PromptKeys

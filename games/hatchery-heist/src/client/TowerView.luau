@@ -1,13 +1,9 @@
 --!strict
--- Two windows for the tower (shared/Tower.luau):
---
---   Tower      every floor with its theme and bonus: build the next one,
---              buy upgrades, and, standing on an elevator stop, ride to a
---              floor. Opened from the side menu or the elevator.
---   Creatures  everything the player owns, best first: where each one is
---              (a floor or the inventory), what it earns and how many slots
---              it takes. Tap one to move it to a floor or back to the
---              inventory; "Place best" fills the tower in one go.
+-- The Tower window (shared/Tower.luau): every floor with its theme and
+-- bonus: build the next one, buy upgrades, and, standing on an elevator
+-- stop, ride to a floor. Opened from the side menu or the elevator.
+-- The Creatures window (place, stash, merge) is client/InventoryView,
+-- started from here so it keeps its place in the side menu.
 --
 -- The client only asks; the server checks every move (Actions).
 
@@ -16,12 +12,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
-local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local Tower = require(Shared.Tower)
 local TowerDecor = require(Shared.TowerDecor)
 
 local Context = require(script.Parent.Context)
+local InventoryView = require(script.Parent.InventoryView)
 local Sfx = require(script.Parent.Sfx)
 
 local TowerView = {}
@@ -366,172 +362,12 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 	end)
 
 	-------------------------------------------------------------- Creatures
-	local herdGui, herdFrame, herdList, fitHerd = window("CreaturesMenu", "Your Creatures", 23)
-	herdGui.Parent = playerGui
-	local herdInfo = text(herdFrame, "Info", "", 15)
-	herdInfo.Position = UDim2.fromOffset(16, 48)
-	herdInfo.Size = UDim2.new(1, -170, 0, 40)
-	herdInfo.TextWrapped = true
-	herdInfo.TextYAlignment = Enum.TextYAlignment.Top
-	local best =
-		button(herdFrame, "PlaceBest", "Place best", GOLD:Lerp(Color3.fromRGB(200, 120, 0), 0.4), 136)
-	best.AnchorPoint = Vector2.new(1, 0)
-	best.Position = UDim2.new(1, -16, 0, 52)
-	best.Activated:Connect(function()
-		Sfx.play("reward")
-		ctx.fire(ctx.remotes["HH:PlaceBest"])
-	end)
-	local picked: string? = nil -- the creature whose floor buttons are open
-
-	local function drawHerd()
-		local d = ctx.data()
-		if d == nil then
-			return
-		end
-		clear(herdList)
-		local owned = Tower.owned(d)
-		local perks = ctx.perks()
-		local used = Tower.occupancy(d, ctx.config.creatures, economy)
-		local usedCount = 0
-		for _ in used do
-			usedCount += 1
-		end
-		local list = table.clone(d.creatures)
-		local function base(c: any): number
-			return Hatchery.creatureIncome(c, ctx.config.creatures)
-		end
-		table.sort(list, function(a: any, b: any): boolean
-			if base(a) ~= base(b) then
-				return base(a) > base(b)
-			end
-			return a.uid < b.uid
-		end)
-		local waiting = 0
-		for _, c in list do
-			if c.slot == nil then
-				waiting += 1
-			end
-		end
-		herdInfo.Text = if #list == 0
-			then "No creatures yet. Buy an egg at the Egg Market and hatch it!"
-			else `Earning: {usedCount}/{owned * Tower.SPOTS} slots used. In your inventory: {waiting}.`
-		for i, c in list do
-			local species = ctx.config.creatures.species[c.speciesId]
-			if species == nil then
-				continue
-			end
-			local open = picked == c.uid
-			local r = row(herdList, i, if open then 108 else 58)
-			local color = Layout.rarityColor(species.rarity)
-			local swatch = Instance.new("Frame")
-			swatch.Name = "Swatch"
-			swatch.Position = UDim2.fromOffset(8, 8)
-			swatch.Size = UDim2.fromOffset(10, 42)
-			swatch.BackgroundColor3 = color
-			corner(swatch, 4)
-			swatch.Parent = r
-			local size = Tower.size(c, ctx.config.creatures, economy)
-			local where = if c.slot then `Floor {Tower.floorOf(c.slot)}` else "Inventory"
-			local tags = ""
-			if c.uid == d.mountUid then
-				tags = "  · riding"
-			elseif c.uid == d.guardUid then
-				tags = "  · guard"
-			end
-			local name = text(r, "Name", `{Layout.displayName(c.speciesId)}  ({species.rarity})`, 16, color)
-			name.Position = UDim2.fromOffset(26, 4)
-			name.Size = UDim2.new(1, -160, 0, 22)
-			local earning = Hatchery.earning(d, c, ctx.config, perks)
-			local rate = if c.slot
-				then `{Layout.shortNumber(earning)}/s`
-				else `{Layout.shortNumber(base(c))}/s when placed`
-			local info = text(
-				r,
-				"Detail",
-				`{where}{tags}  ·  {rate}  ·  {size} slot{if size > 1 then "s" else ""}`,
-				14,
-				Color3.fromRGB(210, 210, 225)
-			)
-			info.Position = UDim2.fromOffset(26, 30)
-			info.Size = UDim2.new(1, -160, 0, 20)
-			local toggle = button(r, "Move", if open then "Close" else "Move", BLUE, 120)
-			toggle.AnchorPoint = Vector2.new(1, 0)
-			toggle.Position = UDim2.new(1, -8, 0, 9)
-			toggle.Activated:Connect(function()
-				Sfx.play("click")
-				picked = if open then nil else c.uid
-				drawHerd()
-			end)
-			if open then
-				-- One button per built floor (greyed when it has no room),
-				-- then back to the inventory.
-				local strip = Instance.new("ScrollingFrame")
-				strip.Name = "Floors"
-				strip.BackgroundTransparency = 1
-				strip.BorderSizePixel = 0
-				strip.Position = UDim2.fromOffset(26, 58)
-				strip.Size = UDim2.new(1, -34, 0, 46)
-				strip.CanvasSize = UDim2.fromScale(0, 0)
-				strip.AutomaticCanvasSize = Enum.AutomaticSize.X
-				strip.ScrollingDirection = Enum.ScrollingDirection.X
-				strip.ScrollBarThickness = 3
-				local sl = Instance.new("UIListLayout")
-				sl.FillDirection = Enum.FillDirection.Horizontal
-				sl.Padding = UDim.new(0, 6)
-				sl.SortOrder = Enum.SortOrder.LayoutOrder
-				sl.Parent = strip
-				strip.Parent = r
-				local mine: { [number]: string } = {}
-				for spot, uid in used do
-					if uid ~= c.uid then
-						mine[spot] = uid
-					end
-				end
-				for floor = 1, owned do
-					local here = c.slot ~= nil and Tower.floorOf(c.slot) == floor
-					local room = Tower.freeSpot(mine, floor, size) ~= nil
-					local b = button(
-						strip,
-						`Floor{floor}`,
-						`{floor}`,
-						if here then GOLD elseif room then GREEN else GREY,
-						40
-					)
-					b.LayoutOrder = floor
-					b.Activated:Connect(function()
-						Sfx.play("click")
-						picked = nil
-						ctx.fire(ctx.remotes["HH:Place"], c.uid, floor)
-					end)
-				end
-				if c.slot then
-					local back = button(strip, "Inventory", "To inventory", GREY:Lerp(BLUE, 0.3), 120)
-					back.LayoutOrder = 100
-					back.Activated:Connect(function()
-						Sfx.play("click")
-						picked = nil
-						ctx.fire(ctx.remotes["HH:TakeBack"], c.uid)
-					end)
-				end
-			end
-		end
-	end
-
-	menu.add("Creatures", "🐾 Pets", function()
-		Sfx.play("click")
-		if herdGui.Enabled then
-			herdGui.Enabled = false
-		else
-			picked = nil
-			fitHerd()
-			drawHerd()
-			herdGui.Enabled = true
-		end
-	end)
+	-- The Creatures window (stash, place, merge) lives in InventoryView.
+	InventoryView.start(ctx, menu)
 
 	-- Redraw an open window when the save changes (a purchase, a move, a
 	-- new hatch, a button turning green).
-	local lastTower, lastHerd = "", ""
+	local lastTower = ""
 	local seenOwned: number? = nil
 	local seenUpgrades: { [number]: number } = {}
 	ctx.onData(function(d: { [string]: any })
@@ -562,17 +398,6 @@ function TowerView.start(ctx: Context.Context, menu: Menu)
 			if key ~= lastTower then
 				lastTower = key
 				drawTower()
-			end
-		end
-		if herdGui.Enabled then
-			local parts = { tostring(Tower.owned(d)), d.mountUid, d.guardUid }
-			for _, c in d.creatures do
-				table.insert(parts, `{c.uid}:{c.slot or 0}`)
-			end
-			local key = table.concat(parts, ",")
-			if key ~= lastHerd then
-				lastHerd = key
-				drawHerd()
 			end
 		end
 	end)

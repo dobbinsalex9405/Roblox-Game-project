@@ -178,17 +178,34 @@ function Tower.place(
 	return true, nil
 end
 
--- Puts a placed creature back in the inventory.
-function Tower.takeBack(d: Data, uid: string): (boolean, string?)
+-- Creatures waiting in the inventory (not on a floor).
+function Tower.stashed(d: Data): number
+	local n = 0
+	for _, c in d.creatures do
+		if c.slot == nil then
+			n += 1
+		end
+	end
+	return n
+end
+
+-- Puts a placed creature back in the inventory (Stash), if it has room.
+function Tower.takeBack(d: Data, uid: string, economy: any): (boolean, string?)
 	local creature = byUid(d, uid)
 	if creature == nil then
 		return false, "You do not own that creature."
+	end
+	if creature.slot == nil then
+		return true, nil
 	end
 	if uid == d.mountUid then
 		return false, "Get off it first."
 	end
 	if uid == d.guardUid then
 		return false, "It is guarding your base. Stand it down first."
+	end
+	if Tower.stashed(d) >= economy.storage.slots then
+		return false, `Your inventory is full ({economy.storage.slots}). Merge or place some creatures first.`
 	end
 	creature.slot = nil
 	return true, nil

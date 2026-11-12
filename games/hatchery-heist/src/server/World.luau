@@ -16,6 +16,7 @@ local Creatures = require(Shared.Creatures)
 local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local Merge = require(Shared.Merge)
 local Tower = require(Shared.Tower)
 
 local World = {}
@@ -610,6 +611,7 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 			pad:SetAttribute("Riding", nil)
 			pad:SetAttribute("Guard", nil)
 			pad:SetAttribute("Carried", nil)
+			pad:SetAttribute("Stars", nil)
 			pad:SetAttribute("Span", nil)
 			continue
 		end
@@ -622,9 +624,12 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 		pad:SetAttribute("Riding", riding)
 		pad:SetAttribute("Guard", guarding)
 		pad:SetAttribute("Carried", isCarried)
+		-- Merge stars: raiders see no Steal prompt on a merged creature.
+		local stars = Merge.stars(c)
+		pad:SetAttribute("Stars", stars)
 		-- How many pads it takes: the client centres its prompts on them.
 		pad:SetAttribute("Span", Tower.size(c, config.creatures, config.economy))
-		if shown == nil or shown:GetAttribute("Uid") ~= c.uid then
+		if shown == nil or shown:GetAttribute("Uid") ~= c.uid or shown:GetAttribute("Stars") ~= stars then
 			if shown then
 				shown:Destroy()
 			end
@@ -642,15 +647,16 @@ local function syncPads(model: Model, d: { [string]: any }?, config: any?, carri
 				CanCollide = false,
 			})
 			body:SetAttribute("Uid", c.uid)
+			body:SetAttribute("Stars", stars)
 			-- An invisible stand-in: the client draws the voxel creature here
 			-- (CreatureView), sized and placed by this part.
 			body:SetAttribute("CreatureLook", c.speciesId)
-			local income = Hatchery.creatureIncome(c, config.creatures)
+			local income = Hatchery.creatureIncome(c, config.creatures, config.economy)
 			billboard(
 				body,
 				Vector3.new(0, size / 2 + 1.5, 0),
 				UDim2.fromScale(5, 1.5),
-				`{Layout.displayName(c.speciesId)}\n{Layout.shortNumber(income)}/s`
+				`{Layout.displayName(c.speciesId)}{Layout.stars(stars)}\n{Layout.shortNumber(income)}/s`
 			)
 			body.Parent = pad
 			shown = body

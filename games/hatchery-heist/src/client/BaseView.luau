@@ -1,6 +1,6 @@
 --!strict
 -- Prompts and labels on the bases.
---   Own base: hatch and unlock incubators, ride or guard creatures, collect,
+--   Own base: hatch and unlock incubators, ride, guard or stash creatures, collect,
 --   rebirth, raise the shield, set traps and place decoy eggs.
 --   Other bases: steal a creature (or what looks like one: a decoy egg).
 -- Also writes the countdowns on every base's incubators and shield pylon from
@@ -26,6 +26,7 @@ local TRAP_COLORS: { [string]: Color3 } = {
 }
 local TRAP_HIDDEN = Color3.fromRGB(90, 90, 90) -- how every trap spot looks to raiders
 local SECOND_PROMPT = Vector2.new(0, 72) -- keeps two prompts on one part apart
+local THIRD_PROMPT = Vector2.new(0, 144)
 
 type PromptOptions = {
 	hold: number?,
@@ -156,7 +157,10 @@ function BaseView.start(ctx: Context.Context)
 				local value = pad:GetAttribute("CreatureUid")
 				return if type(value) == "string" then value else nil
 			end
-			prompt(spot, "Ride", "Ride").Triggered:Connect(function()
+			prompt(spot, "Ride", "Ride", {
+				key = keyOf(PromptKeys.Ride.keyboard),
+				gamepad = keyOf(PromptKeys.Ride.gamepad),
+			}).Triggered:Connect(function()
 				local id = uid()
 				if id then
 					ctx.fire(remotes["HH:Ride"], id)
@@ -164,13 +168,25 @@ function BaseView.start(ctx: Context.Context)
 			end)
 			prompt(spot, "Guard", "Make guard", {
 				hold = 0.3,
-				key = Enum.KeyCode.R,
-				gamepad = Enum.KeyCode.ButtonY,
+				key = keyOf(PromptKeys.Guard.keyboard),
+				gamepad = keyOf(PromptKeys.Guard.gamepad),
 				offset = SECOND_PROMPT,
 			}).Triggered:Connect(function()
 				local id = uid()
 				if id then
 					ctx.fire(remotes["HH:Guard"], id)
+				end
+			end)
+			-- Pick it up into the inventory (it stops earning there).
+			prompt(spot, "Stash", "Stash", {
+				hold = 0.3,
+				key = keyOf(PromptKeys.Stash.keyboard),
+				gamepad = keyOf(PromptKeys.Stash.gamepad),
+				offset = THIRD_PROMPT,
+			}).Triggered:Connect(function()
+				local id = uid()
+				if id then
+					ctx.fire(remotes["HH:TakeBack"], id)
 				end
 			end)
 			prompt(spot, "Steal", "Steal", { hold = 0.4, reach = raids.pickupReach }).Triggered:Connect(
@@ -295,7 +311,15 @@ function BaseView.start(ctx: Context.Context)
 				name,
 				if guarding then "Stand down" else "Make guard"
 			)
-			setPrompt(spot, "Steal", canSteal and has and not riding and not guarding and not carried, name)
+			local stars = pad:GetAttribute("Stars")
+			local merged = type(stars) == "number" and stars > raids.maxStealStars
+			setPrompt(spot, "Stash", isOwn and has and not riding and not guarding and not carried, name)
+			setPrompt(
+				spot,
+				"Steal",
+				canSteal and has and not riding and not guarding and not carried and not merged,
+				name
+			)
 		end
 	end
 

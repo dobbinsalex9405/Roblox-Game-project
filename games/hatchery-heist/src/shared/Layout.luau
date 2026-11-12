@@ -202,6 +202,16 @@ function Layout.eggColor(eggId: string): Color3
 end
 
 -- "BasicEgg" -> "Basic Egg"; "WillOWisp" -> "Will-o'-Wisp" (shared/DisplayName.luau)
+-- Merge stars after a name (shared/Merge): nothing for a plain creature,
+-- " ★★" for a 2-star, up to five.
+function Layout.stars(stars: number?): string
+	local n = math.floor(stars or 1)
+	if n <= 1 then
+		return ""
+	end
+	return " " .. string.rep("★", n)
+end
+
 function Layout.displayName(id: string): string
 	return DisplayName(id)
 end

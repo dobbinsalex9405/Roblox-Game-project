@@ -8,6 +8,10 @@ return {
 	perOwnerCooldownSeconds = 120,
 	-- How close (studs) the raider must stand to pick a creature up.
 	pickupReach = 8,
+	-- Creatures with more stars than this cannot be taken (merged ones, see
+	-- economy.merge). A stopgap until Egg Heist makes placed creatures safe
+	-- for good (Alex, Nov 7): one raid must not undo 3 to 81 hatches.
+	maxStealStars = 1,
 	-- Walk speed while carrying on foot; on a mount, the mount's speed times
 	-- carryMountFactor. The owner riding a fast mount can catch a raider.
 	carryWalkSpeed = 10,

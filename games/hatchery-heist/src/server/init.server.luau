@@ -270,14 +270,17 @@ local ready: Actions.Actions = Actions.new({
 	notify = function(player: Player, text: string)
 		fire(Remotes["HH:Notice"], player, text)
 	end,
-	hatched = function(player: Player, speciesId: string, eggId: string, isNew: boolean)
-		fire(Remotes["HH:Hatched"], player, speciesId, eggId, isNew)
+	hatched = function(player: Player, speciesId: string, eggId: string, isNew: boolean, uid: string)
+		fire(Remotes["HH:Hatched"], player, speciesId, eggId, isNew, uid)
 	end,
 	welcome = function(player: Player, coins: number, readyEggs: number)
 		fire(Remotes["HH:WelcomeBack"], player, coins, readyEggs)
 	end,
 	mount = function(player: Player, speed: number?)
 		Mounts.set(player, rideFor(player, speed))
+	end,
+	carried = function(player: Player): { [string]: boolean }
+		return if raids then raids:carriedFrom(player) else {}
 	end,
 })
 actions = ready
@@ -372,6 +375,18 @@ net:on(Remotes["HH:TakeBack"], function(player: Player, uid: string)
 end)
 net:on(Remotes["HH:PlaceBest"], function(player: Player)
 	ready:placeBest(player)
+end)
+net:on(Remotes["HH:PlaceAuto"], function(player: Player, uid: string)
+	ready:placeAuto(player, uid)
+end)
+net:on(Remotes["HH:Merge"], function(player: Player, uid: string)
+	ready:merge(player, uid)
+end)
+net:on(Remotes["HH:MergeAll"], function(player: Player)
+	ready:mergeAll(player)
+end)
+net:on(Remotes["HH:Sell"], function(player: Player, uid: string)
+	ready:sell(player, uid)
 end)
 -- The elevator: only from one of the player's own stops, only to a floor
 -- they have built.

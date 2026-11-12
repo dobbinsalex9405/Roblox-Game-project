@@ -13,6 +13,7 @@
 local Actions = require("./Actions")
 local Defenses = require("./Defenses")
 local Hatchery = require("./Hatchery")
+local Merge = require("./Merge")
 
 -- "respawn": the raider's character died or reset (respawning at home must
 -- never count as a delivery).
@@ -163,6 +164,9 @@ function Raids.new(options: Options): Raids
 		end
 		if target.uid == d.guardUid then
 			return false, "That creature is guarding the base."
+		end
+		if Merge.stars(target) > raidsConfig.maxStealStars then
+			return false, "Merged creatures cannot be stolen."
 		end
 		if self:carriedFrom(raid.owner)[target.uid] then
 			return false, "Someone is already carrying it."
