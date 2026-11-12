@@ -30,9 +30,8 @@ Each generated entry:
   coinsPerSecond  a whole number inside its tier's band (BANDS), picked by a
                   stable hash of the id, so it never changes between runs
   mountSpeed      its tier's speed (MOUNT)
-  pools           from the master list's family (POOLS). If none of those
-                  eggs rolls the tier, the first pool in FALLBACK that does
-                  is used instead, so no creature is left unhatchable.
+  pools           { "All" }: every egg hatches every creature of the tiers it
+                  rolls (Alex, Nov 12), so eggs differ only by their odds.
 Eggs roll a tier first, then a species in it (config/eggs.luau), so a new
 creature only splits its own tier's share: no other tier's odds move.
 """
@@ -57,19 +56,9 @@ TIERS = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly
 BANDS = {'Common': (1, 3), 'Uncommon': (4, 10), 'Rare': (15, 35), 'Ultra Rare': (60, 90),
          'Epic': (190, 260), 'Legendary': (450, 700), 'Godly': (800, 1000)}
 MOUNT = {'Common': 18, 'Uncommon': 20, 'Rare': 22, 'Ultra Rare': 25, 'Epic': 28, 'Legendary': 32, 'Godly': 36}
-# Family -> egg pools (agreed with the master-list thread, Nov 5). Every
-# family on the master list must be here; --check fails otherwise.
-POOLS = {}
-for _pool, _families in {
-    'Barnyard': ['Farm', 'Pet', 'City', 'Garden'],
-    'Meadow': ['Woodland', 'Pond', 'Shore', 'Bug', 'Bird', 'Jungle', 'Savanna', 'Desert', 'Outback', 'Arctic',
-               'Ocean', 'Invented', 'Candy'],
-    'Moonlit': ['Spooky', 'Mutant', 'Fantasy', 'Mythic', 'Spirit', 'Cosmic', 'Crystal', 'Mechanical', 'Elemental',
-                'Dino'],
-}.items():
-    for _f in _families:
-        POOLS[_f] = [_pool]
-FALLBACK = ['Meadow', 'Barnyard', 'Moonlit']
+# The one egg pool: every egg hatches from every creature of its tiers
+# (Alex, Nov 12: "every egg should be able to pull every single creature").
+POOL = 'All'
 ELEMENTS = {'Ember', 'Glacial', 'Nature', 'Storm'}
 # The in-game rules a creature's voxel boxes (VoxelArt, the stand-in drawn
 # before meshes load) must meet, as games/hatchery-heist/tests/VoxelArt.spec
@@ -125,13 +114,9 @@ def income(cid, tier):
 
 
 def pools_for(c, eggs):
-    fam = c['family']
-    if fam not in POOLS:
-        raise SystemExit(f'{c["id"]}: family {fam} has no egg pool in to_config.POOLS')
-    pools = [p for p in POOLS[fam] if c['tier'] in eggs.get(p, ())]
-    if not pools:
-        pools = [next(p for p in FALLBACK if c['tier'] in eggs.get(p, ()))]
-    return pools
+    if c['tier'] not in eggs.get(POOL, ()):
+        raise SystemExit(f'{c["id"]}: no egg rolls {c["tier"]}, so it could never hatch')
+    return [POOL]
 
 
 def line(c, eggs):
@@ -289,9 +274,6 @@ def generate(src):
     with open(ASSETS) as f:
         uploaded = {k for k, v in json.load(f)['models'].items() if v.get('textureType') == 'Image'}
     built = {sid: rarity for sid, rarity, _ in ROSTER}
-    for c in master:
-        if c['family'] not in POOLS:
-            raise SystemExit(f'family {c["family"]} ({c["id"]}) has no egg pool in to_config.POOLS')
     eggs = egg_tiers()
     passed = reviewed()
     rows = [c for c in master if c['id'] in built and c['id'] in uploaded and c['id'] not in hand

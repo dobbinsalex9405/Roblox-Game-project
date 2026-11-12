@@ -58,10 +58,15 @@ describe("Hatchery Book", function()
 			)
 			expect(entry.weight).toBeAtLeast(1)
 		end
-		-- The Phoenix is 2 in 100,000 from the Basic Egg; no egg does better.
+		-- Every coin egg hatches every creature, so the Book points at the
+		-- best coin egg, never at the Premium Egg (Robux): the Moonlit Egg for
+		-- a Legendary such as the Phoenix, the Basic Egg for a Common.
 		for _, entry in Book.entries(creatures, eggs, RARITIES) do
+			expect(entry.eggId ~= "PremiumEgg" and "coin egg" or entry.speciesId).toBe("coin egg")
 			if entry.speciesId == "Phoenix" then
-				expect(entry.weight / entry.total).toBeAtLeast(2 / 100000)
+				expect(entry.eggId).toBe("MoonlitEgg")
+			elseif entry.speciesId == "Chick" then
+				expect(entry.eggId).toBe("BasicEgg")
 			end
 		end
 	end)

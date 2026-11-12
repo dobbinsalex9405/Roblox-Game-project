@@ -5,6 +5,14 @@
 - Fix: on a phone the coin box sits small in the top-left corner and the goal
   line is a thin strip at the bottom, so the tower's floor signs and the next
   floor's price show above your character instead of hiding behind them.
+- Every egg can hatch every creature: the eggs differ only by their odds
+  (Basic is mostly Commons, Meadow Uncommons, Moonlit Rares and up; Premium
+  is Rare and up). From Rare up, each rarer creature is always less likely
+  than each creature of the tier below, so a Legendary never shows better
+  odds than an Epic. The Book names the best coin egg for each creature.
+- Fix: 199 creatures no longer have one part (a leg, the ears, a tail) sitting
+  slightly out of place. Their 3D models had gone up mid-step; they are
+  uploaded again at rest, and every upload is now checked for this first.
 - Fix: the ground floor has a name sign too ("1. Cozy Studio  x1.00"), like
   every floor above it.
 - Fix: the "Floor N: price" sign for the next floor to buy shows again, in

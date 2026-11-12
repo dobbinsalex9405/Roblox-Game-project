@@ -119,26 +119,30 @@ creature is drawn one stud taller than on its pad, at most `Layout.MOUNT_MAX`
 studs, a carried one at most `Layout.CARRY_MAX`.
 
 **Eggs roll a tier, then a creature** (Alex, Nov 5). Each egg in
-`config/eggs.luau` has a pool and a whole weight per tier, out of 100,000
-(1 = 0.001%). Each creature lists the pools it hatches from
-(`config/creatures.luau`) and may set an in-tier `weight` (1 by default).
-`Eggs.expand` splits each tier's weight between its creatures, largest
-remainder first, so every tier's chance is exact and adding a creature only
-splits its own tier. The odds card shows one line per tier; the
-"See every creature" list shows each creature as a percentage and as
-"1 in N". The rarest belt hatch is a Godly at 1 in 100,000 from the Moonlit
-Egg. Each creature also has an optional `element`, unused until elements
-roll out with a much larger roster.
+`config/eggs.luau` has a pool and a whole weight per tier, out of its total
+(10,000,000 for the coin eggs, 1,000,000 for Premium). **Every egg hatches
+every creature** of the tiers it rolls (Alex, Nov 12): every creature's
+pool is "All", the coin eggs roll all seven tiers, and the eggs differ only
+by their tier odds. Premium starts at Rare. A creature may set an in-tier
+`weight` (1 by default). `Eggs.expand` splits each tier's weight between
+its creatures, so every tier's chance is exact and adding a creature only
+splits its own tier. `tools/economy/even_eggs.py` writes the weights:
+every creature in a tier gets the same chance, and from Rare up each
+creature of a rarer tier is less likely than each of the tier below (a tier
+with only a few creatures is held down until more join). The odds card
+shows one line per tier; the "See every creature" list shows each creature
+as a percentage and as "1 in N". Each creature also has an optional
+`element`, unused until elements roll out with a much larger roster.
 
-| Egg | Price | Hatch | Market share | Best odds |
-| --- | ---: | ---: | ---: | --- |
-| Basic | 50 coins | 10 s | 55% | Phoenix 1 in 50,000 |
-| Meadow | 1,500 coins | 30 s | 30% | Thunder Griffin 1 in 20,000 |
-| Moonlit | 20,000 coins | 120 s | 15% | Nebula Serpent 1 in 100,000 |
-| Premium | Robux (not on sale yet) | 30 s | | Golden Goose 1 in 10,000 |
+| Egg | Price | Hatch | Market share | Mostly | Each Godly |
+| --- | ---: | ---: | ---: | --- | ---: |
+| Basic | 50 coins | 10 s | 55% | Common 92%, Uncommon 7% | 1 in 10,000,000 |
+| Meadow | 1,500 coins | 30 s | 30% | Common 58%, Uncommon 37%, Rare 1 in 22 | 1 in 10,000,000 |
+| Moonlit | 20,000 coins | 120 s | 15% | Uncommon 65%, Rare 30%, Epic 1 in 526 | 1 in 2,000,000 |
+| Premium | Robux (not on sale yet) | 30 s | | Rare 66%, Ultra Rare 28%, Epic 1 in 15 | 1 in 200,000 |
 
-Odds, egg prices and the tower's prices were set on Nov 7 with the
-economy simulator (`tools/economy`, targets in `ops/ECONOMY.md`).
+Odds, egg prices and the tower's prices were set on Nov 7 (odds again on
+Nov 12) with the economy simulator (`tools/economy`, targets in `ops/ECONOMY.md`).
 
 ## Mounts (approved Nov 1, 2026)
 
