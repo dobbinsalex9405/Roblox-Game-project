@@ -512,3 +512,17 @@ MummyHamster
 Lampwick
 MossPiglet
 Mossling
+AbyssAngler
+ArcaneTortoise
+AstroAxolotl
+BlazeRhino
+BlizzardOwl
+BlossomQilin
+CerberusPup
+CometFox
+CrystalTriceratops
+ElderTreant
+EmberManta
+FrostGiant
+FrostSaber
+FrostWyvern
