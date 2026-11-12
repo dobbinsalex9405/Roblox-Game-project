@@ -260,6 +260,13 @@ return function(Schema: any, Odds: any)
 			cullOtherStuds = Schema.number({ min = 20, max = 1000 }),
 			animateOtherStuds = Schema.number({ min = 10, max = 500 }),
 		}),
+		creatureMeshes = Schema.record({
+			arriveSeconds = Schema.number({ min = 1, max = 120 }),
+			retrySeconds = Schema.array(
+				Schema.number({ min = 1, max = 600 }),
+				{ minLength = 1, maxLength = 10 }
+			),
+		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),
 		}),

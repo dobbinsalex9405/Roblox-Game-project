@@ -25,6 +25,7 @@ local CreatureAssets = {}
 CreatureAssets.FOLDER = "CreatureMeshes"
 CreatureAssets.WORKERS = 4 -- loads in flight at once
 CreatureAssets.RETRY_SECONDS = { 2, 5, 10 } -- pauses between tries of one load
+CreatureAssets.COUNT_ATTRIBUTE = "MeshCount" -- on each species model: its MeshParts
 
 -- Every MeshPart the creature needs, found by name anywhere in what loaded
 -- (the importer may nest them under the file's joints). Returns nil when
@@ -72,6 +73,9 @@ local function collect(loaded: Instance, speciesId: string): (Model?, string?, s
 			mp.Parent = model
 		end
 	end
+	-- How many meshes the client must see before it loads them: the model
+	-- reaches the client before all of its MeshParts do (shared/MeshArrival).
+	model:SetAttribute(CreatureAssets.COUNT_ATTRIBUTE, #model:GetChildren())
 	return model, nil, if #skipped > 0 then table.concat(skipped, ", ") else nil
 end
 
