@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fix: a creature no longer stays as blocks long after its 3D model has
+  loaded (seen with Quails 20 minutes into a session). A slow model load is
+  waited on for at most 20 seconds; if the model is all there it is drawn
+  anyway, otherwise the load is tried again.
 - Fix: the Tower window opened from the elevator (and every other window:
   Creatures, Book, Daily Rewards, the odds list, Shop, Feedback) can always
   be closed, even in first person where the mouse is locked: opening one

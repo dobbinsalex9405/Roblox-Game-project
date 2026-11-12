@@ -252,6 +252,10 @@ return {
 		-- texture (Studio gate, #137). About 8 minutes in all, then the
 		-- species stays voxel boxes.
 		retrySeconds = { 5, 15, 45, 120, 300 },
+		-- Each load may take this long. One that has not finished by then
+		-- (stuck behind other species' loads) draws the meshes anyway if
+		-- they are all here, or is tried again if some are missing (#178).
+		preloadSeconds = 20,
 	},
 	-- Creature meshes past this many studs from the camera draw their far
 	-- (LOD1) version: a few thousand triangles instead of up to 100,000.
