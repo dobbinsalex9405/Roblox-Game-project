@@ -2,6 +2,23 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: the viewer's blink closes the eyes about their own middle
+
+- Alex saw creatures' eyes move off their faces when they blink. The game
+  blinks by hiding the eyes (CreatureView); the clipping was in the design
+  viewer's clips (tools/art/blender/build.py), which squash the eyes' joint.
+  That joint sits at the head's hinge, a median 0.33 studs from the eyes, so
+  the squash dragged them to the hinge's height: 401 of 499 creatures moved
+  their eyes by more than the eyes' own height.
+- Each blink key now also lifts the joint by what the squash takes away
+  (tools/art/blender/blink.py), so the eyes shut in place and stay inside
+  the space the open eyes fill; test_blink.py checks every creature. Every
+  `blink` part blinks (a second head's `eyes2` too), as in the game.
+- Tool-only: the meshes and CreatureMeshes are unchanged, nothing re-uploads.
+  The viewer's glbs pick it up on their next build. No game CHANGELOG line:
+  players see no change, and a games/ file would ask for a visual playtest
+  of a game that did not change.
+
 ## 2026-11-12: Hatchery Heist egg chances screen uses tier tabs
 
 - Alex asked for square tabs per rarity, a notable creature on each, and a
