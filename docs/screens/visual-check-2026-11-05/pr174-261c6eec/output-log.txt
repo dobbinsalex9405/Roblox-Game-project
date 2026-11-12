@@ -1,0 +1,41 @@
+PR #174 @ 261c6eec5412, local Staging build (stamp verified in Output: "core started build=261c6eec5412"), one Studio play-solo session.
+Studio auto-updated to version-63eb6055af4e4688 before this run.
+
+Client LogService at the end: 243 lines, all MessageWarning, 0 MessageError.
+  0 lines containing "incubatorEgg", "VoxelProp" or "CreatureView".
+  Non-ContentId: "[Roblox][sabuiltin_Assistant...ExecuteLuauActions] The execute_luau changed camera type. Resetting ..." (Studio MCP tool, see #175 report NOTE 4).
+  The rest are engine "ContentId: rbxassetid://... failed due to: No asset content representation found ..." fetch notices.
+Server LogService: Warning 202, Output 27, Info 40, 0 MessageError, 0 incubatorEgg/VoxelProp lines. Besides ContentId / [Economy] / AnalyticsService:
+  [profilestore]: Roblox API services unavailable - data will not be saved
+  [Stores] DataStores unavailable ... store=ErrorQueue
+  [Stores] DataStores unavailable ... store=Feedback
+  [TestPanel] Studio test panel is on
+  [CoreServer] core started build=261c6eec5412 game=hatchery-heist studio=true
+
+Row 1 (one Basic, one Meadow, one Moonlit egg bought off the belt through their Buy prompts; incubator top = 0.8 + 0.5 = 1.30):
+slot 1 Egg Model eggId=BasicEgg   parts=22 colours=1 height=2.60 width=2.08x2.08 bottom=1.30 centreOffset=(0.00,0.00)
+slot 2 Egg Model eggId=MeadowEgg  parts=23 colours=2 height=2.60 width=2.08x2.08 bottom=1.30 centreOffset=(0.00,0.00)
+slot 3 Egg Model eggId=MoonlitEgg parts=68 colours=3 height=2.60 width=1.89x1.89 bottom=1.30 centreOffset=(0.00,0.00)
+(incubator disc: 4 studs across, so 1.9 to 2.1 stud wide eggs clear the rim)
+belt eggs for comparison (incl. crate trim): BasicEgg 24 parts / 3 colours, MeadowEgg 25 / 4, MoonlitEgg 70 / 5
+
+Row 2 (incubator 1, Basic egg, HH:Hatch as the Hatch prompt sends, rebuy off the belt):
+cycle 1: before=1 BasicEgg(model) | hatched Pomeranian, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 2: before=1 BasicEgg(model) | hatched Llama, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 3: before=1 BasicEgg(model) | hatched BengalKitten, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 4: before=1 BasicEgg(model) | hatched Canary, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 5: before=1 BasicEgg(model) | hatched Dachshund, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 6: before=1 BasicEgg(model) | hatched Cockatoo, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 7: before=1 BasicEgg(model) | hatched SiameseKitten, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 8: before=1 BasicEgg(model) | hatched Hen, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 9: before=1 BasicEgg(model) | hatched AlleyCat, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+cycle 10: before=1 BasicEgg(model) | hatched MuddyPiglet, reveal=true, eggs after hatch=0 | rebought=1, eggs now=1 BasicEgg(model)
+max simultaneous Egg instances on incubator 1 (sampled every 0.03 s through all 10 cycles): 1
+Egg instances outside the market afterwards: 3 (Incubator1 BasicEgg, Incubator2 MeadowEgg, Incubator3 MoonlitEgg Models) = server incubators 1:BasicEgg, 2:MeadowEgg, 3:MoonlitEgg
+
+Row 3: respawn (Esc, R, Enter) -> new Character; Incubator1 Model BasicEgg parts=22, Incubator2 Model MeadowEgg parts=23, Incubator3 Model MoonlitEgg parts=68.
+
+Row 4: elevator E in first person -> Tower open, mouseLoc 120,658 (freed); X -> closed, mouseLoc 675,336 (re-locked).
+  Walk elevator -> (121,y,0) reached, -> (103,y,0) out through the front door reached.
+  Odds cards: Basic Egg tiers sum 100.0000%, Meadow Egg 100.0000%, Moonlit Egg 100.0000%. Feedback button visible.
+  All 8 pad creatures drawn with MeshParts (8 to 10 each).
