@@ -1745,10 +1745,13 @@ def clover(c, H, col, col2=None):
 def petallegs(c, H, col, col2=None):
     """An orchid mantis's petal legs: a flat, round petal lobe (col) on the
     thigh of every walking leg, standing out sideways, its middle glowing
-    softly (col2)."""
+    softly (col2). Each petal is drawn on the left leg and mirrored
+    (x -> -1 - x) onto its right twin, so the pair match voxel for voxel;
+    drawing each side from its own pivot rounded them apart."""
     k = H / 10.0
-    for p in c.parts:
-        if p.name not in rig.LEG_NAMES or not p.v:
+    legs = {p.name: p for p in c.parts if p.name in rig.LEG_NAMES and p.v}
+    for p in legs.values():
+        if p.pivot[0] >= 0 and p.name[:-1] + 'L' in legs:
             continue
         sx = 1 if p.pivot[0] >= 0 else -1
         top = max(q[2] for q in p.v)
@@ -1758,12 +1761,17 @@ def petallegs(c, H, col, col2=None):
         x0 = max(q[0] * sx for q in upper) * sx
         cx, cz = x0 + sx * 0.6 * k, top - 0.2 * k
         r = 0.75 * k + .3
+        petal = {}
         for x in range(math.floor(cx - r), math.ceil(cx + r) + 1):
             for z in range(math.floor(cz - r), math.ceil(cz + r) + 1):
                 d = math.hypot(x + .5 - cx, (z + .5 - cz) * 1.2)
                 if d < r and z >= 1:
                     glow = col2 is not None and d < 0.3 * k + .2
-                    p.v[(x, y0, z)] = ((col2 if glow else (col if d < r - 1 else _dark(col, 0.15))), glow)
+                    petal[(x, y0, z)] = ((col2 if glow else (col if d < r - 1 else _dark(col, 0.15))), glow)
+        p.v.update(petal)
+        twin = legs.get(p.name[:-1] + 'R') if sx < 0 else None
+        if twin is not None:
+            twin.v.update({(-1 - x, y, z): v for (x, y, z), v in petal.items()})
 
 
 def raptorarms(c, H, col, col2=None):

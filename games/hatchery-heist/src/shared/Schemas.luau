@@ -71,7 +71,7 @@ return function(Schema: any, Odds: any)
 			themes = Schema.array(Schema.string({ maxLength = 40 }), { minLength = 10, maxLength = 10 }),
 		}),
 		storage = Schema.record({
-			slots = Schema.integer({ min = 0, max = 200 }),
+			slots = Schema.integer({ min = 0, max = 1000 }),
 			sellSeconds = Schema.number({ min = 0, max = 3600 }),
 		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
@@ -405,6 +405,9 @@ return function(Schema: any, Odds: any)
 				volume = unit,
 			})
 		),
+		incubatorEggs = Schema.record({
+			height = Schema.number({ min = 0.5, max = 8 }),
+		}),
 		towerShells = Schema.record({
 			drawStuds = Schema.number({ min = 20, max = 1000 }),
 			towers = Schema.integer({ min = 1, max = 8 }),

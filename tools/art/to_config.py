@@ -55,7 +55,7 @@ TIERS = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly
 # Income bands per tier, inside the hand-tuned ones (tests/Config.spec: each
 # tier earns more than the one below, best / worst <= 1000).
 BANDS = {'Common': (1, 3), 'Uncommon': (4, 10), 'Rare': (15, 35), 'Ultra Rare': (60, 90),
-         'Epic': (130, 200), 'Legendary': (400, 500), 'Godly': (800, 1000)}
+         'Epic': (190, 260), 'Legendary': (450, 700), 'Godly': (800, 1000)}
 MOUNT = {'Common': 18, 'Uncommon': 20, 'Rare': 22, 'Ultra Rare': 25, 'Epic': 28, 'Legendary': 32, 'Godly': 36}
 # Family -> egg pools (agreed with the master-list thread, Nov 5). Every
 # family on the master list must be here; --check fails otherwise.

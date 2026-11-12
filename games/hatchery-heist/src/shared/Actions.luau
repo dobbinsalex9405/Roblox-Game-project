@@ -10,6 +10,7 @@
 -- testable without Roblox.
 
 local Conveyor = require("./Conveyor")
+local DisplayName = require("./DisplayName")
 local Daily = require("./Daily")
 local Eggs = require("./Eggs")
 local Hatchery = require("./Hatchery")
@@ -304,6 +305,10 @@ function Actions.new(options: Options): Actions
 				doubleCoins = perks.doubleCoins,
 				extraIncubators = perks.extraIncubators,
 			})
+			local full = Hatchery.noRoomForEgg(d, config.creatures, economyConfig)
+			if full then
+				return full
+			end
 			local incubator, refusal = Hatchery.buyEgg(d, ledger, egg, slots, options.now(), pick)
 			if refusal == "Not enough coins." then
 				refusal = Hatchery.shortOfCoins(egg, cheapestEgg())
@@ -354,6 +359,14 @@ function Actions.new(options: Options): Actions
 			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
 			options.hatched(player, creature.speciesId, creature.eggId, isNew)
+			if creature.slot == nil then
+				-- No pad free: it waits in the inventory. Say so, or it looks
+				-- as if it disappeared (Staging playtest, Nov 12).
+				options.notify(
+					player,
+					`Your tower is full: {DisplayName(creature.speciesId)} went to your inventory. Open Creatures to place it.`
+				)
+			end
 			if #sold > 0 then
 				local pending: SoldNotice = soldNotice[player]
 					or { at = -math.huge, count = 0, coins = 0, what = "" }
