@@ -404,6 +404,9 @@ return function(Schema: any, Odds: any)
 				volume = unit,
 			})
 		),
+		incubatorEggs = Schema.record({
+			height = Schema.number({ min = 0.5, max = 8 }),
+		}),
 		towerShells = Schema.record({
 			drawStuds = Schema.number({ min = 20, max = 1000 }),
 			towers = Schema.integer({ min = 1, max = 8 }),

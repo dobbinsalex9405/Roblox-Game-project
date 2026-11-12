@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: eggs sitting in incubators show their own patterned designs (the same
+  eggs you see in the Egg Market) instead of plain coloured balls.
 - Fix: the Tower window opened from the elevator (and every other window:
   Creatures, Book, Daily Rewards, the odds list, Shop, Feedback) can always
   be closed, even in first person where the mouse is locked: opening one
