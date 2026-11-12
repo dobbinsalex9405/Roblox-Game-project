@@ -45,6 +45,7 @@ import bpy  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
 from describe import RANK, creatures, describe  # noqa: E402
+import blink  # noqa: E402
 import thumbs  # noqa: E402
 import walkpose  # noqa: E402
 
@@ -314,14 +315,25 @@ def bake_clip(clip, c, meta, joints, height, glow_mats):
         j.location = rest[name]
         j.rotation_euler = (0, 0, 0)
         actions[name] = (act, moved)
-    # blink: the eyes close for a few frames (the game hides them)
-    if 'eyes' in joints:
-        j = joints['eyes']
-        act = actions['eyes'][0]
-        for f, sc in ((int(1.5 * FPS), 1.0), (int(1.5 * FPS) + 2, 0.08), (int(1.5 * FPS) + 4, 1.0)):
+    # blink: the eyes close for a few frames (the game hides them), about
+    # their own middle, not the head's hinge (blink.py)
+    for name, j in joints.items():
+        if anims[name] != 'blink':
+            continue
+        spans = []
+        for ob in j.children:
+            if ob.type == 'MESH' and not ob.name.endswith('_lod1') and ob.data.vertices:
+                zs = [v.co.z for v in ob.data.vertices]
+                spans.append((ob.location.z + min(zs), ob.location.z + max(zs)))
+        if not spans:
+            continue
+        for f, sc, lift in blink.keys(FPS, blink.middle(spans)):
             j.scale = (1, 1, sc)
+            j.location = rest[name] + Vector((0, 0, lift))
             j.keyframe_insert('scale', frame=f + 1)
+            j.keyframe_insert('location', frame=f + 1)
         j.scale = (1, 1, 1)
+        j.location = rest[name]
     # glow pulse (previews only: glTF and Roblox take no material keys)
     if look['pulse']:
         for rgb, m in glow_mats.items():
