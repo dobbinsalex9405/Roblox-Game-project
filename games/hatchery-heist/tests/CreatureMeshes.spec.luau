@@ -101,6 +101,63 @@ describe("Creature meshes", function()
 		end
 	end)
 
+	it("hang every leg from a hip in the leg or its body, on a leg that touches the body", function()
+		-- Alex, Nov 12: in game the legs sat away from the body. Each leg
+		-- swings about its pivot (Walk.pose), so the pivot must be in the leg
+		-- or in the part it hangs from (a bug's hip sits inside the body), and
+		-- the leg must touch a part of the body, for all 509+ species.
+		local SLACK = 0.06 -- studs: a bit over half a 0.1-stud voxel
+		type Box = { lo: { number }, hi: { number } }
+		local function within(box: Box, p: { number }): boolean
+			for a = 1, 3 do
+				if p[a] < box.lo[a] - SLACK or p[a] > box.hi[a] + SLACK then
+					return false
+				end
+			end
+			return true
+		end
+		local function touch(a: Box, b: Box): boolean
+			for i = 1, 3 do
+				if a.lo[i] > b.hi[i] + SLACK or a.hi[i] < b.lo[i] - SLACK then
+					return false
+				end
+			end
+			return true
+		end
+		local legs = 0
+		for id, m in CreatureMeshes do
+			local boxes: { [string]: Box } = {}
+			for _, part in m.parts do
+				local lo, hi = { math.huge, math.huge, math.huge }, { -math.huge, -math.huge, -math.huge }
+				for _, mesh in part.meshes do
+					for a = 1, 3 do
+						lo[a] = math.min(lo[a], mesh.center[a] - mesh.size[a] / 2)
+						hi[a] = math.max(hi[a], mesh.center[a] + mesh.size[a] / 2)
+					end
+				end
+				boxes[part.name] = { lo = lo, hi = hi }
+			end
+			for _, part in m.parts do
+				if string.match(part.name, "^leg") then
+					legs += 1
+					local leg, label = boxes[part.name], `{id}.{part.name}`
+					local hip = within(leg, part.pivot) or within(boxes[part.parent or "body"], part.pivot)
+					expect(hip and "hip on the creature" or `{label}: pivot off the leg and body`).toBe(
+						"hip on the creature"
+					)
+					local touches = false
+					for name, other in boxes do
+						if not string.match(name, "^leg") and touch(leg, other) then
+							touches = true
+						end
+					end
+					expect(touches and "attached" or `{label}: touches no body part`).toBe("attached")
+				end
+			end
+		end
+		expect(legs).toBeAtLeast(1000)
+	end)
+
 	it("are well formed: a body, known animations, parents, unique mesh names", function()
 		local seen: { [string]: string } = {}
 		for id, m in CreatureMeshes do

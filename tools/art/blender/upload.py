@@ -13,7 +13,9 @@ Each creature's colours are its palette PNG, uploaded as an **Image** asset
 (never a Decal: MeshPart.TextureID needs an image id, and a decal id draws
 the creature grey with "Asset type does not match requested type").
 --textures-only re-uploads just the palettes of creatures that already have
-a model asset.
+a model asset. --fresh uploads a new Model asset even for a creature that
+has one, so a live creature re-uploaded ahead of its PR keeps its old asset
+on Staging until that PR merges (standing rule j).
 
 --thumbs uploads the Hatchery Book pictures instead (build.py --thumbs:
 DIR/<id>/<id>_thumb.png and thumb.json), each as an Image asset, and
@@ -175,6 +177,9 @@ def main():
     ap.add_argument('dir')
     ap.add_argument('--only')
     ap.add_argument('--textures-only', action='store_true')
+    ap.add_argument('--fresh', action='store_true',
+                    help='a new Model asset even for a creature that has one (rule j: a live creature re-uploaded '
+                         'ahead of its PR keeps its old asset on Staging until the PR merges)')
     ap.add_argument('--thumbs', action='store_true', help='the Hatchery Book pictures (see the top)')
     ap.add_argument('--dry-run', action='store_true')
     a = ap.parse_args()
@@ -194,6 +199,8 @@ def main():
         if not os.path.isfile(os.path.join(a.dir, sid, f'{sid}_palette.png')):
             raise SystemExit(f'{sid}: no {sid}_palette.png next to the fbx')
         have = data['models'].get(sid)
+        if a.fresh and not a.textures_only:
+            have = None
         if a.dry_run:
             what = 'keep' if a.textures_only and have else ('update ' + str(have['assetId'])) if have else 'create'
             print(f'{sid}: would {what} model from {fbx} and upload its palette as an Image')
@@ -213,7 +220,7 @@ def main():
             op = call('POST', f'{API}/assets', key, body, ctype)
         if not (a.textures_only and have):
             res = wait(op, key)
-        asset = int(res.get('assetId') or have['assetId'])
+        asset = int(res.get('assetId') or (have or {})['assetId'])
         # the colours: the palette image as its own asset, set as each
         # MeshPart's TextureID by the game (the FBX carries no texture)
         png = os.path.join(a.dir, sid, f'{sid}_palette.png')
