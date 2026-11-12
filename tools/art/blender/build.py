@@ -45,6 +45,7 @@ import bpy  # noqa: E402
 from mathutils import Matrix, Vector  # noqa: E402
 
 from describe import RANK, creatures, describe  # noqa: E402
+import blink  # noqa: E402
 import thumbs  # noqa: E402
 import walkpose  # noqa: E402
 
@@ -314,14 +315,25 @@ def bake_clip(clip, c, meta, joints, height, glow_mats):
         j.location = rest[name]
         j.rotation_euler = (0, 0, 0)
         actions[name] = (act, moved)
-    # blink: the eyes close for a few frames (the game hides them)
-    if 'eyes' in joints:
-        j = joints['eyes']
-        act = actions['eyes'][0]
-        for f, sc in ((int(1.5 * FPS), 1.0), (int(1.5 * FPS) + 2, 0.08), (int(1.5 * FPS) + 4, 1.0)):
+    # blink: the eyes close for a few frames (the game hides them), about
+    # their own middle, not the head's hinge (blink.py)
+    for name, j in joints.items():
+        if anims[name] != 'blink':
+            continue
+        spans = []
+        for ob in j.children:
+            if ob.type == 'MESH' and not ob.name.endswith('_lod1') and ob.data.vertices:
+                zs = [v.co.z for v in ob.data.vertices]
+                spans.append((ob.location.z + min(zs), ob.location.z + max(zs)))
+        if not spans:
+            continue
+        for f, sc, lift in blink.keys(FPS, blink.middle(spans)):
             j.scale = (1, 1, sc)
+            j.location = rest[name] + Vector((0, 0, lift))
             j.keyframe_insert('scale', frame=f + 1)
+            j.keyframe_insert('location', frame=f + 1)
         j.scale = (1, 1, 1)
+        j.location = rest[name]
     # glow pulse (previews only: glTF and Roblox take no material keys)
     if look['pulse']:
         for rgb, m in glow_mats.items():
@@ -359,7 +371,9 @@ def push_nla(joints, clip):
 
 # ------------------------------------------------------------------ export
 
-def export_files(out_dir, c, coll, joints):
+def export_files(out_dir, c, coll, joints, rest):
+    """The .glb with both clips, and the .fbx at rest (`rest`: each joint's
+    location before any clip was baked)."""
     for ob in bpy.context.scene.objects:
         ob.select_set(ob.name in coll.objects)
     bpy.ops.export_scene.gltf(
@@ -374,6 +388,28 @@ def export_files(out_dir, c, coll, joints):
         export_image_format='AUTO',
         export_extras=False,
     )
+    # The FBX goes up at rest. Its clips' NLA tracks are muted for the
+    # export, and every joint is put back at rest: evaluating the clips (the
+    # glTF export samples them) leaves each joint's own location, rotation
+    # and scale at the last pose it was given, and muting a track does not
+    # undo that. Without both, the FBX's meshes carry a mid-step pose.
+    tracks = [tr for j in joints.values() if j.animation_data for tr in j.animation_data.nla_tracks]
+    for tr in tracks:
+        tr.mute = True
+    for name, j in joints.items():
+        j.location = rest[name]
+        j.rotation_euler = (0, 0, 0)
+        j.scale = (1, 1, 1)
+    bpy.context.view_layer.update()
+    try:
+        export_fbx(out_dir, c)
+    finally:
+        for tr in tracks:
+            tr.mute = False
+        bpy.context.view_layer.update()
+
+
+def export_fbx(out_dir, c):
     bpy.ops.export_scene.fbx(
         filepath=os.path.join(out_dir, f'{c.species}.fbx'),
         use_selection=True,
@@ -382,9 +418,12 @@ def export_files(out_dir, c, coll, joints):
         apply_scale_options='FBX_SCALE_UNITS',
         axis_forward='-Z',
         axis_up='Y',
-        bake_anim=True,
-        bake_anim_use_nla_strips=True,
-        bake_anim_use_all_actions=False,
+        # No animation in the FBX: the game poses every part itself
+        # (CreatureView, Walk.pose), and Roblox's importer bakes the first
+        # frame of the first clip into the meshes, so 198 of 509 creatures
+        # were uploaded mid-step (legs rolled, bodies pitched; real-engine
+        # probe, Nov 12). The .glb keeps the clips for the design viewer.
+        bake_anim=False,
         # no textures in the FBX: Roblox would turn them into a PBR
         # SurfaceAppearance whose TexturePack fails; the palette goes up as
         # its own image (upload.py) and the game sets each MeshPart's TextureID
@@ -542,6 +581,7 @@ def build_one(c, out_root, do_render, fast):
     meta, root, joints, glow_mats = creature_scene(c, out_dir, coll)
     height = meta['heightStuds']
 
+    rest = {n: Vector(j.location) for n, j in joints.items()}
     frames = {}
     for clip in ('idle', 'walk'):
         frames[clip] = bake_clip(clip, c, meta, joints, height, glow_mats)
@@ -549,7 +589,7 @@ def build_one(c, out_root, do_render, fast):
         for m in glow_mats.values():
             if m.node_tree.animation_data:
                 m.node_tree.animation_data_clear()
-    export_files(out_dir, c, coll, joints)
+    export_files(out_dir, c, coll, joints, rest)
 
     if do_render:
         co = stage(s, meta, fast)
