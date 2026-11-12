@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
+local HudLayout = require(Shared.HudLayout)
 local Layout = require(Shared.Layout)
 local OddsCard = require(Shared.OddsCard)
 local Viewport = require(Shared.Viewport)
@@ -73,19 +74,35 @@ function Hud.start(ctx: Context.Context)
 	gui.IgnoreGuiInset = false
 	gui.Parent = ctx.player:WaitForChild("PlayerGui")
 
-	-- Top bar: coins, income, uncollected, rebirths.
+	-- Top bar: coins, income, uncollected, rebirths. Where it sits, and the
+	-- notices and raid banner, follow the screen (HudLayout, issue #186).
 	local bar = panel(gui, "Bar", UDim2.fromOffset(360, 64), UDim2.new(0.5, 0, 0, 8), Vector2.new(0.5, 0))
-	local coins = label(bar, "Coins", UDim2.new(0.55, -8, 0.6, 0), UDim2.fromOffset(8, 2))
+	local coins = label(bar, "Coins", UDim2.new(), UDim2.new())
 	coins.TextXAlignment = Enum.TextXAlignment.Left
 	coins.TextColor3 = Color3.fromRGB(255, 220, 90)
-	local income = label(bar, "Income", UDim2.new(0.45, -8, 0.6, 0), UDim2.new(0.55, 0, 0, 2))
+	local income = label(bar, "Income", UDim2.new(), UDim2.new())
 	income.TextXAlignment = Enum.TextXAlignment.Right
-	local pending = label(bar, "Pending", UDim2.new(0.65, -8, 0.38, 0), UDim2.new(0, 8, 0.6, 0))
+	local pending = label(bar, "Pending", UDim2.new(), UDim2.new())
 	pending.TextXAlignment = Enum.TextXAlignment.Left
 	pending.Font = Enum.Font.Gotham
-	local rebirths = label(bar, "Rebirths", UDim2.new(0.35, -8, 0.38, 0), UDim2.fromScale(0.65, 0.6))
-	rebirths.TextXAlignment = Enum.TextXAlignment.Right
+	local rebirths = label(bar, "Rebirths", UDim2.new(), UDim2.new())
 	rebirths.Font = Enum.Font.Gotham
+	-- Two rows on a wide screen; three in the compact phone box.
+	local function arrangeBar(compact: boolean)
+		if compact then
+			coins.Size, coins.Position = UDim2.new(0.62, -8, 0.42, 0), UDim2.fromOffset(8, 2)
+			income.Size, income.Position = UDim2.new(0.38, -8, 0.42, 0), UDim2.new(0.62, 0, 0, 2)
+			pending.Size, pending.Position = UDim2.new(1, -16, 0.28, 0), UDim2.new(0, 8, 0.43, 0)
+			rebirths.Size, rebirths.Position = UDim2.new(1, -16, 0.26, 0), UDim2.new(0, 8, 0.71, 0)
+			rebirths.TextXAlignment = Enum.TextXAlignment.Left
+		else
+			coins.Size, coins.Position = UDim2.new(0.55, -8, 0.6, 0), UDim2.fromOffset(8, 2)
+			income.Size, income.Position = UDim2.new(0.45, -8, 0.6, 0), UDim2.new(0.55, 0, 0, 2)
+			pending.Size, pending.Position = UDim2.new(0.65, -8, 0.38, 0), UDim2.new(0, 8, 0.6, 0)
+			rebirths.Size, rebirths.Position = UDim2.new(0.35, -8, 0.38, 0), UDim2.fromScale(0.65, 0.6)
+			rebirths.TextXAlignment = Enum.TextXAlignment.Right
+		end
+	end
 	-- Never an empty bar: say so while the save loads.
 	coins.Text = "Loading..."
 	pending.Text = "Loading your hatchery"
@@ -134,6 +151,20 @@ function Hud.start(ctx: Context.Context)
 		panel(gui, "RaidBanner", UDim2.fromOffset(360, 40), UDim2.new(0.5, 0, 0, 166), Vector2.new(0.5, 0))
 	banner.Visible = false
 	local bannerText = label(banner, "Text", UDim2.new(1, -16, 1, -8), UDim2.fromOffset(8, 4))
+
+	local compactNow: boolean? = nil
+	Viewport.watch(Workspace, function()
+		local cam = Workspace.CurrentCamera
+		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
+		local layout = HudLayout.forScreen(screen.X, screen.Y)
+		HudLayout.apply(layout.bar, bar)
+		HudLayout.apply(layout.notice, notice)
+		HudLayout.apply(layout.banner, banner)
+		if layout.compact ~= compactNow then
+			compactNow = layout.compact
+			arrangeBar(layout.compact)
+		end
+	end)
 	local function updateBanner()
 		local carrying = ctx.player:GetAttribute("Carrying")
 		if type(carrying) == "string" then
@@ -217,8 +248,8 @@ function Hud.start(ctx: Context.Context)
 	local function fitCard()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		-- On a short screen the card starts below the notice line (124 +
-		-- 36 px), so a refusal is never half under it.
+		-- On a short screen the card starts below the coin box and the raid
+		-- banner in the top-left corner (HudLayout: they end by 114 px).
 		local short = screen.Y < 500
 		if short then
 			card.AnchorPoint = Vector2.new(0, 0)

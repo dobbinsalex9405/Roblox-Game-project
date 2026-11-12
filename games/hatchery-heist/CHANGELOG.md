@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: on a phone the coin box sits small in the top-left corner and the goal
+  line is a thin strip at the bottom, so the tower's floor signs and the next
+  floor's price show above your character instead of hiding behind them.
 - Every egg can hatch every creature: the eggs differ only by their odds
   (Basic is mostly Commons, Meadow Uncommons, Moonlit Rares and up; Premium
   is Rare and up). From Rare up, each rarer creature is always less likely

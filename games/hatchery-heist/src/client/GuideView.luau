@@ -11,8 +11,10 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
 local Guide = require(Shared.Guide)
+local HudLayout = require(Shared.HudLayout)
 local Geometry = require(Shared.Geometry)
 local Layout = require(Shared.Layout)
+local Viewport = require(Shared.Viewport)
 
 local Context = require(script.Parent.Context)
 local Modal = require(ReplicatedStorage.CoreClient.Modal)
@@ -348,19 +350,17 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	local guideConfig = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).guide
 	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, guideConfig.playerList == true)
 
-	-- The goal line, under the coin bar (Hud).
+	-- The goal line: under the coin bar (Hud), or on a phone a thin strip at
+	-- the bottom centre, clear of the tower's signs (HudLayout, issue #186).
 	local goal = Instance.new("Frame")
 	goal.Name = "Goal"
 	goal.AnchorPoint = Vector2.new(0.5, 0)
 	goal.Position = UDim2.new(0.5, 0, 0, 80)
-	goal.Size = UDim2.new(0.92, 0, 0, 38)
+	goal.Size = UDim2.fromOffset(420, 38)
 	goal.BackgroundColor3 = PANEL
 	goal.BackgroundTransparency = 0.1
 	goal.Visible = false
 	corner(goal, 10)
-	local goalLimit = Instance.new("UISizeConstraint")
-	goalLimit.MaxSize = Vector2.new(420, 38)
-	goalLimit.Parent = goal
 	local goalStroke = Instance.new("UIStroke")
 	goalStroke.Color = GOLD
 	goalStroke.Thickness = 2
@@ -383,6 +383,18 @@ function GuideView.start(ctx: Context.Context): SideMenu
 	goalText.Position = UDim2.fromOffset(58, 3)
 	goalText.Size = UDim2.new(1, -66, 1, -6)
 	goal.Parent = gui
+	Viewport.watch(Workspace, function()
+		local cam = Workspace.CurrentCamera
+		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
+		local layout = HudLayout.forScreen(screen.X, screen.Y)
+		HudLayout.apply(layout.goal, goal)
+		local t = layout.goalTag
+		tag.Size = UDim2.fromOffset(t.width, t.height)
+		tag.TextSize = t.text
+		goalText.TextSize = layout.goalText
+		goalText.Position = UDim2.fromOffset(t.width + 12, 2)
+		goalText.Size = UDim2.new(1, -(t.width + 20), 1, -4)
+	end)
 
 	local welcome, go = welcomeWindow(gui)
 	go.Activated:Connect(function()

@@ -2,6 +2,19 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: the audit's "covers the world" warning measures the screen while playing
+
+- `hud.covers-world` warned on every Hatchery Heist run because it measured
+  the very first screen, where a new player's welcome card (a one-tap window
+  behind a CoreClient/Modal backdrop) fills 86% of a phone. That number never
+  changed with the HUD, so the warning said nothing about the HUD band that
+  actually hid the tower's signs (issue #186).
+- The audit now also joins fresh, taps outside every open window (each Modal
+  backdrop; the guard closes only an open one) and warns on the cover of that
+  playing screen, still at 40%. It saves it as `phone-playing.png`. The first
+  screen's number stays in the notes. Hatchery Heist's playing HUD covers 19%
+  of a phone after #186 moved the coin box to a corner and the goal line to
+  the bottom.
 ## 2026-11-12: every egg hatches every creature; rarer is rarer
 
 - **Asked:** Alex, Nov 12: "every egg should be able to pull every single
