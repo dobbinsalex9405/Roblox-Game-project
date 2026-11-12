@@ -1,0 +1,35 @@
+PR #172 @ 2fe4fc15290e, local Staging build, Studio play-solo. Player data read from the server's Core:Data push (full data table) on the client.
+
+Server LogService (end of check 2): Warning 276, Output 48, Info 62, 0 MessageError.
+Besides ContentId / [Economy] / AnalyticsService lines, only:
+  [profilestore]: Roblox API services unavailable - data will not be saved
+  [Stores] DataStores unavailable ... store=ErrorQueue
+  [Stores] DataStores unavailable ... store=Feedback
+  [TestPanel] Studio test panel is on
+  [CoreServer] core started build=2fe4fc15290e game=hatchery-heist studio=true
+Client LogService: 0 MessageError, 0 CreatureView lines.
+
+Setup: 10M coins (test panel), incubator slots 3 -> 10 (HH:BuySlot; further buys "Not enough coins" x5).
+Gave 8 Dachshund (floor 1 pads 1-8, 8/8 used), then 5 Llama + 145 OkapiCalf -> inventory 150/150 (storage.slots = 150).
+creatures 158 (placed 8, stored 150).
+
+Check 1 (one hatch at a time, Basic eggs bought off the belt via the Buy prompt):
+Hatch slot 1: count 158 -> 158 (placed 8->8, stored 150->150), coins 7303110 -> 7304572
+  added: #159 Goldfish inventory ; removed (sold): #9 Llama
+  notices: Your tower is full: Goldfish went to your inventory. Open Creatures to place it. || Inventory is full: sold Llama for 20 coins.
+Hatch slot 2: count 158 -> 158, coins 7304572 -> 7304592
+  added: #160 Foal inventory ; removed (sold): #10 Llama
+  notices: Your tower is full: Foal went to your inventory. Open Creatures to place it.
+Hatch slot 3: count 158 -> 158, coins 7304592 -> 7304612
+  added: #161 Cockatiel inventory ; removed (sold): #11 Llama
+  notices: Your tower is full: Cockatiel went to your inventory. Open Creatures to place it.
+(Second and third sale notices held back by the existing 20 s SOLD_NOTICE_SECONDS throttle; coins +20 each.)
+Creatures list: Goldfish (Row147), Foal (Row155), Cockatiel (Row158, "Inventory · 1/s when placed"), header "Earning: 8/8 slots used. In your inventory: 150."
+
+Check 2 (10 Basic eggs, HH:Hatch on all 10 incubators 0.2 s apart):
+HH:Hatched order: ZebraFinch, Crow, Duckling, Goldfish, Raccoon, Mouse, GuineaPig, DalmatianPup, Canary, Hen (uids 162-171)
+count 158 -> 158 (placed 8->8, stored 150->150), coins 7309883 -> 7310123
+still present: #165 Goldfish, #166 Raccoon, #169 DalmatianPup, #171 Hen
+sold during the batch: older #12 Llama, #13 Llama, #160 Foal, #161 Cockatiel
+                      and batch newcomers #162 ZebraFinch, #163 Crow, #164 Duckling, #167 Mouse, #168 GuineaPig, #170 Canary
+notices: 10 x "Your tower is full: <Name> went to your inventory. Open Creatures to place it." + 1 x "Inventory is full: sold Llama for 20 coins."
