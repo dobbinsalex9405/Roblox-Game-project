@@ -4648,6 +4648,14 @@ def _shift_head(c, dy, dz):
             p.pivot = (px, py + dy, pz + dz)
 
 
+def head_drop(c, H, col=None, col2=None, a=None):
+    """Sits the head lower on the shoulders, so it overlaps the chest with
+    no thin neck showing (a badger's head carried low). `lower`: how far, in
+    tenths of the height (default 1.2). Put it first, before anything drawn
+    on the head or the body's top."""
+    _shift_head(c, 0, -float((a or {}).get('lower', 1.2)) * (H / 10.0))
+
+
 def _shag(part, q, col, k, seed):
     """Ragged fur: a voxel out from q's open face, now and then."""
     x, y, z = q
@@ -4883,6 +4891,7 @@ ACCESSORIES = {
     'paws': paws,
     'ear_inner': ear_inner,
     'fit_boxes': fit_boxes,
+    'head_drop': head_drop,
     'recolor': recolor, 'mend': mend, 'cheek_ruff': cheek_ruff, 'owl_tufts': owl_tufts,
     'facial_disc': facial_disc, 'snowflakes': snowflakes, 'turtle_beak': turtle_beak, 'flame_crest': flame_crest, 'ear_icicles': ear_icicles, 'aura_spikes': spikes, 'hedgehog_quills': hedgehog_quills, 'raptor_pose': raptor_pose, 'storm_crest': storm_crest, 'puffin_face': puffin_face, 'monkey_face': monkey_face, 'aura_long_neck': long_neck,
     'origami_crane': origami_crane, 'aura_mandibles': mandibles, 'eye_shine': eye_shine, 'pink_nose': pink_nose, 'toasted': toasted, 'jelly': jelly, 'ear_rims': ear_rims, 'otter_tail': otter_tail, 'tiny_ears': tiny_ears, 'ghost_tail': ghost_tail, 'craters': craters, 'wing_icicles': wing_icicles, 'leaf_veins': leaf_veins, 'ear_tufts': ear_tufts, 'dust_motes': dust_motes, 'coin_inside': coin_inside, 'moss_top': moss_top, 'river_stones': river_stones, 'neon_rings': neon_rings, 'sleepy_eyes': sleepy_eyes, 'wisp_flame': wisp_flame, 'fox_face': fox_face, 'quartz_shards': quartz_shards, 'wing_snowflakes': wing_snowflakes, 'amber_gaster': amber_gaster,

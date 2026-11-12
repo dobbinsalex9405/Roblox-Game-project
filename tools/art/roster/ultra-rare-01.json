@@ -1627,6 +1627,11 @@
    ],
    "accessories": [
     {
+     "kind": "head_drop",
+     "color": "#000000",
+     "lower": 1.2
+    },
+    {
      "kind": "aura_stripe",
      "color": "#7FDFFF",
      "glow": true
@@ -1638,7 +1643,9 @@
     {
      "kind": "fit_boxes",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#F4F0EA", "part": "head", "mirror": true, "voxels": [[-3, -4, 8], [-2, -5, 8, "#1B1B2F"]]},
+    {"kind": "draw", "color": "#5A6070", "part": "eyes", "mirror": true, "voxels": [[-2, -6, 7]]}
    ],
    "element": "Glacial",
    "gait": "trot"
@@ -1696,12 +1703,14 @@
    "accessories": [
     {
      "kind": "tipped_wings",
-     "color": "#7FE4FF"
+     "color": "#4FC8F0"
     },
     {
      "kind": "mend",
      "color": "#000000"
-    }
+    },
+    {"kind": "draw", "color": "#5AB8E8", "part": "head", "mirror": true, "voxels": [[-3, -4, 4, "#1B1B2F"], [-2, -4, 4], [-1, -4, 4]]},
+    {"kind": "draw", "color": "#5AB8E8", "part": "eyes", "mirror": true, "voxels": [[-2, -4, 3]]}
    ],
    "element": "Glacial",
    "gait": "hover"
