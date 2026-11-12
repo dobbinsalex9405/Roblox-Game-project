@@ -30,6 +30,9 @@ export type CatalogItem = {
 	oddsTable: string?,
 	paidRandom: boolean?,
 	oddsLabels: { [string]: string }?,
+	-- The core shop's CatalogItem shape (packages/core server/Purchases):
+	-- sold only from the game's own button. Tidecatch Cove has none yet.
+	hidden: boolean?,
 }
 
 local Products = {}
