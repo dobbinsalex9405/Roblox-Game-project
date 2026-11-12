@@ -7,12 +7,25 @@ local Eggs = {}
 -- Rarity tiers, most common first. An egg's outcomes are listed in this order.
 Eggs.RARITIES = { "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
 
+-- The pool that holds every creature in an egg pool, whatever its pools
+-- (the Giant Egg: every Epic, Legendary and Godly), so a new creature joins
+-- it without listing it.
+Eggs.ALL = "All"
+
+-- Whether creature `s` is in `pool`.
+function Eggs.inPool(s: any, pool: string): boolean
+	if type(s.pools) ~= "table" then
+		return false
+	end
+	return pool == Eggs.ALL and #s.pools > 0 or table.find(s.pools, pool) ~= nil
+end
+
 -- The creatures of `rarity` in `pool`, sorted by income then id, so the
 -- order (and the odds list) is the same everywhere.
 function Eggs.members(species: { [string]: any }, pool: string, rarity: string): { string }
 	local ids = {}
 	for id, s in species do
-		if s.rarity == rarity and type(s.pools) == "table" and table.find(s.pools, pool) then
+		if s.rarity == rarity and Eggs.inPool(s, pool) then
 			table.insert(ids, id)
 		end
 	end

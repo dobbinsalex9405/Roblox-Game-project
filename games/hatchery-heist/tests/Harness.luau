@@ -31,6 +31,9 @@ export type Options = {
 	seed: number?, -- fixes the dice
 	store: any?, -- reuse a store to simulate another server
 	start: number?,
+	-- Timed events (shared/Events.luau), as the server passes them.
+	effects: (() -> any)?,
+	incomeSeconds: ((from: number, to: number) -> number)?,
 }
 
 function Harness.new(options: Options?)
@@ -119,6 +122,8 @@ function Harness.new(options: Options?)
 		mount = function(_player: any, speed: number?)
 			table.insert(h.mounts, speed or false)
 		end,
+		effects = opts.effects,
+		incomeSeconds = opts.incomeSeconds,
 	})
 
 	h.raids = Raids.new({

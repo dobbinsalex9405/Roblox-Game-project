@@ -12,6 +12,7 @@
 local Conveyor = require("./Conveyor")
 local Daily = require("./Daily")
 local Eggs = require("./Eggs")
+local Events = require("./Events")
 local Hatchery = require("./Hatchery")
 local Tower = require("./Tower")
 
@@ -44,6 +45,10 @@ export type Options = {
 	hatched: (player: any, speciesId: string, eggId: string, isNew: boolean) -> (),
 	welcome: (player: any, coins: number, readyEggs: number) -> (),
 	mount: (player: any, speed: number?) -> (), -- speed nil = dismount
+	-- Timed events (shared/Events.luau; nil = none): what the running event
+	-- changes right now, and how many seconds of income a span is worth.
+	effects: (() -> Events.Effects)?,
+	incomeSeconds: ((from: number, to: number) -> number)?,
 }
 
 export type Actions = {
@@ -68,6 +73,17 @@ export type Actions = {
 	-- Studio test panel only: adds a creature of any species, placed like a
 	-- hatch. Returns whether it worked and what to show.
 	grantCreature: (self: Actions, player: any, speciesId: string) -> (boolean, string),
+	-- A creature bought with Robux (the Giant Egg), inside the receipt's own
+	-- data update: income is brought up to date first, then it is placed
+	-- like a hatch. Returns it and whether it is new to the Hatchery Book.
+	giftInside: (
+		self: Actions,
+		player: any,
+		d: Hatchery.Data,
+		ledger: any,
+		speciesId: string,
+		eggId: string
+	) -> (any, boolean),
 	-- For the raid layer (Raids.luau): one atomic update with income brought
 	-- up to date; `fn` returns a refusal or nil.
 	change: (
@@ -138,7 +154,7 @@ function Actions.new(options: Options): Actions
 			if d.lastIncomeAt > 0 and now > d.lastIncomeAt then
 				d.stats.playSeconds += now - d.lastIncomeAt
 			end
-			Hatchery.accrue(d, now, perSecond(d, player))
+			Hatchery.accrue(d, now, perSecond(d, player), options.incomeSeconds)
 			ledger = economy:ledger(player, d)
 			refusal = fn(d, ledger)
 		end)
@@ -282,19 +298,31 @@ function Actions.new(options: Options): Actions
 		if egg == nil then
 			return false, "unknown egg"
 		end
+		-- A running event can lower the price or the hatch time of eggs
+		-- bought now (shared/Events.luau). The outcome tables never change
+		-- here: Lucky Hatch boosts the odds through the odds service.
+		local effects = if options.effects then options.effects() else Events.effectsOf(nil, {})
+		local deal = egg
+		if effects.priceFactor ~= 1 or effects.hatchFactor ~= 1 then
+			deal = table.clone(egg)
+			deal.priceCoins = Events.price(egg.priceCoins, effects)
+			deal.hatchSeconds = Events.hatchSeconds(egg.hatchSeconds, effects)
+		end
 
 		-- Restricted players always get the shown fixed order (the client shows
 		-- it whenever PaidRandomRestricted is set), whether or not this egg
 		-- counts as paid; everyone else rolls from the odds table they saw.
 		local paid = Eggs.isPaid(egg, options.sellsCurrency)
-		local function pick(e: any, boughtBefore: number): string?
+		-- Always the configured egg (not `deal`): its fixed-order cycle is
+		-- worked out once per egg and kept.
+		local function pick(_e: any, boughtBefore: number): string?
 			if not options.policy:paidRandomAllowed(player) then
-				return Hatchery.fixedOrderOutcome(e, boughtBefore)
+				return Hatchery.fixedOrderOutcome(egg, boughtBefore)
 			end
 			if paid then
-				return (options.odds:rollPaid(e.id, player, options.policy))
+				return (options.odds:rollPaid(egg.id, player, options.policy))
 			end
-			return options.odds:roll(e.id, player)
+			return options.odds:roll(egg.id, player)
 		end
 
 		local step: number? = nil
@@ -304,9 +332,14 @@ function Actions.new(options: Options): Actions
 				doubleCoins = perks.doubleCoins,
 				extraIncubators = perks.extraIncubators,
 			})
-			local incubator, refusal = Hatchery.buyEgg(d, ledger, egg, slots, options.now(), pick)
+			local incubator, refusal = Hatchery.buyEgg(d, ledger, deal, slots, options.now(), pick)
 			if refusal == "Not enough coins." then
-				refusal = Hatchery.shortOfCoins(egg, cheapestEgg())
+				local cheapest = cheapestEgg()
+				if cheapest and effects.priceFactor ~= 1 then
+					cheapest = table.clone(cheapest)
+					cheapest.priceCoins = Events.price(cheapest.priceCoins, effects)
+				end
+				refusal = Hatchery.shortOfCoins(deal, cheapest)
 			end
 			if incubator then
 				step = Hatchery.markFirst(d, "FirstEggBought", options.now())
@@ -325,6 +358,9 @@ function Actions.new(options: Options): Actions
 				options.eggSold(index)
 			end
 			onboarding(player, step)
+			if effects.kind then
+				analytics:custom(player, "Event:EggBought", 1, { effects.kind :: string, egg.id })
+			end
 		end
 		return ok, err
 	end
@@ -563,6 +599,29 @@ function Actions.new(options: Options): Actions
 			return true, `{speciesId} added to your inventory (the tower is full).`
 		end
 		return true, `{speciesId} added on floor {Tower.floorOf(creature.slot)}, ready to ride or guard.`
+	end
+
+	function actions.giftInside(
+		_self: Actions,
+		player: any,
+		d: Hatchery.Data,
+		ledger: any,
+		speciesId: string,
+		eggId: string
+	): (any, boolean)
+		local now = options.now()
+		if d.lastIncomeAt > 0 and now > d.lastIncomeAt then
+			d.stats.playSeconds += now - d.lastIncomeAt
+		end
+		Hatchery.accrue(d, now, perSecond(d, player), options.incomeSeconds)
+		local isNew = d.found == nil or d.found[speciesId] == nil
+		local creature = Hatchery.receive(d, ledger, {
+			speciesId = speciesId,
+			mutation = "None",
+			eggId = eggId,
+			hatchedAt = now,
+		}, config.creatures, economyConfig)
+		return creature, isNew
 	end
 
 	return (actions :: any) :: Actions

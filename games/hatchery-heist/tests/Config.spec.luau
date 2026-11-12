@@ -18,6 +18,7 @@ local function load()
 		monetization = require("../config/monetization"),
 		atmosphere = require("../config/atmosphere"),
 		shophouse = require("../config/shophouse"),
+		events = require("../config/events"),
 	}
 end
 

@@ -2,6 +2,36 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: The Giant Golden Egg is an odds egg, Epic or better (Hatchery Heist)
+
+- Alex, Nov 12: the giant egg "shouldn't hold a specific legendary, just
+  far better odds, and no lower pull than epic", and yes to its prices
+  (299 Robux outside the event, max(250M, 6 h of income) coins during it).
+- It is egg `GiantEgg` in `config/eggs.luau`, out of 1,000,000, with
+  target odds Epic 79.5%, Legendary 20%, Godly 0.5% (the economy thread's
+  numbers). Economy, Nov 12: no creature of a rarer tier may be likelier
+  than one of the tier below, so with few Legendaries live the solver in
+  the every-egg PR cuts their share and moves it to Epic (2 Legendaries:
+  977,340 / 17,660 / 5,000); it reaches the target with all 48. #120 takes
+  those numbers by rerunning even_eggs.py when it remerges main after that
+  PR, and every player-facing odds text reads the config, never a number. Its pool is
+  `All` (`Eggs.ALL`): every creature in any pool, kept to its tiers, so
+  each new Epic, Legendary or Godly joins it with no per-creature edit and
+  `tools/economy/even_eggs.py` keeps its weights even like every egg.
+- It is a paid random item: the server rolls it with `odds:rollPaid` (the
+  PolicyService check), its prompt carries `HHEggId` so the odds card shows
+  like every belt egg, and the client asks for its odds again each time the
+  prompt shows so the shop's ten-minute "odds seen" rule holds. The Robux
+  product is `paidRandom` + `oddsTable = "GiantEgg"`, so a restricted
+  player is refused its Robux price; for coins they get the egg's fixed
+  order, the same rule every other egg follows (2026-11-07 fixed order).
+- A Lucky Hatch never boosts it (EventService skips it): its odds are
+  already the best in the game and stay exactly what the card promised.
+- Renamed from "Giant Legendary Egg" to "Giant Golden Egg" (Alex's words,
+  and it no longer promises a Legendary). Saves are unchanged:
+  `giantEgg = { lastCycle, bought }` and now `eggsBought.GiantEgg`, the
+  fixed order's counter. `Events.giantSpecies` is gone.
+
 ## 2026-11-12: the viewer's blink closes the eyes about their own middle
 
 - Alex saw creatures' eyes move off their faces when they blink. The game
@@ -264,6 +294,57 @@ Non-obvious choices, newest first, so a later session can trust them.
   old look. Pictures are framed to the creature's outline, so a mouse and a
   serpent fill their cards alike (the Book is a collection, not a size
   chart), and Legendaries and Godlies are drawn level, without their hover.
+
+## 2026-11-07: Timed events and the Giant Legendary Egg (Hatchery Heist)
+
+Alex asked for "a one time purchase of a giant legendary egg in the middle,
+runs once every 24 hours, and randomized spawn for 30 min during that 24
+hour window. egg sales, faster incubators, more money production. better
+hatching rarity". Read as two features:
+
+- **One 30-minute event a day.** Days ("cycles") run 12:00 to 12:00 UTC.
+  Each cycle's event starts at a random 5-minute step between 15:00 and
+  03:00 UTC (hours 3 to 15 of the cycle), when US and EU players are on.
+  The time and the kind come from a hash of `seed` and the cycle number
+  (`shared/Events.luau`), so every server and every client agrees with no
+  DataStore or messaging. The four kinds are shuffled per round of four,
+  never the same twice in a row: **Egg Sale** (market eggs half price in
+  coins), **Speedy Incubators** (eggs bought during it hatch in half the
+  time), **Money Rush** (income x2 for exactly the seconds it runs,
+  offline pile included), **Lucky Hatch** (Rare x1.5, Ultra Rare x2, Epic
+  x2.5, Legendary and Godly x3 on every egg; odds re-normalise to exactly
+  100% and the odds card shows them live). A plain x2 on everything would
+  do nothing on eggs with no Commons, so the multipliers rise with rarity.
+  Every number is in `config/events.luau`. Robux items (Premium Egg) are
+  never discounted by an event.
+- **The Giant Legendary Egg** stands in the middle of the map (where the
+  decorative Golden Egg was; the three small eggs moved out to make room).
+  Each player can buy it **once per cycle** for Robux and gets **today's
+  named Legendary** (shown on the egg and its sign), not a random one: so
+  no odds screen or PolicyService gate is needed, and a player knows what
+  they pay for. The Legendary rotates through every Legendary, never the
+  same two days running. The purchase grants inside the receipt's data
+  update (exactly once), the server refuses a second one per cycle before
+  prompting, and the creature is placed like a hatch.
+- **An event special (Alex, 09:05Z Nov 7): coins during the event, 299
+  Robux outside it.** While the day's event runs, the egg's prompt buys it
+  for coins: the larger of 250M and 6 hours of the buyer's income right now
+  (economy thread's proposal; `coinPriceMin` and `coinPriceIncomeHours` in
+  config/events.luau), in one data update. The rest of the day it is the
+  299 Robux product, and the server refuses the Robux prompt during the
+  event. Still one per player per cycle either way. 299 is a new ladder
+  rung ("Premium", tools/pricing/lib.luau). The product id stays 0 (never
+  sold) until it is created on Roblox, which waits for Alex's approval of
+  the Robux list.
+- **Prompt key G** (gamepad DPadUp): E, F and the other keys were taken.
+- Lucky Hatch uses `Odds.setBoosts`, which replaces a player's whole boost
+  list per egg; a paid Luck Boost added later must join the same list.
+- The banner sits in the middle of the Roblox top bar, between Shop and
+  Feedback, so it never covers the HUD, the side menu or a window's X
+  (the player's-eye audit caught the first top-right spot doing both).
+- Telemetry: `Event:Seen` (once per player per event, with its kind),
+  `Event:EggBought` (kind, egg), `GiantEgg:Prompted`, `GiantEgg:Bought`
+  (Robux) and `GiantEgg:BoughtCoins`.
 
 ## 2026-11-07: Big Epics fit their 120-box stand-in by coarsening, not by losing detail
 

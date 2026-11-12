@@ -33,6 +33,8 @@ local Schemas = require(Shared.Schemas)(Schema, Odds)
 
 local CreatureAssets = require(script.CreatureAssets)
 local EnvAssets = require(script.EnvAssets)
+local EventService = require(script.EventService)
+local GiantEgg = require(script.GiantEgg)
 local Mounts = require(script.Mounts)
 local RaidService = require(script.RaidService)
 local Scenery = require(script.Scenery)
@@ -54,6 +56,7 @@ local raw = {
 	monetization = require(GameConfig.monetization),
 	atmosphere = require(GameConfig.atmosphere),
 	shophouse = require(GameConfig.shophouse),
+	events = require(GameConfig.events),
 }
 
 -- A bad config stops the server here, loudly, before any player data is touched.
@@ -98,6 +101,9 @@ end
 
 -- Pass and product ids for the experience this build is for.
 local ids = Monetization.resolve(monetization, Build.environment)
+
+-- Timed events: the same schedule on every server, from the clock.
+local events = EventService.new(Config.get("events"))
 
 World.build()
 -- Each base's floor shows only a low lip above the grass (Alex found a
@@ -279,6 +285,8 @@ local ready: Actions.Actions = Actions.new({
 	mount = function(player: Player, speed: number?)
 		Mounts.set(player, rideFor(player, speed))
 	end,
+	effects = events.effects,
+	incomeSeconds = events.incomeSeconds,
 })
 actions = ready
 
@@ -407,11 +415,36 @@ net:on(Remotes["HH:Dismount"], function(player: Player)
 	ready:dismount(player)
 end)
 
-local Shop = require(script.Shop)
 local function incomeOf(player: Player): number?
 	local d = services.data:get(player)
 	return if d then Hatchery.incomePerSecond(d, config, perks(player)) else nil
 end
+
+-- Timed events and the Giant Golden Egg. The egg's product must be
+-- registered before the shop lists it (Shop.register).
+events.start({
+	odds = services.odds,
+	analytics = services.analytics,
+	eggs = config.eggs,
+	species = config.creatures.species,
+	notify = notify,
+	addTestAction = services.addTestAction,
+})
+GiantEgg.start({
+	services = services,
+	productId = ids.products.GiantEgg or 0,
+	actions = ready,
+	events = Config.get("events"),
+	egg = Hatchery.eggById(config.eggs, "GiantEgg"),
+	eventActive = events.active,
+	incomeOf = incomeOf,
+	notify = notify,
+	hatched = function(player: Player, speciesId: string, eggId: string, isNew: boolean)
+		fire(Remotes["HH:Hatched"], player, speciesId, eggId, isNew)
+	end,
+})
+
+local Shop = require(script.Shop)
 Shop.register(services, Config, ids, incomeOf)
 -- The shop's coin packs scale with income: resend a player's catalog when
 -- one of their pack amounts changes.

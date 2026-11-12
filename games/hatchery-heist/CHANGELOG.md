@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- New: one 30-minute event a day at a different time: Egg Sale (half-price
+  eggs), Speedy Incubators (eggs hatch twice as fast), Money Rush (double
+  income) or Lucky Hatch (up to 3x luck on rare hatches). A banner at the
+  top of the screen counts down to the next one; tap it for details.
+- New: the Giant Golden Egg in the middle of the map. It never hatches
+  below Epic, with far better odds than any other egg, shown on its odds
+  card before you buy. Each player can
+  buy it once a day: for coins while the daily event runs, for 299 Robux
+  the rest of the day.
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails

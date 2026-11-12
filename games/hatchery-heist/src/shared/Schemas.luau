@@ -6,6 +6,8 @@
 -- Roblox (server start-up) and in Lune (CI tests), which load the core from
 -- different places.
 
+local Eggs = require("./Eggs")
+
 export type Section = { schema: (value: any, path: string) -> (boolean, string?), value: any }
 
 return function(Schema: any, Odds: any)
@@ -488,7 +490,7 @@ return function(Schema: any, Odds: any)
 				tierSum += weight
 				local members = 0
 				for _, s in species do
-					if s.rarity == rarity and table.find(s.pools, egg.pool) then
+					if s.rarity == rarity and Eggs.inPool(s, egg.pool) then
 						members += 1
 					end
 				end
@@ -568,6 +570,36 @@ return function(Schema: any, Odds: any)
 				table.insert(problems, `monetization.products.{key}: coin packs need coins`)
 			end
 		end
+
+		-- The Giant Egg sells a Legendary through its own product.
+		if config.events then
+			if products.GiantEgg == nil then
+				table.insert(problems, "events.giantEgg needs monetization.products.GiantEgg")
+			end
+			local giant = false
+			for _, egg in config.eggs do
+				if egg.id == "GiantEgg" then
+					giant = true
+					if egg.productKey ~= "GiantEgg" or egg.hatchSeconds ~= 0 then
+						table.insert(
+							problems,
+							"eggs.GiantEgg: sold as product GiantEgg and hatched on the spot"
+						)
+					end
+					for rarity in egg.tiers do
+						if table.find({ "Epic", "Legendary", "Godly" }, rarity) == nil then
+							table.insert(problems, `eggs.GiantEgg: nothing below Epic (has {rarity})`)
+						end
+					end
+				end
+			end
+			if not giant then
+				table.insert(problems, "events.giantEgg needs egg GiantEgg in config/eggs.luau")
+			end
+			if config.economy.conveyor.weights.GiantEgg then
+				table.insert(problems, "economy.conveyor.weights: the Giant Egg never rides the belt")
+			end
+		end
 		return problems
 	end
 
@@ -587,6 +619,69 @@ return function(Schema: any, Odds: any)
 		animateRange = Schema.number({ min = 0, max = 400 }),
 		indoorZoom = Schema.number({ min = 4, max = 30 }),
 	})
+
+	-- Timed events and the Giant Golden Egg (config/events.luau,
+	-- shared/Events.luau).
+	local rarity = Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" })
+	local rgb = Schema.array(Schema.integer({ min = 0, max = 255 }), { minLength = 3, maxLength = 3 })
+	Schemas.events = Schema.check(
+		Schema.record({
+			seed = Schema.integer({ min = 0, max = 2 ^ 32 - 1 }),
+			cycleStartHourUtc = Schema.number({ min = 0, max = 23.5 }),
+			windowMinutes = Schema.integer({ min = 5, max = 180 }),
+			earliestHour = Schema.number({ min = 0, max = 23.5 }),
+			latestHour = Schema.number({ min = 0, max = 23.5 }),
+			startStepMinutes = Schema.integer({ min = 1, max = 60 }),
+			announceMinutes = Schema.integer({ min = 0, max = 600 }),
+			rotation = Schema.array(id, { minLength = 1, maxLength = 20 }),
+			kinds = Schema.map(
+				id,
+				Schema.record({
+					title = Schema.string({ minLength = 1, maxLength = 24 }),
+					blurb = Schema.string({ minLength = 1, maxLength = 60 }),
+					color = rgb,
+					priceFactor = Schema.optional(Schema.number({ min = 0.1, max = 1 })),
+					hatchFactor = Schema.optional(Schema.number({ min = 0.1, max = 1 })),
+					incomeFactor = Schema.optional(Schema.number({ min = 1, max = 5 })),
+					rarityMultipliers = Schema.optional(
+						Schema.map(rarity, Schema.number({ min = 1, max = 10 }))
+					),
+				})
+			),
+			giantEgg = Schema.record({
+				position = Schema.array(Schema.number(), { minLength = 3, maxLength = 3 }),
+				height = Schema.number({ min = 4, max = 20 }),
+				promptDistance = Schema.number({ min = 6, max = 30 }),
+				coinPriceMin = Schema.integer({ min = 1, max = 2 ^ 53 }),
+				coinPriceIncomeHours = Schema.number({ min = 0, max = 48 }),
+			}),
+		}),
+		function(v: any): (boolean, string?)
+			if v.latestHour < v.earliestHour then
+				return false, "latestHour is before earliestHour"
+			end
+			-- A window never runs into the next cycle.
+			if v.latestHour * 60 + v.windowMinutes > 24 * 60 then
+				return false, "a window starting at latestHour would end in the next cycle"
+			end
+			for _, kind in v.rotation do
+				if v.kinds[kind] == nil then
+					return false, `rotation names unknown event {kind}`
+				end
+			end
+			for kind, def in v.kinds do
+				if
+					def.priceFactor == nil
+					and def.hatchFactor == nil
+					and def.incomeFactor == nil
+					and def.rarityMultipliers == nil
+				then
+					return false, `event {kind} changes nothing`
+				end
+			end
+			return true, nil
+		end
+	)
 
 	function Schemas.sections(config: { [string]: any }): { [string]: Section }
 		local sections = {}

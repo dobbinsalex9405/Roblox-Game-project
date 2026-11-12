@@ -78,8 +78,9 @@ describe("Egg tiers", function()
 		for eggId, weights in before do
 			for id, weight in weights do
 				local rarity = creatures.species[id].rarity
+				-- The Giant Egg's pool is every creature in any pool.
 				local moved = (rarity == "Common" and (eggId == "BasicEgg" or eggId == "MeadowEgg"))
-					or (rarity == "Epic" and eggId == "MoonlitEgg")
+					or (rarity == "Epic" and (eggId == "MoonlitEgg" or eggId == "GiantEgg"))
 				if not moved then
 					expect(after[eggId][id]).toBe(weight)
 				end
@@ -87,6 +88,8 @@ describe("Egg tiers", function()
 		end
 		expect(after.BasicEgg.TestCommon).toBeAtLeast(1)
 		expect(after.MoonlitEgg.TestEpic).toBeAtLeast(1)
+		expect(after.GiantEgg.TestEpic).toBeAtLeast(1)
+		expect(after.GiantEgg.TestCommon).toBeNil()
 	end)
 
 	it("lets a creature be rarer inside its tier without moving the tier", function()

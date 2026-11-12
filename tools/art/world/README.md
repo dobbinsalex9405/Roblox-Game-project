@@ -18,6 +18,8 @@ plain Python with numpy.
 | `roomscene.py` | Renders one floor at each upgrade level, and the five side by side |
 | `tower.py` | The apartment shell: floor, back, left, right and front of each floor, and the roof |
 | `hub.py` | The farm hub around the Egg Market: barn, silo, windmill, well, coop, stalls, Theme Stand, Book stand, arch, pond, veg patch, haystack, scarecrow, and street props (fences, lamps, signs, mailbox, benches) |
+| `giantegg.py` | The Giant Golden Egg (kind `event`), the daily Robux egg in the middle of the map |
+| `giantexport.py` | Writes `games/hatchery-heist/src/shared/GiantEggArt.luau` and `build/world/giantart.json`; `build.py --only GiantLegendaryEgg` then makes its viewer files (Eggs/Hatchery Heist) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/WorldArt.luau` |
 | `build.py` | Draco `.glb` meshes, renders, `meta.json`, 3D viewer copies |
 | `partsheet.py` | One render of every prop's Parts version |

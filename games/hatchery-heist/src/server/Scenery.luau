@@ -297,28 +297,11 @@ local function yard(parent: Instance)
 		})
 	end
 	disc(nest, "NestBed", Vector3.new(0, 0.4, 0), 15, 1, Color3.fromRGB(170, 132, 70), Enum.Material.Fabric)
-	local golden = egg(
-		nest,
-		"GoldenEgg",
-		Vector3.new(0, 1.4, 0),
-		6,
-		8.2,
-		Color3.fromRGB(255, 200, 60),
-		Enum.Material.Foil
-	)
-	golden.CanCollide = true
-	golden.Reflectance = 0.15
-	local sparkles = Instance.new("Sparkles")
-	sparkles.SparkleColor = Color3.fromRGB(255, 230, 140)
-	sparkles.Parent = golden
-	local glow = Instance.new("PointLight")
-	glow.Color = Color3.fromRGB(255, 210, 120)
-	glow.Range = 16
-	glow.Brightness = 1.5
-	glow.Parent = golden
-	egg(nest, "BlueEgg", Vector3.new(3.8, 1.4, 2.4), 3.2, 4.2, Color3.fromRGB(120, 190, 255))
-	egg(nest, "PinkEgg", Vector3.new(-3.6, 1.4, 2.8), 3, 4, Color3.fromRGB(255, 150, 190))
-	egg(nest, "GreenEgg", Vector3.new(0.6, 1.4, -4.2), 3.4, 4.4, Color3.fromRGB(150, 220, 110))
+	-- The middle of the nest holds the Giant Golden Egg (server/GiantEgg,
+	-- timed events); three small eggs keep it company round the edge.
+	egg(nest, "BlueEgg", Vector3.new(5.1, 1.4, 3.2), 3.2, 4.2, Color3.fromRGB(120, 190, 255))
+	egg(nest, "PinkEgg", Vector3.new(-4.75, 1.4, 3.7), 3, 4, Color3.fromRGB(255, 150, 190))
+	egg(nest, "GreenEgg", Vector3.new(0.8, 1.4, -5.95), 3.4, 4.4, Color3.fromRGB(150, 220, 110))
 	nest.Parent = parent
 end
 

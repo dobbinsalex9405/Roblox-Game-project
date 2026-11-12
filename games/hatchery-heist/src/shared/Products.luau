@@ -11,6 +11,14 @@ export type CatalogItem = {
 	kind: "product" | "pass",
 	name: string,
 	description: string,
+	-- Bought at its own place in the world, not from a Golden Egg Shop
+	-- display (shared/ShopPlan skips it): the Giant Egg on the Golden Nest.
+	soldAt: string?,
+	-- A random item (src/server/Purchases in packages/core): the odds table
+	-- the player must have seen before Roblox's prompt opens, and the
+	-- PolicyService check that refuses restricted players its Robux price.
+	oddsTable: string?,
+	paidRandom: boolean?,
 }
 
 local Numbers = require("./Numbers")
@@ -89,6 +97,17 @@ function Products.catalog(monetization: any, raids: any): { CatalogItem }
 		kind = "pass",
 		name = "Auto-Collect",
 		description = "Your earnings move into your coins every 30 seconds, no trip to the collect pad.",
+	})
+	-- The Giant Golden Egg (Alex, Nov 12): Epic or better on its own odds
+	-- table, once per player per day; src/server/GiantEgg.luau.
+	table.insert(catalog, {
+		key = "GiantEgg",
+		kind = "product",
+		name = "Giant Golden Egg",
+		description = "The giant egg in the middle of the map: Epic or better, with far better odds than any other egg. One each day.",
+		soldAt = "GiantEgg",
+		oddsTable = "GiantEgg",
+		paidRandom = true,
 	})
 	return catalog
 end

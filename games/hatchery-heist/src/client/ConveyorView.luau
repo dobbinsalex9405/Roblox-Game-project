@@ -25,6 +25,7 @@ local Layout = require(Shared.Layout)
 local VoxelProp = require(Shared.VoxelProp)
 
 local Context = require(script.Parent.Context)
+local EventClock = require(script.Parent.EventClock)
 local OddsView = require(script.Parent.OddsView)
 
 local ConveyorView = {}
@@ -122,14 +123,21 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 		end
 	end
 
+	-- An Egg Sale (timed events) lowers every price while it runs.
 	local function refreshPrompt(egg: Egg)
 		local i = egg.index
+		local price = prices[egg.eggId]
+		local now = if price then EventClock.price(price) else 0
 		egg.prompt.Enabled = not egg.hidden
 			and not bought[i]
 			and not waiting[i]
 			and not sold[i]
 			and OddsView.ready(egg.eggId)
-			and Conveyor.offered(prices[egg.eggId] or 0, coins, cheapest)
+			and Conveyor.offered(now, coins, EventClock.price(cheapest))
+		if price then
+			local text = `{Layout.displayName(egg.eggId)}: {Layout.shortNumber(now)} coins`
+			egg.prompt.ObjectText = if now < price then `SALE! {text}` else text
+		end
 	end
 
 	-- Shows the egg again after a refusal (or no answer), unless it is gone.
@@ -279,6 +287,21 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 	OddsView.onChanged(function()
 		for _, egg in shown do
 			refreshPrompt(egg)
+		end
+	end)
+	-- When an Egg Sale starts or ends, every egg on the belt changes price
+	-- at once, not each at its own next update (Studio gate, Nov 7).
+	task.spawn(function()
+		local lastFactor = EventClock.price(1_000_000)
+		while true do
+			task.wait(0.5)
+			local factor = EventClock.price(1_000_000)
+			if factor ~= lastFactor then
+				lastFactor = factor
+				for _, egg in shown do
+					refreshPrompt(egg)
+				end
+			end
 		end
 	end)
 	ctx.onData(function(d: { [string]: any })

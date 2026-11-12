@@ -90,6 +90,25 @@ local eggs: { Egg } = {
 			Godly = 10, -- 1 in 10,000
 		},
 	},
+	-- The Giant Golden Egg (timed events, src/server/GiantEgg.luau): one per
+	-- player a day, coins during the daily event and Robux outside it. Alex,
+	-- Nov 12: no named Legendary, just far better odds and nothing below
+	-- Epic. Its pool is every Epic, Legendary and Godly in an egg pool
+	-- (Eggs.ALL). Odds from the economy thread, kept even by
+	-- tools/economy/even_eggs.py. It hatches on the spot (hatchSeconds 0)
+	-- and never rides the belt.
+	{
+		id = "GiantEgg",
+		productKey = "GiantEgg",
+		hatchSeconds = 0,
+		total = 1000000,
+		pool = "All",
+		tiers = {
+			Epic = 795000, -- 79.5% (60 x 13,250)
+			Legendary = 200000, -- 20% (2 x 100,000)
+			Godly = 5000, -- 1 in 200 (20 x 250)
+		},
+	},
 }
 
 return eggs
