@@ -652,6 +652,8 @@ do
 				h.taken[p][idx] = true
 				bought += 1
 				spent += 50
+			else
+				break -- refused (no room for its hatch): stop buying this second
 			end
 			d = h.get(p)
 		end
@@ -901,6 +903,8 @@ do
 			end
 			if h.actions:buyEgg(p, idx) then
 				h.taken[p][idx] = true
+			else
+				break -- refused (no room for its hatch): stop buying this second
 			end
 			d = h.get(p)
 		end

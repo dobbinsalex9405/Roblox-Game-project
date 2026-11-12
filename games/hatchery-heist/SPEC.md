@@ -31,9 +31,10 @@ Eight bases sit in a ring around a shared yard; each player gets one.
 3. **Hatch.** What an egg hatches is decided and paid for at purchase (a paid
    roll from the odds table, or the fixed order below) and revealed at hatch.
    The creature goes to the highest owned floor of the tower with room for
-   it, otherwise to the inventory (150 slots, `storage.slots`). When the
-   inventory overflows, the weakest stored creature sells for
-   `storage.sellSeconds` of its income. Only creatures on a floor earn.
+   it, otherwise to the inventory (300 slots, `storage.slots`). Nothing is
+   auto-sold: with no pad free and the inventory full, a ready egg waits in
+   its incubator until the player makes room. Stolen creatures always arrive,
+   even past the cap. Only creatures on a floor earn.
 4. **Coins.** Placed creatures earn `coinsPerSecond` × mutation × rebirth bonus
    (× Double Coins pass) into an uncollected pile. Step on the collect pad to
    bank it, or own Auto-Collect to bank it every `autoCollectSeconds`.

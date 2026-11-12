@@ -5,6 +5,8 @@
 local GuiService = game:GetService("GuiService")
 local Workspace = game:GetService("Workspace")
 
+local Modal = require(script.Parent.Modal)
+
 local UiKit = {}
 
 UiKit.BACKGROUND = Color3.fromRGB(25, 25, 35)
@@ -148,6 +150,9 @@ function UiKit.window(gui: ScreenGui, title: string, onClose: () -> ()): (Frame,
 	close.AnchorPoint = Vector2.new(1, 0)
 	close.Position = UDim2.new(1, -6, 0, 6)
 	close.Activated:Connect(onClose)
+	-- Reachable in first person too: frees the mouse, closes on a tap
+	-- outside, gamepad B or Escape (Modal).
+	Modal.attach(gui, window, onClose)
 
 	local body = Instance.new("ScrollingFrame")
 	body.BackgroundTransparency = 1

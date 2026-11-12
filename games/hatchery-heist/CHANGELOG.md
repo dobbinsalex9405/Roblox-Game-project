@@ -6,6 +6,26 @@
   to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and
   Legendaries, Epics and Legendaries earn more, and rebirth starts at 50M.
+- Fix: a creature that hatches while your tower is full no longer seems to
+  vanish. It goes to your inventory and a message says so ("Open Creatures to
+  place it").
+- Fix: creatures are never auto-sold any more, so hatching many eggs at once
+  keeps every one. The inventory holds 300 (was 150); when it and the tower
+  are both full, a ready egg waits in its incubator until you make room, and
+  coin eggs that could not hatch are not sold to you.
+- Fix: eggs sitting in incubators show their own patterned designs (the same
+  eggs you see in the Egg Market) instead of plain coloured balls.
+- Fix: the Tower window opened from the elevator (and every other window:
+  Creatures, Book, Daily Rewards, the odds list, Shop, Feedback) can always
+  be closed, even in first person where the mouse is locked: opening one
+  frees the mouse, and a tap outside it, a gamepad's B button or Escape
+  closes it.
+- The apartment towers have a front wall on every floor: big windows you
+  can see through, and a front door on the ground floor. While you are
+  inside with the camera out front, the front walls of your floor and the
+  one above fade so you stay in view.
+- Fix: no more flickering where the tower's walls, corners, floor edges and
+  roof meet (two pieces drew the same face in the same place).
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails

@@ -130,7 +130,59 @@ describe("Hatchery Heist sessions", function()
 		end
 	end)
 
-	it("reports storage auto-sales at most every 20 seconds, summed", function()
+	-- Staging playtest, Nov 12: a hatch into a full tower went to the
+	-- inventory without a word, so it looked as if it had disappeared.
+	it("says where a hatch went when the tower is full, and keeps it", function()
+		local h = Harness.new()
+		local player = Fakes.player(10)
+		h.join(player)
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, Tower.SPOTS do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = i,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 100
+			d.incubators = {}
+			for slot = 1, 3 do
+				table.insert(
+					d.incubators,
+					{ slot = slot, eggId = "BasicEgg", readyAt = 0, outcome = "Duckling" }
+				)
+			end
+		end)
+		for slot = 1, 3 do
+			assert(h.actions:hatch(player, slot))
+		end
+		local d = h.get(player)
+		expect(#d.creatures).toBe(Tower.SPOTS + 3)
+		local waiting = 0
+		for _, c in d.creatures do
+			if c.slot == nil then
+				waiting += 1
+				expect(c.speciesId).toBe("Duckling")
+			end
+		end
+		expect(waiting).toBe(3)
+		local said = {}
+		for _, n in h.noticesFor do
+			if n.player == player and string.find(n.text, "inventory", 1, true) then
+				table.insert(said, n.text)
+			end
+		end
+		expect(said[1]).toBe(
+			"Your tower is full: Duckling went to your inventory. Open Creatures to place it."
+		)
+		expect(#said).toBe(3)
+	end)
+
+	it("keeps a ready egg waiting, with a notice, when tower and inventory are full", function()
 		local h = Harness.new()
 		local player = Fakes.player(9)
 		h.join(player)
@@ -146,33 +198,90 @@ describe("Hatchery Heist sessions", function()
 					hatchedAt = 0,
 				})
 			end
-			d.nextUid = 100
-			d.incubators = {}
-			for slot = 1, 3 do
-				table.insert(
-					d.incubators,
-					{ slot = slot, eggId = "BasicEgg", readyAt = 0, outcome = "Chick" }
-				)
-			end
+			d.nextUid = 1000
+			d.incubators = { { slot = 1, eggId = "BasicEgg", readyAt = 0, outcome = "Duckling" } }
 		end)
-		local function soldNotices(): { string }
-			local out = {}
-			for _, n in h.noticesFor do
-				if n.player == player and string.find(n.text, "Inventory is full", 1, true) then
-					table.insert(out, n.text)
-				end
+		local coins = h.get(player).coins
+		local ok = h.actions:hatch(player, 1)
+		expect(ok).toBe(false)
+		local d = h.get(player)
+		expect(#d.creatures).toBe(Tower.SPOTS + economy.storage.slots)
+		expect(#d.incubators).toBe(1)
+		expect(d.coins).toBe(coins)
+		local said = {}
+		for _, n in h.noticesFor do
+			if n.player == player then
+				table.insert(said, n.text)
 			end
-			return out
 		end
-		for slot = 1, 3 do
-			assert(h.actions:hatch(player, slot))
+		expect(said[#said]).toBe(
+			`Your tower and inventory are full ({economy.storage.slots}). Make room in your inventory, then hatch: your egg waits here.`
+		)
+		for _, text in said do
+			expect(string.find(text, "sold", 1, true)).toBeNil()
 		end
-		local value =
-			Hatchery.sellValue({ speciesId = "Chick", mutation = "None" }, config.creatures, economy)
-		expect(soldNotices()).toEqual({ `Inventory is full: sold Chick for {value} coins.` })
-		h.wait(player, 25)
-		expect(soldNotices()[2]).toBe(`Inventory is full: sold 2 creatures for {value * 2} coins.`)
-		expect(#soldNotices()).toBe(2)
+	end)
+
+	it("refuses a coin egg that could never hatch, and keeps coins", function()
+		local h = Harness.new()
+		local player = Fakes.player(12)
+		h.join(player)
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, Tower.SPOTS + economy.storage.slots do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = if i <= Tower.SPOTS then i else nil,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 1000
+			d.incubators = {}
+			d.coins = 10000
+		end)
+		local index = h.findOnBelt("BasicEgg") :: number
+		expect(h.actions:buyEgg(player, index)).toBeFalsy()
+		expect(h.get(player).coins).toBe(10000)
+		expect(#h.get(player).incubators).toBe(0)
+		expect(h.notices[#h.notices]).toBe(
+			`Your tower and inventory are full ({economy.storage.slots}). Unlock a new floor to make room.`
+		)
+		-- One creature fewer in the inventory: the egg fits again.
+		h.data:update(player, function(d: Hatchery.Data)
+			table.remove(d.creatures)
+		end)
+		expect(h.actions:buyEgg(player, index)).toBe(true)
+	end)
+
+	it("a save from before the fix loads and keeps every creature", function()
+		local h = Harness.new()
+		local player = Fakes.player(13)
+		h.join(player)
+		local stored = 180 -- over the old 150: possible only for raids before
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, Tower.SPOTS + stored do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = if i <= Tower.SPOTS then i else nil,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 1000
+			d.incubators = { { slot = 1, eggId = "BasicEgg", readyAt = 0, outcome = "Duckling" } }
+		end)
+		h.leave(player)
+		local h2 = Harness.new({ store = h.store, start = h.clock.now() + 60 })
+		h2.join(player)
+		expect(#h2.get(player).creatures).toBe(Tower.SPOTS + stored)
+		assert(h2.actions:hatch(player, 1))
+		expect(#h2.get(player).creatures).toBe(Tower.SPOTS + stored + 1)
 	end)
 
 	it("reports the onboarding steps once ever, in order", function()

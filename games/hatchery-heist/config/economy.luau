@@ -84,10 +84,11 @@ return {
 		},
 	},
 
-	-- Creatures not placed on a floor wait in the inventory. When it is full,
-	-- the weakest one there sells for `sellSeconds` of its income.
+	-- Creatures not placed on a floor wait in the inventory. Nothing is ever
+	-- auto-sold: when no pad fits a hatch and the inventory holds `slots`,
+	-- the egg waits in its incubator. `sellSeconds` prices a creature's sale.
 	storage = {
-		slots = 150,
+		slots = 300,
 		sellSeconds = 20,
 	},
 
