@@ -102,6 +102,66 @@ def fit(p):
     return f, parts
 
 
+# --------------------------------------------------------------- tower owner
+# The apartment tower is drawn from several props that meet at the corners
+# and edges (walls, front, floor slabs, the roof), each resampled on its own.
+# Where two of them fill the same space, both draw a face in the same plane
+# and the two flicker (z-fighting; Alex, Nov 12: "overlapping texture on the
+# frames"). So every bit of space belongs to one piece: a coarse block of a
+# lower piece that overlaps a block of a higher one is dropped. Order within
+# a storey: back, left, right, front (body, then its other parts), floor; a
+# slab also gives way to the walls of the storey below, and the roof, which
+# sits on whichever storey is the top, to every storey's walls.
+TOWER_SIDES = ('Back', 'Left', 'Right', 'Front', 'Floor')
+STOREY_VOX = 120  # floor-to-floor 12 studs, in 0.1 voxels
+OWN_LO = np.array([-260, -80, -20])  # 0.1-voxel bounds of one storey and what overlaps it
+OWN_HI = np.array([260, 260, 280])
+
+
+def _blocks(f, v, lift):
+    """(key, lo, hi) of every coarse block, in 0.1 voxels, lifted `lift` voxels"""
+    out = []
+    for key in v:
+        lo = np.array(key) * f
+        lo[2] += lift
+        out.append((key, lo - OWN_LO, lo + f - OWN_LO))
+    return out
+
+
+def own_tower(fits):
+    """drop the coarse blocks of tower pieces that sit inside a higher piece;
+    `fits` maps prop id -> (f, parts) and is changed in place"""
+    def parts_of(pid):
+        return [(pid, i) for i in range(len(fits[pid][1]))] if pid in fits else []
+
+    def claim(occ, entries, lift):
+        for pid, i in entries:
+            f, parts = fits[pid]
+            v = parts[i][4]
+            for key, lo, hi in _blocks(f, v, lift):
+                if occ[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]].any():
+                    del v[key]
+            for key, lo, hi in _blocks(f, v, lift):
+                occ[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]] = True
+
+    shape = tuple(OWN_HI - OWN_LO)
+    for n in range(1, 11):
+        occ = np.zeros(shape, bool)
+        for side in TOWER_SIDES:
+            # The ground floor's slab is drawn a hair higher (TowerShell.
+            # GROUND_LIFT, 0.04), so it is checked one voxel up.
+            claim(occ, parts_of(f'Tower{side}{n}'), 1 if (n == 1 and side == 'Floor') else 0)
+        claim(occ, parts_of(f'TowerFloor{n + 1}'), STOREY_VOX)
+        # the roof checks against the walls only: it never meets the next slab
+        walls = np.zeros(shape, bool)
+        for side in TOWER_SIDES[:-1]:
+            for pid, i in parts_of(f'Tower{side}{n}'):
+                f, parts = fits[pid]
+                for key, lo, hi in _blocks(f, parts[i][4], 0):
+                    walls[lo[0]:hi[0], lo[1]:hi[1], lo[2]:hi[2]] = True
+        claim(walls, parts_of('TowerRoof'), STOREY_VOX)
+
+
 def num(v):
     v = round(v * 2) / 2
     return str(int(v)) if v == int(v) else repr(v)
@@ -151,9 +211,16 @@ def export(only=None):
     ]
     report = []
     dump = {}
+    made, fits = {}, {}
+    if any(props.REGISTRY[i][1] == 'tower' for i in ids):
+        for pid in props.REGISTRY:
+            if props.REGISTRY[pid][1] == 'tower':
+                made[pid] = props.make(pid)
+                fits[pid] = fit(made[pid])
+        own_tower(fits)
     for pid in sorted(ids):
-        p = props.make(pid)
-        f, parts = fit(p)
+        p = made.get(pid) or props.make(pid)
+        f, parts = fits.get(pid) or fit(p)
         allv = [k for *_, v in parts for k in v]
         lo = [min(q[i] for q in allv) for i in range(3)]
         hi = [max(q[i] for q in allv) + 1 for i in range(3)]

@@ -17,6 +17,8 @@ local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local Tower = require(Shared.Tower)
+local VoxelProp = require(Shared.VoxelProp)
+local WorldArt = require(Shared.WorldArt)
 
 local World = {}
 
@@ -152,16 +154,20 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 					Material = Enum.Material.Wood,
 				})
 			end
-			-- The floor's name over the front rail.
+			-- The floor's name, hung in front of the storey's front wall,
+			-- above its windows (Geometry.FLOOR_PLAQUE). The part only holds
+			-- the label: a board out there would float in mid-air.
+			local sign = Geometry.FLOOR_PLAQUE
 			local plaque = towerPart(folder, floor, {
 				Name = "Plaque",
-				Size = Vector3.new(8, 1.6, 0.3),
-				CFrame = at(Vector3.new(0, top + 3.4, lo[2] + 0.2)),
-				Color = look.trim,
-				Material = Enum.Material.Wood,
+				Size = Vector3.new(1, 1, 0.3),
+				CFrame = at(Vector3.new(0, top + sign.above, Geometry.plaqueZ())),
+				Transparency = 1,
 				CanCollide = false,
+				CanQuery = false,
+				CanTouch = false,
 			})
-			local plaqueLabel = billboard(plaque, Vector3.new(0, 1.6, 0), UDim2.fromScale(12, 1.8), "")
+			local plaqueLabel = billboard(plaque, Vector3.zero, UDim2.fromScale(sign.width, sign.height), "")
 			local plaqueGui = plaqueLabel.Parent :: BillboardGui
 			plaqueGui.Enabled = false
 		end
@@ -537,6 +543,34 @@ local function setLabel(p: Instance, text: string)
 	end
 end
 
+-- The egg sitting in an incubator: the same patterned egg art the Egg Market
+-- belt shows (WorldArt, drawn by VoxelProp), `atmosphere.incubatorEggs.height`
+-- studs tall, standing on the incubator's top. A plain ball in the egg's
+-- colour only if that egg has no art (Staging playtest, Nov 12: every
+-- incubator egg was a plain ball).
+local INCUBATOR_EGG = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).incubatorEggs
+
+local function incubatorEgg(eggId: string, top: Vector3, height: number): Instance
+	local prop = WorldArt.props[eggId]
+	local made: Model? = nil
+	if prop then
+		local scale = height / (prop.size[2] * prop.voxel)
+		made = VoxelProp.build(eggId, CFrame.new(top), scale)
+	end
+	if made then
+		made.Name = "Egg"
+		return made
+	end
+	return part({
+		Name = "Egg",
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(height, height, height),
+		CFrame = CFrame.new(top + Vector3.new(0, height / 2, 0)),
+		Color = Layout.eggColor(eggId),
+		CanCollide = false,
+	})
+end
+
 local function syncIncubators(model: Model, d: { [string]: any }?, config: any?, slotCount: number)
 	local folder = model:FindFirstChild("Incubators") :: Folder
 	local nextCost = if d and config then Hatchery.nextSlotCost(d, config.economy) else nil
@@ -561,20 +595,15 @@ local function syncIncubators(model: Model, d: { [string]: any }?, config: any?,
 			else Color3.fromRGB(110, 180, 220)
 		p.Transparency = if state == "Locked" then 0.6 else 0
 
-		local egg = p:FindFirstChild("Egg") :: Part?
+		local egg = p:FindFirstChild("Egg")
 		if incubator then
 			if egg == nil or egg:GetAttribute("EggId") ~= incubator.eggId then
 				if egg then
 					egg:Destroy()
 				end
-				local newEgg = part({
-					Name = "Egg",
-					Shape = Enum.PartType.Ball,
-					Size = Vector3.new(2.6, 2.6, 2.6),
-					CFrame = CFrame.new(p.Position + Vector3.new(0, 1.8, 0)),
-					Color = Layout.eggColor(incubator.eggId),
-					CanCollide = false,
-				})
+				-- On the incubator's top (it is a 1-stud-thick disc).
+				local newEgg =
+					incubatorEgg(incubator.eggId, p.Position + Vector3.new(0, 0.5, 0), INCUBATOR_EGG.height)
 				newEgg:SetAttribute("EggId", incubator.eggId)
 				newEgg.Parent = p
 			end

@@ -15,6 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 
 local CoreClient = require(ReplicatedStorage.CoreClient.CoreClient)
+local Modal = require(ReplicatedStorage.CoreClient.Modal)
 local Odds = require(ReplicatedStorage.Core.Odds)
 local Shared = ReplicatedStorage.Shared
 local Eggs = require(Shared.Eggs)
@@ -486,6 +487,12 @@ local function buildList(): ScreenGui
 		gui.Enabled = false
 	end)
 	close.Parent = window
+	-- Reachable in first person too: frees the mouse, closes on a tap
+	-- outside, gamepad B or Escape (CoreClient/Modal).
+	Modal.attach(gui, window, function()
+		listEgg = nil
+		gui.Enabled = false
+	end)
 	-- One tab per belt egg: a rare egg rides past its Buy prompt in about a
 	-- second (Studio gate, #131: Moonlit 0.98 s), too short to reach its
 	-- card's button, so any egg's list opens every other egg's.

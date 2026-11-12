@@ -8,8 +8,10 @@ Roblox Z, so the front of the tower, -y, faces the farm in the middle):
   (stop at -20.5, 20.5): the slab has a hole there and the walls stop at it;
 - ladder outside the right wall at x 25.2, y 14.5: the right wall has a
   doorway at y 12.5..16.5;
-- creature cells x -20..20, y 0..20 stay clear; walls only on the left,
-  right and back, an open balcony rail on the front.
+- creature cells x -20..20, y 0..20 stay clear; walls on all four sides.
+  The front wall (Alex, Nov 12: an open front read as a missing wall) has
+  big windows whose glass is its own part, "pane", which the game draws
+  see-through, and on floor 1 a door at x -4.5..4.5 (the way in).
 
 Pieces per floor n (kind "tower", floor n):
 
@@ -17,8 +19,8 @@ Pieces per floor n (kind "tower", floor n):
     TowerBack<n>    back wall with windows
     TowerLeft<n>    left wall with windows
     TowerRight<n>   right wall with the ladder doorway
-    TowerFront<n>   two corner pillars and the balcony rail (floor 1: a low
-                    planter fence with an entrance gap and a striped awning)
+    TowerFront<n>   front wall with four windows (floor 1: two windows, the
+                    front door, planters and a striped awning)
     TowerRoof       caps the stack; place it as if it were floor 11
 
 Every piece has the same anchor: the base centre (0, 0) at that floor's
@@ -45,6 +47,7 @@ D0, D1 = -3.0, 23.0  # footprint y
 H = 11.4  # wall height (floor to the next slab)
 T = 0.8  # wall thickness: inside half wallpaper, outside half facade, so both survive 0.2 and 0.4 Parts voxels
 IN_BACK, IN_LEFT, IN_RIGHT = 22.0, -23.2, 23.2  # inside faces of the walls, on the 0.4 grid
+IN_FRONT = D0 + T  # inside face of the front wall (-2.2): the outside face is the footprint edge
 SKIN = 0.4
 SHAFT = (-24.0, -17.0, 17.0, 24.0)  # x0, x1, y0, y1
 LADDER_DOOR = (12.5, 16.5, H)  # y0, y1, height: open floor to ceiling
@@ -208,7 +211,7 @@ def win_shape(o, cu, z0, z1, w):
     return lambda U, Z: np.abs(U - cu) < w / 2
 
 
-def window(g, n, cu, w=4.0, z0=3.6, z1=8.6, outside=True):
+def window(g, n, cu, w=4.0, z0=3.6, z1=8.6, outside=True, pane=None):
     o, i = OUT[n], IN[n]
     if o.get('round'):
         z0, z1 = 6.0 - w / 2, 6.0 + w / 2
@@ -218,7 +221,7 @@ def window(g, n, cu, w=4.0, z0=3.6, z1=8.6, outside=True):
     lo, hi = (cu - w / 2 - 2, INNER, z0 - 1.5), (cu + w / 2 + 2, OUTER, z1 + 1)
     g.fill((lo[0], -0.12, z0 - 0.3), (hi[0], T + 0.15, z1 + 0.3), lambda U, T_, Z: frame(U, Z) & ~inside(U, Z), trim)
     g.carve((lo[0], INNER, z0), (hi[0], OUTER, z1), lambda U, T_, Z: inside(U, Z))
-    g.fill((lo[0], 0.2, z0), (hi[0], 0.6, z1), lambda U, T_, Z: inside(U, Z), glass)
+    (pane if pane is not None else g).fill((lo[0], 0.2, z0), (hi[0], 0.6, z1), lambda U, T_, Z: inside(U, Z), glass)
     # mullions: one upright and one cross bar
     zc = (z0 + z1) / 2 + (0.6 if not o.get('round') else 0)
     g.fill((cu - 0.1, 0.1, z0), (cu + 0.1, 0.7, z1), lambda U, T_, Z: inside(U, Z), trim)
@@ -304,17 +307,27 @@ def door(g, n, u0, u1, h):
     g.box((u1, -0.15, 0), (u1 + 0.35, T + 0.2, H), trim)
 
 
-def wall(n, u0, u1, wins, doorway=None):
-    """voxel array of one wall of floor n in the (u, t, z) frame"""
+CORNER = 0.4  # how far a side wall's outside trims reach past the front corner
+
+
+def wall(n, u0, u1, wins, doorway=None, pane=None, corner=False):
+    """voxel array of one wall of floor n in the (u, t, z) frame; with `pane`
+    (another WallGrid of the same bounds) the window glass goes there.
+    `corner`: u0 is the tower's front corner, where this wall's end shows
+    beside the front wall, so the end is all facade (the inside dressing
+    starts behind the front wall) and the outside trims wrap the corner"""
     o, i = OUT[n], IN[n]
-    g = WallGrid((u0, INNER, 0), (u1, OUTER, H + 0.3))
+    g = WallGrid((u0 - (CORNER if corner else 0), INNER, 0), (u1, OUTER, H + 0.3))
+    uo = u0 - CORNER if corner else u0  # outside trims
     g.box((u0, 0, 0), (u1, T, H), o['face'])
     if o.get('plinth'):
         g.box((u0, 0.3, 0), (u1, T + 0.1, 1.2), pick([o['plinth'], '#857F7B'], 9))
     # outside: base band and the cornice at the top of the floor
-    g.box((u0, T, 0), (u1, T + 0.15, 0.35), C(o['trim']))
-    g.box((u0, T, H - 0.5), (u1, T + 0.3, H), C(o['trim']))
-    g.box((u0, T, H - 0.75), (u1, T + 0.15, H - 0.5), C(o['trim']))
+    g.box((uo, T, 0), (u1, T + 0.15, 0.35), C(o['trim']))
+    g.box((uo, T, H - 0.5), (u1, T + 0.3, H), C(o['trim']))
+    g.box((uo, T, H - 0.75), (u1, T + 0.15, H - 0.5), C(o['trim']))
+    if corner:
+        u0 = u0 + T  # inside dressing starts behind the front wall
     if o.get('pilaster'):
         for k in range(int((u1 - u0) / 6) + 1):
             u = u0 + 1 + k * 6
@@ -333,7 +346,7 @@ def wall(n, u0, u1, wins, doorway=None):
     g.box((u0, -0.16, 0), (u1, SKIN, 0.45), C(i['rail']))
     g.box((u0, -0.25, H - 0.35), (u1, SKIN, H), C(i['rail']))
     for cu, w in wins:
-        window(g, n, cu, w)
+        window(g, n, cu, w, pane=pane)
     for (ca, wa), (cb, wb) in zip(wins, wins[1:]):
         if cb - ca - (wa + wb) / 2 >= 5.0:
             picture(g, n, (ca + cb) / 2)
@@ -349,11 +362,13 @@ def wall(n, u0, u1, wins, doorway=None):
     return g
 
 
-def put(p, wg, side):
-    """copy a wall grid into the prop's body grid, turned to its side"""
-    dst = p.part('body')
+def put(p, wg, side, part='body'):
+    """copy a wall grid into one of the prop's part grids, turned to its side"""
+    dst = p.part(part)
     c, o = wg.c, wg.o
-    if side == 'back':  # x = u, y = 22.4 + t
+    if side == 'front':  # x = u, y = -2.2 - t (the outside faces -y)
+        arr, org = c[:, ::-1, :], (o[0], int(round(IN_FRONT / VOX)) - (o[1] + c.shape[1]), o[2])
+    elif side == 'back':  # x = u, y = 22.4 + t
         arr, org = c, (o[0], o[1] + int(round(IN_BACK / VOX)), o[2])
     elif side == 'right':  # x = 23.4 + t, y = u
         arr, org = c.transpose(1, 0, 2), (o[1] + int(round(IN_RIGHT / VOX)), o[0], o[2])
@@ -368,6 +383,8 @@ def put(p, wg, side):
 
 
 def wall_bounds(side, u0, u1):
+    if side in ('left', 'right') and u0 == D0:
+        u0 -= CORNER  # the outside trims wrap the front corner (wall(corner=True))
     if side == 'back':
         return (u0, IN_BACK + INNER, 0), (u1, IN_BACK + OUTER, H + 0.3)
     if side == 'right':
@@ -399,7 +416,7 @@ def _wall_prop(n, name):
     lo, hi = wall_bounds(side, u0, u1)
 
     def fn(p):
-        g = wall(n, u0, u1, wins, doorway)
+        g = wall(n, u0, u1, wins, doorway, corner=side in ('left', 'right') and u0 == D0)
         put(p, g, side)
         p.anchor = (0, 0, 0)
     note = NOTES[name].format(LOOK[n], THEMES[n - 1].lower()) + '. Anchor: base centre at this floor\'s walking height.'
@@ -432,104 +449,74 @@ def _floor_prop(n):
 
 
 # ------------------------------------------------------------------ fronts
-def pillar(g, n, x0):
+# The front wall runs the full width, x -24..24, outside face on the
+# footprint edge (y -3) like the other walls; the side walls own the two
+# corners (export.py resolves the overlap, so no face is drawn twice).
+FRONT_WINDOWS = [(-16.0, 5.0), (-5.5, 5.0), (5.5, 5.0), (16.0, 5.0)]
+DOOR = (-4.5, 4.5, 8.0)  # x0, x1, height: the way in on floor 1 (the planter gap before)
+FRONT_WINDOWS_1 = [(-15.0, 6.0), (15.0, 6.0)]
+
+
+def entrance(g, n, u0, u1, top):
+    """the front door on floor 1: open from the floor to `top`, with trim
+    posts and a lintel round it (wall frame: inside t < 0, outside t > T)"""
     o = OUT[n]
-    x1 = x0 + 1.0
-    face = o['face']
-    g.box((x0, D0, 0), (x1, D0 + 1.0, H), (lambda X, Y, Z: face(X + Y, X * 0, Z)) if callable(face) else face)
-    g.box((x0 - 0.15, D0 - 0.15, 0), (x1 + 0.15, D0 + 1.15, 0.6), C(o['trim']))
-    g.box((x0 - 0.2, D0 - 0.2, H - 0.7), (x1 + 0.2, D0 + 1.2, H), C(o['trim']))
-    if o.get('pilaster') or o.get('round'):
-        g.box((x0 - 0.05, D0 - 0.05, 3), (x1 + 0.05, D0 + 1.05, 3.3), C(o['trim']))
-        g.box((x0 - 0.05, D0 - 0.05, 7.5), (x1 + 0.05, D0 + 1.05, 7.8), C(o['trim']))
-
-
-RAIL = {
-    1: None, 2: ('iron', '#2F3A4A'), 3: ('iron', '#2F3A4A'), 4: ('wood', '#FFFFFF'), 5: ('wood', '#FFFFFF'),
-    6: ('wood', '#8B5A33'), 7: ('wood', '#FFFFFF'), 8: ('hedge', '#55B947'), 9: ('wood', '#F4C542'),
-    10: ('wood', '#F4C542'),
-}
-
-
-def rail(g, n, x0, x1):
-    o = OUT[n]
-    kind, c = RAIL[n]
-    y0, y1 = D0, D0 + 0.4
-    cc = C(c) if c else None
-    if kind == 'hedge':
-        g.rrbox((x0, y0 - 0.2, 0), (x1, y1 + 0.4, 2.4), 0.3, pick(['#55B947', '#4DB043', '#3E9A3A'], 71))
-        g.box((x0, y0 - 0.25, 0), (x1, y1 + 0.45, 0.8), pick(['#C98E52', '#BF8549'], 72))
-        fl = [col(h) for h in ('#FF6FA8', '#FFD166', '#FFFFFF')]
-        rng = np.random.default_rng(8)
-        for _ in range(int((x1 - x0) * 1.2)):
-            x = rng.uniform(x0 + 0.3, x1 - 0.3)
-            g.ell((x, y0 - 0.15, rng.uniform(1.2, 2.3)), (0.16, 0.12, 0.16), fl[int(rng.integers(3))])
-        return
-    top = 3.0
-    g.box((x0, y0 - 0.05, top - 0.3), (x1, y1 + 0.05, top), cc)
-    g.box((x0, y0, 0.2), (x1, y1, 0.45), cc)
-    for k in range(int((x1 - x0) / 4) + 1):
-        x = min(x0 + k * 4, x1 - 0.4)
-        g.box((x, y0 - 0.05, 0), (x + 0.4, y1 + 0.05, top), cc)
-    if kind == 'glass':
-        g.box((x0, y0 + 0.15, 0.45), (x1, y0 + 0.25, top - 0.3), col('#D6F0FF'))
-    elif kind == 'iron':
-        for k in range(int((x1 - x0) / 0.5)):
-            x = x0 + 0.2 + k * 0.5
-            g.box((x, y0 + 0.14, 0.45), (x + 0.12, y0 + 0.26, top - 0.3), cc)
-            if k % 4 == 2:
-                g.ell((x + 0.06, y0 + 0.2, 1.6), (0.25, 0.08, 0.25), cc)
-                g.carve((x - 0.2, y0 + 0.1, 1.38), (x + 0.32, y0 + 0.3, 1.82),
-                        lambda X, Y, Z, x=x: (X - x - 0.06) ** 2 + (Z - 1.6) ** 2 < 0.13 ** 2)
-    else:  # wooden balusters, rounded
-        for k in range(int((x1 - x0) / 1.0)):
-            x = x0 + 0.4 + k * 1.0
-            g.box((x, y0 + 0.08, 0.45), (x + 0.24, y0 + 0.32, top - 0.3), cc)
-    if o.get('flowers') and kind != 'hedge':
-        for cx in (-12.0, 0.0, 12.0):
-            g.box((cx - 2, y0 - 0.7, 1.6), (cx + 2, y0, 2.5), C(o['box']))
-            g.box((cx - 2.05, y0 - 0.75, 2.2), (cx + 2.05, y0 - 0.6, 2.35), C(o['trim']))
-            leaf = pick(['#3E9A3A', '#55B947'], 73)
-            g.fill((cx - 1.9, y0 - 0.65, 2.5), (cx + 1.9, y0 - 0.05, 2.95),
-                   lambda X, Y, Z, cx=cx: Z < 2.55 + 0.35 * (0.5 + 0.5 * np.sin(X * 4.7) * np.sin(Y * 9.1)), leaf)
-            fl = [col(h) for h in o['flowers']]
-            for k in range(6):
-                g.ell((cx - 1.5 + k * 0.6, y0 - 0.35 + 0.15 * (k % 2), 2.85 + 0.06 * (k % 3)), (0.17, 0.17, 0.13), fl[k % len(fl)])
-    if o.get('snow'):
-        g.box((x0, y0 - 0.08, top), (x1, y1 + 0.08, top + 0.15), col('#FFFFFF'))
+    trim = C(o['trim'])
+    g.carve((u0, INNER, 0), (u1, OUTER, top))
+    g.box((u0 - 0.4, -0.15, 0), (u0, T + 0.2, top + 0.4), trim)
+    g.box((u1, -0.15, 0), (u1 + 0.4, T + 0.2, top + 0.4), trim)
+    g.box((u0 - 0.4, -0.15, top), (u1 + 0.4, T + 0.2, top + 0.4), trim)
 
 
 def front_one(p):
-    """floor 1: low planter fence with an entrance gap, and a striped awning"""
-    g = p.part('body')
+    """floor 1: brick front with two big windows, the front door (x -4.5..4.5),
+    lanterns either side, planters along the foot and a striped awning"""
     n = 1
     o = OUT[1]
-    pillar(g, n, W0)
-    pillar(g, n, W1 - 1.0)
-    for x0, x1 in ((W0 + 1.0, -4.5), (4.5, W1 - 1.0)):
-        g.box((x0, D0, 0), (x1, D0 + 1.0, 1.4), brick('#B5553C', '#A24A34'))
-        g.box((x0 - 0.05, D0 - 0.08, 1.4), (x1 + 0.05, D0 + 1.08, 1.6), C(o['trim']))
+    pane = WallGrid((W0, INNER, 0), (W1, OUTER, H + 0.3))
+    g = wall(n, W0, W1, FRONT_WINDOWS_1, pane=pane)
+    entrance(g, n, DOOR[0], DOOR[1], DOOR[2])
+    # lanterns on the wall either side of the door
+    for x in (DOOR[0] - 1.4, DOOR[1] + 1.4):
+        g.box((x - 0.4, T, 5.6), (x + 0.4, T + 0.4, 5.9), col('#2F3A4A'))
+        g.box((x - 0.3, T + 0.2, 5.9), (x + 0.3, T + 0.8, 6.7), col('#FFD89A', 3.0))
+        g.box((x - 0.4, T + 0.1, 6.7), (x + 0.4, T + 0.9, 6.9), col('#2F3A4A'))
+    put(p, g, 'front')
+    put(p, pane, 'front', part='pane')
+    # planters along the foot of the wall, outside, either side of the door
+    body = p.part('body')
+    yo = D0 - 0.4  # the wall's outside face lands on the 0.4 grid at -3.2
+    for x0, x1 in ((W0 + 1.2, DOOR[0] - 2.4), (DOOR[1] + 2.4, W1 - 1.2)):
+        body.box((x0, yo - 1.0, 0), (x1, yo, 1.2), brick('#B5553C', '#A24A34'))
+        body.box((x0 - 0.05, yo - 1.08, 1.2), (x1 + 0.05, yo, 1.4), C(o['trim']))
         leaf = pick(['#3E9A3A', '#55B947', '#4DB043'], 74)
-        g.fill((x0 + 0.1, D0 + 0.1, 1.6), (x1 - 0.1, D0 + 0.9, 2.5),
-               lambda X, Y, Z: Z < 1.75 + 0.6 * (0.5 + 0.5 * np.sin(X * 2.3) * np.sin(Y * 6.1 + X)), leaf)
+        body.fill((x0 + 0.1, yo - 0.9, 1.4), (x1 - 0.1, yo - 0.1, 2.3),
+                  lambda X, Y, Z: Z < 1.55 + 0.6 * (0.5 + 0.5 * np.sin(X * 2.3) * np.sin(Y * 6.1 + X)), leaf)
         fl = [col(h) for h in ('#E8413C', '#FF6FA8', '#FFD166')]
         for k in range(int((x1 - x0) / 0.9)):
-            g.ell((x0 + 0.45 + k * 0.9, D0 + 0.3 + 0.35 * (k % 2), 2.2 + 0.1 * (k % 3)), (0.18, 0.18, 0.14), fl[k % 3])
-    # lanterns on the gate posts
-    for x in (-4.5, 4.5):
-        g.box((x - 0.4, D0, 0), (x + 0.4, D0 + 1.0, 2.4), C(o['trim']))
-        g.box((x - 0.3, D0 + 0.2, 2.4), (x + 0.3, D0 + 0.8, 3.1), col('#FFD89A', 3.0))
-        g.box((x - 0.4, D0 + 0.1, 3.1), (x + 0.4, D0 + 0.9, 3.3), col('#2F3A4A'))
-    # striped awning over the entrance, hung under the floor-2 slab edge
-    a = p.part('awning', anim='sway', parent='body', pivot=(0, D0, H - 0.2))
+            body.ell((x0 + 0.45 + k * 0.9, yo - 0.7 + 0.35 * (k % 2), 2.0 + 0.1 * (k % 3)), (0.18, 0.18, 0.14), fl[k % 3])
+    # striped awning over the door, clear of the wall's outside face
+    a = p.part('awning', anim='sway', parent='body', pivot=(0, yo, H - 0.2))
     red, cream = fam('#D9534F', '#FFF4E0')
-    a.fill((-6, D0 - 2.6, H - 2.2), (6, D0 + 0.2, H), lambda X, Y, Z: Z > H - 0.2 + (Y - D0) * 0.62,
+    a.fill((-6, yo - 2.6, H - 2.2), (6, yo, H), lambda X, Y, Z: Z > H - 0.2 + (Y - yo) * 0.62,
            lambda X, Y, Z: np.where(np.mod(X + 6, 2.0) < 1.0, red, cream))
-    a.carve((-6, D0 - 2.6, H - 2.2), (6, D0 + 0.2, H), lambda X, Y, Z: Z > H + (Y - D0) * 0.62)
-    a.fill((-6, D0 - 2.7, H - 2.6), (6, D0 - 2.4, H - 1.6),
+    a.carve((-6, yo - 2.6, H - 2.2), (6, yo, H), lambda X, Y, Z: Z > H + (Y - yo) * 0.62)
+    a.fill((-6, yo - 2.7, H - 2.6), (6, yo - 2.4, H - 1.6),
            lambda X, Y, Z: Z > H - 2.6 + 0.35 * (np.mod(X + 6, 1.0) < 0.5), lambda X, Y, Z: np.where(np.mod(X + 6, 2.0) < 1.0, red, cream))
     for x in (-5.8, 5.6):
-        a.box((x, D0 - 2.55, H - 1.8), (x + 0.2, D0 + 0.1, H - 1.6), col('#2F3A4A'))
+        a.box((x, yo - 2.55, H - 1.8), (x + 0.2, yo, H - 1.6), col('#2F3A4A'))
+    p.anchor = (0, 0, 0)
+
+
+def front_wall(p, n):
+    """floors 2-10: the front wall with four big windows"""
+    wins = FRONT_WINDOWS
+    if n == 9:
+        wins = [(c, 4.4) for c, _ in wins]
+    pane = WallGrid((W0, INNER, 0), (W1, OUTER, H + 0.3))
+    g = wall(n, W0, W1, wins, pane=pane)
+    put(p, g, 'front')
+    put(p, pane, 'front', part='pane')
     p.anchor = (0, 0, 0)
 
 
@@ -537,16 +524,15 @@ def _front_prop(n):
     def fn(p):
         if n == 1:
             return front_one(p)
-        g = p.part('body')
-        pillar(g, n, W0)
-        pillar(g, n, W1 - 1.0)
-        rail(g, n, W0 + 1.0, W1 - 1.0)
-        p.anchor = (0, 0, 0)
-    lo, hi = (W0 - 0.25, D0 - 2.8 if n == 1 else D0 - 0.8, 0), (W1 + 0.25, D0 + 1.25, H + 0.3)
-    what = 'corner pillars, a low brick planter fence with an entrance gap (x -4.5..4.5), lantern posts and a striped awning (part "awning")' \
-        if n == 1 else f'corner pillars and the balcony rail ({RAIL[n][0]})'
-    prop(f'TowerFront{n}', 'tower', lo, hi, budget=120, floor=n,
-         note=f'front of floor {n}: {what}. Anchor: base centre at this floor\'s walking height.')(fn)
+        front_wall(p, n)
+    lo = (W0 - 0.4, IN_FRONT - OUTER - (3.2 if n == 1 else 0.0), 0)
+    hi = (W1 + 0.4, IN_FRONT - INNER, H + 0.3)
+    what = (f'{LOOK[n]} outside, {THEMES[n - 1].lower()} inside; two big windows, the front door (x -4.5..4.5), '
+            'lanterns, planters and a striped awning (part "awning")') if n == 1 else \
+        f'{LOOK[n]} outside, {THEMES[n - 1].lower()} inside; four big windows'
+    prop(f'TowerFront{n}', 'tower', lo, hi, budget=260, floor=n, factors=(4,),
+         note=f'front wall of floor {n}: {what}; window glass is part "pane" (drawn see-through). '
+              'Anchor: base centre at this floor\'s walking height.')(fn)
 
 
 for _n in range(1, 11):
