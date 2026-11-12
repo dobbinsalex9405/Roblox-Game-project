@@ -23,6 +23,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - Creatures already auto-sold were removed from the save when sold, so there
   is nothing a migration could restore. A manual Sell button comes with the
   inventory/merger PR.
+
 ## 2026-11-12: Towers get a front wall; it fades only while it hides you
 
 - The open front was a deliberate dollhouse cutaway (tower.py: corner
