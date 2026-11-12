@@ -1,0 +1,35 @@
+PR #179 @ afeee37578b0, local Staging build (Output: "core started build=afeee37578b0"), one Studio play-solo session at 1350x672.
+
+Row 1 plaques (Plot1, floors bought to 3):
+Floor1: no Plaque part (the build loop creates plaques for floors 2+ only; same as main).
+Floor2.Plaque Part at (105.5, 22.8, 0); BillboardGui "Label" Enabled=true MaxDistance=80 AlwaysOnTop=false size {12,0},{1.8,0}; text "2. Book Nook  x1.05"
+Floor3.Plaque Part at (105.5, 34.8, 0); text "3. Plant Sunroom  x1.30"
+Floors 4-10: Plaque Transparency 1, billboard disabled (not built).
+Front wall outer face at world x ~107 (TOWER_MIN z -3 local; plaque out 1.5 -> x 105.5).
+Screens: front (camera 66,14,-6 -> 107,20,0): both names complete.
+         ~30 deg off the front (72,18,-20 -> 106,26,0): "...ok Nook x1.05", "...t Sunroom x1.30" (left part behind the wall).
+         ~55 deg (85,20,-38 -> 106,26,-2): ": Nook x1.05", "Sunroom x1.30".
+         inside storey 2 (125,18,3 -> 108,20,0): no plaque in the room.
+Geometry: a camera-facing 12-stud billboard 1.5 studs in front of the wall has its far half-edge 6*sin(theta) behind its centre plane;
+  it reaches the wall once 6*sin(theta) > 1.5, i.e. theta > ~14.5 degrees off the wall normal (horizontal).
+
+Row 2 reveals (10 Basic eggs in incubators 1-10; revealOn = HatchReveal.Enabled and Dim.Visible; shown = Root.Words.Visible):
+1  slot 1  3rd person: B at t+0.3 (wobble) -> shown at t+0.9 (Common otherwise ~1.5-1.9 s); 2nd B -> closed.
+2  slot 2  3rd person: shown at 1.5 s; Escape -> revealOn=false, MenuIsOpen=true; Escape -> menu closed.
+3-5 slots 3,4,5 hatched 0.2 s apart (3 queued): Escape in the wobble of the first -> revealOn=false, menu=true; no reveal reappeared in the next 6 s; Escape closes the menu.
+6  slot 6  shown at 1.9 s; B -> closed.
+7  slot 7  shown; tap (click at 150,400) -> closed.
+8  slot 8  left alone -> closed by itself after 3.6 s.
+9  slot 9  FIRST PERSON (LockFirstPerson, mouse LockCenter at 675,336 before): during the reveal a mouse move went to 120,658 (freed);
+           B -> shown, 2nd B -> closed; a mouse move afterwards stayed at 675,336 (re-locked); S held 0.7 s walked 10.7 studs.
+10 slot 10 FIRST PERSON: Escape in the wobble -> revealOn=false, menu=true; Escape -> menu closed, mouse 675,336 (locked).
+HH:Hatched (10): Chick, TabbyKitten, BarnCat, Gosling, Goldfish, ChihuahuaPup, FrizzleChick, Chipmunk, ShetlandPony, SugarGlider
+Creatures window: "Earning: 10/24 slots used. In your inventory: 0."; rows (10): Frizzle Chick, Gosling, Chihuahua Pup, Goldfish, Sugar Glider, Barn Cat, Chick, Tabby Kitten, Chipmunk, Shetland Pony
+
+Row 3: 14 more creatures given -> 24/24 pads; Basic egg bought -> Incubator1 Model BasicEgg h=2.60 bottom=1.30;
+hatched -> placed=24 stored=1 (DutchBunny), coins 7202031 -> 7202031, notice "Your tower is full: Dutch Bunny went to your inventory. Open Creatures to place it."
+Elevator E in first person -> Tower open, mouse 120,658; X -> closed. Odds cards Basic/Meadow/Moonlit 100.0000%. Feedback visible.
+
+Logs: client 192 lines all MessageWarning, 0 MessageError, 0 RevealInput/HatchReveal/CreatureView lines.
+Server Warning 177, Output 31, Info 45, 0 MessageError, 0 RevealInput/HatchReveal lines, 0 "Sell"; non-ContentId/Economy/Analytics:
+  [profilestore] API unavailable; [Stores] DataStores unavailable (ErrorQueue, Feedback); [TestPanel] on; [CoreServer] core started build=afeee37578b0
