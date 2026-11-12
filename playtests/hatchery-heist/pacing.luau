@@ -32,6 +32,8 @@ do
 			if h.actions:buyEgg(p, idx) then
 				h.taken[p][idx] = true
 				bought += 1
+			else
+				break -- refused (no room for its hatch): stop buying this second
 			end
 			d = h.get(p)
 		end
@@ -84,6 +86,8 @@ for _, seed in { 7, 12345, 999, 31337, 2024 } do
 				if eggs == 2 and secondAt == nil then
 					secondAt = t
 				end
+			else
+				break -- refused (no room for its hatch): stop buying this second
 			end
 			d = h.get(p)
 		end
