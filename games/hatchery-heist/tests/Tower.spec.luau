@@ -305,32 +305,45 @@ end)
 
 describe("Next-floor label", function()
 	-- Studio gate (#84): "Floor 2: 25K coins" filled 166 px of its 168 px
-	-- box, so a longer price would cram against the edges. The box is sized
-	-- for the longest label with room to spare, so the text keeps its full
-	-- height on every floor.
-	it("fits every floor's price with slack at full text height", function()
+	-- box. Since #184 the label is plaque-sized (12 studs, so it reads whole
+	-- from the side), so the text shrinks to fit the width: it must still be
+	-- at least as tall as the longest floor name's on the plaque above it,
+	-- and no shorter than 0.8 studs.
+	it("fits every floor's price at a readable text height", function()
 		local CHAR = 0.62 -- GothamBold's average character width, in text heights
 		local box = Geometry.FLOOR_LABEL
+		local plaque = Geometry.FLOOR_PLAQUE
+		local longestName = 0
+		for floor = 1, Tower.FLOORS do
+			longestName = math.max(longestName, #Tower.plaqueText({}, floor, economy))
+		end
+		local nameHeight = math.min(plaque.height, plaque.width / (longestName * CHAR))
 		for floor = 2, Tower.FLOORS do
 			local label = Tower.floorLabel(floor, economy.tower.floorPrices[floor - 1])
-			local needed = #label * CHAR * box.height * 1.1
-			expect(needed <= box.width and "fits" or `"{label}" needs {needed} studs`).toBe("fits")
+			local height = math.min(box.height, box.width / (#label * CHAR * 1.1))
+			local ok = height >= 0.8 and height >= nameHeight
+			expect(ok and "fits" or `"{label}" shows {height} studs tall`).toBe("fits")
 		end
 		expect(Tower.floorLabel(10, 165e6)).toBe("Floor 10: 165M coins")
-		-- ... and still floats over its deck.
+		-- ... and is no wider than the tower.
 		expect(box.width <= Geometry.TOWER_MAX[1] - Geometry.TOWER_MIN[1]).toBe(true)
 	end)
 
 	it("stays clear of the YOUR HATCHERY banner over the base sign", function()
 		-- Studio gate (Nov 5): from spawn the floor 2 label and the banner sat
 		-- at the same height, one behind the other, and read as one crowded
-		-- line. The banner (nearer the camera) floats above the label with a
-		-- clear gap. Heights in the base's own space.
+		-- line. Since issue #183 the label hangs in front of the tower and
+		-- the banner stands behind it (the base sign is past the back wall),
+		-- so the whole tower is between them; otherwise the banner must float
+		-- above the label with a clear gap. Heights in the base's own space.
 		local box = Geometry.FLOOR_LABEL
-		local deck = Geometry.FLOOR_TOP + Geometry.FLOOR_HEIGHT - 0.5 -- floor 2's deck centre
-		local labelTop = deck + box.above + box.height / 2
 		local banner = Geometry.YOUR_BASE_LABEL
+		local signZ = 30 -- Layout.SIGN (needs Vector3, so not required here)
+		local apart = Geometry.priceSignZ() < Geometry.TOWER_MIN[2] and signZ > Geometry.TOWER_MAX[2]
+		local floor2 = Geometry.FLOOR_TOP + Geometry.FLOOR_HEIGHT -- floor 2's walking height
+		local labelTop = floor2 + box.above + box.height / 2
 		local bannerBottom = Geometry.SIGN_TOP - 4 + banner.above - banner.height / 2 -- from the 8-stud post's centre
-		expect(bannerBottom - labelTop >= 1.5 and "clear" or `gap {bannerBottom - labelTop}`).toBe("clear")
+		local clear = apart or bannerBottom - labelTop >= 1.5
+		expect(clear and "clear" or `gap {bannerBottom - labelTop}`).toBe("clear")
 	end)
 end)

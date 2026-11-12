@@ -83,11 +83,15 @@ Geometry.LADDER = { 25.2, 14.5 }
 Geometry.LADDER_HOLE_MIN = { 21, 12.5 }
 Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
 
--- The label floating over the next floor to buy ("Floor 10: 165M coins"),
--- in studs: wide enough for the longest one at full text height, with room
--- to spare (Studio gate, #84: the text was filling its box edge to edge).
--- `above`: its centre over the deck's centre.
-Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
+-- The label for the next floor to buy ("Floor 10: 475M coins"), in studs.
+-- It hangs right under the name plaque of the top floor built so far, the
+-- same distance out (Geometry.priceSignZ), its centre `above` that floor's
+-- walking height. Hung there, it never shows higher on a phone's screen than
+-- the plaque, which stays clear of the HUD (Studio gate on #184: hung over
+-- the roof it sat behind the GOAL banner and the coin box). As wide as the
+-- plaque, so it too reads whole from 60 degrees off the front (issue #183:
+-- over the deck, inside the roof, nobody could see it).
+Geometry.FLOOR_LABEL = { width = 12, height = 1.8, above = 8.5 }
 
 -- Each built floor's name ("2. Book nook  x1.25"), a label in front of its
 -- storey, in studs: `above` its centre over the floor's walking height,
@@ -95,19 +99,32 @@ Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
 -- band above the windows and under the next deck. The label turns to face
 -- the camera, so seen from off to the side its near half swings back toward
 -- the wall by half its width times the sine of the angle: `out` keeps it in
--- front of the wall's sills and flower boxes up to about 75 degrees off the
--- front (Studio gates on #175 and #179: inside the wall, and then 1.5 studs
--- out, the wall cut the name off from the side).
-Geometry.FLOOR_PLAQUE = { width = 12, height = 1.8, above = 10.5, out = 6.5 }
+-- front of the wall's sills and flower boxes, and of floor 1's door awning
+-- (2.9 out), from 60 degrees off the front (Studio gates on #175, #179 and
+-- #184: inside the wall, 1.5 studs out, then 6.5 out by the awning, the
+-- name was cut off from the side).
+Geometry.FLOOR_PLAQUE = { width = 12, height = 1.8, above = 10.5, out = 8.5 }
 
 function Geometry.plaqueZ(): number
 	return Geometry.TOWER_MIN[2] - Geometry.FLOOR_PLAQUE.out
 end
 
+function Geometry.priceSignZ(): number
+	return Geometry.plaqueZ()
+end
+
+-- The rebirth stand beside the tower's right wall (Layout.REBIRTH_STAND),
+-- and its label in studs, centred `above` the stand. The stand keeps the
+-- whole label clear of the wall's sills seen from any angle, even straight
+-- along the wall from the yard (issue #183: 3 studs off the wall it read
+-- "Rebirth: 50M coi" from the side).
+Geometry.REBIRTH_STAND = { 29, 4, 8 }
+Geometry.REBIRTH_LABEL = { width = 8, height = 1.6, above = 4.5 }
+
 -- The "YOUR HATCHERY" banner over your own base sign (client/GuideView), in
--- studs; `above` is its centre over the sign post's centre. It floats clear
--- above the next-floor label behind it, so from spawn the two never read as
--- one crowded line (Studio gate, Nov 5).
+-- studs; `above` is its centre over the sign post's centre. From spawn it
+-- once read as one crowded line with the next-floor label behind it (Studio
+-- gate, Nov 5); that label now hangs on the tower's far side (issue #183).
 Geometry.YOUR_BASE_LABEL = { width = 20, height = 4, above = 14.5 }
 
 -- Base-local positions of things raids care about. Layout uses the same

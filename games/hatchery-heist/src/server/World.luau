@@ -154,22 +154,39 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 					Material = Enum.Material.Wood,
 				})
 			end
-			-- The floor's name, hung in front of the storey's front wall,
-			-- above its windows (Geometry.FLOOR_PLAQUE). The part only holds
-			-- the label: a board out there would float in mid-air.
-			local sign = Geometry.FLOOR_PLAQUE
-			local plaque = towerPart(folder, floor, {
-				Name = "Plaque",
+		end
+		-- Every floor's name, the ground floor's too, hung in front of the
+		-- storey's front wall above its windows (Geometry.FLOOR_PLAQUE). The
+		-- part only holds the label: a board out there would float in mid-air.
+		local sign = Geometry.FLOOR_PLAQUE
+		local plaque = towerPart(folder, floor, {
+			Name = "Plaque",
+			Size = Vector3.new(1, 1, 0.3),
+			CFrame = at(Vector3.new(0, top + sign.above, Geometry.plaqueZ())),
+			Transparency = 1,
+			CanCollide = false,
+			CanQuery = false,
+			CanTouch = false,
+		})
+		local plaqueLabel = billboard(plaque, Vector3.zero, UDim2.fromScale(sign.width, sign.height), "")
+		local plaqueGui = plaqueLabel.Parent :: BillboardGui
+		plaqueGui.Enabled = false
+		-- Where the price shows while this is the next floor to buy: under
+		-- the name plaque of the floor below, the top one built until then
+		-- (Geometry.FLOOR_LABEL). Not a tower part, so syncTower leaves it to
+		-- the price code.
+		if floor > 1 then
+			local below = top - Geometry.FLOOR_HEIGHT
+			local price = part({
+				Name = "PriceSign",
 				Size = Vector3.new(1, 1, 0.3),
-				CFrame = at(Vector3.new(0, top + sign.above, Geometry.plaqueZ())),
+				CFrame = at(Vector3.new(0, below + Geometry.FLOOR_LABEL.above, Geometry.priceSignZ())),
 				Transparency = 1,
 				CanCollide = false,
 				CanQuery = false,
 				CanTouch = false,
 			})
-			local plaqueLabel = billboard(plaque, Vector3.zero, UDim2.fromScale(sign.width, sign.height), "")
-			local plaqueGui = plaqueLabel.Parent :: BillboardGui
-			plaqueGui.Enabled = false
+			price.Parent = folder
 		end
 		-- Upgrades furnish the floor: every client builds the decor itself
 		-- (client/TowerDecorView, config/towerDecor.luau) from the plot's
@@ -318,7 +335,13 @@ local function buildPlot(index: number): Model
 		Color = Color3.fromRGB(150, 80, 220),
 		Material = Enum.Material.Neon,
 	})
-	billboard(rebirth, Vector3.new(0, 4.5, 0), UDim2.fromScale(8, 1.6), "Rebirth")
+	local rebirthSign = Geometry.REBIRTH_LABEL
+	billboard(
+		rebirth,
+		Vector3.new(0, rebirthSign.above, 0),
+		UDim2.fromScale(rebirthSign.width, rebirthSign.height),
+		"Rebirth"
+	)
 	rebirth.Parent = model
 
 	local post = part({
@@ -535,6 +558,8 @@ function World.pushOut(player: Player, index: number)
 	World.teleport(player, CFrame.lookAt(position, position + Vector3.new(x - cx, 0, z - cz)))
 end
 
+local PRICE_COLOR = Color3.fromRGB(255, 220, 90) -- the HUD's coin colour
+
 local function setLabel(p: Instance, text: string)
 	local gui = p:FindFirstChild("Label")
 	local label = gui and gui:FindFirstChild("Text")
@@ -717,29 +742,29 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 			end
 			-- A label shows even on an invisible part: hide it with its part.
 			local label = p:FindFirstChild("Label")
-			if label and label:IsA("BillboardGui") and p.Name ~= "Deck" and label.Enabled ~= show then
+			if label and label:IsA("BillboardGui") and label.Enabled ~= show then
 				label.Enabled = show
 			end
 		end
 	end
-	for floor = 2, Tower.FLOORS do
+	for floor = 1, Tower.FLOORS do
 		local folder = tower:FindFirstChild(`Floor{floor}`) :: Folder
 		local plaque = folder:FindFirstChild("Plaque") :: Part
-		local text = ""
-		if claimed and floor <= owned then
-			local m = Tower.multiplier(d :: any, floor, (config :: any).economy)
-			text = `{floor}. {(config :: any).economy.tower.themes[floor]}  x{string.format("%.2f", m)}`
-		end
-		setLabel(plaque, text)
-		local deck = folder:FindFirstChild("Deck") :: Part
+		local built = claimed and floor <= owned
+		setLabel(plaque, if built then Tower.plaqueText(d :: any, floor, (config :: any).economy) else "")
+	end
+	for floor = 2, Tower.FLOORS do
+		local folder = tower:FindFirstChild(`Floor{floor}`) :: Folder
+		local sign = folder:FindFirstChild("PriceSign") :: Part
 		local nextPrice = if claimed then Tower.nextFloorPrice(d :: any, (config :: any).economy) else nil
-		local label = deck:FindFirstChild("Label")
+		local label = sign:FindFirstChild("Label")
 		if floor == owned + 1 and claimed and nextPrice then
 			if label == nil then
 				local size = Geometry.FLOOR_LABEL
-				billboard(deck, Vector3.new(0, size.above, 0), UDim2.fromScale(size.width, size.height), "")
+				local text = billboard(sign, Vector3.zero, UDim2.fromScale(size.width, size.height), "")
+				text.TextColor3 = PRICE_COLOR -- apart from the white name above it
 			end
-			setLabel(deck, Tower.floorLabel(floor, nextPrice))
+			setLabel(sign, Tower.floorLabel(floor, nextPrice))
 		elseif label then
 			label:Destroy()
 		end
