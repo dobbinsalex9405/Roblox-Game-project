@@ -18,6 +18,7 @@ local VRService = game:GetService("VRService")
 local CoreRemotes = require(ReplicatedStorage.Core.CoreRemotes)
 local Feedback = require(ReplicatedStorage.Core.Feedback)
 local ClientNet = require(script.Parent.ClientNet)
+local Modal = require(script.Parent.Modal)
 
 local BUTTON_WIDTH = 112
 local LEFT_RESERVED = 8 + 2 * (72 + 8) -- Shop and Test buttons (UiKit.topbarButton slots 0 and 1)
@@ -174,16 +175,6 @@ function FeedbackUi.start()
 	formGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	formGui.Enabled = false
 
-	local dim = Instance.new("TextButton")
-	dim.Name = "Dim"
-	dim.Size = UDim2.fromScale(1, 1)
-	dim.BackgroundColor3 = Color3.new(0, 0, 0)
-	dim.BackgroundTransparency = 0.45
-	dim.AutoButtonColor = false
-	dim.Text = ""
-	dim.Selectable = false
-	dim.Parent = formGui
-
 	local form = Instance.new("ScrollingFrame")
 	form.Name = "Form"
 	form.AnchorPoint = Vector2.new(0.5, 0)
@@ -195,7 +186,7 @@ function FeedbackUi.start()
 	form.ScrollingDirection = Enum.ScrollingDirection.Y
 	form.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	form.CanvasSize = UDim2.new()
-	form.Active = true -- swallows taps so they never reach the dim layer behind
+	form.Active = true -- swallows taps so they never reach the backdrop behind
 	form.ZIndex = 2
 	corner(form, 14)
 	local limit = Instance.new("UISizeConstraint")
@@ -370,7 +361,9 @@ function FeedbackUi.start()
 		end
 	end)
 	close.Activated:Connect(hide)
-	dim.Activated:Connect(hide)
+	-- The dim backdrop behind the form: frees the mouse in first person, and
+	-- a tap on it, gamepad B or Escape closes the form (Modal).
+	Modal.attach(formGui, form, hide)
 
 	for key, b in categoryButtons do
 		b.Activated:Connect(function()
