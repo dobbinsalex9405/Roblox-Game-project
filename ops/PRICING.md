@@ -114,7 +114,7 @@ Why these numbers:
 | Hatchery Heist | CoinPackSmall | Developer Product | 5K Coins | 25 | Impulse | Yes | 5,000 coins, added right away. |
 | Hatchery Heist | InstantHatch | Developer Product | Instant Hatch | 25 | Impulse | Not yet | Finishes hatching an egg right now. |
 | Hatchery Heist | LuckBoost | Developer Product | Luck Boost | 49 | Boost | Not yet | Better odds of Rare and rarer hatches for 15 minutes. The boosted odds are shown. |
-| Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy. |
+| Hatchery Heist | PremiumEgg | Developer Product | Premium Egg | 49 | Boost | Not yet | One Premium Egg: always Rare or better, and it can hatch any creature from Rare up. The exact odds are on its card before you buy. |
 | Hatchery Heist | ShieldRefill | Developer Product | Shield Refill | 49 | Boost | Yes | Shields your base for 10 more minutes. Raiders can't get in while it's up. |
 | Hatchery Heist | CoinPackMedium | Developer Product | 30K Coins | 99 | Medium | Yes | 30,000 coins, added right away. |
 | Hatchery Heist | CoinPackBig | Developer Product | 80K Coins | 199 | Power | Yes | 80,000 coins, added right away. |

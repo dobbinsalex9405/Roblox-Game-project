@@ -22,6 +22,7 @@ local Shared = ReplicatedStorage.Shared
 local Conveyor = require(Shared.Conveyor)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
+local PromptFocus = require(Shared.PromptFocus)
 local VoxelProp = require(Shared.VoxelProp)
 
 local Context = require(script.Parent.Context)
@@ -290,15 +291,27 @@ function ConveyorView.start(ctx: Context.Context, hooks: Hooks)
 		end
 	end)
 
+	-- The odds card follows the newest egg prompt still up, and changes only
+	-- when the egg it is about does (PromptFocus, issue #188).
+	local focus = PromptFocus.new()
+	local function apply(action: PromptFocus.Action?)
+		if action == nil then
+			return
+		elseif action.kind == "show" then
+			hooks.showOdds(action.eggId)
+		else
+			hooks.hideOdds()
+		end
+	end
 	ProximityPromptService.PromptShown:Connect(function(prompt: ProximityPrompt)
 		local eggId = prompt:GetAttribute("HHEggId")
 		if type(eggId) == "string" then
-			hooks.showOdds(eggId)
+			apply(focus:shown(prompt, eggId))
 		end
 	end)
 	ProximityPromptService.PromptHidden:Connect(function(prompt: ProximityPrompt)
 		if prompt:GetAttribute("HHEggId") then
-			hooks.hideOdds()
+			apply(focus:hidden(prompt))
 		end
 	end)
 
