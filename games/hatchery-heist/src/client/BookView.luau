@@ -9,15 +9,21 @@
 -- side-menu button counts them.
 --
 -- Built for hundreds of cards: the page is sized for the whole tab, but only
--- the cards on screen (and a row either side) exist. A small pool of card
--- frames is moved to whichever cards scroll into view (BookGrid), each with
--- its ViewportFrame and 3D model made when it arrives and destroyed when it
--- leaves, and only those cards are repainted when the player's data changes.
--- A 200-card tab costs the same as a 20-card one.
+-- the cards on screen (and a couple of rows either side: config/atmosphere
+-- book) exist. A small pool of card frames is moved to whichever cards
+-- scroll into view (BookGrid), and only those cards are repainted when the
+-- player's data changes. A 200-card tab costs the same as a 20-card one.
+-- A card shows the creature's picture (Book.picture: a render of its
+-- meshes, preloaded at join), black for one not found yet. A creature with
+-- no current picture is drawn live in a ViewportFrame made when its card
+-- arrives and destroyed when it leaves.
 -- Opened from the side menu; the server keeps the book (data.found).
 
 local Players = game:GetService("Players")
+local ContentProvider = game:GetService("ContentProvider")
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Odds = require(ReplicatedStorage.Core.Odds)
@@ -25,6 +31,8 @@ local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
 local BookGrid = require(Shared.BookGrid)
 local Layout = require(Shared.Layout)
+local PreloadQueue = require(Shared.PreloadQueue)
+local Viewport = require(Shared.Viewport)
 
 local Context = require(script.Parent.Context)
 local CreatureView = require(script.Parent.CreatureView)
@@ -36,10 +44,11 @@ local BookView = {}
 local PANEL = Color3.fromRGB(28, 30, 48)
 local GOLD = Color3.fromRGB(255, 210, 63)
 local SHADOW = Color3.fromRGB(16, 16, 26)
+local WHITE = Color3.new(1, 1, 1)
+local BLACK = Color3.new(0, 0, 0) -- a picture's silhouette: no colour shows through
 local FONT = Enum.Font.FredokaOne
 local CARD = Vector2.new(104, 150)
 local GRID: BookGrid.Spec = { width = CARD.X, height = CARD.Y, gap = 8 }
-local OVERSCAN = 1 -- rows drawn beyond the view each way, so scrolling never shows a gap
 local PAD_TOP, PAD_SIDE, PAD_BOTTOM = 4, 4, 8
 local RED = Color3.fromRGB(230, 60, 60)
 
@@ -83,6 +92,7 @@ type Card = {
 	frame: Frame,
 	border: UIStroke,
 	entry: Book.Entry?,
+	picture: ImageLabel,
 	view: ViewportFrame?,
 	model: Model?,
 	looks: { [BasePart]: { color: Color3, material: Enum.Material, texture: string } },
@@ -100,13 +110,20 @@ type Tab = {
 	entries: { Book.Entry },
 }
 
--- Puts a creature's model in a card and points the camera at it. A creature
--- not found yet is darkened BEFORE it goes in the card, so it never shows in
--- colour, not even for a frame (Studio gate, Nov 5).
+-- Puts a creature in a card: its picture, or else its model with the camera
+-- pointed at it. A creature not found yet is darkened BEFORE it shows, so it
+-- never shows in colour, not even for a frame (Studio gate, Nov 5).
 local function showModel(card: Card, entry: Book.Entry, owned: boolean)
-	local model, size = CreatureView.staticModel(entry.speciesId)
 	card.looks = {}
 	card.found = owned
+	local picture = Book.picture(entry.speciesId)
+	if picture then
+		card.picture.ImageColor3 = if owned then WHITE else BLACK
+		card.picture.Image = picture
+		card.picture.Visible = true
+		return
+	end
+	local model, size = CreatureView.staticModel(entry.speciesId)
 	if model == nil then
 		return
 	end
@@ -146,6 +163,8 @@ local function showModel(card: Card, entry: Book.Entry, owned: boolean)
 end
 
 local function dropModel(card: Card)
+	card.picture.Visible = false
+	card.picture.Image = ""
 	if card.view then
 		card.view:Destroy() -- the model and camera with it
 		card.view = nil
@@ -158,10 +177,19 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local player = Players.LocalPlayer
 	local species = ctx.config.creatures.species
 	local bookConfig = ctx.config.economy.book
+	-- How far past the view cards are drawn and kept built (config/atmosphere book).
+	local bookLook = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).book
+	local overscan = bookLook.overscanRows :: number
+	local warmCards = bookLook.warmCards :: number
+	local warmPerFrame = bookLook.warmPerFrame :: number
+	local warmDelay = bookLook.warmDelaySeconds :: number
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "HatcheryBook"
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 20
+	-- Children always draw over their parent and ZIndex sorts siblings, so a
+	-- warming card at 0 hides wholly behind the card on screen at 1.
+	gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	gui.Enabled = false
 	gui.Parent = player:WaitForChild("PlayerGui")
 
@@ -253,10 +281,37 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function fit()
 		local cam = Workspace.CurrentCamera
 		local screen = if cam then cam.ViewportSize else Vector2.new(1280, 720)
-		window.Size = UDim2.fromOffset(math.min(760, screen.X - 24), math.min(560, screen.Y - 40))
+		window.Size = UDim2.fromOffset(Book.windowSize(screen.X, screen.Y, GuiService:GetGuiInset().Y))
 	end
+	-- Refit when the screen changes size (a window resized, a phone turned):
+	-- Studio gate (#125) kept a desktop-sized Book on a phone, title cut off.
+	Viewport.watch(Workspace, fit)
 
 	local entries = Book.entries(ctx.config.creatures, ctx.config.eggs, Layout.RARITIES)
+
+	-- Every Book picture loads now, while the player looks round, so a card
+	-- shows its creature the moment it first scrolls into view: in page
+	-- order (the Common tab first, as the Book opens there), several at a
+	-- time, each through an ImageLabel so it is fetched as an image. Studio
+	-- gate (#125): one call for all 114 left the first open blank for 1-3 s.
+	-- A tab the player opens jumps the queue (selectTab below).
+	local preload = PreloadQueue.new(Book.pictures(entries))
+	for _ = 1, bookLook.preloadStreams :: number do
+		task.spawn(function()
+			while true do
+				local batch: { Instance } = {}
+				for _, picture in PreloadQueue.take(preload, bookLook.preloadBatch :: number) do
+					local holder = Instance.new("ImageLabel")
+					holder.Image = picture
+					table.insert(batch, holder)
+				end
+				if #batch == 0 then
+					break
+				end
+				pcall(ContentProvider.PreloadAsync, ContentProvider, batch)
+			end
+		end)
+	end
 	local tabs: { Tab } = {}
 	local tabOf: { [string]: Tab } = {}
 	for _, entry in entries do
@@ -320,6 +375,30 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		border.Parent = frame
 		frame.Parent = page
 
+		-- The picture's dark well, under the creature's ViewportFrame: a
+		-- card never shows a bare gap while its picture draws its first frame.
+		local well = Instance.new("Frame")
+		well.Name = "Well"
+		well.BackgroundColor3 = SHADOW
+		well.BackgroundTransparency = 0.45
+		well.BorderSizePixel = 0
+		well.Position = UDim2.fromOffset(4, 4)
+		well.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
+		well.ZIndex = 0 -- under the picture, the name and the NEW badge (Sibling)
+		corner(well, 10)
+		well.Parent = frame
+
+		-- The creature's picture, over the well (showModel).
+		local picture = Instance.new("ImageLabel")
+		picture.Name = "Picture"
+		picture.BackgroundTransparency = 1
+		picture.Position = UDim2.fromOffset(4, 4)
+		picture.Size = UDim2.fromOffset(CARD.X - 8, CARD.X - 8)
+		picture.ScaleType = Enum.ScaleType.Fit
+		picture.ZIndex = 1
+		picture.Visible = false
+		picture.Parent = frame
+
 		local name = text(frame, "Species", "", 14)
 		name.Position = UDim2.fromOffset(4, CARD.X - 6)
 		name.Size = UDim2.new(1, -8, 0, 18)
@@ -346,6 +425,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			frame = frame,
 			border = border,
 			entry = nil,
+			picture = picture,
 			view = nil,
 			model = nil,
 			looks = {},
@@ -385,6 +465,7 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		if card.found ~= owned then
 			card.found = owned
 			-- Not found yet: a dark silhouette, glow and all switched off.
+			card.picture.ImageColor3 = if owned then WHITE else BLACK
 			for part, look in card.looks do
 				part.Color = if owned then look.color else SHADOW
 				part.Material = if owned then look.material else Enum.Material.SmoothPlastic
@@ -425,47 +506,89 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 		end
 	end
 
-	-- Binds pooled cards to the cards in view (and a row either side) and
-	-- returns the rest to the pool.
+	-- The cards on screen (no overscan), the drawn range (those and
+	-- `overscan` rows either side) and the wider warm range kept built
+	-- around it (BookGrid.warm).
+	local viewFirst, viewLast = 1, 0
+	local drawnFirst, drawnLast, warmFirst, warmLast = 1, 0, 1, 0
+	local shownAt = 0 -- when the current tab was shown (os.clock)
+
+	-- A pooled card for the current tab's card `index`, model and all.
+	local function bind(tab: Tab, index: number, found: { [string]: any }, restricted: boolean)
+		local entry = tab.entries[index]
+		local card = table.remove(pool) or makeCard()
+		card.entry = entry
+		local color = Layout.rarityColor(entry.rarity)
+		card.frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
+		card.border.Color = color
+		card.frame.Name = entry.speciesId
+		local x, y = BookGrid.position(index, columns, GRID)
+		card.frame.Position = UDim2.fromOffset(x, y)
+		showModel(card, entry, found[entry.speciesId] ~= nil)
+		paintCard(card, found, restricted)
+		card.frame.Visible = true
+		bound[index] = card
+	end
+
+	-- Binds pooled cards to the cards on screen at once, and returns cards
+	-- outside the warm range to the pool. warmUp fills the rest of the warm
+	-- range, the `overscan` rows first, a few cards a frame.
 	local function cull()
 		local tab = current
 		if tab == nil or not gui.Enabled then
 			return
 		end
-		local first, last = BookGrid.visible(
-			#tab.entries,
-			columns,
-			GRID,
-			body.CanvasPosition.Y - PAD_TOP,
-			body.AbsoluteWindowSize.Y,
-			OVERSCAN
-		)
+		local count, scroll, height = #tab.entries, body.CanvasPosition.Y - PAD_TOP, body.AbsoluteWindowSize.Y
+		viewFirst, viewLast = BookGrid.visible(count, columns, GRID, scroll, height, 0)
+		drawnFirst, drawnLast = BookGrid.visible(count, columns, GRID, scroll, height, overscan)
+		warmFirst, warmLast = BookGrid.warm(count, drawnFirst, drawnLast, warmCards)
 		for index in bound do
-			if index < first or index > last then
+			if index < warmFirst or index > warmLast then
 				release(index)
 			end
 		end
 		local d = ctx.data()
 		local found = if d then d.found or {} else {}
 		local restricted = ctx.restricted()
-		for index = first, last do
+		for index = viewFirst, viewLast do
 			if bound[index] == nil then
-				local entry = tab.entries[index]
-				local card = table.remove(pool) or makeCard()
-				card.entry = entry
-				local color = Layout.rarityColor(entry.rarity)
-				card.frame.BackgroundColor3 = color:Lerp(SHADOW, 0.78)
-				card.border.Color = color
-				local x, y = BookGrid.position(index, columns, GRID)
-				card.frame.Position = UDim2.fromOffset(x, y)
-				card.frame.Name = entry.speciesId
-				showModel(card, entry, found[entry.speciesId] ~= nil)
-				paintCard(card, found, restricted)
-				card.frame.Visible = true
-				bound[index] = card
+				bind(tab, index, found, restricted)
 			end
 		end
 	end
+
+	-- Each frame while the book is open: moves cards that have warmed long
+	-- enough to their places, then builds up to `warmPerFrame` more cards of
+	-- the warm range, nearest the view first.
+	local function warmUp()
+		local tab = current
+		if tab == nil or not gui.Enabled or drawnLast < drawnFirst then
+			return
+		end
+		local now = os.clock()
+		local d = ctx.data()
+		local found = if d then d.found or {} else {}
+		local restricted = ctx.restricted()
+		local budget = BookGrid.warmBudget(now - shownAt, warmDelay, warmPerFrame)
+		if budget <= 0 or viewLast < viewFirst then
+			return
+		end
+		local built = 0
+		local function try(index: number): boolean
+			if index >= warmFirst and index <= warmLast and bound[index] == nil then
+				bind(tab, index, found, restricted)
+				built += 1
+			end
+			return built >= budget
+		end
+		local reach = math.max(viewFirst - warmFirst, warmLast - viewLast)
+		for step = 1, reach do
+			if try(viewLast + step) or try(viewFirst - step) then
+				return
+			end
+		end
+	end
+	RunService.Heartbeat:Connect(warmUp)
 
 	local function refresh()
 		local d = ctx.data()
@@ -506,8 +629,12 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 	local function selectTab(tab: Tab)
 		if current ~= tab then
 			releaseAll()
+			-- This tab's pictures load next (Studio gate, #134: a cold
+			-- Uncommon tab waited 3 s+ behind the Common tab's).
+			PreloadQueue.prioritize(preload, Book.pictures(tab.entries))
 		end
 		current = tab
+		shownAt = os.clock()
 		body.CanvasPosition = Vector2.zero
 		layout()
 		refresh()
@@ -574,7 +701,8 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 			end
 		else
 			gui.Enabled = false
-			releaseAll()
+			-- The built cards stay (hidden with the gui), so reopening the
+			-- book shows drawn pictures at once.
 			-- Anything found while the book was open has now been seen.
 			if newCount() > 0 then
 				ctx.fire(ctx.remotes["HH:BookSeen"])

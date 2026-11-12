@@ -10,7 +10,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
-from creatures import HEIGHT, build_all  # noqa: E402
+from creatures import FINER, HEIGHT, build_all  # noqa: E402
 import palette as pal  # noqa: E402
 import voxmesh  # noqa: E402
 import rig  # noqa: E402
@@ -28,6 +28,8 @@ VOXEL_STUDS = 0.1
 TIER_STUDS = {'Common': 2, 'Uncommon': 2.2, 'Rare': 2.4, 'Ultra Rare': 2.7, 'Epic': 3, 'Legendary': 3.4, 'Godly': 3.8}
 DETAIL = {r: TIER_STUDS[r] / (HEIGHT[r] * VOXEL_STUDS) for r in TIER_STUDS}
 
+
+ROBLOX_MESH_TRIS = 20000
 
 MOVERS = ('body', 'head', 'wingL', 'wingR', 'tail')
 
@@ -97,7 +99,7 @@ def r4(v):
 def creatures(tiers=None, only=None):
     cs = build_all(DETAIL)
     for c in cs:
-        c.voxel = VOXEL_STUDS
+        c.voxel = VOXEL_STUDS / FINER.get(c.species, 1)  # a showpiece's finer voxels
     if tiers:
         cs = [c for c in cs if c.rarity in tiers]
     if only:
@@ -113,10 +115,35 @@ STILL_ROLES = ('body', 'static', 'blink', 'glow')
 INSET = 0.08
 
 
+# The triangle budget below Ultra Rare (tools/art/check.py BUDGET): the
+# tiers whose creatures can carry voxels that lost their glow (rule k).
+PLAIN_BUDGET = {'Common': 15000, 'Uncommon': 15000, 'Rare': 15000}
+
+
 def describe(c):
     """Returns (meta, palette, parts) where parts is [(part, joint_pivot,
     [(kind, rgb, MeshData, mesh_name)])]. All positions are in the game
-    frame, in studs, feet at the origin."""
+    frame, in studs, feet at the origin.
+
+    Voxels that lost their glow to rule k (part.unglowed, variants "glow":
+    false) are pillowed like every other voxel. Only when that puts the
+    creature over its triangle budget do they keep the flat, greedy-merged
+    faces they had as glow (voxmesh.part_meshes), which costs what the glow
+    cost."""
+    unglowed = {p.name: p.unglowed for p in c.parts if getattr(p, 'unglowed', None)}
+    if not unglowed:
+        return _describe(c)
+    for p in c.parts:
+        p.unglowed = ()
+    out = _describe(c)
+    if out[0]['tris'] <= PLAIN_BUDGET.get(c.rarity, 0):
+        return out
+    for p in c.parts:
+        p.unglowed = unglowed.get(p.name, ())
+    return _describe(c)
+
+
+def _describe(c):
     lo, hi = c.bounds()
     centre = ((lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2])
     V = c.voxel
@@ -184,6 +211,12 @@ def describe(c):
             'lod1': lod_entry,
         })
     check_parents(c.species, {m['name']: m['parent'] for m in parts_meta})
+    # Roblox refuses a mesh over 20,000 triangles at upload; solid meshes are
+    # split below that, but a glow mesh (one per colour) is not
+    for pm in parts_meta:
+        for mm in pm['meshes']:
+            if mm['tris'] > ROBLOX_MESH_TRIS:
+                raise ValueError(f"{c.species}: mesh {mm['name']} has {mm['tris']} triangles, over Roblox's {ROBLOX_MESH_TRIS}")
     size = [(hi[0] - lo[0]) * V, (hi[2] - lo[2]) * V, (hi[1] - lo[1]) * V]
     meta = {
         'id': c.species,

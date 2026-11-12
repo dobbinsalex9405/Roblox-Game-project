@@ -5,7 +5,7 @@
 return function(config: any)
 	local e = config.economy
 	e.tower.floorPrices =
-		{ 25000, 150000, 750000, 3000000, 12000000, 40000000, 120000000, 300000000, 750000000 }
+		{ 20000, 100000, 500000, 2000000, 8000000, 25000000, 75000000, 190000000, 475000000 }
 	e.rebirth.baseCost = 50000000
 	e.rebirth.costGrowth = 4
 

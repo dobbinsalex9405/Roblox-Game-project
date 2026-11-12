@@ -39,14 +39,19 @@ local ANIMS = {
 	"leg5R",
 	"leg6L",
 	"leg6R",
+	"leg7L", -- a pill bug's seventh pair
+	"leg7R",
 	"finL", -- fins paddle when a fish swims (Walk "swim")
 	"finR",
 }
 
 -- Triangles a client draws per creature close up (LOD0), at most, by tier;
 -- past 30 studs the game draws the LOD1 meshes (4,000 at most). Agreed with
--- the game side for 8 to 10 creatures on a floor on a phone.
-local BUDGET = { 15000, 15000, 15000, 20000, 28000, 40000, 40000 }
+-- the game side for 8 to 10 creatures on a floor on a phone. Godlies may
+-- draw up to 100,000: they are 1 in 10,000 to 1 in 50,000 and the showpiece
+-- of a floor, and a floor of ten at the Legendary cap (400,000) would still
+-- need four Godlies in view to pass it (Alex, Nov 5: far more detail).
+local BUDGET = { 15000, 15000, 15000, 20000, 28000, 40000, 100000 }
 
 describe("Creature meshes", function()
 	it("cover every species, at the config's rarity", function()
@@ -83,7 +88,7 @@ describe("Creature meshes", function()
 	end)
 
 	it("say how each one walks, and swing every leg from a hip", function()
-		local GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover" }
+		local GAITS = { "trot", "waddle", "hop", "scuttle", "slither", "hover", "swim" }
 		for id, m in CreatureMeshes do
 			expect(table.find(GAITS, m.gait) ~= nil and m.gait or `{id}: gait {m.gait}`).toBe(m.gait)
 			for _, part in m.parts do

@@ -2,10 +2,86 @@
 
 ## Unreleased
 
-- Balance: the tower is a longer climb (floors 3 to 10 now cost 150K up
-  to 750M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
+- Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
+  to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and
   Legendaries, Epics and Legendaries earn more, and rebirth starts at 50M.
+- Fix: creatures that were on screen before their 3D models finished loading
+  (everything in your tower when you join) swap from blocks to their models
+  once those load, instead of staying blocks all session. A model that fails
+  to load at first (a brand-new upload) is tried again for a few minutes.
+- Fix: 16 creatures no longer have bits floating off them in the blocky
+  look shown while their models load (Llama's and Meerkat's heads, Paper
+  Crane's head and tail, BabyKraken's arms, Star Deer's antlers, Ember
+  Imp's horns and ten tails); their models are unchanged.
+- Fix: the Egg Market odds signs keep their odds after you respawn (they went
+  blank and the sign script errored after a death).
+- Creatures with a seventh pair of legs (the Pill Bug) walk with all of
+  them, so the Pill Bug can join the eggs.
+- The Gummy Bear glows softly along its back and the top of its head again,
+  so it reads as candy lit from inside rather than a solid red bear.
+- Fix: the Will-o'-Wisp is named "Will-o'-Wisp" in the Book, hatch
+  reveal and odds lists (it showed as "Will OWisp").
+- Every creature in an egg's tier now shows exactly the same odds (one
+  Meadow Egg Epic read 1 in 50,000 while the others read 1 in 33,333). Tier
+  odds are unchanged apart from rounding: the Meadow Egg's Ultra Rare is
+  1 in 358 (was 357) and its Epic 1 in 5,952 (was 5,882).
+- The Hurricane Roc has a proper hooked raptor beak, and twice as many wind
+  threads whirl around it.
+- 18 new Godlies can now hatch from the Moonlit Egg (19 Godlies there in
+  all), each 1 in 1,000,000 (a Godly from it is 1 in 52,632, was 1 in 50,000).
+- Fix: in the Hatchery Book, the tab you open loads its pictures first, so
+  a tab opened soon after joining no longer waits on the others' pictures.
+- Fix: the odds card beside an egg refits when the screen changes size, so
+  it no longer stays phone-sized after a window grows.
+- Fix: on a phone the Hatchery Book fits below Roblox's top bar; its bottom
+  edge was just off the screen.
+- The full odds list is wider where the screen allows, so long names like
+  "Dalmatian Pup (Common)" fit beside their odds (a name too long is
+  shortened, never the odds), and switching eggs starts at the top.
+- Fix: a rare egg like the Moonlit Egg rides past its Buy prompt in about a
+  second, too fast to reach "See every creature". The full odds list now has
+  a tab for every egg on the belt, so any egg's list opens the others.
+- Players who see a fixed hatch order instead of chances: the order is now
+  worked out one egg at a time, so eggs whose odds are written in tens of
+  millions (room for many more Legendaries and Epics) cost no memory. Each
+  outcome still comes exactly as often as its odds say, evenly spread.
+- Fix: for players who see a fixed hatch order, the odds card no longer
+  runs off the screen listing every creature. It shows the next three eggs
+  and one line per tier, and "See the whole order" opens the full list,
+  soonest first, each with its wait in full. The odds card never runs past
+  the bottom of the screen (a long one scrolls), and its text is never
+  smaller than 11 px, even on a phone. Each row's odds get the room they
+  need, so even "1 in 50,000" is never cut short.
+- Ten new Epic creatures can hatch: Mushroom Gnome, Troll Cub, Sapling Ent,
+  Gingerbread Golem, Petal Sprite, Frost Sprite, Ember Imp, Yeti Cub, Rime
+  Drakeling and Bonsai Dragon. They join the Epic tier's share of the eggs,
+  so no other tier's odds change.
+- Fix: on desktop, Roblox's player list no longer sits on top of the Guide
+  button (clicks opened "Examine Avatar"); the game has no leaderboard, so
+  the list is off.
+- The "YOUR HATCHERY" banner floats higher over your base sign, clear of the
+  next floor's price label, so the two no longer read as one crowded line.
+- Hatchery Book: the cards around the view (the whole Common tab today) are
+  built ahead as soon as it opens and kept while the book is closed, and
+  each card shows a dark picture well. Pictures can still take a moment to
+  appear on a fast flick.
+- Fix: Hatchery Book cards no longer show empty on a fast flick, a reopen or
+  a tab switch. Each creature is a ready-made picture, loaded when you join;
+  creatures you have not found yet are black silhouettes.
+- Fix: the Hatchery Book's pictures load faster after you join, the Common
+  tab first, so the first open no longer shows empty cards for a moment.
+- Fix: the Hatchery Book refits when the screen changes size (a window
+  resized, a phone turned), so its title is never cut off.
+
+- 32 new Uncommon creatures can hatch, among them the Arctic Fox Kit,
+  Teacup Piglet, Pangolin, Tardigrade, Shroomback Toad and the garden
+  veggie puffs (Turnipling, Carrotling, Peapod, Cornling, Radishling).
+- The Nebula Serpent is reworked: a finer, more detailed nebula coil with
+  crystal antlers, a flowing mane, whiskers and a comet tail, and four
+  little worlds (a ringed planet, an ocean world, a lava world and a moon)
+  circling it. It and the Golden Goose are each one solid piece, so
+  nothing floats loose when they hover.
 - Fix: a creature's legs, wings, tails and heads no longer flicker where
   they swing against the body (a bunny's hind feet kicking back in a hop
   showed a striped patch at the hip).

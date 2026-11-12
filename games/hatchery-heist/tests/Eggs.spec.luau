@@ -53,6 +53,21 @@ describe("Egg tiers", function()
 		end
 	end)
 
+	it("gives every creature in a tier the same weight (tools/economy/even_eggs.py)", function()
+		for _, egg in Eggs.expand(rawEggs, creatures.species) do
+			local seen: { [string]: number } = {}
+			for _, o in egg.outcomes do
+				local rarity = creatures.species[o.id].rarity
+				seen[rarity] = seen[rarity] or o.weight
+				if o.weight ~= seen[rarity] then
+					error(
+						`{egg.id}: {o.id} has weight {o.weight}, others in {rarity} {seen[rarity]}; run even_eggs.py`
+					)
+				end
+			end
+		end
+	end)
+
 	it("never moves another tier's odds when a creature is added", function()
 		local before = byId(Eggs.expand(rawEggs, creatures.species))
 		local more = table.clone(creatures.species)
@@ -81,9 +96,30 @@ describe("Egg tiers", function()
 		raccoon.weight = 0.5
 		more.Raccoon = raccoon
 		local moonlit = byId(Eggs.expand(rawEggs, more)).MoonlitEgg
-		-- Fennec, Owlet and Panda Cub at 1, the Raccoon at 0.5: 1 part in 7
-		-- of the Moonlit Egg's 30,000 Rare weight.
-		expect(moonlit.Raccoon).toBe(4286)
-		expect(moonlit.Fennec + moonlit.Owlet + moonlit.PandaCub + moonlit.Raccoon).toBe(30000)
+		local rare = 0
+		for _, egg in rawEggs do
+			if egg.id == "MoonlitEgg" then
+				rare = egg.tiers.Rare
+			end
+		end
+		-- Every other Moonlit Rare at its own weight (1 unless set), the
+		-- Raccoon at 0.5: it gets 0.5 parts of the tier, and the tier's total
+		-- stays exactly the same. Counted from the config, so new Rares in the
+		-- pool don't break it.
+		local parts = 0
+		for id, c in more do
+			if id ~= "Raccoon" and c.rarity == "Rare" and table.find(c.pools, "Moonlit") then
+				parts += (c :: any).weight or 1
+			end
+		end
+		expect(parts).toBeAtLeast(1)
+		expect(math.abs(moonlit.Raccoon - rare * 0.5 / (parts + 0.5))).toBeAtMost(1)
+		local tier = 0
+		for id, w in moonlit do
+			if more[id].rarity == "Rare" then
+				tier += w
+			end
+		end
+		expect(tier).toBe(rare)
 	end)
 end)

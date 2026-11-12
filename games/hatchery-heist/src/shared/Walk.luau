@@ -272,8 +272,9 @@ end
 
 local LEG_SETS: { [string]: number } = {
 	-- +1 swings with the first beat, -1 against it. Bug legs alternate down
-	-- each side (left 1, 3, 5 with right 2, 4, 6), so six legs walk as two
-	-- tripods and a spider's eight as two sets of four.
+	-- each side (left 1, 3, 5, 7 with right 2, 4, 6), so six legs walk as two
+	-- tripods, a spider's eight as two sets of four and a pill bug's
+	-- fourteen as two sets of seven.
 	legFL = 1,
 	legBR = 1,
 	legFR = -1,
@@ -286,19 +287,21 @@ local LEG_SETS: { [string]: number } = {
 	leg4R = 1,
 	leg5L = 1,
 	leg6R = 1,
+	leg7L = 1,
 	leg1R = -1,
 	leg2L = -1,
 	leg3R = -1,
 	leg4L = -1,
 	leg5R = -1,
 	leg6L = -1,
+	leg7R = -1,
 }
 
 -- Gaits whose numbered (sideways) legs swing about Y; hop and hover keep
 -- their own leg poses.
 local SIDEWAYS_GAITS: { [string]: boolean } = { scuttle = true, trot = true, waddle = true }
 
--- Bug, crab and spider legs (leg1L..leg6R) stick out sideways, so they swing
+-- Bug, crab and spider legs (leg1L..leg7R) stick out sideways, so they swing
 -- about the vertical axis; +1 for the right side, -1 for the left, so both
 -- reach forward on a positive swing.
 local function sideways(anim: string): number?

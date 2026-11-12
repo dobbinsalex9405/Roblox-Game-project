@@ -11,8 +11,8 @@ Non-obvious choices, newest first, so a later session can trust them.
   stopped rising, because only floors cost enough to matter. The Meadow Egg
   was skipped entirely (6x cheaper than Moonlit for 22x worse Rare odds).
   Rebirth cost 120K, less than floor 3, while wiping every creature.
-- **Changed:** floor prices 25K, 150K, 750K, 3M, 12M, 40M, 120M, 300M,
-  750M (were x3 up to 165M); rebirth 50M, x4 each time (was 120K, x3);
+- **Changed:** floor prices 20K, 100K, 500K, 2M, 8M, 25M, 75M, 190M,
+  475M (were x3 up to 165M; retuned Nov 12 for the 509-creature roster); rebirth 50M, x4 each time (was 120K, x3);
   Meadow Egg 1,500 coins and 30 s with better odds; Moonlit Egg 20,000
   coins with Rare-and-up odds lowered (Epic 1 in 526, Legendary 1 in
   11,111, Godly 1 in 100,000); Basic Egg UR and Epic odds halved; Epic
@@ -28,6 +28,277 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Not done here (Alex decides, in the economy proposal):** new eggs that
   unlock with the tower, so income keeps rising after day 14; every Robux
   price and placement.
+## 2026-11-09: CI runs as three parallel jobs behind the required check
+
+- #168's single check job took 30.5 min: art export 14 min, setup and tests
+  9 min, audit 4 min. Legendaries would push it past 35.
+- Build/tests/boot/key flows, the art export and the audit now run side by
+  side. The required "Format, lint, test, build, type check" job waits for all
+  three and passes only if each did, so branch protection is unchanged.
+
+## 2026-11-08: to_config checks the mesh for glow and reports every problem
+
+- A creature below Ultra Rare is held back when its Blender build glows, not
+  only its stand-in: blender/luau.py writes a mesh's glowing voxels as
+  CreatureMeshes `glow` pieces and the game draws those as neon at any tier.
+  Go-live batch 10 uploaded 19 Rares and 17 of them glowed; two (AmethystMole,
+  BabyOctopus) glowed only in the mesh, which the old check missed.
+- Every reason a creature is held is printed (budget, detail floor, stand-in
+  glow, mesh glow), not just the first. The floor is 60% of the tier below's
+  budget (Uncommon 18, Rare 26), the rule VoxelArt.spec enforces.
+- `python3 tools/art/to_config.py --screen ID,ID,...` runs the same checks on
+  built creatures before their mesh run, uploaded or not, so a batch is
+  screened before any upload is spent. It also holds a creature whose
+  stand-in has a part with no way back to the body, where export.py would
+  stop (HerculesBeetle and ClockworkBeetle name their body "shell").
+- A stand-in piece that touches nothing else, not even at an edge or corner,
+  holds a creature back too (GorillaBaby's head box floated one row above
+  its head; Scorpion's stinger and a PomPom fur voxel did the same). Parts
+  named orbit, bubble, motes, rain or cloud float on purpose and pass. A
+  creature already live is reported ("live, kept") and never dropped; its
+  fix is a roster patch.
+
+## 2026-11-08: Legendary stand-ins fit their box budget in code
+
+- 25 of the 48 Legendaries drew 453 to 1022 in-game boxes, over the 450
+  budget, so to_config.py would have kept them out of the game. Legendaries
+  are built in tools/art/legendaries.py, not roster JSON, so the fit is code:
+  `fit_stand_in` runs last, on the coarse build only, and only when a
+  creature is over budget. It merges near-identical shades on each part,
+  then gives the smallest flecks of pattern (one voxel, then two, and so on,
+  heaviest part first) the colour around them, so big markings stay. A
+  coarser-grid redraw (`kit_epicmyth._fit_budget`, as the Epics use) is only
+  the last resort, and none of today's 25 needs it: a first try that used it
+  turned a peacock's tail eyes into blobs and wiped shell and coat patterns.
+  The eyes are never touched. A Legendary whose name is its marking (the
+  peacock's tail eyes, the snowy owl's speckles, the treant's blossoms, the
+  dragon's coin pile) gets a `FIT` entry that keeps the marking and takes
+  the boxes elsewhere: a part's hidden back filled, a ring made chunkier,
+  colours in patches, coins lifted onto the pile.
+- The meshes and thumbnails are untouched (fine-build hashes identical).
+  tools/art/tests/test_legendary_boxes.py fails on any Legendary over budget
+  and on any change to the fine build.
+
+## 2026-11-08: Rule k is a roster switch and a test
+
+- No creature below Ultra Rare glows. A creature that does gets `"glow": false`
+  on its roster entry (variants.py): its colours stay, as plain solid colour,
+  and a part that pulsed only to glow stands still. The switch beats any
+  `"glow": true` on its patterns or accessories, so kit code stays shared.
+- tools/art/tests/test_no_glow.py builds every creature at mesh detail and as
+  the in-game stand-in and fails on any glow below Ultra Rare. Both builds are
+  checked because they can differ (MuskOxCalf glowed only in the stand-in).
+
+## 2026-11-08: CI reuses a passed creature-art export check
+
+- The art-export step is skipped when a pass is cached under the hash of its
+  inputs (tools/art, tools/economy, HH config, the generated files, ci.yml),
+  so a PR that leaves the art alone saves about 9 minutes.
+
+## 2026-11-08: CI's main job gets 45 minutes, not 20
+
+- **Main's CI on go-live batch 7 (#154) was cancelled by the 20-minute job
+  limit** in the player's-eye audit, with every earlier step green. C6 had
+  finished in 19.5 minutes; each batch adds creatures to the art export
+  (about 9 minutes now) and the audit, so every later batch would hit it.
+- **45 minutes leaves room for the remaining go-live batches.** A real hang
+  still ends the run. If a run nears 35 minutes, split the job rather than
+  raise the limit again.
+
+## 2026-11-07: Commons go in game at 31 boxes or fewer (Hatchery Heist)
+
+- **`to_config.py` holds a Common back above 31 in-game boxes**, not the
+  spec's 36. VoxelArt.spec's "more detailed as rarity rises" check wants the
+  plainest Uncommon (18 boxes, live) at least 60% of the heaviest Common,
+  so a 32-box Common fails CI. Go-live C1 hit it with Aphid (32), Centipede
+  (32) and BeardedDragon (36); they wait for a slimmer in-game drawing.
+- **Not coarsened automatically:** `fit_boxes` on these lost the Aphid's
+  and Centipede's antennae and the dragon's legs (its legs are split from
+  the body after accessories run). A hand fix of each drawing is better.
+
+## 2026-11-07: Every creature in an egg tier gets the same weight (Hatchery Heist)
+
+- **`tools/economy/even_eggs.py` writes the coin eggs' tier weights** from
+  target odds and each pool's member count, so every odds card in a tier
+  reads the same "1 in N". Largest-remainder splits left ones 1 point apart,
+  which in small tiers showed as visibly different odds (a Meadow Epic at
+  1 in 50,000 beside 1 in 33,333). Eggs.spec and CI fail until it is rerun
+  after a pool changes; go-live batches rerun it with to_config.
+- **Totals stay powers of ten** (Basic and Meadow 1,000,000, Moonlit
+  10,000,000, Premium 100,000) because the odds screen prints percentages
+  in steps of 1 / total and paid random items must add up to exactly 100%.
+  The rounding goes to whichever tiers it shifts least, usually Common and
+  Uncommon.
+- **Every Godly is exactly 1 in 1,000,000** in the Moonlit Egg, however many
+  there are; the Godly tier grows with the roster. The Premium Egg is
+  checked, not rewritten (its tiers are already even).
+
+## 2026-11-05: The 18 new Godlies from the master sheet (Hatchery Heist)
+
+- **Hand-built, like the legends**, not roster data: tools/art/godlies.py
+  lists them (id, element) and creatures.py adds them to the ROSTER and to
+  FINER (1.6x, the Godly standard). godly_beasts.py draws the ones on legs,
+  godly_skies.py the fliers, floaters and swimmers; godly_common.py holds
+  the shared pieces (eyes proud of the face in a `blink` part, legs as leg
+  parts, wings, the orbit). The game picks one up when config/creatures.luau
+  lists it.
+- **One `orbit` part each, placed by `orbit_ring`**: every piece sits just
+  outside everything else at its height (plus room for the head and wings),
+  and the sweep stays at or under 0.8x the creature's height; a piece that
+  cannot fit is a build error, never a silent overlap. A round floater (the
+  Cosmic Whale) may carry its moons above its back; the added height counts.
+- **Long or wide bodies are drawn a little smaller** (Solar Lion, Omega
+  Chimera, Magma Behemoth, World Turtle, Crystal Hydra, the dragons) to stay
+  inside 100k triangles; long, low or round bodies a little bigger (Cosmic
+  Whale, Clockwork Leviathan, Crystal Swan, Hurricane Roc) so their voxels
+  match the rest once the game scales every Godly to 6 studs tall.
+- **The swimmers swim level** (the strict review: they must read as a whale):
+  the Clockwork Leviathan and the Cosmic Whale are long and low, their
+  orbits ride above the back, and they swim (tail sweeps, flippers paddle).
+  Scaled to 6 studs tall they are about 15 and 10.5 studs long: longer than
+  the 10-stud depth of the three-spot area, inside its 30-stud width; the
+  reviewer asked for the Leviathan at least 3x as long as tall.
+- **They hover** (rig: Legendary and Godly always hover); legs, tentacles
+  (Thunder Kraken: leg1..leg3 each side) and fins are still their own parts,
+  so the hover pose tucks and paddles them.
+
+## 2026-11-05: Nebula Serpent v4, finer voxels for Godly showpieces (Hatchery Heist)
+
+- **Alex: Godlies must be far more detailed; the Nebula Serpent needs planets
+  orbiting it; the Golden Goose stays as it is.** Only the serpent changed.
+- **Finer voxels per species, not per tier.** `FINER` in tools/art/creatures.py
+  draws a showpiece with smaller voxels in the Blender build (the serpent at
+  1.6x: 0.0625-stud voxels, same size in studs). A tier-wide change would
+  have changed the Goose Alex approved. **1.6x is the standard for every
+  new Godly** (Alex, 11:51Z: smaller voxels for more detail); the Goose
+  keeps its approved build unless its size changes.
+- **Godly triangle budget 40,000 -> 100,000** (CreatureMeshes.spec). The
+  serpent is 93k close up and 2.6k past 30 studs (LOD1). A floor of ten at
+  the Legendary cap is 400k; it takes four Godlies in view (1 in 10,000 to
+  1 in 50,000 each) to pass that.
+- **The in-game boxes (VoxelArt, the fallback while meshes load) skip the
+  fine surface detail** (scales, clouds, dithering, extra fins and crystals),
+  so the serpent stays within the Godly 800-box budget (794).
+- **Worlds never pass through the body.** Each orbiting world sits further
+  out than anything else at its height, plus room for the head to turn.
+- **Godlies are one solid piece, face to face**, like rig.weld makes the
+  Common to Epic tiers (weld leaves Legendary and Godly alone). The Goose's
+  look is kept: its toes, nest, egg, crown and tail were joined with a straw
+  bed, two straw strands to the feet and filled corners, nothing redrawn.
+## 2026-11-07: New creatures fit the in-game box budget with `fit_boxes` (Hatchery Heist)
+
+- **What:** a roster creature over its tier's stand-in box budget (UR 80,
+  Epic 120) adds the `fit_boxes` accessory last (`tools/art/kit_aura.py`).
+  In the in-game boxes only, it redraws the heaviest parts on a 2-voxel
+  grid, then a 3-voxel grid (`kit_epicmyth._fit_budget`), never the face
+  or legs; `"head": true` also coarsens a big round head (NeonOctopus).
+  The Blender meshes players see once loaded are untouched, so uploaded
+  models stay valid.
+- **Why:** `to_config.py` holds back any creature over budget, and three
+  of the four URs in #128 were (87 to 117 boxes).
+
+## 2026-11-07: Live creatures keep their eyes until re-uploaded (Hatchery Heist)
+
+- **What:** the eye pass (`variants.eye_contrast`: a white shine, deeper
+  ink and, if needed, a faint ring on dark faces) skips the species in
+  `variants.EYE_CONTRAST_KEEP`. Those are 11 live creatures that landed
+  after the eye pass was built (BabyKraken, BearCub, CocoaBunny, Cricket,
+  Crow, GemDrake, Lemming, Skunk, StarWhaleCalf, StormHawk, TapirCalf) and
+  Binturong, whose shine would put it 84 tris over the Uncommon budget.
+- **Why:** turning the pass on for them would change their box art and
+  pictures at once, and their meshes would no longer match the uploaded
+  models. No live creature may change without a review and an upload.
+- **How a creature leaves the list:** re-review its art with the eye pass,
+  upload its mesh (and its picture), and remove its id in the same PR.
+
+## 2026-11-07: Uploads for live creatures go up only when the PR lands next (Hatchery Heist)
+- **What:** an upload run that republishes a live creature under its
+  existing asset id (a new model version, `tools/art/blender/upload.py`) is
+  dispatched only when its PR can merge right after. Otherwise the model
+  goes up as a new asset id.
+- **Why:** a new version of an asset id reaches Staging (and Production)
+  at once, but its new palette id only arrives with the PR's
+  `CreatureMeshes.luau`. In between, players get the new mesh with the old
+  palette, which can paint the wrong colours. This happened with #96's
+  eye-pass upload of Calf, Butterfly, Monarch, Platypus and BeaverKit, made
+  while #96 waited behind other merges.
+- **How:** the verifier schedules such uploads in the upload queue next to
+  the PR's merge slot. If the PR is held, upload later (or under a new id).
+
+## 2026-11-07: Fixed hatch order is worked out per place (Hatchery Heist)
+
+- Restricted players (PolicyService: no paid random items) get a fixed
+  order. It was a smooth weighted round robin built as a whole table, one
+  entry per egg of the cycle, which a 10,000,000 egg total would make a
+  10-million entry table per egg. Now outcome i (reduced weight w) takes
+  its k-th turn at (2k + 1) / (2w) of the way round, ties to the earlier
+  outcome, and any place or wait is computed from those turns in whole
+  numbers (`Hatchery.fixedOrderOutcome` / `fixedOrderWait`). Same promise:
+  exactly w per cycle, evenly spaced, shown before purchase. The order a
+  restricted player sees can differ from the old one after this ships;
+  nothing is owed, since the counts per cycle are unchanged.
+
+## 2026-11-07: Open Cloud saves wait out Roblox's "Server is busy" (409)
+
+- Roblox answers `409 Conflict: Save failed. Server is busy` to a place save
+  for a minute or two after any other save to the same place, whichever
+  workflow made it (a Staging publish, a real-engine check, or two checks
+  dispatched close together). On 2026-11-07 it failed one Staging publish
+  twice and one real-engine check, each fixed only by a hand re-run.
+- Both tools that save a place (`tools/publish/run.luau` and
+  `tools/cloud/run.luau`) now share `publish/lib.retryDelay`: a 409 waits
+  45 s, then 90 s, then 135 s before giving up (about 4.5 minutes, enough
+  for the earlier save to settle); 429 and 5xx keep their short doubling
+  waits; every other status is a real failure and still fails at once, so a
+  wrong key or a bad place never retries.
+- The verifier still dispatches one save at a time; the retry is the net
+  under that rule, not a licence to run checks in parallel.
+
+## 2026-11-07: The Hatchery Book shows rendered pictures, not live 3D
+
+- **What:** every creature gets a Blender-rendered Book picture
+  (`build.py --thumbs`, uploaded as an Image by the Upload creature meshes
+  workflow with `art = thumbs`, listed in `CreatureThumbs.luau`). The Book
+  shows the picture on an ImageLabel, tinted dark for creatures not yet
+  found, and keeps the live ViewportFrame only for a creature with no
+  current picture.
+- **Why:** Roblox draws a ViewportFrame only while it is on screen and
+  redraws it after it comes back, a few a frame. Three rounds of the Studio
+  gate on #119 showed empty cards on a fast flick, a reopen and a tab
+  switch however early the cards were built. An image has no such delay
+  once loaded, and the pictures are preloaded at join.
+- **Pictures follow the art:** each records a fingerprint of the meshes,
+  colours and picture style it came from. A creature whose art changed
+  drops out of the map until it is drawn again, so the Book never shows an
+  old look. Pictures are framed to the creature's outline, so a mouse and a
+  serpent fill their cards alike (the Book is a collection, not a size
+  chart), and Legendaries and Godlies are drawn level, without their hover.
+
+## 2026-11-07: Big Epics fit their 120-box stand-in by coarsening, not by losing detail
+
+- **The in-game box art (VoxelArt, drawn before the meshes load) of the
+  twelve Epics in `tools/art/kit_epicmyth.py` keeps to the Epic budget of
+  120 boxes by redrawing its heaviest parts on a 2-voxel grid (then a
+  3-voxel grid if needed)**, never the head, eyes, ears, legs or small
+  glowing features. The Blender meshes, which players see once loaded,
+  are built from the full-detail voxels and are untouched. The kit_myth
+  plans were sized for Legendaries (450 boxes); without this, serpents,
+  the kraken and the golem came to 130 to 200 boxes.
+- **The count is taken after `creatures.build_all`'s one-part-per-voxel
+  step**, because that step punches holes in the body where the head
+  overlaps it and adds boxes; counting earlier left creatures 5 to 30
+  boxes over.
+
+## 2026-11-05: Roblox's player list is off in Hatchery Heist
+
+- On desktop the player list (top right) covered the side menu's top
+  button, and clicks opened "Examine Avatar" instead of the Guide. The game
+  has no leaderboard stats, so the list only showed names; switching it off
+  (`config/atmosphere` `guide.playerList = false`) beats moving the menu,
+  whose top would still depend on how many players the list shows. Players
+  can still friend or report each other from their avatars and the Roblox
+  menu. If leaderboard stats are ever added, turn it back on and start the
+  side menu below it.
 
 ## 2026-11-05: The elevator set is plain blocks; world viewer meshes are flat
 
@@ -120,6 +391,21 @@ Non-obvious choices, newest first, so a later session can trust them.
   to well under a Godly's height) and over per-creature bounds (one more
   number to set on every new creature). Ridden or carried, the cap scales
   with the size.
+
+- **Each upgrade is one room-wide layer** you see from the doorway, plus
+  the small themed props: 1 beds on all eight pads, 2 a 40 x 20 rug, 3
+  four ceiling lights (real lights), 4 corner plants and a crest. The
+  economy (+0.05 per upgrade, 20/35/50/75%) is unchanged; only what it
+  shows. Floor 1 is a fixed starter room, as it has no upgrades.
+- **The client furnishes, not the server.** A furnished floor is about
+  1,500 boxes, ten floors on every base would be far too many Parts to
+  replicate. The server writes two plot attributes (`TowerFloors`,
+  `TowerUpgrades` "0,2,4,..."); each client builds only the 6 floors
+  nearest its camera, a few hundred boxes a frame, and drops them again
+  far away.
+- **Space rules are tested**, not eyeballed: creature cells, elevator
+  shaft and door, ladder opening, windows, pictures, ceiling
+  (`tools/art/world/rooms_layout.py`, `tests/TowerDecor.spec.luau`).
 
 ## 2026-11-05: Creatures wander their spots and walk with real gaits (Hatchery Heist)
 
@@ -245,7 +531,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   polish thread's placer build them. No letters or numbers in the art: the
   game shows WorldArt-format props mirrored left to right.
 - **Shell pieces collide, decor does not.** About 2,400 boxes in all.
-
 
 ## 2026-11-05: Creature colours are Image assets, not Decals (Hatchery Heist)
 
@@ -476,6 +761,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Drops go to /mnt/project-files/designs** (shared, outlives threads), not
   the repo: designs are for looking at before anything is decided, and big
   .glb files do not belong in git.
+
 ## 2026-11-05: Creature meshes v2 (Hatchery Heist)
 
 - **One voxel size, 0.1 stud, for every tier.** Alex approved it on the
@@ -492,8 +778,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   Godlies, the look Alex had just approved.
 - **The Blender-only shapes** (round Piglet, flatter snouts, short beaks) are
   gated on `c.fine`, so the in-game boxes (VoxelArt) do not change.
-
-
 
 ## 2026-11-05: Tier-then-creature odds and flatter sizes (Hatchery Heist)
 
@@ -562,6 +846,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   arrow's "▼" are not in the game fonts and showed as boxes. The goal line
   has a drawn gold "GOAL" tag and the arrow is two frames. Emoji are fine:
   Roblox draws them with its emoji font.
+
 ## 2026-11-05: Creature meshes from Blender (Hatchery Heist)
 
 - **Meshes are generated from the voxel art, not modelled separately.**
@@ -652,6 +937,7 @@ Non-obvious choices, newest first, so a later session can trust them.
   about 8 for a Meadow Egg).
 - **`VoxelArt.luau` is generated and skipped by StyLua** (it would put each
   number on its own line); CI re-runs the exporter and fails if it differs.
+
 ## 2026-11-05: Games start without DataStores (Studio)
 
 - A built `.rbxl` opened in Studio is an unpublished place, where
@@ -708,7 +994,6 @@ Non-obvious choices, newest first, so a later session can trust them.
 - The gate is a commit status (`visual-playtest`, `.github/workflows/visual-gate.yml`)
   because GitHub Free cannot require checks on a private repo; the verifier
   merges only when it is green.
-
 
 ## 2026-11-04: Place parts in project files with CFrame, and check the ground
 
@@ -879,6 +1164,7 @@ Non-obvious choices, newest first, so a later session can trust them.
 - **Triage process in `ops/FEEDBACK.md`:** severity 1-3, fix with a failing
   test first, verified by the playtest thread, auto-merged, production by
   Alex's click.
+
 ## 2026-11-01: Boot check and key flows gate every merge and publish
 
 - **Why.** PR #5 merged with a start-up assert in Street Food Empire's

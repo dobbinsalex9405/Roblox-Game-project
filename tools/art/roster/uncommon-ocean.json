@@ -1,0 +1,7 @@
+{
+ "note": "The last two Uncommons from the master list: a squid and a cuttlefish (kit_cephalo, plan cephalopod). Owner: Common A builder.",
+ "creatures": [
+  {"id": "Squid", "rarity": "Uncommon", "plan": "cephalopod", "gait": "scuttle", "options": {"kind": "squid"}, "colors": {"col": "#F2B6C0", "accent": "#D9667E", "belly": "#FFF0F2"}},
+  {"id": "Cuttlefish", "rarity": "Uncommon", "plan": "cephalopod", "gait": "swim", "options": {"kind": "cuttlefish"}, "colors": {"col": "#B98A6A", "accent": "#5E3F33", "belly": "#F3E6D2"}}
+ ]
+}

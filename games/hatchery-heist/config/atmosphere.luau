@@ -184,8 +184,35 @@ return {
 	-- The guide's gold arrow and beam hide once you are this close (studs,
 	-- flat) to where they point, so they never sit on top of the Buy prompt
 	-- you came for (Studio gate, Nov 5).
+	-- The Hatchery Book draws only the cards near the screen (client/
+	-- BookView). overscanRows past each edge are drawn at once; while the
+	-- book is open it then builds more, outward from the view, warmPerFrame
+	-- a frame, until warmCards are built, because a new card's picture takes
+	-- up to a second to draw its first frame (Studio gate, Nov 5 and 7: a
+	-- fast flick showed empty cards). 144 keeps the whole Common tab warm and
+	-- covers a 1,400 px flick on a 200-card tab. Warming starts
+	-- warmDelaySeconds after a tab is shown (0: at once), and built cards
+	-- are kept while the book is closed. Pictures can still take a moment
+	-- to draw on a fast flick: Roblox draws a ViewportFrame only while it
+	-- is on screen, so a creature with a picture (CreatureThumbs) shows that
+	-- instead. The pictures load at join in page order, preloadStreams
+	-- requests at a time, preloadBatch pictures each (Studio gate, #125);
+	-- a tab the player opens jumps the queue.
+	book = {
+		overscanRows = 2,
+		warmCards = 144,
+		warmPerFrame = 8,
+		warmDelaySeconds = 0,
+		preloadStreams = 4,
+		preloadBatch = 6,
+	},
 	guide = {
 		arrivedStuds = 8,
+		-- Roblox's player list (top right on desktop) sat over the side
+		-- menu's top button, so clicks opened "Examine Avatar" instead of the
+		-- Guide (Studio gate, Nov 5). The game has no leaderboard stats, so
+		-- it stays off; true brings it back.
+		playerList = false,
 	},
 	music = {
 		-- Roblox audio asset ids (numbers), played in order and looped. Only
@@ -214,6 +241,17 @@ return {
 		cullStuds = 180, -- your own tower's creatures farther than this are not drawn
 		cullOtherStuds = 100, -- other players' tower creatures: the neighbours either side (84 away)
 		animateOtherStuds = 60, -- other players' tower creatures hold still beyond this
+	},
+	-- A species' meshes reaching the client (shared/MeshArrival).
+	creatureMeshes = {
+		-- Wait at most this long for all of a species' meshes to replicate
+		-- before loading them (they trickle in after the model itself).
+		arriveSeconds = 30,
+		-- A failed load is tried again after each of these waits: a fresh
+		-- upload can fail for a few minutes while Roblox still generates its
+		-- texture (Studio gate, #137). About 8 minutes in all, then the
+		-- species stays voxel boxes.
+		retrySeconds = { 5, 15, 45, 120, 300 },
 	},
 	-- Creature meshes past this many studs from the camera draw their far
 	-- (LOD1) version: a few thousand triangles instead of up to 100,000.

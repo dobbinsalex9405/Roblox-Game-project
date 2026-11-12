@@ -52,8 +52,8 @@ Each base is a cozy apartment-style tower of 10 floors (`economy.tower`,
 map (Alex, Nov 5). Floors: 1 Cozy Studio, 2 Book Nook, 3 Plant Sunroom,
 4 Bakery Kitchen, 5 Games Lounge, 6 Winter Cabin, 7 Art Studio, 8 Rooftop
 Garden, 9 Starlit Observatory, 10 Golden Sky Penthouse.
-Floor 1 is free; each next floor costs `floorPrices` (25K, 150K, 750K, 3M,
-12M, 40M, 120M, 300M, 750M) and must be built in order. A floor has 8 spots in a
+Floor 1 is free; each next floor costs `floorPrices` (20K, 100K, 500K, 2M,
+8M, 25M, 75M, 190M, 475M) and must be built in order. A floor has 8 spots in a
 4 by 2 grid. A creature takes 1 spot up to Ultra Rare, 2 for Epic and 3 for
 Legendary and Godly (`slotsByRarity`), side by side in one row.
 

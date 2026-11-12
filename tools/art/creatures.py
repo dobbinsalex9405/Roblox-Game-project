@@ -7,6 +7,7 @@ import math
 import os
 from voxkit import Creature, Part, hexc
 import legends
+import godlies
 import rig
 
 VOXEL = 0.25  # studs per voxel in game
@@ -38,6 +39,68 @@ def blush(head, x_off, z):
 
 
 # ---------------------------------------------------------------- body plans
+
+def owlet(c, H):
+    """The Owlet: the bird plan with an owl's face. A pale heart-shaped facial
+    disc with a brown rim, big round black eyes with a white glint, a brown V between them and a small hooked beak pointing down (not
+    a duck's bill), under feathered ear tufts."""
+    col, rim = P('#B07A4A'), P('#8A5A33')
+    bird(c, H, col, belly=P('#F2D49B'), beak=P('#FFB627'), wing=rim, big_eyes=True, tuft=True, crest=rim)
+    head = next(p for p in c.parts if p.name == 'head')
+    eyes_p = next(p for p in c.parts if p.name == 'eyes')
+    old = list(eyes_p.v)
+    ez = round(sum(q[2] for q in old) / len(old) - 0.5)
+    for q in old:  # fill the plan's eye holes back in
+        head.put(q, col)
+    eyes_p.v = {}
+    for q in [q for q, v in head.v.items() if v[0] in (P('#FF9418'), P('#FFB627'), BLUSH)]:
+        del head.v[q]  # the plan's bill and blush
+    head.v = {q: v for q, v in head.v.items() if q[2] != ez - 1 or q[0] not in (-1, 0) or
+              q[1] >= min(p[1] for p in head.v if p[2] == ez)}  # no bill stub
+    xs = [q[0] for q in head.v if q[2] == ez]
+    r = 1 if max(xs) - min(xs) + 1 >= 9 else 0
+    cx = r + 1  # right eye centre; the left mirrors it (x -> -1 - x)
+    disc, cream, beak, tip = P('#F6E6C4'), P('#FBF3DE'), P('#A89478'), P('#4A3C30')
+
+    def mx(x):
+        return x if x >= 0 else -1 - x
+
+    for x in range(min(xs) - 1, max(xs) + 2):
+        for z in range(ez - r - 3, ez + r + 2):
+            f = head.front(x, z)
+            if not f:
+                continue
+            d = math.hypot(mx(x) - cx, z - ez)
+            if mx(x) <= 0 and z >= ez + r:
+                head.put(f, rim)  # the V between the discs
+            elif d <= r + 0.5:
+                pass  # the eye itself, below
+            elif d <= r + 2.3 and z >= ez - r - 2:
+                head.put(f, disc if mx(x) > 0 or z < ez else cream)
+            elif d <= r + 3.0:
+                head.put(f, rim)
+    for x in range(-cx - r - 1, cx + r + 1):
+        for z in range(ez - r, ez + r + 1):
+            if math.hypot(mx(x) - cx, z - ez) > r + 0.5:
+                continue
+            f = head.front(x, z)
+            if not f:
+                continue
+            if r and z == ez - r and mx(x) != cx:
+                head.put(f, disc)  # round off the bottom of each eye
+                continue
+            del head.v[f]
+            eyes_p.put(f, WHITE if (r and z == ez + 1 and ((x >= 0 and x == cx - 1) or (x < 0 and x == -1 - cx - 1))) else INK)
+    # a small hooked beak: out of the face between the eyes, curving down
+    fy = min(q[1] for q in head.v if q[2] in (ez - 1, ez - 2) and q[0] in (-1, 0))
+    for x in (-1, 0):
+        head.put((x, fy - 1, ez - 1), beak)
+        head.put((x, fy - 1, ez - 2), beak)
+        if r:
+            head.put((x, fy - 1, ez - 3), tip)
+            head.put((x, fy, ez - 3), tip)
+    return c
+
 
 def pig_body(c, k, col, snout):
     """A round piglet for the finer Blender build: a barrel body as wide as
@@ -341,8 +404,28 @@ def quadruped(c, H, col, belly=None, snout=None, ears='pointy', ear_col=None, ta
         elif ears == 'long':  # bunny
             earp.box((round(bx - 0.4 * k), round(-2.0 * k), round(7.6 * k)), (round(bx + 0.4 * k), round(-2.0 * k) + max(0, round(0.3 * k)), round(10.6 * k)), ec)
             earp.box((round(bx), round(-2.0 * k) - 1, round(8.0 * k)), (round(bx), round(-2.0 * k) - 1, round(10.0 * k)), BLUSH)
-        elif ears == 'floppy':
+        elif ears == 'floppy':  # an upright flap beside the head (in-game meshes use it; new creatures: 'hanging')
             earp.box((round(bx * 1.7), round(-2.4 * k), round(5.0 * k)), (round(bx * 1.7) + (0 if k < 1.2 else 1), round(-1.8 * k), round(7.4 * k)), ec)
+        elif ears == 'hanging':  # hangs from the top of the head, hugging its side, down past the jaw
+            zt = max(p[2] for p in head.v)
+            z_top, z_bot = zt - max(1, round(0.4 * k)), round(3.6 * k)
+            thick = max(1, round(0.35 * k))
+            yc = -2.4 * k
+            edge = None
+            for z in range(z_top, z_bot - 1, -1):
+                xs = [p[0] for p in head.v if p[2] == z and abs(p[1] - yc) <= 1.2 * k]
+                if xs:
+                    edge = max(xs)
+                if edge is None:
+                    continue
+                t = (z_top - z) / max(1, z_top - z_bot)  # 0 at the root, 1 at the tip
+                half = (0.3 + 0.55 * math.sin(min(1.0, t * 1.25) * math.pi * 0.6)) * k  # narrow root, wide rounded tip
+                if t > 0.85:
+                    half *= 1.0 - (t - 0.85) * 2.5
+                out = round(t * 0.4 * k)  # the tip swings a little away from the cheek
+                for xx in range(edge + 1 + out, edge + 1 + out + thick):
+                    x = xx if sx > 0 else -xx - 1
+                    earp.box((x, round(yc - half), z), (x, round(yc + half), z), ec)
     # tail
     tc = tail_col or col
     tl = c.part('tail', 'tail' if c.rarity != 'Common' else 'static', (0, 3.4 * k, 3.4 * k))
@@ -684,6 +767,10 @@ def blob(c, H, kind, col, accent, glow=None):
             x = round(sx * 0.6 * k) - (1 if sx < 0 else 0)
             head.put((x, round(-3.0 * k), round(3.2 * k)), INK)
             head.put((x + sx, round(-3.2 * k), round(3.8 * k)), INK)
+        if getattr(c, 'fine', False):
+            # taller legs, so each shows three voxels below the shell
+            import kit_refit
+            kit_refit.lift(c, max(1, round(1.0 * k)))
     elif kind == 'axolotl':
         body.ell((0, 0.8 * k, 2.2 * k), (1.8 * k, 3.4 * k, 1.6 * k), col)
         head.ell((0, -2.4 * k, 3.4 * k), (2.4 * k, 1.8 * k, 1.8 * k), col)
@@ -808,9 +895,30 @@ def P(h):
     return hexc(h)
 
 
+
+def _legacy(c, H, accs):
+    """Applies kit_legacy accessories (the strict review's signature fixes)
+    to a creature from the list below: (kind, colour, colour2, options)."""
+    import kit_legacy
+    for kind, col, col2, opts in accs:
+        kit_legacy.ACCESSORIES['lg_' + kind](c, H, hexc(col), hexc(col2) if col2 else None, dict(opts, kind=kind))
+    return c
+
+
+def _entry(e):
+    """A live creature rebuilt from a roster-style entry (plan, colours,
+    options, shape, accessories), so it can use the kit modules."""
+    def build(c, H):
+        import variants
+        return variants.builder(dict(e, id=c.species, rarity=c.rarity))(c, H)
+    return build
+
+
 ROSTER = [
     # Common
-    ('Chick', 'Common', lambda c, H: bird(c, H, P('#FFD93B'), belly=P('#FFE97A'))),
+    ('Chick', 'Common', lambda c, H: _legacy(bird(c, H, P('#FFD93B'), belly=P('#FFE97A')), H,
+                                             [('bird_beak', '#FF9418', None, {'style': 'small'}),
+                                              ('tidy2', '#000000', None, {})])),
     ('Duckling', 'Common', lambda c, H: bird(c, H, P('#FFF06A'), beak=P('#FF8C1A'), belly=P('#FFF6A8'), bill=True)),
     ('Bunny', 'Common', lambda c, H: quadruped(c, H, P('#F4F1EC'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='long', tail='short', tail_col=P('#FFFFFF'), bunny=True)),
     ('Piglet', 'Common', lambda c, H: quadruped(c, H, P('#FFB3C7'), snout=P('#FF8FB1'), ears='pointy', tail='curly', pig=True)),
@@ -818,7 +926,10 @@ ROSTER = [
     ('Hamster', 'Common', lambda c, H: quadruped(c, H, P('#F2B05E'), belly=P('#FFF1DC'), snout=P('#FFF1DC'), ears='round', tail='short', fluffy=True)),
     ('Frog', 'Common', lambda c, H: blob(c, H, 'frog', P('#6CCB5F'), P('#C8F2A8'))),
     ('Snail', 'Common', lambda c, H: blob(c, H, 'snail', P('#CFE8A8'), P('#E9B949'))),
-    ('Lamb', 'Common', lambda c, H: quadruped(c, H, P('#FFFDF5'), snout=P('#3A3A4A'), ears='floppy', ear_col=P('#3A3A4A'), tail='short', fluffy=True)),
+    ('Lamb', 'Common', lambda c, H: _legacy(quadruped(c, H, P('#FFFDF5'), snout=P('#3A3A4A'), ears='floppy', ear_col=P('#3A3A4A'), tail='short', fluffy=True), H,
+                                            [('wool', '#FFFDF5', '#F2EEE4', {}),
+                                             ('ears2', '#F2E8DC', '#F5C6C6', {'style': 'side', 'size': 0.75}),
+                                             ('tidy2', '#000000', None, {})])),
     ('Ladybug', 'Common', lambda c, H: blob(c, H, 'ladybug', P('#1B1B2F'), P('#FF4D5E'))),
     # Uncommon
     ('Gosling', 'Uncommon', lambda c, H: bird(c, H, P('#D8D2B0'), belly=P('#F1EBD0'), beak=P('#3A3A4A'))),
@@ -831,25 +942,25 @@ ROSTER = [
     # Rare
     ('Raccoon', 'Rare', lambda c, H: quadruped(c, H, P('#9A9AA8'), belly=P('#D8D8E0'), snout=P('#F0F0F4'), ears='pointy', ear_col=P('#3A3A4A'), tail='striped', mask=P('#2A2A3A'))),
     ('Penguin', 'Rare', lambda c, H: bird(c, H, P('#2A2F45'), belly=P('#FFFFFF'), beak=P('#FFB627'), wing=P('#1F2335'))),
-    ('Owlet', 'Rare', lambda c, H: bird(c, H, P('#B07A4A'), belly=P('#F2D49B'), beak=P('#FFB627'), wing=P('#8A5A33'), big_eyes=True, tuft=True, crest=P('#8A5A33'))),
+    ('Owlet', 'Rare', lambda c, H: owlet(c, H)),
     ('Fennec', 'Rare', lambda c, H: quadruped(c, H, P('#F2CC8F'), belly=P('#FFF6E3'), snout=P('#FFF6E3'), ears='big', ear_col=P('#F2CC8F'), tail='fox', tail_col=P('#F2CC8F'))),
     ('PandaCub', 'Rare', lambda c, H: quadruped(c, H, P('#FFFFFF'), snout=P('#FFFFFF'), ears='round', ear_col=P('#1B1B2F'), tail='short', patches=P('#1B1B2F'), fluffy=True)),
     # Ultra Rare
     ('EmberFox', 'Ultra Rare', lambda c, H: quadruped(c, H, P('#E8452C'), belly=P('#FFD6A0'), snout=P('#FFD6A0'), ears='pointy', ear_col=P('#7A1E14'), tail='flame', tail_col=P('#FF7A1A'), glow=P('#FFB627'))),
-    ('FrostWolf', 'Ultra Rare', lambda c, H: quadruped(c, H, P('#D6ECFF'), belly=P('#FFFFFF'), snout=P('#FFFFFF'), ears='pointy', ear_col=P('#9CC9F2'), tail='bushy', tail_col=P('#9CC9F2'), mane=P('#7FDBFF'), glow=P('#7FDBFF'))),
+    ('FrostWolf', 'Ultra Rare', _entry({'plan': 'quadruped', 'colors': {'col': '#D6ECFF', 'belly': '#FFFFFF', 'snout': '#FFFFFF', 'ear_col': '#9CC9F2', 'tail_col': '#9CC9F2', 'glow': '#7FDBFF'}, 'options': {'ears': 'pointy', 'tail': 'fox'}, 'shape': {'body': [0.9, 1.15, 0.95]}, 'accessories': [{'kind': 'long_legs', 'color': '#D6ECFF', 'amount': 0.6}, {'kind': 'horse_head', 'color': '#FFFFFF', 'color2': '#2A3A55', 'nose': 'wolf'}, {'kind': 'ice_crest', 'color': '#BFE6FF', 'color2': '#BFE6FF', 'glow': True, 'fan': True}, {'kind': 'mend', 'color': '#000000'}]})),
     ('Axolotl', 'Ultra Rare', lambda c, H: blob(c, H, 'axolotl', P('#FFB3D1'), P('#FF4FA3'))),
-    ('StormHawk', 'Ultra Rare', lambda c, H: bird(c, H, P('#4A5A8A'), belly=P('#DCE6FF'), beak=P('#FFD43B'), wing=P('#33406A'), crest=P('#7FDBFF'), tail=P('#33406A'), glow=P('#7FDBFF'), wing_span=2.6)),
+    ('StormHawk', 'Ultra Rare', _entry({'plan': 'bird', 'colors': {'col': '#4A5A8A', 'belly': '#8C9CCB', 'beak': '#FFD43B', 'wing': '#33406A', 'tail': '#33406A', 'glow': '#7FDBFF'}, 'shape': {'body': [0.78, 1.05, 1.0], 'head': 0.85}, 'accessories': [{'kind': 'raptor_pose', 'color': '#26304F', 'lean': 0.35}, {'kind': 'raptor_beak', 'color': '#FFD43B', 'color2': '#26304F'}, {'kind': 'raised_wings', 'color': '#3A4876', 'color2': '#7FDBFF', 'span': 5.2, 'angle': 28, 'drop': 1.2}, {'kind': 'storm_crest', 'color': '#7FDBFF', 'color2': '#E8FBFF'}, {'kind': 'mend', 'color': '#000000'}]})),
     # Epic
     ('Dragonling', 'Epic', lambda c, H: dragon(c, H, P('#2EC4B6'), P('#FFE8B0'), P('#FF6B6B'), P('#FFB627'), P('#FFE8B0'))),
-    ('CrystalStag', 'Epic', lambda c, H: quadruped(c, H, P('#B9A3FF'), belly=P('#F1EBFF'), snout=P('#F1EBFF'), ears='pointy', tail='short', antlers=P('#7FF2FF'), glow=P('#7FF2FF'))),
-    ('MoonUnicorn', 'Epic', lambda c, H: quadruped(c, H, P('#F7F3FF'), belly=P('#FFFFFF'), snout=P('#FFE3F1'), ears='pointy', tail='bushy', tail_col=P('#C9A3FF'), horn=P('#FFD43B'), mane=P('#C9A3FF'), glow=P('#E3C9FF'))),
+    ('CrystalStag', 'Epic', _entry({'plan': 'quadruped', 'colors': {'col': '#B9A3FF', 'belly': '#F1EBFF', 'ear_col': '#B9A3FF', 'antlers': '#7FF2FF', 'glow': '#7FF2FF'}, 'options': {'ears': 'pointy', 'tail': 'short'}, 'shape': {'body': [0.9, 1.15, 1.0]}, 'accessories': [{'kind': 'long_legs', 'color': '#B9A3FF', 'amount': 0.8}, {'kind': 'horse_head', 'color': '#D9CCFF', 'color2': '#4A3A7A'}, {'kind': 'facets', 'color': '#B9A3FF', 'color2': '#8F76E8'}, {'kind': 'gems', 'color': '#7FF2FF', 'glow': True}, {'kind': 'mend', 'color': '#000000'}]})),
+    ('MoonUnicorn', 'Epic', _entry({'plan': 'quadruped', 'colors': {'col': '#F7F3FF', 'belly': '#FFFFFF', 'ear_col': '#F7F3FF', 'tail_col': '#C9A3FF', 'mane': '#C9A3FF', 'glow': '#E3C9FF'}, 'options': {'ears': 'pointy', 'tail': 'bushy'}, 'shape': {'body': [0.9, 1.15, 1.0]}, 'accessories': [{'kind': 'long_legs', 'color': '#F7F3FF', 'amount': 0.8}, {'kind': 'horse_head', 'color': '#FFE3F1', 'color2': '#B48AD8'}, {'kind': 'spiral_horn', 'color': '#FFE27A', 'color2': '#E0A93A'}, {'kind': 'flank_crescent', 'color': '#FFD86B'}, {'kind': 'mend', 'color': '#000000'}]})),
     # Legendary
     ('Phoenix', 'Legendary', legends.phoenix),
     ('ThunderGriffin', 'Legendary', legends.thunder_griffin),
     # Godly
     ('GoldenGoose', 'Godly', legends.golden_goose),
     ('NebulaSerpent', 'Godly', legends.nebula_serpent),
-]
+] + godlies.ROSTER  # the Godlies from the master sheet (godlies.py)
 
 
 CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'games', 'hatchery-heist', 'config',
@@ -881,7 +992,13 @@ def in_game(cs):
 # Each creature's element (Ember, Glacial, Nature, Storm, ...). Elements roll
 # out once there are many creatures per element and tier (Alex, Nov 5); until
 # then every creature is 'plain'. A themed variant names its element here.
-ELEMENT = {}
+ELEMENT = dict(godlies.ELEMENT)
+
+# Showpieces drawn with smaller voxels than their tier in the Blender build:
+# the same size in studs, this many times more voxels each way. The in-game
+# boxes (VoxelArt) keep the tier's voxel. Alex, Nov 5: Godlies must be far
+# more detailed than everything else.
+FINER = {'NebulaSerpent': 1.6, **godlies.FINER}
 
 # Creatures added as data (tools/art/roster/*.json, see variants.py).
 import variants  # noqa: E402
@@ -896,15 +1013,18 @@ ROSTER = legendaries.finish_existing(ROSTER) + legendaries.ROSTER
 ELEMENT.update(legendaries.ELEMENT)
 
 
-def build_all(detail=None):
-    """Every creature in the ROSTER. `detail` (rarity -> multiplier, default
-    1) builds a tier with more, smaller voxels at the same size in studs: the
-    Blender meshes use it (tools/art/blender), the in-game boxes do not.
-    Each creature's `voxel` is its studs per voxel."""
+def build_all(detail=None, only=None):
+    """Every creature in the ROSTER, or only the species named in `only`.
+    `detail` (rarity -> multiplier, default 1) builds a tier with more,
+    smaller voxels at the same size in studs: the Blender meshes use it
+    (tools/art/blender), the in-game boxes do not. Each creature's `voxel` is
+    its studs per voxel."""
     out = []
     for species, rarity, fn in ROSTER:
+        if only is not None and species not in only:
+            continue
         c = Creature(species, rarity)
-        mult = (detail or {}).get(rarity, 1)
+        mult = (detail or {}).get(rarity, 1) * (FINER.get(species, 1) if detail is not None else 1)
         c.detail = mult
         c.element = ELEMENT.get(species, 'plain')
         c.fine = detail is not None  # the Blender build, at any multiplier

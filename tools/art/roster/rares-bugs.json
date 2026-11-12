@@ -1,0 +1,329 @@
+{
+ "note": "Rare batch: bug Rares from the master list. Every leg is its own part (bugs six, spiders eight).",
+ "creatures": [
+  {
+   "id": "Tarantula",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "tarantula"
+   },
+   "colors": {
+    "col": "#6A4A32",
+    "accent": "#E8641A"
+   },
+   "accessories": [
+    {
+     "kind": "eyering",
+     "color": "#F2E3C8"
+    }
+   ]
+  },
+  {
+   "id": "AtlasMoth",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "hover",
+   "options": {
+    "kind": "butterfly"
+   },
+   "colors": {
+    "col": "#B8452A",
+    "accent": "#5A2E1E",
+    "wing": "#C8562E"
+   },
+   "accessories": [
+    {
+     "kind": "bigwings",
+     "color": "#C8562E"
+    },
+    {
+     "kind": "eyespots",
+     "color": "#F2E3C8",
+     "color2": "#FFE27A"
+    },
+    {
+     "kind": "snaketips",
+     "color": "#F2C28A",
+     "color2": "#FFF4D6"
+    },
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "wing",
+      "head"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "OrchidMantis",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "mantis"
+   },
+   "colors": {
+    "col": "#FFD6E8",
+    "accent": "#FF9EC8"
+   },
+   "accessories": [
+    {
+     "kind": "petallegs",
+     "color": "#FFB3D6",
+     "color2": "#FFF4FA"
+    },
+    {
+     "kind": "raptorarms",
+     "color": "#FFC8E0",
+     "color2": "#FF7AB0"
+    },
+    {
+     "kind": "mantisantennae",
+     "color": "#B0507A"
+    }
+   ]
+  },
+  {
+   "id": "HerculesBeetle",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "scuttle",
+   "options": {
+    "kind": "beetle"
+   },
+   "colors": {
+    "col": "#8A9A3A",
+    "accent": "#2A2620"
+   },
+   "accessories": [
+    {
+     "kind": "bighorn",
+     "color": "#5A4630",
+     "color2": "#C8FF6A"
+    },
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "body",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       0,
+       0
+      ],
+      [
+       -1,
+       1,
+       0
+      ],
+      [
+       -1,
+       2,
+       0
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LunaMoth",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "hover",
+   "options": {
+    "kind": "butterfly"
+   },
+   "colors": {
+    "col": "#E8F5D0",
+    "accent": "#C8E8A8",
+    "wing": "#B8F0A0"
+   },
+   "accessories": [
+    {
+     "kind": "wingtails",
+     "color": "#7CCF5A",
+     "color2": "#E8FF8A"
+    },
+    {
+     "kind": "eyespots",
+     "color": "#FFD873",
+     "color2": "#8A5A2A"
+    },
+    {
+     "kind": "wingedge",
+     "color": "#8ED868"
+    }
+   ]
+  },
+  {
+   "id": "GlasswingButterfly",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "hover",
+   "options": {
+    "kind": "butterfly"
+   },
+   "colors": {
+    "col": "#2A2A35",
+    "accent": "#2A2A35",
+    "wing": "#DDEEF5"
+   },
+   "accessories": [
+    {
+     "kind": "clearwings",
+     "color": "#DDEEF5",
+     "color2": "#FF6A1A"
+    },
+    {
+     "kind": "eyering",
+     "color": "#FFFFFF"
+    }
+   ]
+  },
+  {
+   "id": "HoneypotAnt",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "ant"
+   },
+   "colors": {
+    "col": "#7A4A2A",
+    "accent": "#5A3420"
+   },
+   "accessories": [
+    {
+     "kind": "honeybelly",
+     "color": "#F2A21A",
+     "color2": "#FFE27A"
+    }
+   ]
+  },
+  {
+   "id": "ClockworkBeetle",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "bug",
+   "gait": "scuttle",
+   "options": {
+    "kind": "beetle"
+   },
+   "colors": {
+    "col": "#C9A23A",
+    "accent": "#6A4E1A"
+   },
+   "accessories": [
+    {
+     "kind": "clockshell",
+     "color": "#D9B048",
+     "color2": "#8F6A1E"
+    },
+    {
+     "kind": "gear",
+     "color": "#E8C050",
+     "color2": "#5CF2FF"
+    },
+    {
+     "kind": "draw",
+     "color": "#1B1B2F",
+     "part": "body",
+     "mirror": true,
+     "voxels": [
+      [
+       -1,
+       0,
+       0
+      ],
+      [
+       -1,
+       1,
+       0
+      ],
+      [
+       -1,
+       2,
+       0
+      ]
+     ]
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "shell"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "CobwebSpider",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "tarantula"
+   },
+   "colors": {
+    "col": "#8A8A98",
+    "accent": "#5A5A68"
+   },
+   "accessories": [
+    {
+     "kind": "cobweb",
+     "color": "#F4F4FF"
+    },
+    {
+     "kind": "glinteyes",
+     "color": "#E8E8F4"
+    },
+    {
+     "kind": "plain_boxes",
+     "color": "#000000",
+     "parts": [
+      "body",
+      "leg1",
+      "leg2",
+      "web"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "Scorpion",
+   "glow": false,
+   "rarity": "Rare",
+   "plan": "critter",
+   "gait": "scuttle",
+   "options": {
+    "kind": "scorpion"
+   },
+   "colors": {
+    "col": "#E8A23A",
+    "accent": "#FFE27A"
+   },
+   "accessories": []
+  }
+ ]
+}

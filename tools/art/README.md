@@ -6,13 +6,18 @@ Hatchery Heist's creatures as voxel models, in plain Python.
 | --- | --- |
 | `voxkit.py` | Parts, voxels and merging voxels into as few boxes as possible |
 | `creatures.py` | Every species: body plans, colours, sizes by rarity (`HEIGHT`) |
-| `legends.py` | The two Legendaries and two Godlies, built in far more detail |
+| `legends.py` | The two Legendaries and two Godlies, built in far more detail (`FINER` in `creatures.py` gives a showpiece smaller voxels in the Blender build) |
 | `roster/*.json` | Creatures added as data (one line each), read by `variants.py` |
 | `roster/master/master-list.json` | The master creature list: every creature planned, all seven tiers (`master_list.py` checks it) |
 | `master_list.py` | Checks the master list and lists what is left to build (`--todo [TIER]`, `--plans`) |
 | `variants.py` | Loads and checks the roster files: body plan, shape, colours, patterns, accessories |
 | `kit.py` | The variant kit: bug, crab and lizard plans, `shape`, patterns, accessories |
 | `kit_pond.py` | More plans for roster entries: `critter` (garden bugs) and `shore` (pond and shore animals) |
+| `kit_puff.py` | The `puff` plan: small round invented critters that hop on two stubby feet (kinds pebble, seed, puddle, tadpole, fuzz, gum, mushroom, acorn, cone, pip, ball); other kits add kinds with `kit_puff.add_kind` |
+| `kit_mammal.py` | The `mammal` plan: Rare four-legged animals with their own shapes (camel, ermine, musk ox, sand cat, sea otter) |
+| `kit_cephalo.py` | The `cephalopod` plan: kinds `squid` (tall mantle with a diamond fin, short arms and two club-tipped tentacles; walks) and `cuttlefish` (banded oval mantle, rippling fin skirt, bunched arms; swims) |
+| `kit_extras.py` | More accessories for roster entries: `ridge` (back spikes), `third_eye`, `butter` (a pat on the head), `twin_tail`, `droopy_ears`, `fringe`, `shag`, `long_snout`, `streaks`, `cap`, `eye_ring`, `speckles`, `button_eye`, `knit_head`, `small_ears`, `stand_tall`, `rostrum`, `bristles`, `frog_eyes`; plans `twig` (stick insect), `termite`, `wasp`, `strider` (water strider), `shieldbug` and `shrimp` |
+| `kit_trim.py` | In-game stand-in fixes for the box budget. `pad_legs` draws ripple-ring feet (a water strider's) as a disc and a bar; `jaw_band` paints a head's lowest layer one colour; `plain_boxes` takes a busy coat or ragged outline in steps, only as far as needed (near shades merged, one-colour notches filled, `trim_boxes`), never cutting a walking leg. With `"thin": true` it also thins a dense dark pattern (rosettes) by up to half. `kitten_face` keeps a small cat's two eyes apart and draws two corner ears. `spot_coat` paints a part's dark pattern over in its own colour and draws single-voxel spots where they are listed (an ocelot's rosettes as a few clear spots). `draw` puts listed voxels by hand, mirrored if asked, for a stand-in under its tier's detail floor (a baby ape's eyes and cheeks). `despeckle` takes a fleck colour off (each fleck takes its neighbours' colour); `bands` redraws a swirled coat as level bands by height. The `trim_boxes` accessory brings a creature's in-game boxes inside its tier's box budget with the smallest mirrored edits (fill an inside corner, else cut a voxel; never the face, a glowing voxel or a leg's last foothold), parts tried in the order given. The Blender mesh is never touched, so no re-upload or re-review is needed |
 | `check.py` | The consistency check every creature PR runs before review (budgets, legs, gaits, ids, generated files, tests) |
 | `export.py` | Writes `games/hatchery-heist/src/shared/VoxelArt.luau` |
 | `render.py` | Renders creatures with Blender for review |

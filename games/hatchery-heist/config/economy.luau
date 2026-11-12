@@ -50,11 +50,12 @@ return {
 	-- Upgrade n costs upgradeShares[n] of the floor's price.
 	-- Each floor has 8 slots (shared/Geometry: the map is built for them).
 	tower = {
-		-- Steep early (x6, x5, x4), gentler late (x2.5): with x3 throughout a
-		-- regular player owned all ten floors by day 8 and then had nothing to
-		-- buy; now floor 9 lands around day 9 and floor 10 is a 2-3 week goal
-		-- (tools/economy/run, ops/ECONOMY.md).
-		floorPrices = { 25000, 150000, 750000, 3000000, 12000000, 40000000, 120000000, 300000000, 750000000 },
+		-- Steep early (x5, x5, x4), gentler late (x2.5): with x3 throughout a
+		-- regular player owned all ten floors by day 7 and then had nothing to
+		-- buy; on the 509-creature roster (Nov 12) floor 6 lands on day 3,
+		-- floor 9 on day 8 and floor 10 around day 13 (tools/economy/run,
+		-- ops/ECONOMY.md).
+		floorPrices = { 20000, 100000, 500000, 2000000, 8000000, 25000000, 75000000, 190000000, 475000000 },
 		floorBonus = 0.25,
 		startBonus = 0.05,
 		upgradeBonus = 0.05,

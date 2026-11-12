@@ -57,17 +57,26 @@ Alex wants the game "a bit of a grind on purpose". The targets:
 | Paying players | 1.5 to 2 times faster, never 5 times |
 | Income | still rising at day 14 |
 
-The Nov 7 numbers meet every target except the last. With three coin eggs,
-income stops rising once the tower is full. The fix is new eggs that unlock
-with the tower (phase 2 in the economy proposal), which needs Alex's yes,
-egg art and code.
+The Nov 12 numbers (509-creature roster, floors 20K to 475M, 40 runs)
+meet every target except floor 8, which lands a day late (day 7). Income
+still rises at day 14 (1.2K, 4.8K, 11K and 18K coins a second on days 1,
+3, 7 and 14) but stops once the tower is full. The fix is new eggs that
+unlock with the tower (phase 2 in the economy proposal), which needs egg
+art and code.
 
 ## Rules for odds
 
-- Totals stay at 100,000 until `Hatchery.fixedOrderCycle` stops building
-  the whole cycle as a table (the polish thread owns that change). Every
-  tier needs at least as many weight points as it has creatures in the
-  egg's pool (`Schemas.crossCheck` fails otherwise).
+- Coin-egg tier weights are written by `tools/economy/even_eggs.py`, never
+  by hand: edit its `TARGETS` (the tier chances per egg) and run it after
+  every pool change (`to_config.py` first). CI runs it with `--check`.
+- Totals are powers of ten (Basic and Meadow 1,000,000, Moonlit
+  10,000,000, Premium 100,000), so the odds screen's percentages add up to
+  exactly 100%. Each tier's weight is a whole multiple of its member count,
+  so every creature in a tier shows the same "1 in N". The few points left
+  over move to the tiers where they shift the odds least. If no even split
+  is close, scale the total by 10 rather than move the odds (rule i).
+- Each Godly is a fixed chance per creature (1 in 2,000,000 in the Moonlit
+  Egg), so the Godly tier grows with every Godly added.
 - Each step up the egg ladder must be the better buy for its tier. Check
   with `--values` that no dearer egg costs more coins per creature of the
   tier it is for.

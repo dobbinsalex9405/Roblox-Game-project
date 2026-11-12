@@ -7,13 +7,14 @@
 
 local Numbers = require("./Numbers")
 local Geometry = require("./Geometry")
+local DisplayName = require("./DisplayName")
 
 local Layout = {}
 
 Layout.PLOTS = 8 -- one per player; servers hold 8 (ops/SETUP.md)
 Layout.RING_RADIUS = 110
 Layout.PLOT_SIZE = 64
-Layout.FLOOR_TOP = 1 -- the floor's top surface, in the base's own space
+Layout.FLOOR_TOP = Geometry.FLOOR_TOP -- the floor's top surface, in the base's own space
 -- Each base's own space sits this far below the ground, so the floor shows
 -- only a low lip above the grass (0.3 studs; the plaza is at 0.2). The
 -- numbers inside a base stay as they were and everything moves together.
@@ -26,7 +27,7 @@ Layout.INCUBATOR_POSITIONS = 14 -- economy.incubators.maxSlots + passBonusSlots
 
 Layout.COLLECT_PAD = Vector3.new(27, 1.2, -8)
 Layout.REBIRTH_STAND = Vector3.new(27, 4, 8)
-Layout.SIGN = Vector3.new(0, 9, 30)
+Layout.SIGN = Vector3.new(0, Geometry.SIGN_TOP, 30)
 Layout.SPAWN = Vector3.new(0, 4, 24)
 
 -- The base's frame in the world: on the ring, facing the yard.
@@ -200,9 +201,9 @@ function Layout.eggColor(eggId: string): Color3
 	return EGG_COLORS[eggId] or Color3.fromRGB(230, 230, 230)
 end
 
--- "BasicEgg" -> "Basic Egg"
+-- "BasicEgg" -> "Basic Egg"; "WillOWisp" -> "Will-o'-Wisp" (shared/DisplayName.luau)
 function Layout.displayName(id: string): string
-	return (string.gsub(id, "(%l)(%u)", "%1 %2"))
+	return DisplayName(id)
 end
 
 -- 1234567 -> "1.23M", 25000 -> "25K" (shared/Numbers.luau)
