@@ -2,12 +2,15 @@
 -- Eggs and their exact odds. An egg rolls a rarity tier first, by the tier
 -- weights below, then a creature from that tier in the egg's pool (the
 -- creatures listing the pool in config/creatures, by their in-tier weight).
+-- Every egg's pool is "All": each egg can hatch every creature of the tiers
+-- it rolls (Alex, Nov 12), and eggs differ only by their tier odds.
 -- So adding a creature to a pool only splits its tier's share, and no other
 -- tier's chance ever moves. Weights are whole numbers out of `total`
 -- and must add up to exactly that (a power of ten, so the odds screen's
 -- percentages are exact and add up to 100%).
 -- Every creature in a tier gets the same whole weight, so every odds card in
--- a tier reads the same: the coin eggs' tier weights are written by
+-- a tier reads the same, and from Rare up a rarer creature (and a rarer
+-- tier as a whole) is always less likely: the tier weights are written by
 -- tools/economy/even_eggs.py from its target odds and the pools' member
 -- counts. Rerun it whenever a pool changes (CI and Eggs.spec fail until you
 -- do). Hatchery's fixed order is lazy, so totals up to 10,000,000 are fine.
@@ -27,37 +30,37 @@ type Egg = {
 	tiers: { [string]: number },
 }
 
-local TOTAL = 100000
-
 local eggs: { Egg } = {
 	{
 		id = "BasicEgg",
 		priceCoins = 50,
 		hatchSeconds = 10,
-		total = 1000000,
-		pool = "Barnyard",
+		total = 10000000,
+		pool = "All",
 		tiers = {
-			Common = 919947, -- 91.9947% (71 x 12,957)
-			Uncommon = 72048, -- 7.2048% (19 x 3,792)
-			Rare = 7005, -- 1 in 143 (1 x 7,005)
-			["Ultra Rare"] = 900, -- 1 in 1,111 (1 x 900)
-			Epic = 80, -- 1 in 12,500 (1 x 80)
-			Legendary = 20, -- 1 in 50,000 (1 x 20)
+			Common = 9203153, -- 92.0315% (199 x 46,247)
+			Uncommon = 717024, -- 7.17024% (97 x 7,392)
+			Rare = 69984, -- 1 in 143 (81 x 864)
+			["Ultra Rare"] = 9017, -- 1 in 1,109 (71 x 127)
+			Epic = 780, -- 1 in 12,821 (60 x 13)
+			Legendary = 22, -- 1 in 454,545 (2 x 11)
+			Godly = 20, -- 1 in 500,000 (20 x 1)
 		},
 	},
 	{
 		id = "MeadowEgg",
 		priceCoins = 1500,
 		hatchSeconds = 30,
-		total = 1000000,
-		pool = "Meadow",
+		total = 10000000,
+		pool = "All",
 		tiers = {
-			Common = 579328, -- 57.9328% (128 x 4,526)
-			Uncommon = 370694, -- 37.0694% (73 x 5,078)
-			Rare = 44980, -- 4.498% (52 x 865)
-			["Ultra Rare"] = 4498, -- 1 in 222 (13 x 346)
-			Epic = 450, -- 1 in 2,222 (6 x 75)
-			Legendary = 50, -- 1 in 20,000 (1 x 50)
+			Common = 5796870, -- 57.9687% (199 x 29,130)
+			Uncommon = 3703460, -- 37.0346% (97 x 38,180)
+			Rare = 450036, -- 4.50036% (81 x 5,556)
+			["Ultra Rare"] = 45014, -- 1 in 222 (71 x 634)
+			Epic = 4500, -- 1 in 2,222 (60 x 75)
+			Legendary = 100, -- 1 in 100,000 (2 x 50)
+			Godly = 20, -- 1 in 500,000 (20 x 1)
 		},
 	},
 	{
@@ -66,28 +69,29 @@ local eggs: { Egg } = {
 		hatchSeconds = 120,
 		-- Every Godly here is exactly 1 in 2,000,000, however many there are.
 		total = 10000000,
-		pool = "Moonlit",
+		pool = "All",
 		tiers = {
-			Uncommon = 6660048, -- 66.6005% (6 x 1,110,008)
-			Rare = 2999963, -- 29.9996% (29 x 103,447)
-			["Ultra Rare"] = 319986, -- 3.19986% (58 x 5,517)
-			Epic = 19008, -- 1 in 526 (54 x 352)
-			Legendary = 900, -- 1 in 11,111 (1 x 900)
-			Godly = 95, -- 1 in 105,263 (19 x 5)
+			Common = 202980, -- 2.0298% (199 x 1,020)
+			Uncommon = 6457484, -- 64.5748% (97 x 66,572)
+			Rare = 2999997, -- 30% (81 x 37,037)
+			["Ultra Rare"] = 319997, -- 3.19997% (71 x 4,507)
+			Epic = 19020, -- 1 in 526 (60 x 317)
+			Legendary = 422, -- 1 in 23,697 (2 x 211)
+			Godly = 100, -- 1 in 100,000 (20 x 5)
 		},
 	},
 	{
 		id = "PremiumEgg",
 		productKey = "PremiumEgg",
 		hatchSeconds = 30,
-		total = TOTAL,
-		pool = "Premium",
+		total = 1000000,
+		pool = "All",
 		tiers = {
-			Rare = 65000, -- 65%
-			["Ultra Rare"] = 28000, -- 28%
-			Epic = 6500, -- 6.5%
-			Legendary = 490, -- 1 in 204
-			Godly = 10, -- 1 in 10,000
+			Rare = 650754, -- 65.0754% (81 x 8,034)
+			["Ultra Rare"] = 282722, -- 28.2722% (71 x 3,982)
+			Epic = 64980, -- 6.498% (60 x 1,083)
+			Legendary = 1444, -- 1 in 693 (2 x 722)
+			Godly = 100, -- 1 in 10,000 (20 x 5)
 		},
 	},
 }

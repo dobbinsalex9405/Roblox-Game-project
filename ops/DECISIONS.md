@@ -2,6 +2,45 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: every egg hatches every creature; rarer is rarer
+
+- **Asked:** Alex, Nov 12: "every egg should be able to pull every single
+  creature". Eggs used themed pools (Barnyard, Meadow, Moonlit, Premium),
+  so most creatures came from one egg only.
+- **Changed:** one pool, "All": every creature lists it, every egg uses it.
+  The coin eggs roll all seven tiers (Basic and Meadow gained Godlies,
+  Moonlit gained Commons) and differ only by tier odds; Premium stays Rare
+  and up (a Robux egg sold on better odds). Coin-egg totals went to
+  10,000,000, the most Hatchery's fixed order keeps exact
+  ((2k+1) x weight must stay under 2^53), so each Basic Godly can be
+  1 in 10,000,000. Premium went to 1,000,000 so 20 Godlies split evenly.
+- **Rarer is rarer:** from Rare up, each creature of a tier must be less
+  likely than each creature of the tier below. Without it a thin tier
+  breaks: with 2 Legendaries live, each Legendary in the Giant Golden Egg
+  was 1 in 10 and each Epic 1 in 75. even_eggs.py now cuts such a tier to
+  1.5x below the tier under it and gives the points to the commoner tiers;
+  as Legendaries go live the cut lifts and the tier climbs to its target.
+  Each tier as a whole must also stay likelier than the tier above it: a
+  cut to 2 x 8 left Basic's Legendaries (1 in 625,000) reading rarer than
+  its 20 Godlies (1 in 500,000), so the cut stops at 2 x 11 there.
+  Common and Uncommon are exempt, so a dearer egg can favour Uncommon over
+  Common (Moonlit). Eggs.spec checks it on the real config.
+- **Godlies:** each Moonlit Godly stays 1 in 2,000,000 (#123); Basic and
+  Meadow get the smallest whole weight, 1 in 10,000,000. A first try at
+  Moonlit 1 in 1M gave 12% of regular players a Godly by day 14 (target: a
+  few %); at 1 in 2M it is 3% (grinder 10%). Basic is the cheapest Godly
+  per coin and, with every incubator full, about 2.4x Moonlit's chance an
+  hour, but only at 4,320 purchases an hour and a fifth of Moonlit's chance
+  per egg, so it is no practical farm.
+- **Pacing (sim, 509 creatures, 40 runs, regular player):** first Rare
+  12 min, first Epic day 2, Legendary by day 14 for 28% (40% before; only 2
+  Legendaries are live and their tier is held down, so it climbs back as
+  batches 15-17 land), Godly 3%, floor 10 day 11 (day 13 before: every egg
+  now holds the higher-income Rares and Ultra Rares), payer day 8.
+- **Book:** each card names the coin egg with the best chance, and a Robux
+  egg only when no coin egg hatches the creature. Otherwise every
+  Rare-and-up card would point at the Premium Egg, which is not on sale.
+
 ## 2026-11-12: creature meshes are turned back by a measured import turn
 
 - Roblox's importer hands back every uploaded creature FBX turned half a turn

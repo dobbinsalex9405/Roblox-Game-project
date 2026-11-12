@@ -330,8 +330,8 @@ describe("Hatchery Heist sessions", function()
 		for i = 0, 2 do
 			table.insert(expected, Hatchery.fixedOrderOutcome(basic, i))
 		end
+		-- (The names change as creatures join the egg, so they are not written here.)
 		expect(outcomes).toEqual(expected)
-		expect(outcomes).toEqual({ "BeaglePup", "BeardedDragon", "Bunny" })
 	end)
 
 	it("rolls from the odds table for players who may receive paid random items", function()
@@ -500,18 +500,22 @@ describe("Studio grant", function()
 		local h = Harness.new()
 		local player = Fakes.player(1)
 		h.join(player)
-		-- A species only the second egg holds, so the recorded egg is checked.
-		local first: { [string]: boolean } = {}
-		for _, outcome in config.eggs[1].outcomes do
-			first[outcome.id] = true
-		end
+		-- A Godly, recorded as from the first egg that holds it.
 		local speciesId: string? = nil
-		for _, outcome in config.eggs[2].outcomes do
-			if speciesId == nil and not first[outcome.id] then
-				speciesId = outcome.id
+		for sid, s in config.creatures.species do
+			if speciesId == nil and s.rarity == "Godly" then
+				speciesId = sid
 			end
 		end
 		local id = speciesId :: string
+		local holder: string? = nil
+		for _, egg in config.eggs do
+			for _, outcome in egg.outcomes do
+				if holder == nil and outcome.id == id then
+					holder = egg.id
+				end
+			end
+		end
 		local ok, text = h.actions:grantCreature(player, id)
 		expect(ok).toBe(true)
 		expect(text).toBe(`{id} added on floor 1, ready to ride or guard.`)
@@ -520,7 +524,8 @@ describe("Studio grant", function()
 		local c = d.creatures[1]
 		expect(c.speciesId).toBe(id)
 		expect(c.slot).toBe(1)
-		expect(c.eggId).toBe(config.eggs[2].id) -- the egg that holds it
+		expect(c.eggId).toBe(holder) -- the egg that holds it
+		expect(holder).toBe("BasicEgg") -- every coin egg holds every creature (Alex, Nov 12)
 		assert(h.actions:ride(player, c.uid))
 		assert(h.actions:dismount(player))
 		assert(h.raids:toggleGuard(player, c.uid))

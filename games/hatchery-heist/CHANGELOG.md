@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Every egg can hatch every creature: the eggs differ only by their odds
+  (Basic is mostly Commons, Meadow Uncommons, Moonlit Rares and up; Premium
+  is Rare and up). From Rare up, each rarer creature is always less likely
+  than each creature of the tier below, so a Legendary never shows better
+  odds than an Epic. The Book names the best coin egg for each creature.
 - Fix: 199 creatures no longer have one part (a leg, the ears, a tail) sitting
   slightly out of place. Their 3D models had gone up mid-step; they are
   uploaded again at rest, and every upload is now checked for this first.
