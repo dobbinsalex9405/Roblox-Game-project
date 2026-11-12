@@ -426,7 +426,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "Meadow" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "Meadow" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "Moonlit" } },
-		-- Rare: 55 from the roster
+		-- Rare: 76 from the roster
 		AmethystMole = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Moonlit" } },
 		Angelfish = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Meadow" } },
 		AshBadger = {
@@ -509,6 +509,7 @@ return {
 		HoneypotAnt = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
 		Hornbill = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "Meadow" } },
 		Hummingbird = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "Meadow" } },
+		Kiwi = { rarity = "Rare", coinsPerSecond = 18, mountSpeed = 22, pools = { "Meadow" } },
 		Koi = { rarity = "Rare", coinsPerSecond = 24, mountSpeed = 22, pools = { "Meadow" } },
 		Lampwick = {
 			rarity = "Rare",
@@ -547,7 +548,45 @@ return {
 		MuskOxCalf = { rarity = "Rare", coinsPerSecond = 28, mountSpeed = 22, pools = { "Meadow" } },
 		Narwhal = { rarity = "Rare", coinsPerSecond = 25, mountSpeed = 22, pools = { "Meadow" } },
 		OkapiCalf = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "Meadow" } },
+		OrchidMantis = { rarity = "Rare", coinsPerSecond = 16, mountSpeed = 22, pools = { "Meadow" } },
 		Owlcat = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "Moonlit" } },
+		PancakeFrog = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "Meadow" } },
+		Peachick = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Meadow" } },
+		PetalBunny = {
+			rarity = "Rare",
+			coinsPerSecond = 19,
+			mountSpeed = 22,
+			pools = { "Moonlit" },
+			element = "Nature",
+		},
+		PolarBearCub = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "Meadow" } },
+		PomPom = { rarity = "Rare", coinsPerSecond = 20, mountSpeed = 22, pools = { "Meadow" } },
+		PteroChick = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "Moonlit" } },
+		Rabbeetle = { rarity = "Rare", coinsPerSecond = 20, mountSpeed = 22, pools = { "Moonlit" } },
+		RainSnail = {
+			rarity = "Rare",
+			coinsPerSecond = 29,
+			mountSpeed = 22,
+			pools = { "Moonlit" },
+			element = "Storm",
+		},
+		RaptorChick = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "Moonlit" } },
+		ReindeerCalf = { rarity = "Rare", coinsPerSecond = 31, mountSpeed = 22, pools = { "Meadow" } },
+		RexHatchling = { rarity = "Rare", coinsPerSecond = 33, mountSpeed = 22, pools = { "Moonlit" } },
+		RhinoCalf = { rarity = "Rare", coinsPerSecond = 22, mountSpeed = 22, pools = { "Meadow" } },
+		RoboPup = { rarity = "Rare", coinsPerSecond = 24, mountSpeed = 22, pools = { "Moonlit" } },
+		SandCat = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "Meadow" } },
+		Scorpion = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "Meadow" } },
+		SeaOtter = { rarity = "Rare", coinsPerSecond = 33, mountSpeed = 22, pools = { "Meadow" } },
+		SharkPup = { rarity = "Rare", coinsPerSecond = 26, mountSpeed = 22, pools = { "Meadow" } },
+		Slugcorn = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "Moonlit" } },
+		SnowLamb = {
+			rarity = "Rare",
+			coinsPerSecond = 18,
+			mountSpeed = 22,
+			pools = { "Moonlit" },
+			element = "Glacial",
+		},
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {
 			rarity = "Ultra Rare",

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: the Orchid Mantis's petal legs match on both sides (the right
+  petals sat one voxel off the left ones), and the Kiwi has eyes.
 - Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
   to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and
