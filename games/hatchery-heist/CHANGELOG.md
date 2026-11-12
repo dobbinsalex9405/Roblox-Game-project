@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fix: a creature no longer stays as blocks long after its 3D model has
+  loaded (seen with Quails 20 minutes into a session). A slow model load is
+  waited on for at most 20 seconds; if the model is all there it is drawn
+  anyway, otherwise the load is tried again.
 - Fix: the Orchid Mantis's petal legs match on both sides (the right
   petals sat one voxel off the left ones), and the Kiwi has eyes.
 - Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
