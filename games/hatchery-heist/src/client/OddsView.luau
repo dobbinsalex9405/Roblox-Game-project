@@ -362,7 +362,7 @@ local function fill(container: GuiObject, eggId: string)
 			container,
 			i + 2,
 			tier.rarity,
-			`{tier.percent} · {tier.oneIn}`,
+			`{OddsCard.shortPercent(tier.percent)} · {tier.oneIn}`,
 			Layout.rarityColor(tier.rarity),
 			false
 		)
@@ -550,6 +550,7 @@ local function buildList(): ScreenGui
 	local title = label(window, "Title", "", 20, Color3.fromRGB(255, 220, 90))
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	local close = button(window, "Close", "X", Color3.fromRGB(215, 70, 70))
+	close.Name = "Close" -- the Modal guard test finds windows by this line
 	close.AnchorPoint = Vector2.new(1, 0)
 	close.Position = UDim2.new(1, -8, 0, 8)
 	close.Size = UDim2.fromOffset(CLOSE_WIDTH, HEADER)

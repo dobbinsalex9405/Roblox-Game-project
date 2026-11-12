@@ -92,4 +92,13 @@ describe("Odds card", function()
 			expect(OddsCard.ROW >= OddsCard.MIN_TEXT_SIZE).toBe(true)
 		end
 	end)
+
+	it("drops a percentage's trailing zeros, never its digits", function()
+		expect(OddsCard.shortPercent("4.50000%")).toBe("4.5%")
+		expect(OddsCard.shortPercent("0.00100%")).toBe("0.001%")
+		expect(OddsCard.shortPercent("0.00020%")).toBe("0.0002%")
+		expect(OddsCard.shortPercent("50.00000%")).toBe("50%")
+		expect(OddsCard.shortPercent("58.06024%")).toBe("58.06024%")
+		expect(OddsCard.shortPercent("100%")).toBe("100%")
+	end)
 end)

@@ -75,4 +75,15 @@ function OddsCard.valueShare(valueWidth: number, rowWidth: number): number
 	return math.clamp((valueWidth + 2) / rowWidth, 0, 1)
 end
 
+-- An exact percentage without its trailing zeros ("4.50000%" -> "4.5%",
+-- "0.00100%" -> "0.001%"): the same number, short enough that a tier's
+-- name keeps its room on the card.
+function OddsCard.shortPercent(percent: string): string
+	local number = string.match(percent, "^(%d+%.%d-)0*%%$")
+	if number == nil then
+		return percent
+	end
+	return (string.gsub(number, "%.$", "")) .. "%"
+end
+
 return OddsCard
