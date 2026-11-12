@@ -1,0 +1,34 @@
+PR #179 @ 6e3a9592a350 (on main 9de8f848), local Staging build (Output: "core started build=6e3a9592a350"), one Studio play-solo session.
+
+Plaques (floors bought to 3): Floor2 anchor (100.5, 22.8, 0), Floor3 (100.5, 34.8, 0); anchor part Transparency 1;
+BillboardGui 12x1.8, AlwaysOnTop=false, MaxDistance 80. Front wall outer face ~x 107 -> 6.5 studs out.
+Floor 1 has no plaque (only floors 2+ get one, same as main).
+Camera shots (eye 14 high unless noted, looking at (101,27,0)):
+  0 deg, 20 studs  (80.5,14,0):        "3. Plant Sunroom  x1.30", "2. Book Nook  x1.05" whole
+  +30 deg, 20 studs (83.2,14,10):      both whole
+  -30 deg, 20 studs (83.2,14,-10):     both whole
+  +60 deg, 20 studs (90.5,14,17.3):    both whole ("x1.30" drawn over a roof turret, all letters visible)
+  -60 deg, 20 studs (90.5,14,-17.3):   both whole
+  0 deg, 45 studs (55.5,16,0):         both whole (small)
+  steep corner view (100,16,-32):      "2. Book Nook  x1.05" whole
+Inside storey 2 looking up/out (117,16,2 -> 101,23,0): label seen faintly through a window, outside the glass; nothing in the room; no overlap with the deck.
+
+Hatch reveal, first person (LockFirstPerson), 10 Basic eggs (incubator egg instances: Model=10):
+ 1-5: hatched from script; reveal 1 auto-closed before my (slow, separate-call) input; 2 closed by B on the shown creature;
+      3-5 closed (B pressed late, timing not reliable through separate calls); none stuck.
+ 6-10: hatch key E and the closing input sent in ONE input call, traced every 20 ms (t = seconds):
+   6: on 7.04, B cracked -> shown 7.61, B -> closed 9.37
+   7: on 10.13, shown 10.69, B -> closed 12.50
+   8: on 8.54 (new trace), Escape -> menu open 9.14 and reveal closed 9.37; Escape -> menu closed 10.67
+   9: on 11.38, B -> shown 12.00, B -> closed 13.73
+  10: on 14.43, shown 15.31, tap (click 150,400) -> closed 16.85
+ Hatched (10): Chinchilla, Calf, MuddyPiglet, Turkey, Calf, Wombat, Crow, LopBunny, GuineaFowl, SiameseKitten -> 10 placed.
+ After every close: MouseBehavior LockCenter (first person locked again), no reveal left.
+
+#172: 14 Chick given -> 24/24 pads; Basic egg hatched -> placed 24, stored 1 (Iguana), notice
+  "Your tower is full: Iguana went to your inventory. Open Creatures to place it."; server Sell lines 0.
+#174: 10 incubating eggs = 10 Egg Models.
+#175: walked (100,y,0) -> (121,y,0) through the door and back out: reached both; corner shot clean.
+
+Logs: client 159 lines, all MessageWarning, 0 MessageError, 0 RevealInput/HatchReveal/CreatureView lines. Feedback visible.
+Server Warning 136, Output 31, Info 45, 0 MessageError; non-ContentId/Economy/Analytics: profilestore/DataStores unavailable, TestPanel on, core started.
