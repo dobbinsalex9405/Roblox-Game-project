@@ -83,11 +83,15 @@ Geometry.LADDER = { 25.2, 14.5 }
 Geometry.LADDER_HOLE_MIN = { 21, 12.5 }
 Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
 
--- The label floating over the next floor to buy ("Floor 10: 165M coins"),
--- in studs: wide enough for the longest one at full text height, with room
--- to spare (Studio gate, #84: the text was filling its box edge to edge).
--- `above`: its centre over the deck's centre.
-Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
+-- The label over the next floor to buy ("Floor 10: 165M coins"), in studs:
+-- wide enough for the longest one at full text height, with room to spare
+-- (Studio gate, #84: the text was filling its box edge to edge). The roof
+-- sits where that floor will go, so the label hangs out in front of it
+-- (Geometry.priceSignZ, in line with the floor name signs below) with its
+-- centre `above` that floor's walking height: over the roof's mansard and
+-- dormers, so seen from the side it never dips behind them (issue #183: 2
+-- studs over the deck, inside the roof, nobody could see it).
+Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 5.5 }
 
 -- Each built floor's name ("2. Book nook  x1.25"), a label in front of its
 -- storey, in studs: `above` its centre over the floor's walking height,
@@ -104,10 +108,22 @@ function Geometry.plaqueZ(): number
 	return Geometry.TOWER_MIN[2] - Geometry.FLOOR_PLAQUE.out
 end
 
+function Geometry.priceSignZ(): number
+	return Geometry.plaqueZ()
+end
+
+-- The rebirth stand beside the tower's right wall (Layout.REBIRTH_STAND),
+-- and its label in studs, centred `above` the stand. The stand keeps the
+-- whole label clear of the wall's sills seen from any angle, even straight
+-- along the wall from the yard (issue #183: 3 studs off the wall it read
+-- "Rebirth: 50M coi" from the side).
+Geometry.REBIRTH_STAND = { 29, 4, 8 }
+Geometry.REBIRTH_LABEL = { width = 8, height = 1.6, above = 4.5 }
+
 -- The "YOUR HATCHERY" banner over your own base sign (client/GuideView), in
--- studs; `above` is its centre over the sign post's centre. It floats clear
--- above the next-floor label behind it, so from spawn the two never read as
--- one crowded line (Studio gate, Nov 5).
+-- studs; `above` is its centre over the sign post's centre. From spawn it
+-- once read as one crowded line with the next-floor label behind it (Studio
+-- gate, Nov 5); that label now hangs on the tower's far side (issue #183).
 Geometry.YOUR_BASE_LABEL = { width = 20, height = 4, above = 14.5 }
 
 -- Base-local positions of things raids care about. Layout uses the same

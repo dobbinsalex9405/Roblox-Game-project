@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Fix: the ground floor has a name sign too ("1. Cozy Studio  x1.00"), like
+  every floor above it.
+- Fix: the "Floor N: price" sign for the next floor to buy shows again: it
+  hangs in front of the tower's roof instead of hidden inside it.
+- Fix: the rebirth stand stands a little further from the tower, so its sign
+  ("Rebirth: 50M coins") is no longer cut off by the wall from the side.
 - Fix: the hatch reveal can be passed with a gamepad's B button, and opening
   the Roblox menu (Escape) skips it, like every other window.
 - Fix: each tower floor's name sign hangs well in front of the new front

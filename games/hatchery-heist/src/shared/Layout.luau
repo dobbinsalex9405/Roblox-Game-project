@@ -26,7 +26,8 @@ Layout.INCUBATOR_COLUMNS = 7
 Layout.INCUBATOR_POSITIONS = 14 -- economy.incubators.maxSlots + passBonusSlots
 
 Layout.COLLECT_PAD = Vector3.new(27, 1.2, -8)
-Layout.REBIRTH_STAND = Vector3.new(27, 4, 8)
+Layout.REBIRTH_STAND =
+	Vector3.new(Geometry.REBIRTH_STAND[1], Geometry.REBIRTH_STAND[2], Geometry.REBIRTH_STAND[3])
 Layout.SIGN = Vector3.new(0, Geometry.SIGN_TOP, 30)
 Layout.SPAWN = Vector3.new(0, 4, 24)
 

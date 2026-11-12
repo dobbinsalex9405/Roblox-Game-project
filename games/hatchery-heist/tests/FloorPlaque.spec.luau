@@ -53,3 +53,29 @@ describe("Floor name plaque", function()
 		expect(top <= Geometry.FLOOR_HEIGHT - 0.5).toBe(true)
 	end)
 end)
+
+-- Studio gate on #179: the ground floor had no name sign; only floors 2 and
+-- up did. Every floor, the ground floor too, now carries one.
+local fs = require("@lune/fs")
+local Tower = require("../src/shared/Tower")
+local economy = require("../config/economy")
+
+describe("Floor name plaque on every floor", function()
+	it("names the ground floor like the others", function()
+		expect(Tower.plaqueText({}, 1, economy)).toBe("1. Cozy Studio  x1.00")
+		expect(string.match(Tower.plaqueText({}, 2, economy), "^2%. Book Nook  x%d%.%d%d$") ~= nil).toBe(true)
+	end)
+
+	it("builds and labels a plaque on floor 1 as well", function()
+		local source = fs.readFile("games/hatchery-heist/src/server/World.luau")
+		local build = string.match(source, "local function buildTower.-\nend\n") or ""
+		-- The plaque is made for every floor, not only inside the decks'
+		-- `if floor > 1` block, which ends before the elevator stop.
+		local upperOnly = string.match(build, "if floor > 1 then(.-)\n\t\tend\n") or ""
+		expect(string.find(build, 'Name = "Plaque"', 1, true) ~= nil).toBe(true)
+		expect(string.find(upperOnly, 'Name = "Plaque"', 1, true)).toBe(nil)
+		local sync = string.match(source, "local function syncTower.-\nend\n") or ""
+		expect(string.find(sync, "Tower.plaqueText(", 1, true) ~= nil).toBe(true)
+		expect(string.find(sync, "for floor = 1, Tower.FLOORS do", 1, true) ~= nil).toBe(true)
+	end)
+end)
