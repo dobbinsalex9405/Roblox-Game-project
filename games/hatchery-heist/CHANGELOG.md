@@ -4,8 +4,11 @@
 
 - Fix: the ground floor has a name sign too ("1. Cozy Studio  x1.00"), like
   every floor above it.
-- Fix: the "Floor N: price" sign for the next floor to buy shows again: it
-  hangs in front of the tower's roof instead of hidden inside it.
+- Fix: the "Floor N: price" sign for the next floor to buy shows again, in
+  coin gold right under your top floor's name sign, instead of hidden inside
+  the roof (and clear of the goal banner on a phone).
+- Fix: the floor name signs hang a little further out, so the ground floor's
+  door awning no longer cuts a word off when you look from the side.
 - Fix: the rebirth stand stands a little further from the tower, so its sign
   ("Rebirth: 50M coins") is no longer cut off by the wall from the side.
 - Fix: a creature no longer stays as blocks long after its 3D model has

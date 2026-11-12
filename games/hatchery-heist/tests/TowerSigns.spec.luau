@@ -11,37 +11,67 @@ local t = require("@testlib")
 local describe, it, expect = t.describe, t.it, t.expect
 
 -- From tools/art/world/tower.py: the walls' sills and flower boxes stand out
--- up to 0.5 past the footprint. The roof sits where the next floor would:
--- its mansard rises 3.2 and the dormers along its front 4.0 over that floor's
--- walking height; only the dome (round the tower's middle) and the two front
--- corner turrets (x +-21.8, 1.8 round) stand higher.
+-- up to 0.5 past the footprint; floor 1's striped awning over the door
+-- stands 2.9 out, x -6..6, from 8.8 to 11.4 over the floor.
 local WALL_REACH = 0.5
-local ROOF_FRONT_TOP = 4.0
-local TURRET_INNER_X = 21.8 - 1.8
+local AWNING = { reach = 2.9, halfWidth = 6, bottom = 8.8, top = 11.4 }
+local VIEW_ANGLE = 60
+
+-- How far in front of the tower a camera-facing label of `width` must hang
+-- so that, seen from up to 60 degrees off the front, its near half stays in
+-- front of whatever the wall carries at its height on floor 1 (the awning
+-- is the furthest out).
+local function needsOut(width: number, bottom: number, top: number): number
+	local reach = WALL_REACH
+	if bottom < AWNING.top and top > AWNING.bottom then
+		reach = AWNING.reach
+	end
+	return reach + width / 2 * math.sin(math.rad(VIEW_ANGLE)) + 0.2
+end
 
 describe("Next-floor price sign", function()
+	-- Studio gate on #184 (phone, 844x392): hung over the roof, the sign sat
+	-- behind the GOAL banner and the coin box from every yard camera. It now
+	-- hangs right under the top built floor's name plaque, which the same
+	-- phone shots show clear of the HUD. At the same distance out and lower
+	-- down, it never shows higher on the screen than that plaque.
 	local box = Geometry.FLOOR_LABEL
+	local plaque = Geometry.FLOOR_PLAQUE
 
-	it("hangs out in front of the tower, not over the deck inside the roof", function()
-		expect(Geometry.priceSignZ() < Geometry.TOWER_MIN[2] - WALL_REACH - 0.5).toBe(true)
-	end)
-
-	it("clears the roof's front from any angle", function()
-		-- Seen from the side its near half swings back over the roof: it
-		-- must ride above the mansard and dormers there ...
-		local bottom = box.above - box.height / 2
-		if bottom < ROOF_FRONT_TOP + 0.3 then
-			error(`the sign's bottom ({bottom}) is down among the roof's dormers (top {ROOF_FRONT_TOP})`)
+	it("hangs under the top floor's name plaque, never higher on screen", function()
+		expect(Geometry.priceSignZ()).toBe(Geometry.plaqueZ())
+		local top = box.above + box.height / 2
+		local plaqueBottom = plaque.above - plaque.height / 2
+		if top > plaqueBottom - 0.1 then
+			error(`the price sign's top ({top}) is not under the name plaque (bottom {plaqueBottom})`)
 		end
-		-- ... and between the turrets.
-		expect(box.width / 2 < TURRET_INNER_X).toBe(true)
+		-- Above everyone's head, and under the next deck.
+		expect(box.above - box.height / 2 >= 6).toBe(true)
+		expect(top <= Geometry.FLOOR_HEIGHT - 0.5).toBe(true)
 	end)
 
-	it("stays clear of the top floor's name sign below it", function()
-		local plaque = Geometry.FLOOR_PLAQUE
-		local plaqueTop = plaque.above + plaque.height / 2 - Geometry.FLOOR_HEIGHT -- under the next floor's walking height
+	it("reads whole from up to 60 degrees off the front, even over the awning", function()
 		local bottom = box.above - box.height / 2
-		expect(bottom - plaqueTop >= 1.5).toBe(true)
+		local top = box.above + box.height / 2
+		local out = Geometry.TOWER_MIN[2] - Geometry.priceSignZ()
+		local needed = needsOut(box.width, bottom, top)
+		if out < needed then
+			error(`the price sign hangs {out} out; {box.width} wide it needs {needed}`)
+		end
+		expect(box.width <= 13).toBe(true)
+	end)
+end)
+
+describe("Floor name plaque by the awning", function()
+	-- Studio gate on #184: at +-60 degrees floor 1's door awning cut the
+	-- plaque's first or last word.
+	it("reads whole from up to 60 degrees off the front on floor 1", function()
+		local p = Geometry.FLOOR_PLAQUE
+		local out = Geometry.TOWER_MIN[2] - Geometry.plaqueZ()
+		local needed = needsOut(p.width, p.above - p.height / 2, p.above + p.height / 2)
+		if out < needed then
+			error(`the plaque hangs {out} out; {p.width} wide it needs {needed}`)
+		end
 	end)
 end)
 

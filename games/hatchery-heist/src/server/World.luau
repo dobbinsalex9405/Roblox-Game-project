@@ -171,14 +171,16 @@ local function buildTower(model: Model, at: (Vector3) -> CFrame)
 		local plaqueLabel = billboard(plaque, Vector3.zero, UDim2.fromScale(sign.width, sign.height), "")
 		local plaqueGui = plaqueLabel.Parent :: BillboardGui
 		plaqueGui.Enabled = false
-		-- Where the price shows while this is the next floor to buy: out in
-		-- front of the roof that sits here until then (Geometry.FLOOR_LABEL).
-		-- Not a tower part, so syncTower leaves it to the price code.
+		-- Where the price shows while this is the next floor to buy: under
+		-- the name plaque of the floor below, the top one built until then
+		-- (Geometry.FLOOR_LABEL). Not a tower part, so syncTower leaves it to
+		-- the price code.
 		if floor > 1 then
+			local below = top - Geometry.FLOOR_HEIGHT
 			local price = part({
 				Name = "PriceSign",
 				Size = Vector3.new(1, 1, 0.3),
-				CFrame = at(Vector3.new(0, top + Geometry.FLOOR_LABEL.above, Geometry.priceSignZ())),
+				CFrame = at(Vector3.new(0, below + Geometry.FLOOR_LABEL.above, Geometry.priceSignZ())),
 				Transparency = 1,
 				CanCollide = false,
 				CanQuery = false,
@@ -556,6 +558,8 @@ function World.pushOut(player: Player, index: number)
 	World.teleport(player, CFrame.lookAt(position, position + Vector3.new(x - cx, 0, z - cz)))
 end
 
+local PRICE_COLOR = Color3.fromRGB(255, 220, 90) -- the HUD's coin colour
+
 local function setLabel(p: Instance, text: string)
 	local gui = p:FindFirstChild("Label")
 	local label = gui and gui:FindFirstChild("Text")
@@ -757,7 +761,8 @@ local function syncTower(model: Model, d: { [string]: any }?, config: any?)
 		if floor == owned + 1 and claimed and nextPrice then
 			if label == nil then
 				local size = Geometry.FLOOR_LABEL
-				billboard(sign, Vector3.zero, UDim2.fromScale(size.width, size.height), "")
+				local text = billboard(sign, Vector3.zero, UDim2.fromScale(size.width, size.height), "")
+				text.TextColor3 = PRICE_COLOR -- apart from the white name above it
 			end
 			setLabel(sign, Tower.floorLabel(floor, nextPrice))
 		elseif label then
