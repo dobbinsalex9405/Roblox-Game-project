@@ -130,6 +130,15 @@ jobs:
           if [ "$ART" = "thumbs" ]; then args+=(--thumbs); else args+=(--no-render); fi
           PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/blender/build.py "$RUNNER_TEMP/meshes" "${args[@]}"
 
+      - name: Check every FBX is at rest
+        # A posed FBX is baked into the meshes by Roblox's importer, and the
+        # game then draws that part out of place (fbx_check.py).
+        if: inputs.art != 'thumbs'
+        run: |
+          args=()
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/blender/fbx_check.py "$RUNNER_TEMP/meshes" "${args[@]}"
+
       - name: Upload to Roblox
         run: |
           args=()
