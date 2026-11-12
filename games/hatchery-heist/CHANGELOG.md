@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: on a phone the coin box sits small in the top-left corner and the goal
+  line is a thin strip at the bottom, so the tower's floor signs and the next
+  floor's price show above your character instead of hiding behind them.
 - Fix: the ground floor has a name sign too ("1. Cozy Studio  x1.00"), like
   every floor above it.
 - Fix: the "Floor N: price" sign for the next floor to buy shows again, in

@@ -1101,6 +1101,17 @@ end
 
 -- Fires the click a player's tap would: Activated if the game listens to it,
 -- else MouseButton1Click, else the press and release.
+-- A CoreClient/Modal backdrop: tapping it closes its window if that is
+-- open, and does nothing otherwise (the guard checks). Its own Visible is
+-- not read: it follows the window through property-changed signals, which
+-- the headless shim does not fire.
+function Gui.isModalBackdrop(inst: any): boolean
+	local ok, modal = pcall(function()
+		return inst.ClassName == "TextButton" and inst.Modal == true
+	end)
+	return ok and modal == true
+end
+
 function Gui.click(Shim: any, inst: any): boolean
 	local function listening(name: string): boolean
 		local s = Shim.signalOf(inst, name)
@@ -1290,6 +1301,7 @@ function Gui.audit(
 	end
 
 	-- 1. The first screen at every size.
+	local phoneCover = 0
 	local idleItems
 	local texts = {}
 	for _, screen in Gui.SCREENS do
@@ -1324,14 +1336,7 @@ function Gui.audit(
 				notes,
 				`On a phone, solid panels cover {math.floor(cover * 100)}% of the first screen.`
 			)
-			if cover > 0.4 then
-				table.insert(findings, {
-					severity = "WARN",
-					rule = "hud.covers-world",
-					message = `On a phone the first screen's panels cover {math.floor(cover * 100)}% of the view; players need to see the world.`,
-					screens = { "phone" },
-				})
-			end
+			phoneCover = cover
 		end
 	end
 	local errors = opts.takeErrors()
@@ -1624,6 +1629,51 @@ function Gui.audit(
 				)
 			end
 		end
+	end
+
+	-- What covers the world while playing: the first screen with its
+	-- one-tap windows closed (a welcome card behind a Modal backdrop,
+	-- CoreClient/Modal), in a fresh boot (the clicks above changed the
+	-- first one). Without a reboot, the first screen as it was.
+	local playing = phoneCover
+	if opts.reboot then
+		local _, fresh = opts.reboot()
+		opts.setScreen(fresh, phone.width, phone.height, phone.inset)
+		-- Long enough for the save to arrive and a first-time welcome to show.
+		opts.wait(opts.settle)
+		local before = snapshotScreen(fresh, phone)
+		local pg = fresh:FindFirstChild("PlayerGui")
+		for _, d in (if pg then pg:GetDescendants() else {}) do
+			if Gui.isModalBackdrop(d) then
+				Gui.click(opts.shim, d)
+			end
+		end
+		opts.wait(opts.settle)
+		local after, afterList = snapshotScreen(fresh, phone)
+		render(after, afterList, phone, "phone-playing.png", "phone while playing (open windows closed)")
+		local closed = 0
+		local shown = visibleSet(after)
+		for key in visibleSet(before) do
+			if shown[key] == nil then
+				closed += 1
+			end
+		end
+		playing = Gui.coverage(after, phone)
+		table.insert(
+			notes,
+			`While playing (a fresh join, open windows closed by a tap outside them: {closed} element(s) hid), solid panels cover {math.floor(
+				playing * 100
+			)}% of a phone screen.`
+		)
+		opts.takeErrors()
+	end
+	if playing > 0.4 then
+		table.insert(findings, {
+			severity = "WARN",
+			rule = "hud.covers-world",
+			message = `On a phone the HUD's panels cover {math.floor(playing * 100)}% of the view while playing; players need to see the world.`,
+			screens = { "phone" },
+		})
 	end
 
 	-- Fold the screens each finding showed up on into its message.
