@@ -78,10 +78,12 @@ art and code.
   member count, so every creature in a tier shows the same "1 in N". The
   few points left over move to the commonest tiers first.
 - Rarer is rarer: from Rare up, each creature of a tier is less likely than
-  each creature of the tier below. A tier with few creatures (2 Legendaries
-  today) is held at 1.5x below the tier under it until more join; it climbs
-  to its target as the roster fills. Common and Uncommon are free, so a
-  dearer egg can favour Uncommon.
+  each creature of the tier below, and each tier as a whole is less likely
+  than the tier below (2 Legendaries never read rarer than 20 Godlies). A
+  tier with few creatures (2 Legendaries today) is held at 1.5x below the
+  tier under it, or just enough above the tier over it, until more join;
+  it climbs to its target as the roster fills. Common and Uncommon are
+  free, so a dearer egg can favour Uncommon.
 - Each Godly is a fixed chance per creature (1 in 10M from Basic and
   Meadow, the smallest whole weight; 1 in 2M from Moonlit), so the Godly
   tier grows with every Godly added. Up the coin ladder each Rare-and-up

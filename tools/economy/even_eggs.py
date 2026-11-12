@@ -23,7 +23,8 @@ first). 10,000,000 is the most a total can be (Schemas; Hatchery's fixed
 order multiplies two weights and must stay exact).
 
 Rarer is rarer: from Rare up, each creature of a tier is less likely than
-each creature of the tier below (Common and Uncommon are free, so a dearer
+each creature of the tier below, and each tier as a whole is less likely
+than the tier below (Common and Uncommon are free, so a dearer
 egg can favour Uncommon). A thin tier (two
 Legendaries) would otherwise make each of its creatures likelier than each
 Epic; its chance is cut to EVEN_STEP times below the tier under it until
@@ -91,11 +92,15 @@ def first_ranked(tiers):
     return next(i for i, t in enumerate(tiers) if TIERS.index(t) >= TIERS.index('Rare'))
 
 
-def rarer_is_rarer(tiers, each):
+def rarer_is_rarer(tiers, each, counts=None):
     """True when, from Rare up, every tier's creatures are each less likely
-    than the tier below's."""
+    than the tier below's, and (given counts) every tier as a whole is less
+    likely than the tier below, so the odds card never reads upside down."""
     start = first_ranked(tiers)
-    return all(each[tiers[i]] < each[tiers[i - 1]] for i in range(start + 1, len(tiers)))
+    pairs = [(tiers[i - 1], tiers[i]) for i in range(start + 1, len(tiers))]
+    if not all(each[t] < each[b] for b, t in pairs):
+        return False
+    return counts is None or all(each[t] * counts[t] < each[b] * counts[b] for b, t in pairs)
 
 
 def solve(total, chances, counts):
@@ -126,6 +131,19 @@ def solve(total, chances, counts):
         if each[t] < 1:
             raise SystemExit(f'{t} cannot sit below {below} ({each[below]} each) with total {total}')
         cut.add(t)
+    # And as a whole: a cut tier must still outweigh the tier above it (two
+    # Legendaries cut to 8 each would read rarer than 20 Godlies at 1 each).
+    start = first_ranked(tiers)
+    for i in range(len(tiers) - 2, start - 1, -1):
+        t, rarer = tiers[i], tiers[i + 1]
+        if each[t] * counts[t] > each[rarer] * counts[rarer]:
+            continue
+        need = each[rarer] * counts[rarer] // counts[t] + 1
+        if t in fixed or (i > start and need >= each[tiers[i - 1]]):
+            raise SystemExit(f'{t} ({counts[t]} creatures) cannot outweigh {rarer} as a tier and stay '
+                             f'rarer per creature than {tiers[i - 1]}: change the targets')
+        each[t] = need
+        cut.add(t)
     deficit = total - sum(each[t] * counts[t] for t in tiers)
     # Move the leftover points: try small whole steps on up to three tiers
     # and keep the split that keeps rarer creatures rarer and shifts the
@@ -151,7 +169,7 @@ def solve(total, chances, counts):
                     cost = tuple(abs(k.get(t, 0)) / each[t] for t in reversed(tiers))
                     if best is not None and cost >= best[0]:
                         continue
-                    if not rarer_is_rarer(tiers, {t: each[t] + k.get(t, 0) for t in tiers}):
+                    if not rarer_is_rarer(tiers, {t: each[t] + k.get(t, 0) for t in tiers}, counts):
                         continue
                     best = (cost, k)
     if best is None:

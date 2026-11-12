@@ -20,6 +20,9 @@ Non-obvious choices, newest first, so a later session can trust them.
   was 1 in 10 and each Epic 1 in 75. even_eggs.py now cuts such a tier to
   1.5x below the tier under it and gives the points to the commoner tiers;
   as Legendaries go live the cut lifts and the tier climbs to its target.
+  Each tier as a whole must also stay likelier than the tier above it: a
+  cut to 2 x 8 left Basic's Legendaries (1 in 625,000) reading rarer than
+  its 20 Godlies (1 in 500,000), so the cut stops at 2 x 11 there.
   Common and Uncommon are exempt, so a dearer egg can favour Uncommon over
   Common (Moonlit). Eggs.spec checks it on the real config.
 - **Godlies:** each Moonlit Godly stays 1 in 2,000,000 (#123); Basic and

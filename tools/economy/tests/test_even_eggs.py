@@ -62,6 +62,19 @@ class Solve(unittest.TestCase):
         self.assertTrue(even_eggs.rarer_is_rarer(list(each), each))
         self.assertFalse(even_eggs.rarer_is_rarer(list(each), {**each, 'Ultra Rare': 50006}))
 
+    def test_cut_tier_still_outweighs_the_tier_above(self):
+        # Basic on today's roster: 2 Legendaries cut below the Epics (13
+        # each) must still beat 20 Godlies at 1 each as a tier.
+        chances = {'Common': 0.92, 'Uncommon': 0.072, 'Rare': 0.007, 'Ultra Rare': 0.0009,
+                   'Epic': 0.00008, 'Legendary': 0.00002, 'Godly': ('each', 0.0000001)}
+        counts = {'Common': 199, 'Uncommon': 97, 'Rare': 60, 'Ultra Rare': 71, 'Epic': 60, 'Legendary': 2,
+                  'Godly': 20}
+        weights = self.check(10_000_000, chances, counts)
+        each = {t: weights[t] // counts[t] for t in weights}
+        self.assertGreater(weights['Legendary'], weights['Godly'])
+        self.assertLess(each['Legendary'], each['Epic'])
+        self.assertTrue(even_eggs.rarer_is_rarer(list(weights), each, counts))
+
     def test_thin_tier_cannot_become_the_likeliest(self):
         # The Giant Golden Egg (Epic and up) with only 2 Legendaries live:
         # each Legendary would be 1 in 10, each Epic 1 in 75.
@@ -72,6 +85,7 @@ class Solve(unittest.TestCase):
             each = {t: weights[t] // counts[t] for t in weights}
             self.assertLess(each['Legendary'], each['Epic'])
             self.assertLess(each['Godly'], each['Legendary'])
+            self.assertTrue(even_eggs.rarer_is_rarer(list(weights), each, counts))
 
     def test_per_creature_tier_that_breaks_the_order_is_refused(self):
         chances = {'Common': 0.9999, 'Epic': 0.0001, 'Godly': ('each', 0.001)}

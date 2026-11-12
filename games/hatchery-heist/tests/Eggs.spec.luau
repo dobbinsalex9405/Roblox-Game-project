@@ -92,7 +92,7 @@ describe("Egg tiers", function()
 		end
 	end)
 
-	it("makes each creature from Rare up less likely than each of the tier below", function()
+	it("makes each creature and each tier from Rare up less likely than the tier below", function()
 		-- A thin tier (two Legendaries) must not make each Legendary likelier
 		-- than each Epic. Common and Uncommon are free, so a dearer egg can
 		-- favour Uncommon over Common.
@@ -110,6 +110,12 @@ describe("Egg tiers", function()
 						expect(if ok then "ok" else `{egg.id}: each {rarity} is not rarer than each {below}`).toBe(
 							"ok"
 						)
+						-- and the tier as a whole, so the odds card never reads
+						-- upside down (2 Legendaries vs 20 Godlies in the Basic Egg)
+						local whole = egg.tiers[rarity] < egg.tiers[below]
+						expect(
+							if whole then "ok" else `{egg.id}: the {rarity} tier is not rarer than {below}`
+						).toBe("ok")
 					end
 					below = rarity
 				end
