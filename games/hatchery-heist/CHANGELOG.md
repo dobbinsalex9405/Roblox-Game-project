@@ -4,6 +4,14 @@
 
 - Fix: the Orchid Mantis's petal legs match on both sides (the right
   petals sat one voxel off the left ones), and the Kiwi has eyes.
+- Fix: creatures that were on screen before their 3D models finished loading
+  (everything in your tower when you join) swap from blocks to their models
+  once those load, instead of staying blocks all session. A model that fails
+  to load at first (a brand-new upload) is tried again for a few minutes.
+- Fix: 16 creatures no longer have bits floating off them in the blocky
+  look shown while their models load (Llama's and Meerkat's heads, Paper
+  Crane's head and tail, BabyKraken's arms, Star Deer's antlers, Ember
+  Imp's horns and ten tails); their models are unchanged.
 - Fix: the Egg Market odds signs keep their odds after you respawn (they went
   blank and the sign script errored after a death).
 - Creatures with a seventh pair of legs (the Pill Bug) walk with all of

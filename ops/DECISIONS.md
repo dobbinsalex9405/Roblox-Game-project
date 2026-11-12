@@ -2,6 +2,74 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: the viewer's blink closes the eyes about their own middle
+
+- Alex saw creatures' eyes move off their faces when they blink. The game
+  blinks by hiding the eyes (CreatureView); the clipping was in the design
+  viewer's clips (tools/art/blender/build.py), which squash the eyes' joint.
+  That joint sits at the head's hinge, a median 0.33 studs from the eyes, so
+  the squash dragged them to the hinge's height: 401 of 499 creatures moved
+  their eyes by more than the eyes' own height.
+- Each blink key now also lifts the joint by what the squash takes away
+  (tools/art/blender/blink.py), so the eyes shut in place and stay inside
+  the space the open eyes fill; test_blink.py checks every creature. Every
+  `blink` part blinks (a second head's `eyes2` too), as in the game.
+- Tool-only: the meshes and CreatureMeshes are unchanged, nothing re-uploads.
+  The viewer's glbs pick it up on their next build. No game CHANGELOG line:
+  players see no change, and a games/ file would ask for a visual playtest
+  of a game that did not change.
+
+## 2026-11-09: CI runs as three parallel jobs behind the required check
+
+- #168's single check job took 30.5 min: art export 14 min, setup and tests
+  9 min, audit 4 min. Legendaries would push it past 35.
+- Build/tests/boot/key flows, the art export and the audit now run side by
+  side. The required "Format, lint, test, build, type check" job waits for all
+  three and passes only if each did, so branch protection is unchanged.
+
+## 2026-11-08: to_config checks the mesh for glow and reports every problem
+
+- A creature below Ultra Rare is held back when its Blender build glows, not
+  only its stand-in: blender/luau.py writes a mesh's glowing voxels as
+  CreatureMeshes `glow` pieces and the game draws those as neon at any tier.
+  Go-live batch 10 uploaded 19 Rares and 17 of them glowed; two (AmethystMole,
+  BabyOctopus) glowed only in the mesh, which the old check missed.
+- Every reason a creature is held is printed (budget, detail floor, stand-in
+  glow, mesh glow), not just the first. The floor is 60% of the tier below's
+  budget (Uncommon 18, Rare 26), the rule VoxelArt.spec enforces.
+- `python3 tools/art/to_config.py --screen ID,ID,...` runs the same checks on
+  built creatures before their mesh run, uploaded or not, so a batch is
+  screened before any upload is spent. It also holds a creature whose
+  stand-in has a part with no way back to the body, where export.py would
+  stop (HerculesBeetle and ClockworkBeetle name their body "shell").
+- A stand-in piece that touches nothing else, not even at an edge or corner,
+  holds a creature back too (GorillaBaby's head box floated one row above
+  its head; Scorpion's stinger and a PomPom fur voxel did the same). Parts
+  named orbit, bubble, motes, rain or cloud float on purpose and pass. A
+  creature already live is reported ("live, kept") and never dropped; its
+  fix is a roster patch.
+
+## 2026-11-08: Legendary stand-ins fit their box budget in code
+
+- 25 of the 48 Legendaries drew 453 to 1022 in-game boxes, over the 450
+  budget, so to_config.py would have kept them out of the game. Legendaries
+  are built in tools/art/legendaries.py, not roster JSON, so the fit is code:
+  `fit_stand_in` runs last, on the coarse build only, and only when a
+  creature is over budget. It merges near-identical shades on each part,
+  then gives the smallest flecks of pattern (one voxel, then two, and so on,
+  heaviest part first) the colour around them, so big markings stay. A
+  coarser-grid redraw (`kit_epicmyth._fit_budget`, as the Epics use) is only
+  the last resort, and none of today's 25 needs it: a first try that used it
+  turned a peacock's tail eyes into blobs and wiped shell and coat patterns.
+  The eyes are never touched. A Legendary whose name is its marking (the
+  peacock's tail eyes, the snowy owl's speckles, the treant's blossoms, the
+  dragon's coin pile) gets a `FIT` entry that keeps the marking and takes
+  the boxes elsewhere: a part's hidden back filled, a ring made chunkier,
+  colours in patches, coins lifted onto the pile.
+- The meshes and thumbnails are untouched (fine-build hashes identical).
+  tools/art/tests/test_legendary_boxes.py fails on any Legendary over budget
+  and on any change to the fine build.
+
 ## 2026-11-08: Rule k is a roster switch and a test
 
 - No creature below Ultra Rare glows. A creature that does gets `"glow": false`
