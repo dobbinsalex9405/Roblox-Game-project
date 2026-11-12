@@ -27,6 +27,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Odds = require(ReplicatedStorage.Core.Odds)
+local Modal = require(ReplicatedStorage.CoreClient.Modal)
 local Shared = ReplicatedStorage.Shared
 local Book = require(Shared.Book)
 local BookGrid = require(Shared.BookGrid)
@@ -712,6 +713,11 @@ function BookView.start(ctx: Context.Context, menu: Menu)
 
 	close.Activated:Connect(function()
 		Sfx.play("click")
+		setOpen(false)
+	end)
+	-- Reachable in first person too: frees the mouse, closes on a tap
+	-- outside, gamepad B or Escape (CoreClient/Modal).
+	Modal.attach(gui, window, function()
 		setOpen(false)
 	end)
 	button = menu.add("Book", "📗 Book", function()

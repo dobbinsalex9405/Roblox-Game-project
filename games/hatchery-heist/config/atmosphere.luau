@@ -280,5 +280,9 @@ return {
 		drawStuds = 160,
 		towers = 4,
 		boxesPerFrame = 400, -- built a little each frame, so nothing hitches
+		-- The front wall's window glass (WorldArt part "pane"), and how far a
+		-- front wall fades while it stands between the camera and you inside.
+		paneTransparency = 0.55,
+		frontFade = 0.8,
 	},
 }

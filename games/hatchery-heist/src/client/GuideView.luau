@@ -15,6 +15,7 @@ local Geometry = require(Shared.Geometry)
 local Layout = require(Shared.Layout)
 
 local Context = require(script.Parent.Context)
+local Modal = require(ReplicatedStorage.CoreClient.Modal)
 
 local GuideView = {}
 
@@ -385,6 +386,11 @@ function GuideView.start(ctx: Context.Context): SideMenu
 
 	local welcome, go = welcomeWindow(gui)
 	go.Activated:Connect(function()
+		welcome.Visible = false
+	end)
+	-- Reachable in first person too: frees the mouse; gamepad B or Escape
+	-- closes it (CoreClient/Modal).
+	Modal.attach(gui, welcome, function()
 		welcome.Visible = false
 	end)
 
