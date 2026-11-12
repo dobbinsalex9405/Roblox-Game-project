@@ -385,6 +385,9 @@ end)
 net:on(Remotes["HH:MergeAll"], function(player: Player)
 	ready:mergeAll(player)
 end)
+net:on(Remotes["HH:Sell"], function(player: Player, uid: string)
+	ready:sell(player, uid)
+end)
 -- The elevator: only from one of the player's own stops, only to a floor
 -- they have built.
 net:on(Remotes["HH:GoFloor"], function(player: Player, floor: number)

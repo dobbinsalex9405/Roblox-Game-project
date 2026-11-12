@@ -31,10 +31,11 @@ Eight bases sit in a ring around a shared yard; each player gets one.
 3. **Hatch.** What an egg hatches is decided and paid for at purchase (a paid
    roll from the odds table, or the fixed order below) and revealed at hatch.
    The creature goes to the highest owned floor of the tower with room for
-   it, otherwise to the inventory (150 slots, `storage.slots`). When the
-   inventory overflows, the weakest stored creature sells for
-   `storage.sellSeconds` of its income. Only creatures on a floor earn.
-4. **Coins.** Placed creatures earn `coinsPerSecond` × mutation × rebirth bonus
+   it, otherwise to the inventory (300 slots, `storage.slots`). With the tower
+   and the inventory both full the egg waits, ready, until the player makes
+   room; nothing is ever sold for them. The reveal shows **Place** and
+   **Stash** for the new creature. Only creatures on a floor earn.
+4. **Coins.** Placed creatures earn `coinsPerSecond` × mutation × merge stars × rebirth bonus
    (× Double Coins pass) into an uncollected pile. Step on the collect pad to
    bank it, or own Auto-Collect to bank it every `autoCollectSeconds`.
 5. **Rebirth.** At the rebirth stand: costs `rebirth.baseCost`, each rebirth
@@ -66,10 +67,31 @@ Legendary and Godly (`slotsByRarity`), side by side in one row.
   Lighting, Food and water, at 20/35/50/75% of that floor's price
   (`upgradeShares`). Each shows a prop on the floor.
 - **Placing.** A new creature goes to the highest floor with room, otherwise
-  to the inventory; nothing is swapped out. "Your Creatures" (🐾 Pets) moves
-  any creature to a floor or back to the inventory; Place best fills the
-  tower from the top floor down by income per spot, leaving the ridden
-  creature and the guard where they are.
+  to the inventory; nothing is swapped out. Place best fills the tower from
+  the top floor down by income per spot, leaving the ridden creature and the
+  guard where they are.
+
+## Creatures window, stash and merger (Alex, Nov 12 2026)
+
+- **Creatures window** (🐾 Pets, client/InventoryView): square rarity tabs
+  like the egg chances screen (All, Common ... Godly; the player's best
+  creature of the tier on the face, how many they own), a search box,
+  filters All / Placed / Stashed / Can merge, and an order (best first,
+  newest, A to Z). Cards show picture, name and stars, coins/s and where it
+  is. Tapping one shows Merge, Stash or Place, Sell (stashed only, two taps)
+  and the floor buttons. The header has Merge all (two taps) and Place best.
+- **Stash** any placed creature from the window, the hatch reveal, or its
+  Stash prompt (Q / D-pad right, own base). The inventory holds
+  `storage.slots` (300). Not the ridden creature, the guard, or one a raider
+  carries. Selling is the player's choice only, for `storage.sellSeconds`
+  of its income.
+- **Merger** (shared/Merge): `merge.copies` (3) of one creature with the same
+  mutation and stars make one with a star more, up to `merge.maxStars` (5).
+  Income × (1 + `merge.bonusPerStar` × (stars − 1)): ×1.5, ×2, ×2.5, ×3.
+  Free. Placed and stashed copies merge together; the copy on the highest
+  floor stays where it is. Used-up copies are kept in `mergeArchive` (last
+  100). Merged creatures cannot be stolen (`raids.maxStealStars`), a stopgap
+  until Egg Heist makes placed creatures safe.
 - **Getting up.** An elevator in one corner (stand at a stop, pick an owned
   floor; the server checks you are at the elevator and own the floor) and a
   ladder on the opposite side. Raiders climb the ladder: a steal is refused
@@ -278,7 +300,8 @@ nothing is ever removed. `found` (Hatchery Book) was added to version 1
 without a migration: the core's reconcile fills it in as `{}`, and join
 back-fills it from the creatures the player owns. `bookSeenAt` was added the
 same way (reconcile fills in 0, so a returning player's first look marks
-their whole book NEW once).
+their whole book NEW once). A creature's `stars` (merger) is read as 1 when
+missing, and `mergeArchive` is filled in as `{}` the same way.
 
 ## Status
 
@@ -307,7 +330,6 @@ adds new ones from playtests, feedback ideas and what worked elsewhere.
   message; eggs finished while away earn nothing until hatched.
 - **depth**: rebirth takes all leftover coins; keep the surplus or warn first.
   Slots 10 to 12 cost more than the first rebirths: re-space the slot curve.
-- **depth**: batch the "Inventory is full" notices (14 in 5 minutes) into one.
 - **return**: show the offline earnings as a reward moment with the number,
   not a passing notice.
 - **monetization**: list the Premium Egg with its odds (M5, paid random:

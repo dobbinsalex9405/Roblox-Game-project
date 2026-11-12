@@ -168,37 +168,6 @@ describe("Merge rules", function()
 		Merge.mergeAll(d, economy, 100)
 		expect(#d.mergeArchive).toBe(Merge.ARCHIVE)
 	end)
-
-	it("auto-sells the stashed creature with the fewest stars first", function()
-		local s = economy.storage.slots
-		expect(s).toBe(300)
-		local d = fresh()
-		d.floors = 1
-		for i = 1, 8 do
-			add(d, tostring(i), "Chick", i)
-		end
-		-- The inventory is full: one merged Chick and 299 better plain creatures.
-		add(d, "100", "Chick", nil, 2)
-		for i = 1, s - 1 do
-			add(d, tostring(200 + i), "Penguin", nil)
-		end
-		local ledger = {
-			add = function(_self: any, _c: string, amount: number, _r: string): number
-				return amount
-			end,
-			spend = function(): boolean
-				return true
-			end,
-			balance = function(): number
-				return 0
-			end,
-		}
-		d.incubators = { { slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Penguin" } }
-		local _, _, sold = Hatchery.hatch(d, ledger :: any, 1, 10, creatures, economy)
-		expect(#sold).toBe(1)
-		expect(sold[1].speciesId).toBe("Penguin")
-		expect(find(d, "100")).toBeTruthy()
-	end)
 end)
 
 describe("Stash", function()

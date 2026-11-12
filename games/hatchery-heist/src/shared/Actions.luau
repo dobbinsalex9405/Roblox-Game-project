@@ -73,6 +73,8 @@ export type Actions = {
 	-- The merger (shared/Merge.luau).
 	merge: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	mergeAll: (self: Actions, player: any) -> (boolean, string?),
+	-- Sells a stashed creature (the player's choice; nothing is ever sold for them).
+	sell: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	rebirth: (self: Actions, player: any) -> (boolean, string?),
 	ride: (self: Actions, player: any, uid: string) -> (boolean, string?),
 	dismount: (self: Actions, player: any) -> (boolean, string?),
@@ -102,27 +104,6 @@ function Actions.new(options: Options): Actions
 	-- Market eggs already sold to someone, by egg number (shared by all).
 	local soldOnMarket: { [number]: boolean } = {}
 	local lastAutoCollect: { [any]: number } = {}
-	-- Storage auto-sales are reported at most once per SOLD_NOTICE_SECONDS,
-	-- summed, so they never drown out other notices.
-	local SOLD_NOTICE_SECONDS = 20
-	type SoldNotice = { at: number, count: number, coins: number, what: string }
-	local soldNotice: { [any]: SoldNotice } = {}
-
-	local function flushSold(player: any, now: number, force: boolean)
-		local pending = soldNotice[player]
-		if pending == nil or pending.count == 0 then
-			return
-		end
-		if not force and now - pending.at < SOLD_NOTICE_SECONDS then
-			return
-		end
-		local what = if pending.count == 1 then pending.what else `{pending.count} creatures`
-		options.notify(player, `Inventory is full: sold {what} for {pending.coins} coins.`)
-		pending.at = now
-		pending.count = 0
-		pending.coins = 0
-	end
-
 	local function perSecond(d: Hatchery.Data, player: any): number
 		local perks = options.perks(player)
 		return Hatchery.incomePerSecond(
@@ -246,7 +227,6 @@ function Actions.new(options: Options): Actions
 			lastAutoCollect[player] = now
 		end
 		onboarding(player, step)
-		flushSold(player, now, false)
 	end
 
 	-- Call when the player leaves, before their data is released.
@@ -255,7 +235,6 @@ function Actions.new(options: Options): Actions
 			return nil
 		end)
 		lastAutoCollect[player] = nil
-		soldNotice[player] = nil
 	end
 
 	-- The cheapest coin egg the market sells.
@@ -342,7 +321,6 @@ function Actions.new(options: Options): Actions
 
 	function actions.hatch(_self: Actions, player: any, slot: number): (boolean, string?)
 		local creature: any = nil
-		local sold: { any } = {}
 		local step: number? = nil
 		local fullStep: number? = nil
 		local isNew = false
@@ -350,7 +328,7 @@ function Actions.new(options: Options): Actions
 		local ok, err = change(player, function(d, ledger)
 			local refusal: string?
 			local foundBefore = Hatchery.foundCount(d, config.creatures)
-			creature, refusal, sold = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
+			creature, refusal = Hatchery.hatch(d, ledger, slot, now, config.creatures, economyConfig)
 			isNew = Hatchery.foundCount(d, config.creatures) > foundBefore
 			if creature then
 				step = Hatchery.markFirst(d, "FirstHatch", now)
@@ -365,16 +343,13 @@ function Actions.new(options: Options): Actions
 			onboarding(player, fullStep)
 			analytics:custom(player, "Egg:Hatched", 1, { creature.eggId, creature.speciesId })
 			options.hatched(player, creature.speciesId, creature.eggId, isNew, creature.uid)
-			if #sold > 0 then
-				local pending: SoldNotice = soldNotice[player]
-					or { at = -math.huge, count = 0, coins = 0, what = "" }
-				soldNotice[player] = pending
-				for _, c in sold do
-					pending.coins += Hatchery.sellValue(c, config.creatures, economyConfig)
-				end
-				pending.count += #sold
-				pending.what = sold[1].speciesId
-				flushSold(player, now, false)
+			if creature.slot == nil then
+				-- No pad free: it waits in the inventory. Say so, or it looks
+				-- as if it disappeared (Staging playtest, Nov 12).
+				options.notify(
+					player,
+					`Your tower is full: {DisplayName(creature.speciesId)} went to your inventory. Open Creatures to place it.`
+				)
 			end
 		end
 		return ok, err
@@ -469,8 +444,6 @@ function Actions.new(options: Options): Actions
 		end)
 		if ok then
 			options.notify(player, `{name} is in your inventory.`)
-		elseif err then
-			options.notify(player, err)
 		end
 		return ok, err
 	end
@@ -494,8 +467,6 @@ function Actions.new(options: Options): Actions
 		end)
 		if ok and floor then
 			options.notify(player, `Placed on floor {floor}.`)
-		elseif err then
-			options.notify(player, err)
 		end
 		return ok, err
 	end
@@ -512,8 +483,23 @@ function Actions.new(options: Options): Actions
 			local stars = Merge.stars(kept)
 			analytics:custom(player, "Gameplay:Merge", stars, { kept.speciesId })
 			options.notify(player, `Merged {#used + 1} into one {stars}-star {DisplayName(kept.speciesId)}!`)
-		elseif err then
-			options.notify(player, err)
+		end
+		return ok, err
+	end
+
+	function actions.sell(_self: Actions, player: any, uid: string): (boolean, string?)
+		local coins: number? = nil
+		local name = ""
+		local ok, err = change(player, function(d, ledger)
+			local c = Hatchery.creatureByUid(d, uid)
+			name = if c then DisplayName(c.speciesId) else ""
+			local refusal: string?
+			coins, refusal = Hatchery.sell(d, ledger, uid, options.now(), config.creatures, economyConfig)
+			return refusal
+		end)
+		if ok and coins then
+			analytics:custom(player, "Gameplay:Sell", coins, { name })
+			options.notify(player, `Sold {name} for {coins} coins.`)
 		end
 		return ok, err
 	end
@@ -529,8 +515,6 @@ function Actions.new(options: Options): Actions
 		if ok then
 			analytics:custom(player, "Gameplay:MergeAll", merges)
 			options.notify(player, `Made {merges} merge{if merges == 1 then "" else "s"}!`)
-		elseif err then
-			options.notify(player, err)
 		end
 		return ok, err
 	end

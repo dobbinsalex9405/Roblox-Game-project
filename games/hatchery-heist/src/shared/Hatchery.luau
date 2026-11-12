@@ -484,7 +484,8 @@ function Hatchery.padsFull(d: Data, creatureConfig: any, economy: any): boolean
 	return Tower.full(d, creatureConfig, economy)
 end
 
--- Coins a stored creature sells for when storage overflows.
+-- Coins a stashed creature sells for (the Sell button in the Creatures
+-- window): `sellSeconds` of its income.
 function Hatchery.sellValue(creature: any, creatureConfig: any, economy: any): number
 	return math.max(
 		1,
@@ -492,69 +493,39 @@ function Hatchery.sellValue(creature: any, creatureConfig: any, economy: any): n
 	)
 end
 
--- Keeps storage within its size: while it is over, the weakest stored creature
--- is sold for coins (fewest stars first, so a merged creature goes last).
--- Returns the creatures sold.
-local function weaker(a: any, b: any, creatureConfig: any, economy: any): boolean
-	local sa, sb = Merge.stars(a), Merge.stars(b)
-	if sa ~= sb then
-		return sa < sb
+-- Whether a new creature has somewhere to go: a free spot in the tower, or
+-- room in the inventory.
+local function roomFor(d: Data, creature: any, creatureConfig: any, economy: any): boolean
+	if Tower.autoPlace(d, creature, creatureConfig, economy) then
+		return true
 	end
-	return Hatchery.creatureIncome(a, creatureConfig, economy)
-		< Hatchery.creatureIncome(b, creatureConfig, economy)
-end
-
-local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy: any): { any }
-	local sold = {}
-	while true do
-		local stored = 0
-		local weakestIndex: number? = nil
-		for index, c in d.creatures do
-			if c.slot == nil then
-				stored += 1
-				if
-					c.uid ~= d.mountUid
-					and c.uid ~= d.guardUid
-					and (
-						weakestIndex == nil
-						or weaker(c, d.creatures[weakestIndex :: number], creatureConfig, economy)
-					)
-				then
-					weakestIndex = index
-				end
-			end
-		end
-		if stored <= economy.storage.slots or weakestIndex == nil then
-			return sold
-		end
-		local c = table.remove(d.creatures, weakestIndex :: number)
-		ledger:add("coins", Hatchery.sellValue(c, creatureConfig, economy), "Gameplay:SellCreature")
-		table.insert(sold, c)
-	end
+	return Tower.stashed(d) < economy.storage.slots
 end
 
 -- Hatches the ready egg in `slot` into the creature chosen when it was bought.
--- Returns the new creature, or nil and a refusal, plus any stored creatures
--- sold to make room.
+-- It goes to the highest floor with room, else the inventory. With the tower
+-- and the inventory both full the egg waits, ready, and nothing is sold: the
+-- player merges, sells or places first (Nov 12: a hatch must never vanish,
+-- and nothing is sold without the player asking). Returns the new creature,
+-- or nil and a refusal.
 function Hatchery.hatch(
 	d: Data,
-	ledger: Ledger,
+	_ledger: Ledger,
 	slot: number,
 	now: number,
 	creatureConfig: any,
 	economy: any
-): (any?, string?, { any })
+): (any?, string?)
 	local incubator, index = Hatchery.incubatorAt(d, slot)
 	if incubator == nil or index == nil then
-		return nil, "That incubator is empty.", {}
+		return nil, "That incubator is empty."
 	end
 	if now < incubator.readyAt then
-		return nil, `Ready in {math.ceil(incubator.readyAt - now)}s.`, {}
+		return nil, `Ready in {math.ceil(incubator.readyAt - now)}s.`
 	end
 	if creatureConfig.species[incubator.outcome] == nil then
-		return nil, "unknown creature", {}
+		return nil, "unknown creature"
 	end
-	table.remove(d.incubators, index)
 	local creature = {
 		uid = tostring(d.nextUid),
 		speciesId = incubator.outcome,
@@ -563,12 +534,44 @@ function Hatchery.hatch(
 		eggId = incubator.eggId,
 		hatchedAt = now,
 	}
+	if not roomFor(d, creature, creatureConfig, economy) then
+		return nil,
+			`Your tower and inventory are full ({economy.storage.slots}). Merge, sell or place creatures, then hatch.`
+	end
+	table.remove(d.incubators, index)
 	d.nextUid += 1
-	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, now)
-	local sold = trimStorage(d, ledger, creatureConfig, economy)
-	return creature, nil, sold
+	return creature, nil
+end
+
+-- Sells a stashed creature for coins (the player's choice, Creatures
+-- window). Placed, ridden and guarding creatures are not for sale. It is
+-- kept in `mergeArchive` like a merged-away copy, for support.
+function Hatchery.sell(
+	d: Data,
+	ledger: Ledger,
+	uid: string,
+	now: number,
+	creatureConfig: any,
+	economy: any
+): (number?, string?)
+	if uid == d.mountUid or uid == d.guardUid then
+		return nil, "It is busy: get off it or stand it down first."
+	end
+	for index, c in d.creatures do
+		if c.uid == uid then
+			if c.slot ~= nil then
+				return nil, "Stash it first, then sell it."
+			end
+			local coins = Hatchery.sellValue(c, creatureConfig, economy)
+			table.remove(d.creatures, index)
+			ledger:add("coins", coins, "Gameplay:SellCreature")
+			Merge.keep(d, { c }, "sold", now)
+			return coins, nil
+		end
+	end
+	return nil, "You do not own that creature."
 end
 
 -- Removes a creature for a raid that succeeded. The creature being ridden and
@@ -586,15 +589,9 @@ function Hatchery.takeCreature(d: Data, uid: string): any?
 end
 
 -- Gives a player a creature from elsewhere (a raid). It gets a new uid in
--- their save and is placed like a fresh hatch. Returns it and any stored
--- creatures sold to make room.
-function Hatchery.receive(
-	d: Data,
-	ledger: Ledger,
-	from: any,
-	creatureConfig: any,
-	economy: any
-): (any, { any })
+-- their save and is placed like a fresh hatch. It is always kept, even when
+-- the inventory is full (it may go over until the player makes room).
+function Hatchery.receive(d: Data, _ledger: Ledger, from: any, creatureConfig: any, economy: any): any
 	local creature = {
 		uid = tostring(d.nextUid),
 		speciesId = from.speciesId,
@@ -608,7 +605,7 @@ function Hatchery.receive(
 	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt)
-	return creature, trimStorage(d, ledger, creatureConfig, economy)
+	return creature
 end
 
 function Hatchery.nextSlotCost(d: Data, economy: any): number?

@@ -122,7 +122,9 @@ function Merge.ready(d: Data, economy: any, carried: { [string]: boolean }?): { 
 	return ready
 end
 
-local function archive(d: Data, gone: { any }, into: string, now: number)
+-- Keeps creatures that left the save (merged away or sold) in
+-- `mergeArchive`, the last ARCHIVE of them, for support.
+function Merge.keep(d: Data, gone: { any }, into: string, now: number)
 	if type(d.mergeArchive) ~= "table" then
 		d.mergeArchive = {}
 	end
@@ -186,7 +188,7 @@ function Merge.merge(
 		end
 	end
 	keep.stars = Merge.stars(keep) + 1
-	archive(d, gone, keep.uid, now)
+	Merge.keep(d, gone, keep.uid, now)
 	return keep, nil, gone
 end
 

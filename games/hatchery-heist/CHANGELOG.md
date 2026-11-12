@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- New: merge creatures. 3 of the same creature with the same stars make one
+  with a star more (up to 5 stars; +50% income per star, x3 at 5). Merge one
+  from its card, or Merge all. Merged creatures cannot be stolen.
+- New: the Creatures window is rebuilt like the egg chances screen: rarity
+  tabs with your best creature on each, search, filters (Placed, Stashed,
+  Can merge) and sorting. Tap a creature to merge, stash, place, sell or move it.
+- New: stash any creature. Walk up to one in your tower and hold Q (Stash),
+  or use the Creatures window. After hatching, the reveal has Place and
+  Stash buttons. The inventory holds 300 (was 150).
+- Change: nothing is sold for you any more. With your tower and inventory
+  both full, a ready egg waits until you make room, and says so. You can sell
+  stashed creatures yourself (15 s of their income, was 20 s for auto-sales).
+- Fix: a creature that hatches while your tower is full no longer seems to
+  vanish. It goes to your inventory and a message says so ("Open Creatures
+  to place it").
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails

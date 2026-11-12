@@ -7,7 +7,8 @@
 -- of cards: picture, name and stars, coins per second, where it is.
 --
 -- Tap a card and its actions take the toolbar's place: Merge (3 alike make
--- one with a star more, shared/Merge), Stash or Place, and the floor buttons
+-- one with a star more, shared/Merge), Stash or Place, Sell (stashed only,
+-- tap twice: the game never sells for the player), and the floor buttons
 -- to move it. The header has Merge all (tap twice: it uses copies up) and
 -- Place best. Phone first: every button at least 40 px, text at least 12.
 --
@@ -50,7 +51,8 @@ local TAP = 40 -- px: the phone tap minimum
 local CARD_HEIGHT = 64
 local CARD_MIN_WIDTH = 168
 local PAGE = 90 -- cards drawn at once; "Show more" adds the next lot
-local CONFIRM_SECONDS = 3 -- Merge all waits this long for its second tap
+local CONFIRM_SECONDS = 3
+local TITLE_WIDTH = 130 -- Merge all waits this long for its second tap
 
 export type Menu = {
 	add: (name: string, text: string, onClick: () -> ()) -> TextButton,
@@ -185,9 +187,9 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 
 	---------------------------------------------------------------- header
 	local header = row(frame, "Header", 1)
-	local title = label(header, "Title", "Your Creatures", 22, GOLD)
+	local title = label(header, "Title", "Creatures", 22, GOLD)
 	title.LayoutOrder = 1
-	title.Size = UDim2.new(0, 170, 1, 0)
+	title.Size = UDim2.new(0, TITLE_WIDTH, 1, 0)
 	local counts = label(header, "Counts", "", 13, SOFT)
 	counts.LayoutOrder = 2
 	counts.TextWrapped = true
@@ -254,7 +256,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 	actions.Size = UDim2.new(1, 0, 0, TAP + 6)
 	actions.Visible = false
 	actions.Parent = frame
-	local actionInfo = label(actions, "Picked", "", 14)
+	local actionInfo = label(actions, "Picked", "", 13)
 	actionInfo.Size = UDim2.new(0, 190, 1, 0)
 	actionInfo.TextWrapped = true
 	actionInfo.TextTruncate = Enum.TextTruncate.None
@@ -266,7 +268,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 	------------------------------------------------------------------ grid
 	local grid = Instance.new("ScrollingFrame")
 	grid.Name = "Grid"
-	grid.LayoutOrder = 4
+	grid.LayoutOrder = 5
 	grid.BackgroundTransparency = 1
 	grid.BorderSizePixel = 0
 	grid.CanvasSize = UDim2.fromScale(0, 0)
@@ -279,7 +281,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 	cells.CellPadding = UDim2.fromOffset(6, 6)
 	cells.Parent = grid
 	local empty = label(frame, "Empty", "", 15, SOFT)
-	empty.LayoutOrder = 5
+	empty.LayoutOrder = 4
 	empty.Size = UDim2.new(1, 0, 0, 0)
 	empty.TextWrapped = true
 	empty.TextXAlignment = Enum.TextXAlignment.Center
@@ -310,7 +312,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 		local height = math.min(560, screen.Y - 12)
 		frame.Size = UDim2.fromOffset(width, height)
 		local inner = width - 20
-		counts.Size = UDim2.new(0, math.max(80, inner - 170 - 112 - 112 - 44 - 24), 1, 0)
+		counts.Size = UDim2.new(0, math.max(80, inner - TITLE_WIDTH - 112 - 112 - 44 - 24), 1, 0)
 		local cols = math.max(2, math.floor((inner - 12) / CARD_MIN_WIDTH))
 		local cardWidth = math.floor((inner - 12 - 6 * (cols - 1)) / cols)
 		cells.CellSize = UDim2.fromOffset(cardWidth, CARD_HEIGHT)
@@ -318,7 +320,8 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 			tabWidth = inner
 			tabs:resize(inner)
 		end
-		local above = TAP + tabHolder.AbsoluteSize.Y + (TAP + 6) + 6 * 3 + 16
+		local emptyRow = if empty.Visible then 40 + 6 else 0
+		local above = TAP + tabHolder.AbsoluteSize.Y + (TAP + 6) + 6 * 3 + 16 + emptyRow
 		grid.Size = UDim2.new(1, 0, 0, math.max(CARD_HEIGHT + 8, height - above))
 	end
 
@@ -399,7 +402,10 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 		local species = config.creatures.species[c.speciesId]
 		local rarity = if species then species.rarity else "Common"
 		local stars = Merge.stars(c)
-		actionInfo.Text = `{Layout.displayName(c.speciesId)}{Layout.stars(stars)}`
+		local income = Hatchery.creatureIncome(c, config.creatures, economy)
+		local where = if c.slot then `Floor {Tower.floorOf(c.slot)}` else "Stashed"
+		actionInfo.Text =
+			`{Layout.displayName(c.speciesId)}{Layout.stars(stars)}\n{where} · {Layout.shortNumber(income)}/s`
 		actionInfo.TextColor3 = Layout.rarityColor(rarity)
 		local order = 0
 		local function add(name: string, text: string, color: Color3, width: number): TextButton
@@ -436,6 +442,30 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 				Sfx.play("click")
 				ctx.fire(ctx.remotes["HH:PlaceAuto"], c.uid)
 			end)
+			-- Selling is the player's choice only, and takes a second tap.
+			if c.uid ~= d.mountUid and c.uid ~= d.guardUid then
+				local value = Hatchery.sellValue(c, config.creatures, economy)
+				local priceText = `Sell {Layout.shortNumber(value)}`
+				local sell = add("Sell", priceText, Color3.fromRGB(190, 120, 40), 116)
+				local armedUntil = 0
+				sell.Activated:Connect(function()
+					local now = os.clock()
+					if now > armedUntil then
+						Sfx.play("click")
+						armedUntil = now + CONFIRM_SECONDS
+						sell.Text = "Tap again"
+						task.delay(CONFIRM_SECONDS, function()
+							if os.clock() >= armedUntil and sell.Parent then
+								sell.Text = priceText
+							end
+						end)
+						return
+					end
+					armedUntil = 0
+					Sfx.play("reward")
+					ctx.fire(ctx.remotes["HH:Sell"], c.uid)
+				end)
+			end
 		end
 		-- One button per built floor: green with room, gold where it is.
 		local used = Tower.occupancy(d, config.creatures, economy)
@@ -556,6 +586,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 				filter == "Merge"
 			then "Nothing to merge here yet: you need 3 of one creature with the same stars."
 			else "No creatures match."
+		fit()
 	end
 	InventoryView.redraw = draw
 

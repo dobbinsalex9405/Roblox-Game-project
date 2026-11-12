@@ -140,27 +140,54 @@ describe("Hatchery", function()
 		expect(Hatchery.padsFull(d, config.creatures, economy)).toBe(false)
 	end)
 
-	it("sells the weakest creature in the inventory when it overflows", function()
+	-- Staging playtest, Nov 12: "if a creature is hatched with no open
+	-- slots, they disappear". A full inventory used to sell its weakest
+	-- creature, often the one just hatched. Now nothing is ever sold for
+	-- the player: a hatch goes to the tower, else the inventory, and with
+	-- both full the egg waits, ready, until the player makes room.
+	it("never sells anything: with tower and inventory full the egg waits", function()
 		local d = fresh()
-		local tiny = Util.deepCopy(economy)
-		tiny.storage.slots = 1
 		d.coins = 0
 		d.creatures = {}
 		for i = 1, 8 do
-			table.insert(d.creatures, creature(tostring(i), "Turtle", i))
+			table.insert(d.creatures, creature(tostring(i), "Owlet", i))
 		end
-		table.insert(d.creatures, creature("9", "Turtle", nil))
-		d.nextUid = 10
-		table.insert(
-			d.incubators,
-			{ slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
-		)
-		local chick, _, sold = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, tiny)
-		expect(chick and chick.slot).toBeNil()
-		expect(#sold).toBe(1)
-		expect(sold[1].speciesId).toBe("Chick")
-		expect(d.coins).toBe(config.creatures.species.Chick.coinsPerSecond * tiny.storage.sellSeconds)
-		expect(#d.creatures).toBe(9)
+		d.nextUid = 9
+		for slot = 1, 3 do
+			table.insert(
+				d.incubators,
+				{ slot = slot, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
+			)
+		end
+		local tiny = Util.deepCopy(economy)
+		tiny.storage.slots = 2
+		for slot = 1, 2 do
+			local c = Hatchery.hatch(d, ledger(d), slot, 0, config.creatures, tiny)
+			assert(c)
+			expect(c.slot).toBeNil()
+		end
+		local none, why = Hatchery.hatch(d, ledger(d), 3, 0, config.creatures, tiny)
+		expect(none).toBeNil()
+		expect(why).toContain("inventory are full")
+		expect(#d.creatures).toBe(8 + 2)
+		expect(#d.incubators).toBe(1) -- still there, ready to hatch
+		expect(d.coins).toBe(0)
+		-- Making room lets it hatch.
+		table.remove(d.creatures)
+		expect(Hatchery.hatch(d, ledger(d), 3, 0, config.creatures, tiny) ~= nil).toBe(true)
+	end)
+
+	it("sells a stashed creature only when asked, never a placed one", function()
+		local d = fresh()
+		d.coins = 0
+		d.creatures = { creature("1", "Turtle", 1), creature("2", "Turtle", nil) }
+		local _, why = Hatchery.sell(d, ledger(d), "1", 0, config.creatures, economy)
+		expect(why).toBe("Stash it first, then sell it.")
+		local coins = Hatchery.sell(d, ledger(d), "2", 0, config.creatures, economy)
+		expect(coins).toBe(config.creatures.species.Turtle.coinsPerSecond * economy.storage.sellSeconds)
+		expect(d.coins).toBe(coins)
+		expect(#d.creatures).toBe(1)
+		expect(d.mergeArchive[1].into).toBe("sold")
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()

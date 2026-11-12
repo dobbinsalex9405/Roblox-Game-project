@@ -2,6 +2,58 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: Creature merger, stash anywhere, and no auto-selling
+
+- Alex asked for a merger for same-type creatures, a way to pick up any
+  creature and store it, an inventory laid out like the new egg chances
+  screen, and a Place or Stash choice after hatching. No merger code or
+  spec existed before, only a note ("tier upgrader, 3 to 5 copies").
+- **Merge rule (economy thread sign-off):** 3 copies with the same species,
+  mutation and stars make 1 with a star more, up to 5. Income is multiplied
+  by 1 + 0.5 x (stars - 1). x3 per star was proposed and rejected: tower
+  spots are the real limit, so tripling per star would make a 2-star Epic
+  beat a Legendary per spot and a 5-star end the grind. At x1.5 to x3, a
+  maxed creature (81 copies) earns about one tier up per spot. It's free.
+  The copy on the highest floor stays put, so a merge never loses a spot.
+  Used-up copies go into `mergeArchive` (the last 100) for support.
+- **No auto-selling (coordinator, after the hatch-vanish bug #172):** the
+  inventory used to sell its weakest creature when it overflowed. Now
+  nothing is sold unless the player asks. With the tower and the inventory
+  (now 300) both full, Hatchery.hatch refuses and the egg waits, ready, with
+  a clear message. Players sell stashed creatures with a two-tap Sell button.
+  A creature received from a raid is always kept, even over the cap.
+- **Sell price 20 s -> 15 s of income:** with manual selling, the playtest
+  loop (buy Basic eggs, sell every hatch) paid 51 per 50 spent. At 15 s it
+  returns about 38 (playtests check 9). Worst case with luck (every Rare and
+  rarer weight x3, above the real x3 luck cap): Basic sells back 45 per 50
+  (90%), Meadow 3%, Moonlit 2%. Economy thread signed off on 15.
+- **Stopgap: merged creatures cannot be stolen** (`raids.maxStealStars` = 1;
+  raiders get no Steal prompt on them). Alex decided on Nov 7 that stealing
+  becomes Egg Heist only, so placed creatures will be safe anyway. Until
+  that ships, the live raid code still takes placed creatures, and one raid
+  must not undo up to 81 hatches. This goes away with Egg Heist.
+- **Stash prompt key Q** (gamepad D-pad right), on the same spot as Ride (E)
+  and Make guard (R); PromptKeys and its test keep the three apart.
+- The rarity tab row is the odds screen's own component (RarityTabs,
+  OddsTiers, `oddsScreen` config) from #173, taken as it is so there is
+  one copy. Tiles are 88 to 96 px here, the smallest size whose count line
+  stays readable, so all eight (All plus seven tiers) fit a phone held sideways.
+
+## 2026-11-12: A fresh hatch is never auto-sold; overflow keeps selling the weakest older one
+
+- Alex (Staging playtest): "if a creature is hatched with no open slots, they
+  disappear". A hatch into a full tower already went to the inventory (data
+  kept), but silently, and when the inventory (150) was full the weakest
+  stored creature was sold, usually the one just hatched.
+- Now the new creature is never the one sold (Hatchery trimStorage `keep`),
+  and the player is told where it went. Overflow still sells the weakest
+  older stored creature for coins (the existing valve, with its notice):
+  there is no manual sell yet, so refusing hatches at 150 would leave a
+  player stuck with full incubators. Creatures already auto-sold were removed
+  from the save when sold, so there is nothing a migration could restore;
+  those sold while the inventory was below 150 never existed (nothing was
+  lost there, only unannounced).
+
 ## 2026-11-12: the viewer's blink closes the eyes about their own middle
 
 - Alex saw creatures' eyes move off their faces when they blink. The game

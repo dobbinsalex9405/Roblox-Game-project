@@ -76,11 +76,15 @@ return {
 		},
 	},
 
-	-- Creatures not placed on a floor wait in the inventory. When it is full,
-	-- the weakest one there sells for `sellSeconds` of its income.
+	-- Creatures not placed on a floor wait in the inventory, up to `slots`.
+	-- Nothing is ever sold for the player: with the tower and the inventory
+	-- full, a ready egg waits until they make room (Nov 12). A stashed
+	-- creature the player sells brings `sellSeconds` of its income: 15 keeps
+	-- buying Basic eggs to sell their hatches a loss (about 38 back per 50,
+	-- playtests "hatch-and-sell loop"); 20 made it pay.
 	storage = {
 		slots = 300,
-		sellSeconds = 20,
+		sellSeconds = 15,
 	},
 
 	-- The merger (shared/Merge.luau): `copies` of one creature with the same

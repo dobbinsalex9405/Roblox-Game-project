@@ -34,6 +34,8 @@ return function(Net: any, Schema: any)
 		-- The merger: merge `uid` with 2 copies, or every group there is.
 		["HH:Merge"] = Net.toServer("HH:Merge", { uid }, { count = 4, window = 1 }),
 		["HH:MergeAll"] = Net.toServer("HH:MergeAll", {}, { count = 1, window = 2 }),
+		-- Sell a stashed creature (the player asks; the game never sells for them).
+		["HH:Sell"] = Net.toServer("HH:Sell", { uid }, { count = 4, window = 1 }),
 		["HH:GoFloor"] = Net.toServer("HH:GoFloor", { floor }, { count = 2, window = 1 }),
 		-- The player opened the Hatchery Book (clears its NEW badges).
 		["HH:BookSeen"] = Net.toServer("HH:BookSeen", {}, { count = 1, window = 2 }),
