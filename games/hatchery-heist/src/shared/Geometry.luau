@@ -89,6 +89,18 @@ Geometry.LADDER_HOLE_MAX = { 24, 16.5 }
 -- `above`: its centre over the deck's centre.
 Geometry.FLOOR_LABEL = { width = 32, height = 2.2, above = 2 }
 
+-- Each built floor's name ("2. Book nook  x1.25"), a label in front of its
+-- storey, in studs: `above` its centre over the floor's walking height,
+-- `out` in front of the tower's front edge (TOWER_MIN z). It hangs clear of
+-- the front wall's sills and flower boxes, in the band above the windows
+-- and under the next deck, so the wall never hides it from outside (Studio
+-- gate on #175: inside the wall's thickness, at window height, it did).
+Geometry.FLOOR_PLAQUE = { width = 12, height = 1.8, above = 10.5, out = 1.5 }
+
+function Geometry.plaqueZ(): number
+	return Geometry.TOWER_MIN[2] - Geometry.FLOOR_PLAQUE.out
+end
+
 -- The "YOUR HATCHERY" banner over your own base sign (client/GuideView), in
 -- studs; `above` is its centre over the sign post's centre. It floats clear
 -- above the next-floor label behind it, so from spawn the two never read as

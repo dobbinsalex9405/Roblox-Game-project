@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fix: the hatch reveal can be passed with a gamepad's B button, and opening
+  the Roblox menu (Escape) skips it, like every other window.
+- Fix: each tower floor's name sign hangs in front of the new front wall,
+  above the windows, so it shows from outside again.
 - Fix: the Tower window opened from the elevator (and every other window:
   Creatures, Book, Daily Rewards, the odds list, Shop, Feedback) can always
   be closed, even in first person where the mouse is locked: opening one
