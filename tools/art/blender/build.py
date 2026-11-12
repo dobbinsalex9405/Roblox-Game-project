@@ -374,6 +374,22 @@ def export_files(out_dir, c, coll, joints):
         export_image_format='AUTO',
         export_extras=False,
     )
+    # The FBX goes up at rest. Its clips' NLA tracks are muted for the
+    # export, else the scene is evaluated mid-step (the walk clip's first
+    # frame) and that pose is what the FBX's meshes carry.
+    tracks = [tr for j in joints.values() if j.animation_data for tr in j.animation_data.nla_tracks]
+    for tr in tracks:
+        tr.mute = True
+    bpy.context.view_layer.update()
+    try:
+        export_fbx(out_dir, c)
+    finally:
+        for tr in tracks:
+            tr.mute = False
+        bpy.context.view_layer.update()
+
+
+def export_fbx(out_dir, c):
     bpy.ops.export_scene.fbx(
         filepath=os.path.join(out_dir, f'{c.species}.fbx'),
         use_selection=True,
@@ -382,9 +398,12 @@ def export_files(out_dir, c, coll, joints):
         apply_scale_options='FBX_SCALE_UNITS',
         axis_forward='-Z',
         axis_up='Y',
-        bake_anim=True,
-        bake_anim_use_nla_strips=True,
-        bake_anim_use_all_actions=False,
+        # No animation in the FBX: the game poses every part itself
+        # (CreatureView, Walk.pose), and Roblox's importer bakes the first
+        # frame of the first clip into the meshes, so 198 of 509 creatures
+        # were uploaded mid-step (legs rolled, bodies pitched; real-engine
+        # probe, Nov 12). The .glb keeps the clips for the design viewer.
+        bake_anim=False,
         # no textures in the FBX: Roblox would turn them into a PBR
         # SurfaceAppearance whose TexturePack fails; the palette goes up as
         # its own image (upload.py) and the game sets each MeshPart's TextureID
