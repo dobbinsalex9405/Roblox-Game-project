@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix: eggs sitting in incubators show their own patterned designs (the same
+  eggs you see in the Egg Market) instead of plain coloured balls.
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails
