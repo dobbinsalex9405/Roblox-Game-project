@@ -252,8 +252,12 @@ Rules in `src/shared/Events.luau` and `src/shared/GiantEgg.luau`, numbers in
 - **Giant Golden Egg** (`src/server/GiantEgg.luau`, art from
   `tools/art/world/giantegg.py`): a big gold egg on a plinth in the middle
   of the map. It hatches Epic or better on its own odds (egg `GiantEgg` in
-  `config/eggs.luau`, Alex Nov 12): Epic 79.5%, Legendary 20%, Godly 1 in
-  200, out of every Epic, Legendary and Godly creature (pool `All`). Its
+  `config/eggs.luau`, Alex Nov 12), out of every Epic, Legendary and Godly
+  creature (pool `All`). Its target is Epic 79.5%, Legendary 20%, Godly
+  0.5% (`tools/economy/even_eggs.py` TARGETS); the solver keeps each
+  creature of a rarer tier less likely than each one of the tier below,
+  so while few Legendaries are live their share is cut and moves to Epic,
+  reaching the target once all of them have landed. Its
   prompt opens the same odds card as every egg before it can be bought,
   and a running Lucky Hatch never changes these odds. A sign shows the
   odds, the price and the time to the next one. It is an event special:

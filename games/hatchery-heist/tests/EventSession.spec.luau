@@ -134,10 +134,12 @@ describe("Giant Egg", function()
 			sum += o.weight
 		end
 		expect(sum).toBe(egg.total)
-		-- The economy thread's odds (Nov 12): Epic 79.5%, Legendary 20%, Godly 0.5%.
-		expect(byTier.Epic / egg.total).toBe(0.795)
-		expect(byTier.Legendary / egg.total).toBe(0.2)
-		expect(byTier.Godly / egg.total).toBe(0.005)
+		-- Every tier from Epic up can hatch. The split itself is
+		-- tools/economy/even_eggs.py's (target Epic 79.5%, Legendary 20%,
+		-- Godly 0.5%, cut while a tier is thin), checked by CI's --check.
+		expect((byTier.Epic or 0) > 0).toBe(true)
+		expect((byTier.Legendary or 0) > 0).toBe(true)
+		expect((byTier.Godly or 0) > 0).toBe(true)
 		-- Every Epic, Legendary and Godly that any egg hatches is in it.
 		for _, other in config.eggs do
 			for _, o in other.outcomes do

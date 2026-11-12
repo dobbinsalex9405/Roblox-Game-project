@@ -7,8 +7,14 @@ Non-obvious choices, newest first, so a later session can trust them.
 - Alex, Nov 12: the giant egg "shouldn't hold a specific legendary, just
   far better odds, and no lower pull than epic", and yes to its prices
   (299 Robux outside the event, max(250M, 6 h of income) coins during it).
-- It is egg `GiantEgg` in `config/eggs.luau`: Epic 79.5%, Legendary 20%,
-  Godly 0.5% out of 1,000,000 (the economy thread's numbers). Its pool is
+- It is egg `GiantEgg` in `config/eggs.luau`, out of 1,000,000, with
+  target odds Epic 79.5%, Legendary 20%, Godly 0.5% (the economy thread's
+  numbers). Economy, Nov 12: no creature of a rarer tier may be likelier
+  than one of the tier below, so with few Legendaries live the solver in
+  the every-egg PR cuts their share and moves it to Epic (2 Legendaries:
+  977,340 / 17,660 / 5,000); it reaches the target with all 48. #120 takes
+  those numbers by rerunning even_eggs.py when it remerges main after that
+  PR, and every player-facing odds text reads the config, never a number. Its pool is
   `All` (`Eggs.ALL`): every creature in any pool, kept to its tiers, so
   each new Epic, Legendary or Godly joins it with no per-creature edit and
   `tools/economy/even_eggs.py` keeps its weights even like every egg.
@@ -42,7 +48,6 @@ Non-obvious choices, newest first, so a later session can trust them.
   The viewer's glbs pick it up on their next build. No game CHANGELOG line:
   players see no change, and a games/ file would ask for a visual playtest
   of a game that did not change.
-
 
 ## 2026-11-09: CI runs as three parallel jobs behind the required check
 

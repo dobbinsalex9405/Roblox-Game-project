@@ -7,8 +7,8 @@
   income) or Lucky Hatch (up to 3x luck on rare hatches). A banner at the
   top of the screen counts down to the next one; tap it for details.
 - New: the Giant Golden Egg in the middle of the map. It never hatches
-  below Epic, with far better odds than any other egg (Legendary 1 in 5,
-  Godly 1 in 200), shown on its odds card before you buy. Each player can
+  below Epic, with far better odds than any other egg, shown on its odds
+  card before you buy. Each player can
   buy it once a day: for coins while the daily event runs, for 299 Robux
   the rest of the day.
 - Fix: creatures that were on screen before their 3D models finished loading

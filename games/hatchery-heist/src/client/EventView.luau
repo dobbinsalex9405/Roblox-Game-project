@@ -327,7 +327,7 @@ function EventView.start(ctx: Context.Context)
 		end
 	end)
 
-	-- Its best odds in a line: "Legendary 1 in 5, Godly 1 in 200" (the
+	-- Its best odds in a line, e.g. "Legendary 1 in 57, Godly 1 in 200" (the
 	-- egg's own tiers, which events never change), or the fixed order's
 	-- note for a player under it.
 	local giant = Hatchery.eggById(ctx.config.eggs, GiantEggRules.EGG_ID)
