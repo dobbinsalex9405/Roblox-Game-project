@@ -37,43 +37,43 @@ local eggs: { Egg } = {
 		total = 1000000,
 		pool = "Barnyard",
 		tiers = {
-			Common = 920018, -- 92.0018% (71 x 12,958)
-			Uncommon = 69996, -- 6.9996% (19 x 3,684)
-			Rare = 7986, -- 1 in 125 (1 x 7,986)
-			["Ultra Rare"] = 1800, -- 1 in 556 (1 x 1,800)
-			Epic = 180, -- 1 in 5,556 (1 x 180)
+			Common = 919947, -- 91.9947% (71 x 12,957)
+			Uncommon = 72048, -- 7.2048% (19 x 3,792)
+			Rare = 7005, -- 1 in 143 (1 x 7,005)
+			["Ultra Rare"] = 900, -- 1 in 1,111 (1 x 900)
+			Epic = 80, -- 1 in 12,500 (1 x 80)
 			Legendary = 20, -- 1 in 50,000 (1 x 20)
 		},
 	},
 	{
 		id = "MeadowEgg",
-		priceCoins = 2500,
-		hatchSeconds = 60,
+		priceCoins = 1500,
+		hatchSeconds = 30,
 		total = 1000000,
 		pool = "Meadow",
 		tiers = {
-			Common = 672896, -- 67.2896% (128 x 5,257)
-			Uncommon = 307111, -- 30.7111% (73 x 4,207)
-			Rare = 17000, -- 1.7% (40 x 425)
-			["Ultra Rare"] = 2795, -- 1 in 358 (13 x 215)
-			Epic = 168, -- 1 in 5,952 (6 x 28)
-			Legendary = 30, -- 1 in 33,333 (1 x 30)
+			Common = 580224, -- 58.0224% (128 x 4,533)
+			Uncommon = 369818, -- 36.9818% (73 x 5,066)
+			Rare = 44960, -- 4.496% (40 x 1,124)
+			["Ultra Rare"] = 4498, -- 1 in 222 (13 x 346)
+			Epic = 450, -- 1 in 2,222 (6 x 75)
+			Legendary = 50, -- 1 in 20,000 (1 x 50)
 		},
 	},
 	{
 		id = "MoonlitEgg",
-		priceCoins = 15000,
+		priceCoins = 20000,
 		hatchSeconds = 120,
-		-- Every Godly here is exactly 1 in 1,000,000, however many there are.
+		-- Every Godly here is exactly 1 in 2,000,000, however many there are.
 		total = 10000000,
 		pool = "Moonlit",
 		tiers = {
-			Uncommon = 5800050, -- 58.0005% (6 x 966,675)
-			Rare = 3799980, -- 37.9998% (20 x 189,999)
-			["Ultra Rare"] = 369982, -- 3.69982% (58 x 6,379)
-			Epic = 28998, -- 1 in 345 (54 x 537)
-			Legendary = 800, -- 1 in 12,500 (1 x 800)
-			Godly = 190, -- 1 in 52,632 (19 x 10)
+			Uncommon = 6660012, -- 66.6001% (6 x 1,110,002)
+			Rare = 3000000, -- 30% (20 x 150,000)
+			["Ultra Rare"] = 319986, -- 3.19986% (58 x 5,517)
+			Epic = 19008, -- 1 in 526 (54 x 352)
+			Legendary = 899, -- 1 in 11,123 (1 x 899)
+			Godly = 95, -- 1 in 105,263 (19 x 5)
 		},
 	},
 	{
