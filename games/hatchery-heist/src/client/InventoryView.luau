@@ -209,7 +209,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 	tabHolder.LayoutOrder = 2
 	tabHolder.BackgroundTransparency = 1
 	tabHolder.AutomaticSize = Enum.AutomaticSize.Y
-	tabHolder.Size = UDim2.new(1, 0, 0, 0)
+	tabHolder.Size = UDim2.fromScale(1, 0)
 	tabHolder.Parent = frame
 
 	--------------------------------------------------------------- toolbar
@@ -282,7 +282,7 @@ function InventoryView.start(ctx: Context.Context, menu: Menu)
 	cells.Parent = grid
 	local empty = label(frame, "Empty", "", 15, SOFT)
 	empty.LayoutOrder = 4
-	empty.Size = UDim2.new(1, 0, 0, 0)
+	empty.Size = UDim2.fromScale(1, 0)
 	empty.TextWrapped = true
 	empty.TextXAlignment = Enum.TextXAlignment.Center
 	empty.Visible = false

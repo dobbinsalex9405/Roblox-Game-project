@@ -163,7 +163,7 @@ describe("Hatchery", function()
 		tiny.storage.slots = 2
 		for slot = 1, 2 do
 			local c = Hatchery.hatch(d, ledger(d), slot, 0, config.creatures, tiny)
-			assert(c)
+			assert(c, "the hatch made a creature")
 			expect(c.slot).toBeNil()
 		end
 		local none, why = Hatchery.hatch(d, ledger(d), 3, 0, config.creatures, tiny)
