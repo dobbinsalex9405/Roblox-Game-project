@@ -408,6 +408,8 @@ return function(Schema: any, Odds: any)
 			drawStuds = Schema.number({ min = 20, max = 1000 }),
 			towers = Schema.integer({ min = 1, max = 8 }),
 			boxesPerFrame = Schema.integer({ min = 50, max = 10000 }),
+			paneTransparency = Schema.number({ min = 0, max = 0.9 }),
+			frontFade = Schema.number({ min = 0, max = 1 }),
 		}),
 	})
 

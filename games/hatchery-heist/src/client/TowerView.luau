@@ -14,6 +14,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local Modal = require(ReplicatedStorage.CoreClient.Modal)
 
 local Shared = ReplicatedStorage.Shared
 local Hatchery = require(Shared.Hatchery)
@@ -123,6 +124,13 @@ local function window(
 	close.Parent = frame
 	close.Activated:Connect(function()
 		Sfx.play("click")
+		gui.Enabled = false
+	end)
+	-- The elevator opens this window wherever the camera is, first person
+	-- included, where the mouse is locked and the X was out of reach
+	-- (Staging playtest, Nov 12): the guard frees the mouse and closes on a
+	-- tap outside, gamepad B or Escape (CoreClient/Modal).
+	Modal.attach(gui, frame, function()
 		gui.Enabled = false
 	end)
 	local list = Instance.new("ScrollingFrame")
