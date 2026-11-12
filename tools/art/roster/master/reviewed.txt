@@ -538,3 +538,7 @@ WitchKitten
 YarnKitten
 ZapMouse
 ZebraFoal
+FrostBadger
+FrostPuffin
+IceDragonfly
+VineMonkey
