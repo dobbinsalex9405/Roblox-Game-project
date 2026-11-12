@@ -1,0 +1,38 @@
+PR #123 @ 2d78545a56ad (on main 9de8f848), local Staging build (Output: "core started build=2d78545a56ad"), one Studio play-solo session.
+Diff vs main touches config/creatures, economy, eggs, SPEC/CHANGELOG, tests, tools, ops only (no src).
+
+Row 1 floor prices. In-world locked-floor sign = BillboardGui "Label" on Tower.FloorN.Deck (StudsOffset 0,2,0, AlwaysOnTop false, MaxDistance 80).
+Read before each unlock (Test panel coins, HH:BuyFloor), coins actually paid:
+floor 2 'Floor 2: 20K coins'    paid 20000      config 20000
+floor 3 'Floor 3: 100K coins'   paid 100000     config 100000
+floor 4 'Floor 4: 500K coins'   paid 500000     config 500000
+floor 5 'Floor 5: 2M coins'     paid 2000000    config 2000000
+floor 6 'Floor 6: 8M coins'     paid 8000000    config 8000000
+floor 7 'Floor 7: 25M coins'    paid 25000000   config 25000000
+floor 8 'Floor 8: 75M coins'    paid 75000000   config 75000000
+floor 9 'Floor 9: 190M coins'   paid 190000000  config 190000000
+floor 10 'Floor 10: 475M coins' paid 475000000  config 475000000
+(TextFits read true for floors 2-4 and false for 5-10, but those labels were never on screen/laid out, so TextFits is not meaningful there.)
+The floor-2 sign could not be seen from outside (high and front) or inside storey 1: the label at y~13.8 sits inside the roof shell.
+Tower window (fresh save): Build 20K coins / 100K / 500K / 2M / 8M / 25M / 75M / 190M / 475M coins, every label TextFits=true.
+
+Row 2: Buy prompts: "Meadow Egg: 1.5K coins", "Moonlit Egg: 20K coins", "Basic Egg: 50 coins"; odds card headers "1.5K coins", "20K coins".
+Meadow bought: coins -1500, startedAt 1794483313 readyAt 1794483343 (30 s); Hatch prompt enabled at 1794483343 = 30 s after purchase; hatched GibbonBaby.
+Moonlit bought: coins -20000, hatch span 120 s.
+
+Row 3 cards (desktop 1350x672): Basic 100.0000% (91.9947 / 7.2048 / 0.7005 / 0.0900 / 0.0080 / 0.0020),
+ Meadow 100.0000% (58.0224 / 36.9818 / 4.4960 / 0.4498 / 0.0450 / 0.0050), Moonlit 100.0000% (66.60012 / 30.00000 / 3.19986 / 0.19008 / 0.00899 / Godly 0.00095% · 1 in 105,263).
+Lists: Moonlit 158 rows, 100.0000%, 19 Godly rows each "0.00005% · 1 in 2,000,000", 0 rows not fitting (desktop and phone 844x392, Godly text 14.4 px).
+ Meadow 261 rows, 100.0000%, 0 Godly rows (config has no Godly tier on Basic or Meadow; Premium Egg has Godly 10/100000).
+Phone card: all 14 labels fit, 13.6 px.
+
+Row 4: RebirthStand.Label "Rebirth: 50M coins" (whole from the front; from the side at (104,7,-32) the tower wall cuts it to "Rebirth: 50M coi").
+
+Row 5: Studio test player owns Double Coins (x2). Floor 10 pads (x3.05 when built).
+ HUD +61/s -> +MoonUnicorn (Epic) +1.65K/s -> +Phoenix (Legendary) +5.22K/s.
+ Pad labels: "Moon Unicorn 260/s" (was 200 on main), "Phoenix 575/s" (was 400). Increments 1,589 and 3,570 /s = base x 3.05 x 2 (+ small Book bonus).
+
+Row 6: 80 pad spots full (77 creatures; Epic 2 spots, Legendary 3), inventory 126. 10 Basic eggs hatched 0.35 s apart:
+ AlleyCat, PygmyGoat, Foal, SphynxKitten, Gerbil, Dove, HighlandCalf, Cockatoo, CorgiPup, GreyhoundPup -> placed 77->77, stored 126->136 (+10),
+ 10 x "Your tower is full: <name> went to your inventory. Open Creatures to place it.". Server Sell lines 0.
+Logs: client 131 lines all MessageWarning, 0 errors; Feedback visible. Server Warning 125, Output 53, Info 77, 0 errors; only the usual Studio notices.
