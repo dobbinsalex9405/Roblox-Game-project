@@ -5,7 +5,11 @@
 -- over the server's grey-box tower, whose decks, railings, pillars and
 -- plaques this client then hides (the decks still carry everyone).
 --
--- A full tower is about 4,700 boxes, so only the nearest towers get a
+-- Every storey is walled on all four sides. The front wall's window glass
+-- is see-through, and while you are inside with the camera out in front, the
+-- front walls of your storey and the one above fade so you stay in view.
+--
+-- A full tower is about 5,900 boxes, so only the nearest towers get a
 -- shell: your own and the next nearest, up to `towers` within `drawStuds`
 -- (config/atmosphere.luau `towerShells`); the rest keep the grey box. A
 -- shell is built a few hundred boxes a frame, so nothing hitches.
@@ -29,6 +33,8 @@ type Shell = {
 	folder: Folder?,
 	hidden: { BasePart },
 	building: boolean,
+	fronts: { [number]: { BasePart } }, -- each storey's front wall parts
+	faded: { [number]: boolean },
 }
 
 local CHECK_SECONDS = 0.5
@@ -65,13 +71,16 @@ local function setHidden(shell: Shell, floors: number)
 end
 
 -- Builds `floors` storeys and the roof for one plot, a slice a frame.
-local function build(shell: Shell, floors: number, perFrame: number)
+-- `look` is atmosphere.towerShells (paneTransparency, frontFade).
+local function build(shell: Shell, floors: number, perFrame: number, look: any)
 	if shell.folder then
 		shell.folder:Destroy()
 		shell.folder = nil
 	end
 	setHidden(shell, 0)
 	shell.floors = floors
+	shell.fronts = {}
+	shell.faded = {}
 	if floors == 0 then
 		return
 	end
@@ -101,7 +110,19 @@ local function build(shell: Shell, floors: number, perFrame: number)
 				if not TowerShell.drawn(piece.storey, (local0 * box.offset).Position.Y + box.size.Y / 2) then
 					continue
 				end
-				VoxelProp.part(box, origin).Parent = folder
+				local p = VoxelProp.part(box, origin)
+				if box.part == "pane" then
+					p.Transparency = look.paneTransparency -- window glass: the room shows through
+				end
+				if string.sub(piece.prop, 1, 10) == "TowerFront" then
+					local list = shell.fronts[piece.storey] or {}
+					shell.fronts[piece.storey] = list
+					table.insert(list, p)
+					if shell.faded[piece.storey] then
+						p.LocalTransparencyModifier = look.frontFade
+					end
+				end
+				p.Parent = folder
 				made += 1
 				if made % perFrame == 0 then
 					RunService.Heartbeat:Wait()
@@ -151,7 +172,15 @@ function TowerShellView.start()
 				for rank, entry in plots do
 					local shell = shells[entry.plot]
 					if shell == nil then
-						shell = { plot = entry.plot, floors = 0, folder = nil, hidden = {}, building = false }
+						shell = {
+							plot = entry.plot,
+							floors = 0,
+							folder = nil,
+							hidden = {},
+							building = false,
+							fronts = {},
+							faded = {},
+						}
 						shells[entry.plot] = shell
 					end
 					local s = shell :: Shell
@@ -160,11 +189,38 @@ function TowerShellView.start()
 					local built = TowerShell.storeys(entry.plot:GetAttribute("TowerFloors"), Tower.FLOORS)
 					local want = if near and rank <= config.towers then built else 0
 					if want ~= s.floors then
-						build(s, want, config.boxesPerFrame)
+						build(s, want, config.boxesPerFrame, config)
 					end
 				end
 			end
 			task.wait(CHECK_SECONDS)
+		end
+	end)
+
+	-- Every frame: fade the front walls between the camera and the player
+	-- inside a tower (TowerShell.fadedFronts), and bring them back after.
+	RunService.RenderStepped:Connect(function()
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local camera = Workspace.CurrentCamera
+		for _, shell in shells do
+			local want: { [number]: boolean } = {}
+			local index = shell.plot:GetAttribute("PlotIndex")
+			if root and camera and shell.floors > 0 and type(index) == "number" then
+				local base = Layout.plotCFrame(index)
+				local at = base:PointToObjectSpace(root.Position)
+				local cam = base:PointToObjectSpace(camera.CFrame.Position)
+				want = TowerShell.fadedFronts(at.X, at.Y, at.Z, cam.Z, shell.floors, Layout.floorTop)
+			end
+			for storey, parts in shell.fronts do
+				local fade = want[storey] == true
+				if fade ~= (shell.faded[storey] == true) then
+					shell.faded[storey] = fade
+					for _, p in parts do
+						p.LocalTransparencyModifier = if fade then config.frontFade else 0
+					end
+				end
+			end
 		end
 	end)
 end

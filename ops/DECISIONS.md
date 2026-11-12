@@ -15,11 +15,53 @@ Non-obvious choices, newest first, so a later session can trust them.
   turns each piece back. Measured, not hard-coded, so a future importer that
   keeps the frame needs no change. Not fixed in the FBX export instead: that
   would need every one of 500+ creatures re-uploaded with new asset ids.
-- The importer also shifts 198 of 509 models as a whole (it centres each on
-  its own box); the fit takes the best shift out, since the client places
-  pieces by the listed centres and never uses the import position.
-- The real-engine probe fails any species whose meshes miss their listed
-  centres by over 0.01 studs after the turn and shift.
+- The fit also takes out a whole-model shift, so only pieces that moved
+  against each other count as a miss.
+- 199 live creatures had a walk pose baked into their meshes: the FBX
+  carried the clips and was written mid-clip. The FBX is now written at rest
+  (no clips, NLA muted, every joint reset to rest), tools/art/blender/
+  fbx_check.py re-imports each FBX before upload and fails on any mesh off
+  its rest centre, and the 199 are re-uploaded fresh (#181; detector
+  tools/art/blender/baked_pose.py). Muting alone is not enough: sampling the
+  clips for the .glb leaves each joint at its last pose.
+- The real-engine probe reports any species whose meshes miss their listed
+  centres by over 0.01 studs after the turn (WARN on #171, FAIL from #181).
+
+## 2026-11-12: Towers get a front wall; it fades only while it hides you
+
+- The open front was a deliberate dollhouse cutaway (tower.py: corner
+  pillars and a balcony rail), but Alex read it as a missing wall in the
+  Staging playtest. Every storey now has a front wall the full width of the
+  tower, four big windows whose glass is its own WorldArt part, "pane",
+  drawn see-through (atmosphere.towerShells.paneTransparency), and on floor
+  1 a door at x -4.5..4.5 where the planter gap was.
+- The shell is visual only (no collision; the server's railings still keep
+  players on the decks), so the camera never pops in front of it. To keep
+  the player in view, TowerShell.fadedFronts fades the fronts of the
+  player's storey and the one above while the player is inside and the
+  camera out front (frontFade 0.8); from anywhere else the tower looks whole.
+
+## 2026-11-12: Each bit of the tower belongs to one piece (no z-fighting)
+
+- Alex saw flickering on the tower's frames. The front corner pillars sat
+  inside the side walls on every floor, and other pieces met edge to edge
+  in the same planes, so two pieces drew a face in one place.
+- export.py's own_tower drops a coarse block of a lower piece wherever a
+  higher piece already fills that space (back, left, right, front, floor
+  within a storey; a slab under the storey below's walls; the roof under
+  every storey's walls). TowerShell.spec checks a 10-storey tower for any
+  visible coplanar faces from two pieces: 0 now, 77 square studs before.
+
+## 2026-11-12: Every window frees the mouse (CoreClient/Modal)
+
+- In first person the mouse is locked, so the Tower window opened from the
+  elevator could not be closed. Modal.attach puts a dim backdrop with
+  `Modal = true` behind any window while it shows (Roblox frees the mouse
+  for a visible Modal button), and closes the window on a tap outside it,
+  gamepad B, or the Roblox menu opening (Escape / Android Back: Escape
+  itself cannot be bound, so the menu opening is the signal).
+- Modal.spec fails if a file that makes a window with a "Close" X (or
+  UiKit.window) does not call Modal.attach, so new windows get it too.
 
 ## 2026-11-12: the viewer's blink closes the eyes about their own middle
 

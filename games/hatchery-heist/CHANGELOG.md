@@ -6,6 +6,19 @@
   piece was turned back to front inside its own spot, so faces showed on the
   back of the head and legs poked out of the wrong places when they walked
   (also in the Book and hatch pictures).
+- Fix: eggs sitting in incubators show their own patterned designs (the same
+  eggs you see in the Egg Market) instead of plain coloured balls.
+- Fix: the Tower window opened from the elevator (and every other window:
+  Creatures, Book, Daily Rewards, the odds list, Shop, Feedback) can always
+  be closed, even in first person where the mouse is locked: opening one
+  frees the mouse, and a tap outside it, a gamepad's B button or Escape
+  closes it.
+- The apartment towers have a front wall on every floor: big windows you
+  can see through, and a front door on the ground floor. While you are
+  inside with the camera out front, the front walls of your floor and the
+  one above fade so you stay in view.
+- Fix: no more flickering where the tower's walls, corners, floor edges and
+  roof meet (two pieces drew the same face in the same place).
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails
