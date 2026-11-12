@@ -164,7 +164,7 @@ local function short(n: number): string
 	return string.format("%.0f", n)
 end
 
-local valueRows, valueData = valuesTable()
+local _valueRows, valueData = valuesTable()
 local report = {
 	runs = runs,
 	days = days,

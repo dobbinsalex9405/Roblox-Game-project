@@ -705,7 +705,7 @@ function Sim.run(config: any, profile: Profile, days: number, seed: number): Res
 
 	-- Picks the egg for the next free incubator: most income per second of
 	-- the scarcer resource (coins at today's income, or incubator time).
-	local function pickEgg(reserve: number, free: number): any?
+	local function pickEgg(reserve: number, _free: number): any?
 		local c = context()
 		local inc = math.max(income(), 0.5)
 		local best, bestScore = nil, 0
