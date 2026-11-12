@@ -17,6 +17,8 @@ local Geometry = require(Shared.Geometry)
 local Hatchery = require(Shared.Hatchery)
 local Layout = require(Shared.Layout)
 local Tower = require(Shared.Tower)
+local VoxelProp = require(Shared.VoxelProp)
+local WorldArt = require(Shared.WorldArt)
 
 local World = {}
 
@@ -539,6 +541,34 @@ local function setLabel(p: Instance, text: string)
 	end
 end
 
+-- The egg sitting in an incubator: the same patterned egg art the Egg Market
+-- belt shows (WorldArt, drawn by VoxelProp), `atmosphere.incubatorEggs.height`
+-- studs tall, standing on the incubator's top. A plain ball in the egg's
+-- colour only if that egg has no art (Staging playtest, Nov 12: every
+-- incubator egg was a plain ball).
+local INCUBATOR_EGG = (require(ReplicatedStorage.GameConfig.atmosphere) :: any).incubatorEggs
+
+local function incubatorEgg(eggId: string, top: Vector3, height: number): Instance
+	local prop = WorldArt.props[eggId]
+	local made: Model? = nil
+	if prop then
+		local scale = height / (prop.size[2] * prop.voxel)
+		made = VoxelProp.build(eggId, CFrame.new(top), scale)
+	end
+	if made then
+		made.Name = "Egg"
+		return made
+	end
+	return part({
+		Name = "Egg",
+		Shape = Enum.PartType.Ball,
+		Size = Vector3.new(height, height, height),
+		CFrame = CFrame.new(top + Vector3.new(0, height / 2, 0)),
+		Color = Layout.eggColor(eggId),
+		CanCollide = false,
+	})
+end
+
 local function syncIncubators(model: Model, d: { [string]: any }?, config: any?, slotCount: number)
 	local folder = model:FindFirstChild("Incubators") :: Folder
 	local nextCost = if d and config then Hatchery.nextSlotCost(d, config.economy) else nil
@@ -563,20 +593,15 @@ local function syncIncubators(model: Model, d: { [string]: any }?, config: any?,
 			else Color3.fromRGB(110, 180, 220)
 		p.Transparency = if state == "Locked" then 0.6 else 0
 
-		local egg = p:FindFirstChild("Egg") :: Part?
+		local egg = p:FindFirstChild("Egg")
 		if incubator then
 			if egg == nil or egg:GetAttribute("EggId") ~= incubator.eggId then
 				if egg then
 					egg:Destroy()
 				end
-				local newEgg = part({
-					Name = "Egg",
-					Shape = Enum.PartType.Ball,
-					Size = Vector3.new(2.6, 2.6, 2.6),
-					CFrame = CFrame.new(p.Position + Vector3.new(0, 1.8, 0)),
-					Color = Layout.eggColor(incubator.eggId),
-					CanCollide = false,
-				})
+				-- On the incubator's top (it is a 1-stud-thick disc).
+				local newEgg =
+					incubatorEgg(incubator.eggId, p.Position + Vector3.new(0, 0.5, 0), INCUBATOR_EGG.height)
 				newEgg:SetAttribute("EggId", incubator.eggId)
 				newEgg.Parent = p
 			end

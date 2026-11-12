@@ -140,27 +140,122 @@ describe("Hatchery", function()
 		expect(Hatchery.padsFull(d, config.creatures, economy)).toBe(false)
 	end)
 
-	it("sells the weakest creature in the inventory when it overflows", function()
+	-- Staging playtest, Nov 12: "if a creature is hatched with no open
+	-- slots, they disappear". With the tower full a hatch goes to the
+	-- inventory, and when the inventory overflowed the weakest stored
+	-- creature was auto-sold, usually the one just hatched (and at 150/150
+	-- ten hatches in a row lost six). Nothing is auto-sold now: a hatch
+	-- that fits nowhere waits in its incubator.
+
+	-- A tower whose eight ground pads are full, and `stored` Turtles waiting
+	-- in the inventory.
+	local function fullTower(stored: number): any
 		local d = fresh()
-		local tiny = Util.deepCopy(economy)
-		tiny.storage.slots = 1
 		d.coins = 0
 		d.creatures = {}
 		for i = 1, 8 do
-			table.insert(d.creatures, creature(tostring(i), "Turtle", i))
+			table.insert(d.creatures, creature(tostring(i), "Owlet", i))
 		end
-		table.insert(d.creatures, creature("9", "Turtle", nil))
-		d.nextUid = 10
-		table.insert(
-			d.incubators,
-			{ slot = 1, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
+		for i = 1, stored do
+			table.insert(d.creatures, creature(tostring(8 + i), "Turtle", nil))
+		end
+		d.nextUid = 9 + stored
+		return d
+	end
+
+	local function readyEggs(d: any, count: number)
+		for slot = 1, count do
+			table.insert(
+				d.incubators,
+				{ slot = slot, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
+			)
+		end
+	end
+
+	local function owns(d: any, uid: string): boolean
+		for _, c in d.creatures do
+			if c.uid == uid then
+				return true
+			end
+		end
+		return false
+	end
+
+	it("keeps all ten when ten eggs hatch together into a full tower", function()
+		local cap = economy.storage.slots
+		local d = fullTower(cap - 10)
+		readyEggs(d, 10)
+		local before = #d.creatures
+		for slot = 1, 10 do
+			local c, refusal, sold = Hatchery.hatch(d, ledger(d), slot, 0, config.creatures, economy)
+			expect(refusal).toBeNil()
+			expect(c and c.slot).toBeNil() -- to the inventory
+			expect(c and owns(d, c.uid)).toBe(true)
+			expect(#sold).toBe(0)
+		end
+		expect(#d.creatures).toBe(before + 10) -- every stored Turtle is still there too
+		expect(Hatchery.storedCount(d)).toBe(cap)
+		expect(d.coins).toBe(0)
+		expect(#d.incubators).toBe(0)
+	end)
+
+	it("never sells anything: a hatch with no room waits in its incubator", function()
+		local cap = economy.storage.slots
+		local d = fullTower(cap)
+		readyEggs(d, 2)
+		local before = #d.creatures
+		local nextUid = d.nextUid
+		local c, refusal, sold = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, economy)
+		expect(c).toBeNil()
+		expect(refusal).toBe(
+			`Your tower and inventory are full ({cap}). Make room in your inventory, then hatch: your egg waits here.`
 		)
-		local chick, _, sold = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, tiny)
-		expect(chick and chick.slot).toBeNil()
-		expect(#sold).toBe(1)
-		expect(sold[1].speciesId).toBe("Chick")
-		expect(d.coins).toBe(config.creatures.species.Chick.coinsPerSecond * tiny.storage.sellSeconds)
-		expect(#d.creatures).toBe(9)
+		expect(#sold).toBe(0)
+		expect(#d.creatures).toBe(before)
+		expect(d.coins).toBe(0)
+		expect(#d.incubators).toBe(2) -- both eggs still ready
+		expect(d.nextUid).toBe(nextUid)
+		-- Room on a pad (a creature moved off the tower) lets it hatch there.
+		table.remove(d.creatures, 1)
+		local placed = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, economy)
+		expect(placed and placed.slot).toBe(1)
+		-- Room in the inventory lets the other one hatch into it.
+		for i, c2 in d.creatures do
+			if c2.slot == nil then
+				table.remove(d.creatures, i)
+				break
+			end
+		end
+		local stored = Hatchery.hatch(d, ledger(d), 2, 0, config.creatures, economy)
+		expect(stored ~= nil and stored.slot == nil).toBe(true)
+	end)
+
+	it("says a coin egg has no room only when nothing could hatch it", function()
+		local cap = economy.storage.slots
+		local d = fullTower(cap - 2)
+		expect(Hatchery.noRoomForEgg(d, config.creatures, economy)).toBeNil()
+		readyEggs(d, 2) -- two eggs already waiting fill the last two places
+		expect(Hatchery.noRoomForEgg(d, config.creatures, economy)).toBe(
+			`Your tower and inventory are full ({cap}). Unlock a new floor to make room.`
+		)
+		table.remove(d.creatures, 1) -- a free pad
+		expect(Hatchery.noRoomForEgg(d, config.creatures, economy)).toBeNil()
+	end)
+
+	it("stolen and given creatures always arrive, even past the cap", function()
+		local cap = economy.storage.slots
+		local d = fullTower(cap)
+		local got, sold = Hatchery.receive(
+			d,
+			ledger(d),
+			{ speciesId = "Raccoon", mutation = "None", eggId = "BasicEgg", hatchedAt = 3 },
+			config.creatures,
+			economy
+		)
+		expect(got.slot).toBeNil()
+		expect(#sold).toBe(0)
+		expect(owns(d, got.uid)).toBe(true)
+		expect(Hatchery.storedCount(d)).toBe(cap + 1)
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()
