@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: 199 creatures no longer have one part (a leg, the ears, a tail) sitting
+  slightly out of place. Their 3D models had gone up mid-step; they are
+  uploaded again at rest, and every upload is now checked for this first.
 - Fix: every creature's 3D model is drawn facing the right way round. Each
   piece was turned back to front inside its own spot, so faces showed on the
   back of the head and legs poked out of the wrong places when they walked
