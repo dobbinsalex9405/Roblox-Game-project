@@ -259,60 +259,86 @@ describe("Hatchery", function()
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()
-		for _, eggId in { "BasicEgg", "MeadowEgg", "MoonlitEgg", "PremiumEgg" } do
-			local egg = Hatchery.eggById(config.eggs, eggId)
+		-- Synthetic eggs (rule f): building a real egg's whole cycle is
+		-- 10,000,000 places of 509 creatures each, far too slow for a test.
+		local small = {
+			{
+				id = "Even",
+				total = 1000,
+				outcomes = {
+					{ id = "A", weight = 500 },
+					{ id = "B", weight = 300 },
+					{ id = "C", weight = 150 },
+					{ id = "D", weight = 45 },
+					{ id = "E", weight = 5 },
+				},
+			},
+			-- every weight shares a factor of 4, so the cycle is a quarter
+			{
+				id = "Shared",
+				total = 400,
+				outcomes = {
+					{ id = "A", weight = 240 },
+					{ id = "B", weight = 120 },
+					{ id = "C", weight = 36 },
+					{ id = "D", weight = 4 },
+				},
+			},
+		}
+		for _, egg in small do
 			local cycle = Hatchery.fixedOrderCycle(egg)
-			local total = egg.total or 10000
+			expect(egg.total % #cycle).toBe(0)
 			local counts: { [string]: number } = {}
 			for _, id in cycle do
 				counts[id] = (counts[id] or 0) + 1
 			end
 			for _, o in egg.outcomes do
-				expect(counts[o.id]).toBe(o.weight * #cycle // total)
+				expect(counts[o.id]).toBe(o.weight * #cycle // egg.total)
 			end
 			-- The cycle repeats, so the shown next outcome never changes meaning.
-			for _, i in { 0, 1, 2, 777 } do
+			for _, i in { 0, 1, 2, 77 } do
 				expect(Hatchery.fixedOrderOutcome(egg, i + #cycle)).toBe(Hatchery.fixedOrderOutcome(egg, i))
+				expect(Hatchery.fixedOrderOutcome(egg, i)).toBe(cycle[i % #cycle + 1])
 			end
-			-- The shown wait always lands on that outcome.
+			-- The shown wait always lands on that outcome, and nothing earlier is it.
 			for _, o in egg.outcomes do
 				for _, from in { 0, 5, #cycle - 1 } do
 					local wait = Hatchery.fixedOrderWait(egg, from, o.id) :: number
 					expect(Hatchery.fixedOrderOutcome(egg, from + wait)).toBe(o.id)
-					for ahead = 0, math.min(wait, 200) - 1 do
+					for ahead = 0, wait - 1 do
 						expect(Hatchery.fixedOrderOutcome(egg, from + ahead) ~= o.id).toBe(true)
 					end
 				end
 			end
 		end
-		-- A cycle is at most the total the odds are written in (shorter when
-		-- every weight shares a factor), and the rarest Basic outcome (a
-		-- Phoenix) comes exactly as often as its odds say.
-		local basic = Hatchery.eggById(config.eggs, "BasicEgg")
-		local cycle = Hatchery.fixedOrderCycle(basic)
-		local basicTotal = basic.total :: number
-		expect(basicTotal % #cycle).toBe(0)
-		local phoenixes, phoenixWeight = 0, 0
-		for _, id in cycle do
-			if id == "Phoenix" then
-				phoenixes += 1
+		expect(#Hatchery.fixedOrderCycle(small[2])).toBe(100)
+		-- The real eggs, checked place by place: every egg hatches every
+		-- creature of its tiers (Alex, Nov 12), so check the commonest and the
+		-- rarest creature of each tier at a few places.
+		for _, egg in config.eggs do
+			local length = Hatchery.fixedOrderLength(egg)
+			expect((egg.total :: number) % length).toBe(0)
+			local firstOf: { [string]: any } = {}
+			local lastOf: { [string]: any } = {}
+			for _, o in egg.outcomes do
+				local rarity = config.creatures.species[o.id].rarity
+				firstOf[rarity] = firstOf[rarity] or o
+				lastOf[rarity] = o
 			end
-		end
-		for _, o in basic.outcomes do
-			if o.id == "Phoenix" then
-				phoenixWeight = o.weight
+			for _, picks in { firstOf, lastOf } do
+				for _, o in picks do
+					for _, from in { 0, 12345, length - 1 } do
+						local wait = Hatchery.fixedOrderWait(egg, from, o.id) :: number
+						expect(wait < length).toBe(true)
+						expect(Hatchery.fixedOrderOutcome(egg, from + wait)).toBe(o.id)
+					end
+				end
 			end
+			expect(Hatchery.fixedOrderOutcome(egg, 3 + length)).toBe(Hatchery.fixedOrderOutcome(egg, 3))
 		end
-		expect(phoenixWeight > 0).toBe(true)
-		expect(phoenixes * basicTotal / #cycle).toBe(phoenixWeight)
-		local first = {}
-		for i = 0, 3 do
-			table.insert(first, Hatchery.fixedOrderOutcome(basic, i))
-		end
-		expect(first).toEqual({ "BeaglePup", "BeardedDragon", "Bunny", "Canary" })
-		expect(Hatchery.fixedOrderWait(basic, 0, "BeaglePup")).toBe(0)
-		expect(Hatchery.fixedOrderWait(basic, 0, "Bunny")).toBe(2)
-		expect(Hatchery.fixedOrderWait(basic, 0, "GoldenGoose")).toBeNil()
+		-- The Premium Egg starts at Rare, so a Common never comes.
+		local premium = Hatchery.eggById(config.eggs, "PremiumEgg")
+		expect(Hatchery.fixedOrderWait(premium, 0, "Chick")).toBeNil()
 	end)
 
 	it("sums up the fixed order for the odds card in a few lines", function()

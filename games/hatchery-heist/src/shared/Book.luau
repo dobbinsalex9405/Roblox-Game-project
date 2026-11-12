@@ -10,7 +10,7 @@ export type Entry = {
 	rarity: string,
 	rank: number, -- 1 Common .. 7 Godly
 	coinsPerSecond: number,
-	eggId: string?, -- the egg with the best chance; nil if no egg hatches it
+	eggId: string?, -- the coin egg with the best chance (a Robux egg only if no coin egg hatches it); nil if none
 	weight: number, -- that chance as a weight out of `total`
 	total: number,
 }
@@ -56,14 +56,27 @@ function Book.entries(creatureConfig: any, eggs: { any }, rarities: { string }):
 			weight = 0,
 			total = 1,
 		}
-		for _, egg in eggs do
-			local total = egg.total or 10000 -- the core Odds default
-			for _, outcome in egg.outcomes do
-				if outcome.id == speciesId and outcome.weight / total > entry.weight / entry.total then
-					entry.eggId = egg.id
-					entry.weight = outcome.weight
-					entry.total = total
+		-- Every egg hatches every creature of its tiers (Alex, Nov 12), so
+		-- name the coin egg with the best chance, and a Robux egg only for a
+		-- creature no coin egg hatches.
+		for _, robux in { false, true } do
+			for _, egg in eggs do
+				if (egg.productKey ~= nil) == robux then
+					local total = egg.total or 10000 -- the core Odds default
+					for _, outcome in egg.outcomes do
+						if
+							outcome.id == speciesId
+							and outcome.weight / total > entry.weight / entry.total
+						then
+							entry.eggId = egg.id
+							entry.weight = outcome.weight
+							entry.total = total
+						end
+					end
 				end
+			end
+			if entry.eggId then
+				break
 			end
 		end
 		table.insert(list, entry)

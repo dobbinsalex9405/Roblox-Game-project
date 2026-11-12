@@ -66,17 +66,31 @@ art and code.
 
 ## Rules for odds
 
-- Coin-egg tier weights are written by `tools/economy/even_eggs.py`, never
-  by hand: edit its `TARGETS` (the tier chances per egg) and run it after
-  every pool change (`to_config.py` first). CI runs it with `--check`.
-- Totals are powers of ten (Basic and Meadow 1,000,000, Moonlit
-  10,000,000, Premium 100,000), so the odds screen's percentages add up to
-  exactly 100%. Each tier's weight is a whole multiple of its member count,
-  so every creature in a tier shows the same "1 in N". The few points left
-  over move to the tiers where they shift the odds least. If no even split
-  is close, scale the total by 10 rather than move the odds (rule i).
-- Each Godly is a fixed chance per creature (1 in 2,000,000 in the Moonlit
-  Egg), so the Godly tier grows with every Godly added.
+- Every egg hatches every creature of the tiers it rolls (Alex, Nov 12):
+  one pool, "All". Eggs differ only by their tier odds.
+- Tier weights are written by `tools/economy/even_eggs.py`, never by hand:
+  edit its `TARGETS` (the tier chances per egg) and run it after every
+  roster change (`to_config.py` first). CI runs it with `--check`. Tell the
+  odds-screen owners when TARGETS change.
+- Totals are powers of ten (coin eggs 10,000,000, the most Hatchery's fixed
+  order keeps exact; Premium 1,000,000), so the odds screen's percentages
+  add up to exactly 100%. Each tier's weight is a whole multiple of its
+  member count, so every creature in a tier shows the same "1 in N". The
+  few points left over move to the commonest tiers first.
+- Rarer is rarer: from Rare up, each creature of a tier is less likely than
+  each creature of the tier below. A tier with few creatures (2 Legendaries
+  today) is held at 1.5x below the tier under it until more join; it climbs
+  to its target as the roster fills. Common and Uncommon are free, so a
+  dearer egg can favour Uncommon.
+- Each Godly is a fixed chance per creature (1 in 10M from Basic and
+  Meadow, the smallest whole weight; 1 in 2M from Moonlit), so the Godly
+  tier grows with every Godly added. Up the coin ladder each Rare-and-up
+  creature is at least as likely from the dearer egg (even_eggs checks it).
+  Basic is the cheapest Godly per coin and, with every incubator kept full,
+  about 2.4x Moonlit's Godly chance an hour, but that takes 4,320 Basic
+  purchases an hour (12x Moonlit's) at a fifth of Moonlit's chance per egg,
+  and buries the player in Commons. No player clicks that; watch the
+  Godly-by-source counters after launch.
 - Each step up the egg ladder must be the better buy for its tier. Check
   with `--values` that no dearer egg costs more coins per creature of the
   tier it is for.

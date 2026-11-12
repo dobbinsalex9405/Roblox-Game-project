@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Every egg can hatch every creature: the eggs differ only by their odds
+  (Basic is mostly Commons, Meadow Uncommons, Moonlit Rares and up; Premium
+  is Rare and up). From Rare up, each rarer creature is always less likely
+  than each creature of the tier below, so a Legendary never shows better
+  odds than an Epic. The Book names the best coin egg for each creature.
 - Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
   to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and

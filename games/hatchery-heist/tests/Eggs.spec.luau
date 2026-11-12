@@ -68,31 +68,82 @@ describe("Egg tiers", function()
 		end
 	end)
 
+	it("lets every egg hatch every creature of the tiers it rolls (Alex, Nov 12)", function()
+		for _, egg in Eggs.expand(rawEggs, creatures.species) do
+			local hatches: { [string]: boolean } = {}
+			for _, o in egg.outcomes do
+				hatches[o.id] = true
+			end
+			for id, c in creatures.species do
+				if egg.tiers[c.rarity] then
+					expect(if hatches[id] then id else `{egg.id} cannot hatch {id}`).toBe(id)
+				end
+			end
+		end
+		-- The coin eggs roll all seven tiers, so they hatch the whole roster.
+		for _, egg in rawEggs do
+			if egg.priceCoins then
+				local tiers = 0
+				for _ in egg.tiers do
+					tiers += 1
+				end
+				expect(tiers).toBe(7)
+			end
+		end
+	end)
+
+	it("makes each creature from Rare up less likely than each of the tier below", function()
+		-- A thin tier (two Legendaries) must not make each Legendary likelier
+		-- than each Epic. Common and Uncommon are free, so a dearer egg can
+		-- favour Uncommon over Common.
+		local order = { "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }
+		for _, egg in Eggs.expand(rawEggs, creatures.species) do
+			local each: { [string]: number } = {}
+			for _, o in egg.outcomes do
+				each[creatures.species[o.id].rarity] = o.weight
+			end
+			local below: string? = nil
+			for _, rarity in order do
+				if each[rarity] then
+					if below then
+						local ok = each[rarity] < each[below]
+						expect(if ok then "ok" else `{egg.id}: each {rarity} is not rarer than each {below}`).toBe(
+							"ok"
+						)
+					end
+					below = rarity
+				end
+			end
+		end
+	end)
+
 	it("never moves another tier's odds when a creature is added", function()
 		local before = byId(Eggs.expand(rawEggs, creatures.species))
 		local more = table.clone(creatures.species)
-		more.TestCommon =
-			{ rarity = "Common", coinsPerSecond = 2, mountSpeed = 18, pools = { "Barnyard", "Meadow" } }
-		more.TestEpic = { rarity = "Epic", coinsPerSecond = 150, mountSpeed = 28, pools = { "Moonlit" } }
+		more.TestCommon = { rarity = "Common", coinsPerSecond = 2, mountSpeed = 18, pools = { "All" } }
+		more.TestEpic = { rarity = "Epic", coinsPerSecond = 150, mountSpeed = 28, pools = { "All" } }
 		local after = byId(Eggs.expand(rawEggs, more))
 		for eggId, weights in before do
 			for id, weight in weights do
 				local rarity = creatures.species[id].rarity
-				local moved = (rarity == "Common" and (eggId == "BasicEgg" or eggId == "MeadowEgg"))
-					or (rarity == "Epic" and eggId == "MoonlitEgg")
-				if not moved then
+				if rarity ~= "Common" and rarity ~= "Epic" then
 					expect(after[eggId][id]).toBe(weight)
 				end
 			end
 		end
-		expect(after.BasicEgg.TestCommon).toBeAtLeast(1)
-		expect(after.MoonlitEgg.TestEpic).toBeAtLeast(1)
+		-- Every egg hatches every creature of its tiers (Alex, Nov 12).
+		for _, egg in rawEggs do
+			if egg.tiers.Common then
+				expect(after[egg.id].TestCommon).toBeAtLeast(1)
+			end
+			expect(after[egg.id].TestEpic).toBeAtLeast(1)
+		end
 	end)
 
 	it("lets a creature be rarer inside its tier without moving the tier", function()
 		local more = table.clone(creatures.species)
 		local raccoon = table.clone(more.Raccoon)
-		raccoon.pools = { "Moonlit" }
+		raccoon.pools = { "All" }
 		raccoon.weight = 0.5
 		more.Raccoon = raccoon
 		local moonlit = byId(Eggs.expand(rawEggs, more)).MoonlitEgg
@@ -108,7 +159,7 @@ describe("Egg tiers", function()
 		-- pool don't break it.
 		local parts = 0
 		for id, c in more do
-			if id ~= "Raccoon" and c.rarity == "Rare" and table.find(c.pools, "Moonlit") then
+			if id ~= "Raccoon" and c.rarity == "Rare" and table.find(c.pools, "All") then
 				parts += (c :: any).weight or 1
 			end
 		end
