@@ -23,8 +23,10 @@ Eight bases sit in a ring around a shared yard; each player gets one.
    and a raised sign beside each of the eight stops shows a belt egg's
    name, price and its two rarest tiers as "1 in N", one egg at a time
    (`conveyor.signSeconds`; `Geometry.MARKET_SIGN`; the Golden Nest stays
-   clear). The card's "See every creature" button lists each creature's
-   exact chance. Buy stays off until the odds are known.
+   clear). The card's "See chances" button opens the chances screen: a
+   square tab per rarity tier (standout creature, chance, creature count;
+   `atmosphere.oddsScreen`), and behind each tab every creature of that
+   tier with its exact chance from the egg (`OddsTiers`). Buy stays off until the odds are known.
 2. **Incubators.** 3 to start, more for coins (`economy.incubators.slotCosts`),
    +2 with the Extra Incubators pass. An egg hatches `hatchSeconds` after it
    was bought, by the saved clock, so it keeps going while the player is away.
@@ -125,7 +127,7 @@ studs, a carried one at most `Layout.CARRY_MAX`.
 `Eggs.expand` splits each tier's weight between its creatures, largest
 remainder first, so every tier's chance is exact and adding a creature only
 splits its own tier. The odds card shows one line per tier; the
-"See every creature" list shows each creature as a percentage and as
+chances screen's tier tabs list each creature as a percentage and as
 "1 in N". The rarest belt hatch is a Godly at 1 in 100,000 from the Moonlit
 Egg. Each creature also has an optional `element`, unused until elements
 roll out with a much larger roster.

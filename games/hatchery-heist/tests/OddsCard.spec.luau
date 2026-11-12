@@ -72,4 +72,33 @@ describe("Odds card", function()
 		expect(OddsCard.fits(250, 0, row)).toBe(true)
 		expect(OddsCard.valueShare(0, row)).toBe(0)
 	end)
+
+	it("draws the See chances button 40 px tall or more, even at its smallest", function()
+		expect(OddsCard.BUTTON * OddsCard.MIN_SCALE >= 40).toBe(true)
+	end)
+
+	it("shows a coin egg's button and all seven tiers on a phone held sideways without scrolling", function()
+		-- Verifier (#173): once every egg hatches every tier, a coin egg's
+		-- card has seven tier lines; on a phone the card starts at y 168.
+		local rows = OddsCard.height(7)
+		for _, screenY in { 390, 392 } do
+			local guiHeight = screenY - TOP_BAR
+			local scale, height = OddsCard.fit(rows, screenY, guiHeight, 168)
+			expect(height).toBe(rows) -- whole: nothing scrolls
+			expect(scale >= OddsCard.MIN_SCALE).toBe(true)
+			expect(OddsCard.MIN_TEXT_SIZE * scale * OddsCard.GLYPH_SHARE >= 11).toBe(true)
+			expect(OddsCard.BUTTON * scale >= 40).toBe(true)
+			-- A tier line holds its text.
+			expect(OddsCard.ROW >= OddsCard.MIN_TEXT_SIZE).toBe(true)
+		end
+	end)
+
+	it("drops a percentage's trailing zeros, never its digits", function()
+		expect(OddsCard.shortPercent("4.50000%")).toBe("4.5%")
+		expect(OddsCard.shortPercent("0.00100%")).toBe("0.001%")
+		expect(OddsCard.shortPercent("0.00020%")).toBe("0.0002%")
+		expect(OddsCard.shortPercent("50.00000%")).toBe("50%")
+		expect(OddsCard.shortPercent("58.06024%")).toBe("58.06024%")
+		expect(OddsCard.shortPercent("100%")).toBe("100%")
+	end)
 end)

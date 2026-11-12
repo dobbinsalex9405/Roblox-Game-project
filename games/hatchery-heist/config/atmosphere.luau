@@ -206,6 +206,32 @@ return {
 		preloadStreams = 4,
 		preloadBatch = 6,
 	},
+	-- The egg chances screen (OddsView, Alex Nov 12): one square tab per
+	-- rarity, a standout creature on its face; tap one for every creature
+	-- of that rarity and its exact chance. faces: the creature drawn on each
+	-- tab, used when the egg can hatch it, else the egg's top earner of that
+	-- tier. Tiles are as big as fit, tileMin..tileMax px a side (all seven
+	-- in one row on a phone held sideways), tileGap px apart. Rows of the
+	-- list are rowHeight px with a rowPicture px picture. maxWidth/maxHeight
+	-- bound the window on a big screen.
+	oddsScreen = {
+		faces = {
+			Common = "Bunny",
+			Uncommon = "Kitten",
+			Rare = "PandaCub",
+			["Ultra Rare"] = "StormHawk",
+			Epic = "MoonUnicorn",
+			Legendary = "ThunderGriffin",
+			Godly = "NebulaSerpent",
+		},
+		tileMin = 96,
+		tileMax = 132,
+		tileGap = 6,
+		rowHeight = 40,
+		rowPicture = 36,
+		maxWidth = 840,
+		maxHeight = 560,
+	},
 	guide = {
 		arrivedStuds = 8,
 		-- Roblox's player list (top right on desktop) sat over the side

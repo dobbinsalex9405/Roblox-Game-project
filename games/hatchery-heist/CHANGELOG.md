@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- New egg chances screen: the odds card's "See chances" button opens one
+  square tab per rarity (Common to Godly), each with a standout creature,
+  its chance and how many creatures it holds. Tap a tab to see every
+  creature of that rarity with its picture and exact chance from that egg.
+  The Basic/Meadow/Moonlit buttons switch eggs and keep the open rarity.
 - Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
   to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and

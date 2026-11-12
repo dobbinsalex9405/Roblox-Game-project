@@ -77,6 +77,21 @@ Non-obvious choices, newest first, so a later session can trust them.
   players see no change, and a games/ file would ask for a visual playtest
   of a game that did not change.
 
+## 2026-11-12: Hatchery Heist egg chances screen uses tier tabs
+
+- Alex asked for square tabs per rarity, a notable creature on each, and a
+  tap-through to every creature's chance. It replaces the flat "See every
+  creature" list, which gets too long once every egg can hatch all ~509
+  creatures (Alex, Nov 12; the pool change is the economy thread's PR).
+- Tab faces are fixed per tier in `atmosphere.oddsScreen.faces` (a known,
+  well-made creature beats "highest income", which ties on 3/s for Commons
+  and picks by name). If the egg lacks it, the egg's top earner is shown.
+- A tier the egg cannot hatch stays as a dark, locked tab that says which
+  eggs have it, so the screen reads the same for every egg.
+- List rows use the uploaded Book pictures only; no live models (a tier
+  can hold 200 creatures). Tabs fall back to a live model, 7 at most.
+- Fixed-order players (PolicyService) keep the whole-order list unchanged.
+
 ## 2026-11-12: Hatchery Heist pacing retuned with a simulator (config only)
 
 - **What:** `tools/economy` simulates players (casual, regular, grinder,

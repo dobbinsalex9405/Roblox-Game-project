@@ -53,10 +53,10 @@ local function panel(parent: Instance, name: string, size: UDim2, position: UDim
 	return f
 end
 
-local function listLayout(parent: Instance, padding: number)
+local function listLayout(parent: Instance, padding: number, gap: number?)
 	local layout = Instance.new("UIListLayout")
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Padding = UDim.new(0, 2)
+	layout.Padding = UDim.new(0, gap or 2)
 	layout.Parent = parent
 	local pad = Instance.new("UIPadding")
 	pad.PaddingTop = UDim.new(0, padding)
@@ -207,7 +207,7 @@ function Hud.start(ctx: Context.Context)
 	cardRows.ScrollBarThickness = 4
 	cardRows.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 	cardRows.Parent = card
-	listLayout(cardRows, 8)
+	listLayout(cardRows, OddsCard.PAD, OddsCard.ROW_GAP)
 	local cardEgg: string? = nil
 	-- Smaller on a phone held sideways, so the card leaves the egg and its
 	-- Buy prompt in view (Studio gate, Nov 5): 75% at 392 px tall.
@@ -231,7 +231,7 @@ function Hud.start(ctx: Context.Context)
 		-- padding, but never past the screen; the rows scroll beyond that.
 		-- The GUI starts below Roblox's top bar (Studio gate, #126: 4 px
 		-- off a 392 px phone, the 58 px bar not counted).
-		local rows = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 16
+		local rows = cardLayout.AbsoluteContentSize.Y / math.max(cardScale.Scale, 0.01) + 2 * OddsCard.PAD
 		local guiHeight = screen.Y - GuiService:GetGuiInset().Y
 		local scale, height = OddsCard.fit(rows, screen.Y, guiHeight, if short then 168 else 8)
 		if math.abs(cardScale.Scale - scale) > 0.001 then

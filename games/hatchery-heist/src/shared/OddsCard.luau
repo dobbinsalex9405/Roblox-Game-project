@@ -12,6 +12,21 @@ OddsCard.MARGIN = 8 -- px kept clear below the card
 -- TextBounds.Y (Studio gate, #126), under the floor; 15 measured 12.0 px.
 OddsCard.MIN_TEXT_SIZE = 15
 OddsCard.MIN_SCALE = 0.8
+-- The card's top line is its "See chances" button, with the egg's name
+-- and price on it: BUTTON px tall, 40 px on screen at MIN_SCALE, big enough
+-- to tap on a phone. Under it one ROW px line per tier, ROW_GAP px apart,
+-- inside PAD px of padding. Small enough that a coin egg's card, the
+-- button and all seven tiers, fits a phone held sideways without
+-- scrolling (OddsCard.height; verifier, #173 with every tier in every egg).
+OddsCard.BUTTON = 50
+OddsCard.ROW = 18
+OddsCard.ROW_GAP = 1
+OddsCard.PAD = 5
+
+-- The card's height in its own pixels for the button and `lines` rows.
+function OddsCard.height(lines: number): number
+	return OddsCard.BUTTON + lines * (OddsCard.ROW + OddsCard.ROW_GAP) + 2 * OddsCard.PAD
+end
 -- The smallest measured share of TextSize * scale that the text's bounds
 -- really are on screen (10.4 / (14 * 0.8)), for checking the floor.
 OddsCard.GLYPH_SHARE = 0.92
@@ -58,6 +73,17 @@ function OddsCard.valueShare(valueWidth: number, rowWidth: number): number
 		return 0
 	end
 	return math.clamp((valueWidth + 2) / rowWidth, 0, 1)
+end
+
+-- An exact percentage without its trailing zeros ("4.50000%" -> "4.5%",
+-- "0.00100%" -> "0.001%"): the same number, short enough that a tier's
+-- name keeps its room on the card.
+function OddsCard.shortPercent(percent: string): string
+	local number = string.match(percent, "^(%d+%.%d-)0*%%$")
+	if number == nil then
+		return percent
+	end
+	return (string.gsub(number, "%.$", "")) .. "%"
 end
 
 return OddsCard
