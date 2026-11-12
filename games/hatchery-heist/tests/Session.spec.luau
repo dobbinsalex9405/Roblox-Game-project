@@ -182,7 +182,7 @@ describe("Hatchery Heist sessions", function()
 		expect(#said).toBe(3)
 	end)
 
-	it("reports storage auto-sales at most every 20 seconds, summed", function()
+	it("keeps a ready egg waiting, with a notice, when tower and inventory are full", function()
 		local h = Harness.new()
 		local player = Fakes.player(9)
 		h.join(player)
@@ -198,33 +198,28 @@ describe("Hatchery Heist sessions", function()
 					hatchedAt = 0,
 				})
 			end
-			d.nextUid = 100
-			d.incubators = {}
-			for slot = 1, 3 do
-				table.insert(
-					d.incubators,
-					{ slot = slot, eggId = "BasicEgg", readyAt = 0, outcome = "Chick" }
-				)
-			end
+			d.nextUid = 1000
+			d.incubators = { { slot = 1, eggId = "BasicEgg", readyAt = 0, outcome = "Duckling" } }
 		end)
-		local function soldNotices(): { string }
-			local out = {}
-			for _, n in h.noticesFor do
-				if n.player == player and string.find(n.text, "Inventory is full", 1, true) then
-					table.insert(out, n.text)
-				end
+		local coins = h.get(player).coins
+		local ok = h.actions:hatch(player, 1)
+		expect(ok).toBe(false)
+		local d = h.get(player)
+		expect(#d.creatures).toBe(Tower.SPOTS + economy.storage.slots)
+		expect(#d.incubators).toBe(1)
+		expect(d.coins).toBe(coins)
+		local said = {}
+		for _, n in h.noticesFor do
+			if n.player == player then
+				table.insert(said, n.text)
 			end
-			return out
 		end
-		for slot = 1, 3 do
-			assert(h.actions:hatch(player, slot))
+		expect(said[#said]).toBe(
+			`Your tower and inventory are full ({economy.storage.slots}). Make room in your inventory, then hatch: your egg waits here.`
+		)
+		for _, text in said do
+			expect(string.find(text, "sold", 1, true)).toBeNil()
 		end
-		local value =
-			Hatchery.sellValue({ speciesId = "Chick", mutation = "None" }, config.creatures, economy)
-		expect(soldNotices()).toEqual({ `Inventory is full: sold Chick for {value} coins.` })
-		h.wait(player, 25)
-		expect(soldNotices()[2]).toBe(`Inventory is full: sold 2 creatures for {value * 2} coins.`)
-		expect(#soldNotices()).toBe(2)
 	end)
 
 	it("reports the onboarding steps once ever, in order", function()
