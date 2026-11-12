@@ -2,6 +2,22 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: creature meshes are turned back by a measured import turn
+
+- Roblox's importer hands back every uploaded creature FBX turned half a turn
+  about Y, baked into the vertices (each MeshPart at (-x, y, -z) of its
+  CreatureMeshes centre, unrotated). Seen in the real engine on AlleyCat and
+  Chick, and true since the first meshes (#74), not from #167/#168. The
+  client placed pieces at the listed centres, so each was drawn turned round
+  in its own box: faces on the back of heads, leg sockets at the wrong ends.
+- We measure the turn per species on the server (shared/MeshImport.fit over
+  where each MeshPart landed; attributes ImportYaw, ImportFit) and the client
+  turns each piece back. Measured, not hard-coded, so a future importer that
+  keeps the frame needs no change. Not fixed in the FBX export instead: that
+  would need every one of 500+ creatures re-uploaded with new asset ids.
+- The real-engine probe fails any species whose meshes miss their listed
+  centres by over 0.01 studs after the turn.
+
 ## 2026-11-12: the viewer's blink closes the eyes about their own middle
 
 - Alex saw creatures' eyes move off their faces when they blink. The game

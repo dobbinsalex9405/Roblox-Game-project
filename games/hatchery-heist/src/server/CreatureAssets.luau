@@ -19,6 +19,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Log = require(ReplicatedStorage.Core.Log)
 local Util = require(ReplicatedStorage.Core.Util)
 local CreatureMeshes = require(ReplicatedStorage.Shared.CreatureMeshes)
+local MeshImport = require(ReplicatedStorage.Shared.MeshImport)
 
 local CreatureAssets = {}
 
@@ -50,6 +51,19 @@ local function collect(loaded: Instance, speciesId: string): (Model?, string?, s
 	local model = Instance.new("Model")
 	model.Name = speciesId
 	local skipped: { string } = {}
+	-- How the importer turned the model (shared/MeshImport): measured from
+	-- where each mesh landed, before the meshes are moved out of the file.
+	local landed: { MeshImport.Pair } = {}
+	for _, part in entry.parts do
+		for _, mesh in part.meshes do
+			local mp = found[mesh.name]
+			if mp then
+				local at = mp.Position
+				table.insert(landed, { listed = mesh.center, landed = { at.X, at.Y, at.Z } })
+			end
+		end
+	end
+	local yaw, miss = MeshImport.fit(landed)
 	for _, part in entry.parts do
 		for _, mesh in part.meshes do
 			local mp: MeshPart? = found[mesh.name]
@@ -76,6 +90,8 @@ local function collect(loaded: Instance, speciesId: string): (Model?, string?, s
 	-- How many meshes the client must see before it loads them: the model
 	-- reaches the client before all of its MeshParts do (shared/MeshArrival).
 	model:SetAttribute(CreatureAssets.COUNT_ATTRIBUTE, #model:GetChildren())
+	model:SetAttribute(MeshImport.ATTRIBUTE, yaw)
+	model:SetAttribute(MeshImport.FIT_ATTRIBUTE, miss)
 	return model, nil, if #skipped > 0 then table.concat(skipped, ", ") else nil
 end
 
@@ -107,6 +123,14 @@ function CreatureAssets.start(log: Log.Logger)
 			loaded:Destroy()
 		end
 		if model then
+			local miss = model:GetAttribute(MeshImport.FIT_ATTRIBUTE)
+			if type(miss) == "number" and miss > MeshImport.TOLERANCE then
+				-- the upload does not match CreatureMeshes (an old upload?)
+				log:warn("creature meshes do not sit where CreatureMeshes lists them", {
+					species = speciesId,
+					missStuds = math.floor(miss * 1000 + 0.5) / 1000,
+				})
+			end
 			if skipped then
 				log:warn("creature glow meshes missing; drawing the creature without them", {
 					species = speciesId,

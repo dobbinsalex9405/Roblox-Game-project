@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fix: every creature's 3D model is drawn facing the right way round. Each
+  piece was turned back to front inside its own spot, so faces showed on the
+  back of the head and legs poked out of the wrong places when they walked
+  (also in the Book and hatch pictures).
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails
