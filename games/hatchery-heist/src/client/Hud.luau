@@ -330,13 +330,20 @@ function Hud.start(ctx: Context.Context)
 		renderCard()
 	end)
 
+	local restrictedKey = ""
 	local function onData(d: { [string]: any })
 		rebirths.Text = `Rebirths: {d.rebirths}`
 		getOff.Visible = d.mountUid ~= ""
-		-- The fixed-order list moves on after each purchase.
+		-- The fixed-order list moves on after each purchase, and only then
+		-- (a rebuild under a tap loses it, issue #188).
 		if ctx.restricted() then
-			renderBoard()
-			renderCard()
+			local bought = cardEgg and d.eggsBought and d.eggsBought[cardEgg] or 0
+			local key = `{cardEgg or ""}:{bought}`
+			if key ~= restrictedKey then
+				restrictedKey = key
+				renderBoard()
+				renderCard()
+			end
 		end
 	end
 	ctx.onData(onData)
@@ -363,10 +370,14 @@ function Hud.start(ctx: Context.Context)
 	end)
 
 	return {
+		-- Rebuilt only for another egg, so a tap on the card's "See every
+		-- creature" lands on the button it aimed at (issue #188).
 		showOdds = function(eggId: string)
-			cardEgg = eggId
-			fitCard()
-			renderCard()
+			if cardEgg ~= eggId or not card.Visible then
+				cardEgg = eggId
+				fitCard()
+				renderCard()
+			end
 			card.Visible = true
 		end,
 		hideOdds = function()

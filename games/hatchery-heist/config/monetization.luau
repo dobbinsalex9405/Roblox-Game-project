@@ -99,7 +99,7 @@ return {
 			PremiumEgg = {
 				name = "Premium Egg",
 				robux = 49,
-				description = "One Premium Egg, with a chance at a Phoenix or the Godly Golden Goose. Exact odds are shown before you buy.",
+				description = "One Premium Egg: always Rare or better, and it can hatch any creature from Rare up. The exact odds are on its card before you buy.",
 			},
 			LuckBoost = {
 				name = "Luck Boost",

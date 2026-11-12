@@ -47,3 +47,30 @@ describe("Coin packs", function()
 		expect(Products.short(950)).toBe("950")
 	end)
 end)
+
+-- Issue #188: since every egg hatches every creature (#185) the Premium Egg
+-- rolls any Rare-and-up creature at the odds on its card, but its product
+-- text still promised "a Phoenix or the Godly Golden Goose".
+describe("Paid egg product text", function()
+	local eggs = require("../config/eggs")
+	local creatures = require("../config/creatures")
+	local function spaced(id: string): string
+		return (string.gsub(id, "(%l)(%u)", "%1 %2"))
+	end
+	it("promises no creature and points at the odds", function()
+		for _, egg in eggs do
+			if egg.productKey then
+				local text = listings[egg.productKey].description :: string
+				local named = {}
+				for id in creatures.species do
+					if string.find(string.lower(text), string.lower(spaced(id)), 1, true) then
+						table.insert(named, spaced(id))
+					end
+				end
+				table.sort(named)
+				expect(table.concat(named, ", ")).toBe("")
+				expect(string.find(string.lower(text), "odds", 1, true) ~= nil).toBe(true)
+			end
+		end
+	end)
+end)

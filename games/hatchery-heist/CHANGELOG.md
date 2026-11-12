@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Fix: the odds card beside an egg's Buy prompt no longer rebuilds as more
+  eggs ride past, so "See every creature" opens on the first tap.
+- Fix: the Premium Egg's shop text no longer promises a Phoenix or the
+  Golden Goose; it can hatch any creature from Rare up, at the odds on its
+  card.
 - Every egg can hatch every creature: the eggs differ only by their odds
   (Basic is mostly Commons, Meadow Uncommons, Moonlit Rares and up; Premium
   is Rare and up). From Rare up, each rarer creature is always less likely
