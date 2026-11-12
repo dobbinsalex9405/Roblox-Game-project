@@ -288,8 +288,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Ant = {
-		assetId = 87546349137217,
-		textureId = 104535375030209,
+		assetId = 135826133346285,
+		textureId = 113870250854571,
 		rarity = "Common",
 		gait = "scuttle",
 		height = 1.2,
@@ -2863,8 +2863,8 @@ local CreatureMeshes: { [string]: Creature } = {
 		},
 	},
 	Bunny = {
-		assetId = 104598696622884,
-		textureId = 71727611043118,
+		assetId = 125506695691360,
+		textureId = 111461773370042,
 		rarity = "Common",
 		gait = "hop",
 		height = 2.3,
