@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fix: 199 creatures no longer have one part (a leg, the ears, a tail) sitting
+  slightly out of place. Their 3D models had gone up mid-step; they are
+  uploaded again at rest, and every upload is now checked for this first.
 - Fix: the ground floor has a name sign too ("1. Cozy Studio  x1.00"), like
   every floor above it.
 - Fix: the "Floor N: price" sign for the next floor to buy shows again, in

@@ -283,7 +283,7 @@ for _, t in texts do
 	measured += 1
 end
 
-local MISS_SEVERITY = "WARN"
+local MISS_SEVERITY = "FAIL"
 
 -- 6. Creature meshes as Roblox imported them (Hatchery Heist): every
 -- species' meshes must land where CreatureMeshes lists them once the
@@ -337,8 +337,8 @@ do
 		end
 		if #misses > 0 then
 			table.sort(misses)
-			-- WARN until the re-upload of the species uploaded mid-step
-			-- (tools/art/blender/baked_pose.py) lands; then FAIL.
+			-- every upload since the at-rest export lands exactly
+			-- (tools/art/blender/fbx_check.py); a miss is a stale or posed one
 			add(
 				MISS_SEVERITY,
 				"engine.creature-import",
