@@ -371,7 +371,9 @@ def push_nla(joints, clip):
 
 # ------------------------------------------------------------------ export
 
-def export_files(out_dir, c, coll, joints):
+def export_files(out_dir, c, coll, joints, rest):
+    """The .glb with both clips, and the .fbx at rest (`rest`: each joint's
+    location before any clip was baked)."""
     for ob in bpy.context.scene.objects:
         ob.select_set(ob.name in coll.objects)
     bpy.ops.export_scene.gltf(
@@ -387,11 +389,17 @@ def export_files(out_dir, c, coll, joints):
         export_extras=False,
     )
     # The FBX goes up at rest. Its clips' NLA tracks are muted for the
-    # export, else the scene is evaluated mid-step (the walk clip's first
-    # frame) and that pose is what the FBX's meshes carry.
+    # export, and every joint is put back at rest: evaluating the clips (the
+    # glTF export samples them) leaves each joint's own location, rotation
+    # and scale at the last pose it was given, and muting a track does not
+    # undo that. Without both, the FBX's meshes carry a mid-step pose.
     tracks = [tr for j in joints.values() if j.animation_data for tr in j.animation_data.nla_tracks]
     for tr in tracks:
         tr.mute = True
+    for name, j in joints.items():
+        j.location = rest[name]
+        j.rotation_euler = (0, 0, 0)
+        j.scale = (1, 1, 1)
     bpy.context.view_layer.update()
     try:
         export_fbx(out_dir, c)
@@ -573,6 +581,7 @@ def build_one(c, out_root, do_render, fast):
     meta, root, joints, glow_mats = creature_scene(c, out_dir, coll)
     height = meta['heightStuds']
 
+    rest = {n: Vector(j.location) for n, j in joints.items()}
     frames = {}
     for clip in ('idle', 'walk'):
         frames[clip] = bake_clip(clip, c, meta, joints, height, glow_mats)
@@ -580,7 +589,7 @@ def build_one(c, out_root, do_render, fast):
         for m in glow_mats.values():
             if m.node_tree.animation_data:
                 m.node_tree.animation_data_clear()
-    export_files(out_dir, c, coll, joints)
+    export_files(out_dir, c, coll, joints, rest)
 
     if do_render:
         co = stage(s, meta, fast)

@@ -35,6 +35,13 @@ class BakedPose(unittest.TestCase):
         fbx = fbx[:fbx.index('\n\n\n')]
         self.assertIn('bake_anim=False', fbx)
         self.assertIn('tr.mute = True', src)
+        # muting leaves each joint at the last pose the clips gave it, so
+        # the joints are put back at rest too (trial upload, Nov 12: Ant and
+        # Bunny still came back mid-step with only the mute)
+        exp = src[src.index('def export_files'):]
+        exp = exp[:exp.index('export_fbx(out_dir, c)')]
+        for line in ('j.location = rest[name]', 'j.rotation_euler = (0, 0, 0)', 'j.scale = (1, 1, 1)'):
+            self.assertIn(line, exp)
 
 
 if __name__ == '__main__':
