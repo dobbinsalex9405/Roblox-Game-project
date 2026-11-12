@@ -1,0 +1,57 @@
+PR #177 @ e46f60216d1b (based on cb639e39, which predates #172/#174/#175), local Staging build
+(Output: "core started build=e46f60216d1b"), one Studio play-solo session.
+
+Setup: +10M coins, floors 2 and 3 bought (24 pads). The 21 species were given with the test panel 7 s into play,
+0.15 s apart; at that moment ReplicatedStorage.CreatureMeshes held 145 models and none of the 21. It reached 530.
+
+Meshed (first MeshPart on the creature, seconds after its give):
+Kiwi 16.9, OrchidMantis 21.7, PancakeFrog 22.2, Peachick 22.0, PetalBunny 21.4, PolarBearCub 23.6, PomPom 21.2, PteroChick 23.1,
+Rabbeetle 23.6, RainSnail 23.3, RaptorChick 23.3, ReindeerCalf 23.0, RexHatchling 22.8, RhinoCalf 22.9, RoboPup 23.4, SandCat 23.6,
+Scorpion 23.1, SeaOtter 23.6, SharkPup 24.6, Slugcorn 25.9, SnowLamb 26.5
+
+Per species (visible MeshParts; TextureID set / ContentProvider status Success; pieces = connected groups of part boxes grown 0.1 stud;
+glow = Neon material, Light, ParticleEmitter, Highlight, Beam or Trail; gap = lowest mesh point minus the surface ray-hit below):
+Kiwi meshes=5 textured 5/5 loaded 5 pieces=1 glow=none gap=0.03 (Pad17)
+OrchidMantis 8 8/8 8 1 none 0.05 (Pad18)
+PancakeFrog 10 10/10 10 1 none 0.07 (Pad19)
+Peachick 8 8/8 8 1 none 0.44 (hit Deck: stepped off its pad at that moment)
+PetalBunny 10 10/10 10 1 none 0.10
+PolarBearCub 9 9/9 9 1 none 0.10
+PomPom 6 6/6 6 1 none -0.34 (feet into the pad top; on screen the feet show under it)
+PteroChick 5 5/5 5 1 none 0.00
+Rabbeetle 11 11/11 11 1 none 0.46 (hit Deck: off its pad)
+RainSnail 5 5/5 5 1 none 0.07
+RaptorChick 7 7/7 7 1 none 0.04
+ReindeerCalf 10 10/10 10 1 none 0.09
+RexHatchling 6 6/6 6 1 none 0.04
+RhinoCalf 10 10/10 10 1 none 0.07
+RoboPup 10 10/10 10 1 none 0.03
+SandCat 9 9/9 9 1 none 0.09
+Scorpion 13 13/13 13 1 none 0.03
+SeaOtter 7 7/7 7 1 none 0.09
+SharkPup 7 7/7 7 1 none 0.11
+Slugcorn 4 4/4 4 1 none 0.00
+SnowLamb 9 9/9 9 1 none 0.46 (hit Floor: off its pad)
+
+Facing: for every species the head mesh lies along the model's forward (head-vs-forward yaw -11..+8 deg).
+Movement vs facing over 10 s (moving steps: forward / sideways / backward):
+Kiwi 5/0/0, OrchidMantis 18/3/0, PancakeFrog 11/5/0, Peachick 47/0/0, PetalBunny 21/0/0, PolarBearCub 25/0/0, PomPom 7/1/0,
+PteroChick 9/9/1, Rabbeetle 23/0/0, RainSnail 24/0/0, RaptorChick 10/28/0, ReindeerCalf 21/0/0, RexHatchling 4/25/0, RhinoCalf 28/0/0,
+RoboPup 22/0/0, SandCat 30/1/0, Scorpion 13/0/0, SeaOtter 7/0/0, SharkPup 16/0/0, Slugcorn 23/0/0, SnowLamb 16/1/2
+RaptorChick step angles (look -> motion): 61 127 90 -87 -99 -88 91 91 -89 -106 -87 57 96 171 -107 22 24 -17 -32 15 13 -33 3 16 -28 17 30 -17 -24 28 78 -84 ...
+  = alternating +/-90 while stepping in place (a side-to-side sway), ~0 +/-30 while travelling. RexHatchling the same. Not a turned model.
+
+Book: "Found 21/530"; tabs Common 0/199, Uncommon 0/97, Rare 21/81, Ultra Rare 0/71, Epic 0/60, Legendary 0/2, Godly 0/20.
+All 21 cards: name shown, NEW badge, Rare border colour 3fa9f5, picture id set; after scrolling 80/83 Rare-page pictures IsLoaded,
+then Peachick and Polar Bear Cub IsLoaded=true too (both visible in pr177-book-rare-bottom.jpg).
+Meadow 12 new cards read "Meadow Egg 1 in 3,058"; Moonlit 9 read "Moonlit Egg 1 in 76.3".
+
+Odds cards: Basic 100.0000% (92.0018 / 6.9996 / 0.7986 / 0.1800 / 0.0180 / 0.0020, unchanged), Meadow 100.0000%, Moonlit 100.0000%.
+Lists: Meadow 273 rows, 100.0000% (Common 128, Uncommon 73, Rare 52, UR 13, Epic 6, Legendary 1); 12 new at "0.0327% · 1 in 3,058".
+       Moonlit 167 rows, 100.0000% (Uncommon 6, Rare 29, UR 58, Epic 54, Godly 19, Legendary 1); 9 new at "1.31034% · 1 in 76.3".
+
+Logs: client 197 lines all MessageWarning, 0 MessageError, 0 CreatureView/CreatureAssets lines.
+Server Warning 174, Output 51, Info 53, 0 MessageError, 0 CreatureView/CreatureAssets lines; non-ContentId/Economy/Analytics:
+  [profilestore] API unavailable; [Stores] DataStores unavailable (ErrorQueue, Feedback); [TestPanel] on; [CoreServer] core started build=e46f60216d1b
+Feedback button visible.
+Incubator egg on this base: a Part ball (BasicEgg) - #174 is not in this head.
