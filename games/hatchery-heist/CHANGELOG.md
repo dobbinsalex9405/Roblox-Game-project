@@ -6,6 +6,11 @@
   to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and
   Legendaries, Epics and Legendaries earn more, and rebirth starts at 50M.
+- Fix: the hatch reveal can be passed with a gamepad's B button, and opening
+  the Roblox menu (Escape) skips it, like every other window.
+- Fix: each tower floor's name sign hangs well in front of the new front
+  wall, above the windows, so it shows whole from outside, even from far off
+  to the side.
 - Fix: a creature that hatches while your tower is full no longer seems to
   vanish. It goes to your inventory and a message says so ("Open Creatures to
   place it").
