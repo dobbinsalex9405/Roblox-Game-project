@@ -1,0 +1,28 @@
+PR #180 @ d9da3ad6b155 (on main 3538b249), local Staging build (Output: "core started build=d9da3ad6b155"). Two Studio play-solo sessions.
+Times are seconds from the start of play (T0 = first script after Play). "arrival" = the species model in ReplicatedStorage.CreatureMeshes
+holds all its MeshParts (MeshCount reached); "first mesh" = first MeshPart under the creature's Look (sampled every 0.5 s);
+"fallback" = a creature that had meshes later seen without them.
+
+Session 1 (about 20.5 min). CreatureMeshes held 3 models at the first script, 530 by T=60.
+Row 1 (given T=0.0-0.7):
+  Peachick Pad1 give 0.2 arrival 26.0 first mesh 31.7 (5.7 after arrival) fallbacks 0 meshed at T=1221
+  Peachick Pad2 give 0.5 arrival 26.0 first mesh 31.7 (5.7) fallbacks 0 meshed at T=1221
+  Quail    Pad3 give 0.0 arrival 29.9 first mesh 32.4 (2.5) fallbacks 0 meshed at T=1221
+  Quail    Pad4 give 0.0 arrival 29.9 first mesh 32.4 (2.5) fallbacks 0 meshed at T=1221
+Row 2 (floor 10 + floor 2; given T=16.3-18.2, ZebraFinch at 132.9):
+  AlleyCat give 16.3 arrival 0.5 first 16.6 | Gecko 16.5 / 11.7 / 17.2 | Kiwi 16.6 / 16.2 / 21.1 | Llama 16.9 / 18.2 / 23.5
+  MantaRay 17.2 / 20.1 / 22.3 | Narwhal 17.5 / 22.9 / 29.1 | OkapiCalf 17.7 / 24.0 / 29.8 | SnowLamb 17.9 / 35.3 / 39.3
+  Wombat 18.2 / 40.1 / 41.4 | ZebraFinch 132.9 / 40.8 / 133.4   (no species "Zebra" exists; ZebraFinch used for Z)
+  Largest first-mesh lag after its species' arrival across all 75 creatures: 6.2 s (Narwhal). Fallbacks 0.
+Plus 62 more species (alphabet-spread, one each) to fill the tower: 75 placed at T~20; T=60: 75 tracked, 0 on blocks; T=120: 0 on blocks.
+Activity during the 20 min: walking a loop between the market, the base and the spawn; Book opened (Rare tab); signs looked at; floors 1-10 bought; 8 Chicks added;
+a Basic egg bought and hatched. T=661: 80 tracked, 0 on blocks, 0 fallbacks. T=1221: 80 tracked, 0 on blocks, 0 fallbacks.
+#172: pads 80/80 full, Basic egg hatched -> inventory 4->5 (Dachshund), "Your tower is full: Dachshund went to your inventory. Open Creatures to place it."
+#177 Book: "Found 74/530", Rare 21/81 (21 Rares from the gives, not the batch-13 set specifically).
+#179: at -60 deg, "2. Book Nook x1.05" and "3. Plant Sunroom x1.30" whole.
+Logs: client 153 warnings, 0 errors, 0 CreatureView/CreatureAssets lines; server Warning 127, Output 54, Info 65, 0 errors, 0 CreatureView/CreatureAssets.
+
+Session 2 (row 3 proxy; Studio has no DataStores, so the #123 save cannot be reloaded): fresh join, floors 2-10 bought, 80 creatures
+(reverse-alphabet spread, so latest-loading species) given T=1-28. CreatureMeshes 4 models at join.
+  right after the gives: 78 drawn, 47 on blocks | T=60: 80 drawn, 0 on blocks (530 models) | T=120: 80 drawn, 0 on blocks.
+Logs: client 150 warnings, 0 errors, 0 CreatureView/CreatureAssets; server 0 errors, 0 CreatureView/CreatureAssets. Feedback visible both sessions.
