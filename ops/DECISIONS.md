@@ -2,6 +2,16 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: a part the game orbits may float in a stand-in, whatever its name
+
+- Five Legendaries (ArcaneTortoise's spellbook, BlizzardOwl's blizzard,
+  CoralSeahorse's bubbles, SylvanElk's fireflies, TempestEagle's wind ring)
+  were held as "detached" because their props have their own names.
+- Each prop is built with anim "orbit", which CreatureView turns about the
+  creature, so it is meant to float. to_config.detached now treats any part
+  animated "orbit" like LOOSE_PARTS. A static part with the same name is
+  still held.
+
 ## 2026-11-09: CI runs as three parallel jobs behind the required check
 
 - #168's single check job took 30.5 min: art export 14 min, setup and tests

@@ -90,6 +90,16 @@ class Problems(unittest.TestCase):
             c.part(name, 'static').put((40 + 2 * len(c.parts), 0, 0), BROWN)
         self.assertEqual(to_config.art_problems(c), [])
 
+    def test_an_orbiting_part_may_float_whatever_its_name(self):
+        c = stripes('Legendary', 80)
+        c.part('spellbook', 'orbit').put((100, 0, 0), BROWN)
+        self.assertEqual(to_config.art_problems(c), [])
+
+    def test_a_static_part_with_the_same_name_is_still_held(self):
+        c = stripes('Legendary', 80)
+        c.part('spellbook', 'static').put((100, 0, 0), BROWN)
+        self.assertEqual(to_config.art_problems(c), ['detached stand-in piece (1): spellbook at (100, 0, 0)'])
+
     def test_a_live_creature_with_a_detached_piece_is_kept(self):
         why = [to_config.DETACHED + ' (1): tail at (40, 0, 0)', '61 voxel boxes, Rare budget is 60']
         self.assertEqual(to_config.hold_reasons('Llama', list(why), {'Llama'}), why[1:])
