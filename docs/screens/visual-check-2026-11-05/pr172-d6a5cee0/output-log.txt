@@ -1,0 +1,37 @@
+PR #172 @ d6a5cee07fba, local Staging build (Output: "core started build=d6a5cee07fba"), one Studio play-solo session.
+Counts come from the full player data the server pushes after each change (Core:Data); sales from the server's [Economy] log lines.
+
+Setup: +10M coins (test panel), incubators 3 -> 10 (Shop:IncubatorSlot x7), 8 x Dachshund given -> floor 1 pads 8/8.
+
+Row 1 (10 Basic eggs bought off the belt, hatched 0.35 s apart with HH:Hatch, pads full):
+before placed=8 stored=0 incubating=10 coins=7297576 | after placed=8 stored=10 incubating=0 coins=7299016
+hatched (10): HuskyPup, Bantam, Rooster, BarnCat, TuxedoKitten, Rooster, BarnCat, LionheadBunny, AngoraBunny, Goldfish
+new creatures (10): all @inventory
+coin change during each hatch: 0,1440,0,0,0,0,0,0,0,0  (the 1440 = [Economy] amount=1440 reason=Gameplay:Collect = 8 x 6/s x 30 s auto-collect)
+notices (10): "Your tower is full: <Husky Pup|Bantam|Rooster|Barn Cat|Tuxedo Kitten|Rooster|Barn Cat|Lionhead Bunny|Angora Bunny|Goldfish> went to your inventory. Open Creatures to place it."
+Creatures window: "Earning: 8/8 slots used. In your inventory: 10."; inventory rows (10): Angora Bunny, Bantam, Goldfish, Rooster, Barn Cat, Rooster, Barn Cat, Tuxedo Kitten, Lionhead Bunny, Husky Pup
+
+Row 2:
+280 x OkapiCalf given -> placed=8 stored=290
+bought 1 Basic egg (incubator 1), then 10 x OkapiCalf -> placed=8 stored=300 incubating=1
+3 more Buy attempts on Basic eggs: 3 x "Your tower and inventory are full (300). Unlock a new floor to make room."; incubating 1 -> 1; Shop:BasicEgg count stayed 11 (10 + 1)
+hatch incubator 1 when ready: placed=8 stored=300 incubating=1 before and after; egg on incubator1 = 1 BasicEgg Model before and after; HH:Hatched events 0; no reveal
+  notice: "Your tower and inventory are full (300). Make room in your inventory, then hatch: your egg waits here."
+HH:BuyFloor -> floors 1 -> 2 (Shop:TowerFloor), then hatch incubator 1: placed=9 stored=300 incubating=0, new BengalKitten slot=9, HH:Hatched 1, egg left on incubator1=0
+
+Row 3: 7 x Dachshund -> floor 2 full (placed 16, stored 300, coins 7282679); 1 x Meerkat given at the cap:
+placed=16 stored=301 total=317 coins=7282679 (unchanged), result "Meerkat added to your inventory (the tower is full)."
+
+Server [Economy] reasons at the end of row 3: Shop:BasicEgg=11, Admin:StudioTest=1, Shop:IncubatorSlot=7, Shop:TowerFloor=1, Gameplay:Collect=8; lines with "Sell": 0.
+
+Row 5: floor 3 bought; Moonlit egg bought -> Incubator1 Model MoonlitEgg parts=68 height=2.60 bottom=1.30.
+Odds cards: Basic Egg 100.0000%, Meadow Egg 100.0000%, Moonlit Egg 100.0000%.
+Elevator E in first person -> Tower open, mouse 120,658 (freed); X -> closed, mouse 675,336 (re-locked).
+Walk elevator -> (121,y,0) reached -> (103,y,0) out through the front door reached. Feedback button visible.
+Pad creatures drawn without meshes: 0.
+
+Logs: client 206 lines, all MessageWarning, 0 MessageError, 0 lines with CreatureView / incubatorEgg / VoxelProp
+(non-ContentId lines are the Studio MCP "execute_luau changed camera type" notices).
+Server: Warning 180, Output 31, Info 44, 0 MessageError; besides ContentId/[Economy]/Analytics only:
+  [profilestore] Roblox API services unavailable; [Stores] DataStores unavailable (ErrorQueue, Feedback);
+  [TestPanel] Studio test panel is on; [CoreServer] core started build=d6a5cee07fba game=hatchery-heist studio=true
