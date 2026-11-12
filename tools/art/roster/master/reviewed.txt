@@ -512,3 +512,17 @@ MummyHamster
 Lampwick
 MossPiglet
 Mossling
+Raiju
+RoboRex
+StarlightPegasus
+StormNarwhal
+StormRam
+SunScarab
+SylvanElk
+TempestEagle
+ThornStego
+ThunderTiger
+TreasureDragon
+TwinDrake
+VerdantWyrm
+ZephyrFox
