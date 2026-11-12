@@ -12,6 +12,9 @@ OddsCard.MARGIN = 8 -- px kept clear below the card
 -- TextBounds.Y (Studio gate, #126), under the floor; 15 measured 12.0 px.
 OddsCard.MIN_TEXT_SIZE = 15
 OddsCard.MIN_SCALE = 0.8
+-- The "See chances" button's height: 40 px on screen at MIN_SCALE, big
+-- enough to tap on a phone.
+OddsCard.BUTTON = 50
 -- The smallest measured share of TextSize * scale that the text's bounds
 -- really are on screen (10.4 / (14 * 0.8)), for checking the floor.
 OddsCard.GLYPH_SHARE = 0.92

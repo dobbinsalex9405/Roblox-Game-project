@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- New egg chances screen: the odds card's "See chances" button opens one
+  square tab per rarity (Common to Godly), each with a standout creature,
+  its chance and how many creatures it holds. Tap a tab to see every
+  creature of that rarity with its picture and exact chance from that egg.
+  The Basic/Meadow/Moonlit buttons switch eggs and keep the open rarity.
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails

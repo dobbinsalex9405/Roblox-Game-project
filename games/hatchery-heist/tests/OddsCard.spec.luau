@@ -72,4 +72,8 @@ describe("Odds card", function()
 		expect(OddsCard.fits(250, 0, row)).toBe(true)
 		expect(OddsCard.valueShare(0, row)).toBe(0)
 	end)
+
+	it("draws the See chances button 40 px tall or more, even at its smallest", function()
+		expect(OddsCard.BUTTON * OddsCard.MIN_SCALE >= 40).toBe(true)
+	end)
 end)

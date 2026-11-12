@@ -385,6 +385,22 @@ return function(Schema: any, Odds: any)
 			preloadStreams = Schema.integer({ min = 1, max = 8 }),
 			preloadBatch = Schema.integer({ min = 1, max = 30 }),
 		}),
+		-- The egg chances screen's tier tabs and rows (client/OddsView,
+		-- client/RarityTabs). Tabs and rows stay tappable on a phone (40 px+).
+		oddsScreen = Schema.record({
+			faces = Schema.map(
+				Schema.oneOf({ "Common", "Uncommon", "Rare", "Ultra Rare", "Epic", "Legendary", "Godly" }),
+				id,
+				{ maxEntries = 7 }
+			),
+			tileMin = Schema.integer({ min = 64, max = 160 }),
+			tileMax = Schema.integer({ min = 64, max = 200 }),
+			tileGap = Schema.integer({ min = 2, max = 16 }),
+			rowHeight = Schema.integer({ min = 40, max = 64 }),
+			rowPicture = Schema.integer({ min = 20, max = 60 }),
+			maxWidth = Schema.integer({ min = 400, max = 1200 }),
+			maxHeight = Schema.integer({ min = 300, max = 900 }),
+		}),
 		guide = Schema.record({
 			arrivedStuds = Schema.number({ min = 2, max = 30 }),
 			playerList = Schema.boolean(),
