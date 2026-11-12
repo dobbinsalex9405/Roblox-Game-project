@@ -14,9 +14,12 @@ return {
 		passBonusSlots = 2,
 	},
 
+	-- Rebirth sits past the middle of the tower (between floors 6 and 7), so it
+	-- is a late-game reset, not something a new player trips over in their
+	-- first hour (economy proposal, Nov 7: tools/economy).
 	rebirth = {
-		baseCost = 120000,
-		costGrowth = 3, -- each rebirth costs this many times the previous one
+		baseCost = 50000000,
+		costGrowth = 4, -- each rebirth costs this many times the previous one
 		incomeBonusPerRebirth = 0.25, -- +25% income per rebirth
 	},
 
@@ -47,7 +50,12 @@ return {
 	-- Upgrade n costs upgradeShares[n] of the floor's price.
 	-- Each floor has 8 slots (shared/Geometry: the map is built for them).
 	tower = {
-		floorPrices = { 25000, 75000, 225000, 675000, 2000000, 6000000, 18000000, 55000000, 165000000 },
+		-- Steep early (x5, x5, x4), gentler late (x2.5): with x3 throughout a
+		-- regular player owned all ten floors by day 7 and then had nothing to
+		-- buy; on the 509-creature roster (Nov 12) floor 6 lands on day 3,
+		-- floor 9 on day 8 and floor 10 around day 13 (tools/economy/run,
+		-- ops/ECONOMY.md).
+		floorPrices = { 20000, 100000, 500000, 2000000, 8000000, 25000000, 75000000, 190000000, 475000000 },
 		floorBonus = 0.25,
 		startBonus = 0.05,
 		upgradeBonus = 0.05,
@@ -76,10 +84,11 @@ return {
 		},
 	},
 
-	-- Creatures not placed on a floor wait in the inventory. When it is full,
-	-- the weakest one there sells for `sellSeconds` of its income.
+	-- Creatures not placed on a floor wait in the inventory. Nothing is ever
+	-- auto-sold: when no pad fits a hatch and the inventory holds `slots`,
+	-- the egg waits in its incubator. `sellSeconds` prices a creature's sale.
 	storage = {
-		slots = 150,
+		slots = 300,
 		sellSeconds = 20,
 	},
 

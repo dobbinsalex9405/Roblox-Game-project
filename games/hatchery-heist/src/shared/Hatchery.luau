@@ -488,41 +488,36 @@ function Hatchery.sellValue(creature: any, creatureConfig: any, economy: any): n
 	)
 end
 
--- Keeps storage within its size: while it is over, the weakest stored creature
--- is sold for coins. Returns the creatures sold.
-local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy: any): { any }
-	local sold = {}
-	while true do
-		local stored = 0
-		local weakestIndex: number? = nil
-		for index, c in d.creatures do
-			if c.slot == nil then
-				stored += 1
-				if
-					c.uid ~= d.mountUid
-					and c.uid ~= d.guardUid
-					and (
-						weakestIndex == nil
-						or Hatchery.creatureIncome(c, creatureConfig)
-							< Hatchery.creatureIncome(d.creatures[weakestIndex], creatureConfig)
-					)
-				then
-					weakestIndex = index
-				end
-			end
+-- Creatures waiting in the inventory (not on a tower pad).
+function Hatchery.storedCount(d: Data): number
+	local stored = 0
+	for _, c in d.creatures do
+		if c.slot == nil then
+			stored += 1
 		end
-		if stored <= economy.storage.slots or weakestIndex == nil then
-			return sold
-		end
-		local c = table.remove(d.creatures, weakestIndex :: number)
-		ledger:add("coins", Hatchery.sellValue(c, creatureConfig, economy), "Gameplay:SellCreature")
-		table.insert(sold, c)
 	end
+	return stored
+end
+
+-- Why a coin egg cannot be bought now for lack of room, or nil: with every
+-- pad full, the inventory plus the eggs already incubating would fill
+-- `economy.storage.slots`, so the new egg could not hatch.
+function Hatchery.noRoomForEgg(d: Data, creatureConfig: any, economy: any): string?
+	if
+		Hatchery.padsFull(d, creatureConfig, economy)
+		and Hatchery.storedCount(d) + #d.incubators >= economy.storage.slots
+	then
+		return `Your tower and inventory are full ({economy.storage.slots}). Unlock a new floor to make room.`
+	end
+	return nil
 end
 
 -- Hatches the ready egg in `slot` into the creature chosen when it was bought.
--- Returns the new creature, or nil and a refusal, plus any stored creatures
--- sold to make room.
+-- Returns the new creature, or nil and a refusal. Nothing is ever sold to
+-- make room (Staging playtest, Nov 12: hatches "disappeared"): when no pad
+-- fits it and the inventory holds `economy.storage.slots`, the egg stays
+-- ready in its incubator until the player makes room. The last value (sold
+-- creatures) is always empty and kept for callers.
 function Hatchery.hatch(
 	d: Data,
 	ledger: Ledger,
@@ -531,6 +526,7 @@ function Hatchery.hatch(
 	creatureConfig: any,
 	economy: any
 ): (any?, string?, { any })
+	local _ = ledger
 	local incubator, index = Hatchery.incubatorAt(d, slot)
 	if incubator == nil or index == nil then
 		return nil, "That incubator is empty.", {}
@@ -541,7 +537,6 @@ function Hatchery.hatch(
 	if creatureConfig.species[incubator.outcome] == nil then
 		return nil, "unknown creature", {}
 	end
-	table.remove(d.incubators, index)
 	local creature = {
 		uid = tostring(d.nextUid),
 		speciesId = incubator.outcome,
@@ -550,12 +545,19 @@ function Hatchery.hatch(
 		eggId = incubator.eggId,
 		hatchedAt = now,
 	}
+	if
+		not Tower.autoPlace(d, creature, creatureConfig, economy)
+		and Hatchery.storedCount(d) >= economy.storage.slots
+	then
+		return nil,
+			`Your tower and inventory are full ({economy.storage.slots}). Make room in your inventory, then hatch: your egg waits here.`,
+			{}
+	end
+	table.remove(d.incubators, index)
 	d.nextUid += 1
-	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, now)
-	local sold = trimStorage(d, ledger, creatureConfig, economy)
-	return creature, nil, sold
+	return creature, nil, {}
 end
 
 -- Removes a creature for a raid that succeeded. The creature being ridden and
@@ -572,9 +574,10 @@ function Hatchery.takeCreature(d: Data, uid: string): any?
 	return nil
 end
 
--- Gives a player a creature from elsewhere (a raid). It gets a new uid in
--- their save and is placed like a fresh hatch. Returns it and any stored
--- creatures sold to make room.
+-- Gives a player a creature from elsewhere (a raid, a grant). It gets a new
+-- uid in their save and is placed like a fresh hatch. It is never refused and
+-- nothing is sold for it: the inventory may go over its size. The second
+-- value (sold creatures) is always empty and kept for callers.
 function Hatchery.receive(
 	d: Data,
 	ledger: Ledger,
@@ -594,7 +597,8 @@ function Hatchery.receive(
 	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt)
-	return creature, trimStorage(d, ledger, creatureConfig, economy)
+	local _ = ledger
+	return creature, {}
 end
 
 function Hatchery.nextSlotCost(d: Data, economy: any): number?

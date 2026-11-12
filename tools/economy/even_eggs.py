@@ -17,7 +17,8 @@ tier's weight is (members x a whole number), and the few weight points left
 over move to the tiers where they shift the odds least (Common and Uncommon
 first). The Premium Egg is checked, not rewritten.
 
-Targets are the odds tuned Nov 5-7 (ops/ECONOMY.md); change them here.
+Targets are the pacing odds from tools/economy (ops/ECONOMY.md, approved by
+Alex Nov 12); change them here.
 """
 import itertools
 import os
@@ -34,14 +35,17 @@ EGGS = os.path.join(GAME, 'eggs.luau')
 # 1 in 1,000,000 however many there are).
 TARGETS = {
     'BasicEgg': ('Barnyard', 1_000_000, {
-        'Common': 0.92, 'Uncommon': 0.07, 'Rare': 0.008, 'Ultra Rare': 0.0018,
-        'Epic': 0.00018, 'Legendary': 0.00002}),
+        'Common': 0.92, 'Uncommon': 0.072, 'Rare': 0.007, 'Ultra Rare': 0.0009,
+        'Epic': 0.00008, 'Legendary': 0.00002}),
+    # The step up from Basic: Rare 1 in 22, so it is worth buying.
     'MeadowEgg': ('Meadow', 1_000_000, {
-        'Common': 0.67, 'Uncommon': 0.31, 'Rare': 0.017, 'Ultra Rare': 0.0028,
-        'Epic': 0.00017, 'Legendary': 0.00003}),
+        'Common': 0.58, 'Uncommon': 0.37, 'Rare': 0.045, 'Ultra Rare': 0.0045,
+        'Epic': 0.00045, 'Legendary': 0.00005}),
+    # Rarer Epics and up than before Nov 12, so a regular player's first Epic
+    # lands on day 2, not in hour one; a Godly is a months-long dream.
     'MoonlitEgg': ('Moonlit', 10_000_000, {
-        'Uncommon': 0.58, 'Rare': 0.38, 'Ultra Rare': 0.037, 'Epic': 0.0029,
-        'Legendary': 0.00008, 'Godly': ('each', 0.000001)}),
+        'Uncommon': 0.666, 'Rare': 0.30, 'Ultra Rare': 0.032, 'Epic': 0.0019,
+        'Legendary': 0.00009, 'Godly': ('each', 0.0000005)}),
 }
 CHECK_ONLY = {'PremiumEgg': 'Premium'}
 TIERS = ['Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Epic', 'Legendary', 'Godly']
@@ -74,19 +78,16 @@ def solve(total, chances, counts):
         each[t] = max(1, round(p * total / counts[t]))
     fixed = {t for t in tiers if isinstance(chances[t], tuple)}
     deficit = total - sum(each[t] * counts[t] for t in tiers)
-    # Move the leftover points: search small whole steps on the flexible
-    # tiers, cheapest (largest weight, so smallest relative shift) first.
-    flex = sorted((t for t in tiers if t not in fixed), key=lambda t: -each[t] * counts[t])
-    best = None
-    for size in range(0, len(flex) + 1):
-        for chosen in itertools.combinations(flex[:4], size):
-            if size == 0:
-                if deficit == 0:
-                    best = (0, {})
-                continue
+    # Move the leftover points: try small whole steps on up to three tiers
+    # and keep the split that shifts any tier's odds least (relative to its
+    # own size), so Rare-and-up barely move and Common and Uncommon take
+    # most of it.
+    flex = [t for t in tiers if t not in fixed]
+    best = (0, {}) if deficit == 0 else None
+    for size in range(1, min(3, len(flex)) + 1):
+        for chosen in itertools.combinations(flex, size):
             *free, last = chosen
-            span = range(-60, 61)
-            for steps in itertools.product(span, repeat=len(free)):
+            for steps in itertools.product(range(-60, 61), repeat=len(free)):
                 rest = deficit - sum(s * counts[t] for s, t in zip(steps, free))
                 if rest % counts[last]:
                     continue
@@ -97,8 +98,6 @@ def solve(total, chances, counts):
                 cost = max(abs(k[t]) / each[t] for t in k)
                 if best is None or cost < best[0]:
                     best = (cost, k)
-        if best is not None:
-            break
     if best is None:
         raise SystemExit(f'no even split found for counts {counts}')
     return {t: (each[t] + best[1].get(t, 0)) * counts[t] for t in tiers}

@@ -71,7 +71,7 @@ return function(Schema: any, Odds: any)
 			themes = Schema.array(Schema.string({ maxLength = 40 }), { minLength = 10, maxLength = 10 }),
 		}),
 		storage = Schema.record({
-			slots = Schema.integer({ min = 0, max = 200 }),
+			slots = Schema.integer({ min = 0, max = 1000 }),
 			sellSeconds = Schema.number({ min = 0, max = 3600 }),
 		}),
 		autoCollectSeconds = Schema.integer({ min = 1, max = 3600 }),
@@ -266,6 +266,7 @@ return function(Schema: any, Odds: any)
 				Schema.number({ min = 1, max = 600 }),
 				{ minLength = 1, maxLength = 10 }
 			),
+			preloadSeconds = Schema.number({ min = 1, max = 120 }),
 		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),
