@@ -11,6 +11,10 @@
   door awning no longer cuts a word off when you look from the side.
 - Fix: the rebirth stand stands a little further from the tower, so its sign
   ("Rebirth: 50M coins") is no longer cut off by the wall from the side.
+- Fix: every creature's 3D model is drawn facing the right way round. Each
+  piece was turned back to front inside its own spot, so faces showed on the
+  back of the head and legs poked out of the wrong places when they walked
+  (also in the Book and hatch pictures).
 - Fix: a creature no longer stays as blocks long after its 3D model has
   loaded (seen with Quails 20 minutes into a session). A slow model load is
   waited on for at most 20 seconds; if the model is all there it is drawn

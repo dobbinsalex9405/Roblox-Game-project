@@ -37,6 +37,7 @@ local CreatureLooks = require(Shared.CreatureLooks)
 local CreatureMeshes = require(Shared.CreatureMeshes)
 local Layout = require(Shared.Layout)
 local MeshArrival = require(Shared.MeshArrival)
+local MeshImport = require(Shared.MeshImport)
 local VoxelArt = require(Shared.VoxelArt)
 local Walk = require(Shared.Walk)
 
@@ -242,11 +243,22 @@ end
 -- A copy of one of a creature's MeshParts, sized for `k` (1 = its size on
 -- a pad) and placed at `cframe`. Glowing meshes are plain Neon in their
 -- colour, like the glowing boxes, so the pulse and shimmer work the same.
+--
+-- Roblox's importer turned the whole model (half a turn about Y, baked into
+-- the vertices; server/CreatureAssets measures it as `ImportYaw`), so each
+-- piece is turned back about its own centre. Without it every piece showed
+-- turned round in its own box: faces on the back of the head, leg sockets
+-- and haunches at the wrong ends (Alex, Nov 12).
 local function meshPiece(source: Instance, mesh: CreatureMeshes.Mesh, k: number, cframe: CFrame): MeshPart
 	local template = source:FindFirstChild(mesh.name) :: MeshPart
 	local p = template:Clone()
-	p.Size = vec(mesh.size, k)
-	p.CFrame = cframe
+	local yaw = source:GetAttribute(MeshImport.ATTRIBUTE)
+	local size = vec(mesh.size, k)
+	-- a quarter turn stores the mesh's X along its Z
+	p.Size = if type(yaw) == "number" and math.round(yaw / (math.pi / 2)) % 2 == 1
+		then Vector3.new(size.Z, size.Y, size.X)
+		else size
+	p.CFrame = if type(yaw) == "number" and yaw ~= 0 then cframe * CFrame.Angles(0, -yaw, 0) else cframe
 	p.Anchored = false
 	p.CanCollide = false
 	p.CanTouch = false
