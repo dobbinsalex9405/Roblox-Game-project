@@ -173,6 +173,9 @@ function HatchReveal.start(ctx: Context.Context, notify: (text: string) -> ()): 
 	dim.Size = UDim2.fromScale(1, 1)
 	dim.BackgroundColor3 = Color3.fromRGB(10, 8, 20)
 	dim.BackgroundTransparency = 1
+	-- Frees the mouse in first person while the reveal shows, so the tap
+	-- lands wherever the player clicks.
+	dim.Modal = true
 	dim.Parent = gui
 
 	local root = Instance.new("Frame")
