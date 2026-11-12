@@ -9,6 +9,8 @@
   keeps every one. The inventory holds 300 (was 150); when it and the tower
   are both full, a ready egg waits in its incubator until you make room, and
   coin eggs that could not hatch are not sold to you.
+- Fix: eggs sitting in incubators show their own patterned designs (the same
+  eggs you see in the Egg Market) instead of plain coloured balls.
 - Fix: the Tower window opened from the elevator (and every other window:
   Creatures, Book, Daily Rewards, the odds list, Shop, Feedback) can always
   be closed, even in first person where the mouse is locked: opening one
