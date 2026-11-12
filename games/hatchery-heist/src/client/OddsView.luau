@@ -84,7 +84,7 @@ end
 
 -- Row height in pixels on the odds card, and the share of a row the left
 -- text gets.
-local rowHeight = 22
+local rowHeight = OddsCard.ROW
 local rowSplit = 0.5
 
 local function row(parent: Instance, order: number, left: string, right: string, color: Color3, bold: boolean)
@@ -225,8 +225,10 @@ end
 
 -- The card's button that opens the egg's chances screen (OddsView.openList).
 -- OddsCard.BUTTON px tall, so it is 40 px or more even at the card's
--- smallest scale on a phone.
-local function listButton(container: GuiObject, eggId: string, text: string, order: number)
+-- smallest scale on a phone. With a `heading` (the egg's name and price)
+-- it is the card's top line: the heading over `text`, so the card needs no
+-- separate title line and a coin egg's seven tiers fit under it.
+local function listButton(container: GuiObject, eggId: string, text: string, order: number, heading: string?)
 	local button = Instance.new("TextButton")
 	button.Name = "SeeEvery"
 	button.LayoutOrder = order
@@ -235,10 +237,28 @@ local function listButton(container: GuiObject, eggId: string, text: string, ord
 	button.Font = FONT
 	button.TextSize = 17
 	button.TextColor3 = Color3.new(1, 1, 1)
-	button.Text = text
+	button.Text = if heading then "" else text
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, 8)
 	c.Parent = button
+	if heading then
+		local size = OddsCard.MIN_TEXT_SIZE
+		local function line(name: string, value: string, y: number, color: Color3)
+			local l = Instance.new("TextLabel")
+			l.Name = name
+			l.BackgroundTransparency = 1
+			l.Position = UDim2.new(0, 6, 0.5, y)
+			l.Size = UDim2.new(1, -12, 0, size + 2)
+			l.Font = FONT
+			l.TextSize = size
+			l.TextColor3 = color
+			l.TextTruncate = Enum.TextTruncate.AtEnd
+			l.Text = value
+			l.Parent = button
+		end
+		line("Heading", heading, -(size + 2), Color3.new(1, 1, 1))
+		line("Action", text, 1, Color3.fromRGB(255, 225, 120))
+	end
 	button.Activated:Connect(function()
 		OddsView.openList(eggId)
 	end)
@@ -274,9 +294,9 @@ local function fill(container: GuiObject, eggId: string)
 	end
 	local species = ctx.config.creatures.species
 	local price = if egg.priceCoins then `{Layout.shortNumber(egg.priceCoins)} coins` else "Robux"
-	row(container, 0, Layout.displayName(egg.id), price, Color3.new(1, 1, 1), true)
 
 	if ctx.restricted() then
+		row(container, 0, Layout.displayName(egg.id), price, Color3.new(1, 1, 1), true)
 		-- The next few eggs by name, then one line per tier: how many of
 		-- every cycle and how soon its first one comes. The whole order is
 		-- in the list.
@@ -320,12 +340,13 @@ local function fill(container: GuiObject, eggId: string)
 
 	local display = displays[eggId]
 	if display == nil then
+		row(container, 0, Layout.displayName(egg.id), price, Color3.new(1, 1, 1), true)
 		row(container, 1, "Loading odds...", "", Color3.fromRGB(200, 200, 200), false)
 		return
 	end
-	-- Right under the egg's name, so it shows without scrolling on a phone
-	-- (the card's rows scroll there).
-	listButton(container, eggId, "See chances", 1)
+	-- The card's top line: the egg's name and price on the button that opens
+	-- every creature's chance. Then one line per tier.
+	listButton(container, eggId, "See chances  >", 1, `{Layout.displayName(egg.id)} · {price}`)
 	if #display.boosts > 0 then
 		row(
 			container,
@@ -350,7 +371,9 @@ end
 
 function OddsView.render(container: GuiObject, eggId: string)
 	fill(container, eggId)
-	sameTextSize(container)
+	-- Every line at the card's text size (OddsCard.MIN_TEXT_SIZE: 11 px or
+	-- more on a phone); a long name ends in "..." before its odds do.
+	sameTextSize(container, OddsCard.MIN_TEXT_SIZE)
 end
 
 -- The odds sign beside each Egg Market stop (Studio gate, Nov 5): three
