@@ -512,3 +512,15 @@ MummyHamster
 Lampwick
 MossPiglet
 Mossling
+GlacierMammoth
+GoldenSphinx
+HermitTitan
+LollipopLion
+LotusKoi
+Manticore
+MantisQueen
+MeteorBeetle
+MirrorCat
+MoonOwl
+MushroomKing
+PixieDragon
