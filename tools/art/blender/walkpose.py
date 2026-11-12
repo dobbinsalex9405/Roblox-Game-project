@@ -28,8 +28,8 @@ STRIDE = {'trot': 0.9, 'waddle': 0.5, 'hop': 0.8, 'scuttle': 0.4, 'slither': 1.2
 
 LEG_SETS = {
     'legFL': 1, 'legBR': 1, 'legFR': -1, 'legBL': -1, 'legL': 1, 'legR': -1,
-    'leg1L': 1, 'leg2R': 1, 'leg3L': 1, 'leg4R': 1, 'leg5L': 1, 'leg6R': 1,
-    'leg1R': -1, 'leg2L': -1, 'leg3R': -1, 'leg4L': -1, 'leg5R': -1, 'leg6L': -1,
+    'leg1L': 1, 'leg2R': 1, 'leg3L': 1, 'leg4R': 1, 'leg5L': 1, 'leg6R': 1, 'leg7L': 1,
+    'leg1R': -1, 'leg2L': -1, 'leg3R': -1, 'leg4L': -1, 'leg5R': -1, 'leg6L': -1, 'leg7R': -1,
 }
 
 LEG_SHARE = 0.3
@@ -168,7 +168,7 @@ def pose(gait, anim, ph, moving, h, legged):
 
 
 SAMPLE_ANIMS = ('body', 'head', 'tail', 'ears', 'wingL', 'wingR', 'finL', 'finR',
-                'legFL', 'legFR', 'legBL', 'legBR', 'legL', 'legR', 'leg1L', 'leg2R', 'leg4L', 'leg6R')
+                'legFL', 'legFR', 'legBL', 'legBR', 'legL', 'legR', 'leg1L', 'leg2R', 'leg4L', 'leg6R', 'leg7L', 'leg7R')
 
 
 def samples():

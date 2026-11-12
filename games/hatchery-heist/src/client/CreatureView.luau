@@ -36,6 +36,7 @@ local ArtScale = require(Shared.ArtScale)
 local CreatureLooks = require(Shared.CreatureLooks)
 local CreatureMeshes = require(Shared.CreatureMeshes)
 local Layout = require(Shared.Layout)
+local MeshArrival = require(Shared.MeshArrival)
 local VoxelArt = require(Shared.VoxelArt)
 local Walk = require(Shared.Walk)
 
@@ -43,6 +44,7 @@ local GameConfig = ReplicatedStorage.GameConfig
 local atmosphere = require(GameConfig.atmosphere) :: any
 local wander = atmosphere.wander :: Walk.Config
 local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
+local meshTiming = atmosphere.creatureMeshes :: { arriveSeconds: number, retrySeconds: { number } }
 local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
 local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
 
@@ -50,6 +52,7 @@ local CreatureView = {}
 
 local ATTRIBUTE = "CreatureLook"
 local MESH_FOLDER = "CreatureMeshes" -- server/CreatureAssets fills it
+local MESH_COUNT = "MeshCount" -- server/CreatureAssets: MeshParts in a species model
 local ANIMATE_RANGE = 160 -- studs from the camera; further creatures hold still
 local RING_TRANSPARENCY = 0.45
 local ORBIT_SECONDS = 9 -- an "orbit" part's turn (the Nebula Serpent's planets)
@@ -803,40 +806,107 @@ local function stroll(v: Visual, roam: Roam, serverNow: number)
 	v.stepPhase = Walk.phase(v.gait, at.travelled, v.height)
 end
 
--- Meshes for a species just arrived: load their geometry and texture, then
--- redraw its creatures with them.
-local function meshesArrived(model: Instance)
-	if loaded[model] ~= nil then
-		return
-	end
-	loaded[model] = false
-	local ok = pcall(function()
-		local failed = false
-		ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
-			if status ~= Enum.AssetFetchStatus.Success then
-				failed = true
-			end
-		end)
-		if failed then
-			error("asset failed")
-		end
-	end)
-	if not ok then
-		return -- stays on the boxes
-	end
-	loaded[model] = true
+-- Redraw a species' creatures that are still voxel boxes (each rebuilt on
+-- its own, so one that fails to build does not stop the others).
+local function redrawBoxes(speciesId: string)
 	-- Collected first: redrawing removes and re-adds keys of `visuals`, which
 	-- must not happen while iterating it.
 	local redraw: { BasePart } = {}
 	for anchor, v in visuals do
-		if v.species == model.Name and not v.meshed then
+		if v.species == speciesId and not v.meshed then
 			table.insert(redraw, anchor)
 		end
 	end
 	for _, anchor in redraw do
 		remove(anchor)
-		watch(anchor)
+		local ok, err = pcall(function()
+			watch(anchor)
+		end)
+		if not ok then
+			warn(`CreatureView: redrawing {speciesId} failed: {err}`)
+		end
 	end
+end
+
+-- Whether every mesh the server put in a species model has replicated.
+local function meshesComplete(model: Instance): boolean
+	local count = 0
+	for _, child in model:GetChildren() do
+		if child:IsA("MeshPart") then
+			count += 1
+		end
+	end
+	local expected = model:GetAttribute(MESH_COUNT)
+	if type(expected) == "number" then
+		return count >= expected
+	end
+	-- No count from the server: every solid mesh (a glow accent may be left out).
+	local entry = CreatureMeshes[model.Name]
+	if entry == nil then
+		return true
+	end
+	for _, part in entry.parts do
+		for _, mesh in part.meshes do
+			if mesh.glow == nil and not model:FindFirstChild(mesh.name) then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+-- Meshes for a species just arrived: wait for all of them, load their
+-- geometry and texture (trying again if that fails), then redraw the
+-- species' creatures with them (shared/MeshArrival).
+local function meshesArrived(model: Instance)
+	if loaded[model] ~= nil then
+		return
+	end
+	loaded[model] = false
+	local function alive(): boolean
+		return model.Parent ~= nil
+	end
+	MeshArrival.run({
+		complete = function()
+			return meshesComplete(model)
+		end,
+		settle = function()
+			task.wait(0.25)
+		end,
+		preload = function()
+			local ok = pcall(function()
+				local failed = false
+				ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
+					if status ~= Enum.AssetFetchStatus.Success then
+						failed = true
+					end
+				end)
+				if failed then
+					error("asset failed")
+				end
+			end)
+			if ok then
+				-- Marked before the redraw so it draws meshes.
+				loaded[model] = true
+			end
+			return ok
+		end,
+		wait = function(seconds: number)
+			task.wait(seconds)
+		end,
+		alive = alive,
+		redraw = function()
+			redrawBoxes(model.Name)
+		end,
+		now = os.clock,
+	}, meshTiming.arriveSeconds, meshTiming.retrySeconds)
+	-- A mesh that still turns up later (past arriveSeconds) redraws the
+	-- species' creatures that are still boxes.
+	model.ChildAdded:Connect(function(child: Instance)
+		if child:IsA("MeshPart") and loaded[model] == true then
+			task.defer(redrawBoxes, model.Name)
+		end
+	end)
 end
 
 local function watchMeshFolder(folder: Instance)

@@ -260,6 +260,13 @@ return function(Schema: any, Odds: any)
 			cullOtherStuds = Schema.number({ min = 20, max = 1000 }),
 			animateOtherStuds = Schema.number({ min = 10, max = 500 }),
 		}),
+		creatureMeshes = Schema.record({
+			arriveSeconds = Schema.number({ min = 1, max = 120 }),
+			retrySeconds = Schema.array(
+				Schema.number({ min = 1, max = 600 }),
+				{ minLength = 1, maxLength = 10 }
+			),
+		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),
 		}),
@@ -375,6 +382,8 @@ return function(Schema: any, Odds: any)
 			warmCards = Schema.integer({ min = 24, max = 300 }),
 			warmPerFrame = Schema.integer({ min = 1, max = 20 }),
 			warmDelaySeconds = Schema.number({ min = 0, max = 2 }),
+			preloadStreams = Schema.integer({ min = 1, max = 8 }),
+			preloadBatch = Schema.integer({ min = 1, max = 30 }),
 		}),
 		guide = Schema.record({
 			arrivedStuds = Schema.number({ min = 2, max = 30 }),

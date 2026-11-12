@@ -194,12 +194,17 @@ return {
 	-- warmDelaySeconds after a tab is shown (0: at once), and built cards
 	-- are kept while the book is closed. Pictures can still take a moment
 	-- to draw on a fast flick: Roblox draws a ViewportFrame only while it
-	-- is on screen; static thumbnails will replace them.
+	-- is on screen, so a creature with a picture (CreatureThumbs) shows that
+	-- instead. The pictures load at join in page order, preloadStreams
+	-- requests at a time, preloadBatch pictures each (Studio gate, #125);
+	-- a tab the player opens jumps the queue.
 	book = {
 		overscanRows = 2,
 		warmCards = 144,
 		warmPerFrame = 8,
 		warmDelaySeconds = 0,
+		preloadStreams = 4,
+		preloadBatch = 6,
 	},
 	guide = {
 		arrivedStuds = 8,
@@ -236,6 +241,17 @@ return {
 		cullStuds = 180, -- your own tower's creatures farther than this are not drawn
 		cullOtherStuds = 100, -- other players' tower creatures: the neighbours either side (84 away)
 		animateOtherStuds = 60, -- other players' tower creatures hold still beyond this
+	},
+	-- A species' meshes reaching the client (shared/MeshArrival).
+	creatureMeshes = {
+		-- Wait at most this long for all of a species' meshes to replicate
+		-- before loading them (they trickle in after the model itself).
+		arriveSeconds = 30,
+		-- A failed load is tried again after each of these waits: a fresh
+		-- upload can fail for a few minutes while Roblox still generates its
+		-- texture (Studio gate, #137). About 8 minutes in all, then the
+		-- species stays voxel boxes.
+		retrySeconds = { 5, 15, 45, 120, 300 },
 	},
 	-- Creature meshes past this many studs from the camera draw their far
 	-- (LOD1) version: a few thousand triangles instead of up to 100,000.

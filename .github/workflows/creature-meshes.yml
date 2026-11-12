@@ -6,6 +6,11 @@ name: Upload creature meshes
 # assets.json and the regenerated CreatureMeshes.luau). Nothing reaches
 # players until that PR is verified and merged.
 #
+# With art = thumbs it renders each creature's Hatchery Book picture
+# instead (tools/art/blender/thumbs.py), uploads each as an Image asset and
+# opens the same kind of draft PR, recording the ids in assets.json and
+# CreatureThumbs.luau.
+#
 # With art = nature it does the same for the outdoor nature instead
 # (tools/art/env: trees, bushes, rocks, flowers, the skybox faces and the
 # grass tile) and commits the ids (tools/art/env/assets.json, env.json and
@@ -17,7 +22,7 @@ on:
       art:
         description: "What to upload"
         type: choice
-        options: [creatures, nature]
+        options: [creatures, thumbs, nature]
         default: creatures
       only:
         description: "Creatures to upload, comma separated (blank = all)"
@@ -101,6 +106,7 @@ jobs:
       ROBLOX_GROUP_ID: ${{ vars.ROBLOX_GROUP_ID }} # optional; otherwise looked up from the Staging universe
       ONLY: ${{ inputs.only }} # used as "$ONLY", never pasted into a script
       TEXTURES_ONLY: ${{ inputs.textures_only }}
+      ART: ${{ inputs.art }}
     steps:
       - uses: actions/checkout@v4
 
@@ -109,19 +115,21 @@ jobs:
           python-version: "3.13"
 
       - name: Blender (bpy from pip)
-        run: pip install --target="$RUNNER_TEMP/bpy" bpy==5.1.2
+        run: pip install --target="$RUNNER_TEMP/bpy" bpy==5.1.2 pillow
 
-      - name: Build the meshes
+      - name: Build the meshes (or the Book pictures)
         run: |
           args=()
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
-          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/blender/build.py "$RUNNER_TEMP/meshes" --no-render "${args[@]}"
+          if [ "$ART" = "thumbs" ]; then args+=(--thumbs); else args+=(--no-render); fi
+          PYTHONPATH="$RUNNER_TEMP/bpy" python3 tools/art/blender/build.py "$RUNNER_TEMP/meshes" "${args[@]}"
 
       - name: Upload to Roblox
         run: |
           args=()
           if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
           if [ "$TEXTURES_ONLY" = "true" ]; then args+=(--textures-only); fi
+          if [ "$ART" = "thumbs" ]; then args+=(--thumbs); fi
           python3 tools/art/blender/upload.py "$RUNNER_TEMP/meshes" "${args[@]}"
 
       - name: Record the asset ids
@@ -132,14 +140,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if git diff --quiet; then echo "No asset ids changed."; exit 0; fi
-          branch="creature-meshes/${{ github.run_id }}"
+          kind=meshes
+          if [ "$ART" = "thumbs" ]; then kind=thumbs; fi
+          branch="creature-$kind/${{ github.run_id }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
-          git add tools/art/blender/assets.json games/hatchery-heist/src/shared/CreatureMeshes.luau
-          git commit -m "Hatchery Heist: creature mesh asset ids (run ${{ github.run_id }})"
+          git add tools/art/blender/assets.json games/hatchery-heist/src/shared/CreatureMeshes.luau games/hatchery-heist/src/shared/CreatureThumbs.luau
+          git commit -m "Hatchery Heist: creature $kind asset ids (run ${{ github.run_id }})"
           git push -u origin "$branch"
           gh pr create --draft --base "${{ github.ref_name }}" --head "$branch" \
-            --title "Hatchery Heist: creature mesh asset ids" \
+            --title "Hatchery Heist: creature $kind asset ids" \
             --body "Asset ids from the Upload creature meshes run ${{ github.run_id }}. Needs the visual playtest before merge (ops/ASSETS.md)." \
             || echo "::notice::Pushed $branch; Actions may not open PRs in this repo, so open one from it by hand."
