@@ -467,11 +467,13 @@ def draw(c, H, col=None, col2=None, a=None):
     "remove": [x, y, z] voxels taken out first (a bow moved elsewhere). With "mirror": true each is
     also put at its twin across the middle (x -> -1 - x), so list one side
     and the middle. A part the creature does not have is printed and
-    skipped."""
-    if getattr(c, 'fine', False):
+    skipped. With "build": "fine" the voxels go into the Blender mesh's
+    build instead (a feature both builds need, placed per build, such as a
+    kiwi's eyes); that changes the mesh, so it needs a fresh upload."""
+    a = a or {}
+    if (a.get('build', 'coarse') == 'fine') != bool(getattr(c, 'fine', False)):
         return
     from voxkit import hexc
-    a = a or {}
     part = next((p for p in c.parts if p.name == a.get('part')), None)
     if part is None:
         print(f'draw: {c.species}: no part {a.get("part")!r}', file=sys.stderr)

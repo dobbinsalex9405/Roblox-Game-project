@@ -59,6 +59,13 @@ function Tower.multiplier(d: Data, floor: number, economy: any): number
 	return 1 + t.floorBonus * (floor - 2) + t.startBonus + t.upgradeBonus * Tower.upgrades(d, floor)
 end
 
+-- A built floor's name sign: "2. Book Nook  x1.25" (number, theme and its
+-- multiplier now).
+function Tower.plaqueText(d: Data, floor: number, economy: any): string
+	local m = Tower.multiplier(d, floor, economy)
+	return `{floor}. {economy.tower.themes[floor]}  x{string.format("%.2f", m)}`
+end
+
 -- The multiplier floor `floor` reaches with every upgrade.
 function Tower.fullMultiplier(floor: number, economy: any): number
 	if floor <= 1 then

@@ -9,8 +9,8 @@
 -- and must add up to exactly that (a power of ten, so the odds screen's
 -- percentages are exact and add up to 100%).
 -- Every creature in a tier gets the same whole weight, so every odds card in
--- a tier reads the same, and above an egg's likeliest creature a rarer
--- creature is always less likely: the tier weights are written by
+-- a tier reads the same, and from Rare up a rarer creature (and a rarer
+-- tier as a whole) is always less likely: the tier weights are written by
 -- tools/economy/even_eggs.py from its target odds and the pools' member
 -- counts. Rerun it whenever a pool changes (CI and Eggs.spec fail until you
 -- do). Hatchery's fixed order is lazy, so totals up to 10,000,000 are fine.
@@ -38,9 +38,9 @@ local eggs: { Egg } = {
 		total = 10000000,
 		pool = "All",
 		tiers = {
-			Common = 9193999, -- 91.94% (199 x 46,201)
-			Uncommon = 726142, -- 7.26142% (97 x 7,486)
-			Rare = 70020, -- 1 in 143 (60 x 1,167)
+			Common = 9203153, -- 92.0315% (199 x 46,247)
+			Uncommon = 717024, -- 7.17024% (97 x 7,392)
+			Rare = 69984, -- 1 in 143 (81 x 864)
 			["Ultra Rare"] = 9017, -- 1 in 1,109 (71 x 127)
 			Epic = 780, -- 1 in 12,821 (60 x 13)
 			Legendary = 22, -- 1 in 454,545 (2 x 11)
@@ -54,9 +54,9 @@ local eggs: { Egg } = {
 		total = 10000000,
 		pool = "All",
 		tiers = {
-			Common = 5806024, -- 58.0602% (199 x 29,176)
-			Uncommon = 3694342, -- 36.9434% (97 x 38,086)
-			Rare = 450000, -- 4.5% (60 x 7,500)
+			Common = 5796870, -- 57.9687% (199 x 29,130)
+			Uncommon = 3703460, -- 37.0346% (97 x 38,180)
+			Rare = 450036, -- 4.50036% (81 x 5,556)
 			["Ultra Rare"] = 45014, -- 1 in 222 (71 x 634)
 			Epic = 4500, -- 1 in 2,222 (60 x 75)
 			Legendary = 100, -- 1 in 100,000 (2 x 50)
@@ -71,9 +71,9 @@ local eggs: { Egg } = {
 		total = 10000000,
 		pool = "All",
 		tiers = {
-			Common = 199000, -- 1.99% (199 x 1,000)
-			Uncommon = 6461461, -- 64.6146% (97 x 66,613)
-			Rare = 3000000, -- 30% (60 x 50,000)
+			Common = 202980, -- 2.0298% (199 x 1,020)
+			Uncommon = 6457484, -- 64.5748% (97 x 66,572)
+			Rare = 2999997, -- 30% (81 x 37,037)
 			["Ultra Rare"] = 319997, -- 3.19997% (71 x 4,507)
 			Epic = 19020, -- 1 in 526 (60 x 317)
 			Legendary = 422, -- 1 in 23,697 (2 x 211)
@@ -87,8 +87,8 @@ local eggs: { Egg } = {
 		total = 1000000,
 		pool = "All",
 		tiers = {
-			Rare = 655440, -- 65.544% (60 x 10,924)
-			["Ultra Rare"] = 278036, -- 27.8036% (71 x 3,916)
+			Rare = 650754, -- 65.0754% (81 x 8,034)
+			["Ultra Rare"] = 282722, -- 28.2722% (71 x 3,982)
 			Epic = 64980, -- 6.498% (60 x 1,083)
 			Legendary = 1444, -- 1 in 693 (2 x 722)
 			Godly = 100, -- 1 in 10,000 (20 x 5)

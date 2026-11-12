@@ -7,6 +7,28 @@
   is Rare and up). From Rare up, each rarer creature is always less likely
   than each creature of the tier below, so a Legendary never shows better
   odds than an Epic. The Book names the best coin egg for each creature.
+- Fix: 199 creatures no longer have one part (a leg, the ears, a tail) sitting
+  slightly out of place. Their 3D models had gone up mid-step; they are
+  uploaded again at rest, and every upload is now checked for this first.
+- Fix: the ground floor has a name sign too ("1. Cozy Studio  x1.00"), like
+  every floor above it.
+- Fix: the "Floor N: price" sign for the next floor to buy shows again, in
+  coin gold right under your top floor's name sign, instead of hidden inside
+  the roof (and clear of the goal banner on a phone).
+- Fix: the floor name signs hang a little further out, so the ground floor's
+  door awning no longer cuts a word off when you look from the side.
+- Fix: the rebirth stand stands a little further from the tower, so its sign
+  ("Rebirth: 50M coins") is no longer cut off by the wall from the side.
+- Fix: every creature's 3D model is drawn facing the right way round. Each
+  piece was turned back to front inside its own spot, so faces showed on the
+  back of the head and legs poked out of the wrong places when they walked
+  (also in the Book and hatch pictures).
+- Fix: a creature no longer stays as blocks long after its 3D model has
+  loaded (seen with Quails 20 minutes into a session). A slow model load is
+  waited on for at most 20 seconds; if the model is all there it is drawn
+  anyway, otherwise the load is tried again.
+- Fix: the Orchid Mantis's petal legs match on both sides (the right
+  petals sat one voxel off the left ones), and the Kiwi has eyes.
 - Balance: the tower is a longer climb (floors 3 to 10 now cost 100K up
   to 475M), the Meadow Egg is cheaper (1,500 coins) and hatches in 30 s
   with better odds, the Moonlit Egg costs 20,000 with rarer Epics and

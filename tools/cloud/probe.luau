@@ -283,6 +283,87 @@ for _, t in texts do
 	measured += 1
 end
 
+local MISS_SEVERITY = "FAIL"
+
+-- 6. Creature meshes as Roblox imported them (Hatchery Heist): every
+-- species' meshes must land where CreatureMeshes lists them once the
+-- importer's turn is undone (shared/MeshImport), or its pieces and leg
+-- pivots are drawn in the wrong places (Alex, Nov 12: displaced legs,
+-- faces on the back of the head).
+do
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local shared = ReplicatedStorage:FindFirstChild("Shared")
+	local listModule = shared and shared:FindFirstChild("CreatureMeshes")
+	local importModule = shared and shared:FindFirstChild("MeshImport")
+	if listModule and importModule then
+		local CreatureMeshes = require(listModule)
+		local MeshImport = require(importModule)
+		local uploaded = 0
+		for _, entry in CreatureMeshes do
+			if entry.assetId > 0 and entry.textureId > 0 then
+				uploaded += 1
+			end
+		end
+		-- server/CreatureAssets loads them a few at a time in the background
+		local folder = ReplicatedStorage:WaitForChild("CreatureMeshes", 30)
+		local deadline = os.clock() + 180
+		local last, still = -1, 0
+		while folder and os.clock() < deadline do
+			local n = #folder:GetChildren()
+			if n >= uploaded then
+				break
+			end
+			still = if n == last then still + 1 else 0
+			last = n
+			if still >= 20 then
+				break -- nothing new for 20 s: the rest failed to load
+			end
+			task.wait(1)
+		end
+		local loaded, turns, misses = 0, {}, {}
+		for _, model in if folder then folder:GetChildren() else {} do
+			loaded += 1
+			local yaw = model:GetAttribute(MeshImport.ATTRIBUTE)
+			local miss = model:GetAttribute(MeshImport.FIT_ATTRIBUTE)
+			if type(yaw) ~= "number" or type(miss) ~= "number" then
+				add("FAIL", "engine.creature-import", `{model.Name}: no {MeshImport.ATTRIBUTE} measured`)
+			else
+				local key = `{math.round(math.deg(yaw))} degrees`
+				turns[key] = (turns[key] or 0) + 1
+				if miss > MeshImport.TOLERANCE then
+					table.insert(misses, `{model.Name} ({math.floor(miss * 1000 + 0.5) / 1000} studs)`)
+				end
+			end
+		end
+		if #misses > 0 then
+			table.sort(misses)
+			-- every upload since the at-rest export lands exactly
+			-- (tools/art/blender/fbx_check.py); a miss is a stale or posed one
+			add(
+				MISS_SEVERITY,
+				"engine.creature-import",
+				`{#misses} species' meshes do not land where CreatureMeshes lists them, so their legs and parts would be drawn out of place: {table.concat(
+					misses,
+					", "
+				)}`
+			)
+		end
+		local spread = {}
+		for key, n in turns do
+			table.insert(spread, `{n} turned {key}`)
+		end
+		table.sort(spread)
+		add(
+			"NOTE",
+			"engine.creature-import",
+			`{loaded} of {uploaded} uploaded species loaded; importer turn: {table.concat(spread, ", ")}`
+		)
+		if loaded < uploaded then
+			add("WARN", "engine.creature-import", `{uploaded - loaded} uploaded species did not load in time`)
+		end
+	end
+end
+
 local counts = { FAIL = 0, WARN = 0, NOTE = 0 }
 for _, f in findings do
 	counts[f.severity] = (counts[f.severity] or 0) + 1

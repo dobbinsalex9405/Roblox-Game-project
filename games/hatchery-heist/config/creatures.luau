@@ -407,7 +407,7 @@ return {
 		WolverineKit = { rarity = "Uncommon", coinsPerSecond = 6, mountSpeed = 20, pools = { "All" } },
 		YakCalf = { rarity = "Uncommon", coinsPerSecond = 10, mountSpeed = 20, pools = { "All" } },
 		ZebraPiglet = { rarity = "Uncommon", coinsPerSecond = 4, mountSpeed = 20, pools = { "All" } },
-		-- Rare: 55 from the roster
+		-- Rare: 76 from the roster
 		AmethystMole = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "All" } },
 		Angelfish = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "All" } },
 		AshBadger = {
@@ -490,6 +490,7 @@ return {
 		HoneypotAnt = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "All" } },
 		Hornbill = { rarity = "Rare", coinsPerSecond = 19, mountSpeed = 22, pools = { "All" } },
 		Hummingbird = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "All" } },
+		Kiwi = { rarity = "Rare", coinsPerSecond = 18, mountSpeed = 22, pools = { "All" } },
 		Koi = { rarity = "Rare", coinsPerSecond = 24, mountSpeed = 22, pools = { "All" } },
 		Lampwick = {
 			rarity = "Rare",
@@ -528,7 +529,45 @@ return {
 		MuskOxCalf = { rarity = "Rare", coinsPerSecond = 28, mountSpeed = 22, pools = { "All" } },
 		Narwhal = { rarity = "Rare", coinsPerSecond = 25, mountSpeed = 22, pools = { "All" } },
 		OkapiCalf = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "All" } },
+		OrchidMantis = { rarity = "Rare", coinsPerSecond = 16, mountSpeed = 22, pools = { "All" } },
 		Owlcat = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "All" } },
+		PancakeFrog = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "All" } },
+		Peachick = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "All" } },
+		PetalBunny = {
+			rarity = "Rare",
+			coinsPerSecond = 19,
+			mountSpeed = 22,
+			pools = { "All" },
+			element = "Nature",
+		},
+		PolarBearCub = { rarity = "Rare", coinsPerSecond = 35, mountSpeed = 22, pools = { "All" } },
+		PomPom = { rarity = "Rare", coinsPerSecond = 20, mountSpeed = 22, pools = { "All" } },
+		PteroChick = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "All" } },
+		Rabbeetle = { rarity = "Rare", coinsPerSecond = 20, mountSpeed = 22, pools = { "All" } },
+		RainSnail = {
+			rarity = "Rare",
+			coinsPerSecond = 29,
+			mountSpeed = 22,
+			pools = { "All" },
+			element = "Storm",
+		},
+		RaptorChick = { rarity = "Rare", coinsPerSecond = 23, mountSpeed = 22, pools = { "All" } },
+		ReindeerCalf = { rarity = "Rare", coinsPerSecond = 31, mountSpeed = 22, pools = { "All" } },
+		RexHatchling = { rarity = "Rare", coinsPerSecond = 33, mountSpeed = 22, pools = { "All" } },
+		RhinoCalf = { rarity = "Rare", coinsPerSecond = 22, mountSpeed = 22, pools = { "All" } },
+		RoboPup = { rarity = "Rare", coinsPerSecond = 24, mountSpeed = 22, pools = { "All" } },
+		SandCat = { rarity = "Rare", coinsPerSecond = 21, mountSpeed = 22, pools = { "All" } },
+		Scorpion = { rarity = "Rare", coinsPerSecond = 27, mountSpeed = 22, pools = { "All" } },
+		SeaOtter = { rarity = "Rare", coinsPerSecond = 33, mountSpeed = 22, pools = { "All" } },
+		SharkPup = { rarity = "Rare", coinsPerSecond = 26, mountSpeed = 22, pools = { "All" } },
+		Slugcorn = { rarity = "Rare", coinsPerSecond = 30, mountSpeed = 22, pools = { "All" } },
+		SnowLamb = {
+			rarity = "Rare",
+			coinsPerSecond = 18,
+			mountSpeed = 22,
+			pools = { "All" },
+			element = "Glacial",
+		},
 		-- Ultra Rare: 67 from the roster
 		AmberAnt = {
 			rarity = "Ultra Rare",

@@ -266,6 +266,7 @@ return function(Schema: any, Odds: any)
 				Schema.number({ min = 1, max = 600 }),
 				{ minLength = 1, maxLength = 10 }
 			),
+			preloadSeconds = Schema.number({ min = 1, max = 120 }),
 		}),
 		creatureLod = Schema.record({
 			farStuds = Schema.number({ min = 10, max = 200 }),
