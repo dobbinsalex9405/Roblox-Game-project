@@ -3187,14 +3187,14 @@
    "version": "1"
   },
   "Snowpuff": {
-   "assetId": 81975495663140,
-   "textureId": 71779471180776,
+   "assetId": 103907890241844,
+   "textureId": 89398183130468,
    "textureType": "Image",
    "version": "1"
   },
   "Socktopus": {
-   "assetId": 72377829803355,
-   "textureId": 107772956923644,
+   "assetId": 99212173078535,
+   "textureId": 121173722660145,
    "textureType": "Image",
    "version": "1"
   },
@@ -3205,8 +3205,8 @@
    "version": "1"
   },
   "Sparkplug": {
-   "assetId": 79357831751804,
-   "textureId": 131813066622270,
+   "assetId": 82781445000264,
+   "textureId": 106311194875935,
    "textureType": "Image",
    "version": "1"
   },
@@ -3217,8 +3217,8 @@
    "version": "1"
   },
   "Tarantula": {
-   "assetId": 121721344059699,
-   "textureId": 92129890237248,
+   "assetId": 122601187177443,
+   "textureId": 113136162081564,
    "textureType": "Image",
    "version": "1"
   },
@@ -3235,14 +3235,14 @@
    "version": "1"
   },
   "Toucan": {
-   "assetId": 83223195323726,
-   "textureId": 74388924783432,
+   "assetId": 128433656520211,
+   "textureId": 113761473031354,
    "textureType": "Image",
    "version": "1"
   },
   "ToxicToad": {
-   "assetId": 95780416696116,
-   "textureId": 137590123758565,
+   "assetId": 94807468269912,
+   "textureId": 123996389926909,
    "textureType": "Image",
    "version": "1"
   },
@@ -3259,8 +3259,8 @@
    "version": "1"
   },
   "VampireBat": {
-   "assetId": 132588817150478,
-   "textureId": 118178002725970,
+   "assetId": 117396502346389,
+   "textureId": 124680021248362,
    "textureType": "Image",
    "version": "1"
   },
@@ -3291,6 +3291,30 @@
   "ZebraFoal": {
    "assetId": 127717577074709,
    "textureId": 72765496525907,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FrostBadger": {
+   "assetId": 128217782731332,
+   "textureId": 134505102013394,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "FrostPuffin": {
+   "assetId": 100648669685644,
+   "textureId": 112571279393839,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "IceDragonfly": {
+   "assetId": 116508406892861,
+   "textureId": 81485027720987,
+   "textureType": "Image",
+   "version": "1"
+  },
+  "VineMonkey": {
+   "assetId": 119603235426607,
+   "textureId": 113667673392907,
    "textureType": "Image",
    "version": "1"
   }
