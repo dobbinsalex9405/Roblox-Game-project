@@ -1,0 +1,27 @@
+PR #168 @ 80c7e399f6d8, local Staging build, Studio play-solo, LogService:GetLogHistory() at end of check (1)
+
+Client: 418 lines, all MessageWarning, all "ContentId: rbxassetid://... failed due to:
+No asset content representation found while do_not_fallback_to_baseline is set to true."
+(engine asset-fetch noise, also present in earlier gates). 0 lines matching
+"CreatureView: redrawing", 0 MessageError.
+
+Server: 343 lines (333 warning, 5 output, 5 info). Everything that is not ContentId,
+[Economy] or AnalyticsService:
+  MessageOutput: [profilestore]: Roblox API services unavailable - data will not be saved
+  MessageWarning: [Stores] DataStores unavailable; nothing will be saved to this store err=You must publish this place to the web to access DataStore. store=ErrorQueue
+  MessageWarning: [Stores] DataStores unavailable; nothing will be saved to this store err=You must publish this place to the web to access DataStore. store=Feedback
+  MessageOutput: [TestPanel] Studio test panel is on
+  MessageOutput: [CoreServer] core started build=80c7e399f6d8 game=hatchery-heist studio=true
+0 MessageError.
+
+Swap poll (client, 1 s samples, t = seconds after the last give; m = MeshParts, b = other BaseParts incl. invisible joint roots):
+t=8.8  Lobster:0m/31b Dachshund:0m/32b Llama:0m/37b Meerkat:0m/28b
+t=13.9 Lobster:0m/31b Dachshund:0m/32b Llama:0m/37b Meerkat:0m/28b
+t=19.0 Lobster:0m/31b Dachshund:9m/9b  Llama:0m/37b Meerkat:0m/28b
+t=24.1 Lobster:0m/31b Dachshund:9m/9b  Llama:0m/37b Meerkat:0m/28b
+t=29.3 Lobster:0m/31b Dachshund:9m/9b  Llama:0m/37b Meerkat:0m/28b
+t=34.3 Lobster:10m/10b Dachshund:9m/9b Llama:9m/9b  Meerkat:7m/7b
+t=49.6 Lobster:10m/10b Dachshund:9m/9b Llama:9m/9b  Meerkat:7m/7b
+CreatureMeshes: 47 at give, 509 at t=50.
+Dachshund meshed at 18.0, Lobster 33.3, Llama 33.3, Meerkat 34.3. MeshCount = children for all four (9, 10, 9, 7).
+Second Llama (Pad5): first drawn 0.37 s after give with 9 MeshParts, 0 visible boxes.
