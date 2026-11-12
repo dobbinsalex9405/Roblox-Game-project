@@ -1,0 +1,42 @@
+PR #175 @ 1cf7fad10393, local Staging build, one Studio play-solo session (about 38 min). LogService at the end.
+
+Client: 257 lines, all MessageWarning. 0 MessageError. 0 lines containing "CreatureView".
+Non-ContentId lines:
+  [Roblox][sabuiltin_Assistant...toolInit] Assistant plugin version changed from 5fbaca9 to ebac66e ... (Studio)
+  6 x [Roblox][sabuiltin_Assistant...ExecuteLuauActions] The execute_luau changed camera type. Resetting from Enum.CameraType...
+    (the Studio MCP tool itself: after two screen_capture calls with a camera position timed out, every later tool call
+     reset CameraType to Scriptable; the game has no "Scriptable" anywhere in games/ or packages/)
+  The rest: "ContentId: rbxassetid://... failed due to: No asset content representation found ..." engine fetch notices.
+
+Server: Warning 216, Output 56, Info 63, 0 MessageError. Besides ContentId / [Economy] / AnalyticsService:
+  [profilestore]: Roblox API services unavailable - data will not be saved
+  [Stores] DataStores unavailable ... store=ErrorQueue
+  [Stores] DataStores unavailable ... store=Feedback
+  [TestPanel] Studio test panel is on
+  [CoreServer] core started build=1cf7fad10393 game=hatchery-heist studio=true
+  Assistant plugin version changed ... (Studio)
+
+Method for row 1: "freed" = after the window opened, a mouse move to (120,600) moved UserInputService:GetMouseLocation() there
+(120,658 with the 58 px top inset); "re-locked" = after closing, the same move left it at the centre (675,336);
+"moves" = W or S held 0.6-1 s moved the HumanoidRootPart 7.5 to 16 studs.
+
+Row 1 raw lines (first person, LockFirstPerson, zoom 0.5):
+Book      X: freed, closed, relocked, moved 15.9 | Esc: closed (Roblox menu opened; 2nd Esc closed it) | outside (150,400): closed | B: closed
+Tower     X: freed closed relocked moved=12.7 | Esc: closed menuOpened | outside: closed | B: closed
+Pets      X: freed closed relocked moved=12.8 | Esc: closed menuOpened | outside: closed | B: closed
+Daily     X: freed closed relocked moved=12.8 | Esc: closed menuOpened | outside: closed | B: closed
+Guide     Let's go!: freed closed relocked moved=12.8 | Esc: closed menuOpened | outside: closed | B: closed
+Shop      X: freed closed relocked moved=12.7 | Esc: closed menuOpened | outside: closed | B: closed
+Feedback  X: freed closed relocked moved=12.8 | Esc: closed menuOpened | outside: closed | B: closed (re-run; the first B sample missed the open frames)
+Elevator  (opened with E at the Floor1 elevator, first person) X: freed closed relocked moved=9.6 | Esc: closed menuOpened | outside: closed | B: closed
+Odds list X: freed closed relocked moved=10.1 | Esc: closed menuOpened | outside (150,300): closed | B: closed
+Hatch reveal (Basic egg hatched with E, first person) tap: freed, closed, relocked, moved=9.7 | Esc: opens Roblox menu, reveal stays | B: reveal stays | closes by itself within ~10 s
+Music: a mute toggle (🎵/🔇), no window.
+Post-respawn: Feedback in first person X: freed closed relocked moved=11.7
+
+Row 3 front fade (TowerShell1 parts with base-local z < -2.5, LocalTransparencyModifier > 0.5):
+inside storey 1, camera out front: storey1 128/137, storey2 74/81, storey3 0/76
+inside storey 2: storey1 0/137, storey2 74/81, storey3 74/76
+inside storey 3 (top): storey3 74/76 only
+outside after leaving: 0 faded on every storey
+door: MoveTo (103,y,0)->(122,y,0) reached in, (121,y,0)->(103,y,0) reached out.
