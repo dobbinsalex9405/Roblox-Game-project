@@ -360,6 +360,45 @@ do
 	end
 end
 
+-- 7. (diagnostic, to be removed) two species that miss.
+do
+	local RS = game:GetService("ReplicatedStorage")
+	local CM = require(RS.Shared.CreatureMeshes)
+	local InsertService = game:GetService("InsertService")
+	local function r(n)
+		return math.floor(n * 1000 + 0.5) / 1000
+	end
+	for _, id in { "Bunny", "Ant" } do
+		local entry = CM[id]
+		local ok, loaded = pcall(function()
+			return InsertService:LoadAsset(entry.assetId)
+		end)
+		if ok then
+			local found = {}
+			for _, d in loaded:GetDescendants() do
+				if d:IsA("MeshPart") then
+					found[d.Name] = d
+				end
+			end
+			for _, part in entry.parts do
+				for _, m in part.meshes do
+					local mp = found[m.name]
+					if mp then
+						local p, z = mp.Position, mp.Size
+						add(
+							"NOTE",
+							"diag.miss",
+							`{m.name} listed ({m.center[1]},{m.center[2]},{m.center[3]}) size ({m.size[1]},{m.size[2]},{m.size[3]}) landed ({r(p.X)},{r(p.Y)},{r(p.Z)}) size ({r(z.X)},{r(z.Y)},{r(z.Z)}) look ({r(mp.CFrame.LookVector.X)},{r(mp.CFrame.LookVector.Z)})`
+						)
+					else
+						add("NOTE", "diag.miss", `{m.name} missing`)
+					end
+				end
+			end
+		end
+	end
+end
+
 local counts = { FAIL = 0, WARN = 0, NOTE = 0 }
 for _, f in findings do
 	counts[f.severity] = (counts[f.severity] or 0) + 1
