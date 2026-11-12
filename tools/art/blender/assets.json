@@ -5516,6 +5516,22 @@
   "ZebraFoal": {
    "imageId": 102415996033855,
    "source": "2f6a384949bdf5de"
+  },
+  "FrostBadger": {
+   "imageId": 113262888552086,
+   "source": "d3715f6759fd7bfc"
+  },
+  "FrostPuffin": {
+   "imageId": 105220999444195,
+   "source": "f2e7828ecd698802"
+  },
+  "IceDragonfly": {
+   "imageId": 102758187037276,
+   "source": "8d2939d588bb683a"
+  },
+  "VineMonkey": {
+   "imageId": 94048589969277,
+   "source": "853f8c8328c08dba"
   }
  }
 }
