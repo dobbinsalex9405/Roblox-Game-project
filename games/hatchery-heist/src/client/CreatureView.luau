@@ -45,7 +45,11 @@ local GameConfig = ReplicatedStorage.GameConfig
 local atmosphere = require(GameConfig.atmosphere) :: any
 local wander = atmosphere.wander :: Walk.Config
 local FAR_STUDS = atmosphere.creatureLod.farStuds :: number
-local meshTiming = atmosphere.creatureMeshes :: { arriveSeconds: number, retrySeconds: { number } }
+local meshTiming = atmosphere.creatureMeshes :: {
+	arriveSeconds: number,
+	retrySeconds: { number },
+	preloadSeconds: number,
+}
 local LOD_SLACK = 2 -- studs either side of FAR_STUDS, so it doesn't flicker
 local slotsByRarity = (require(GameConfig.economy) :: any).tower.slotsByRarity :: { [string]: number }
 
@@ -868,8 +872,9 @@ local function meshesComplete(model: Instance): boolean
 end
 
 -- Meshes for a species just arrived: wait for all of them, load their
--- geometry and texture (trying again if that fails), then redraw the
--- species' creatures with them (shared/MeshArrival).
+-- geometry and texture (trying again if that fails, drawing anyway if the
+-- load is only slow), then redraw the species' creatures with them
+-- (shared/MeshArrival).
 local function meshesArrived(model: Instance)
 	if loaded[model] ~= nil then
 		return
@@ -885,21 +890,38 @@ local function meshesArrived(model: Instance)
 		settle = function()
 			task.wait(0.25)
 		end,
-		preload = function()
-			local ok = pcall(function()
-				local failed = false
-				ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
-					if status ~= Enum.AssetFetchStatus.Success then
-						failed = true
+		preload = function(limit: number): boolean?
+			-- PreloadAsync can stay pending for minutes behind other
+			-- species' loads (#178), so it runs on its own and is waited on
+			-- for at most `limit` seconds.
+			local done, ok = false, false
+			local gaveUp = false
+			task.spawn(function()
+				ok = pcall(function()
+					local failed = false
+					ContentProvider:PreloadAsync({ model }, function(_: string, status: Enum.AssetFetchStatus)
+						if status ~= Enum.AssetFetchStatus.Success then
+							failed = true
+						end
+					end)
+					if failed then
+						error("asset failed")
 					end
 				end)
-				if failed then
-					error("asset failed")
+				done = true
+				-- A load given up on that finishes after all: draw with it.
+				if gaveUp and ok and loaded[model] ~= true and alive() then
+					loaded[model] = true
+					redrawBoxes(model.Name)
 				end
 			end)
-			if ok then
-				-- Marked before the redraw so it draws meshes.
-				loaded[model] = true
+			local start = os.clock()
+			while not done and os.clock() - start < limit do
+				task.wait(0.25)
+			end
+			if not done then
+				gaveUp = true
+				return nil
 			end
 			return ok
 		end,
@@ -908,10 +930,12 @@ local function meshesArrived(model: Instance)
 		end,
 		alive = alive,
 		redraw = function()
+			-- Marked before the redraw so it draws meshes.
+			loaded[model] = true
 			redrawBoxes(model.Name)
 		end,
 		now = os.clock,
-	}, meshTiming.arriveSeconds, meshTiming.retrySeconds)
+	}, meshTiming.arriveSeconds, meshTiming.retrySeconds, meshTiming.preloadSeconds)
 	-- A mesh that still turns up later (past arriveSeconds) redraws the
 	-- species' creatures that are still boxes.
 	model.ChildAdded:Connect(function(child: Instance)

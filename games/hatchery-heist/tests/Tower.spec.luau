@@ -60,7 +60,7 @@ describe("Tower floors", function()
 		end
 	end)
 
-	it("sells floors in order at 3 times the one below, and four upgrades each", function()
+	it("sells floors in order, each dearer than the one below, and four upgrades each", function()
 		local d = fresh()
 		d.coins = 10 ^ 12
 		local prices = {}
@@ -68,21 +68,24 @@ describe("Tower floors", function()
 			table.insert(prices, Tower.nextFloorPrice(d, economy))
 			expect((Tower.buyFloor(d, ledger(d), economy))).toBe(true)
 		end
-		expect(prices[1]).toBe(25000)
-		expect(prices[9]).toBe(165000000)
+		expect(prices[1]).toBe(20000)
+		expect(prices[9]).toBe(475000000)
+		-- Steep early, gentler late (economy proposal, Nov 7; retuned Nov 12): never less
+		-- than x2.5 nor more than x6 the floor below.
 		for i = 2, 9 do
-			expect(prices[i] / prices[i - 1]).toBeCloseTo(3, 0.1)
+			expect(prices[i] / prices[i - 1]).toBeAtLeast(2.5)
+			expect(prices[i] / prices[i - 1]).toBeAtMost(6)
 		end
 		expect(Tower.owned(d)).toBe(10)
 		expect(Tower.nextFloorPrice(d, economy)).toBeNil()
 		expect((Tower.buyFloor(d, ledger(d), economy))).toBe(false)
-		-- Floor 2's upgrades: 20, 35, 50 and 75% of 25,000.
+		-- Floor 2's upgrades: 20, 35, 50 and 75% of 20,000.
 		local upgrades = {}
 		for _ = 1, 4 do
 			table.insert(upgrades, Tower.nextUpgradePrice(d, 2, economy))
 			expect((Tower.upgradeFloor(d, ledger(d), 2, economy))).toBe(true)
 		end
-		expect(upgrades).toEqual({ 5000, 8750, 12500, 18750 })
+		expect(upgrades).toEqual({ 4000, 7000, 10000, 15000 })
 		expect((Tower.upgradeFloor(d, ledger(d), 2, economy))).toBe(false)
 		expect((Tower.upgradeFloor(d, ledger(d), 1, economy))).toBe(false)
 		-- Saved as a list with no gaps.
@@ -129,12 +132,12 @@ describe("Tower floors", function()
 		end
 		d.coins = 1000
 		local before = Tower.menuKey(d, economy)
-		d.coins = 4999 -- still short of the cheapest upgrade (floor 2: 5,000)
+		d.coins = 3999 -- still short of the cheapest upgrade (floor 2: 4,000)
 		expect(Tower.menuKey(d, economy)).toBe(before)
-		d.coins = 5000 -- floor 2's Upgrade turns green
+		d.coins = 4000 -- floor 2's Upgrade turns green
 		expect(Tower.menuKey(d, economy) ~= before).toBe(true)
 		local green = Tower.menuKey(d, economy)
-		d.coins = 9000
+		d.coins = 6000
 		expect(Tower.menuKey(d, economy)).toBe(green)
 		-- buying changes it too
 		Tower.upgradeFloor(d, ledger(d), 2, economy)
@@ -143,11 +146,11 @@ describe("Tower floors", function()
 
 	it("refuses a floor the player cannot afford and leaves coins alone", function()
 		local d = fresh()
-		d.coins = 24999
+		d.coins = 19999
 		local ok, why = Tower.buyFloor(d, ledger(d), economy)
 		expect(ok).toBe(false)
 		expect(why).toBe("Not enough coins.")
-		expect(d.coins).toBe(24999)
+		expect(d.coins).toBe(19999)
 		expect(Tower.owned(d)).toBe(1)
 	end)
 end)

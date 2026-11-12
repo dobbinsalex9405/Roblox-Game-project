@@ -27,6 +27,28 @@ Non-obvious choices, newest first, so a later session can trust them.
 - The real-engine probe reports any species whose meshes miss their listed
   centres by over 0.01 studs after the turn (WARN on #171, FAIL from #181).
 
+## 2026-11-12: Never auto-sell (verifier ruling Nov 12 09:40Z, Alex silent)
+
+- Alex (Staging playtest): "if a creature is hatched with no open slots, they
+  disappear". A hatch into a full tower went to the inventory silently, and
+  when the inventory (150) was full the weakest stored creature was sold,
+  usually the one just hatched. The first fix (protect only the new hatch)
+  failed the verifier's gate: ten hatches at 150/150 lost six of the ten.
+- Ruling (verifier, 09:40Z; Alex did not answer the auto-sell question within the hour, so the safer default stands): no auto-sell at all. `trimStorage` is
+  gone; the inventory holds `economy.storage.slots` = 300; when no pad fits a
+  hatch and the inventory is full, Hatchery.hatch refuses with "Your tower and
+  inventory are full (300). Make room in your inventory, then hatch" and the
+  egg stays ready in its incubator. A coin egg is refused at purchase when
+  every pad is full and the inventory plus eggs already incubating reach the
+  cap ("Unlock a new floor to make room"); Robux eggs cannot be refused, so
+  they wait in the incubator the same way. Raided and granted creatures always
+  arrive (the inventory may go past 300), since refusing would drop a
+  creature already taken from its owner. A hatch that lands in the inventory
+  says so.
+- Creatures already auto-sold were removed from the save when sold, so there
+  is nothing a migration could restore. A manual Sell button comes with the
+  inventory/merger PR.
+
 ## 2026-11-12: Towers get a front wall; it fades only while it hides you
 
 - The open front was a deliberate dollhouse cutaway (tower.py: corner
@@ -79,6 +101,37 @@ Non-obvious choices, newest first, so a later session can trust them.
   The viewer's glbs pick it up on their next build. No game CHANGELOG line:
   players see no change, and a games/ file would ask for a visual playtest
   of a game that did not change.
+
+## 2026-11-12: Hatchery Heist pacing retuned with a simulator (config only)
+
+- **What:** `tools/economy` simulates players (casual, regular, grinder,
+  charms, Heist Island, payer) on the real config and game code
+  (`ops/ECONOMY.md`). Before this, a regular player (an hour a day) owned
+  all ten tower floors by day 7 and a grinder by day 3. Income then stopped
+  rising, because only floors cost enough to matter. The Meadow Egg was
+  skipped entirely (6x cheaper than Moonlit for 22x worse Rare odds).
+  Rebirth cost 120K, less than floor 3, while wiping every creature.
+  Alex approved the economy changes on Nov 12.
+- **Changed:** floor prices 20K, 100K, 500K, 2M, 8M, 25M, 75M, 190M, 475M
+  (were x3 up to 165M; first drafted Nov 7 at 25K..750M, cut Nov 12 for
+  the 509-creature roster); rebirth 50M, x4 each time (was 120K, x3);
+  Meadow Egg 1,500 coins and 30 s with better odds; Moonlit Egg 20,000
+  coins with Rare-and-up odds lowered (Epic about 1 in 526, Legendary
+  1 in 11,000, each Godly 1 in 2,000,000); Basic Egg UR and Epic odds
+  lowered; Epic income 190-260 and Legendary 450-700 so each tier earns
+  more per floor spot than the one below (an Epic takes 2 spots, a
+  Legendary 3).
+- **How the odds are written:** the tier chances are `TARGETS` in
+  `tools/economy/even_eggs.py`, which writes the weights (even per
+  creature, totals 1M / 1M / 10M). Its solver now spreads the leftover
+  points over up to three tiers, because the Moonlit counts (every tier
+  even but Legendary's) had no split with two.
+- **Result (509 creatures, 40 runs, regular player):** first Rare about
+  10 min, first Epic day 2, first Legendary by day 14 for 40%, floor 10
+  about day 13 for 88% (grinder day 5). Payers with Double Coins and
+  Extra Incubators are about 1.4x faster, not 5x.
+- **Not done here:** new eggs that unlock with the tower, so income keeps
+  rising after the tower is full; the Robux list (approved, its own PR).
 
 ## 2026-11-09: CI runs as three parallel jobs behind the required check
 
