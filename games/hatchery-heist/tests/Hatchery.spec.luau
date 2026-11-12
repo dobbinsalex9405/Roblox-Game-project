@@ -140,7 +140,13 @@ describe("Hatchery", function()
 		expect(Hatchery.padsFull(d, config.creatures, economy)).toBe(false)
 	end)
 
-	it("sells the weakest creature in the inventory when it overflows", function()
+	-- Staging playtest, Nov 12: "if a creature is hatched with no open
+	-- slots, they disappear". With the tower full a hatch goes to the
+	-- inventory; when the inventory then overflowed, the weakest stored
+	-- creature was sold, and that was usually the one just hatched, so it
+	-- vanished the moment it came out of the egg. The new creature is never
+	-- the one sold: the weakest of the creatures already waiting is.
+	it("never sells the creature that just hatched when the inventory overflows", function()
 		local d = fresh()
 		local tiny = Util.deepCopy(economy)
 		tiny.storage.slots = 1
@@ -157,10 +163,48 @@ describe("Hatchery", function()
 		)
 		local chick, _, sold = Hatchery.hatch(d, ledger(d), 1, 0, config.creatures, tiny)
 		expect(chick and chick.slot).toBeNil()
+		local kept = false
+		for _, c in d.creatures do
+			if chick and c.uid == chick.uid then
+				kept = true
+			end
+		end
+		expect(kept).toBe(true)
 		expect(#sold).toBe(1)
-		expect(sold[1].speciesId).toBe("Chick")
-		expect(d.coins).toBe(config.creatures.species.Chick.coinsPerSecond * tiny.storage.sellSeconds)
+		expect(sold[1].uid).toBe("9") -- the older stored Turtle went instead
+		expect(d.coins).toBe(config.creatures.species.Turtle.coinsPerSecond * tiny.storage.sellSeconds)
 		expect(#d.creatures).toBe(9)
+	end)
+
+	it("keeps every hatch when several eggs hatch into a full tower", function()
+		local d = fresh()
+		d.creatures = {}
+		for i = 1, 8 do
+			table.insert(d.creatures, creature(tostring(i), "Owlet", i))
+		end
+		d.nextUid = 9
+		for slot = 1, 3 do
+			table.insert(
+				d.incubators,
+				{ slot = slot, eggId = "BasicEgg", startedAt = 0, readyAt = 0, outcome = "Chick" }
+			)
+		end
+		local tiny = Util.deepCopy(economy)
+		tiny.storage.slots = 2 -- the last of the three overflows the inventory
+		local hatched = {}
+		for slot = 1, 3 do
+			local c = Hatchery.hatch(d, ledger(d), slot, 0, config.creatures, tiny)
+			expect(c ~= nil).toBe(true)
+			table.insert(hatched, c)
+		end
+		local have: { [string]: boolean } = {}
+		for _, c in d.creatures do
+			have[c.uid] = true
+		end
+		-- The last hatch is always there; it pushed out an older Chick.
+		expect(have[hatched[3].uid]).toBe(true)
+		expect(#d.creatures).toBe(8 + 2)
+		expect(#d.incubators).toBe(0)
 	end)
 
 	it("the fixed order gives each outcome exactly as often as its odds", function()

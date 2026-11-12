@@ -489,8 +489,10 @@ function Hatchery.sellValue(creature: any, creatureConfig: any, economy: any): n
 end
 
 -- Keeps storage within its size: while it is over, the weakest stored creature
--- is sold for coins. Returns the creatures sold.
-local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy: any): { any }
+-- is sold for coins. Returns the creatures sold. `keep` (the creature that
+-- just arrived) is never the one sold: a hatch that vanished on the spot read
+-- as a lost creature (Staging playtest, Nov 12).
+local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy: any, keep: string): { any }
 	local sold = {}
 	while true do
 		local stored = 0
@@ -501,6 +503,7 @@ local function trimStorage(d: Data, ledger: Ledger, creatureConfig: any, economy
 				if
 					c.uid ~= d.mountUid
 					and c.uid ~= d.guardUid
+					and c.uid ~= keep
 					and (
 						weakestIndex == nil
 						or Hatchery.creatureIncome(c, creatureConfig)
@@ -554,7 +557,7 @@ function Hatchery.hatch(
 	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, now)
-	local sold = trimStorage(d, ledger, creatureConfig, economy)
+	local sold = trimStorage(d, ledger, creatureConfig, economy, creature.uid)
 	return creature, nil, sold
 end
 
@@ -594,7 +597,7 @@ function Hatchery.receive(
 	Tower.autoPlace(d, creature, creatureConfig, economy)
 	table.insert(d.creatures, creature)
 	Hatchery.noteFound(d, creature.speciesId, creature.hatchedAt)
-	return creature, trimStorage(d, ledger, creatureConfig, economy)
+	return creature, trimStorage(d, ledger, creatureConfig, economy, creature.uid)
 end
 
 function Hatchery.nextSlotCost(d: Data, economy: any): number?

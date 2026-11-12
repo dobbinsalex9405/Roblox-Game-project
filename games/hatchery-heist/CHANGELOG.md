@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fix: a creature that hatches while your tower is full no longer seems to
+  vanish. It goes to your inventory, a message says so ("Open Creatures to
+  place it"), and it is never the one sold when the inventory overflows (the
+  weakest creature already waiting there is sold instead, as before).
 - Fix: creatures that were on screen before their 3D models finished loading
   (everything in your tower when you join) swap from blocks to their models
   once those load, instead of staying blocks all session. A model that fails

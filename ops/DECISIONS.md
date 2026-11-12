@@ -2,6 +2,21 @@
 
 Non-obvious choices, newest first, so a later session can trust them.
 
+## 2026-11-12: A fresh hatch is never auto-sold; overflow keeps selling the weakest older one
+
+- Alex (Staging playtest): "if a creature is hatched with no open slots, they
+  disappear". A hatch into a full tower already went to the inventory (data
+  kept), but silently, and when the inventory (150) was full the weakest
+  stored creature was sold, usually the one just hatched.
+- Now the new creature is never the one sold (Hatchery trimStorage `keep`),
+  and the player is told where it went. Overflow still sells the weakest
+  older stored creature for coins (the existing valve, with its notice):
+  there is no manual sell yet, so refusing hatches at 150 would leave a
+  player stuck with full incubators. Creatures already auto-sold were removed
+  from the save when sold, so there is nothing a migration could restore;
+  those sold while the inventory was below 150 never existed (nothing was
+  lost there, only unannounced).
+
 ## 2026-11-12: the viewer's blink closes the eyes about their own middle
 
 - Alex saw creatures' eyes move off their faces when they blink. The game

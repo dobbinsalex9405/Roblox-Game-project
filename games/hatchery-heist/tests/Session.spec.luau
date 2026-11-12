@@ -130,6 +130,58 @@ describe("Hatchery Heist sessions", function()
 		end
 	end)
 
+	-- Staging playtest, Nov 12: a hatch into a full tower went to the
+	-- inventory without a word, so it looked as if it had disappeared.
+	it("says where a hatch went when the tower is full, and keeps it", function()
+		local h = Harness.new()
+		local player = Fakes.player(10)
+		h.join(player)
+		h.data:update(player, function(d: Hatchery.Data)
+			d.creatures = {}
+			for i = 1, Tower.SPOTS do
+				table.insert(d.creatures, {
+					uid = tostring(i),
+					speciesId = "Chick",
+					mutation = "None",
+					slot = i,
+					eggId = "BasicEgg",
+					hatchedAt = 0,
+				})
+			end
+			d.nextUid = 100
+			d.incubators = {}
+			for slot = 1, 3 do
+				table.insert(
+					d.incubators,
+					{ slot = slot, eggId = "BasicEgg", readyAt = 0, outcome = "Duckling" }
+				)
+			end
+		end)
+		for slot = 1, 3 do
+			assert(h.actions:hatch(player, slot))
+		end
+		local d = h.get(player)
+		expect(#d.creatures).toBe(Tower.SPOTS + 3)
+		local waiting = 0
+		for _, c in d.creatures do
+			if c.slot == nil then
+				waiting += 1
+				expect(c.speciesId).toBe("Duckling")
+			end
+		end
+		expect(waiting).toBe(3)
+		local said = {}
+		for _, n in h.noticesFor do
+			if n.player == player and string.find(n.text, "inventory", 1, true) then
+				table.insert(said, n.text)
+			end
+		end
+		expect(said[1]).toBe(
+			"Your tower is full: Duckling went to your inventory. Open Creatures to place it."
+		)
+		expect(#said).toBe(3)
+	end)
+
 	it("reports storage auto-sales at most every 20 seconds, summed", function()
 		local h = Harness.new()
 		local player = Fakes.player(9)
